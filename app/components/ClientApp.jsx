@@ -13,7 +13,10 @@ export default function ClientApp({ initialPlayers, initialTournaments, initialM
   const [tab, setTab] = useState('dashboard');
   const [toast, setToast] = useState(null);
 
-  const players = initialPlayers || [];
+  let players = initialPlayers || [];
+  if (session?.type === 'player' && session.player && !players.find(p => p.id === session.playerId)) {
+    players = [...players, session.player];
+  }
   const tournaments = initialTournaments || [];
   const matches = initialMatches || [];
   const notifications = initialNotifications || [];
@@ -33,7 +36,7 @@ export default function ClientApp({ initialPlayers, initialTournaments, initialM
       <AuthGate 
         players={players} 
         showToast={showToast}
-        onPlayerLogin={(p) => { setSession({ type: 'player', playerId: p.id }); setTab('dashboard'); }}
+        onPlayerLogin={(p) => { setSession({ type: 'player', playerId: p.id, player: p }); setTab('dashboard'); }}
         onAdminLogin={() => { setSession({ type: 'admin' }); setTab('admin'); }}
       />
     );

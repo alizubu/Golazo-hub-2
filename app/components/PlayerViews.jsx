@@ -185,7 +185,7 @@ function PlayerDashboard({ me, activeTournament, matches, players, announcements
       {/* Row 1: Welcome Header */}
       <FadeIn delay={0.1}>
         <div className="px-1">
-          <h1 className="text-2xl font-bold font-display">Welcome Back, {me.name.split(' ')[0]} 👋</h1>
+          <h1 className="text-2xl font-bold font-display">Welcome Back, {me.name?.split(' ')[0] || 'Player'} 👋</h1>
           <p className="text-sm text-muted-foreground">{t.name} • Friends eLeague</p>
         </div>
       </FadeIn>
@@ -285,7 +285,7 @@ function PlayerDashboard({ me, activeTournament, matches, players, announcements
               {nextMatch ? (
                 <div className="flex flex-col items-center bg-secondary/50 rounded-2xl p-6 border border-border/50 shadow-inner">
                   <div className="text-xs uppercase tracking-widest text-muted-foreground font-semibold mb-4 text-center">
-                    Week {nextMatch.matchday || 1} • {new Date(nextMatch.scheduledAt || Date.now()).toLocaleDateString(undefined, { weekday: 'short', hour: 'numeric', minute: '2-digit'})}
+                    Week {nextMatch.matchday || 1} • {nextMatch.scheduledAt ? new Date(nextMatch.scheduledAt).toLocaleDateString(undefined, { weekday: 'short', hour: 'numeric', minute: '2-digit'}) : 'TBD'}
                   </div>
                   <div className="flex items-center justify-center gap-6 w-full">
                     <div className="flex flex-col items-center gap-2 flex-1">
