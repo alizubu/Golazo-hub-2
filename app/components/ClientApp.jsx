@@ -71,7 +71,7 @@ export default function ClientApp({ initialPlayers, initialTournaments, initialM
         )}
       </AnimatePresence>
       
-      <TopBar session={session} me={me} onLogout={() => { setSession(null); setTab('dashboard'); }} />
+      <TopBar session={session} me={me} setTab={setTab} onLogout={() => { setSession(null); setTab('dashboard'); }} />
       
       <div className="max-w-5xl mx-auto px-4 pt-6">
         <div className="flex gap-2 overflow-x-auto pb-4 hide-scrollbar snap-x snap-mandatory">

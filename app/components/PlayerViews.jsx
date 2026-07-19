@@ -98,25 +98,77 @@ function MatchCard({ m, players }) {
   );
 }
 
-function PlayerDashboard({ me, activeTournament, matches, players, announcements = [] }) {
+function CircularProgress({ value, color = "var(--pitch-bright)", label }) {
+  const radius = 28;
+  const circumference = 2 * Math.PI * radius;
+  const strokeDashoffset = circumference - (value / 100) * circumference;
+
+  return (
+    <div className="flex flex-col items-center justify-center gap-2">
+      <div className="relative flex items-center justify-center w-20 h-20">
+        <svg className="w-full h-full transform -rotate-90">
+          <circle cx="40" cy="40" r={radius} fill="transparent" stroke="currentColor" strokeWidth="6" className="text-muted/20" />
+          <motion.circle 
+            cx="40" cy="40" r={radius} 
+            fill="transparent" 
+            stroke={color} 
+            strokeWidth="6"
+            strokeLinecap="round"
+            initial={{ strokeDashoffset: circumference }}
+            animate={{ strokeDashoffset }}
+            transition={{ duration: 1.5, ease: "easeOut" }}
+            style={{ strokeDasharray: circumference }}
+          />
+        </svg>
+        <div className="absolute font-mono font-bold text-lg">{value}%</div>
+      </div>
+      <div className="text-[10px] uppercase tracking-widest text-muted-foreground font-semibold">{label}</div>
+    </div>
+  );
+}
+
+function PlayerDashboard({ me, activeTournament, matches, players, announcements = [], trophies = [], notifications = [], setTab }) {
   const t = activeTournament;
   const tMatches = t ? matches.filter((m) => m.tournamentId === t.id) : [];
   const standings = t ? computeStandings(tMatches, players, t.id) : [];
   const myRank = standings.findIndex((s) => s.id === me.id) + 1;
   const myRow = standings.find((s) => s.id === me.id);
-  const live = tMatches.filter((m) => m.status === "live");
-  const myLive = live.filter((m) => m.homeId === me.id || m.awayId === me.id);
-  const upcoming = tMatches.filter((m) => m.status === "scheduled" && (m.homeId === me.id || m.awayId === me.id)).slice(0, 3);
+  
+  const myMatches = tMatches.filter((m) => (m.homeId === me.id || m.awayId === me.id) && m.status === 'completed');
+  const myLive = tMatches.filter((m) => m.status === "live" && (m.homeId === me.id || m.awayId === me.id));
+  const upcoming = tMatches.filter((m) => m.status === "scheduled" && (m.homeId === me.id || m.awayId === me.id)).slice(0, 1);
+  const nextMatch = upcoming[0];
+  
+  const recent = [...myMatches].sort((a,b) => new Date(b.completedAt || 0) - new Date(a.completedAt || 0)).slice(0, 5);
+  
+  const getMatchResult = (m) => {
+    if (!m) return null;
+    const isHome = m.homeId === me.id;
+    const myScore = isHome ? m.homeScore : m.awayScore;
+    const oppScore = isHome ? m.awayScore : m.homeScore;
+    if (myScore > oppScore) return 'W';
+    if (myScore < oppScore) return 'L';
+    return 'D';
+  };
+  const getOpponent = (m) => {
+    const oppId = m.homeId === me.id ? m.awayId : m.homeId;
+    return players.find(p => p.id === oppId);
+  };
 
-  if (!t) return <FadeIn delay={0.1}><Card className="p-8 text-center"><Trophy className="mx-auto mb-4 text-muted-foreground" size={40} /><div className="text-2xl font-bold font-display">No active tournament</div></Card></FadeIn>;
+  const form = recent.map(getMatchResult).reverse();
+  const winRate = myRow && myRow.played > 0 ? Math.round((myRow.won / myRow.played) * 100) : 0;
+  const myTrophies = trophies.filter(tr => tr.playerId === me.id);
+  const elo = 1200 + ((myRow?.pts || 0) * 15);
+
+  if (!t) return <FadeIn delay={0.1}><Card className="p-8 text-center bg-card/50 backdrop-blur"><Trophy className="mx-auto mb-4 text-muted-foreground" size={40} /><div className="text-2xl font-bold font-display">No active tournament</div></Card></FadeIn>;
 
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex flex-col gap-6 pb-10">
       {announcements.length > 0 && (
         <FadeIn delay={0.05}>
           <div className="flex flex-col gap-3">
             {announcements.map((ann, i) => (
-              <MagicCard key={ann.id} className="p-4 bg-secondary/80 border-pitch/50 border-l-4 border-l-pitch">
+              <MagicCard key={ann.id} className="p-4 bg-secondary/80 border-pitch/50 border-l-4 border-l-pitch backdrop-blur-sm">
                 <div className="flex gap-3">
                   <Megaphone className="text-pitch-bright shrink-0" size={20} />
                   <div>
@@ -130,36 +182,224 @@ function PlayerDashboard({ me, activeTournament, matches, players, announcements
         </FadeIn>
       )}
 
+      {/* Row 1: Welcome Header */}
       <FadeIn delay={0.1}>
-        <MagicCard className="p-8 flex flex-col items-center text-center gap-4 bg-gradient-to-br from-card to-secondary">
-          <Avatar p={me} size={88} ring="var(--pitch)" glow />
-          <div>
-            <div className="text-2xl font-bold font-display tracking-wide">{me.name} {me.flag}</div>
-            <div className="text-sm text-muted-foreground mt-1">{me.teamLogo} {me.teamName}</div>
-          </div>
-          <div className="flex items-center gap-8 mt-2">
-            <div className="text-center">
-              <NumberTicker value={myRank || 0} className="text-3xl font-bold font-mono text-gold" />
-              <div className="text-[11px] uppercase tracking-wider text-muted-foreground mt-1">Position</div>
-            </div>
-            <div className="text-center">
-              <NumberTicker value={myRow?.pts ?? 0} className="text-3xl font-bold font-mono text-pitch-bright" />
-              <div className="text-[11px] uppercase tracking-wider text-muted-foreground mt-1">Points</div>
-            </div>
-          </div>
-        </MagicCard>
+        <div className="px-1">
+          <h1 className="text-2xl font-bold font-display">Welcome Back, {me.name.split(' ')[0]} 👋</h1>
+          <p className="text-sm text-muted-foreground">{t.name} • Friends eLeague</p>
+        </div>
       </FadeIn>
 
-      {myLive.map((m, i) => <FadeIn key={m.id} delay={0.2 + i*0.1}><LiveScoreboard m={m} players={players} /></FadeIn>)}
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <FadeIn delay={0.3}>
-          <Card className="p-5 bg-card/50 backdrop-blur">
-            <SectionTitle icon={Clock}>Upcoming Fixtures</SectionTitle>
-            <div className="flex flex-col gap-3">
-              {upcoming.length ? upcoming.map((m) => <MatchCard key={m.id} m={m} players={players} />) : <div className="text-sm py-6 text-center text-muted-foreground">No fixtures scheduled.</div>}
+      <div className="grid grid-cols-12 gap-4 md:gap-6">
+        {/* Row 2: Hero Profile & Stats Cards */}
+        <FadeIn delay={0.15} className="col-span-12 md:col-span-4 h-full">
+          <MagicCard className="h-full p-6 flex flex-col justify-between bg-gradient-to-br from-card/80 to-secondary/80 backdrop-blur-md">
+            <div className="flex items-start gap-4">
+              <Avatar p={me} size={64} ring="var(--gold)" />
+              <div>
+                <div className="font-display font-bold text-xl">{me.name}</div>
+                <Badge color="var(--gold)" bg="rgba(255, 215, 0, 0.1)">Rank #{myRank || '-'}</Badge>
+              </div>
             </div>
-          </Card>
+            
+            <div className="mt-6 flex flex-col gap-3">
+              <div className="flex justify-between items-center border-b border-border/50 pb-2">
+                <span className="text-sm text-muted-foreground">ELO Rating</span>
+                <span className="font-mono font-bold text-gold">{elo}</span>
+              </div>
+              <div className="flex justify-between items-center border-b border-border/50 pb-2">
+                <span className="text-sm text-muted-foreground">Current Form</span>
+                <div className="flex gap-1">
+                  {form.length > 0 ? form.map((r, i) => (
+                    <div key={i} className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold text-white ${r === 'W' ? 'bg-green-500' : r === 'L' ? 'bg-red-500' : 'bg-yellow-500'}`}>{r}</div>
+                  )) : <span className="text-xs text-muted-foreground">-</span>}
+                </div>
+              </div>
+              <div className="flex justify-between items-center pb-2">
+                <span className="text-sm text-muted-foreground">Season Record</span>
+                <span className="font-mono font-bold">{myRow?.won || 0}W {myRow?.drawn || 0}D {myRow?.lost || 0}L</span>
+              </div>
+            </div>
+            
+            <Btn variant="ghost" className="w-full mt-4 text-xs" onClick={() => setTab('profile')}>Edit Profile</Btn>
+          </MagicCard>
+        </FadeIn>
+
+        <div className="col-span-12 md:col-span-8 grid grid-cols-2 md:grid-cols-4 gap-4 h-full">
+          <FadeIn delay={0.2} className="h-full"><MagicCard className="h-full p-4 flex flex-col items-center justify-center gap-2 bg-card/50 backdrop-blur"><div className="text-[10px] uppercase tracking-widest text-muted-foreground font-semibold">Rank</div><NumberTicker value={myRank || 0} className="text-4xl font-bold font-mono text-gold" /><div className="text-xl">🏆</div></MagicCard></FadeIn>
+          <FadeIn delay={0.25} className="h-full"><MagicCard className="h-full p-4 flex flex-col items-center justify-center gap-2 bg-card/50 backdrop-blur"><div className="text-[10px] uppercase tracking-widest text-muted-foreground font-semibold">Goals</div><NumberTicker value={myRow?.gf || 0} className="text-4xl font-bold font-mono text-foreground" /><div className="text-xl">⚽</div></MagicCard></FadeIn>
+          <FadeIn delay={0.3} className="h-full"><MagicCard className="h-full p-4 flex flex-col items-center justify-center gap-2 bg-card/50 backdrop-blur"><CircularProgress value={winRate} label="Win Rate" /></MagicCard></FadeIn>
+          <FadeIn delay={0.35} className="h-full"><MagicCard className="h-full p-4 flex flex-col items-center justify-center gap-2 bg-card/50 backdrop-blur"><div className="text-[10px] uppercase tracking-widest text-muted-foreground font-semibold">Trophies</div><NumberTicker value={myTrophies.length} className="text-4xl font-bold font-mono text-foreground" /><div className="text-xl">🎖️</div></MagicCard></FadeIn>
+        </div>
+
+        {/* Live Matches */}
+        {myLive.map((m, i) => (
+          <FadeIn key={m.id} delay={0.4} className="col-span-12">
+            <LiveScoreboard m={m} players={players} />
+          </FadeIn>
+        ))}
+
+        {/* Row 3: League Table & Upcoming */}
+        <FadeIn delay={0.4} className="col-span-12 md:col-span-7 h-full">
+          <MagicCard className="h-full p-5 bg-card/50 backdrop-blur overflow-hidden flex flex-col">
+            <SectionTitle icon={ListOrdered}>League Standings</SectionTitle>
+            <div className="overflow-x-auto mt-2 flex-1">
+              <table className="w-full text-sm text-left">
+                <thead>
+                  <tr className="text-muted-foreground text-[10px] uppercase tracking-wider border-b border-border/50">
+                    <th className="pb-2 font-semibold w-8">#</th>
+                    <th className="pb-2 font-semibold">Player</th>
+                    <th className="pb-2 text-center font-semibold">P</th>
+                    <th className="pb-2 text-center font-semibold">W</th>
+                    <th className="pb-2 text-center font-semibold">L</th>
+                    <th className="pb-2 text-center font-semibold">GF</th>
+                    <th className="pb-2 text-center font-semibold">GA</th>
+                    <th className="pb-2 text-center font-semibold text-pitch-bright">Pts</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {standings.slice(0, 5).map((s, i) => (
+                    <tr key={s.id} className={`border-b border-border/30 last:border-0 ${s.id === me.id ? 'bg-white/5' : ''}`}>
+                      <td className="py-2.5 font-bold font-mono">
+                        {i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : <span className="text-muted-foreground ml-1">{i + 1}</span>}
+                      </td>
+                      <td className="py-2.5"><PlayerChip p={s} size={20} /></td>
+                      <td className="py-2.5 text-center text-muted-foreground">{s.played}</td>
+                      <td className="py-2.5 text-center text-muted-foreground">{s.won}</td>
+                      <td className="py-2.5 text-center text-muted-foreground">{s.lost}</td>
+                      <td className="py-2.5 text-center text-muted-foreground">{s.gf}</td>
+                      <td className="py-2.5 text-center text-muted-foreground">{s.ga}</td>
+                      <td className="py-2.5 text-center font-bold text-pitch-bright">{s.pts}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </MagicCard>
+        </FadeIn>
+
+        <FadeIn delay={0.45} className="col-span-12 md:col-span-5 h-full">
+          <MagicCard className="h-full p-6 flex flex-col bg-card/50 backdrop-blur">
+            <SectionTitle icon={Calendar}>Upcoming Fixture</SectionTitle>
+            <div className="flex-1 flex flex-col justify-center">
+              {nextMatch ? (
+                <div className="flex flex-col items-center bg-secondary/50 rounded-2xl p-6 border border-border/50 shadow-inner">
+                  <div className="text-xs uppercase tracking-widest text-muted-foreground font-semibold mb-4 text-center">
+                    Week {nextMatch.matchday || 1} • {new Date(nextMatch.scheduledAt || Date.now()).toLocaleDateString(undefined, { weekday: 'short', hour: 'numeric', minute: '2-digit'})}
+                  </div>
+                  <div className="flex items-center justify-center gap-6 w-full">
+                    <div className="flex flex-col items-center gap-2 flex-1">
+                      <Avatar p={players.find(p => p.id === nextMatch.homeId)} size={56} />
+                      <span className="font-bold text-sm truncate w-full text-center">{players.find(p => p.id === nextMatch.homeId)?.name}</span>
+                    </div>
+                    <div className="font-mono text-xl text-muted-foreground font-bold">VS</div>
+                    <div className="flex flex-col items-center gap-2 flex-1">
+                      <Avatar p={players.find(p => p.id === nextMatch.awayId)} size={56} />
+                      <span className="font-bold text-sm truncate w-full text-center">{players.find(p => p.id === nextMatch.awayId)?.name}</span>
+                    </div>
+                  </div>
+                  <Btn variant="primary" className="mt-6 w-full text-xs" onClick={() => setTab('matches')}>View All Fixtures</Btn>
+                </div>
+              ) : (
+                <div className="flex flex-col items-center justify-center py-8 text-center">
+                  <span className="text-4xl mb-4 opacity-50">🎉</span>
+                  <div className="font-semibold text-foreground">No upcoming fixtures.</div>
+                  <div className="text-sm text-muted-foreground mt-1">Enjoy your break!</div>
+                </div>
+              )}
+            </div>
+          </MagicCard>
+        </FadeIn>
+
+        {/* Row 4: Recent Matches & Progress */}
+        <FadeIn delay={0.5} className="col-span-12 md:col-span-6 h-full">
+          <MagicCard className="h-full p-5 bg-card/50 backdrop-blur flex flex-col">
+            <SectionTitle icon={Clock}>Last Five Matches</SectionTitle>
+            <div className="flex flex-col gap-2 flex-1 justify-center">
+              {recent.length > 0 ? recent.map((m, i) => {
+                const res = getMatchResult(m);
+                const opp = getOpponent(m);
+                const isHome = m.homeId === me.id;
+                const myScore = isHome ? m.homeScore : m.awayScore;
+                const oppScore = isHome ? m.awayScore : m.homeScore;
+                return (
+                  <div key={m.id} className="flex items-center gap-3 p-3 rounded-xl bg-secondary/30 border border-border/30">
+                    <div className={`shrink-0 w-6 h-6 rounded-md flex items-center justify-center text-xs font-bold text-white ${res === 'W' ? 'bg-green-500' : res === 'L' ? 'bg-red-500' : 'bg-yellow-500'}`}>
+                      {res === 'W' ? '✅' : res === 'L' ? '❌' : '➖'}
+                    </div>
+                    <div className="text-sm font-semibold flex-1 flex items-center gap-1">
+                      {res === 'W' ? 'Won' : res === 'L' ? 'Lost' : 'Draw'} 
+                      <span className="font-mono text-muted-foreground ml-1">{myScore}–{oppScore}</span> 
+                      <span className="text-muted-foreground mx-1">vs</span> 
+                      <span className="truncate max-w-[100px]">{opp?.name}</span>
+                    </div>
+                  </div>
+                );
+              }) : (
+                <EmptyState text="No completed matches yet." />
+              )}
+            </div>
+          </MagicCard>
+        </FadeIn>
+
+        <FadeIn delay={0.55} className="col-span-12 md:col-span-6 h-full">
+          <MagicCard className="h-full p-5 bg-card/50 backdrop-blur flex flex-col">
+            <SectionTitle icon={Calendar}>Season Progress</SectionTitle>
+            <div className="flex-1 flex flex-col items-center justify-center py-4">
+              <CircularProgress 
+                value={myRow ? Math.round((myRow.played / (players.length * 2 - 2)) * 100) || 0 : 0} 
+                label="Matches Played" 
+                color="var(--gold)"
+              />
+              <div className="text-sm mt-6 text-center text-muted-foreground">
+                <span className="font-bold text-foreground">{myRow?.played || 0}</span> out of <span className="font-bold text-foreground">{players.length * 2 - 2}</span> matches completed
+              </div>
+            </div>
+          </MagicCard>
+        </FadeIn>
+
+        {/* Row 5: Trophy Cabinet & Notifications */}
+        <FadeIn delay={0.6} className="col-span-12 md:col-span-7 h-full">
+          <MagicCard className="h-full p-5 bg-card/50 backdrop-blur flex flex-col">
+            <SectionTitle icon={Trophy}>Trophy Cabinet</SectionTitle>
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 flex-1 content-start">
+              {myTrophies.slice(0, 4).map((t) => (
+                <div key={t.id} className="flex flex-col items-center p-3 rounded-xl bg-gold/10 border border-gold/20 text-center">
+                  <span className="text-3xl mb-1">{t.icon || "🏆"}</span>
+                  <span className="text-xs font-bold leading-tight">{t.title}</span>
+                </div>
+              ))}
+              {myTrophies.length > 4 && (
+                <div className="flex flex-col items-center justify-center p-3 rounded-xl bg-secondary/50 border border-border/50 text-center cursor-pointer hover:bg-secondary transition-colors" onClick={() => setTab('profile')}>
+                  <span className="text-xl font-bold text-muted-foreground mb-1">+{myTrophies.length - 4}</span>
+                  <span className="text-xs font-semibold text-muted-foreground">More</span>
+                </div>
+              )}
+              {myTrophies.length === 0 && (
+                <div className="col-span-full py-6"><EmptyState text="No trophies earned yet." /></div>
+              )}
+            </div>
+          </MagicCard>
+        </FadeIn>
+
+        <FadeIn delay={0.65} className="col-span-12 md:col-span-5 h-full">
+          <MagicCard className="h-full p-5 bg-card/50 backdrop-blur flex flex-col">
+            <SectionTitle icon={Bell}>Notifications</SectionTitle>
+            <div className="flex flex-col gap-3 flex-1 overflow-y-auto pr-1">
+              {notifications.slice(0, 5).map((n) => (
+                <div key={n.id} className="flex items-start gap-3 p-3 rounded-xl bg-secondary/30 border border-border/30">
+                  <div className={`mt-1 shrink-0 w-2 h-2 rounded-full ${n.type === 'tournament' ? 'bg-gold' : n.type === 'fixtures' ? 'bg-pitch-bright' : 'bg-claret'}`} />
+                  <div>
+                    <div className="text-xs font-medium">{n.text}</div>
+                    <div className="text-[9px] mt-0.5 text-muted-foreground font-mono">{new Date(n.createdAt).toLocaleString(undefined, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</div>
+                  </div>
+                </div>
+              ))}
+              {notifications.length === 0 && (
+                <div className="py-6"><EmptyState text="No recent notifications." /></div>
+              )}
+            </div>
+          </MagicCard>
         </FadeIn>
       </div>
     </div>
