@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { Trophy, Calendar, Users, Radio, Clock, Check, Archive, Plus, Trash2, Settings, Swords } from 'lucide-react';
-import { Card, Btn, Input, Label, SectionTitle, EmptyState, MagicCard, FadeIn, ShinyButton } from './UI';
+import { Card, Btn, Input, Label, SectionTitle, EmptyState, MagicCard, FadeIn, ShinyButton, Badge } from './UI';
 import { startTournament, deleteTournament, renameTournament } from '@/app/actions/tournament';
 import { generateFixtures } from '@/app/actions/match';
 
