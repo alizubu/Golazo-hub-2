@@ -102,7 +102,11 @@ export async function updatePlayerProfile(id, data) {
         avatar: data.avatar,
         avatarImage: data.avatarImage,
         flag: data.flag,
-        teamLogo: data.teamLogo
+        teamLogo: data.teamLogo,
+        bio: data.bio,
+        nationality: data.nationality,
+        favoriteClub: data.favoriteClub,
+        favoriteCompetition: data.favoriteCompetition,
       }
     });
     const { passwordHash: _ph, salt: _s, ...safePlayer } = player;
@@ -126,5 +130,47 @@ export async function changePlayerPassword(id, password) {
     return { success: true };
   } catch (error) {
     return { error: 'Failed to update password.' };
+  }
+}
+
+export async function adminDeletePlayer(id) {
+  try {
+    await prisma.player.delete({ where: { id } });
+    return { success: true };
+  } catch (error) {
+    return { error: 'Failed to delete player.' };
+  }
+}
+
+export async function adminUpdatePlayer(id, data) {
+  try {
+    const updateData = {
+      name: data.name,
+      username: data.username,
+      email: data.email,
+      teamName: data.teamName,
+      avatar: data.avatar,
+      flag: data.flag,
+      teamLogo: data.teamLogo,
+      bio: data.bio,
+      nationality: data.nationality,
+      favoriteClub: data.favoriteClub,
+      favoriteCompetition: data.favoriteCompetition,
+    };
+
+    if (data.password && data.password.length >= 4) {
+      updateData.salt = crypto.randomBytes(16).toString('hex');
+      updateData.passwordHash = sha256(updateData.salt + ':' + data.password);
+    }
+
+    const player = await prisma.player.update({
+      where: { id },
+      data: updateData
+    });
+
+    const { passwordHash: _ph, salt: _s, ...safePlayer } = player;
+    return { player: safePlayer };
+  } catch (error) {
+    return { error: 'Failed to update player.' };
   }
 }

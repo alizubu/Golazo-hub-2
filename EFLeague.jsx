@@ -450,10 +450,8 @@ function LiveScoreboard({ m, players, compact }) {
   );
 }
 
-function PenaltyStrip({ penalties }) {
-  const home = penalties.kicks.filter((k) => k.team === "home");
-  const away = penalties.kicks.filter((k) => k.team === "away");
-  const Row = ({ kicks }) => (
+function PenaltyRow({ kicks }) {
+  return (
     <div className="flex gap-1.5 justify-center">
       {kicks.map((k, i) => (
         <span key={i} className="kick-in w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold"
@@ -463,9 +461,16 @@ function PenaltyStrip({ penalties }) {
       ))}
     </div>
   );
+}
+
+function PenaltyStrip({ penalties }) {
+  const home = penalties.kicks.filter((k) => k.team === "home");
+  const away = penalties.kicks.filter((k) => k.team === "away");
+
   return (
     <div className="mt-3 pt-3 space-y-1.5" style={{ borderTop: `1px solid ${C.border}` }}>
-      <Row kicks={home} /><Row kicks={away} />
+      <PenaltyRow kicks={home} />
+      <PenaltyRow kicks={away} />
     </div>
   );
 }

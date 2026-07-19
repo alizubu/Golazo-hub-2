@@ -8,7 +8,7 @@ import AdminConsole from './AdminConsole';
 import { Home, ListOrdered, Calendar, Swords, Users, Archive, Bell, UserCircle2, Settings, Trophy } from 'lucide-react';
 import { AnimatePresence, motion } from 'framer-motion';
 
-export default function ClientApp({ initialPlayers, initialTournaments, initialMatches, initialNotifications, adminConfig }) {
+export default function ClientApp({ initialPlayers, initialTournaments, initialMatches, initialNotifications, initialAnnouncements, initialTrophies, adminConfig }) {
   const [session, setSession] = useState(null);
   const [tab, setTab] = useState('dashboard');
   const [toast, setToast] = useState(null);
@@ -17,6 +17,8 @@ export default function ClientApp({ initialPlayers, initialTournaments, initialM
   const tournaments = initialTournaments || [];
   const matches = initialMatches || [];
   const notifications = initialNotifications || [];
+  const announcements = initialAnnouncements || [];
+  const trophies = initialTrophies || [];
 
   const showToast = (msg) => {
     setToast(msg);
@@ -38,7 +40,7 @@ export default function ClientApp({ initialPlayers, initialTournaments, initialM
   }
 
   const me = session.type === 'player' ? players.find((p) => p.id === session.playerId) : null;
-  const ctx = { players, tournaments, matches, notifications, activeTournament, history, showToast };
+  const ctx = { players, tournaments, matches, notifications, announcements, trophies, activeTournament, history, showToast };
 
   const playerTabs = [
     { id: "dashboard", label: "Dashboard", icon: Home }, { id: "standings", label: "Standings", icon: ListOrdered },
@@ -49,7 +51,8 @@ export default function ClientApp({ initialPlayers, initialTournaments, initialM
   const adminTabs = [
     { id: "admin", label: "Overview", icon: Home }, { id: "admin-players", label: "Players", icon: Users },
     { id: "admin-tournament", label: "Tournament", icon: Trophy }, { id: "admin-matches", label: "Matches", icon: Calendar },
-    { id: "admin-playoffs", label: "Playoffs", icon: Swords }
+    { id: "admin-playoffs", label: "Playoffs", icon: Swords }, { id: "admin-trophies", label: "Trophies", icon: Trophy },
+    { id: "admin-announcements", label: "Announcements", icon: Bell }
   ];
   const items = session.type === "admin" ? adminTabs : playerTabs;
 

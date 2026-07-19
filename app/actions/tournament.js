@@ -95,9 +95,32 @@ export async function updateTournamentHistory(id, data) {
       }
     });
     revalidatePath('/');
-    revalidatePath('/admin');
     return { success: true };
   } catch (error) {
     return { error: 'Failed to update tournament history' };
+  }
+}
+
+export async function completeTournament(id, data) {
+  try {
+    const t = await prisma.tournament.update({
+      where: { id },
+      data: {
+        status: 'completed',
+        completedAt: new Date(),
+        championId: data.championId || null,
+        runnerUpId: data.runnerUpId || null,
+        thirdId: data.thirdId || null,
+      }
+    });
+    
+    await prisma.notification.create({
+      data: { text: `Tournament completed! Champion: ${data.championName || 'Unknown'}`, type: 'tournament' }
+    });
+    
+    revalidatePath('/');
+    return { success: true };
+  } catch (error) {
+    return { error: 'Failed to complete tournament' };
   }
 }

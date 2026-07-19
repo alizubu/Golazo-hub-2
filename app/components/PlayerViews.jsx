@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { Trophy, Clock, ListOrdered, Calendar, Swords, Camera, KeyRound } from 'lucide-react';
+import { Trophy, Clock, ListOrdered, Calendar, Swords, Camera, KeyRound, Megaphone } from 'lucide-react';
 import { Btn, Input, Label, Badge, Avatar, PlayerChip, SectionTitle, EmptyState, MagicCard, FadeIn, ShinyButton, Card } from './UI';
 import { NumberTicker } from './ui/number-ticker';
 import { updatePlayerProfile, changePlayerPassword } from '@/app/actions/player';
@@ -33,8 +33,8 @@ function computeStandings(matches, players, tournamentId) {
       h.played++; a.played++;
       h.gf += m.homeScore || 0; h.ga += m.awayScore || 0;
       a.gf += m.awayScore || 0; a.ga += m.homeScore || 0;
-      if (m.homeScore > m.awayScore) { h.won++; a.lost++; h.pts += 3; }
-      else if (m.homeScore < m.awayScore) { a.won++; h.lost++; a.pts += 3; }
+      if (m.homeScore > m.awayScore) { h.won++; a.lost++; h.pts += 2; }
+      else if (m.homeScore < m.awayScore) { a.won++; h.lost++; a.pts += 2; }
       else { h.drawn++; a.drawn++; h.pts += 1; a.pts += 1; }
     });
   Object.values(table).forEach((t) => (t.gd = t.gf - t.ga));
@@ -98,7 +98,7 @@ function MatchCard({ m, players }) {
   );
 }
 
-function PlayerDashboard({ me, activeTournament, matches, players }) {
+function PlayerDashboard({ me, activeTournament, matches, players, announcements = [] }) {
   const t = activeTournament;
   const tMatches = t ? matches.filter((m) => m.tournamentId === t.id) : [];
   const standings = t ? computeStandings(tMatches, players, t.id) : [];
@@ -112,6 +112,24 @@ function PlayerDashboard({ me, activeTournament, matches, players }) {
 
   return (
     <div className="flex flex-col gap-6">
+      {announcements.length > 0 && (
+        <FadeIn delay={0.05}>
+          <div className="flex flex-col gap-3">
+            {announcements.map((ann, i) => (
+              <MagicCard key={ann.id} className="p-4 bg-secondary/80 border-pitch/50 border-l-4 border-l-pitch">
+                <div className="flex gap-3">
+                  <Megaphone className="text-pitch-bright shrink-0" size={20} />
+                  <div>
+                    <div className="font-bold text-sm">{ann.title}</div>
+                    <div className="text-sm text-muted-foreground mt-1">{ann.content}</div>
+                  </div>
+                </div>
+              </MagicCard>
+            ))}
+          </div>
+        </FadeIn>
+      )}
+
       <FadeIn delay={0.1}>
         <MagicCard className="p-8 flex flex-col items-center text-center gap-4 bg-gradient-to-br from-card to-secondary">
           <Avatar p={me} size={88} ring="var(--pitch)" glow />
@@ -219,13 +237,201 @@ function MatchesView({ activeTournament, matches, players }) {
   );
 }
 
-function PlayoffsView() { return <EmptyState text="Playoffs logic goes here." />; }
-function RosterView() { return <EmptyState text="Roster view goes here." />; }
-function HistoryView() { return <EmptyState text="Tournament history goes here." />; }
-function NotificationsView() { return <EmptyState text="Notifications view goes here." />; }
+function PlayoffBracketDisplay({ tMatches, players }) {
+  const byRound = Object.fromEntries(tMatches.map((m) => [m.round, m]));
+  const { semiA, semiB, challenger, final } = byRound;
+  const byId = Object.fromEntries(players.map((p) => [p.id, p]));
+  
+  const matchWinnerId = (m) => {
+    if (!m || m.status !== "completed") return null;
+    if (m.homeScore > m.awayScore) return m.homeId;
+    if (m.awayScore > m.homeScore) return m.awayId;
+    if (m.penaltyWinner) return m.penaltyWinner === "home" ? m.homeId : m.awayId;
+    return null;
+  };
 
-function ProfileView({ me, showToast }) {
-  const [form, setForm] = React.useState({ name: me.name, teamName: me.teamName, avatar: me.avatar, avatarImage: me.avatarImage, flag: me.flag, teamLogo: me.teamLogo });
+  return (
+    <div className="space-y-6">
+      <div className="grid md:grid-cols-2 gap-4">
+        <div>
+          <div className="text-[11px] uppercase tracking-wider mb-2 font-semibold text-gold">Top match (Rank 1 vs 2)</div>
+          {semiA ? (semiA.status === "live" ? <LiveScoreboard m={semiA} players={players} /> : <MatchCard m={semiA} players={players} />) : <EmptyState text="Not generated yet." />}
+        </div>
+        <div>
+          <div className="text-[11px] uppercase tracking-wider mb-2 font-semibold text-claret">Bottom match (Rank 3 vs 4)</div>
+          {semiB ? (semiB.status === "live" ? <LiveScoreboard m={semiB} players={players} /> : <MatchCard m={semiB} players={players} />) : <EmptyState text="Not generated yet." />}
+        </div>
+      </div>
+      <div>
+        <div className="text-[11px] uppercase tracking-wider mb-2 font-semibold text-muted-foreground">Challenger match — Top match loser vs Bottom match winner</div>
+        {challenger ? (challenger.status === "live" ? <LiveScoreboard m={challenger} players={players} /> : <MatchCard m={challenger} players={players} />) : <EmptyState text="Unlocks once both matches above are completed." />}
+      </div>
+      <div>
+        <div className="text-[11px] uppercase tracking-wider mb-2 font-semibold text-pitch-bright">Final — Top match winner vs Challenger winner</div>
+        {final ? (final.status === "live" ? <LiveScoreboard m={final} players={players} /> : <MatchCard m={final} players={players} />) : <EmptyState text="Unlocks once the challenger match is completed." />}
+      </div>
+      {final?.status === "completed" && (
+        <FadeIn>
+          <MagicCard className="p-8 text-center bg-gradient-to-br from-gold/20 to-transparent border-gold/50">
+            <Trophy className="mx-auto mb-4 text-gold" size={48} />
+            <div className="text-3xl font-bold font-display text-gold">{byId[matchWinnerId(final)]?.name} is the Champion! 🏆</div>
+          </MagicCard>
+        </FadeIn>
+      )}
+    </div>
+  );
+}
+
+function PlayoffsView({ activeTournament, matches, players }) {
+  if (!activeTournament) return <EmptyState text="No active tournament yet." />;
+  const tMatches = matches.filter((m) => m.tournamentId === activeTournament.id && m.round !== "league");
+  
+  if (tMatches.length === 0) return <FadeIn delay={0.1}><Card className="p-6"><EmptyState text="Playoffs haven't started yet. They unlock once the admin closes the league phase." /></Card></FadeIn>;
+  return (
+    <FadeIn delay={0.1}>
+      <Card className="p-6">
+        <SectionTitle icon={Swords}>Playoff bracket</SectionTitle>
+        <PlayoffBracketDisplay tMatches={tMatches} players={players} />
+      </Card>
+    </FadeIn>
+  );
+}
+
+function RosterView({ players, matches }) {
+  const matchWinnerId = (m) => {
+    if (!m || m.status !== "completed") return null;
+    if (m.homeScore > m.awayScore) return m.homeId;
+    if (m.awayScore > m.homeScore) return m.awayId;
+    if (m.penaltyWinner) return m.penaltyWinner === "home" ? m.homeId : m.awayId;
+    return null;
+  };
+  const matchLoserId = (m) => {
+    const w = matchWinnerId(m);
+    if (!w) return null;
+    return w === m.homeId ? m.awayId : m.homeId;
+  };
+
+  return (
+    <div className="grid md:grid-cols-2 gap-4">
+      {players.map((p, i) => {
+        const pm = matches.filter((m) => m.status === "completed" && (m.homeId === p.id || m.awayId === p.id));
+        const wins = pm.filter((m) => matchWinnerId(m) === p.id).length;
+        const losses = pm.filter((m) => matchLoserId(m) === p.id).length;
+        const draws = pm.length - wins - losses;
+        const golds = matches.filter((m) => m.round === "final" && m.status === "completed" && matchWinnerId(m) === p.id).length;
+        
+        return (
+          <FadeIn key={p.id} delay={i * 0.05}>
+            <MagicCard className="p-5 flex items-center gap-4 hover:border-border transition-colors cursor-default">
+              <Avatar p={p} size={64} />
+              <div className="min-w-0 flex-1">
+                <div className="font-bold text-lg font-display flex items-center gap-2">{p.name} <span>{p.flag}</span></div>
+                <div className="text-sm text-muted-foreground mt-0.5">{p.teamLogo} {p.teamName}</div>
+                <div className="flex gap-4 mt-3 text-xs font-mono text-muted-foreground">
+                  <span className="font-semibold text-foreground">{wins}W</span>
+                  <span className="font-semibold text-foreground">{draws}D</span>
+                  <span className="font-semibold text-foreground">{losses}L</span>
+                  {golds > 0 && <span className="flex items-center gap-1 text-gold"><Trophy size={12} />{golds}</span>}
+                </div>
+              </div>
+            </MagicCard>
+          </FadeIn>
+        );
+      })}
+      {players.length === 0 && <EmptyState text="No players yet." />}
+    </div>
+  );
+}
+
+function HistoryView({ history, players }) {
+  if (!history || history.length === 0) return <FadeIn delay={0.1}><Card className="p-6"><EmptyState text="No completed tournaments yet." /></Card></FadeIn>;
+  
+  return (
+    <div className="flex flex-col gap-4">
+      {history.map((t, i) => {
+        const champ = players.find((p) => p.id === t.championId);
+        const runner = players.find((p) => p.id === t.runnerUpId);
+        const third = players.find((p) => p.id === t.thirdId);
+        const mvp = players.find((p) => p.id === t.mvpId);
+        
+        return (
+          <FadeIn key={t.id} delay={i * 0.1}>
+            <MagicCard className="p-6 bg-gradient-to-br from-card to-secondary/50">
+              <div className="flex flex-col md:flex-row md:items-center justify-between mb-5 gap-2">
+                <div className="font-bold text-2xl font-display">{t.name}</div>
+                <span className="text-sm text-muted-foreground font-mono bg-background/50 px-3 py-1 rounded-full w-fit">
+                  {t.completedAt ? new Date(t.completedAt).toLocaleDateString() : 'N/A'}
+                </span>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-3 text-center">
+                <div className="p-4 rounded-xl bg-gold/10 border border-gold/20">
+                  <Trophy size={24} className="mx-auto mb-2 text-gold" />
+                  <div className="text-sm font-bold font-display tracking-wide">{champ?.name || "—"}</div>
+                  <div className="text-[10px] uppercase tracking-widest text-muted-foreground mt-1">Champion</div>
+                </div>
+                <div className="p-4 rounded-xl bg-zinc-400/10 border border-zinc-400/20">
+                  <Trophy size={24} className="mx-auto mb-2 text-zinc-400" />
+                  <div className="text-sm font-bold font-display tracking-wide">{runner?.name || "—"}</div>
+                  <div className="text-[10px] uppercase tracking-widest text-muted-foreground mt-1">Runner-up</div>
+                </div>
+                <div className="p-4 rounded-xl bg-[#CD7F32]/10 border border-[#CD7F32]/20">
+                  <Trophy size={24} className="mx-auto mb-2 text-[#CD7F32]" />
+                  <div className="text-sm font-bold font-display tracking-wide">{third?.name || "—"}</div>
+                  <div className="text-[10px] uppercase tracking-widest text-muted-foreground mt-1">Third place</div>
+                </div>
+              </div>
+              {mvp && (
+                <div className="mt-4 text-sm flex items-center gap-2 justify-center text-pitch-bright font-medium">
+                  <Trophy size={16} /> MVP of the tournament: <strong className="font-bold">{mvp.name}</strong>
+                </div>
+              )}
+            </MagicCard>
+          </FadeIn>
+        );
+      })}
+    </div>
+  );
+}
+
+function NotificationsView({ notifications }) {
+  if (!notifications || notifications.length === 0) return <FadeIn delay={0.1}><Card className="p-6"><EmptyState text="No notifications yet." /></Card></FadeIn>;
+  return (
+    <FadeIn delay={0.1}>
+      <Card className="p-6">
+        <SectionTitle icon={Trophy}>Notifications</SectionTitle>
+        <div className="flex flex-col gap-3">
+          {notifications.map((n, i) => (
+            <motion.div 
+              key={n.id} 
+              initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }}
+              className="p-4 rounded-xl flex items-start gap-3 bg-secondary/50 border border-border/50"
+            >
+              <div className={`mt-0.5 shrink-0 w-2 h-2 rounded-full ${n.type === 'tournament' ? 'bg-gold' : n.type === 'fixtures' ? 'bg-pitch-bright' : 'bg-claret'}`} />
+              <div>
+                <div className="text-sm font-medium">{n.text}</div>
+                <div className="text-[10px] mt-1 text-muted-foreground font-mono">{new Date(n.createdAt).toLocaleString()}</div>
+              </div>
+            </motion.div>
+          ))}
+        </div>
+      </Card>
+    </FadeIn>
+  );
+}
+
+function ProfileView({ me, showToast, trophies }) {
+  const [form, setForm] = React.useState({ 
+    name: me.name || "", 
+    teamName: me.teamName || "", 
+    avatar: me.avatar || "", 
+    avatarImage: me.avatarImage || "", 
+    flag: me.flag || "", 
+    teamLogo: me.teamLogo || "",
+    bio: me.bio || "",
+    nationality: me.nationality || "",
+    favoriteClub: me.favoriteClub || "",
+    favoriteCompetition: me.favoriteCompetition || ""
+  });
   const [pwd, setPwd] = React.useState(""); 
   const [pwd2, setPwd2] = React.useState("");
 
@@ -247,9 +453,19 @@ function ProfileView({ me, showToast }) {
       <FadeIn delay={0.1}>
         <Card className="p-6">
           <SectionTitle icon={Camera}>Profile</SectionTitle>
-          <div className="grid gap-4 mt-2">
-            <div><Label>Name</Label><Input value={form.name} onChange={e => setForm({...form, name: e.target.value})} /></div>
+          <div className="grid md:grid-cols-2 gap-4 mt-2">
+            <div><Label>Display Name</Label><Input value={form.name} onChange={e => setForm({...form, name: e.target.value})} /></div>
+            <div><Label>Bio</Label><Input value={form.bio} onChange={e => setForm({...form, bio: e.target.value})} placeholder="Short bio..." /></div>
+            
+            <div className="md:col-span-2 text-[11px] uppercase tracking-wider font-semibold text-muted-foreground mt-2 border-b border-border/50 pb-1">Football Identity</div>
             <div><Label>Team Name</Label><Input value={form.teamName} onChange={e => setForm({...form, teamName: e.target.value})} /></div>
+            <div><Label>Nationality (Emoji)</Label><Input value={form.nationality} onChange={e => setForm({...form, nationality: e.target.value})} placeholder="e.g. 🇧🇷" /></div>
+            <div><Label>Favorite Club</Label><Input value={form.favoriteClub} onChange={e => setForm({...form, favoriteClub: e.target.value})} placeholder="e.g. Real Madrid" /></div>
+            <div><Label>Favorite Competition</Label><Input value={form.favoriteCompetition} onChange={e => setForm({...form, favoriteCompetition: e.target.value})} placeholder="e.g. Champions League" /></div>
+            
+            <div className="md:col-span-2 text-[11px] uppercase tracking-wider font-semibold text-muted-foreground mt-2 border-b border-border/50 pb-1">Media (Emojis or URLs)</div>
+            <div><Label>Avatar</Label><Input value={form.avatar} onChange={e => setForm({...form, avatar: e.target.value})} placeholder="Avatar emoji or URL" /></div>
+            <div><Label>Team Logo</Label><Input value={form.teamLogo} onChange={e => setForm({...form, teamLogo: e.target.value})} placeholder="Team logo emoji or URL" /></div>
           </div>
           <ShinyButton className="w-full mt-6" onClick={saveProfile}>Save Profile</ShinyButton>
         </Card>
@@ -263,6 +479,33 @@ function ProfileView({ me, showToast }) {
             <div><Label>Confirm</Label><Input type="password" value={pwd2} onChange={e => setPwd2(e.target.value)} /></div>
           </div>
           <Btn variant="ghost" className="w-full mt-6" onClick={savePassword}>Update Password</Btn>
+        </Card>
+      </FadeIn>
+      
+      <FadeIn delay={0.3}>
+        <Card className="p-6">
+          <SectionTitle icon={Trophy}>Trophy Cabinet</SectionTitle>
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 mt-4">
+            {trophies?.filter(t => t.playerId === me.id).map((t, i) => (
+              <motion.div 
+                key={t.id}
+                initial={{ scale: 0.8, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                transition={{ type: "spring", delay: 0.4 + (i * 0.1) }}
+                className="flex flex-col items-center justify-center p-4 bg-gradient-to-b from-gold/20 to-transparent border border-gold/30 rounded-xl text-center shadow-lg"
+              >
+                <div className="text-4xl mb-2">{t.icon || "🏆"}</div>
+                <div className="font-bold text-sm leading-tight">{t.title}</div>
+                <div className="text-[10px] text-muted-foreground uppercase tracking-widest mt-1">{t.season}</div>
+                {t.description && <div className="text-[10px] opacity-70 mt-1">{t.description}</div>}
+              </motion.div>
+            ))}
+            {(!trophies || trophies.filter(t => t.playerId === me.id).length === 0) && (
+              <div className="col-span-full text-center text-sm text-muted-foreground py-8">
+                No trophies earned yet.
+              </div>
+            )}
+          </div>
         </Card>
       </FadeIn>
     </div>

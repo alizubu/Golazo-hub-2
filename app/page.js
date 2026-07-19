@@ -11,6 +11,9 @@ export default async function Home() {
   const tournaments = await getTournaments();
   const matches = await getMatches();
   const notifications = await prisma.notification.findMany({ orderBy: { createdAt: 'desc' }, take: 50 });
+  const announcements = await prisma.announcement.findMany({ orderBy: { createdAt: 'desc' } });
+  const trophies = await prisma.trophy.findMany({ orderBy: { createdAt: 'desc' } });
+  
   const adminConfig = { enabled: true }; // Admin login allowed
 
   return (
@@ -19,6 +22,8 @@ export default async function Home() {
       initialTournaments={tournaments}
       initialMatches={matches}
       initialNotifications={notifications}
+      initialAnnouncements={announcements}
+      initialTrophies={trophies}
       adminConfig={adminConfig}
     />
   );

@@ -20,11 +20,16 @@ model Player {
   flag         String?
   teamName     String
   teamLogo     String?
+  bio                  String?
+  nationality          String?
+  favoriteClub         String?
+  favoriteCompetition  String?
   createdAt    DateTime  @default(now())
 
   // Relations
   homeMatches Match[] @relation("HomeMatches")
   awayMatches Match[] @relation("AwayMatches")
+  trophies    Trophy[] @relation("PlayerTrophies")
   
   // Tournament Relations (for history)
   wonTournaments     Tournament[] @relation("TournamentChampion")
@@ -89,5 +94,23 @@ model Notification {
   id        String   @id @default(cuid())
   text      String
   type      String   @default("info")
+  createdAt DateTime @default(now())
+}
+
+model Trophy {
+  id          String   @id @default(cuid())
+  playerId    String
+  player      Player   @relation("PlayerTrophies", fields: [playerId], references: [id], onDelete: Cascade)
+  title       String
+  season      String
+  description String?
+  icon        String?  // emoji or URL
+  createdAt   DateTime @default(now())
+}
+
+model Announcement {
+  id        String   @id @default(cuid())
+  title     String
+  content   String
   createdAt DateTime @default(now())
 }
