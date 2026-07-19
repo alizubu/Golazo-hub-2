@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { Trophy, Clock, ListOrdered, Calendar, Swords, Camera, KeyRound, Megaphone } from 'lucide-react';
+import { Trophy, Clock, ListOrdered, Calendar, Swords, Camera, KeyRound, Megaphone, Bell } from 'lucide-react';
 import { Btn, Input, Label, Badge, Avatar, PlayerChip, SectionTitle, EmptyState, MagicCard, FadeIn, ShinyButton, Card } from './UI';
 import { NumberTicker } from './ui/number-ticker';
 import { updatePlayerProfile, changePlayerPassword } from '@/app/actions/player';
@@ -638,7 +638,7 @@ function NotificationsView({ notifications }) {
   return (
     <FadeIn delay={0.1}>
       <Card className="p-6">
-        <SectionTitle icon={Trophy}>Notifications</SectionTitle>
+        <SectionTitle icon={Bell}>Notifications</SectionTitle>
         <div className="flex flex-col gap-3">
           {notifications.map((n, i) => (
             <motion.div 
