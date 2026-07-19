@@ -1,9 +1,11 @@
 'use client';
 
 import React from 'react';
-import { Trophy, Clock, TrendingUp, ListOrdered, Target, Calendar, Swords, Users, Archive, Bell, Camera, X, Check, KeyRound } from 'lucide-react';
-import { Card, Btn, Input, Label, Badge, Avatar, PlayerChip, SectionTitle, EmptyState } from './UI';
+import { Trophy, Clock, ListOrdered, Calendar, Swords, Camera, KeyRound } from 'lucide-react';
+import { Btn, Input, Label, Badge, Avatar, PlayerChip, SectionTitle, EmptyState, MagicCard, FadeIn, ShinyButton, Card } from './UI';
+import { NumberTicker } from './ui/number-ticker';
 import { updatePlayerProfile, changePlayerPassword } from '@/app/actions/player';
+import { motion } from 'framer-motion';
 
 export default function PlayerViews(props) {
   const { tab } = props;
@@ -43,26 +45,26 @@ function LiveScoreboard({ m, players }) {
   const byId = Object.fromEntries(players.map((p) => [p.id, p]));
   const h = byId[m.homeId], a = byId[m.awayId];
   return (
-    <div className="rounded-2xl p-4 relative overflow-hidden transition-all-fast" style={{ background: `linear-gradient(135deg, var(--surface3), var(--surface))`, border: `1px solid rgba(178,58,72,0.3)` }}>
-      <div className="flex items-center justify-center gap-2 mb-3">
+    <MagicCard className="p-5 bg-gradient-to-br from-surface-3 to-surface border-claret/30">
+      <div className="flex items-center justify-center gap-2 mb-4">
         <Badge color="var(--claret)" pulse>LIVE</Badge>
       </div>
-      <div className="flex items-center justify-between gap-2">
-        <div className="flex-1 flex flex-col items-center gap-1 min-w-0">
-          <Avatar p={h} size={48} />
+      <div className="flex items-center justify-between gap-4">
+        <div className="flex-1 flex flex-col items-center gap-2 min-w-0">
+          <Avatar p={h} size={56} />
           <span className="text-sm font-semibold truncate text-center">{h?.name}</span>
         </div>
-        <div className="flex items-center gap-2 shrink-0 px-2">
-          <span className="score-pop text-4xl font-bold" style={{ fontFamily: 'var(--font-mono)', color: 'var(--text)' }}>{m.homeScore ?? 0}</span>
-          <span className="text-2xl opacity-40" style={{ fontFamily: 'var(--font-mono)' }}>-</span>
-          <span className="score-pop text-4xl font-bold" style={{ fontFamily: 'var(--font-mono)', color: 'var(--text)' }}>{m.awayScore ?? 0}</span>
+        <div className="flex items-center gap-3 shrink-0 px-2">
+          <NumberTicker value={m.homeScore ?? 0} className="text-5xl font-bold font-mono text-foreground" />
+          <span className="text-3xl opacity-40 font-mono">-</span>
+          <NumberTicker value={m.awayScore ?? 0} className="text-5xl font-bold font-mono text-foreground" />
         </div>
-        <div className="flex-1 flex flex-col items-center gap-1 min-w-0">
-          <Avatar p={a} size={48} />
+        <div className="flex-1 flex flex-col items-center gap-2 min-w-0">
+          <Avatar p={a} size={56} />
           <span className="text-sm font-semibold truncate text-center">{a?.name}</span>
         </div>
       </div>
-    </div>
+    </MagicCard>
   );
 }
 
@@ -70,33 +72,33 @@ function MatchCard({ m, players }) {
   const byId = Object.fromEntries(players.map((p) => [p.id, p]));
   const h = byId[m.homeId], a = byId[m.awayId];
   return (
-    <div className="flex items-center justify-between p-3 rounded-xl transition-all-fast" style={{ background: 'var(--surface2)', border: `1px solid var(--border)` }}>
-      <div className="flex-1 min-w-0"><PlayerChip p={h} size={18} /></div>
-      <div className="px-3 text-center shrink-0">
+    <MagicCard className="flex items-center justify-between p-4 bg-secondary">
+      <div className="flex-1 min-w-0"><PlayerChip p={h} size={20} /></div>
+      <div className="px-4 text-center shrink-0">
         {m.status === "completed" ? (
           <div>
-            <div className="font-bold text-lg" style={{ fontFamily: 'var(--font-mono)', color: 'var(--pitchBright)' }}>{m.homeScore} – {m.awayScore}</div>
-            <div className="flex items-center gap-1 justify-center mt-0.5">
-              <span className="text-[9px]" style={{ color: 'var(--textFaint)' }}>FT</span>
+            <div className="font-bold text-xl font-mono text-pitch-bright">{m.homeScore} – {m.awayScore}</div>
+            <div className="flex items-center gap-1 justify-center mt-1">
+              <span className="text-[10px] text-muted-foreground uppercase tracking-widest font-semibold">FT</span>
             </div>
           </div>
         ) : m.status === "live" ? (
           <div>
             <Badge color="var(--claret)" pulse>LIVE</Badge>
-            <div className="font-bold text-lg mt-1" style={{ fontFamily: 'var(--font-mono)', color: 'var(--text)' }}>
+            <div className="font-bold text-xl mt-1 font-mono text-foreground">
               <span className="score-pop">{m.homeScore ?? 0}</span> – <span className="score-pop">{m.awayScore ?? 0}</span>
             </div>
           </div>
         ) : (
-          <div className="text-xs" style={{ color: 'var(--textFaint)', fontFamily: 'var(--font-mono)' }}>TBD</div>
+          <div className="text-xs text-muted-foreground font-mono font-medium">TBD</div>
         )}
       </div>
-      <div className="flex-1 min-w-0 flex justify-end"><PlayerChip p={a} size={18} /></div>
-    </div>
+      <div className="flex-1 min-w-0 flex justify-end"><PlayerChip p={a} size={20} /></div>
+    </MagicCard>
   );
 }
 
-function PlayerDashboard({ me, activeTournament, matches, players, setTab }) {
+function PlayerDashboard({ me, activeTournament, matches, players }) {
   const t = activeTournament;
   const tMatches = t ? matches.filter((m) => m.tournamentId === t.id) : [];
   const standings = t ? computeStandings(tMatches, players, t.id) : [];
@@ -106,29 +108,41 @@ function PlayerDashboard({ me, activeTournament, matches, players, setTab }) {
   const myLive = live.filter((m) => m.homeId === me.id || m.awayId === me.id);
   const upcoming = tMatches.filter((m) => m.status === "scheduled" && (m.homeId === me.id || m.awayId === me.id)).slice(0, 3);
 
-  if (!t) return <Card className="fade-up p-8 text-center"><Trophy className="mx-auto mb-3" color="var(--textFaint)" size={32} /><div style={{ fontFamily: 'var(--font-display)', fontSize: 20 }}>No active tournament</div></Card>;
+  if (!t) return <FadeIn delay={0.1}><Card className="p-8 text-center"><Trophy className="mx-auto mb-4 text-muted-foreground" size={40} /><div className="text-2xl font-bold font-display">No active tournament</div></Card></FadeIn>;
 
   return (
-    <div className="space-y-4" style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-      <Card className="fade-up p-6 flex flex-col items-center text-center gap-3" style={{ background: `linear-gradient(135deg, var(--surface) 0%, var(--surface2) 100%)` }}>
-        <Avatar p={me} size={76} ring="var(--pitch)" glow />
-        <div>
-          <div className="text-xl font-bold" style={{ fontFamily: 'var(--font-display)' }}>{me.name} {me.flag}</div>
-          <div className="text-xs" style={{ color: 'var(--textDim)' }}>{me.teamLogo} {me.teamName}</div>
-        </div>
-        <div className="flex items-center gap-6 mt-1" style={{ display: 'flex', gap: '1.5rem', marginTop: '0.25rem' }}>
-          <div className="text-center"><div className="text-2xl font-bold" style={{ fontFamily: 'var(--font-mono)', color: 'var(--gold)' }}>{myRank || "–"}</div><div className="text-[10px] uppercase tracking-wide" style={{ color: 'var(--textFaint)' }}>Position</div></div>
-          <div className="text-center"><div className="text-2xl font-bold" style={{ fontFamily: 'var(--font-mono)', color: 'var(--pitchBright)' }}>{myRow?.pts ?? 0}</div><div className="text-[10px] uppercase tracking-wide" style={{ color: 'var(--textFaint)' }}>Points</div></div>
-        </div>
-      </Card>
+    <div className="flex flex-col gap-6">
+      <FadeIn delay={0.1}>
+        <MagicCard className="p-8 flex flex-col items-center text-center gap-4 bg-gradient-to-br from-card to-secondary">
+          <Avatar p={me} size={88} ring="var(--pitch)" glow />
+          <div>
+            <div className="text-2xl font-bold font-display tracking-wide">{me.name} {me.flag}</div>
+            <div className="text-sm text-muted-foreground mt-1">{me.teamLogo} {me.teamName}</div>
+          </div>
+          <div className="flex items-center gap-8 mt-2">
+            <div className="text-center">
+              <NumberTicker value={myRank || 0} className="text-3xl font-bold font-mono text-gold" />
+              <div className="text-[11px] uppercase tracking-wider text-muted-foreground mt-1">Position</div>
+            </div>
+            <div className="text-center">
+              <NumberTicker value={myRow?.pts ?? 0} className="text-3xl font-bold font-mono text-pitch-bright" />
+              <div className="text-[11px] uppercase tracking-wider text-muted-foreground mt-1">Points</div>
+            </div>
+          </div>
+        </MagicCard>
+      </FadeIn>
 
-      {myLive.map((m) => <div key={m.id} className="fade-up"><LiveScoreboard m={m} players={players} /></div>)}
+      {myLive.map((m, i) => <FadeIn key={m.id} delay={0.2 + i*0.1}><LiveScoreboard m={m} players={players} /></FadeIn>)}
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '1rem' }}>
-        <Card className="fade-up p-4" style={{ padding: '1rem' }}>
-          <SectionTitle icon={Clock}>Upcoming</SectionTitle>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>{upcoming.length ? upcoming.map((m) => <MatchCard key={m.id} m={m} players={players} />) : <div className="text-sm py-4 text-center" style={{ color: 'var(--textFaint)' }}>No fixtures scheduled.</div>}</div>
-        </Card>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <FadeIn delay={0.3}>
+          <Card className="p-5 bg-card/50 backdrop-blur">
+            <SectionTitle icon={Clock}>Upcoming Fixtures</SectionTitle>
+            <div className="flex flex-col gap-3">
+              {upcoming.length ? upcoming.map((m) => <MatchCard key={m.id} m={m} players={players} />) : <div className="text-sm py-6 text-center text-muted-foreground">No fixtures scheduled.</div>}
+            </div>
+          </Card>
+        </FadeIn>
       </div>
     </div>
   );
@@ -140,41 +154,49 @@ function StandingsView({ activeTournament, matches, players, me }) {
   const standings = computeStandings(tMatches, players, activeTournament.id);
   
   return (
-    <Card className="fade-up p-4" style={{ padding: '1rem' }}>
-      <SectionTitle icon={ListOrdered}>{activeTournament.name} — Table</SectionTitle>
-      <div className="overflow-x-auto" style={{ overflowX: 'auto' }}>
-        <table style={{ width: '100%', fontSize: '0.875rem', borderCollapse: 'collapse', textAlign: 'left' }}>
-          <thead>
-            <tr style={{ color: 'var(--textFaint)', fontSize: '11px', textTransform: 'uppercase' }}>
-              <th style={{ padding: '0.5rem' }}>#</th>
-              <th style={{ padding: '0.5rem' }}>Player</th>
-              <th style={{ padding: '0.5rem', textAlign: 'center' }}>P</th>
-              <th style={{ padding: '0.5rem', textAlign: 'center' }}>W</th>
-              <th style={{ padding: '0.5rem', textAlign: 'center' }}>D</th>
-              <th style={{ padding: '0.5rem', textAlign: 'center' }}>L</th>
-              <th style={{ padding: '0.5rem', textAlign: 'center' }}>GF</th>
-              <th style={{ padding: '0.5rem', textAlign: 'center' }}>GA</th>
-              <th style={{ padding: '0.5rem', textAlign: 'center' }}>Pts</th>
-            </tr>
-          </thead>
-          <tbody>
-            {standings.map((s, i) => (
-              <tr key={s.id} style={{ borderTop: '1px solid var(--border)', background: s.id === me.id ? 'rgba(31, 138, 92, 0.1)' : 'transparent' }}>
-                <td style={{ padding: '0.5rem' }}>{i + 1}</td>
-                <td style={{ padding: '0.5rem' }}><PlayerChip p={s} size={16} /></td>
-                <td style={{ padding: '0.5rem', textAlign: 'center' }}>{s.played}</td>
-                <td style={{ padding: '0.5rem', textAlign: 'center' }}>{s.won}</td>
-                <td style={{ padding: '0.5rem', textAlign: 'center' }}>{s.drawn}</td>
-                <td style={{ padding: '0.5rem', textAlign: 'center' }}>{s.lost}</td>
-                <td style={{ padding: '0.5rem', textAlign: 'center' }}>{s.gf}</td>
-                <td style={{ padding: '0.5rem', textAlign: 'center' }}>{s.ga}</td>
-                <td style={{ padding: '0.5rem', textAlign: 'center', fontWeight: 'bold', color: 'var(--pitchBright)' }}>{s.pts}</td>
+    <FadeIn delay={0.1}>
+      <Card className="p-5">
+        <SectionTitle icon={ListOrdered}>{activeTournament.name} — Table</SectionTitle>
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm text-left">
+            <thead>
+              <tr className="text-muted-foreground text-[11px] uppercase tracking-wider border-b border-border/50">
+                <th className="p-3 font-semibold">#</th>
+                <th className="p-3 font-semibold">Player</th>
+                <th className="p-3 text-center font-semibold">P</th>
+                <th className="p-3 text-center font-semibold">W</th>
+                <th className="p-3 text-center font-semibold">D</th>
+                <th className="p-3 text-center font-semibold">L</th>
+                <th className="p-3 text-center font-semibold">GF</th>
+                <th className="p-3 text-center font-semibold">GA</th>
+                <th className="p-3 text-center font-semibold text-pitch-bright">Pts</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-    </Card>
+            </thead>
+            <tbody>
+              {standings.map((s, i) => (
+                <motion.tr 
+                  initial={{ opacity: 0, x: -10 }} 
+                  animate={{ opacity: 1, x: 0 }} 
+                  transition={{ delay: i * 0.05 }} 
+                  key={s.id} 
+                  className={`border-b border-border/30 last:border-0 hover:bg-secondary/50 transition-colors ${s.id === me.id ? 'bg-pitch/10 hover:bg-pitch/20' : ''}`}
+                >
+                  <td className="p-3 font-medium text-muted-foreground">{i + 1}</td>
+                  <td className="p-3"><PlayerChip p={s} size={20} /></td>
+                  <td className="p-3 text-center">{s.played}</td>
+                  <td className="p-3 text-center text-muted-foreground">{s.won}</td>
+                  <td className="p-3 text-center text-muted-foreground">{s.drawn}</td>
+                  <td className="p-3 text-center text-muted-foreground">{s.lost}</td>
+                  <td className="p-3 text-center">{s.gf}</td>
+                  <td className="p-3 text-center">{s.ga}</td>
+                  <td className="p-3 text-center font-bold text-pitch-bright text-base">{s.pts}</td>
+                </motion.tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </Card>
+    </FadeIn>
   );
 }
 
@@ -182,14 +204,18 @@ function MatchesView({ activeTournament, matches, players }) {
   if (!activeTournament) return <EmptyState text="No active tournament yet." />;
   const tMatches = matches.filter((m) => m.tournamentId === activeTournament.id && m.round === "league");
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-      <Card className="fade-up" style={{ padding: '1rem' }}>
+    <FadeIn delay={0.1}>
+      <Card className="p-5">
         <SectionTitle icon={Calendar}>All Matches</SectionTitle>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-          {tMatches.map(m => <MatchCard key={m.id} m={m} players={players} />)}
+        <div className="flex flex-col gap-3">
+          {tMatches.map((m, i) => (
+            <motion.div key={m.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.03 }}>
+              <MatchCard m={m} players={players} />
+            </motion.div>
+          ))}
         </div>
       </Card>
-    </div>
+    </FadeIn>
   );
 }
 
@@ -217,24 +243,28 @@ function ProfileView({ me, showToast }) {
   };
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-      <Card className="fade-up p-4" style={{ padding: '1rem' }}>
-        <SectionTitle icon={Camera}>Profile</SectionTitle>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '0.75rem' }}>
-          <div><Label>Name</Label><Input value={form.name} onChange={e => setForm({...form, name: e.target.value})} /></div>
-          <div><Label>Team Name</Label><Input value={form.teamName} onChange={e => setForm({...form, teamName: e.target.value})} /></div>
-        </div>
-        <Btn className="w-full mt-4" style={{ marginTop: '1rem', width: '100%' }} onClick={saveProfile}>Save profile</Btn>
-      </Card>
+    <div className="flex flex-col gap-6">
+      <FadeIn delay={0.1}>
+        <Card className="p-6">
+          <SectionTitle icon={Camera}>Profile</SectionTitle>
+          <div className="grid gap-4 mt-2">
+            <div><Label>Name</Label><Input value={form.name} onChange={e => setForm({...form, name: e.target.value})} /></div>
+            <div><Label>Team Name</Label><Input value={form.teamName} onChange={e => setForm({...form, teamName: e.target.value})} /></div>
+          </div>
+          <ShinyButton className="w-full mt-6" onClick={saveProfile}>Save Profile</ShinyButton>
+        </Card>
+      </FadeIn>
       
-      <Card className="fade-up p-4" style={{ padding: '1rem' }}>
-        <SectionTitle icon={KeyRound}>Change Password</SectionTitle>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '0.75rem' }}>
-          <div><Label>New Password</Label><Input type="password" value={pwd} onChange={e => setPwd(e.target.value)} /></div>
-          <div><Label>Confirm</Label><Input type="password" value={pwd2} onChange={e => setPwd2(e.target.value)} /></div>
-        </div>
-        <Btn className="w-full mt-4" style={{ marginTop: '1rem', width: '100%' }} onClick={savePassword}>Update Password</Btn>
-      </Card>
+      <FadeIn delay={0.2}>
+        <Card className="p-6">
+          <SectionTitle icon={KeyRound}>Change Password</SectionTitle>
+          <div className="grid gap-4 mt-2">
+            <div><Label>New Password</Label><Input type="password" value={pwd} onChange={e => setPwd(e.target.value)} /></div>
+            <div><Label>Confirm</Label><Input type="password" value={pwd2} onChange={e => setPwd2(e.target.value)} /></div>
+          </div>
+          <Btn variant="ghost" className="w-full mt-6" onClick={savePassword}>Update Password</Btn>
+        </Card>
+      </FadeIn>
     </div>
   );
 }

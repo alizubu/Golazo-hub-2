@@ -6,13 +6,13 @@ import TopBar from './TopBar';
 import PlayerViews from './PlayerViews';
 import AdminConsole from './AdminConsole';
 import { Home, ListOrdered, Calendar, Swords, Users, Archive, Bell, UserCircle2, Settings, Trophy } from 'lucide-react';
+import { AnimatePresence, motion } from 'framer-motion';
 
 export default function ClientApp({ initialPlayers, initialTournaments, initialMatches, initialNotifications, adminConfig }) {
   const [session, setSession] = useState(null);
   const [tab, setTab] = useState('dashboard');
   const [toast, setToast] = useState(null);
 
-  // Fallbacks if server didn't provide
   const players = initialPlayers || [];
   const tournaments = initialTournaments || [];
   const matches = initialMatches || [];
@@ -54,34 +54,58 @@ export default function ClientApp({ initialPlayers, initialTournaments, initialM
   const items = session.type === "admin" ? adminTabs : playerTabs;
 
   return (
-    <div className="min-h-screen">
-      {toast && (
-        <div className="toast-anim fixed top-4 right-4 z-50 px-4 py-2 rounded-lg shadow-lg text-sm font-semibold" style={{ background: 'var(--pitch)', color: '#fff' }}>
-          {toast}
-        </div>
-      )}
+    <div className="min-h-screen bg-background text-foreground pb-20">
+      <AnimatePresence>
+        {toast && (
+          <motion.div 
+            initial={{ opacity: 0, y: -20, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -10, scale: 0.95 }}
+            className="fixed top-4 right-4 z-50 px-5 py-3 rounded-xl shadow-2xl bg-pitch text-white font-semibold flex items-center gap-2 border border-pitch-bright/50"
+          >
+            {toast}
+          </motion.div>
+        )}
+      </AnimatePresence>
       
       <TopBar session={session} me={me} onLogout={() => { setSession(null); setTab('dashboard'); }} />
       
-      <div className="layout-container pt-4">
-        <div className="flex gap-1 overflow-x-auto pt-4 pb-1 -mx-1 px-1 hide-scrollbar">
+      <div className="max-w-5xl mx-auto px-4 pt-6">
+        <div className="flex gap-2 overflow-x-auto pb-4 hide-scrollbar snap-x snap-mandatory">
           {items.map((it) => {
             const Icon = it.icon; 
             const active = tab === it.id;
             return (
-              <button key={it.id} onClick={() => setTab(it.id)} className="transition-all-fast flex items-center gap-1.5 px-3 py-2 rounded-xl text-sm font-semibold whitespace-nowrap shrink-0"
-                style={{ background: active ? 'var(--surface3)' : "transparent", color: active ? 'var(--pitchBright)' : 'var(--textDim)', border: `1px solid ${active ? 'var(--borderLight)' : "transparent"}` }}>
-                <Icon size={15} /> {it.label}
+              <button 
+                key={it.id} 
+                onClick={() => setTab(it.id)} 
+                className={`snap-start transition-all flex items-center gap-2 px-4 py-2.5 rounded-full text-sm font-semibold whitespace-nowrap shrink-0 border ${
+                  active 
+                    ? 'bg-secondary text-pitch-bright border-border shadow-sm' 
+                    : 'bg-transparent text-muted-foreground border-transparent hover:text-foreground hover:bg-secondary/50'
+                }`}
+              >
+                <Icon size={16} /> {it.label}
               </button>
             );
           })}
         </div>
 
         <div className="mt-4">
-          {session.type === 'admin' 
-            ? <AdminConsole {...ctx} tab={tab} /> 
-            : <PlayerViews {...ctx} me={me} tab={tab} setTab={setTab} />
-          }
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={tab}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.2 }}
+            >
+              {session.type === 'admin' 
+                ? <AdminConsole {...ctx} tab={tab} /> 
+                : <PlayerViews {...ctx} me={me} tab={tab} setTab={setTab} />
+              }
+            </motion.div>
+          </AnimatePresence>
         </div>
       </div>
     </div>
