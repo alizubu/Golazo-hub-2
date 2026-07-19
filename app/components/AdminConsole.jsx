@@ -438,3 +438,72 @@ function AdminAnnouncements({ announcements, showToast }) {
   );
 }
 
+function AdminTournament({ activeTournament, showToast }) {
+  const [name, setName] = useState("");
+  const [rename, setRename] = useState("");
+
+  const handleStart = async () => {
+    if (!name.trim()) return showToast("Enter a tournament name");
+    const res = await startTournament(name);
+    if (res.error) showToast(res.error);
+    else { showToast("Tournament started!"); setName(""); }
+  };
+
+  const handleRename = async () => {
+    if (!rename.trim()) return showToast("Enter a new name");
+    const res = await renameTournament(activeTournament.id, rename);
+    if (res.error) showToast(res.error);
+    else { showToast("Tournament renamed!"); setRename(""); }
+  };
+
+  const handleDelete = async () => {
+    if (!confirm("Are you sure you want to completely delete the active tournament? This cannot be undone.")) return;
+    const res = await deleteTournament(activeTournament.id);
+    if (res.error) showToast(res.error);
+    else showToast("Tournament deleted.");
+  };
+
+  if (activeTournament) {
+    return (
+      <div className="flex flex-col gap-6">
+        <Card className="p-6 border-gold/50 bg-gold/5">
+          <SectionTitle icon={Trophy}>Active Tournament</SectionTitle>
+          <div className="text-2xl font-bold font-display tracking-wide mb-6">{activeTournament.name}</div>
+          
+          <div className="grid gap-4 max-w-sm">
+            <div>
+              <Label>Rename Tournament</Label>
+              <div className="flex gap-2 mt-1">
+                <Input value={rename} onChange={e => setRename(e.target.value)} placeholder="New name" />
+                <Btn onClick={handleRename}>Rename</Btn>
+              </div>
+            </div>
+          </div>
+        </Card>
+
+        <Card className="p-6 border-red-500/20 bg-red-500/5">
+          <SectionTitle icon={Trash2}>Danger Zone</SectionTitle>
+          <p className="text-sm text-muted-foreground mb-4 mt-2">Deleting the tournament will remove all matches and standings associated with it.</p>
+          <Btn variant="danger" onClick={handleDelete}>Delete Tournament</Btn>
+        </Card>
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex flex-col gap-6">
+      <Card className="p-6">
+        <SectionTitle icon={Plus}>Start New Tournament</SectionTitle>
+        <div className="grid gap-4 mt-4 max-w-sm">
+          <div>
+            <Label>Tournament Name</Label>
+            <div className="flex gap-2 mt-1">
+              <Input value={name} onChange={e => setName(e.target.value)} placeholder="e.g. Season 4" />
+              <ShinyButton onClick={handleStart}>Start</ShinyButton>
+            </div>
+          </div>
+        </div>
+      </Card>
+    </div>
+  );
+}
