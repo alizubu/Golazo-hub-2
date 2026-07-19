@@ -1,0 +1,93 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model Player {
+  id           String    @id @default(cuid())
+  username     String    @unique
+  email        String    @unique
+  passwordHash String
+  salt         String
+  name         String
+  avatar       String?
+  avatarImage  String?
+  flag         String?
+  teamName     String
+  teamLogo     String?
+  createdAt    DateTime  @default(now())
+
+  // Relations
+  homeMatches Match[] @relation("HomeMatches")
+  awayMatches Match[] @relation("AwayMatches")
+  
+  // Tournament Relations (for history)
+  wonTournaments     Tournament[] @relation("TournamentChampion")
+  runnerUpTournaments Tournament[] @relation("TournamentRunnerUp")
+  thirdTournaments    Tournament[] @relation("TournamentThirdPlace")
+  mvpTournaments      Tournament[] @relation("TournamentMVP")
+}
+
+model Tournament {
+  id         String   @id @default(cuid())
+  name       String
+  status     String   @default("active") // "active", "completed", "archived_incomplete"
+  createdAt  DateTime @default(now())
+  completedAt DateTime?
+
+  championId String?
+  champion   Player? @relation("TournamentChampion", fields: [championId], references: [id])
+  
+  runnerUpId String?
+  runnerUp   Player? @relation("TournamentRunnerUp", fields: [runnerUpId], references: [id])
+  
+  thirdId    String?
+  third      Player? @relation("TournamentThirdPlace", fields: [thirdId], references: [id])
+  
+  mvpId      String?
+  mvp        Player? @relation("TournamentMVP", fields: [mvpId], references: [id])
+
+  matches Match[]
+}
+
+model Match {
+  id           String   @id @default(cuid())
+  tournamentId String
+  tournament   Tournament @relation(fields: [tournamentId], references: [id], onDelete: Cascade)
+  
+  round        String // "league", "semiA", "semiB", "challenger", "final"
+  
+  homeId       String
+  home         Player   @relation("HomeMatches", fields: [homeId], references: [id])
+  
+  awayId       String
+  away         Player   @relation("AwayMatches", fields: [awayId], references: [id])
+  
+  homeScore    Int?
+  awayScore    Int?
+  
+  status       String   @default("scheduled") // "scheduled", "live", "completed"
+  scheduledAt  DateTime?
+  completedAt  DateTime?
+  label        String?
+  
+  liveState    Json?    // Stores current phase, time, paused state, and penalties
+  wentToExtra  Boolean  @default(false)
+  decisive     Boolean  @default(false) // Whether a winner is required (knockouts)
+  
+  penaltyHome  Int?
+  penaltyAway  Int?
+  penaltyWinner String? // "home" or "away"
+}
+
+model Notification {
+  id        String   @id @default(cuid())
+  text      String
+  type      String   @default("info")
+  createdAt DateTime @default(now())
+}
