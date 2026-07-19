@@ -107,7 +107,7 @@ export default function ClientApp({ initialPlayers, initialTournaments, initialM
               transition={{ duration: 0.2 }}
             >
               {session.type === 'admin' 
-                ? <AdminConsole {...ctx} tab={tab} /> 
+                ? <AdminConsole {...ctx} tab={tab} setTab={setTab} /> 
                 : <PlayerViews {...ctx} me={me} tab={tab} setTab={setTab} />
               }
             </motion.div>

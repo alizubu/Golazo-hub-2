@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Trophy, Calendar, Users, Radio, Clock, Check, Archive, Plus, Trash2, Settings, Swords } from 'lucide-react';
+import { Trophy, Calendar, Users, Radio, Clock, Check, Archive, Plus, Trash2, Settings, Swords, Edit2, ListOrdered, BarChart2, AlertTriangle, ArrowRight } from 'lucide-react';
 import { Card, Btn, Input, Label, SectionTitle, EmptyState, MagicCard, FadeIn, ShinyButton, Badge } from './UI';
 import { startTournament, deleteTournament, renameTournament } from '@/app/actions/tournament';
 import { generateFixtures } from '@/app/actions/match';
@@ -438,7 +438,7 @@ function AdminAnnouncements({ announcements, showToast }) {
   );
 }
 
-function AdminTournament({ activeTournament, showToast }) {
+function AdminTournament({ activeTournament, matches = [], players = [], showToast, setTab }) {
   const [name, setName] = useState("");
   const [rename, setRename] = useState("");
 
@@ -463,45 +463,394 @@ function AdminTournament({ activeTournament, showToast }) {
     else showToast("Tournament deleted.");
   };
 
-  if (activeTournament) {
-    return (
-      <div className="flex flex-col gap-6">
-        <Card className="p-6 border-gold/50 bg-gold/5">
-          <SectionTitle icon={Trophy}>Active Tournament</SectionTitle>
-          <div className="text-2xl font-bold font-display tracking-wide mb-6">{activeTournament.name}</div>
-          
-          <div className="grid gap-4 max-w-sm">
-            <div>
-              <Label>Rename Tournament</Label>
-              <div className="flex gap-2 mt-1">
-                <Input value={rename} onChange={e => setRename(e.target.value)} placeholder="New name" />
-                <Btn onClick={handleRename}>Rename</Btn>
-              </div>
-            </div>
-          </div>
-        </Card>
+  const handleGenerateFixtures = async () => {
+    if (!activeTournament) return;
+    const res = await generateFixtures(activeTournament.id, players.map(p => p.id));
+    if (res.error) showToast(res.error);
+    else showToast("Fixtures generated!");
+  };
 
-        <Card className="p-6 border-red-500/20 bg-red-500/5">
-          <SectionTitle icon={Trash2}>Danger Zone</SectionTitle>
-          <p className="text-sm text-muted-foreground mb-4 mt-2">Deleting the tournament will remove all matches and standings associated with it.</p>
-          <Btn variant="danger" onClick={handleDelete}>Delete Tournament</Btn>
-        </Card>
-      </div>
+  if (!activeTournament) {
+    return (
+      <Card className="p-12 flex flex-col items-center justify-center text-center border-dashed border-2">
+        <Trophy size={64} className="text-gold mb-6 opacity-80 drop-shadow-[0_0_15px_rgba(255,215,0,0.5)]" />
+        <h2 className="text-3xl font-bold font-display mb-3">No Active Tournament</h2>
+        <p className="text-muted-foreground mb-8 max-w-md text-lg">Create a new season to begin league matches, track standings, and manage playoffs.</p>
+        
+        <div className="flex flex-col items-center gap-4 w-full max-w-sm">
+          <Label className="self-start text-muted-foreground">Tournament Name</Label>
+          <div className="flex gap-2 w-full">
+            <Input className="flex-1 bg-secondary border-border" value={name} onChange={e => setName(e.target.value)} placeholder="e.g. Season 4" />
+            <ShinyButton onClick={handleStart} className="px-6">Create Season</ShinyButton>
+          </div>
+        </div>
+      </Card>
     );
   }
 
+  // --- Data Calculations ---
+  const tMatches = matches.filter((m) => m.tournamentId === activeTournament.id && m.round === "league");
+  // Assuming a single round-robin for a 5-player league = 10 matches total.
+  // If double round-robin, it would be 20. We can guess based on generated matches.
+  const isDoubleRoundRobin = tMatches.length > 10;
+  const expectedMatches = isDoubleRoundRobin ? 20 : 10;
+  
+  const completedMatches = tMatches.filter(m => m.status === 'completed');
+  const progressPercent = expectedMatches > 0 ? Math.round((completedMatches.length / expectedMatches) * 100) : 0;
+  
+  const scheduledMatches = tMatches.filter(m => m.status === 'scheduled' || m.status === 'live');
+  const upcoming = scheduledMatches.slice(0, 3);
+  
+  // --- Standings ---
+  const table = {};
+  players.forEach(p => table[p.id] = { id: p.id, name: p.name, flag: p.flag, p: 0, w: 0, d: 0, l: 0, gf: 0, ga: 0, gd: 0, pts: 0 });
+  
+  completedMatches.forEach(m => {
+    const h = table[m.homeId];
+    const a = table[m.awayId];
+    if (!h || !a) return;
+    
+    h.p++; a.p++;
+    h.gf += m.homeScore; a.gf += m.awayScore;
+    h.ga += m.awayScore; a.ga += m.homeScore;
+    
+    if (m.homeScore > m.awayScore) { h.w++; h.pts += 3; a.l++; }
+    else if (m.homeScore < m.awayScore) { a.w++; a.pts += 3; h.l++; }
+    else { h.d++; a.d++; h.pts++; a.pts++; }
+  });
+  
+  Object.values(table).forEach(row => row.gd = row.gf - row.ga);
+  
+  const standings = Object.values(table).sort((a, b) => b.pts - a.pts || b.gd - a.gd || b.gf - a.gf);
+  
+  // --- Stats ---
+  const totalGoals = completedMatches.reduce((acc, m) => acc + m.homeScore + m.awayScore, 0);
+  const avgGoals = completedMatches.length > 0 ? (totalGoals / completedMatches.length).toFixed(1) : "0.0";
+  
+  let topScorer = null;
+  let mostWins = null;
+  if (standings.length > 0 && completedMatches.length > 0) {
+    const byGoals = [...standings].sort((a, b) => b.gf - a.gf);
+    topScorer = byGoals[0];
+    const byWins = [...standings].sort((a, b) => b.w - a.w);
+    mostWins = byWins[0];
+  }
+  
+  // --- Status badges ---
+  const isCompleted = progressPercent >= 100;
+  const hasFixtures = tMatches.length > 0;
+  const statusBadge = isCompleted 
+    ? <Badge color="var(--primary)" className="ml-3">COMPLETED</Badge> 
+    : (hasFixtures ? <Badge color="var(--success)" pulse className="ml-3">LIVE</Badge> : <Badge color="var(--gold)" className="ml-3">DRAFT</Badge>);
+
   return (
     <div className="flex flex-col gap-6">
-      <Card className="p-6">
-        <SectionTitle icon={Plus}>Start New Tournament</SectionTitle>
-        <div className="grid gap-4 mt-4 max-w-sm">
+      {/* 1. HERO SECTION */}
+      <Card className="p-8 border-primary/30 bg-gradient-to-br from-primary/10 via-background to-background relative overflow-hidden">
+        <div className="absolute -right-16 -top-16 opacity-[0.03] pointer-events-none">
+          <Trophy size={300} />
+        </div>
+        <div className="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
           <div>
-            <Label>Tournament Name</Label>
-            <div className="flex gap-2 mt-1">
-              <Input value={name} onChange={e => setName(e.target.value)} placeholder="e.g. Season 4" />
-              <ShinyButton onClick={handleStart}>Start</ShinyButton>
+            <div className="text-xs font-bold tracking-widest text-primary uppercase mb-2">League Stage</div>
+            <div className="flex items-center">
+              <h1 className="text-4xl font-display font-bold tracking-wide">{activeTournament.name}</h1>
+              {statusBadge}
+            </div>
+            <div className="flex flex-wrap gap-4 text-sm text-muted-foreground font-mono mt-4">
+              <div className="flex items-center gap-1.5"><Calendar size={14} /> Started: {new Date(activeTournament.createdAt).toLocaleDateString()}</div>
+              <div>•</div>
+              <div className="flex items-center gap-1.5"><Users size={14} /> Players: {players.length} / 5</div>
+              <div>•</div>
+              <div className="flex items-center gap-1.5"><Radio size={14} /> Matches: {completedMatches.length} / {expectedMatches}</div>
+              {isCompleted && (
+                 <>
+                    <div>•</div>
+                    <div className="flex items-center gap-1.5 text-gold"><Trophy size={14} /> Champion: {standings[0]?.name || "—"}</div>
+                 </>
+              )}
             </div>
           </div>
+          <div className="flex flex-col gap-3 w-full md:w-auto min-w-[200px]">
+            {!hasFixtures ? (
+              <ShinyButton onClick={handleGenerateFixtures} className="w-full justify-center py-3 text-sm">Generate Fixtures</ShinyButton>
+            ) : (
+              <>
+                <Btn className="w-full justify-center bg-primary text-primary-foreground hover:bg-primary/90 py-3 text-sm" onClick={() => setTab && setTab("admin-matches")}>
+                   View League Matches
+                </Btn>
+                {isCompleted && (
+                   <Btn className="w-full justify-center border-gold text-gold hover:bg-gold/10 py-3 text-sm" variant="outline" onClick={() => setTab && setTab("admin-playoffs")}>
+                      Open Playoffs
+                   </Btn>
+                )}
+              </>
+            )}
+          </div>
+        </div>
+      </Card>
+
+      {/* 2. QUICK ACTIONS */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <MagicCard className="p-5 flex flex-col items-center justify-center gap-3 hover:bg-secondary/80 cursor-pointer transition-colors group" onClick={!hasFixtures ? handleGenerateFixtures : () => showToast("Fixtures already exist")}>
+          <div className={`p-3 rounded-full ${!hasFixtures ? 'bg-gold/20 text-gold' : 'bg-secondary text-muted-foreground opacity-50'}`}>
+             <Calendar size={24} />
+          </div>
+          <span className="text-sm font-bold tracking-wide">Generate Fixtures</span>
+        </MagicCard>
+        
+        <MagicCard className="p-5 flex flex-col items-center justify-center gap-3 hover:bg-secondary/80 cursor-pointer transition-colors group" onClick={() => {
+            const newName = prompt("Enter new tournament name:", activeTournament.name);
+            if (newName && newName !== activeTournament.name) {
+                renameTournament(activeTournament.id, newName).then(res => {
+                    if(res.error) showToast(res.error);
+                    else showToast("Tournament renamed!");
+                });
+            }
+        }}>
+          <div className="p-3 rounded-full bg-pitch-bright/20 text-pitch-bright">
+             <Edit2 size={24} />
+          </div>
+          <span className="text-sm font-bold tracking-wide">Edit Tournament</span>
+        </MagicCard>
+        
+        <MagicCard className="p-5 flex flex-col items-center justify-center gap-3 hover:bg-secondary/80 cursor-pointer transition-colors group" onClick={() => setTab && setTab("admin-playoffs")}>
+          <div className="p-3 rounded-full bg-claret/20 text-claret">
+             <Swords size={24} />
+          </div>
+          <span className="text-sm font-bold tracking-wide">Manage Playoffs</span>
+        </MagicCard>
+        
+        <MagicCard className="p-5 flex flex-col items-center justify-center gap-3 hover:bg-secondary/80 cursor-pointer transition-colors group" onClick={() => showToast("Archive functionality not yet implemented.")}>
+          <div className="p-3 rounded-full bg-muted-foreground/20 text-muted-foreground">
+             <Archive size={24} />
+          </div>
+          <span className="text-sm font-bold tracking-wide">Archive Season</span>
+        </MagicCard>
+      </div>
+
+      <div className="grid md:grid-cols-12 gap-6">
+        {/* 3. LEAGUE PROGRESS & FIXTURES */}
+        <div className="md:col-span-4 flex flex-col gap-6">
+          <Card className="p-6">
+            <SectionTitle icon={BarChart2}>League Progress</SectionTitle>
+            <div className="mt-6">
+              <div className="flex justify-between items-end mb-2">
+                <span className="text-3xl font-display font-bold">{progressPercent}%</span>
+                <span className="text-sm font-mono text-muted-foreground">{completedMatches.length} of {expectedMatches} Played</span>
+              </div>
+              <div className="h-4 w-full bg-secondary rounded-full overflow-hidden shadow-inner">
+                <div className="h-full bg-gold transition-all duration-1000 relative" style={{ width: `${progressPercent}%` }}>
+                   <div className="absolute inset-0 bg-white/20 w-full animate-pulse"></div>
+                </div>
+              </div>
+            </div>
+          </Card>
+          
+          <Card className="p-6 flex-1 flex flex-col">
+            <div className="flex items-center justify-between mb-4">
+              <SectionTitle icon={Calendar}>Upcoming Fixtures</SectionTitle>
+              <Btn variant="ghost" className="text-xs p-1 h-auto" onClick={() => setTab && setTab("admin-matches")}>View all <ArrowRight size={14} className="ml-1"/></Btn>
+            </div>
+            
+            <div className="flex-1 flex flex-col justify-center">
+               {upcoming.length > 0 ? (
+                 <div className="flex flex-col gap-3">
+                   {upcoming.map((m, i) => {
+                     const h = players.find(p => p.id === m.homeId);
+                     const a = players.find(p => p.id === m.awayId);
+                     return (
+                       <div key={m.id} className="flex flex-col p-4 rounded-xl bg-secondary/30 border border-border/50 gap-2">
+                          <div className="flex justify-between items-center">
+                            <span className="font-bold text-sm truncate flex-1">{h?.name}</span>
+                            <span className="text-[10px] font-mono text-muted-foreground px-3 py-1 bg-background rounded-full mx-2">VS</span>
+                            <span className="font-bold text-sm truncate flex-1 text-right">{a?.name}</span>
+                          </div>
+                          {m.status === 'live' && <div className="mt-2 text-[10px] text-claret font-bold text-center tracking-widest uppercase bg-claret/10 py-1.5 rounded flex items-center justify-center gap-1"><span className="w-1.5 h-1.5 rounded-full bg-claret animate-pulse"></span> Match Live</div>}
+                       </div>
+                     );
+                   })}
+                 </div>
+               ) : (
+                 <div className="py-8">
+                    <EmptyState text={hasFixtures ? "All league matches completed" : "No fixtures generated yet"} />
+                 </div>
+               )}
+            </div>
+          </Card>
+        </div>
+
+        {/* 4. STANDINGS & PARTICIPANTS */}
+        <div className="md:col-span-8 flex flex-col gap-6">
+           <Card className="p-6 flex-1">
+             <div className="flex items-center justify-between mb-6">
+                <SectionTitle icon={ListOrdered}>League Standings</SectionTitle>
+                <div className="text-xs font-mono text-muted-foreground flex items-center gap-2">
+                   <div className="w-2 h-2 rounded-full bg-success"></div> Top 4 Qualify
+                </div>
+             </div>
+             
+             <div className="overflow-x-auto">
+               <table className="w-full text-sm text-left">
+                 <thead className="text-[11px] uppercase tracking-wider bg-secondary/50 text-muted-foreground">
+                   <tr>
+                     <th className="px-4 py-3 rounded-tl-lg w-10 text-center">Rank</th>
+                     <th className="px-4 py-3">Player</th>
+                     <th className="px-3 py-3 text-center">P</th>
+                     <th className="px-3 py-3 text-center">W</th>
+                     <th className="px-3 py-3 text-center">D</th>
+                     <th className="px-3 py-3 text-center">L</th>
+                     <th className="px-3 py-3 text-center">GD</th>
+                     <th className="px-4 py-3 text-center font-bold text-primary rounded-tr-lg">Pts</th>
+                   </tr>
+                 </thead>
+                 <tbody>
+                   {standings.map((row, idx) => {
+                     const isQualified = idx < 4;
+                     return (
+                       <tr key={row.id} className={`border-b border-border/30 last:border-0 hover:bg-secondary/20 transition-colors ${idx === 3 ? 'border-b-2 border-b-success/30' : ''}`}>
+                         <td className="px-4 py-4 text-center font-mono font-bold text-lg">
+                           {idx === 0 ? "🥇" : idx === 1 ? "🥈" : idx === 2 ? "🥉" : <span className="text-muted-foreground">{idx + 1}</span>}
+                         </td>
+                         <td className="px-4 py-4 font-bold text-base flex items-center gap-2">
+                           {row.name} {row.flag}
+                         </td>
+                         <td className="px-3 py-4 text-center font-mono text-muted-foreground">{row.p}</td>
+                         <td className="px-3 py-4 text-center font-mono text-muted-foreground">{row.w}</td>
+                         <td className="px-3 py-4 text-center font-mono text-muted-foreground">{row.d}</td>
+                         <td className="px-3 py-4 text-center font-mono text-muted-foreground">{row.l}</td>
+                         <td className="px-3 py-4 text-center font-mono">{row.gd > 0 ? `+${row.gd}` : row.gd}</td>
+                         <td className="px-4 py-4 text-center font-mono font-bold text-xl text-primary">{row.pts}</td>
+                       </tr>
+                     );
+                   })}
+                   {standings.length === 0 && (
+                     <tr>
+                       <td colSpan={8} className="py-12 text-center text-muted-foreground">No matches played yet</td>
+                     </tr>
+                   )}
+                 </tbody>
+               </table>
+             </div>
+           </Card>
+           
+           <Card className="p-6">
+              <div className="flex items-center justify-between mb-4">
+                 <SectionTitle icon={Users}>Participants</SectionTitle>
+                 <Btn variant="ghost" className="text-xs p-1 h-auto" onClick={() => setTab && setTab("admin-players")}>Manage <ArrowRight size={14} className="ml-1"/></Btn>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                 {players.map((p, i) => (
+                    <div key={p.id} className="px-3 py-1.5 bg-secondary/50 border border-border rounded-full text-sm font-semibold flex items-center gap-2">
+                       {i === 0 ? "🥇" : i === 1 ? "🥈" : i === 2 ? "🥉" : <span className="w-4 h-4 flex items-center justify-center bg-background rounded-full text-[10px] text-muted-foreground">{i + 1}</span>}
+                       {p.name}
+                    </div>
+                 ))}
+                 {players.length === 0 && <span className="text-sm text-muted-foreground">No players added yet.</span>}
+              </div>
+           </Card>
+        </div>
+      </div>
+
+      <div className="grid md:grid-cols-2 gap-6">
+        {/* 5. STATISTICS */}
+        <Card className="p-6">
+          <SectionTitle icon={BarChart2}>Statistics</SectionTitle>
+          <div className="grid grid-cols-2 gap-px bg-border/50 mt-4 rounded-xl overflow-hidden border border-border/50">
+            <div className="flex flex-col bg-card p-5">
+              <span className="text-[10px] text-muted-foreground font-bold uppercase tracking-widest mb-2">Total Goals</span>
+              <span className="text-4xl font-display font-bold text-pitch-bright">{totalGoals}</span>
+            </div>
+            <div className="flex flex-col bg-card p-5">
+              <span className="text-[10px] text-muted-foreground font-bold uppercase tracking-widest mb-2">Avg Goals/Match</span>
+              <span className="text-4xl font-display font-bold text-gold">{avgGoals}</span>
+            </div>
+            <div className="flex flex-col bg-card p-5">
+              <span className="text-[10px] text-muted-foreground font-bold uppercase tracking-widest mb-2">Highest Scorer</span>
+              <span className="text-2xl font-bold truncate mb-1">{topScorer ? topScorer.name : "—"}</span>
+              {topScorer && <span className="text-xs font-mono text-muted-foreground">{topScorer.gf} Goals</span>}
+            </div>
+            <div className="flex flex-col bg-card p-5">
+              <span className="text-[10px] text-muted-foreground font-bold uppercase tracking-widest mb-2">Most Wins</span>
+              <span className="text-2xl font-bold truncate mb-1">{mostWins ? mostWins.name : "—"}</span>
+              {mostWins && <span className="text-xs font-mono text-muted-foreground">{mostWins.w} Wins</span>}
+            </div>
+          </div>
+        </Card>
+
+        {/* 6. PLAYOFF STATUS */}
+        <Card className="p-6">
+          <SectionTitle icon={Swords}>Playoff Status</SectionTitle>
+          <div className="flex flex-col gap-2 mt-4">
+            {standings.map((row, idx) => {
+              const isQualified = idx < 4;
+              return (
+                <div key={row.id} className="flex items-center justify-between p-3 rounded-xl bg-secondary/30 border border-border/30">
+                  <span className="font-bold text-sm">{row.name}</span>
+                  {isQualified ? (
+                     <div className="flex items-center gap-1.5 text-[11px] font-bold tracking-widest uppercase text-success bg-success/10 px-2 py-1 rounded">
+                        <Check size={12} strokeWidth={3} /> Qualified
+                     </div>
+                  ) : (
+                     <div className="flex items-center gap-1.5 text-[11px] font-bold tracking-widest uppercase text-claret bg-claret/10 px-2 py-1 rounded">
+                        <Trash2 size={12} /> Eliminated
+                     </div>
+                  )}
+                </div>
+              );
+            })}
+            {standings.length === 0 && <div className="py-8 text-center text-sm text-muted-foreground">Playoff picture will emerge here once matches begin.</div>}
+          </div>
+        </Card>
+      </div>
+      
+      {/* 7. TOURNAMENT TIMELINE */}
+      <Card className="p-8">
+        <SectionTitle icon={Clock}>Tournament Timeline</SectionTitle>
+        <div className="flex items-center justify-between mt-10 relative px-4 md:px-12">
+           {/* Line behind steps */}
+           <div className="absolute top-3 left-10 right-10 md:left-16 md:right-16 h-1 bg-secondary -translate-y-1/2 z-0">
+              <div className="h-full bg-gold transition-all duration-1000" style={{ width: isCompleted ? '100%' : hasFixtures ? (progressPercent > 0 ? '75%' : '50%') : '25%' }} />
+           </div>
+           
+           {/* Steps */}
+           {['Created', 'Fixtures Generated', 'League Running', 'Playoffs', 'Champion'].map((step, idx) => {
+              let active = false;
+              if (idx === 0) active = true;
+              else if (idx === 1 && hasFixtures) active = true;
+              else if (idx === 2 && hasFixtures && progressPercent > 0) active = true;
+              else if (idx === 3 && isCompleted) active = true;
+              
+              return (
+                 <div key={step} className="relative z-10 flex flex-col items-center gap-4 w-20 text-center">
+                    <div className={`w-6 h-6 rounded-full flex items-center justify-center ${active ? 'bg-gold text-gold-900 ring-4 ring-gold/20' : 'bg-secondary text-muted-foreground ring-4 ring-background'}`}>
+                       {active ? <Check size={12} strokeWidth={4} /> : <div className="w-1.5 h-1.5 rounded-full bg-muted-foreground/30" />}
+                    </div>
+                    <span className={`text-[10px] uppercase tracking-widest font-bold ${active ? 'text-foreground' : 'text-muted-foreground'}`}>{step}</span>
+                 </div>
+              );
+           })}
+        </div>
+      </Card>
+
+      {/* 8. DANGER ZONE */}
+      <Card className="p-6 border-claret/30 bg-claret/5">
+        <div className="flex items-center gap-2 mb-2 text-claret">
+           <AlertTriangle size={20} />
+           <h2 className="text-lg font-display font-bold">Danger Zone</h2>
+        </div>
+        <p className="text-sm text-claret/70 mb-6">These actions are destructive and cannot be easily undone. Please proceed with caution.</p>
+        
+        <div className="grid md:grid-cols-3 gap-4">
+           <Btn variant="outline" className="border-claret/30 text-claret hover:bg-claret hover:text-white justify-center" onClick={() => showToast("Not implemented in this demo")}>
+              Reset Standings
+           </Btn>
+           <Btn variant="outline" className="border-claret/30 text-claret hover:bg-claret hover:text-white justify-center" onClick={() => showToast("Not implemented in this demo")}>
+              Remove Fixtures
+           </Btn>
+           <Btn variant="danger" className="justify-center font-bold" onClick={handleDelete}>
+              Delete Tournament
+           </Btn>
         </div>
       </Card>
     </div>
