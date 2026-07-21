@@ -365,7 +365,7 @@ export default function ProfileView({ me, showToast, trophies = [], matches = []
           <MagicCard gradientColor="rgba(239, 68, 68, 0.1)">
             <Card className="h-full bg-transparent border-none shadow-none">
               <CardHeader className="pb-4 border-b border-border/30">
-                <CardTitle className="text-lg flex items-center gap-2"><KeyRound className="text-claret" size={18}/> Security</CardTitle>
+                <CardTitle className="text-lg flex items-center gap-2"><KeyRound className="text-claret" size={18}/> Account Security</CardTitle>
               </CardHeader>
               <CardContent className="pt-6 grid gap-5">
                 <div className="space-y-1.5 relative">
@@ -397,7 +397,7 @@ export default function ProfileView({ me, showToast, trophies = [], matches = []
                 </div>
                 
                 <motion.div animate={pwdError ? { x: [-5, 5, -5, 5, 0] } : {}} transition={{ duration: 0.3 }} className="mt-auto pt-4">
-                  <Btn variant="outline" className="w-full border-border/50 hover:bg-secondary/50 bg-background/50" onClick={savePassword}>Update</Btn>
+                  <Btn variant="outline" className="w-full border-border/50 hover:bg-secondary/50 bg-background/50" onClick={savePassword}>Update Password</Btn>
                 </motion.div>
               </CardContent>
             </Card>
@@ -412,10 +412,10 @@ export default function ProfileView({ me, showToast, trophies = [], matches = []
                 <CardTitle className="text-xl flex items-center gap-2"><Activity className="text-pitch-bright" size={20}/> Player Statistics</CardTitle>
               </CardHeader>
               <CardContent className="h-full">
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-2 h-[calc(100%-2rem)]">
+                <div className="grid grid-cols-2 lg:grid-cols-3 gap-4 mt-2 h-[calc(100%-2rem)]">
                   
                   {/* Highlighted Stat */}
-                  <Card className="relative overflow-hidden bg-gradient-to-br from-gold/10 to-transparent border-gold/20 flex flex-col items-center justify-center text-center p-6 group hover:border-gold/50 transition-colors shadow-none col-span-2 sm:col-span-1">
+                  <Card className="relative overflow-hidden bg-gradient-to-br from-gold/10 to-transparent border-gold/20 flex flex-col items-center justify-center text-center p-6 group hover:border-gold/50 transition-colors shadow-none">
                     <BorderBeam size={150} duration={8} delay={1} colorFrom="var(--gold)" colorTo="transparent" />
                     <Label className="text-gold/80 mb-1 z-10">Current Rank</Label>
                     <div className="text-4xl font-black font-mono text-gold z-10 drop-shadow-md">#1</div>
@@ -470,24 +470,31 @@ export default function ProfileView({ me, showToast, trophies = [], matches = []
           <MagicCard gradientColor="rgba(251, 191, 36, 0.15)">
             <Card className="bg-transparent border-none shadow-none">
               <CardHeader className="pb-4">
-                <CardTitle className="text-xl flex items-center gap-2"><Trophy className="text-gold" size={20}/> Trophy Cabinet</CardTitle>
+                <h3 className="text-xl font-bold flex items-center gap-2 text-foreground"><Trophy className="text-gold" size={20}/> Trophy Cabinet</h3>
               </CardHeader>
               <CardContent>
-                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
-                  {myTrophies.length > 0 ? myTrophies.map((t) => (
-                    <TrophyCard key={t.id} trophy={t} unlocked />
-                  )) : null}
-                  
-                  {/* Locked Trophies Placeholders */}
+                <motion.div 
+                  className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4"
+                  variants={{
+                    hidden: { opacity: 0 },
+                    show: { opacity: 1, transition: { staggerChildren: 0.06 } }
+                  }}
+                  initial="hidden"
+                  whileInView="show"
+                  viewport={{ once: true }}
+                >
                   {[
-                    { title: "League Champion", type: "🏆", desc: "Win the top flight division." },
-                    { title: "Golden Boot", type: "👟", desc: "Score the most goals in a season." },
-                    { title: "Golden Glove", type: "🧤", desc: "Keep the most clean sheets." },
-                    { title: "MVP", type: "⭐", desc: "Awarded to the best overall player." }
-                  ].map((placeholder, i) => (
-                    <TrophyCard key={i} trophy={placeholder} unlocked={false} />
-                  ))}
-                </div>
+                    { id: "bb-champion", name: "BB Champion", image: "/assets/trophies/BB-Champion.png", locked: true },
+                    { id: "world-cup", name: "World Cup Winner", image: "/assets/trophies/World-Cup-Winner-Trophy.png", locked: true },
+                    { id: "golden-boot", name: "Golden Boot", image: "/assets/trophies/Golden-boot.png", locked: true },
+                    { id: "mvp", name: "MVP", image: "/assets/trophies/MVP.png", locked: true },
+                    { id: "la-liga", name: "La Liga Champion", image: "/assets/trophies/La-Liga-trophy.png", locked: true },
+                    { id: "premier-league", name: "Premier League Champion", image: "/assets/trophies/Premier-League.png", locked: true },
+                  ].map((tr) => {
+                    const isUnlocked = myTrophies.some(t => t.title === tr.name || t.id === tr.id) || !tr.locked;
+                    return <TrophyCard key={tr.id} trophy={tr} unlocked={isUnlocked} />;
+                  })}
+                </motion.div>
               </CardContent>
             </Card>
           </MagicCard>
@@ -512,34 +519,76 @@ function StatCard({ label, value, loaded }) {
 }
 
 function TrophyCard({ trophy, unlocked }) {
+  const [imgLoaded, setImgLoaded] = useState(false);
+
   return (
     <HoverCard>
       <HoverCardTrigger asChild>
-        <div 
-          className={`relative flex flex-col items-center justify-center p-5 border rounded-2xl text-center cursor-help transition-all ${
+        <motion.div 
+          variants={{ hidden: { opacity: 0, y: 20 }, show: { opacity: 1, y: 0 } }}
+          className={`relative flex flex-col items-center p-5 border rounded-2xl text-center cursor-help transition-all group overflow-hidden h-full ${
             unlocked 
-              ? 'bg-gradient-to-b from-gold/15 to-transparent border-gold/30 shadow-lg shadow-gold/5 group hover:-translate-y-1 hover:border-gold/60' 
-              : 'bg-secondary/20 border-border/50 grayscale opacity-50 hover:opacity-80'
+              ? 'bg-gradient-to-b from-gold/15 to-transparent border-gold/30 shadow-lg shadow-gold/5 hover:-translate-y-1 hover:border-gold/60' 
+              : 'bg-secondary/20 border-border/50 hover:bg-secondary/30'
           }`}
         >
           {unlocked && (
-            <Badge className="absolute -top-2 -right-2 bg-pitch-bright hover:bg-pitch-bright text-white shadow-md animate-bounce px-1.5 py-0 text-[9px]">NEW</Badge>
+            <>
+              <BorderBeam size={100} duration={8} delay={0} colorFrom="var(--gold)" colorTo="transparent" />
+              <Badge className="absolute -top-2 -right-2 bg-pitch-bright hover:bg-pitch-bright text-white shadow-md animate-bounce px-1.5 py-0 text-[9px] z-10">NEW</Badge>
+            </>
           )}
-          {!unlocked && (
-            <Lock className="absolute top-2 right-2 text-muted-foreground/50" size={12} />
-          )}
-          <div className="text-5xl mb-3 drop-shadow-md transition-transform group-hover:scale-110">{trophy.icon || trophy.type}</div>
-          <div className="font-bold text-sm leading-tight text-foreground">{trophy.title}</div>
-          <div className="text-[10px] text-muted-foreground uppercase tracking-widest mt-1.5 font-semibold">
-            {unlocked ? trophy.season || "Unlocked" : "Locked"}
+          
+          <div className="mb-3 relative w-20 h-20 flex items-center justify-center shrink-0">
+            {!imgLoaded && <Skeleton className="absolute inset-0 rounded-xl" />}
+            
+            <motion.img 
+              src={trophy.image} 
+              alt={trophy.name}
+              className={`w-full h-full object-contain drop-shadow-md z-10 transition-opacity duration-300 ${imgLoaded ? 'opacity-100' : 'opacity-0'} ${!unlocked ? 'grayscale opacity-[0.45]' : ''}`}
+              whileHover={{ scale: 1.08, rotate: [-2, 2, -2, 2, 0] }}
+              transition={{ type: "spring", stiffness: 300, damping: 10 }}
+              onLoad={() => setImgLoaded(true)}
+              onError={(e) => {
+                e.target.style.display = 'none';
+                setImgLoaded(true); // Hide skeleton
+                if (e.target.nextSibling) e.target.nextSibling.style.display = 'flex';
+              }}
+            />
+            
+            {/* Fallback if image fails */}
+            <div className="hidden absolute inset-0 items-center justify-center text-5xl transition-transform group-hover:scale-110 opacity-30 grayscale">
+              🏆
+            </div>
+
+            {/* Dark overlay & Lock for locked state */}
+            {!unlocked && imgLoaded && (
+              <div className="absolute inset-0 z-20 flex items-center justify-center pointer-events-none">
+                <Lock className="text-foreground/80 drop-shadow-md bg-background/50 p-1.5 rounded-full backdrop-blur-sm" size={28} />
+              </div>
+            )}
           </div>
-        </div>
+          
+          <div className="flex-1 flex flex-col justify-between items-center w-full">
+            <div className="font-bold text-sm leading-tight text-foreground relative z-10 mb-2">{trophy.name}</div>
+            
+            <div className="mt-auto">
+              {!unlocked ? (
+                <Badge variant="outline" className="bg-background text-[9px] font-bold px-1.5 py-0 border-border shadow-sm z-10">LOCKED</Badge>
+              ) : (
+                <div className="text-[10px] text-muted-foreground uppercase tracking-widest font-semibold relative z-10">
+                  Unlocked
+                </div>
+              )}
+            </div>
+          </div>
+        </motion.div>
       </HoverCardTrigger>
-      <HoverCardContent side="top" align="center" className="w-64 bg-card/95 backdrop-blur shadow-xl border-border">
+      <HoverCardContent side="top" align="center" className="w-64 bg-card/95 backdrop-blur shadow-xl border-border z-50">
         <div className="space-y-1">
-          <h4 className="text-sm font-semibold">{trophy.title}</h4>
+          <h4 className="text-sm font-semibold">{trophy.name}</h4>
           <p className="text-xs text-muted-foreground">
-            {trophy.description || trophy.desc}
+            {trophy.desc || `Win the ${trophy.name} to unlock this achievement.`}
           </p>
           {!unlocked && (
             <div className="flex items-center gap-1.5 text-[10px] uppercase tracking-widest text-pitch-bright font-bold mt-2 pt-2 border-t border-border/50">
