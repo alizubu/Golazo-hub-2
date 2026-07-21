@@ -49,7 +49,7 @@ export default function ClientApp({ initialPlayers, initialTournaments, initialM
     { id: "dashboard", label: "Dashboard", icon: Home }, { id: "standings", label: "Standings", icon: ListOrdered },
     { id: "matches", label: "Matches", icon: Calendar }, { id: "playoffs", label: "Playoffs", icon: Swords },
     { id: "players", label: "Roster", icon: Users }, { id: "history", label: "History", icon: Archive },
-    { id: "notifications", label: "Alerts", icon: Bell }, { id: "profile", label: "Profile", icon: UserCircle2 },
+    { id: "notifications", label: "Alerts", icon: Bell },
   ];
   const adminTabs = [
     { id: "admin", label: "Overview", icon: Home }, { id: "admin-players", label: "Players", icon: Users },
@@ -104,16 +104,6 @@ export default function ClientApp({ initialPlayers, initialTournaments, initialM
               </button>
             );
 
-            if (active && it.id === 'profile') {
-              return (
-                <div key={it.id} className="relative rounded-full">
-                   {/* Fallback to simple glowing ring if AnimatedBorderTrail isn't imported, but we'll try to just wrap it in a custom style for now to emulate the trail without breaking */}
-                   <div className="absolute inset-0 rounded-full animate-pulse border border-pitch-bright/50 shadow-[0_0_10px_rgba(41,193,121,0.2)]"></div>
-                   {btnContent}
-                </div>
-              );
-            }
-            
             return btnContent;
           })}
         </div>

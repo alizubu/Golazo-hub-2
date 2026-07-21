@@ -21,34 +21,55 @@ export default function AvatarUpload({ me, form, setForm }) {
     }
   };
 
-  const processFile = (file) => {
-    // In a real app, you would upload to a server/storage here
-    // For now, we simulate an upload and use a local object URL
+  const processFile = async (file) => {
     setUploading(true);
     setProgress(0);
     
     // Simulate upload progress
     const interval = setInterval(() => {
       setProgress(prev => {
-        if (prev >= 100) {
-          clearInterval(interval);
-          return 100;
-        }
-        return prev + 25;
+        if (prev >= 90) return 90;
+        return prev + 15;
       });
     }, 200);
 
-    setTimeout(() => {
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      
+      const res = await fetch('/api/user/avatar', {
+        method: 'POST',
+        body: formData
+      });
+      
+      const data = await res.json();
+      
+      if (!res.ok) throw new Error(data.error || 'Upload failed');
+      
       clearInterval(interval);
-      setUploading(false);
+      setProgress(100);
       setSuccess(true);
       
-      const objectUrl = URL.createObjectURL(file);
-      // Update form state with the local object URL for preview
-      setForm(prev => ({ ...prev, avatarImage: objectUrl }));
+      // Update DB directly
+      const { updatePlayerProfile } = await import('@/app/actions/player');
+      const updateRes = await updatePlayerProfile(me.id, { avatarImage: data.url });
+      
+      if (!updateRes.error) {
+        setForm(prev => ({ ...prev, avatarImage: data.url }));
+      }
       
       setTimeout(() => setSuccess(false), 2000);
-    }, 1000);
+    } catch (err) {
+      clearInterval(interval);
+      setSuccess(false);
+      // We would ideally show a toast here:
+      // showToast(err.message);
+      console.error(err);
+    } finally {
+      setTimeout(() => {
+        setUploading(false);
+      }, 500);
+    }
   };
 
   const onDragOver = (e) => {

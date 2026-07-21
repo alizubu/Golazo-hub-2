@@ -45,7 +45,7 @@ export default function TopBar({ session, me, setTab, onLogout }) {
                   <User className="mr-2 h-4 w-4 text-muted-foreground" />
                   <span>Profile</span>
                 </DropdownMenuItem>
-                <DropdownMenuItem disabled>
+                <DropdownMenuItem onClick={() => setTab('settings')} className="cursor-pointer hover:bg-secondary focus:bg-secondary">
                   <Settings className="mr-2 h-4 w-4" />
                   <span>Settings</span>
                 </DropdownMenuItem>

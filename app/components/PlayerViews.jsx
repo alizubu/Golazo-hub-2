@@ -1,12 +1,21 @@
 'use client';
 
 import React from 'react';
-import { Trophy, Clock, ListOrdered, Calendar, Swords, Camera, KeyRound, Megaphone, Bell } from 'lucide-react';
-import { Btn, Input, Label, Badge, Avatar, PlayerChip, SectionTitle, EmptyState, MagicCard, FadeIn, ShinyButton, Card } from './UI';
+import { Trophy, Clock, ListOrdered, Calendar, Swords, Camera, KeyRound, Megaphone, Bell, Pen, Target, Handshake, Shield, Activity, Lock, Flame } from 'lucide-react';
+import { Btn, Input, Label, Badge, Avatar, PlayerChip, SectionTitle, EmptyState, MagicCard, FadeIn, ShinyButton, Card as UICard } from './UI';
+import { Card, CardHeader, CardTitle, CardContent } from '@/app/components/ui/card';
 import { NumberTicker } from './ui/number-ticker';
 import { updatePlayerProfile, changePlayerPassword } from '@/app/actions/player';
 import { motion } from 'framer-motion';
-import ProfileView from './ProfileView';
+import SettingsView from './SettingsView';
+import { BorderBeam } from './magicui/BorderBeam';
+import { Skeleton } from '@/app/components/ui/skeleton';
+import { HoverCard, HoverCardContent, HoverCardTrigger } from '@/app/components/ui/hover-card';
+import clubsData from '@/lib/data/clubs.json';
+import nationalTeamsData from '@/lib/data/national_teams.json';
+
+const clubs = clubsData.map(c => ({ ...c, subtitle: `${c.league}, ${c.country}` }));
+const nationalTeams = nationalTeamsData.map(nt => ({ ...nt, subtitle: nt.confederation }));
 
 export default function PlayerViews(props) {
   const { tab } = props;
@@ -17,7 +26,7 @@ export default function PlayerViews(props) {
   if (tab === "players") return <RosterView {...props} />;
   if (tab === "history") return <HistoryView {...props} />;
   if (tab === "notifications") return <NotificationsView {...props} />;
-  if (tab === "profile") return <ProfileView {...props} />;
+  if (tab === "settings") return <SettingsView {...props} />;
   return null;
 }
 
@@ -32,10 +41,12 @@ function computeStandings(matches, players, tournamentId) {
       const h = table[m.homeId], a = table[m.awayId];
       if (!h || !a) return;
       h.played++; a.played++;
-      h.gf += m.homeScore || 0; h.ga += m.awayScore || 0;
-      a.gf += m.awayScore || 0; a.ga += m.homeScore || 0;
-      if (m.homeScore > m.awayScore) { h.won++; a.lost++; h.pts += 2; }
-      else if (m.homeScore < m.awayScore) { a.won++; h.lost++; a.pts += 2; }
+      const hs = Number(m.homeScore) || 0;
+      const as = Number(m.awayScore) || 0;
+      h.gf += hs; h.ga += as;
+      a.gf += as; a.ga += hs;
+      if (hs > as) { h.won++; a.lost++; h.pts += 2; }
+      else if (hs < as) { a.won++; h.lost++; a.pts += 2; }
       else { h.drawn++; a.drawn++; h.pts += 1; a.pts += 1; }
     });
   Object.values(table).forEach((t) => (t.gd = t.gf - t.ga));
@@ -139,14 +150,13 @@ function PlayerDashboard({ me, activeTournament, matches, players, announcements
   const myLive = tMatches.filter((m) => m.status === "live" && (m.homeId === me.id || m.awayId === me.id));
   const upcoming = tMatches.filter((m) => m.status === "scheduled" && (m.homeId === me.id || m.awayId === me.id)).slice(0, 1);
   const nextMatch = upcoming[0];
-  
   const recent = [...myMatches].sort((a,b) => new Date(b.completedAt || 0) - new Date(a.completedAt || 0)).slice(0, 5);
   
   const getMatchResult = (m) => {
     if (!m) return null;
     const isHome = m.homeId === me.id;
-    const myScore = isHome ? m.homeScore : m.awayScore;
-    const oppScore = isHome ? m.awayScore : m.homeScore;
+    const myScore = isHome ? Number(m.homeScore) : Number(m.awayScore);
+    const oppScore = isHome ? Number(m.awayScore) : Number(m.homeScore);
     if (myScore > oppScore) return 'W';
     if (myScore < oppScore) return 'L';
     return 'D';
@@ -157,18 +167,29 @@ function PlayerDashboard({ me, activeTournament, matches, players, announcements
   };
 
   const form = recent.map(getMatchResult).reverse();
-  const winRate = myRow && myRow.played > 0 ? Math.round((myRow.won / myRow.played) * 100) : 0;
+  const played = myRow?.played || 0;
+  const won = myRow?.won || 0;
+  const goals = myRow?.gf || 0;
+  const winRate = played > 0 ? Math.round((won / played) * 100) : 0;
   const myTrophies = trophies.filter(tr => tr.playerId === me.id);
   const elo = 1200 + ((myRow?.pts || 0) * 15);
+  const assists = me.assists || Math.round(goals * 0.4);
 
-  if (!t) return <FadeIn delay={0.1}><Card className="p-8 text-center bg-card/50 backdrop-blur"><Trophy className="mx-auto mb-4 text-muted-foreground" size={40} /><div className="text-2xl font-bold font-display">No active tournament</div></Card></FadeIn>;
+  const selectedClub = clubs.find(c => c.name === me.favoriteClub);
+  const selectedNationalTeam = nationalTeams.find(nt => nt.name === me.flag);
+
+  const [statsLoaded, React_useState] = React.useState(false);
+  React.useEffect(() => {
+    const timer = setTimeout(() => React_useState(true), 800);
+    return () => clearTimeout(timer);
+  }, []);
 
   return (
     <div className="flex flex-col gap-6 pb-10">
       {announcements.length > 0 && (
         <FadeIn delay={0.05}>
           <div className="flex flex-col gap-3">
-            {announcements.map((ann, i) => (
+            {announcements.map((ann) => (
               <MagicCard key={ann.id} className="p-4 bg-secondary/80 border-pitch/50 border-l-4 border-l-pitch backdrop-blur-sm">
                 <div className="flex gap-3">
                   <Megaphone className="text-pitch-bright shrink-0" size={20} />
@@ -183,65 +204,186 @@ function PlayerDashboard({ me, activeTournament, matches, players, announcements
         </FadeIn>
       )}
 
-      {/* Row 1: Welcome Header */}
+      {/* Hero Profile Card */}
       <FadeIn delay={0.1}>
-        <div className="px-1">
-          <h1 className="text-2xl font-bold font-display">Welcome Back, {me.name?.split(' ')[0] || 'Player'} 👋</h1>
-          <p className="text-sm text-muted-foreground">{t.name} • Friends eLeague</p>
+        <div className="relative rounded-3xl overflow-hidden bg-card border border-border shadow-2xl flex flex-col">
+          <div className="h-48 md:h-64 w-full relative bg-secondary/50 overflow-hidden flex-shrink-0">
+            {me.coverBanner ? (
+              <img src={me.coverBanner} alt="Cover Banner" className="w-full h-full object-cover" />
+            ) : (
+              <div className="w-full h-full bg-gradient-to-tr from-pitch/80 via-claret/60 to-gold/40 flex items-center justify-center">
+                 <span className="text-6xl drop-shadow-2xl opacity-50">⚽</span>
+              </div>
+            )}
+          </div>
+          <div className="px-6 md:px-10 pb-8 pt-4 relative bg-card flex-1">
+            <div className="flex flex-col md:flex-row gap-6 items-center md:items-start relative z-20">
+              <div className="-mt-20 md:-mt-24 relative z-30">
+                <div className="rounded-full p-1.5 bg-card shadow-xl inline-block relative">
+                  <Avatar p={me} size={120} ring="var(--gold)" />
+                  <div className="absolute bottom-4 right-4 z-30">
+                    <span className="relative flex h-5 w-5">
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                      <span className="relative inline-flex rounded-full h-5 w-5 bg-green-500 border-4 border-card"></span>
+                    </span>
+                  </div>
+                </div>
+              </div>
+              <div className="flex-1 flex flex-col md:flex-row md:items-center justify-between gap-4 w-full pt-2">
+                <div className="text-center md:text-left">
+                  <h1 className="text-4xl font-black font-display tracking-tight flex items-center justify-center md:justify-start gap-3">
+                    {me.name} 
+                    {me.nationality && <span className="text-2xl" title="Nationality">{me.nationality}</span>}
+                    {myRank === 1 && <Badge className="bg-gold hover:bg-gold/90 text-gold-foreground font-bold shadow-sm px-1.5 py-0.5 text-xs"><Flame size={12} className="mr-1"/> #1</Badge>}
+                  </h1>
+                  <div className="text-muted-foreground font-mono mt-2 flex flex-wrap items-center justify-center md:justify-start gap-2">
+                    @{me.username}
+                  </div>
+                </div>
+                <div className="flex flex-col items-center justify-center md:justify-end gap-3 md:items-end">
+                  <div className="text-right flex flex-col items-center md:items-end">
+                    <div className="text-[10px] text-muted-foreground uppercase tracking-widest font-bold mb-1">Last Active</div>
+                    <div className="text-sm font-semibold flex items-center gap-2 justify-end">
+                      <span className="relative flex h-2.5 w-2.5">
+                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                        <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-green-500"></span>
+                      </span>
+                      Just now
+                    </div>
+                  </div>
+                  <Btn variant="outline" onClick={() => setTab('settings')} className="gap-2 rounded-full border-border/50 text-xs shadow-sm bg-background/50 hover:bg-secondary">
+                    <Pen size={12} /> Edit Profile
+                  </Btn>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </FadeIn>
 
-      <div className="grid grid-cols-12 gap-4 md:gap-6">
-        {/* Row 2: Hero Profile & Stats Cards */}
-        <FadeIn delay={0.15} className="col-span-12 md:col-span-4 h-full">
-          <MagicCard className="h-full p-6 flex flex-col justify-between bg-gradient-to-br from-card/80 to-secondary/80 backdrop-blur-md">
-            <div className="flex items-start gap-4">
-              <Avatar p={me} size={64} ring="var(--gold)" />
-              <div>
-                <div className="font-display font-bold text-xl">{me.name}</div>
-                <Badge color="var(--gold)" bg="rgba(255, 215, 0, 0.1)">Rank #{myRank || '-'}</Badge>
-              </div>
-            </div>
-            
-            <div className="mt-6 flex flex-col gap-3">
-              <div className="flex justify-between items-center border-b border-border/50 pb-2">
-                <span className="text-sm text-muted-foreground">ELO Rating</span>
-                <span className="font-mono font-bold text-gold">{elo}</span>
-              </div>
-              <div className="flex justify-between items-center border-b border-border/50 pb-2">
-                <span className="text-sm text-muted-foreground">Current Form</span>
-                <div className="flex gap-1">
-                  {form.length > 0 ? form.map((r, i) => (
-                    <div key={i} className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold text-white ${r === 'W' ? 'bg-green-500' : r === 'L' ? 'bg-red-500' : 'bg-yellow-500'}`}>{r}</div>
-                  )) : <span className="text-xs text-muted-foreground">-</span>}
+      <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
+        
+        {/* Identity & Stats Row */}
+        <FadeIn delay={0.15} className="col-span-1 md:col-span-4 h-full">
+          <MagicCard gradientColor="rgba(56, 189, 248, 0.1)" className="h-full">
+            <Card className="h-full bg-transparent border-none shadow-none flex flex-col">
+              <CardHeader className="pb-4 border-b border-border/30">
+                <CardTitle className="text-xl flex items-center gap-2"><Shield className="text-sky-500" size={20}/> Football Identity</CardTitle>
+              </CardHeader>
+              <CardContent className="flex-1 flex flex-col items-center justify-center gap-6 pt-6">
+                <div className="flex items-center justify-center gap-6 w-full">
+                  {selectedClub ? (
+                    <div className="flex flex-col items-center gap-2 w-28 text-center">
+                      {selectedClub.logo_url && <img src={selectedClub.logo_url} alt={selectedClub.name} className="w-16 h-16 object-contain drop-shadow-md" />}
+                      <span className="text-xs font-bold leading-tight">{selectedClub.name}</span>
+                    </div>
+                  ) : (
+                    <div className="flex flex-col items-center gap-2 w-28 text-center opacity-30">
+                      <div className="w-16 h-16 rounded-full bg-secondary border border-border border-dashed flex items-center justify-center"><Shield size={24}/></div>
+                      <span className="text-xs font-bold">No Club</span>
+                    </div>
+                  )}
+                  <div className="text-sm font-black italic opacity-30">VS</div>
+                  {selectedNationalTeam ? (
+                    <div className="flex flex-col items-center gap-2 w-28 text-center">
+                      {selectedNationalTeam.flag_url && <img src={selectedNationalTeam.flag_url} alt={selectedNationalTeam.name} className="w-16 h-16 object-contain drop-shadow-md" />}
+                      <span className="text-xs font-bold leading-tight">{selectedNationalTeam.name}</span>
+                    </div>
+                  ) : (
+                    <div className="flex flex-col items-center gap-2 w-28 text-center opacity-30">
+                      <div className="w-16 h-16 rounded-full bg-secondary border border-border border-dashed flex items-center justify-center"><Shield size={24}/></div>
+                      <span className="text-xs font-bold">No Nation</span>
+                    </div>
+                  )}
                 </div>
-              </div>
-              <div className="flex justify-between items-center pb-2">
-                <span className="text-sm text-muted-foreground">Season Record</span>
-                <span className="font-mono font-bold">{myRow?.won || 0}W {myRow?.drawn || 0}D {myRow?.lost || 0}L</span>
-              </div>
-            </div>
-            
-            <Btn variant="ghost" className="w-full mt-4 text-xs" onClick={() => setTab('profile')}>Edit Profile</Btn>
+              </CardContent>
+            </Card>
           </MagicCard>
         </FadeIn>
 
-        <div className="col-span-12 md:col-span-8 grid grid-cols-2 md:grid-cols-4 gap-4 h-full">
-          <FadeIn delay={0.2} className="h-full"><MagicCard className="h-full p-4 flex flex-col items-center justify-center gap-2 bg-card/50 backdrop-blur"><div className="text-[10px] uppercase tracking-widest text-muted-foreground font-semibold">Rank</div><NumberTicker value={myRank || 0} className="text-4xl font-bold font-mono text-gold" /><div className="text-xl">🏆</div></MagicCard></FadeIn>
-          <FadeIn delay={0.25} className="h-full"><MagicCard className="h-full p-4 flex flex-col items-center justify-center gap-2 bg-card/50 backdrop-blur"><div className="text-[10px] uppercase tracking-widest text-muted-foreground font-semibold">Goals</div><NumberTicker value={myRow?.gf || 0} className="text-4xl font-bold font-mono text-foreground" /><div className="text-xl">⚽</div></MagicCard></FadeIn>
-          <FadeIn delay={0.3} className="h-full"><MagicCard className="h-full p-4 flex flex-col items-center justify-center gap-2 bg-card/50 backdrop-blur"><CircularProgress value={winRate} label="Win Rate" /></MagicCard></FadeIn>
-          <FadeIn delay={0.35} className="h-full"><MagicCard className="h-full p-4 flex flex-col items-center justify-center gap-2 bg-card/50 backdrop-blur"><div className="text-[10px] uppercase tracking-widest text-muted-foreground font-semibold">Trophies</div><NumberTicker value={myTrophies.length} className="text-4xl font-bold font-mono text-foreground" /><div className="text-xl">🎖️</div></MagicCard></FadeIn>
-        </div>
+        <FadeIn delay={0.2} className="col-span-1 md:col-span-8 h-full">
+          <MagicCard gradientColor="rgba(250, 204, 21, 0.1)" className="h-full">
+            <Card className="h-full bg-transparent border-none shadow-none flex flex-col">
+              <CardHeader className="pb-2">
+                <CardTitle className="text-xl flex items-center gap-2"><Activity className="text-pitch-bright" size={20}/> Player Statistics</CardTitle>
+              </CardHeader>
+              <CardContent className="flex-1">
+                <div className="grid grid-cols-2 lg:grid-cols-3 gap-4 mt-2 h-full">
+                  <Card className="relative overflow-hidden bg-gradient-to-br from-gold/10 to-transparent border-t-2 border-t-gold border-x-border/50 border-b-border/50 flex flex-col items-center justify-center text-center p-6 group shadow-none min-h-[140px] flex-1">
+                    {myRank === 1 && <BorderBeam size={150} duration={8} delay={1} colorFrom="var(--gold)" colorTo="transparent" />}
+                    <Label className="text-gold/80 mb-1 z-10">Current Rank</Label>
+                    <div className="text-4xl font-black font-mono text-gold z-10 drop-shadow-md">#{myRank || '-'}</div>
+                  </Card>
+
+                  <PlayerStatCard label="ELO Rating" value={elo} loaded={statsLoaded} icon={Activity} />
+                  <PlayerStatCard label="Matches" value={played} loaded={statsLoaded} icon={Swords} emptyValue={0} />
+                  
+                  <Card className="relative overflow-hidden bg-secondary/30 border-t-2 border-t-green-500 border-x-border/50 border-b-border/50 flex flex-col items-center justify-center text-center p-6 shadow-none min-h-[140px] flex-1">
+                    <Label className="mb-2">Win Rate</Label>
+                    {statsLoaded ? (
+                      winRate > 0 ? (
+                        <div className="relative w-16 h-16 flex items-center justify-center mt-1">
+                          <svg className="w-full h-full transform -rotate-90" viewBox="0 0 36 36">
+                            <path className="text-secondary-foreground/10 stroke-current" strokeWidth="3" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                            <motion.path className="text-pitch-bright stroke-current" strokeWidth="3" strokeDasharray={`${winRate}, 100`} strokeLinecap="round" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" initial={{ strokeDasharray: "0, 100" }} animate={{ strokeDasharray: `${winRate}, 100` }} transition={{ duration: 1.5, ease: "easeOut" }} />
+                          </svg>
+                          <div className="absolute inset-0 flex items-center justify-center text-sm font-bold font-mono">
+                            <NumberTicker value={winRate} />%
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="flex flex-col items-center gap-1 text-muted-foreground opacity-50 mt-1">
+                          <span className="text-3xl font-mono font-bold">—</span>
+                        </div>
+                      )
+                    ) : (
+                      <Skeleton className="w-16 h-16 rounded-full" />
+                    )}
+                  </Card>
+
+                  <PlayerStatCard label="Goals" value={goals} loaded={statsLoaded} icon={Target} emptyValue={0} />
+                  <PlayerStatCard label="Assists" value={assists} loaded={statsLoaded} icon={Handshake} emptyValue={0} />
+                </div>
+              </CardContent>
+            </Card>
+          </MagicCard>
+        </FadeIn>
+
+        {/* Trophy Cabinet Row */}
+        <FadeIn delay={0.25} className="col-span-12">
+          <MagicCard gradientColor="rgba(251, 191, 36, 0.15)">
+            <Card className="bg-transparent border-none shadow-none">
+              <CardHeader className="pb-4 border-b border-border/30">
+                <h3 className="text-xl font-bold flex items-center gap-2 text-foreground"><Trophy className="text-gold" size={20}/> Trophy Cabinet</h3>
+              </CardHeader>
+              <CardContent className="pt-6">
+                <motion.div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4" variants={{hidden: { opacity: 0 }, show: { opacity: 1, transition: { staggerChildren: 0.06 } }}} initial="hidden" whileInView="show" viewport={{ once: true }}>
+                  {[
+                    { id: "bb-champion", name: "BB Champion", image: "/assets/trophies/BB-Champion.png", locked: true },
+                    { id: "world-cup", name: "World Cup Winner", image: "/assets/trophies/World-Cup-Winner-Trophy.png", locked: true },
+                    { id: "golden-boot", name: "Golden Boot", image: "/assets/trophies/Golden-boot.png", locked: true },
+                    { id: "mvp", name: "MVP", image: "/assets/trophies/MVP.png", locked: true },
+                    { id: "la-liga", name: "La Liga Champion", image: "/assets/trophies/La-Liga-trophy.png", locked: true },
+                    { id: "premier-league", name: "Premier League Champion", image: "/assets/trophies/Premier-League.png", locked: true },
+                  ].map((tr) => {
+                    const isUnlocked = myTrophies.some(t => t.title === tr.name || t.id === tr.id) || !tr.locked;
+                    return <TrophyCard key={tr.id} trophy={tr} unlocked={isUnlocked} />;
+                  })}
+                </motion.div>
+              </CardContent>
+            </Card>
+          </MagicCard>
+        </FadeIn>
 
         {/* Live Matches */}
         {myLive.map((m, i) => (
-          <FadeIn key={m.id} delay={0.4} className="col-span-12">
+          <FadeIn key={m.id} delay={0.3} className="col-span-12">
             <LiveScoreboard m={m} players={players} />
           </FadeIn>
         ))}
 
-        {/* Row 3: League Table & Upcoming */}
-        <FadeIn delay={0.4} className="col-span-12 md:col-span-7 h-full">
+        {/* Remaining Dashboard Widgets */}
+        <FadeIn delay={0.35} className="col-span-12 md:col-span-7 h-full">
           <MagicCard className="h-full p-5 bg-card/50 backdrop-blur overflow-hidden flex flex-col">
             <SectionTitle icon={ListOrdered}>League Standings</SectionTitle>
             <div className="overflow-x-auto mt-2 flex-1">
@@ -279,7 +421,7 @@ function PlayerDashboard({ me, activeTournament, matches, players, announcements
           </MagicCard>
         </FadeIn>
 
-        <FadeIn delay={0.45} className="col-span-12 md:col-span-5 h-full">
+        <FadeIn delay={0.4} className="col-span-12 md:col-span-5 h-full">
           <MagicCard className="h-full p-6 flex flex-col bg-card/50 backdrop-blur">
             <SectionTitle icon={Calendar}>Upcoming Fixture</SectionTitle>
             <div className="flex-1 flex flex-col justify-center">
@@ -312,8 +454,7 @@ function PlayerDashboard({ me, activeTournament, matches, players, announcements
           </MagicCard>
         </FadeIn>
 
-        {/* Row 4: Recent Matches & Progress */}
-        <FadeIn delay={0.5} className="col-span-12 md:col-span-6 h-full">
+        <FadeIn delay={0.45} className="col-span-12 md:col-span-7 h-full">
           <MagicCard className="h-full p-5 bg-card/50 backdrop-blur flex flex-col">
             <SectionTitle icon={Clock}>Last Five Matches</SectionTitle>
             <div className="flex flex-col gap-2 flex-1 justify-center">
@@ -343,7 +484,7 @@ function PlayerDashboard({ me, activeTournament, matches, players, announcements
           </MagicCard>
         </FadeIn>
 
-        <FadeIn delay={0.55} className="col-span-12 md:col-span-6 h-full">
+        <FadeIn delay={0.5} className="col-span-12 md:col-span-5 h-full">
           <MagicCard className="h-full p-5 bg-card/50 backdrop-blur flex flex-col">
             <SectionTitle icon={Calendar}>Season Progress</SectionTitle>
             <div className="flex-1 flex flex-col items-center justify-center py-4">
@@ -355,50 +496,6 @@ function PlayerDashboard({ me, activeTournament, matches, players, announcements
               <div className="text-sm mt-6 text-center text-muted-foreground">
                 <span className="font-bold text-foreground">{myRow?.played || 0}</span> out of <span className="font-bold text-foreground">{players.length * 2 - 2}</span> matches completed
               </div>
-            </div>
-          </MagicCard>
-        </FadeIn>
-
-        {/* Row 5: Trophy Cabinet & Notifications */}
-        <FadeIn delay={0.6} className="col-span-12 md:col-span-7 h-full">
-          <MagicCard className="h-full p-5 bg-card/50 backdrop-blur flex flex-col">
-            <SectionTitle icon={Trophy}>Trophy Cabinet</SectionTitle>
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 flex-1 content-start">
-              {myTrophies.slice(0, 4).map((t) => (
-                <div key={t.id} className="flex flex-col items-center p-3 rounded-xl bg-gold/10 border border-gold/20 text-center">
-                  <span className="text-3xl mb-1">{t.icon || "🏆"}</span>
-                  <span className="text-xs font-bold leading-tight">{t.title}</span>
-                </div>
-              ))}
-              {myTrophies.length > 4 && (
-                <div className="flex flex-col items-center justify-center p-3 rounded-xl bg-secondary/50 border border-border/50 text-center cursor-pointer hover:bg-secondary transition-colors" onClick={() => setTab('profile')}>
-                  <span className="text-xl font-bold text-muted-foreground mb-1">+{myTrophies.length - 4}</span>
-                  <span className="text-xs font-semibold text-muted-foreground">More</span>
-                </div>
-              )}
-              {myTrophies.length === 0 && (
-                <div className="col-span-full py-6"><EmptyState text="No trophies earned yet." /></div>
-              )}
-            </div>
-          </MagicCard>
-        </FadeIn>
-
-        <FadeIn delay={0.65} className="col-span-12 md:col-span-5 h-full">
-          <MagicCard className="h-full p-5 bg-card/50 backdrop-blur flex flex-col">
-            <SectionTitle icon={Bell}>Notifications</SectionTitle>
-            <div className="flex flex-col gap-3 flex-1 overflow-y-auto pr-1">
-              {notifications.slice(0, 5).map((n) => (
-                <div key={n.id} className="flex items-start gap-3 p-3 rounded-xl bg-secondary/30 border border-border/30">
-                  <div className={`mt-1 shrink-0 w-2 h-2 rounded-full ${n.type === 'tournament' ? 'bg-gold' : n.type === 'fixtures' ? 'bg-pitch-bright' : 'bg-claret'}`} />
-                  <div>
-                    <div className="text-xs font-medium">{n.text}</div>
-                    <div className="text-[9px] mt-0.5 text-muted-foreground font-mono">{new Date(n.createdAt).toLocaleString(undefined, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</div>
-                  </div>
-                </div>
-              ))}
-              {notifications.length === 0 && (
-                <div className="py-6"><EmptyState text="No recent notifications." /></div>
-              )}
             </div>
           </MagicCard>
         </FadeIn>
@@ -660,4 +757,102 @@ function NotificationsView({ notifications }) {
   );
 }
 
+function PlayerStatCard({ label, value, loaded, icon: Icon, emptyValue = null }) {
+  const isEmpty = value === emptyValue || !value;
+  return (
+    <Card className={`bg-secondary/30 border-t-2 border-x-border/50 border-b-border/50 flex flex-col items-center justify-center text-center p-6 shadow-none flex-1 min-h-[140px] ${isEmpty ? 'border-t-border/50' : 'border-t-blue-500/50'}`}>
+      {Icon && isEmpty && <Icon size={24} className="mb-2 text-muted-foreground/30" />}
+      <Label className="mb-2">{label}</Label>
+      {loaded ? (
+        isEmpty ? (
+          <span className="text-3xl font-mono font-bold text-muted-foreground opacity-50">—</span>
+        ) : (
+          <NumberTicker value={value} className="text-3xl font-bold font-mono text-foreground" />
+        )
+      ) : (
+        <Skeleton className="h-9 w-20" />
+      )}
+    </Card>
+  );
+}
 
+function TrophyCard({ trophy, unlocked }) {
+  const [imgLoaded, setImgLoaded] = React.useState(false);
+
+  return (
+    <HoverCard>
+      <HoverCardTrigger asChild>
+        <motion.div 
+          variants={{ hidden: { opacity: 0, y: 20 }, show: { opacity: 1, y: 0 } }}
+          className={`relative flex flex-col items-center p-5 border rounded-2xl text-center cursor-help transition-all group overflow-hidden h-full ${
+            unlocked 
+              ? 'bg-gradient-to-b from-gold/15 to-transparent border-gold/30 shadow-lg shadow-gold/5 hover:-translate-y-1 hover:border-gold/60' 
+              : 'bg-secondary/20 border-border/50 hover:bg-secondary/30'
+          }`}
+        >
+          {unlocked && (
+            <>
+              <BorderBeam size={100} duration={8} delay={0} colorFrom="var(--gold)" colorTo="transparent" />
+              <Badge className="absolute -top-2 -right-2 bg-pitch-bright hover:bg-pitch-bright text-white shadow-md animate-bounce px-1.5 py-0 text-[9px] z-10">NEW</Badge>
+            </>
+          )}
+          
+          <div className="mb-3 relative w-20 h-20 flex items-center justify-center shrink-0">
+            {!imgLoaded && <Skeleton className="absolute inset-0 rounded-xl" />}
+            
+            <motion.img 
+              src={trophy.image} 
+              alt={trophy.name}
+              className={`w-full h-full object-contain drop-shadow-md z-10 transition-opacity duration-300 ${imgLoaded ? 'opacity-100' : 'opacity-0'} ${!unlocked ? 'grayscale opacity-[0.45]' : ''}`}
+              whileHover={{ scale: 1.08, rotate: [-2, 2, -2, 2, 0] }}
+              transition={{ type: "spring", stiffness: 300, damping: 10 }}
+              onLoad={() => setImgLoaded(true)}
+              onError={(e) => {
+                e.target.style.display = 'none';
+                setImgLoaded(true);
+                if (e.target.nextSibling) e.target.nextSibling.style.display = 'flex';
+              }}
+            />
+            
+            <div className="hidden absolute inset-0 items-center justify-center text-5xl transition-transform group-hover:scale-110 opacity-30 grayscale">
+              🏆
+            </div>
+
+            {!unlocked && imgLoaded && (
+              <div className="absolute inset-0 z-20 flex items-center justify-center pointer-events-none">
+                <Lock className="text-foreground/80 drop-shadow-md bg-background/50 p-1.5 rounded-full backdrop-blur-sm" size={28} />
+              </div>
+            )}
+          </div>
+          
+          <div className="flex-1 flex flex-col justify-between items-center w-full">
+            <div className="font-bold text-sm leading-tight text-foreground relative z-10 mb-2">{trophy.name}</div>
+            
+            <div className="mt-auto">
+              {!unlocked ? (
+                <Badge variant="outline" className="bg-background text-[9px] font-bold px-1.5 py-0 border-border shadow-sm z-10">LOCKED</Badge>
+              ) : (
+                <div className="text-[10px] text-muted-foreground uppercase tracking-widest font-semibold relative z-10">
+                  Unlocked
+                </div>
+              )}
+            </div>
+          </div>
+        </motion.div>
+      </HoverCardTrigger>
+      <HoverCardContent side="top" align="center" className="w-64 bg-card/95 backdrop-blur shadow-xl border-border z-50">
+        <div className="space-y-1">
+          <h4 className="text-sm font-semibold">{trophy.name}</h4>
+          <p className="text-xs text-muted-foreground">
+            {trophy.desc || `Win the ${trophy.name} to unlock this achievement.`}
+          </p>
+          {!unlocked && (
+            <div className="flex items-center gap-1.5 text-[10px] uppercase tracking-widest text-pitch-bright font-bold mt-2 pt-2 border-t border-border/50">
+              <Lock size={10} /> Keep playing to unlock
+            </div>
+          )}
+        </div>
+      </HoverCardContent>
+    </HoverCard>
+  );
+}
