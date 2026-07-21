@@ -6,6 +6,7 @@ import {
   Play, Clock, Crown, Pause, PlayCircle, KeyRound, Mail, UserPlus,
   Minus, Goal, Zap, ShieldAlert, Camera, AlertTriangle, UserCircle2
 } from "lucide-react";
+import FloatingNav from './app/components/FloatingNav';
 
 /* ---------------------------------- THEME ---------------------------------- */
 const C = {
@@ -153,8 +154,16 @@ function resizeImageFile(file, maxSize = 240, quality = 0.82) {
 function Avatar({ p, size = 40, ring, glow }) {
   const common = { width: size, height: size, borderRadius: "9999px", flexShrink: 0 };
   const cls = `avatar-pop ${glow ? "avatar-glow" : ""}`;
-  if (p?.avatarImage) {
-    return <img src={p.avatarImage} alt={p.name} className={cls} style={{ ...common, objectFit: "cover", border: ring ? `2px solid ${ring}` : `1px solid ${C.border}` }} />;
+  const [imgError, setImgError] = React.useState(false);
+
+  // Reset error state if image url changes
+  React.useEffect(() => { setImgError(false); }, [p?.avatarImage]);
+
+  if (p?.avatarImage && !imgError) {
+    return <img src={p.avatarImage} alt={p.name} onError={() => {
+      console.warn(`Failed to load avatar for ${p.name}: ${p.avatarImage}`);
+      setImgError(true);
+    }} className={cls} style={{ ...common, objectFit: "cover", border: ring ? `2px solid ${ring}` : `1px solid ${C.border}` }} />;
   }
   if (p?.avatar) {
     return (
@@ -596,9 +605,8 @@ export default function App() {
       <GlobalStyle />
       {toast && <div className="toast-anim fixed top-4 right-4 z-50 px-4 py-2 rounded-lg shadow-lg text-sm font-semibold" style={{ background: C.pitch, color: "#fff" }}>{toast}</div>}
       <ResultsTicker matches={matches} players={players} />
-      <TopBar session={session} me={me} onLogout={() => { setSession(null); setTab("dashboard"); }} />
+      <FloatingNav session={session} me={me} tab={tab} setTab={setTab} onLogout={() => { setSession(null); setTab("dashboard"); }} />
       <div className="max-w-6xl mx-auto px-3 sm:px-6 pb-24">
-        <NavTabs session={session} tab={tab} setTab={setTab} />
         <div className="mt-4">
           {session.type === "admin" ? <AdminConsole {...ctx} tab={tab} /> : <PlayerViews {...ctx} me={me} tab={tab} setTab={setTab} />}
         </div>

@@ -139,7 +139,7 @@ function CircularProgress({ value, color = "var(--pitch-bright)", label }) {
   );
 }
 
-function PlayerDashboard({ me, activeTournament, matches, players, announcements = [], trophies = [], notifications = [], setTab }) {
+function PlayerDashboard({ me, activeTournament, matches, players, announcements = [], trophies = [], notifications = [], setTab, persistPlayers }) {
   const t = activeTournament;
   const tMatches = t ? matches.filter((m) => m.tournamentId === t.id) : [];
   const standings = t ? computeStandings(tMatches, players, t.id) : [];
@@ -179,10 +179,37 @@ function PlayerDashboard({ me, activeTournament, matches, players, announcements
   const selectedNationalTeam = nationalTeams.find(nt => nt.name === me.flag);
 
   const [statsLoaded, React_useState] = React.useState(false);
+  const [coverError, setCoverError] = React.useState(false);
+
   React.useEffect(() => {
     const timer = setTimeout(() => React_useState(true), 800);
     return () => clearTimeout(timer);
   }, []);
+
+  React.useEffect(() => {
+    setCoverError(false);
+  }, [me.coverBanner]);
+
+  React.useEffect(() => {
+    async function syncProfile() {
+      try {
+        const res = await fetch(`/api/user/profile?id=${me.id}`);
+        if (res.ok) {
+          const data = await res.json();
+          if (data.player) {
+            const dbPlayer = data.player;
+            if (dbPlayer.avatarImage !== me.avatarImage || dbPlayer.coverBanner !== me.coverBanner) {
+              const newPlayers = players.map(p => p.id === me.id ? { ...p, avatarImage: dbPlayer.avatarImage, coverBanner: dbPlayer.coverBanner } : p);
+              if (persistPlayers) persistPlayers(newPlayers);
+            }
+          }
+        }
+      } catch (err) {
+        console.error('Failed to sync profile', err);
+      }
+    }
+    syncProfile();
+  }, [me.id]);
 
   return (
     <div className="flex flex-col gap-6 pb-10">
@@ -208,8 +235,11 @@ function PlayerDashboard({ me, activeTournament, matches, players, announcements
       <FadeIn delay={0.1}>
         <div className="relative rounded-3xl overflow-hidden bg-card border border-border shadow-2xl flex flex-col">
           <div className="h-48 md:h-64 w-full relative bg-secondary/50 overflow-hidden flex-shrink-0">
-            {me.coverBanner ? (
-              <img src={me.coverBanner} alt="Cover Banner" className="w-full h-full object-cover" />
+            {me.coverBanner && !coverError ? (
+              <img src={me.coverBanner} alt="Cover Banner" className="w-full h-full object-cover" onError={(e) => {
+                console.warn(`Failed to load cover banner: ${me.coverBanner}`);
+                setCoverError(true);
+              }} />
             ) : (
               <div className="w-full h-full bg-gradient-to-tr from-pitch/80 via-claret/60 to-gold/40 flex items-center justify-center">
                  <span className="text-6xl drop-shadow-2xl opacity-50">⚽</span>
@@ -238,6 +268,31 @@ function PlayerDashboard({ me, activeTournament, matches, players, announcements
                   </h1>
                   <div className="text-muted-foreground font-mono mt-2 flex flex-wrap items-center justify-center md:justify-start gap-2">
                     @{me.username}
+                    
+                    {/* Inline Badges */}
+                    {(selectedClub || selectedNationalTeam) && (
+                      <>
+                        <span className="text-border mx-1">•</span>
+                        <div className="flex items-center gap-2">
+                          {selectedClub && (
+                            <button onClick={() => setTab('settings')} className="flex items-center gap-1.5 bg-secondary/50 hover:bg-secondary px-2 py-1 rounded-full text-xs font-semibold transition-colors border border-border/50">
+                              {selectedClub.logo_url ? (
+                                <img src={selectedClub.logo_url} alt={selectedClub.name} className="w-3.5 h-3.5 object-contain" />
+                              ) : <Shield size={12} />}
+                              {selectedClub.name}
+                            </button>
+                          )}
+                          {selectedNationalTeam && (
+                            <button onClick={() => setTab('settings')} className="flex items-center gap-1.5 bg-secondary/50 hover:bg-secondary px-2 py-1 rounded-full text-xs font-semibold transition-colors border border-border/50">
+                              {selectedNationalTeam.flag_url ? (
+                                <img src={selectedNationalTeam.flag_url} alt={selectedNationalTeam.name} className="w-3.5 h-3.5 object-contain" />
+                              ) : <Shield size={12} />}
+                              {selectedNationalTeam.name}
+                            </button>
+                          )}
+                        </div>
+                      </>
+                    )}
                   </div>
                 </div>
                 <div className="flex flex-col items-center justify-center md:justify-end gap-3 md:items-end">
@@ -262,53 +317,15 @@ function PlayerDashboard({ me, activeTournament, matches, players, announcements
       </FadeIn>
 
       <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
-        
-        {/* Identity & Stats Row */}
-        <FadeIn delay={0.15} className="col-span-1 md:col-span-4 h-full">
-          <MagicCard gradientColor="rgba(56, 189, 248, 0.1)" className="h-full">
-            <Card className="h-full bg-transparent border-none shadow-none flex flex-col">
-              <CardHeader className="pb-4 border-b border-border/30">
-                <CardTitle className="text-xl flex items-center gap-2"><Shield className="text-sky-500" size={20}/> Football Identity</CardTitle>
-              </CardHeader>
-              <CardContent className="flex-1 flex flex-col items-center justify-center gap-6 pt-6">
-                <div className="flex items-center justify-center gap-6 w-full">
-                  {selectedClub ? (
-                    <div className="flex flex-col items-center gap-2 w-28 text-center">
-                      {selectedClub.logo_url && <img src={selectedClub.logo_url} alt={selectedClub.name} className="w-16 h-16 object-contain drop-shadow-md" />}
-                      <span className="text-xs font-bold leading-tight">{selectedClub.name}</span>
-                    </div>
-                  ) : (
-                    <div className="flex flex-col items-center gap-2 w-28 text-center opacity-30">
-                      <div className="w-16 h-16 rounded-full bg-secondary border border-border border-dashed flex items-center justify-center"><Shield size={24}/></div>
-                      <span className="text-xs font-bold">No Club</span>
-                    </div>
-                  )}
-                  <div className="text-sm font-black italic opacity-30">VS</div>
-                  {selectedNationalTeam ? (
-                    <div className="flex flex-col items-center gap-2 w-28 text-center">
-                      {selectedNationalTeam.flag_url && <img src={selectedNationalTeam.flag_url} alt={selectedNationalTeam.name} className="w-16 h-16 object-contain drop-shadow-md" />}
-                      <span className="text-xs font-bold leading-tight">{selectedNationalTeam.name}</span>
-                    </div>
-                  ) : (
-                    <div className="flex flex-col items-center gap-2 w-28 text-center opacity-30">
-                      <div className="w-16 h-16 rounded-full bg-secondary border border-border border-dashed flex items-center justify-center"><Shield size={24}/></div>
-                      <span className="text-xs font-bold">No Nation</span>
-                    </div>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
-          </MagicCard>
-        </FadeIn>
 
-        <FadeIn delay={0.2} className="col-span-1 md:col-span-8 h-full">
+        <FadeIn delay={0.2} className="col-span-1 md:col-span-12 h-full">
           <MagicCard gradientColor="rgba(250, 204, 21, 0.1)" className="h-full">
             <Card className="h-full bg-transparent border-none shadow-none flex flex-col">
               <CardHeader className="pb-2">
                 <CardTitle className="text-xl flex items-center gap-2"><Activity className="text-pitch-bright" size={20}/> Player Statistics</CardTitle>
               </CardHeader>
               <CardContent className="flex-1">
-                <div className="grid grid-cols-2 lg:grid-cols-3 gap-4 mt-2 h-full">
+                <div className="grid grid-cols-2 lg:grid-cols-6 gap-4 mt-2 h-full">
                   <Card className="relative overflow-hidden bg-gradient-to-br from-gold/10 to-transparent border-t-2 border-t-gold border-x-border/50 border-b-border/50 flex flex-col items-center justify-center text-center p-6 group shadow-none min-h-[140px] flex-1">
                     {myRank === 1 && <BorderBeam size={150} duration={8} delay={1} colorFrom="var(--gold)" colorTo="transparent" />}
                     <Label className="text-gold/80 mb-1 z-10">Current Rank</Label>

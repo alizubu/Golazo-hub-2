@@ -1,4 +1,6 @@
 import { NextResponse } from 'next/server';
+import { promises as fs } from 'fs';
+import path from 'path';
 
 export async function POST(req) {
   try {
@@ -9,16 +11,23 @@ export async function POST(req) {
       return NextResponse.json({ error: 'No file provided' }, { status: 400 });
     }
 
-    // TODO: Implement actual S3 / Cloudinary upload here.
-    // API Contract: 
-    // - Expects multipart/form-data with a 'file' field.
-    // - Returns { url: string } on success.
+    const bytes = await file.arrayBuffer();
+    const buffer = Buffer.from(bytes);
+
+    // Create unique filename
+    const filename = `${Date.now()}-${file.name.replace(/[^a-zA-Z0-9.-]/g, '_')}`;
+    const uploadDir = path.join(process.cwd(), 'public', 'uploads', 'covers');
     
-    // Simulating a delay
-    await new Promise((resolve) => setTimeout(resolve, 1000));
+    await fs.mkdir(uploadDir, { recursive: true });
     
-    return NextResponse.json({ url: '/assets/cover-placeholder.png' });
+    const filepath = path.join(uploadDir, filename);
+    await fs.writeFile(filepath, buffer);
+
+    const fileUrl = `/uploads/covers/${filename}`;
+
+    return NextResponse.json({ url: fileUrl });
   } catch (error) {
+    console.error('Cover upload error:', error);
     return NextResponse.json({ error: 'Upload failed' }, { status: 500 });
   }
 }
