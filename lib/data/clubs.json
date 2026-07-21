@@ -1,0 +1,121 @@
+[
+  {
+    "id": "c-1",
+    "name": "Real Madrid",
+    "league": "La Liga",
+    "country": "Spain",
+    "logo_url": "https://upload.wikimedia.org/wikipedia/en/5/56/Real_Madrid_CF.svg"
+  },
+  {
+    "id": "c-2",
+    "name": "Barcelona",
+    "league": "La Liga",
+    "country": "Spain",
+    "logo_url": "https://upload.wikimedia.org/wikipedia/en/4/47/FC_Barcelona_%28crest%29.svg"
+  },
+  {
+    "id": "c-3",
+    "name": "Atlético Madrid",
+    "league": "La Liga",
+    "country": "Spain",
+    "logo_url": "https://upload.wikimedia.org/wikipedia/en/f/f4/Atletico_Madrid_2017_logo.svg"
+  },
+  {
+    "id": "c-4",
+    "name": "Manchester City",
+    "league": "Premier League",
+    "country": "England",
+    "logo_url": "https://upload.wikimedia.org/wikipedia/en/e/eb/Manchester_City_FC_badge.svg"
+  },
+  {
+    "id": "c-5",
+    "name": "Arsenal",
+    "league": "Premier League",
+    "country": "England",
+    "logo_url": "https://upload.wikimedia.org/wikipedia/en/5/53/Arsenal_FC.svg"
+  },
+  {
+    "id": "c-6",
+    "name": "Liverpool",
+    "league": "Premier League",
+    "country": "England",
+    "logo_url": "https://upload.wikimedia.org/wikipedia/en/0/0c/Liverpool_FC.svg"
+  },
+  {
+    "id": "c-7",
+    "name": "Manchester United",
+    "league": "Premier League",
+    "country": "England",
+    "logo_url": "https://upload.wikimedia.org/wikipedia/en/7/7a/Manchester_United_FC_crest.svg"
+  },
+  {
+    "id": "c-8",
+    "name": "Chelsea",
+    "league": "Premier League",
+    "country": "England",
+    "logo_url": "https://upload.wikimedia.org/wikipedia/en/c/cc/Chelsea_FC.svg"
+  },
+  {
+    "id": "c-9",
+    "name": "Bayern Munich",
+    "league": "Bundesliga",
+    "country": "Germany",
+    "logo_url": "https://upload.wikimedia.org/wikipedia/commons/1/1b/FC_Bayern_M%C3%BCnchen_logo_%282017%29.svg"
+  },
+  {
+    "id": "c-10",
+    "name": "Borussia Dortmund",
+    "league": "Bundesliga",
+    "country": "Germany",
+    "logo_url": "https://upload.wikimedia.org/wikipedia/commons/6/67/Borussia_Dortmund_logo.svg"
+  },
+  {
+    "id": "c-11",
+    "name": "Bayer Leverkusen",
+    "league": "Bundesliga",
+    "country": "Germany",
+    "logo_url": "https://upload.wikimedia.org/wikipedia/en/5/59/Bayer_04_Leverkusen_logo.svg"
+  },
+  {
+    "id": "c-12",
+    "name": "Inter Milan",
+    "league": "Serie A",
+    "country": "Italy",
+    "logo_url": "https://upload.wikimedia.org/wikipedia/commons/0/05/FC_Internazionale_Milano_2021.svg"
+  },
+  {
+    "id": "c-13",
+    "name": "AC Milan",
+    "league": "Serie A",
+    "country": "Italy",
+    "logo_url": "https://upload.wikimedia.org/wikipedia/commons/d/d0/Logo_of_AC_Milan.svg"
+  },
+  {
+    "id": "c-14",
+    "name": "Juventus",
+    "league": "Serie A",
+    "country": "Italy",
+    "logo_url": "https://upload.wikimedia.org/wikipedia/commons/b/bc/Juventus_FC_2017_icon_%28black%29.svg"
+  },
+  {
+    "id": "c-15",
+    "name": "Paris Saint-Germain",
+    "league": "Ligue 1",
+    "country": "France",
+    "logo_url": "https://upload.wikimedia.org/wikipedia/en/a/a7/Paris_Saint-Germain_F.C..svg"
+  },
+  {
+    "id": "c-16",
+    "name": "Al Nassr",
+    "league": "Saudi Pro League",
+    "country": "Saudi Arabia",
+    "logo_url": "https://upload.wikimedia.org/wikipedia/en/b/b1/Al-Nassr_Saudi_Club_logo.svg"
+  },
+  {
+    "id": "c-17",
+    "name": "Inter Miami CF",
+    "league": "MLS",
+    "country": "USA",
+    "logo_url": "https://upload.wikimedia.org/wikipedia/en/2/2c/Inter_Miami_CF_logo.svg"
+  }
+]

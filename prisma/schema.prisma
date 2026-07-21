@@ -24,6 +24,10 @@ model Player {
   nationality          String?
   favoriteClub         String?
   favoriteCompetition  String?
+  coverBanner          String?
+  lastActive           DateTime?
+  onlineStatus         String    @default("online")
+  assists              Int       @default(0)
   createdAt    DateTime  @default(now())
 
   // Relations

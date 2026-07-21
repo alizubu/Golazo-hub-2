@@ -107,6 +107,7 @@ export async function updatePlayerProfile(id, data) {
         nationality: data.nationality,
         favoriteClub: data.favoriteClub,
         favoriteCompetition: data.favoriteCompetition,
+        coverBanner: data.coverBanner,
       }
     });
     const { passwordHash: _ph, salt: _s, ...safePlayer } = player;

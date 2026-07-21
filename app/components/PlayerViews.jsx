@@ -6,6 +6,7 @@ import { Btn, Input, Label, Badge, Avatar, PlayerChip, SectionTitle, EmptyState,
 import { NumberTicker } from './ui/number-ticker';
 import { updatePlayerProfile, changePlayerPassword } from '@/app/actions/player';
 import { motion } from 'framer-motion';
+import ProfileView from './ProfileView';
 
 export default function PlayerViews(props) {
   const { tab } = props;
@@ -659,95 +660,4 @@ function NotificationsView({ notifications }) {
   );
 }
 
-function ProfileView({ me, showToast, trophies }) {
-  const [form, setForm] = React.useState({ 
-    name: me.name || "", 
-    teamName: me.teamName || "", 
-    avatar: me.avatar || "", 
-    avatarImage: me.avatarImage || "", 
-    flag: me.flag || "", 
-    teamLogo: me.teamLogo || "",
-    bio: me.bio || "",
-    nationality: me.nationality || "",
-    favoriteClub: me.favoriteClub || "",
-    favoriteCompetition: me.favoriteCompetition || ""
-  });
-  const [pwd, setPwd] = React.useState(""); 
-  const [pwd2, setPwd2] = React.useState("");
 
-  const saveProfile = async () => {
-    const res = await updatePlayerProfile(me.id, form);
-    if (res.error) showToast(res.error);
-    else showToast("Profile updated");
-  };
-
-  const savePassword = async () => {
-    if (pwd !== pwd2) return showToast("Passwords don't match");
-    const res = await changePlayerPassword(me.id, pwd);
-    if (res.error) showToast(res.error);
-    else { showToast("Password updated"); setPwd(""); setPwd2(""); }
-  };
-
-  return (
-    <div className="flex flex-col gap-6">
-      <FadeIn delay={0.1}>
-        <Card className="p-6">
-          <SectionTitle icon={Camera}>Profile</SectionTitle>
-          <div className="grid md:grid-cols-2 gap-4 mt-2">
-            <div><Label>Display Name</Label><Input value={form.name} onChange={e => setForm({...form, name: e.target.value})} /></div>
-            <div><Label>Bio</Label><Input value={form.bio} onChange={e => setForm({...form, bio: e.target.value})} placeholder="Short bio..." /></div>
-            
-            <div className="md:col-span-2 text-[11px] uppercase tracking-wider font-semibold text-muted-foreground mt-2 border-b border-border/50 pb-1">Football Identity</div>
-            <div><Label>Team Name</Label><Input value={form.teamName} onChange={e => setForm({...form, teamName: e.target.value})} /></div>
-            <div><Label>Nationality (Emoji)</Label><Input value={form.nationality} onChange={e => setForm({...form, nationality: e.target.value})} placeholder="e.g. 🇧🇷" /></div>
-            <div><Label>Favorite Club</Label><Input value={form.favoriteClub} onChange={e => setForm({...form, favoriteClub: e.target.value})} placeholder="e.g. Real Madrid" /></div>
-            <div><Label>Favorite Competition</Label><Input value={form.favoriteCompetition} onChange={e => setForm({...form, favoriteCompetition: e.target.value})} placeholder="e.g. Champions League" /></div>
-            
-            <div className="md:col-span-2 text-[11px] uppercase tracking-wider font-semibold text-muted-foreground mt-2 border-b border-border/50 pb-1">Media (Emojis or URLs)</div>
-            <div><Label>Avatar</Label><Input value={form.avatar} onChange={e => setForm({...form, avatar: e.target.value})} placeholder="Avatar emoji or URL" /></div>
-            <div><Label>Team Logo</Label><Input value={form.teamLogo} onChange={e => setForm({...form, teamLogo: e.target.value})} placeholder="Team logo emoji or URL" /></div>
-          </div>
-          <ShinyButton className="w-full mt-6" onClick={saveProfile}>Save Profile</ShinyButton>
-        </Card>
-      </FadeIn>
-      
-      <FadeIn delay={0.2}>
-        <Card className="p-6">
-          <SectionTitle icon={KeyRound}>Change Password</SectionTitle>
-          <div className="grid gap-4 mt-2">
-            <div><Label>New Password</Label><Input type="password" value={pwd} onChange={e => setPwd(e.target.value)} /></div>
-            <div><Label>Confirm</Label><Input type="password" value={pwd2} onChange={e => setPwd2(e.target.value)} /></div>
-          </div>
-          <Btn variant="ghost" className="w-full mt-6" onClick={savePassword}>Update Password</Btn>
-        </Card>
-      </FadeIn>
-      
-      <FadeIn delay={0.3}>
-        <Card className="p-6">
-          <SectionTitle icon={Trophy}>Trophy Cabinet</SectionTitle>
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 mt-4">
-            {trophies?.filter(t => t.playerId === me.id).map((t, i) => (
-              <motion.div 
-                key={t.id}
-                initial={{ scale: 0.8, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                transition={{ type: "spring", delay: 0.4 + (i * 0.1) }}
-                className="flex flex-col items-center justify-center p-4 bg-gradient-to-b from-gold/20 to-transparent border border-gold/30 rounded-xl text-center shadow-lg"
-              >
-                <div className="text-4xl mb-2">{t.icon || "🏆"}</div>
-                <div className="font-bold text-sm leading-tight">{t.title}</div>
-                <div className="text-[10px] text-muted-foreground uppercase tracking-widest mt-1">{t.season}</div>
-                {t.description && <div className="text-[10px] opacity-70 mt-1">{t.description}</div>}
-              </motion.div>
-            ))}
-            {(!trophies || trophies.filter(t => t.playerId === me.id).length === 0) && (
-              <div className="col-span-full text-center text-sm text-muted-foreground py-8">
-                No trophies earned yet.
-              </div>
-            )}
-          </div>
-        </Card>
-      </FadeIn>
-    </div>
-  );
-}

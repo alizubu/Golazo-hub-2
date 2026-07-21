@@ -1,0 +1,56 @@
+[
+  {
+    "id": "comp-1",
+    "name": "FIFA World Cup",
+    "type": "International",
+    "logo_url": "https://upload.wikimedia.org/wikipedia/en/e/e3/2026_FIFA_World_Cup.svg"
+  },
+  {
+    "id": "comp-2",
+    "name": "UEFA Champions League",
+    "type": "Club",
+    "logo_url": "https://upload.wikimedia.org/wikipedia/en/b/bf/UEFA_Champions_League_logo_2.svg"
+  },
+  {
+    "id": "comp-3",
+    "name": "Premier League",
+    "type": "Club",
+    "logo_url": "https://upload.wikimedia.org/wikipedia/en/f/f2/Premier_League_Logo.svg"
+  },
+  {
+    "id": "comp-4",
+    "name": "La Liga",
+    "type": "Club",
+    "logo_url": "https://upload.wikimedia.org/wikipedia/commons/0/0f/LaLiga_logo_2023.svg"
+  },
+  {
+    "id": "comp-5",
+    "name": "Serie A",
+    "type": "Club",
+    "logo_url": "https://upload.wikimedia.org/wikipedia/en/e/e1/Serie_A_logo_%282022%29.svg"
+  },
+  {
+    "id": "comp-6",
+    "name": "Bundesliga",
+    "type": "Club",
+    "logo_url": "https://upload.wikimedia.org/wikipedia/en/d/df/Bundesliga_logo_%282017%29.svg"
+  },
+  {
+    "id": "comp-7",
+    "name": "UEFA Euro",
+    "type": "International",
+    "logo_url": "https://upload.wikimedia.org/wikipedia/en/f/f7/UEFA_Euro_2024_Logo.svg"
+  },
+  {
+    "id": "comp-8",
+    "name": "Copa América",
+    "type": "International",
+    "logo_url": "https://upload.wikimedia.org/wikipedia/en/7/77/2024_Copa_Am%C3%A9rica_logo.svg"
+  },
+  {
+    "id": "comp-9",
+    "name": "Ligue 1",
+    "type": "Club",
+    "logo_url": "https://upload.wikimedia.org/wikipedia/en/b/ba/Ligue_1_Uber_Eats_logo.svg"
+  }
+]

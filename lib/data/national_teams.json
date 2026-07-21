@@ -1,0 +1,74 @@
+[
+  {
+    "id": "nt-1",
+    "name": "Argentina",
+    "confederation": "CONMEBOL",
+    "flag_url": "https://upload.wikimedia.org/wikipedia/commons/1/1a/Flag_of_Argentina.svg"
+  },
+  {
+    "id": "nt-2",
+    "name": "Brazil",
+    "confederation": "CONMEBOL",
+    "flag_url": "https://upload.wikimedia.org/wikipedia/en/0/05/Flag_of_Brazil.svg"
+  },
+  {
+    "id": "nt-3",
+    "name": "France",
+    "confederation": "UEFA",
+    "flag_url": "https://upload.wikimedia.org/wikipedia/en/c/c3/Flag_of_France.svg"
+  },
+  {
+    "id": "nt-4",
+    "name": "Spain",
+    "confederation": "UEFA",
+    "flag_url": "https://upload.wikimedia.org/wikipedia/en/9/9a/Flag_of_Spain.svg"
+  },
+  {
+    "id": "nt-5",
+    "name": "England",
+    "confederation": "UEFA",
+    "flag_url": "https://upload.wikimedia.org/wikipedia/en/b/be/Flag_of_England.svg"
+  },
+  {
+    "id": "nt-6",
+    "name": "Germany",
+    "confederation": "UEFA",
+    "flag_url": "https://upload.wikimedia.org/wikipedia/en/b/ba/Flag_of_Germany.svg"
+  },
+  {
+    "id": "nt-7",
+    "name": "Italy",
+    "confederation": "UEFA",
+    "flag_url": "https://upload.wikimedia.org/wikipedia/en/0/03/Flag_of_Italy.svg"
+  },
+  {
+    "id": "nt-8",
+    "name": "Portugal",
+    "confederation": "UEFA",
+    "flag_url": "https://upload.wikimedia.org/wikipedia/commons/5/5c/Flag_of_Portugal.svg"
+  },
+  {
+    "id": "nt-9",
+    "name": "Netherlands",
+    "confederation": "UEFA",
+    "flag_url": "https://upload.wikimedia.org/wikipedia/commons/2/20/Flag_of_the_Netherlands.svg"
+  },
+  {
+    "id": "nt-10",
+    "name": "Belgium",
+    "confederation": "UEFA",
+    "flag_url": "https://upload.wikimedia.org/wikipedia/commons/6/65/Flag_of_Belgium.svg"
+  },
+  {
+    "id": "nt-11",
+    "name": "Uruguay",
+    "confederation": "CONMEBOL",
+    "flag_url": "https://upload.wikimedia.org/wikipedia/commons/f/fe/Flag_of_Uruguay.svg"
+  },
+  {
+    "id": "nt-12",
+    "name": "Croatia",
+    "confederation": "UEFA",
+    "flag_url": "https://upload.wikimedia.org/wikipedia/commons/1/1b/Flag_of_Croatia.svg"
+  }
+]
