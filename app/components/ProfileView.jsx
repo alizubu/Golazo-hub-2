@@ -1,7 +1,7 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
-import { Camera, KeyRound, Trophy, Calendar, CheckCircle2, Shield, Flame, Activity, Eye, EyeOff, Lock } from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
+import { Camera, KeyRound, Trophy, Calendar, CheckCircle2, Shield, Flame, Activity, Eye, EyeOff, Lock, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FadeIn, SectionTitle, Label, Btn } from './UI';
 import { NumberTicker } from './ui/number-ticker';
@@ -13,6 +13,7 @@ import { ShimmerButton } from './magicui/ShimmerButton';
 import { Meteors } from './magicui/Meteors';
 import { BorderBeam } from './magicui/BorderBeam';
 import { Particles } from './magicui/Particles';
+import { MagicCard } from './magicui/MagicCard';
 
 // Shadcn UI
 import { Card, CardContent, CardHeader, CardTitle } from '@/app/components/ui/card';
@@ -29,11 +30,9 @@ import {
 // Static Data
 import clubsData from '@/lib/data/clubs.json';
 import nationalTeamsData from '@/lib/data/national_teams.json';
-import competitionsData from '@/lib/data/competitions.json';
 
 const clubs = clubsData.map(c => ({ ...c, subtitle: `${c.league}, ${c.country}` }));
 const nationalTeams = nationalTeamsData.map(nt => ({ ...nt, subtitle: nt.confederation }));
-const competitions = competitionsData.map(comp => ({ ...comp, subtitle: comp.type }));
 
 export default function ProfileView({ me, showToast, trophies = [], matches = [], players = [] }) {
   const [form, setForm] = useState({ 
@@ -47,7 +46,6 @@ export default function ProfileView({ me, showToast, trophies = [], matches = []
     bio: me.bio || "",
     nationality: me.nationality || "",
     favoriteClub: me.favoriteClub || "",
-    favoriteCompetition: me.favoriteCompetition || ""
   });
   
   const [pwd, setPwd] = useState(""); 
@@ -56,6 +54,7 @@ export default function ProfileView({ me, showToast, trophies = [], matches = []
   const [showPwd2, setShowPwd2] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [pwdError, setPwdError] = useState(false);
+  const fileInputRef = useRef(null);
 
   const saveProfile = async () => {
     setIsSaving(true);
@@ -76,6 +75,23 @@ export default function ProfileView({ me, showToast, trophies = [], matches = []
     const res = await changePlayerPassword(me.id, pwd);
     if (res.error) showToast(res.error);
     else { showToast("Password updated ✓"); setPwd(""); setPwd2(""); }
+  };
+
+  const handleCoverUpload = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const url = URL.createObjectURL(file);
+      setForm({ ...form, coverBanner: url });
+    }
+  };
+
+  const handleCoverDrop = (e) => {
+    e.preventDefault();
+    const file = e.dataTransfer.files[0];
+    if (file) {
+      const url = URL.createObjectURL(file);
+      setForm({ ...form, coverBanner: url });
+    }
   };
 
   // Compute Player Statistics
@@ -122,6 +138,9 @@ export default function ProfileView({ me, showToast, trophies = [], matches = []
     return () => clearTimeout(timer);
   }, []);
 
+  const selectedClub = clubs.find(c => c.name === form.favoriteClub);
+  const selectedNationalTeam = nationalTeams.find(nt => nt.name === form.flag);
+
   return (
     <div className="relative flex flex-col gap-8 pb-10 max-w-6xl mx-auto min-h-screen">
       {/* Background Particles */}
@@ -129,9 +148,13 @@ export default function ProfileView({ me, showToast, trophies = [], matches = []
 
       {/* 1. Hero Profile Card */}
       <motion.div initial={{opacity:0, y:20}} animate={{opacity:1, y:0}} transition={{duration:0.4}}>
-        <div className="relative rounded-3xl overflow-hidden bg-card border border-border shadow-2xl group">
+        <div className="relative rounded-3xl overflow-hidden bg-card border border-border shadow-2xl group flex flex-col">
           {/* Cover Banner */}
-          <div className="h-48 md:h-64 w-full relative bg-secondary/50 group-hover:bg-secondary transition-colors overflow-hidden">
+          <div 
+            className="h-48 md:h-64 w-full relative bg-secondary/50 transition-colors overflow-hidden flex-shrink-0"
+            onDragOver={(e) => e.preventDefault()}
+            onDrop={handleCoverDrop}
+          >
             {form.coverBanner ? (
               <img src={form.coverBanner} alt="Cover Banner" className="w-full h-full object-cover" />
             ) : (
@@ -147,47 +170,75 @@ export default function ProfileView({ me, showToast, trophies = [], matches = []
               </div>
             )}
             
-            <div className="absolute top-4 right-4 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity z-10">
-              <Input 
-                value={form.coverBanner} 
-                onChange={e => setForm({...form, coverBanner: e.target.value})} 
-                placeholder="Paste Banner URL..."
-                className="w-56 h-9 text-xs bg-black/60 backdrop-blur-md border-white/20 text-white placeholder:text-white/50 focus-visible:ring-pitch-bright"
+            {/* Hover Overlay for Upload */}
+            <motion.div 
+              className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center backdrop-blur-sm z-10"
+              initial={false}
+            >
+              <Btn variant="secondary" onClick={() => fileInputRef.current?.click()} className="flex items-center gap-2 font-semibold">
+                <Camera size={18} /> Change Cover
+              </Btn>
+              <input 
+                type="file" 
+                ref={fileInputRef} 
+                accept="image/*" 
+                className="hidden" 
+                onChange={handleCoverUpload}
               />
-            </div>
+            </motion.div>
+
+            {form.coverBanner && (
+              <button 
+                className="absolute top-4 right-4 z-20 bg-black/50 hover:bg-black/80 text-white p-1.5 rounded-full backdrop-blur-md transition-colors opacity-0 group-hover:opacity-100"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setForm({...form, coverBanner: ""});
+                }}
+              >
+                <X size={16} />
+              </button>
+            )}
           </div>
 
-          {/* Profile Info Overlay */}
-          <div className="px-6 md:px-10 pb-8 relative">
-            <div className="flex flex-col md:flex-row gap-6 md:items-end -mt-16 relative z-10">
+          {/* Profile Info Overlay - Bottom Bar */}
+          <div className="px-6 md:px-10 pb-8 pt-4 relative bg-card flex-1">
+            <div className="flex flex-col md:flex-row gap-6 items-center md:items-start relative z-20">
               
-              <AvatarUpload me={me} form={form} setForm={setForm} />
+              <div className="-mt-20 md:-mt-24 relative z-30">
+                <AvatarUpload me={me} form={form} setForm={setForm} />
+              </div>
               
-              <div className="flex-1 pb-2">
-                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                  <div>
-                    <h1 className="text-4xl font-black font-display tracking-tight flex items-center gap-3">
-                      {form.name} 
-                      {form.nationality && <span className="text-2xl" title="Nationality">{form.nationality}</span>}
-                    </h1>
-                    <div className="text-muted-foreground font-mono mt-1 flex items-center gap-2">
-                      @{me.username} 
-                      <span className="text-xs opacity-50">•</span>
-                      <span className="text-xs uppercase tracking-wider font-semibold">Member since {new Date(me.createdAt).toLocaleDateString(undefined, { month: 'long', year: 'numeric' })}</span>
+              <div className="flex-1 flex flex-col md:flex-row md:items-center justify-between gap-4 w-full pt-2">
+                <div className="text-center md:text-left">
+                  <h1 className="text-4xl font-black font-display tracking-tight flex items-center justify-center md:justify-start gap-3">
+                    {form.name} 
+                    {form.nationality && <span className="text-2xl" title="Nationality">{form.nationality}</span>}
+                    <Badge className="bg-gold hover:bg-gold/90 text-gold-foreground font-bold shadow-sm px-1.5 py-0.5 text-xs"><Flame size={12} className="mr-1"/> #1</Badge>
+                  </h1>
+                  <div className="text-muted-foreground font-mono mt-2 flex flex-wrap items-center justify-center md:justify-start gap-2">
+                    @{me.username} 
+                    <Badge variant="secondary" className="text-[10px] uppercase tracking-wider font-semibold opacity-80">
+                      Member since {new Date(me.createdAt).toLocaleDateString(undefined, { month: 'long', year: 'numeric' })}
+                    </Badge>
+                  </div>
+                </div>
+                
+                <div className="flex flex-col items-center justify-center md:justify-end gap-3 md:items-end">
+                  <div className="text-right flex flex-col items-center md:items-end">
+                    <div className="text-[10px] text-muted-foreground uppercase tracking-widest font-bold mb-1">Last Active</div>
+                    <div className="text-sm font-semibold flex items-center gap-2 justify-end">
+                      <span className="relative flex h-2.5 w-2.5">
+                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                        <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-green-500"></span>
+                      </span>
+                      Just now
                     </div>
                   </div>
-                  
-                  <div className="flex items-center gap-3">
-                    <div className="text-right hidden md:block">
-                      <div className="text-xs text-muted-foreground uppercase tracking-widest font-bold">Last Active</div>
-                      <div className="text-sm font-semibold flex items-center gap-1.5 justify-end">
-                        <Activity size={14} className="text-green-500" /> Just now
-                      </div>
-                    </div>
-                    <ShimmerButton onClick={saveProfile} disabled={isSaving} className="shrink-0 font-semibold" shimmerColor="#29C179" background="var(--card)">
+                  <ShimmerButton onClick={saveProfile} disabled={isSaving} className="shrink-0 font-semibold shadow-md overflow-hidden relative group" shimmerColor="#29C179" background="var(--card)">
+                    <span className="relative z-10 whitespace-pre-wrap text-center text-sm font-medium leading-none tracking-tight text-white dark:from-white dark:to-slate-900/10 lg:text-lg outline-none group-focus-visible:ring-0">
                       {isSaving ? "Saving..." : "Save Profile"}
-                    </ShimmerButton>
-                  </div>
+                    </span>
+                  </ShimmerButton>
                 </div>
               </div>
             </div>
@@ -195,20 +246,31 @@ export default function ProfileView({ me, showToast, trophies = [], matches = []
         </div>
       </motion.div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+      {/* Bento Grid */}
+      <motion.div 
+        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6"
+        variants={{
+          hidden: { opacity: 0 },
+          show: {
+            opacity: 1,
+            transition: { staggerChildren: 0.1 }
+          }
+        }}
+        initial="hidden"
+        animate="show"
+      >
         
-        {/* Left Column: Personal Info & Identity */}
-        <div className="lg:col-span-4 flex flex-col gap-8">
-          
-          <motion.div initial={{opacity:0, y:20}} animate={{opacity:1, y:0}} transition={{delay:0.1, duration:0.4}}>
-            <Card className="bg-secondary/20 backdrop-blur-md border-border/50 shadow-lg">
+        {/* Row 1: Personal Info */}
+        <motion.div variants={{ hidden: { opacity: 0, scale: 0.95 }, show: { opacity: 1, scale: 1 } }} className="col-span-1 md:col-span-2">
+          <MagicCard>
+            <Card className="h-full bg-transparent border-none shadow-none">
               <CardHeader className="pb-4 border-b border-border/30">
                 <CardTitle className="text-lg flex items-center gap-2"><CheckCircle2 className="text-pitch-bright" size={18}/> Personal Information</CardTitle>
               </CardHeader>
               <CardContent className="pt-6 flex flex-col gap-5">
                 <div className="space-y-1.5">
                   <Label>Display Name</Label>
-                  <Input value={form.name} onChange={e => setForm({...form, name: e.target.value})} className="font-semibold focus-visible:ring-pitch-bright" />
+                  <Input value={form.name} onChange={e => setForm({...form, name: e.target.value})} className="font-semibold focus-visible:ring-pitch-bright bg-background/50" />
                 </div>
                 <div className="space-y-1.5">
                   <Label>Username</Label>
@@ -223,27 +285,93 @@ export default function ProfileView({ me, showToast, trophies = [], matches = []
                     value={form.bio} 
                     onChange={e => setForm({...form, bio: e.target.value.substring(0, 150)})} 
                     placeholder="Tell us about your playstyle..."
-                    className="min-h-[100px] resize-none focus-visible:ring-pitch-bright bg-secondary/50 transition-colors focus:bg-background"
+                    className="min-h-[100px] resize-none focus-visible:ring-pitch-bright bg-background/50 transition-colors focus:bg-background"
                   />
                 </div>
                 <div className="space-y-1.5">
                   <Label>Nationality (Emoji)</Label>
-                  <Input value={form.nationality} onChange={e => setForm({...form, nationality: e.target.value})} placeholder="e.g. 🇧🇷" className="text-xl focus-visible:ring-pitch-bright" />
+                  <Input value={form.nationality} onChange={e => setForm({...form, nationality: e.target.value})} placeholder="e.g. 🇧🇷" className="text-xl focus-visible:ring-pitch-bright bg-background/50" />
                 </div>
               </CardContent>
             </Card>
-          </motion.div>
+          </MagicCard>
+        </motion.div>
 
-          <motion.div initial={{opacity:0, y:20}} animate={{opacity:1, y:0}} transition={{delay:0.2, duration:0.4}}>
-            <Card className="border-red-500/20 shadow-lg bg-card/80">
+        {/* Row 1: Football Identity */}
+        <motion.div variants={{ hidden: { opacity: 0, scale: 0.95 }, show: { opacity: 1, scale: 1 } }} className="col-span-1 md:col-span-2">
+          <MagicCard gradientColor="rgba(56, 189, 248, 0.1)">
+            <Card className="h-full bg-transparent border-none shadow-none relative overflow-hidden">
+               <div className="absolute -top-24 -right-24 w-64 h-64 bg-sky-500/5 rounded-full blur-3xl pointer-events-none"></div>
+               <CardHeader className="pb-4">
+                 <CardTitle className="text-xl flex items-center gap-2"><Shield className="text-sky-500" size={20}/> Football Identity</CardTitle>
+                 <p className="text-sm text-muted-foreground">Select your favorite real-world teams to show them off on your profile.</p>
+               </CardHeader>
+               
+               <CardContent className="flex flex-col gap-6 relative z-10 pt-2">
+                 <SearchableLogoPicker 
+                    label="Favorite Club"
+                    items={clubs} 
+                    value={form.favoriteClub} 
+                    onChange={(val) => setForm({...form, favoriteClub: val})}
+                    placeholder="Search Club..."
+                 />
+                 
+                 <SearchableLogoPicker 
+                    label="Favorite National Team"
+                    items={nationalTeams} 
+                    value={form.flag}
+                    onChange={(val) => setForm({...form, flag: val})}
+                    placeholder="Search National Team..."
+                 />
+
+                 {/* Live Preview Strip */}
+                 <div className="mt-2 pt-4 border-t border-border/30">
+                    <Label className="mb-3 block text-center text-xs opacity-70">Your Identity</Label>
+                    <div className="flex items-center justify-center gap-4 bg-secondary/20 rounded-xl p-4 border border-border/50">
+                      {selectedClub ? (
+                        <div className="flex flex-col items-center gap-2 w-24 text-center">
+                          {selectedClub.logo_url && <img src={selectedClub.logo_url} alt={selectedClub.name} className="w-10 h-10 object-contain drop-shadow-md" />}
+                          <span className="text-[10px] font-bold leading-tight">{selectedClub.name}</span>
+                        </div>
+                      ) : (
+                        <div className="flex flex-col items-center gap-2 w-24 text-center opacity-30">
+                          <div className="w-10 h-10 rounded-full bg-secondary border border-border border-dashed flex items-center justify-center"><Shield size={16}/></div>
+                          <span className="text-[10px] font-bold">No Club</span>
+                        </div>
+                      )}
+                      
+                      <div className="text-xs font-black italic opacity-30 px-2">VS</div>
+                      
+                      {selectedNationalTeam ? (
+                        <div className="flex flex-col items-center gap-2 w-24 text-center">
+                          {selectedNationalTeam.flag_url && <img src={selectedNationalTeam.flag_url} alt={selectedNationalTeam.name} className="w-10 h-10 object-contain drop-shadow-md" />}
+                          <span className="text-[10px] font-bold leading-tight">{selectedNationalTeam.name}</span>
+                        </div>
+                      ) : (
+                        <div className="flex flex-col items-center gap-2 w-24 text-center opacity-30">
+                          <div className="w-10 h-10 rounded-full bg-secondary border border-border border-dashed flex items-center justify-center"><Shield size={16}/></div>
+                          <span className="text-[10px] font-bold">No Nation</span>
+                        </div>
+                      )}
+                    </div>
+                 </div>
+               </CardContent>
+            </Card>
+          </MagicCard>
+        </motion.div>
+
+        {/* Row 2: Account Security */}
+        <motion.div variants={{ hidden: { opacity: 0, scale: 0.95 }, show: { opacity: 1, scale: 1 } }} className="col-span-1">
+          <MagicCard gradientColor="rgba(239, 68, 68, 0.1)">
+            <Card className="h-full bg-transparent border-none shadow-none">
               <CardHeader className="pb-4 border-b border-border/30">
-                <CardTitle className="text-lg flex items-center gap-2"><KeyRound className="text-claret" size={18}/> Account Security</CardTitle>
+                <CardTitle className="text-lg flex items-center gap-2"><KeyRound className="text-claret" size={18}/> Security</CardTitle>
               </CardHeader>
               <CardContent className="pt-6 grid gap-5">
                 <div className="space-y-1.5 relative">
                   <Label>New Password</Label>
                   <div className="relative">
-                    <Input type={showPwd ? "text" : "password"} value={pwd} onChange={e => setPwd(e.target.value)} className="pr-10 focus-visible:ring-claret" />
+                    <Input type={showPwd ? "text" : "password"} value={pwd} onChange={e => setPwd(e.target.value)} className="pr-10 focus-visible:ring-claret bg-background/50" />
                     <button type="button" onClick={() => setShowPwd(!showPwd)} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground">
                       {showPwd ? <EyeOff size={16} /> : <Eye size={16} />}
                     </button>
@@ -261,76 +389,33 @@ export default function ProfileView({ me, showToast, trophies = [], matches = []
                 <div className="space-y-1.5 relative">
                   <Label>Confirm Password</Label>
                   <div className="relative">
-                    <Input type={showPwd2 ? "text" : "password"} value={pwd2} onChange={e => setPwd2(e.target.value)} className="pr-10 focus-visible:ring-claret" />
+                    <Input type={showPwd2 ? "text" : "password"} value={pwd2} onChange={e => setPwd2(e.target.value)} className="pr-10 focus-visible:ring-claret bg-background/50" />
                     <button type="button" onClick={() => setShowPwd2(!showPwd2)} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground">
                       {showPwd2 ? <EyeOff size={16} /> : <Eye size={16} />}
                     </button>
                   </div>
                 </div>
                 
-                <motion.div animate={pwdError ? { x: [-5, 5, -5, 5, 0] } : {}} transition={{ duration: 0.3 }}>
-                  <Btn variant="outline" className="w-full border-border/50 hover:bg-secondary/50" onClick={savePassword}>Update Password</Btn>
+                <motion.div animate={pwdError ? { x: [-5, 5, -5, 5, 0] } : {}} transition={{ duration: 0.3 }} className="mt-auto pt-4">
+                  <Btn variant="outline" className="w-full border-border/50 hover:bg-secondary/50 bg-background/50" onClick={savePassword}>Update</Btn>
                 </motion.div>
               </CardContent>
             </Card>
-          </motion.div>
-        </div>
+          </MagicCard>
+        </motion.div>
 
-        {/* Right Column: Identity & Stats */}
-        <div className="lg:col-span-8 flex flex-col gap-8">
-          
-          <motion.div initial={{opacity:0, y:20}} animate={{opacity:1, y:0}} transition={{delay:0.15, duration:0.4}}>
-            <Card className="bg-gradient-to-br from-card to-secondary/30 relative overflow-hidden border-border/50 shadow-lg">
-               <div className="absolute -top-24 -right-24 w-64 h-64 bg-pitch/5 rounded-full blur-3xl pointer-events-none"></div>
-               <CardHeader className="pb-4">
-                 <CardTitle className="text-xl flex items-center gap-2"><Shield className="text-pitch-bright" size={20}/> Football Identity</CardTitle>
-                 <p className="text-sm text-muted-foreground">Select your favorite real-world teams and competitions to show them off on your profile.</p>
-               </CardHeader>
-               
-               <CardContent className="grid md:grid-cols-2 gap-6 relative z-10">
-                 <div>
-                   <SearchableLogoPicker 
-                      label="Favorite Club"
-                      items={clubs} 
-                      value={form.favoriteClub} 
-                      onChange={(val) => setForm({...form, favoriteClub: val})}
-                      placeholder="Search Club..."
-                   />
-                 </div>
-                 
-                 <div>
-                    <SearchableLogoPicker 
-                      label="Favorite National Team"
-                      items={nationalTeams} 
-                      value={form.flag}
-                      onChange={(val) => setForm({...form, flag: val})}
-                      placeholder="Search National Team..."
-                   />
-                 </div>
-
-                 <div className="md:col-span-2">
-                    <SearchableLogoPicker 
-                      label="Favorite Competition"
-                      items={competitions} 
-                      value={form.favoriteCompetition} 
-                      onChange={(val) => setForm({...form, favoriteCompetition: val})}
-                      placeholder="Search Competition..."
-                   />
-                 </div>
-               </CardContent>
-            </Card>
-          </motion.div>
-
-          <motion.div initial={{opacity:0, y:20}} animate={{opacity:1, y:0}} transition={{delay:0.25, duration:0.4}}>
-            <Card className="shadow-lg border-border/50 bg-card/80 backdrop-blur-md">
+        {/* Row 2: Player Stats */}
+        <motion.div variants={{ hidden: { opacity: 0, scale: 0.95 }, show: { opacity: 1, scale: 1 } }} className="col-span-1 md:col-span-1 lg:col-span-3">
+          <MagicCard gradientColor="rgba(250, 204, 21, 0.1)">
+            <Card className="h-full bg-transparent border-none shadow-none">
               <CardHeader className="pb-2">
                 <CardTitle className="text-xl flex items-center gap-2"><Activity className="text-pitch-bright" size={20}/> Player Statistics</CardTitle>
               </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mt-2">
+              <CardContent className="h-full">
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-2 h-[calc(100%-2rem)]">
                   
                   {/* Highlighted Stat */}
-                  <Card className="relative overflow-hidden bg-gradient-to-br from-gold/10 to-transparent border-gold/20 flex flex-col items-center justify-center text-center p-6 group hover:border-gold/50 transition-colors shadow-none">
+                  <Card className="relative overflow-hidden bg-gradient-to-br from-gold/10 to-transparent border-gold/20 flex flex-col items-center justify-center text-center p-6 group hover:border-gold/50 transition-colors shadow-none col-span-2 sm:col-span-1">
                     <BorderBeam size={150} duration={8} delay={1} colorFrom="var(--gold)" colorTo="transparent" />
                     <Label className="text-gold/80 mb-1 z-10">Current Rank</Label>
                     <div className="text-4xl font-black font-mono text-gold z-10 drop-shadow-md">#1</div>
@@ -377,26 +462,18 @@ export default function ProfileView({ me, showToast, trophies = [], matches = []
                 </div>
               </CardContent>
             </Card>
-          </motion.div>
+          </MagicCard>
+        </motion.div>
 
-          <motion.div initial={{opacity:0, y:20}} animate={{opacity:1, y:0}} transition={{delay:0.35, duration:0.4}}>
-            <Card className="shadow-lg border-border/50 bg-card/80">
+        {/* Row 3: Trophy Cabinet */}
+        <motion.div variants={{ hidden: { opacity: 0, scale: 0.95 }, show: { opacity: 1, scale: 1 } }} className="col-span-full">
+          <MagicCard gradientColor="rgba(251, 191, 36, 0.15)">
+            <Card className="bg-transparent border-none shadow-none">
               <CardHeader className="pb-4">
                 <CardTitle className="text-xl flex items-center gap-2"><Trophy className="text-gold" size={20}/> Trophy Cabinet</CardTitle>
               </CardHeader>
               <CardContent>
-                <motion.div 
-                  className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4"
-                  variants={{
-                    hidden: { opacity: 0 },
-                    show: {
-                      opacity: 1,
-                      transition: { staggerChildren: 0.1 }
-                    }
-                  }}
-                  initial="hidden"
-                  animate="show"
-                >
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
                   {myTrophies.length > 0 ? myTrophies.map((t) => (
                     <TrophyCard key={t.id} trophy={t} unlocked />
                   )) : null}
@@ -410,13 +487,13 @@ export default function ProfileView({ me, showToast, trophies = [], matches = []
                   ].map((placeholder, i) => (
                     <TrophyCard key={i} trophy={placeholder} unlocked={false} />
                   ))}
-                </motion.div>
+                </div>
               </CardContent>
             </Card>
-          </motion.div>
+          </MagicCard>
+        </motion.div>
 
-        </div>
-      </div>
+      </motion.div>
     </div>
   );
 }
@@ -438,11 +515,7 @@ function TrophyCard({ trophy, unlocked }) {
   return (
     <HoverCard>
       <HoverCardTrigger asChild>
-        <motion.div 
-          variants={{
-            hidden: { opacity: 0, y: 20 },
-            show: { opacity: 1, y: 0 }
-          }}
+        <div 
           className={`relative flex flex-col items-center justify-center p-5 border rounded-2xl text-center cursor-help transition-all ${
             unlocked 
               ? 'bg-gradient-to-b from-gold/15 to-transparent border-gold/30 shadow-lg shadow-gold/5 group hover:-translate-y-1 hover:border-gold/60' 
@@ -460,7 +533,7 @@ function TrophyCard({ trophy, unlocked }) {
           <div className="text-[10px] text-muted-foreground uppercase tracking-widest mt-1.5 font-semibold">
             {unlocked ? trophy.season || "Unlocked" : "Locked"}
           </div>
-        </motion.div>
+        </div>
       </HoverCardTrigger>
       <HoverCardContent side="top" align="center" className="w-64 bg-card/95 backdrop-blur shadow-xl border-border">
         <div className="space-y-1">
