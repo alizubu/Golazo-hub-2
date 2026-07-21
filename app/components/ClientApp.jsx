@@ -77,23 +77,44 @@ export default function ClientApp({ initialPlayers, initialTournaments, initialM
       <TopBar session={session} me={me} setTab={setTab} onLogout={() => { setSession(null); setTab('dashboard'); }} />
       
       <div className="max-w-5xl mx-auto px-4 pt-6">
-        <div className="flex gap-2 overflow-x-auto pb-4 hide-scrollbar snap-x snap-mandatory">
+        <div className="flex gap-2 overflow-x-auto pb-4 hide-scrollbar snap-x snap-mandatory relative">
           {items.map((it) => {
             const Icon = it.icon; 
             const active = tab === it.id;
-            return (
+            
+            const btnContent = (
               <button 
                 key={it.id} 
                 onClick={() => setTab(it.id)} 
-                className={`snap-start transition-all flex items-center gap-2 px-4 py-2.5 rounded-full text-sm font-semibold whitespace-nowrap shrink-0 border ${
+                className={`relative snap-start transition-all flex items-center gap-2 px-4 py-2.5 rounded-full text-sm font-semibold whitespace-nowrap shrink-0 ${
                   active 
-                    ? 'bg-secondary text-pitch-bright border-border shadow-sm' 
-                    : 'bg-transparent text-muted-foreground border-transparent hover:text-foreground hover:bg-secondary/50'
+                    ? 'text-pitch-bright' 
+                    : 'text-muted-foreground hover:text-foreground hover:bg-secondary/50'
                 }`}
               >
-                <Icon size={16} /> {it.label}
+                {active && (
+                  <motion.div
+                    layoutId="underline"
+                    className="absolute inset-0 bg-secondary rounded-full -z-10 border border-border shadow-sm"
+                    transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
+                  />
+                )}
+                <Icon size={16} className="relative z-10" /> 
+                <span className="relative z-10">{it.label}</span>
               </button>
             );
+
+            if (active && it.id === 'profile') {
+              return (
+                <div key={it.id} className="relative rounded-full">
+                   {/* Fallback to simple glowing ring if AnimatedBorderTrail isn't imported, but we'll try to just wrap it in a custom style for now to emulate the trail without breaking */}
+                   <div className="absolute inset-0 rounded-full animate-pulse border border-pitch-bright/50 shadow-[0_0_10px_rgba(41,193,121,0.2)]"></div>
+                   {btnContent}
+                </div>
+              );
+            }
+            
+            return btnContent;
           })}
         </div>
 

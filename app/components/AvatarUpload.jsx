@@ -1,0 +1,160 @@
+'use client';
+
+import React, { useState, useRef, useEffect } from 'react';
+import { Camera, CheckCircle2 } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Avatar } from '@/app/components/UI';
+import { Progress } from '@/app/components/ui/progress';
+
+export default function AvatarUpload({ me, form, setForm }) {
+  const [isHovered, setIsHovered] = useState(false);
+  const [isDragging, setIsDragging] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const [progress, setProgress] = useState(0);
+  const [success, setSuccess] = useState(false);
+  const fileInputRef = useRef(null);
+
+  const handleFileChange = (e) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      processFile(file);
+    }
+  };
+
+  const processFile = (file) => {
+    // In a real app, you would upload to a server/storage here
+    // For now, we simulate an upload and use a local object URL
+    setUploading(true);
+    setProgress(0);
+    
+    // Simulate upload progress
+    const interval = setInterval(() => {
+      setProgress(prev => {
+        if (prev >= 100) {
+          clearInterval(interval);
+          return 100;
+        }
+        return prev + 25;
+      });
+    }, 200);
+
+    setTimeout(() => {
+      clearInterval(interval);
+      setUploading(false);
+      setSuccess(true);
+      
+      const objectUrl = URL.createObjectURL(file);
+      // Update form state with the local object URL for preview
+      setForm(prev => ({ ...prev, avatarImage: objectUrl }));
+      
+      setTimeout(() => setSuccess(false), 2000);
+    }, 1000);
+  };
+
+  const onDragOver = (e) => {
+    e.preventDefault();
+    setIsDragging(true);
+  };
+
+  const onDragLeave = (e) => {
+    e.preventDefault();
+    setIsDragging(false);
+  };
+
+  const onDrop = (e) => {
+    e.preventDefault();
+    setIsDragging(false);
+    const file = e.dataTransfer.files?.[0];
+    if (file && file.type.startsWith('image/')) {
+      processFile(file);
+    }
+  };
+
+  // Cleanup object urls to avoid memory leaks
+  useEffect(() => {
+    return () => {
+      if (form.avatarImage && form.avatarImage.startsWith('blob:')) {
+        URL.revokeObjectURL(form.avatarImage);
+      }
+    };
+  }, [form.avatarImage]);
+
+  return (
+    <div 
+      className="relative group/avatar"
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+      onDragOver={onDragOver}
+      onDragLeave={onDragLeave}
+      onDrop={onDrop}
+    >
+      <div 
+        className={`rounded-full p-1.5 shrink-0 shadow-xl inline-block relative cursor-pointer transition-colors duration-300 ${isDragging ? 'bg-pitch border-2 border-dashed border-pitch-bright' : 'bg-card'}`}
+        onClick={() => fileInputRef.current?.click()}
+      >
+        <Avatar p={{ ...me, avatar: form.avatar, avatarImage: form.avatarImage }} size={120} ring="var(--gold)" />
+        
+        {/* Hover Overlay */}
+        <AnimatePresence>
+          {(isHovered || isDragging) && !uploading && (
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="absolute inset-1.5 rounded-full bg-black/60 flex flex-col items-center justify-center text-white z-10 backdrop-blur-sm"
+            >
+              <Camera size={28} className="mb-1" />
+              <span className="text-[10px] font-semibold tracking-wider uppercase">Change</span>
+            </motion.div>
+          )}
+        </AnimatePresence>
+        
+        {/* Uploading State */}
+        <AnimatePresence>
+          {uploading && (
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="absolute inset-1.5 rounded-full bg-black/80 flex flex-col items-center justify-center text-white z-20 backdrop-blur-sm px-4"
+            >
+              <Progress value={progress} className="h-1.5 w-full bg-secondary" />
+              <span className="text-[10px] font-semibold mt-2">{progress}%</span>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* Success Burst */}
+        <AnimatePresence>
+          {success && (
+            <motion.div 
+              initial={{ scale: 0, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0, opacity: 0 }}
+              className="absolute inset-1.5 rounded-full bg-green-500/90 flex flex-col items-center justify-center text-white z-20 backdrop-blur-md"
+            >
+              <CheckCircle2 size={40} className="text-white drop-shadow-md" />
+            </motion.div>
+          )}
+        </AnimatePresence>
+        
+        {/* Hidden file input */}
+        <input 
+          type="file" 
+          ref={fileInputRef} 
+          onChange={handleFileChange} 
+          accept="image/*" 
+          className="hidden" 
+        />
+        
+        {/* Online Status Badge (Magic UI Ping effect added later) */}
+        <div className="absolute bottom-4 right-4 z-30">
+          <div className="relative flex h-5 w-5">
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+            <span className="relative inline-flex rounded-full h-5 w-5 bg-green-500 border-4 border-card" title="Online"></span>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
