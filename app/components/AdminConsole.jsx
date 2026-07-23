@@ -4,7 +4,8 @@ import React, { useState, useEffect } from 'react';
 import { Trophy, Calendar, Users, Radio, Clock, Check, Archive, Plus, Trash2, Settings, Swords, Edit2, ListOrdered, BarChart2, AlertTriangle, ArrowRight, Megaphone, ChevronDown, Package } from 'lucide-react';
 import { Card, Btn, Input, Label, SectionTitle, EmptyState, MagicCard, FadeIn, ShinyButton, Badge } from './UI';
 import { startSeason, deleteSeason, renameSeason, completeSeason } from '@/app/actions/season';
-import { generateFixtures, generatePlayoffs } from '@/app/actions/match';
+import { generateFixtures, generatePlayoffs, updateMatchStatus, updateMatchScore } from '@/app/actions/match';
+import { getTrophyTemplates, awardTrophy, removeTrophy, updateTrophy, createTrophyTemplate, deleteTrophyTemplate, createAnnouncement, deleteAnnouncement } from '@/app/actions/admin';
 import { signUpPlayer, adminUpdatePlayer, adminDeletePlayer } from '@/app/actions/player';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/app/components/ui/tabs';
 import {
@@ -214,7 +215,6 @@ function AdminMatchControl({ m, players, showToast }) {
 
   const update = async (data) => {
     setLoading(true);
-    const { updateMatchStatus } = await import('@/app/actions/match');
     const res = await updateMatchStatus(m.id, data);
     if (res.error) showToast(res.error);
     setLoading(false);
@@ -226,7 +226,6 @@ function AdminMatchControl({ m, players, showToast }) {
     const key = side === "home" ? "homeScore" : "awayScore";
     const next = Math.max(0, (m[key] || 0) + delta);
     setLoading(true);
-    const { updateMatchScore } = await import('@/app/actions/match');
     await updateMatchScore(m.id, side === "home" ? next : (m.homeScore||0), side === "away" ? next : (m.awayScore||0));
     setLoading(false);
   };
@@ -562,7 +561,6 @@ function AdminTrophies({ players, trophies = [], showToast }) {
   // Load persisted custom templates from DB
   useEffect(() => {
     async function loadTemplates() {
-      const { getTrophyTemplates } = await import('@/app/actions/admin');
       const templates = await getTrophyTemplates();
       setDbTemplates(templates);
     }
@@ -576,7 +574,6 @@ function AdminTrophies({ players, trophies = [], showToast }) {
 
   const handleAward = async () => {
     if (!form.playerId || !form.title || !form.season) return showToast('Player, Title, and Season are required.');
-    const { awardTrophy } = await import('@/app/actions/admin');
     const res = await awardTrophy(form);
     if (res.error) return showToast(res.error);
     const playerName = players.find(p => p.id === form.playerId)?.name || 'Player';
@@ -586,7 +583,6 @@ function AdminTrophies({ players, trophies = [], showToast }) {
 
   const handleRevoke = async () => {
     if (!revokeTarget) return;
-    const { removeTrophy } = await import('@/app/actions/admin');
     const res = await removeTrophy(revokeTarget.id);
     if (res.error) showToast(res.error);
     else {
@@ -598,7 +594,6 @@ function AdminTrophies({ players, trophies = [], showToast }) {
 
   const handleEdit = async (updatedData) => {
     if (!editTarget) return;
-    const { updateTrophy } = await import('@/app/actions/admin');
     const res = await updateTrophy(editTarget.id, updatedData);
     if (res.error) showToast(res.error);
     else showToast(`✏️ Trophy updated`);
@@ -612,7 +607,6 @@ function AdminTrophies({ players, trophies = [], showToast }) {
   const handleSaveTemplate = async () => {
     if (!newTemplate.name.trim()) return showToast('Template name required');
     setTemplateSaving(true);
-    const { createTrophyTemplate } = await import('@/app/actions/admin');
     const res = await createTrophyTemplate(newTemplate);
     if (res.error) { showToast(res.error); }
     else {
@@ -624,7 +618,6 @@ function AdminTrophies({ players, trophies = [], showToast }) {
   };
 
   const handleDeleteTemplate = async (id, name) => {
-    const { deleteTrophyTemplate } = await import('@/app/actions/admin');
     const res = await deleteTrophyTemplate(id);
     if (res.error) showToast(res.error);
     else {
@@ -859,7 +852,6 @@ function AdminAnnouncements({ announcements, showToast }) {
 
   const handlePost = async () => {
     if (!form.title || !form.content) return showToast("Title and Content required.");
-    const { createAnnouncement } = await import('@/app/actions/admin');
     const res = await createAnnouncement(form);
     if (res.error) showToast(res.error);
     else { showToast("Announcement posted!"); setForm({ title: "", content: "" }); }
@@ -867,7 +859,6 @@ function AdminAnnouncements({ announcements, showToast }) {
 
   const handleRemove = async (id) => {
     if (!confirm("Remove announcement?")) return;
-    const { deleteAnnouncement } = await import('@/app/actions/admin');
     const res = await deleteAnnouncement(id);
     if (res.error) showToast(res.error);
     else showToast("Announcement removed.");
