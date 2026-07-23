@@ -40,9 +40,7 @@ import {
 
 const playerTabs = [
   { id: "dashboard", label: "Dashboard", icon: Home },
-  { id: "standings", label: "Standings", icon: ListOrdered },
   { id: "matches", label: "Matches", icon: Calendar },
-  { id: "playoffs", label: "Playoffs", icon: Swords },
   { id: "players", label: "Roster", icon: Users },
   { id: "history", label: "History", icon: Archive },
   { id: "notifications", label: "Alerts", icon: Bell },

@@ -8,6 +8,9 @@ import { Card, CardHeader, CardTitle, CardContent } from '@/app/components/ui/ca
 import { NumberTicker } from './ui/number-ticker';
 import { motion } from 'framer-motion';
 import SettingsView from './SettingsView';
+import MatchesPage from './MatchesPage';
+import MatchCard from './MatchCard';
+import MatchStatsModal from './MatchStatsModal';
 import { BorderBeam } from './magicui/BorderBeam';
 import { markNotificationsRead } from '@/app/actions/player';
 import { Skeleton } from '@/app/components/ui/skeleton';
@@ -19,13 +22,15 @@ const clubs = clubsData.map(c => ({ ...c, subtitle: `${c.league}, ${c.country}` 
 const nationalTeams = nationalTeamsData.map(nt => ({ ...nt, subtitle: nt.confederation }));
 
 export default function PlayerViews(props) {
+  const [selectedMatchId, setSelectedMatchId] = React.useState(null);
+  const handleMatchClick = (id) => setSelectedMatchId(id);
+  const handleCloseModal = () => setSelectedMatchId(null);
+  const newProps = { ...props, onMatchClick: handleMatchClick };
   const { tab } = props;
-  if (tab === "dashboard") return <PlayerDashboard {...props} />;
-  if (tab === "standings") return <StandingsView {...props} />;
-  if (tab === "matches") return <MatchesView {...props} />;
-  if (tab === "playoffs") return <PlayoffsView {...props} />;
-  if (tab === "players") return <RosterView {...props} />;
-  if (tab === "history") return <HistoryView {...props} />;
+  if (tab === "dashboard") return <><PlayerDashboard {...newProps} />{selectedMatchId && <MatchStatsModal matchId={selectedMatchId} onClose={handleCloseModal} />}</>;
+  if (tab === "matches") return <><PageHeader title="Matches" onBack={() => props.setTab('dashboard')} /><div className="p-4 sm:p-8"><MatchesPage {...newProps} /></div>{selectedMatchId && <MatchStatsModal matchId={selectedMatchId} onClose={handleCloseModal} />}</>;
+  if (tab === "players") return <><RosterView {...props} />{selectedMatchId && <MatchStatsModal matchId={selectedMatchId} onClose={handleCloseModal} />}</>;
+  if (tab === "history") return <><HistoryView {...props} />{selectedMatchId && <MatchStatsModal matchId={selectedMatchId} onClose={handleCloseModal} />}</>;
   if (tab === "notifications") return <NotificationsView {...props} />;
   if (tab === "settings") return <SettingsView {...props} />;
   return null;
@@ -81,7 +86,7 @@ function LiveScoreboard({ m, players }) {
   );
 }
 
-function MatchCard({ m, players }) {
+function OldMatchCard({ m, players }) {
   const byId = Object.fromEntries(players.map((p) => [p.id, p]));
   const h = byId[m.homeId], a = byId[m.awayId];
   return (
@@ -140,7 +145,7 @@ function CircularProgress({ value, color = "var(--pitch-bright)", label }) {
   );
 }
 
-function PlayerDashboard({ me, activeSeason, matches, players, announcements = [], trophies = [], notifications = [], setTab, persistPlayers }) {
+function PlayerDashboard({ me, activeSeason, matches, players, announcements = [], trophies = [], notifications = [], setTab, persistPlayers, onMatchClick }) {
   const t = activeSeason;
   const tMatches = t ? matches.filter((m) => m.seasonId === t.id) : [];
   const standings = t ? computeStandings(tMatches, players, t.id) : [];
@@ -448,7 +453,7 @@ function PlayerDashboard({ me, activeSeason, matches, players, announcements = [
         {/* Live Matches */}
         {myLive.map((m, i) => (
           <FadeIn key={m.id} delay={0.3} className="col-span-12">
-            <LiveScoreboard m={m} players={players} />
+            <MatchCard m={m} players={players} onClick={onMatchClick} />
           </FadeIn>
         ))}
 
@@ -636,7 +641,7 @@ function MatchesView({ activeSeason, matches, players }) {
         <div className="flex flex-col gap-3">
           {tMatches.map((m, i) => (
             <motion.div key={m.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.03 }}>
-              <MatchCard m={m} players={players} />
+              <MatchCard onClick={props.onMatchClick} m={m} players={players} />
             </motion.div>
           ))}
         </div>
@@ -667,20 +672,20 @@ function PlayoffBracketDisplay({ tMatches, players }) {
       <div className="grid md:grid-cols-2 gap-4">
         <div>
           <div className="text-[11px] uppercase tracking-wider mb-2 font-semibold text-gold">Top match (Rank 1 vs 2)</div>
-          {semiA ? (semiA.status === "live" ? <LiveScoreboard m={semiA} players={players} /> : <MatchCard m={semiA} players={players} />) : <EmptyState text="Not generated yet." />}
+          {semiA ? (semiA.status === "live" ? <MatchCard m={semiA} players={players} onClick={onMatchClick} /> : <MatchCard onClick={props.onMatchClick} m={semiA} players={players} />) : <EmptyState text="Not generated yet." />}
         </div>
         <div>
           <div className="text-[11px] uppercase tracking-wider mb-2 font-semibold text-claret">Bottom match (Rank 3 vs 4)</div>
-          {semiB ? (semiB.status === "live" ? <LiveScoreboard m={semiB} players={players} /> : <MatchCard m={semiB} players={players} />) : <EmptyState text="Not generated yet." />}
+          {semiB ? (semiB.status === "live" ? <MatchCard m={semiB} players={players} onClick={onMatchClick} /> : <MatchCard onClick={props.onMatchClick} m={semiB} players={players} />) : <EmptyState text="Not generated yet." />}
         </div>
       </div>
       <div>
         <div className="text-[11px] uppercase tracking-wider mb-2 font-semibold text-muted-foreground">Challenger match — Top match loser vs Bottom match winner</div>
-        {challenger ? (challenger.status === "live" ? <LiveScoreboard m={challenger} players={players} /> : <MatchCard m={challenger} players={players} />) : <EmptyState text="Unlocks once both matches above are completed." />}
+        {challenger ? (challenger.status === "live" ? <MatchCard m={challenger} players={players} onClick={onMatchClick} /> : <MatchCard onClick={props.onMatchClick} m={challenger} players={players} />) : <EmptyState text="Unlocks once both matches above are completed." />}
       </div>
       <div>
         <div className="text-[11px] uppercase tracking-wider mb-2 font-semibold text-pitch-bright">Final — Top match winner vs Challenger winner</div>
-        {final ? (final.status === "live" ? <LiveScoreboard m={final} players={players} /> : <MatchCard m={final} players={players} />) : <EmptyState text="Unlocks once the challenger match is completed." />}
+        {final ? (final.status === "live" ? <MatchCard m={final} players={players} onClick={onMatchClick} /> : <MatchCard onClick={props.onMatchClick} m={final} players={players} />) : <EmptyState text="Unlocks once the challenger match is completed." />}
       </div>
       {final?.status === "completed" && (
         <FadeIn>

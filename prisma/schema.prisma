@@ -97,6 +97,7 @@ model Match {
   penaltyHome  Int?
   penaltyAway  Int?
   penaltyWinner String? // "home" or "away"
+  stats        Json?    // Stores ratings, MOTM, 12 stat pairs
 }
 
 model Notification {
