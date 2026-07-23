@@ -47,9 +47,9 @@ const playerTabs = [
 ];
 
 const adminTabs = [
-  { id: "admin", label: "Overview", icon: Home },
+  { id: "admin", label: "Dashboard", icon: Home },
   { id: "admin-players", label: "Players", icon: Users },
-  { id: "admin-season", label: "Season", icon: Trophy },
+  { id: "admin-season", label: "Tournament", icon: Trophy },
   { id: "admin-matches", label: "Matches", icon: Calendar },
   { id: "admin-playoffs", label: "Playoffs", icon: Swords },
   { id: "admin-trophies", label: "Trophies", icon: Trophy },
@@ -280,7 +280,7 @@ export default function FloatingNav({ session, me, tab, setTab, onLogout, player
                     <Menu size={18} />
                   </button>
                 </SheetTrigger>
-                <SheetContent side="left" className="w-[280px] bg-card border-r border-border/50 p-0">
+                <SheetContent side="left" className="w-[280px] bg-card border-r border-border/50 p-0 flex flex-col h-full">
                   <SheetHeader className="p-5 pb-3 border-b border-border/30">
                     <SheetTitle className="font-display text-lg tracking-tight flex items-center gap-2">
                       <span>🏆</span> FRIENDS eLEAGUE
@@ -299,7 +299,7 @@ export default function FloatingNav({ session, me, tab, setTab, onLogout, player
                       </div>
                     )}
                   </SheetHeader>
-                  <div className="flex flex-col gap-1 p-3">
+                  <div className="flex flex-col gap-1 p-3 overflow-y-auto flex-1">
                     {items.map((it) => {
                       const Icon = it.icon;
                       const active = tab === it.id;
@@ -319,8 +319,8 @@ export default function FloatingNav({ session, me, tab, setTab, onLogout, player
                       );
                     })}
                   </div>
-                  <div className="absolute bottom-6 left-3 right-3 flex flex-col gap-2">
-                    <div className="h-px bg-border/30" />
+                  <div className="mt-auto p-3 pb-6 flex flex-col gap-2 bg-card z-10">
+                    <div className="h-px bg-border/30 mb-1" />
                     <button
                       onClick={() => { onLogout(); setSheetOpen(false); }}
                       className="flex items-center gap-3 px-4 py-4 min-h-[44px] rounded-xl text-sm font-semibold text-destructive hover:bg-destructive/10 transition-all w-full"

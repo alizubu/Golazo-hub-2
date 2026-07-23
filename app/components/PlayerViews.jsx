@@ -383,17 +383,17 @@ function PlayerDashboard({ me, activeSeason, matches, players, announcements = [
               </CardHeader>
               <CardContent className="flex-1">
                 <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4 mt-2 h-full">
-                  <Card className="col-span-2 sm:col-span-1 relative overflow-hidden bg-gradient-to-br from-gold/10 to-transparent border-t-2 border-t-gold border-x-border/50 border-b-border/50 flex flex-col items-center justify-center text-center p-6 group shadow-none min-h-[140px] flex-1">
+                  <Card className="col-span-2 sm:col-span-1 relative overflow-hidden bg-gradient-to-br from-gold/10 to-transparent border-t-2 border-t-gold border-x-border/50 border-b-border/50 flex flex-col items-center justify-center text-center p-3 sm:p-6 group shadow-none min-h-[120px] sm:min-h-[140px] flex-1">
                     {myRank === 1 && <BorderBeam size={150} duration={8} delay={1} colorFrom="var(--gold)" colorTo="transparent" />}
-                    <Label className="text-gold/80 mb-1 z-10">Current Rank</Label>
-                    <div className="text-4xl font-black font-mono text-gold z-10 drop-shadow-md">#{myRank || '-'}</div>
+                    <Label className="text-gold/80 mb-1 z-10 text-xs sm:text-sm">Current Rank</Label>
+                    <div className="text-3xl sm:text-4xl font-black font-mono text-gold z-10 drop-shadow-md">#{myRank || '-'}</div>
                   </Card>
 
                   <PlayerStatCard label="ELO Rating" value={elo} loaded={statsLoaded} icon={Activity} />
                   <PlayerStatCard label="Matches" value={played} loaded={statsLoaded} icon={Swords} emptyValue={0} />
                   
-                  <Card className="col-span-2 sm:col-span-1 relative overflow-hidden bg-secondary/30 border-t-2 border-t-green-500 border-x-border/50 border-b-border/50 flex flex-col items-center justify-center text-center p-6 shadow-none min-h-[140px] flex-1">
-                    <Label className="mb-2">Win Rate</Label>
+                  <Card className="col-span-2 sm:col-span-1 relative overflow-hidden bg-secondary/30 border-t-2 border-t-green-500 border-x-border/50 border-b-border/50 flex flex-col items-center justify-center text-center p-3 sm:p-6 shadow-none min-h-[120px] sm:min-h-[140px] flex-1">
+                    <Label className="mb-2 text-xs sm:text-sm">Win Rate</Label>
                     {statsLoaded ? (
                       winRate > 0 ? (
                         <div className="relative w-16 h-16 flex items-center justify-center mt-1">
@@ -407,7 +407,7 @@ function PlayerDashboard({ me, activeSeason, matches, players, announcements = [
                         </div>
                       ) : (
                         <div className="flex flex-col items-center gap-1 text-muted-foreground opacity-50 mt-1">
-                          <span className="text-3xl font-mono font-bold">—</span>
+                          <span className="text-2xl sm:text-3xl font-mono font-bold">—</span>
                         </div>
                       )
                     ) : (
@@ -869,17 +869,17 @@ function NotificationsView({ notifications, me }) {
 function PlayerStatCard({ label, value, loaded, icon: Icon, emptyValue = null }) {
   const isEmpty = value === emptyValue || !value;
   return (
-    <Card className={`bg-secondary/30 border-t-2 border-x-border/50 border-b-border/50 flex flex-col items-center justify-center text-center p-6 shadow-none flex-1 min-h-[140px] ${isEmpty ? 'border-t-border/50' : 'border-t-blue-500/50'}`}>
-      {Icon && isEmpty && <Icon size={24} className="mb-2 text-muted-foreground/30" />}
-      <Label className="mb-2">{label}</Label>
+    <Card className={`bg-secondary/30 border-t-2 border-x-border/50 border-b-border/50 flex flex-col items-center justify-center text-center p-3 sm:p-6 shadow-none flex-1 min-h-[120px] sm:min-h-[140px] overflow-hidden ${isEmpty ? 'border-t-border/50' : 'border-t-blue-500/50'}`}>
+      {Icon && isEmpty && <Icon size={24} className="mb-2 text-muted-foreground/30 hidden sm:block" />}
+      <Label className="mb-2 text-[10px] sm:text-sm tracking-tighter sm:tracking-normal truncate w-full px-1">{label}</Label>
       {loaded ? (
         isEmpty ? (
-          <span className="text-3xl font-mono font-bold text-muted-foreground opacity-50">—</span>
+          <span className="text-2xl sm:text-3xl font-mono font-bold text-muted-foreground opacity-50">—</span>
         ) : (
-          <NumberTicker value={value} className="text-3xl font-bold font-mono text-foreground" />
+          <NumberTicker value={value} className="text-2xl sm:text-3xl font-bold font-mono text-foreground truncate w-full px-1" />
         )
       ) : (
-        <Skeleton className="h-9 w-20" />
+        <Skeleton className="h-7 w-12 sm:h-9 sm:w-20" />
       )}
     </Card>
   );

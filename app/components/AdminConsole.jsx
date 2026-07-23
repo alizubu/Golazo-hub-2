@@ -969,49 +969,6 @@ function AdminSeason({ activeSeason, matches = [], players = [], showToast, setT
 
   return (
     <div className="flex flex-col gap-6">
-      <Card className="p-8 border-primary/30 bg-gradient-to-br from-primary/10 via-background to-background relative overflow-hidden">
-        <div className="absolute -right-16 -top-16 opacity-[0.03] pointer-events-none">
-          <Trophy size={300} />
-        </div>
-        <div className="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
-          <div>
-            <div className="text-xs font-bold tracking-widest text-primary uppercase mb-2">League Stage</div>
-            <div className="flex items-center">
-              <h1 className="text-4xl font-display font-bold tracking-wide">{activeSeason.name}</h1>
-              {statusBadge}
-            </div>
-            <div className="flex flex-wrap gap-4 text-sm text-muted-foreground font-mono mt-4">
-              <div className="flex items-center gap-1.5"><Calendar size={14} /> Started: {new Date(activeSeason.createdAt).toLocaleDateString()}</div>
-              <div>•</div>
-              <div className="flex items-center gap-1.5"><Users size={14} /> Players: {players.length} / 5</div>
-              <div>•</div>
-              <div className="flex items-center gap-1.5"><Radio size={14} /> Matches: {completedMatches.length} / {expectedMatches}</div>
-              {isCompleted && (
-                 <>
-                    <div>•</div>
-                    <div className="flex items-center gap-1.5 text-gold"><Trophy size={14} /> Champion: {standings[0]?.name || "—"}</div>
-                 </>
-              )}
-            </div>
-          </div>
-          <div className="flex flex-col gap-3 w-full md:w-auto min-w-[200px]">
-            {!hasFixtures ? (
-              <ShinyButton onClick={handleGenerateFixtures} className="w-full justify-center py-3 text-sm">Generate Fixtures</ShinyButton>
-            ) : (
-              <>
-                <Btn className="w-full justify-center bg-primary text-primary-foreground hover:bg-primary/90 py-3 text-sm" onClick={() => setTab && setTab("admin-matches")}>
-                   View League Matches
-                </Btn>
-                {isCompleted && (
-                   <Btn className="w-full justify-center border-gold text-gold hover:bg-gold/10 py-3 text-sm" variant="outline" onClick={() => setTab && setTab("admin-playoffs")}>
-                      Open Playoffs
-                   </Btn>
-                )}
-              </>
-            )}
-          </div>
-        </div>
-    </Card>
 
     <LiveMatchControl matches={matches} players={players} activeSeason={activeSeason} showToast={showToast} />
 
@@ -1109,58 +1066,8 @@ function AdminSeason({ activeSeason, matches = [], players = [], showToast, setT
         </MagicCard>
       </div>
 
-      <div className="grid md:grid-cols-12 gap-6">
-        <div className="md:col-span-4 flex flex-col gap-6">
-          <Card className="p-6">
-            <SectionTitle icon={BarChart2}>League Progress</SectionTitle>
-            <div className="mt-6">
-              <div className="flex justify-between items-end mb-2">
-                <span className="text-3xl font-display font-bold">{progressPercent}%</span>
-                <span className="text-sm font-mono text-muted-foreground">{completedMatches.length} of {expectedMatches} Played</span>
-              </div>
-              <div className="h-4 w-full bg-secondary rounded-full overflow-hidden shadow-inner">
-                <div className="h-full bg-gold transition-all duration-1000 relative" style={{ width: `${progressPercent}%` }}>
-                   <div className="absolute inset-0 bg-white/20 w-full animate-pulse"></div>
-                </div>
-              </div>
-            </div>
-          </Card>
-          
-          <Card className="p-6 flex-1 flex flex-col">
-            <div className="flex items-center justify-between mb-4">
-              <SectionTitle icon={Calendar}>Upcoming Fixtures</SectionTitle>
-              <Btn variant="ghost" className="text-xs p-1 h-auto" onClick={() => setTab && setTab("admin-matches")}>View all <ArrowRight size={14} className="ml-1"/></Btn>
-            </div>
-            
-            <div className="flex-1 flex flex-col justify-center">
-               {upcoming.length > 0 ? (
-                 <div className="flex flex-col gap-3">
-                   {upcoming.map((m, i) => {
-                     const h = players.find(p => p.id === m.homeId);
-                     const a = players.find(p => p.id === m.awayId);
-                     return (
-                       <div key={m.id} className="flex flex-col p-4 rounded-xl bg-secondary/30 border border-border/50 gap-2">
-                          <div className="flex justify-between items-center">
-                            <span className="font-bold text-sm truncate flex-1">{h?.name}</span>
-                            <span className="text-[10px] font-mono text-muted-foreground px-3 py-1 bg-background rounded-full mx-2">VS</span>
-                            <span className="font-bold text-sm truncate flex-1 text-right">{a?.name}</span>
-                          </div>
-                          {m.status === 'live' && <div className="mt-2 text-[10px] text-claret font-bold text-center tracking-widest uppercase bg-claret/10 py-1.5 rounded flex items-center justify-center gap-1"><span className="w-1.5 h-1.5 rounded-full bg-claret animate-pulse"></span> Match Live</div>}
-                       </div>
-                     );
-                   })}
-                 </div>
-               ) : (
-                 <div className="py-8">
-                    <EmptyState text={hasFixtures ? "All league matches completed" : "No fixtures generated yet"} />
-                 </div>
-               )}
-            </div>
-          </Card>
-        </div>
-
-        <div className="md:col-span-8 flex flex-col gap-6">
-           <Card className="p-6 flex-1">
+      <div className="flex flex-col gap-6">
+           <Card className="p-6 flex-1 w-full">
              <div className="flex items-center justify-between mb-6">
                 <SectionTitle icon={ListOrdered}>League Standings</SectionTitle>
                 <div className="text-xs font-mono text-muted-foreground flex items-center gap-2">
@@ -1208,23 +1115,38 @@ function AdminSeason({ activeSeason, matches = [], players = [], showToast, setT
                </table>
              </div>
            </Card>
-           
-           <Card className="p-6">
-              <div className="flex items-center justify-between mb-4">
-                 <SectionTitle icon={Users}>Participants</SectionTitle>
-                 <Btn variant="ghost" className="text-xs p-1 h-auto" onClick={() => setTab && setTab("admin-players")}>Manage <ArrowRight size={14} className="ml-1"/></Btn>
-              </div>
-              <div className="flex flex-wrap gap-2">
-                 {players.map((p, i) => (
-                    <div key={p.id} className="px-3 py-1.5 bg-secondary/50 border border-border rounded-full text-sm font-semibold flex items-center gap-2">
-                       {i === 0 ? "🥇" : i === 1 ? "🥈" : i === 2 ? "🥉" : <span className="w-4 h-4 flex items-center justify-center bg-background rounded-full text-[10px] text-muted-foreground">{i + 1}</span>}
-                       {p.name}
-                    </div>
-                 ))}
-                 {players.length === 0 && <span className="text-sm text-muted-foreground">No players added yet.</span>}
-              </div>
-           </Card>
-        </div>
+
+          <Card className="p-6 flex-1 flex flex-col w-full">
+            <div className="flex items-center justify-between mb-4">
+              <SectionTitle icon={Calendar}>Upcoming Fixtures</SectionTitle>
+              <Btn variant="ghost" className="text-xs p-1 h-auto" onClick={() => setTab && setTab("admin-matches")}>View all <ArrowRight size={14} className="ml-1"/></Btn>
+            </div>
+            
+            <div className="flex-1 flex flex-col justify-center">
+               {upcoming.length > 0 ? (
+                 <div className="flex flex-col gap-3">
+                   {upcoming.map((m, i) => {
+                     const h = players.find(p => p.id === m.homeId);
+                     const a = players.find(p => p.id === m.awayId);
+                     return (
+                       <div key={m.id} className="flex flex-col p-4 rounded-xl bg-secondary/30 border border-border/50 gap-2">
+                          <div className="flex justify-between items-center">
+                            <span className="font-bold text-sm truncate flex-1">{h?.name}</span>
+                            <span className="text-[10px] font-mono text-muted-foreground px-3 py-1 bg-background rounded-full mx-2">VS</span>
+                            <span className="font-bold text-sm truncate flex-1 text-right">{a?.name}</span>
+                          </div>
+                          {m.status === 'live' && <div className="mt-2 text-[10px] text-claret font-bold text-center tracking-widest uppercase bg-claret/10 py-1.5 rounded flex items-center justify-center gap-1"><span className="w-1.5 h-1.5 rounded-full bg-claret animate-pulse"></span> Match Live</div>}
+                       </div>
+                     );
+                   })}
+                 </div>
+               ) : (
+                 <div className="py-8">
+                    <EmptyState text={hasFixtures ? "All league matches completed" : "No fixtures generated yet"} />
+                 </div>
+               )}
+            </div>
+          </Card>
       </div>
 
       <div className="grid md:grid-cols-2 gap-6">
