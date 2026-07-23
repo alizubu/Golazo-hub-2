@@ -1,11 +1,10 @@
 'use client';
 
 import React from 'react';
-import { Trophy, Clock, ListOrdered, Calendar, Swords, Camera, KeyRound, Megaphone, Bell, Pen, Target, Handshake, Shield, Activity, Lock, Flame } from 'lucide-react';
-import { Btn, Input, Label, Badge, Avatar, PlayerChip, SectionTitle, EmptyState, MagicCard, FadeIn, ShinyButton, Card as UICard } from './UI';
+import { Trophy, Clock, ListOrdered, Calendar, Swords, Megaphone, Bell, Pen, Target, Handshake, Shield, Activity, Lock, Flame, BadgeCheck } from 'lucide-react';
+import { Btn, Badge, Avatar, PlayerChip, SectionTitle, EmptyState, MagicCard, FadeIn, ShinyButton, Label } from './UI';
 import { Card, CardHeader, CardTitle, CardContent } from '@/app/components/ui/card';
 import { NumberTicker } from './ui/number-ticker';
-import { updatePlayerProfile, changePlayerPassword } from '@/app/actions/player';
 import { motion } from 'framer-motion';
 import SettingsView from './SettingsView';
 import { BorderBeam } from './magicui/BorderBeam';
@@ -178,17 +177,13 @@ function PlayerDashboard({ me, activeTournament, matches, players, announcements
   const selectedClub = clubs.find(c => c.name === me.favoriteClub);
   const selectedNationalTeam = nationalTeams.find(nt => nt.name === me.flag);
 
-  const [statsLoaded, React_useState] = React.useState(false);
-  const [coverError, setCoverError] = React.useState(false);
+  const [statsLoaded, setStatsLoaded] = React.useState(false);
+  const [failedCoverUrl, setFailedCoverUrl] = React.useState(null);
 
   React.useEffect(() => {
-    const timer = setTimeout(() => React_useState(true), 800);
+    const timer = setTimeout(() => setStatsLoaded(true), 800);
     return () => clearTimeout(timer);
   }, []);
-
-  React.useEffect(() => {
-    setCoverError(false);
-  }, [me.coverBanner]);
 
   React.useEffect(() => {
     async function syncProfile() {
@@ -209,6 +204,7 @@ function PlayerDashboard({ me, activeTournament, matches, players, announcements
       }
     }
     syncProfile();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [me.id]);
 
   return (
@@ -234,46 +230,101 @@ function PlayerDashboard({ me, activeTournament, matches, players, announcements
       {/* Hero Profile Card */}
       <FadeIn delay={0.1}>
         <div className="relative rounded-3xl overflow-hidden bg-card border border-border shadow-2xl flex flex-col">
-          <div className="h-48 md:h-64 w-full relative bg-secondary/50 overflow-hidden flex-shrink-0">
-            {me.coverBanner && !coverError ? (
-              <img src={me.coverBanner} alt="Cover Banner" className="w-full h-full object-cover" onError={(e) => {
-                console.warn(`Failed to load cover banner: ${me.coverBanner}`);
-                setCoverError(true);
-              }} />
+          {/* Cover Banner */}
+          <div className="h-48 md:h-56 w-full relative bg-secondary/50 overflow-hidden flex-shrink-0">
+            {me.coverBanner && failedCoverUrl !== me.coverBanner ? (
+              <img src={me.coverBanner} alt="Cover Banner" className="w-full h-full object-cover" onError={() => setFailedCoverUrl(me.coverBanner)} />
             ) : (
               <div className="w-full h-full bg-gradient-to-tr from-pitch/80 via-claret/60 to-gold/40 flex items-center justify-center">
-                 <span className="text-6xl drop-shadow-2xl opacity-50">⚽</span>
+                <span className="text-6xl drop-shadow-2xl opacity-50">⚽</span>
               </div>
             )}
+
+            {/* Top-right cluster: FORM indicator + Rank badge */}
+            <div className="absolute top-3 right-3 flex items-center gap-2 z-10">
+              {/* Form circles (last 5 results) */}
+              {form.length > 0 && (
+                <div className="flex items-center gap-1 bg-black/50 backdrop-blur-sm px-2.5 py-1.5 rounded-full border border-white/10">
+                  <span className="text-[9px] text-white/60 uppercase font-bold tracking-widest mr-1">Form</span>
+                  {form.map((r, i) => (
+                    <span
+                      key={i}
+                      title={r === 'W' ? 'Win' : r === 'L' ? 'Loss' : 'Draw'}
+                      className={`w-4 h-4 rounded-full border border-black/30 flex-shrink-0 ${
+                        r === 'W' ? 'bg-green-500' : r === 'L' ? 'bg-red-500' : 'bg-amber-400'
+                      }`}
+                    />
+                  ))}
+                </div>
+              )}
+              {/* Rank badge */}
+              {myRank > 0 && (
+                <div className={`flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold border backdrop-blur-sm ${
+                  myRank === 1
+                    ? 'bg-gold/80 text-black border-gold/50'
+                    : 'bg-black/50 text-white border-white/10'
+                }`}>
+                  {myRank === 1 && <Flame size={11} />}
+                  #{myRank}
+                </div>
+              )}
+            </div>
           </div>
+
+          {/* Profile Body */}
           <div className="px-6 md:px-10 pb-8 pt-4 relative bg-card flex-1">
             <div className="flex flex-col md:flex-row gap-6 items-center md:items-start relative z-20">
-              <div className="-mt-20 md:-mt-24 relative z-30">
-                <div className="rounded-full p-1.5 bg-card shadow-xl inline-block relative">
-                  <Avatar p={me} size={120} ring="var(--gold)" />
-                  <div className="absolute bottom-4 right-4 z-30">
-                    <span className="relative flex h-5 w-5">
-                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
-                      <span className="relative inline-flex rounded-full h-5 w-5 bg-green-500 border-4 border-card"></span>
-                    </span>
+
+              {/* Avatar with animated gradient ring + country chip */}
+              <div className="-mt-16 md:-mt-20 relative z-30 flex-shrink-0">
+                <div className="relative inline-block">
+                  {/* Animated gradient ring */}
+                  <div className="absolute -inset-1 rounded-full bg-gradient-to-br from-gold via-pitch-bright to-claret animate-spin [animation-duration:4s] blur-[1px] opacity-80" />
+                  <div className="relative rounded-full p-1 bg-card shadow-xl">
+                    <Avatar p={me} size={100} />
                   </div>
+                  {/* Country chip bottom-right of avatar */}
+                  {me.nationality && (
+                    <div className="absolute -bottom-1 -right-1 z-40 bg-card border border-border/60 rounded-full px-1.5 py-0.5 text-sm leading-none shadow-md">
+                      {me.nationality}
+                    </div>
+                  )}
+                  {/* Online dot */}
+                  <span className="absolute top-1 right-1 z-40 w-3.5 h-3.5 bg-green-500 border-2 border-card rounded-full" />
                 </div>
               </div>
-              <div className="flex-1 flex flex-col md:flex-row md:items-center justify-between gap-4 w-full pt-2">
+
+              <div className="flex-1 flex flex-col md:flex-row md:items-start justify-between gap-4 w-full pt-1">
                 <div className="text-center md:text-left">
-                  <h1 className="text-4xl font-black font-display tracking-tight flex items-center justify-center md:justify-start gap-3">
-                    {me.name} 
-                    {me.nationality && <span className="text-2xl" title="Nationality">{me.nationality}</span>}
-                    {myRank === 1 && <Badge className="bg-gold hover:bg-gold/90 text-gold-foreground font-bold shadow-sm px-1.5 py-0.5 text-xs"><Flame size={12} className="mr-1"/> #1</Badge>}
+                  {/* Name + verified badge */}
+                  <h1 className="text-3xl md:text-4xl font-black font-display tracking-tight flex items-center justify-center md:justify-start gap-2 flex-wrap">
+                    {me.name}
+                    {myRank === 1 && (
+                      <BadgeCheck size={22} className="text-blue-400 shrink-0" title="Top Ranked Player" />
+                    )}
                   </h1>
-                  <div className="text-muted-foreground font-mono mt-2 flex flex-wrap items-center justify-center md:justify-start gap-2">
-                    @{me.username}
-                    
-                    {/* Inline Badges */}
+
+                  {/* Inline COBEG-style stat row */}
+                  {played > 0 && (
+                    <div className="text-sm text-muted-foreground font-mono mt-1.5 flex flex-wrap items-center justify-center md:justify-start gap-x-2 gap-y-0.5">
+                      <span className="font-semibold text-foreground">{played}</span> <span>matches</span>
+                      <span className="text-border">·</span>
+                      <span className="font-semibold text-foreground">{won}</span> <span>wins</span>
+                      <span className="text-border">·</span>
+                      <span className="font-semibold text-pitch-bright">{winRate}%</span> <span>win rate</span>
+                      <span className="text-border">·</span>
+                      <span className="font-semibold text-foreground">{goals}</span> <span>goals</span>
+                    </div>
+                  )}
+
+                  {/* Username line */}
+                  <div className="text-muted-foreground font-mono mt-2 flex flex-wrap items-center justify-center md:justify-start gap-2 text-sm">
+                    <span className="text-muted-foreground">@{me.username}</span>
+
                     {(selectedClub || selectedNationalTeam) && (
                       <>
-                        <span className="text-border mx-1">•</span>
-                        <div className="flex items-center gap-2">
+                        <span className="text-border">·</span>
+                        <div className="flex items-center gap-1.5">
                           {selectedClub && (
                             <button onClick={() => setTab('settings')} className="flex items-center gap-1.5 bg-secondary/50 hover:bg-secondary px-2 py-1 rounded-full text-xs font-semibold transition-colors border border-border/50">
                               {selectedClub.logo_url ? (
@@ -295,16 +346,15 @@ function PlayerDashboard({ me, activeTournament, matches, players, announcements
                     )}
                   </div>
                 </div>
-                <div className="flex flex-col items-center justify-center md:justify-end gap-3 md:items-end">
-                  <div className="text-right flex flex-col items-center md:items-end">
-                    <div className="text-[10px] text-muted-foreground uppercase tracking-widest font-bold mb-1">Last Active</div>
-                    <div className="text-sm font-semibold flex items-center gap-2 justify-end">
-                      <span className="relative flex h-2.5 w-2.5">
-                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
-                        <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-green-500"></span>
-                      </span>
-                      Just now
-                    </div>
+
+                {/* Right side: Edit button */}
+                <div className="flex flex-col items-center md:items-end gap-2 pt-1">
+                  <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                    <span className="relative flex h-2 w-2">
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75" />
+                      <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500" />
+                    </span>
+                    Online now
                   </div>
                   <Btn variant="outline" onClick={() => setTab('settings')} className="gap-2 rounded-full border-border/50 text-xs shadow-sm bg-background/50 hover:bg-secondary">
                     <Pen size={12} /> Edit Profile
@@ -383,8 +433,9 @@ function PlayerDashboard({ me, activeTournament, matches, players, announcements
                     { id: "la-liga", name: "La Liga Champion", image: "/assets/trophies/La-Liga-trophy.png", locked: true },
                     { id: "premier-league", name: "Premier League Champion", image: "/assets/trophies/Premier-League.png", locked: true },
                   ].map((tr) => {
-                    const isUnlocked = myTrophies.some(t => t.title === tr.name || t.id === tr.id) || !tr.locked;
-                    return <TrophyCard key={tr.id} trophy={tr} unlocked={isUnlocked} />;
+                    const instances = myTrophies.filter(t => t.title === tr.name || t.id === tr.id);
+                    const isUnlocked = instances.length > 0 || !tr.locked;
+                    return <TrophyCard key={tr.id} trophy={tr} unlocked={isUnlocked} count={instances.length} instances={instances} />;
                   })}
                 </motion.div>
               </CardContent>
@@ -793,36 +844,50 @@ function PlayerStatCard({ label, value, loaded, icon: Icon, emptyValue = null })
   );
 }
 
-function TrophyCard({ trophy, unlocked }) {
+function TrophyCard({ trophy, unlocked, count = 0, instances = [] }) {
   const [imgLoaded, setImgLoaded] = React.useState(false);
+  const showDuplicate = count > 1;
 
   return (
     <HoverCard>
       <HoverCardTrigger asChild>
-        <motion.div 
+        <motion.div
           variants={{ hidden: { opacity: 0, y: 20 }, show: { opacity: 1, y: 0 } }}
-          className={`relative flex flex-col items-center p-5 border rounded-2xl text-center cursor-help transition-all group overflow-hidden h-full ${
-            unlocked 
-              ? 'bg-gradient-to-b from-gold/15 to-transparent border-gold/30 shadow-lg shadow-gold/5 hover:-translate-y-1 hover:border-gold/60' 
+          className={`relative flex flex-col items-center p-5 border rounded-2xl text-center cursor-help transition-all group overflow-visible h-full ${
+            unlocked
+              ? 'bg-gradient-to-b from-gold/15 to-transparent border-gold/30 shadow-lg shadow-gold/5 hover:-translate-y-1 hover:border-gold/60'
               : 'bg-secondary/20 border-border/50 hover:bg-secondary/30'
           }`}
         >
           {unlocked && (
-            <>
-              <BorderBeam size={100} duration={8} delay={0} colorFrom="var(--gold)" colorTo="transparent" />
-              <Badge className="absolute -top-2 -right-2 bg-pitch-bright hover:bg-pitch-bright text-white shadow-md animate-bounce px-1.5 py-0 text-[9px] z-10">NEW</Badge>
-            </>
+            <BorderBeam size={100} duration={8} delay={0} colorFrom="var(--gold)" colorTo="transparent" />
           )}
-          
+
+          {/* Duplicate count badge */}
+          {showDuplicate && (
+            <motion.div
+              initial={{ scale: 0, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={{ type: 'spring', stiffness: 500, damping: 20, delay: 0.15 }}
+              className="absolute -top-2.5 -right-2.5 z-20 flex items-center justify-center"
+            >
+              {/* Glow ring behind badge */}
+              <span className="absolute w-6 h-6 rounded-full bg-amber-400/40 animate-ping" />
+              <span className="relative flex items-center justify-center w-6 h-6 rounded-full bg-amber-400 text-black text-[10px] font-black shadow-lg shadow-amber-500/40 border border-amber-300/60">
+                ×{count}
+              </span>
+            </motion.div>
+          )}
+
           <div className="mb-3 relative w-20 h-20 flex items-center justify-center shrink-0">
             {!imgLoaded && <Skeleton className="absolute inset-0 rounded-xl" />}
-            
-            <motion.img 
-              src={trophy.image} 
+
+            <motion.img
+              src={trophy.image}
               alt={trophy.name}
               className={`w-full h-full object-contain drop-shadow-md z-10 transition-opacity duration-300 ${imgLoaded ? 'opacity-100' : 'opacity-0'} ${!unlocked ? 'grayscale opacity-[0.45]' : ''}`}
               whileHover={{ scale: 1.08, rotate: [-2, 2, -2, 2, 0] }}
-              transition={{ type: "spring", stiffness: 300, damping: 10 }}
+              transition={{ type: 'spring', stiffness: 300, damping: 10 }}
               onLoad={() => setImgLoaded(true)}
               onError={(e) => {
                 e.target.style.display = 'none';
@@ -830,7 +895,7 @@ function TrophyCard({ trophy, unlocked }) {
                 if (e.target.nextSibling) e.target.nextSibling.style.display = 'flex';
               }}
             />
-            
+
             <div className="hidden absolute inset-0 items-center justify-center text-5xl transition-transform group-hover:scale-110 opacity-30 grayscale">
               🏆
             </div>
@@ -841,16 +906,16 @@ function TrophyCard({ trophy, unlocked }) {
               </div>
             )}
           </div>
-          
+
           <div className="flex-1 flex flex-col justify-between items-center w-full">
             <div className="font-bold text-sm leading-tight text-foreground relative z-10 mb-2">{trophy.name}</div>
-            
+
             <div className="mt-auto">
               {!unlocked ? (
-                <Badge variant="outline" className="bg-background text-[9px] font-bold px-1.5 py-0 border-border shadow-sm z-10">LOCKED</Badge>
+                <span className="inline-flex items-center px-1.5 py-0.5 rounded-full bg-background border border-border text-[9px] font-bold shadow-sm z-10">LOCKED</span>
               ) : (
                 <div className="text-[10px] text-muted-foreground uppercase tracking-widest font-semibold relative z-10">
-                  Unlocked
+                  {count > 0 ? `Won ×${count}` : 'Unlocked'}
                 </div>
               )}
             </div>
@@ -858,11 +923,28 @@ function TrophyCard({ trophy, unlocked }) {
         </motion.div>
       </HoverCardTrigger>
       <HoverCardContent side="top" align="center" className="w-64 bg-card/95 backdrop-blur shadow-xl border-border z-50">
-        <div className="space-y-1">
-          <h4 className="text-sm font-semibold">{trophy.name}</h4>
-          <p className="text-xs text-muted-foreground">
-            {trophy.desc || `Win the ${trophy.name} to unlock this achievement.`}
-          </p>
+        <div className="space-y-2">
+          <h4 className="text-sm font-semibold flex items-center gap-2">
+            {trophy.name}
+            {showDuplicate && (
+              <span className="px-1.5 py-0.5 bg-amber-400/20 text-amber-400 rounded-full text-[10px] font-bold border border-amber-400/30">×{count}</span>
+            )}
+          </h4>
+          {/* Individual award instances */}
+          {instances.length > 0 ? (
+            <div className="space-y-1.5 mt-2 pt-2 border-t border-border/50">
+              {instances.map((inst, i) => (
+                <div key={inst.id || i} className="flex items-center justify-between text-xs">
+                  <span className="font-semibold text-pitch-bright">{inst.season}</span>
+                  <span className="text-muted-foreground font-mono">{inst.createdAt ? new Date(inst.createdAt).toLocaleDateString() : ''}</span>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className="text-xs text-muted-foreground">
+              {trophy.desc || `Win the ${trophy.name} to unlock this achievement.`}
+            </p>
+          )}
           {!unlocked && (
             <div className="flex items-center gap-1.5 text-[10px] uppercase tracking-widest text-pitch-bright font-bold mt-2 pt-2 border-t border-border/50">
               <Lock size={10} /> Keep playing to unlock

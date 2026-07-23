@@ -1,10 +1,50 @@
 'use client';
 
-import React, { useState } from 'react';
-import { Trophy, Calendar, Users, Radio, Clock, Check, Archive, Plus, Trash2, Settings, Swords, Edit2, ListOrdered, BarChart2, AlertTriangle, ArrowRight } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Trophy, Calendar, Users, Radio, Clock, Check, Archive, Plus, Trash2, Settings, Swords, Edit2, ListOrdered, BarChart2, AlertTriangle, ArrowRight, Megaphone, ChevronDown, Package } from 'lucide-react';
 import { Card, Btn, Input, Label, SectionTitle, EmptyState, MagicCard, FadeIn, ShinyButton, Badge } from './UI';
 import { startTournament, deleteTournament, renameTournament } from '@/app/actions/tournament';
 import { generateFixtures } from '@/app/actions/match';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/app/components/ui/tabs';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+  DialogClose,
+} from '@/app/components/ui/dialog';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/app/components/ui/dropdown-menu';
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from '@/app/components/ui/command';
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/app/components/ui/popover';
+import { motion } from 'framer-motion';
+
+// Trophy template data — the 6 official trophies
+const TROPHY_TEMPLATES = [
+  { id: 'bb-champion', name: 'BB Champion', image: '/assets/trophies/BB-Champion.png', icon: '/assets/trophies/BB-Champion.png', defaultDesc: 'Champion of the BB League season.' },
+  { id: 'world-cup', name: 'World Cup Winner', image: '/assets/trophies/World-Cup-Winner-Trophy.png', icon: '/assets/trophies/World-Cup-Winner-Trophy.png', defaultDesc: 'Won the World Cup tournament.' },
+  { id: 'golden-boot', name: 'Golden Boot', image: '/assets/trophies/Golden-boot.png', icon: '/assets/trophies/Golden-boot.png', defaultDesc: 'Top goalscorer of the season.' },
+  { id: 'mvp', name: 'MVP', image: '/assets/trophies/MVP.png', icon: '/assets/trophies/MVP.png', defaultDesc: 'Most Valuable Player of the tournament.' },
+  { id: 'la-liga', name: 'La Liga Champion', image: '/assets/trophies/La-Liga-trophy.png', icon: '/assets/trophies/La-Liga-trophy.png', defaultDesc: 'La Liga season champion.' },
+  { id: 'premier-league', name: 'Premier League Champion', image: '/assets/trophies/Premier-League.png', icon: '/assets/trophies/Premier-League.png', defaultDesc: 'Premier League season champion.' },
+];
 
 export default function AdminConsole(props) {
   const { tab } = props;
@@ -277,11 +317,8 @@ function AdminPlayoffs({ activeTournament, matches, players, showToast }) {
   if (!activeTournament) return <EmptyState text="Start a tournament first." />;
   
   const handleGeneratePlayoffs = async () => {
-    // Basic logic: get top 4 players from standings
-    const { computeStandings } = await import('@/app/components/PlayerViews'); // We will duplicate logic here if needed or just use simple one
     const tMatches = matches.filter((m) => m.tournamentId === activeTournament.id && m.round === "league" && m.status === "completed");
     
-    // Quick calculate standings
     const table = {};
     players.forEach(p => table[p.id] = { id: p.id, pts: 0, gd: 0, gf: 0 });
     tMatches.forEach(m => {
@@ -329,64 +366,493 @@ function AdminSettings() {
   );
 }
 
-function AdminTrophies({ players, trophies, showToast }) {
-  const [form, setForm] = useState({ playerId: "", title: "", season: "", description: "", icon: "🏆" });
+// ─── Player Combobox ─────────────────────────────────────────────────────────
+function PlayerCombobox({ players, value, onChange }) {
+  const [open, setOpen] = useState(false);
+  const selected = players.find(p => p.id === value);
+  
+  return (
+    <Popover open={open} onOpenChange={setOpen}>
+      <PopoverTrigger asChild>
+        <button
+          className="flex items-center justify-between w-full bg-secondary text-foreground p-3 rounded-lg border border-border/50 hover:bg-secondary/70 transition-colors text-sm"
+          role="combobox"
+          aria-expanded={open}
+        >
+          {selected ? (
+            <span className="flex items-center gap-2">
+              <span className="text-lg leading-none">{selected.avatarImage ? <img src={selected.avatarImage} className="w-6 h-6 rounded-full object-cover inline" alt="" /> : selected.avatar || '👤'}</span>
+              <span className="font-semibold">{selected.name}</span>
+            </span>
+          ) : (
+            <span className="text-muted-foreground">Select player...</span>
+          )}
+          <ChevronDown size={16} className="text-muted-foreground shrink-0 ml-2" />
+        </button>
+      </PopoverTrigger>
+      <PopoverContent className="w-[320px] p-0 bg-card border-border/50 shadow-2xl rounded-xl" align="start">
+        <Command className="bg-transparent">
+          <CommandInput placeholder="Search players..." className="h-10 border-b border-border/30 rounded-none" />
+          <CommandList className="max-h-56 p-1">
+            <CommandEmpty className="py-4 text-center text-sm text-muted-foreground">No player found.</CommandEmpty>
+            <CommandGroup>
+              {players.map(p => (
+                <CommandItem
+                  key={p.id}
+                  value={p.name}
+                  onSelect={() => { onChange(p.id); setOpen(false); }}
+                  className="flex items-center gap-3 rounded-lg cursor-pointer py-2.5"
+                >
+                  <span className="flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-full bg-secondary overflow-hidden text-base">
+                    {p.avatarImage ? <img src={p.avatarImage} className="w-full h-full object-cover" alt="" /> : (p.avatar || '👤')}
+                  </span>
+                  <div className="min-w-0">
+                    <div className="font-semibold text-sm truncate">{p.name}</div>
+                    {p.teamName && <div className="text-xs text-muted-foreground truncate">{p.teamName}</div>}
+                  </div>
+                  {value === p.id && <Check size={14} className="ml-auto text-pitch-bright shrink-0" />}
+                </CommandItem>
+              ))}
+            </CommandGroup>
+          </CommandList>
+        </Command>
+      </PopoverContent>
+    </Popover>
+  );
+}
+
+// ─── Trophy Icon Picker ───────────────────────────────────────────────────────
+function TrophyIconPicker({ value, onChange }) {
+  const [mode, setMode] = useState('png'); // 'png' | 'custom'
+  const [custom, setCustom] = useState(value && !TROPHY_TEMPLATES.find(t => t.icon === value) ? value : '');
+  
+  return (
+    <div className="space-y-2">
+      <div className="flex gap-2">
+        <button
+          onClick={() => setMode('png')}
+          className={`px-3 py-1 rounded-full text-xs font-semibold transition-colors ${mode === 'png' ? 'bg-pitch text-white' : 'bg-secondary text-muted-foreground hover:text-foreground'}`}
+        >
+          Trophy PNGs
+        </button>
+        <button
+          onClick={() => setMode('custom')}
+          className={`px-3 py-1 rounded-full text-xs font-semibold transition-colors ${mode === 'custom' ? 'bg-pitch text-white' : 'bg-secondary text-muted-foreground hover:text-foreground'}`}
+        >
+          Custom Emoji/URL
+        </button>
+      </div>
+      
+      {mode === 'png' ? (
+        <div className="grid grid-cols-3 gap-2">
+          {TROPHY_TEMPLATES.map(t => (
+            <button
+              key={t.id}
+              onClick={() => onChange(t.icon)}
+              className={`relative flex flex-col items-center p-2.5 rounded-xl border transition-all ${
+                value === t.icon
+                  ? 'border-gold bg-gold/10 ring-1 ring-gold/50'
+                  : 'border-border/50 bg-secondary/30 hover:bg-secondary/60'
+              }`}
+            >
+              <img src={t.image} alt={t.name} className="w-10 h-10 object-contain" />
+              <span className="text-[9px] text-muted-foreground mt-1 text-center leading-tight">{t.name}</span>
+              {value === t.icon && (
+                <div className="absolute -top-1.5 -right-1.5 w-4 h-4 bg-pitch-bright rounded-full flex items-center justify-center">
+                  <Check size={9} className="text-white" strokeWidth={3} />
+                </div>
+              )}
+            </button>
+          ))}
+        </div>
+      ) : (
+        <div className="flex gap-2">
+          <Input
+            value={custom}
+            onChange={e => { setCustom(e.target.value); onChange(e.target.value); }}
+            placeholder="🏆 or https://..."
+            className="flex-1"
+          />
+          {custom && (
+            <div className="w-10 h-10 flex items-center justify-center bg-secondary rounded-lg text-xl shrink-0">
+              {custom.startsWith('http') ? <img src={custom} className="w-8 h-8 object-contain" alt="" /> : custom}
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ─── Revoke Confirm Dialog ────────────────────────────────────────────────────
+function RevokeDialog({ open, onOpenChange, trophy, players, onConfirm }) {
+  const player = players.find(p => p.id === trophy?.playerId);
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="bg-card border-border/50 shadow-2xl max-w-sm">
+        <DialogHeader>
+          <DialogTitle className="flex items-center gap-2 text-destructive">
+            <Trash2 size={18} /> Revoke Trophy?
+          </DialogTitle>
+        </DialogHeader>
+        <div className="text-sm text-muted-foreground mt-2 space-y-1">
+          <p>Are you sure you want to revoke <strong className="text-foreground">{trophy?.title}</strong></p>
+          <p>from <strong className="text-foreground">{player?.name || 'this player'}</strong>? This cannot be undone.</p>
+        </div>
+        <DialogFooter className="mt-4 flex gap-2 justify-end">
+          <DialogClose asChild>
+            <Btn variant="ghost">Cancel</Btn>
+          </DialogClose>
+          <Btn variant="danger" onClick={onConfirm}>Revoke</Btn>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+// ─── Edit Trophy Dialog ───────────────────────────────────────────────────────
+function EditTrophyDialog({ open, onOpenChange, trophy, players, onSave }) {
+  const [form, setForm] = useState(
+    trophy ? { title: trophy.title, season: trophy.season, icon: trophy.icon || '🏆', description: trophy.description || '' }
+    : { title: '', season: '', icon: '🏆', description: '' }
+  );
+  
+  const player = players.find(p => p.id === trophy?.playerId);
+  
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="bg-card border-border/50 shadow-2xl max-w-md">
+        <DialogHeader>
+          <DialogTitle className="flex items-center gap-2">
+            <Edit2 size={16} /> Edit Trophy
+          </DialogTitle>
+        </DialogHeader>
+        <div className="space-y-4 mt-2">
+          {player && (
+            <div className="flex items-center gap-2 p-2 bg-secondary/30 rounded-lg">
+              <span className="text-lg">{player.avatar || '👤'}</span>
+              <span className="font-semibold text-sm">{player.name}</span>
+            </div>
+          )}
+          <div><Label>Trophy Title</Label><Input value={form.title || ''} onChange={e => setForm({...form, title: e.target.value})} /></div>
+          <div><Label>Season</Label><Input value={form.season || ''} onChange={e => setForm({...form, season: e.target.value})} /></div>
+          <div>
+            <Label>Icon</Label>
+            <TrophyIconPicker value={form.icon} onChange={v => setForm({...form, icon: v})} />
+          </div>
+          <div><Label>Description</Label><Input value={form.description || ''} onChange={e => setForm({...form, description: e.target.value})} /></div>
+        </div>
+        <DialogFooter className="mt-4 flex gap-2 justify-end">
+          <DialogClose asChild><Btn variant="ghost">Cancel</Btn></DialogClose>
+          <ShinyButton onClick={() => onSave(form)}>Save Changes</ShinyButton>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+// ─── Admin Trophies — 3-Tab System ───────────────────────────────────────────
+function AdminTrophies({ players, trophies = [], showToast }) {
+  const blankForm = { playerId: '', title: '', season: '', description: '', icon: '/assets/trophies/Golden-boot.png' };
+  const [form, setForm] = useState(blankForm);
+  const [revokeTarget, setRevokeTarget] = useState(null);
+  const [editTarget, setEditTarget] = useState(null);
+  // DB-backed custom templates (loaded on mount, persisted on save)
+  const [dbTemplates, setDbTemplates] = useState([]);
+  const [newTemplate, setNewTemplate] = useState({ name: '', icon: '🏆', description: '' });
+  const [templateSaving, setTemplateSaving] = useState(false);
+
+  // Load persisted custom templates from DB
+  useEffect(() => {
+    async function loadTemplates() {
+      const { getTrophyTemplates } = await import('@/app/actions/admin');
+      const templates = await getTrophyTemplates();
+      setDbTemplates(templates);
+    }
+    loadTemplates();
+  }, []);
+
+  const allTemplates = [
+    ...TROPHY_TEMPLATES,
+    ...dbTemplates.map(t => ({ ...t, defaultDesc: t.description || '' })),
+  ];
 
   const handleAward = async () => {
-    if (!form.playerId || !form.title || !form.season) return showToast("Player, Title, and Season are required.");
+    if (!form.playerId || !form.title || !form.season) return showToast('Player, Title, and Season are required.');
     const { awardTrophy } = await import('@/app/actions/admin');
     const res = await awardTrophy(form);
-    if (res.error) showToast(res.error);
-    else { showToast("Trophy awarded!"); setForm({ playerId: "", title: "", season: "", description: "", icon: "🏆" }); }
+    if (res.error) return showToast(res.error);
+    const playerName = players.find(p => p.id === form.playerId)?.name || 'Player';
+    showToast(`🏆 ${form.title} awarded to ${playerName}`);
+    setForm(blankForm);
   };
 
-  const handleRemove = async (id) => {
-    if (!confirm("Remove trophy?")) return;
+  const handleRevoke = async () => {
+    if (!revokeTarget) return;
     const { removeTrophy } = await import('@/app/actions/admin');
-    const res = await removeTrophy(id);
+    const res = await removeTrophy(revokeTarget.id);
     if (res.error) showToast(res.error);
-    else showToast("Trophy removed.");
+    else {
+      const playerName = players.find(p => p.id === revokeTarget.playerId)?.name || 'Player';
+      showToast(`🗑️ ${revokeTarget.title} revoked from ${playerName}`);
+    }
+    setRevokeTarget(null);
+  };
+
+  const handleEdit = async (updatedData) => {
+    if (!editTarget) return;
+    const { updateTrophy } = await import('@/app/actions/admin');
+    const res = await updateTrophy(editTarget.id, updatedData);
+    if (res.error) showToast(res.error);
+    else showToast(`✏️ Trophy updated`);
+    setEditTarget(null);
+  };
+
+  const applyTemplate = (template) => {
+    setForm(prev => ({ ...prev, title: template.name, icon: template.icon || template.image, description: template.defaultDesc || template.description || '' }));
+  };
+
+  const handleSaveTemplate = async () => {
+    if (!newTemplate.name.trim()) return showToast('Template name required');
+    setTemplateSaving(true);
+    const { createTrophyTemplate } = await import('@/app/actions/admin');
+    const res = await createTrophyTemplate(newTemplate);
+    if (res.error) { showToast(res.error); }
+    else {
+      setDbTemplates(prev => [...prev, res.template]);
+      showToast(`✅ Template "${newTemplate.name}" saved`);
+      setNewTemplate({ name: '', icon: '🏆', description: '' });
+    }
+    setTemplateSaving(false);
+  };
+
+  const handleDeleteTemplate = async (id, name) => {
+    const { deleteTrophyTemplate } = await import('@/app/actions/admin');
+    const res = await deleteTrophyTemplate(id);
+    if (res.error) showToast(res.error);
+    else {
+      setDbTemplates(prev => prev.filter(t => t.id !== id));
+      showToast(`🗑️ Template "${name}" deleted`);
+    }
   };
 
   return (
     <div className="flex flex-col gap-6">
-      <Card className="p-6">
-        <SectionTitle icon={Trophy}>Award a Trophy</SectionTitle>
-        <div className="grid md:grid-cols-2 gap-4 mt-4">
-          <div>
-            <Label>Player</Label>
-            <select className="w-full bg-secondary text-foreground p-3 rounded-lg border-none mt-1" value={form.playerId} onChange={e => setForm({...form, playerId: e.target.value})}>
-              <option value="">Select player...</option>
-              {players.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
-            </select>
-          </div>
-          <div><Label>Trophy Title</Label><Input value={form.title} onChange={e => setForm({...form, title: e.target.value})} placeholder="e.g. Golden Boot" /></div>
-          <div><Label>Season</Label><Input value={form.season} onChange={e => setForm({...form, season: e.target.value})} placeholder="e.g. Season 1" /></div>
-          <div><Label>Icon (Emoji/URL)</Label><Input value={form.icon} onChange={e => setForm({...form, icon: e.target.value})} placeholder="🏆" /></div>
-          <div className="md:col-span-2"><Label>Description</Label><Input value={form.description} onChange={e => setForm({...form, description: e.target.value})} placeholder="e.g. Top goalscorer with 25 goals." /></div>
-        </div>
-        <ShinyButton className="mt-6" onClick={handleAward}>Award Trophy</ShinyButton>
-      </Card>
-      
-      <div className="grid md:grid-cols-2 gap-4">
-        {trophies?.map((t, i) => {
-          const player = players.find(p => p.id === t.playerId);
-          return (
-            <FadeIn key={t.id} delay={i * 0.05}>
-              <MagicCard className="p-4 flex items-center justify-between gap-4">
-                <div className="flex items-center gap-4">
-                  <div className="text-3xl">{t.icon}</div>
-                  <div>
-                    <div className="font-bold">{t.title}</div>
-                    <div className="text-sm text-muted-foreground">{player?.name} • {t.season}</div>
-                  </div>
-                </div>
-                <Btn variant="danger" className="shrink-0 p-2" onClick={() => handleRemove(t.id)}><Trash2 size={16} /></Btn>
-              </MagicCard>
-            </FadeIn>
-          );
-        })}
-      </div>
+      <Tabs defaultValue="award" className="w-full">
+        <TabsList className="mb-6 bg-secondary/50 rounded-xl p-1">
+          <TabsTrigger value="award" className="rounded-lg data-[state=active]:bg-card data-[state=active]:text-foreground">
+            <Plus size={14} className="mr-1.5" /> Award
+          </TabsTrigger>
+          <TabsTrigger value="manage" className="rounded-lg data-[state=active]:bg-card data-[state=active]:text-foreground">
+            <ListOrdered size={14} className="mr-1.5" /> Manage
+          </TabsTrigger>
+          <TabsTrigger value="templates" className="rounded-lg data-[state=active]:bg-card data-[state=active]:text-foreground">
+            <Package size={14} className="mr-1.5" /> Templates
+          </TabsTrigger>
+        </TabsList>
+
+        {/* ── TAB 1: AWARD ── */}
+        <TabsContent value="award" className="space-y-6">
+          <Card className="p-6">
+            <SectionTitle icon={Trophy}>Award a Trophy</SectionTitle>
+            
+            {/* Quick templates */}
+            <div className="mb-5">
+              <Label>Quick-fill from template</Label>
+              <div className="flex flex-wrap gap-2 mt-2">
+                {TROPHY_TEMPLATES.map(t => (
+                  <button
+                    key={t.id}
+                    onClick={() => applyTemplate(t)}
+                    className="flex items-center gap-1.5 px-3 py-1.5 bg-secondary/50 hover:bg-secondary border border-border/50 rounded-full text-xs font-semibold transition-colors"
+                  >
+                    <img src={t.image} className="w-4 h-4 object-contain" alt="" />
+                    {t.name}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="grid md:grid-cols-2 gap-4 mt-4">
+              <div className="md:col-span-2">
+                <Label>Player</Label>
+                <PlayerCombobox players={players} value={form.playerId} onChange={v => setForm({...form, playerId: v})} />
+              </div>
+              <div><Label>Trophy Title</Label><Input value={form.title} onChange={e => setForm({...form, title: e.target.value})} placeholder="e.g. Golden Boot" /></div>
+              <div><Label>Season</Label><Input value={form.season} onChange={e => setForm({...form, season: e.target.value})} placeholder="e.g. Season 1" /></div>
+              <div className="md:col-span-2">
+                <Label>Icon</Label>
+                <TrophyIconPicker value={form.icon} onChange={v => setForm({...form, icon: v})} />
+              </div>
+              <div className="md:col-span-2"><Label>Description</Label><Input value={form.description} onChange={e => setForm({...form, description: e.target.value})} placeholder="e.g. Top goalscorer with 25 goals." /></div>
+            </div>
+            <ShinyButton className="mt-6" onClick={handleAward}>🏆 Award Trophy</ShinyButton>
+          </Card>
+        </TabsContent>
+
+        {/* ── TAB 2: MANAGE ── */}
+        <TabsContent value="manage" className="space-y-4">
+          <Card className="p-6">
+            <SectionTitle icon={ListOrdered}>All Awarded Trophies ({trophies.length})</SectionTitle>
+            {trophies.length === 0 ? (
+              <EmptyState text="No trophies awarded yet." />
+            ) : (
+              <div className="overflow-x-auto -mx-2 mt-4">
+                <table className="w-full text-sm min-w-[560px]">
+                  <thead>
+                    <tr className="text-muted-foreground text-[11px] uppercase tracking-wider border-b border-border/50">
+                      <th className="pb-3 text-left px-2 font-semibold">Icon</th>
+                      <th className="pb-3 text-left px-2 font-semibold">Trophy</th>
+                      <th className="pb-3 text-left px-2 font-semibold">Player</th>
+                      <th className="pb-3 text-left px-2 font-semibold">Season</th>
+                      <th className="pb-3 text-left px-2 font-semibold">Date</th>
+                      <th className="pb-3 px-2"></th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {trophies.map((t, i) => {
+                      const player = players.find(p => p.id === t.playerId);
+                      return (
+                        <motion.tr
+                          key={t.id}
+                          initial={{ opacity: 0, y: 6 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ delay: i * 0.03 }}
+                          className="border-b border-border/30 last:border-0 hover:bg-secondary/20 transition-colors"
+                        >
+                          <td className="py-3 px-2">
+                            {t.icon ? (
+                              t.icon.startsWith('/') || t.icon.startsWith('http') ? (
+                                <img src={t.icon} className="w-8 h-8 object-contain" alt="" />
+                              ) : (
+                                <span className="text-xl">{t.icon}</span>
+                              )
+                            ) : <span className="text-xl">🏆</span>}
+                          </td>
+                          <td className="py-3 px-2">
+                            <div className="font-semibold">{t.title}</div>
+                            {t.description && <div className="text-xs text-muted-foreground truncate max-w-[160px]">{t.description}</div>}
+                          </td>
+                          <td className="py-3 px-2">
+                            <div className="flex items-center gap-2">
+                              <span className="text-base leading-none">{player?.avatar || '👤'}</span>
+                              <span className="font-medium">{player?.name || t.playerId}</span>
+                            </div>
+                          </td>
+                          <td className="py-3 px-2 font-mono text-muted-foreground text-xs">{t.season}</td>
+                          <td className="py-3 px-2 font-mono text-muted-foreground text-xs whitespace-nowrap">
+                            {new Date(t.createdAt).toLocaleDateString()}
+                          </td>
+                          <td className="py-3 px-2">
+                            <DropdownMenu>
+                              <DropdownMenuTrigger asChild>
+                                <Btn variant="ghost" className="h-8 w-8 p-0">
+                                  <span className="sr-only">Open menu</span>
+                                  <ChevronDown size={14} />
+                                </Btn>
+                              </DropdownMenuTrigger>
+                              <DropdownMenuContent align="end" className="bg-card border-border/50 shadow-2xl rounded-xl w-36">
+                                <DropdownMenuItem onClick={() => setEditTarget(t)} className="cursor-pointer rounded-lg py-2">
+                                  <Edit2 size={14} className="mr-2" /> Edit
+                                </DropdownMenuItem>
+                                <DropdownMenuSeparator className="bg-border/30" />
+                                <DropdownMenuItem
+                                  onClick={() => setRevokeTarget(t)}
+                                  className="cursor-pointer rounded-lg py-2 text-destructive focus:text-destructive focus:bg-destructive/10"
+                                >
+                                  <Trash2 size={14} className="mr-2" /> Revoke
+                                </DropdownMenuItem>
+                              </DropdownMenuContent>
+                            </DropdownMenu>
+                          </td>
+                        </motion.tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </Card>
+        </TabsContent>
+
+        {/* ── TAB 3: TEMPLATES ── */}
+        <TabsContent value="templates" className="space-y-6">
+          <Card className="p-6">
+            <SectionTitle icon={Package}>Trophy Templates</SectionTitle>
+            <p className="text-sm text-muted-foreground mb-6">
+              Use templates to quickly fill the Award form. The 6 official trophies are pre-loaded. Custom templates you add here are saved permanently.
+            </p>
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-3">
+              {allTemplates.map(t => (
+                <MagicCard
+                  key={t.id}
+                  className="p-4 flex items-center gap-3 group"
+                >
+                  <button
+                    className="flex items-center gap-3 flex-1 min-w-0 text-left"
+                    onClick={() => applyTemplate(t)}
+                  >
+                    {(t.image || (t.icon && (t.icon.startsWith('/') || t.icon.startsWith('http')))) ? (
+                      <img src={t.image || t.icon} className="w-10 h-10 object-contain shrink-0" alt={t.name} />
+                    ) : (
+                      <span className="text-2xl shrink-0">{t.icon || '🏆'}</span>
+                    )}
+                    <div className="min-w-0">
+                      <div className="font-semibold text-sm truncate">{t.name}</div>
+                      <div className="text-xs text-muted-foreground truncate">{t.defaultDesc || t.description || 'Click to use in Award form'}</div>
+                    </div>
+                  </button>
+                  {/* Only show delete for DB-persisted custom templates */}
+                  {t.id && !t.id.startsWith('bb-') && !t.id.startsWith('world-') && !t.id.startsWith('golden-') && !t.id.startsWith('mvp') && !t.id.startsWith('la-') && !t.id.startsWith('premier-') && (
+                    <button
+                      onClick={() => handleDeleteTemplate(t.id, t.name)}
+                      className="ml-auto opacity-0 group-hover:opacity-100 transition-opacity p-1.5 rounded-lg hover:bg-destructive/10 text-destructive"
+                      title="Delete template"
+                    >
+                      <Trash2 size={13} />
+                    </button>
+                  )}
+                </MagicCard>
+              ))}
+            </div>
+
+            <div className="mt-8 pt-6 border-t border-border/30">
+              <h4 className="font-semibold text-sm mb-3">Add Custom Template</h4>
+              <div className="grid md:grid-cols-3 gap-3">
+                <div><Label>Template Name</Label><Input value={newTemplate.name} onChange={e => setNewTemplate({...newTemplate, name: e.target.value})} placeholder="e.g. Hat-Trick Hero" /></div>
+                <div><Label>Icon (emoji or path)</Label><Input value={newTemplate.icon} onChange={e => setNewTemplate({...newTemplate, icon: e.target.value})} placeholder="🎩" /></div>
+                <div><Label>Description (optional)</Label><Input value={newTemplate.description || ''} onChange={e => setNewTemplate({...newTemplate, description: e.target.value})} placeholder="Short description" /></div>
+              </div>
+              <ShinyButton
+                className="mt-3"
+                onClick={handleSaveTemplate}
+                disabled={templateSaving}
+              >
+                <Plus size={15} className="mr-1" /> {templateSaving ? 'Saving...' : 'Save Template'}
+              </ShinyButton>
+            </div>
+          </Card>
+        </TabsContent>
+      </Tabs>
+
+      {/* Revoke Confirm Dialog */}
+      <RevokeDialog
+        open={!!revokeTarget}
+        onOpenChange={open => !open && setRevokeTarget(null)}
+        trophy={revokeTarget}
+        players={players}
+        onConfirm={handleRevoke}
+      />
+
+      {/* Edit Dialog */}
+      <EditTrophyDialog
+        key={editTarget?.id || 'edit-dialog-new'}
+        open={!!editTarget}
+        onOpenChange={open => !open && setEditTarget(null)}
+        trophy={editTarget}
+        players={players}
+        onSave={handleEdit}
+      />
     </div>
   );
 }
@@ -413,7 +879,7 @@ function AdminAnnouncements({ announcements, showToast }) {
   return (
     <div className="flex flex-col gap-6">
       <Card className="p-6">
-        <SectionTitle icon={Swords}>Post Announcement</SectionTitle>
+        <SectionTitle icon={Megaphone}>Post Announcement</SectionTitle>
         <div className="grid gap-4 mt-4">
           <div><Label>Title</Label><Input value={form.title} onChange={e => setForm({...form, title: e.target.value})} placeholder="e.g. Tournament Start!" /></div>
           <div><Label>Message</Label><Input value={form.content} onChange={e => setForm({...form, content: e.target.value})} placeholder="Type message..." /></div>
@@ -488,10 +954,7 @@ function AdminTournament({ activeTournament, matches = [], players = [], showToa
     );
   }
 
-  // --- Data Calculations ---
   const tMatches = matches.filter((m) => m.tournamentId === activeTournament.id && m.round === "league");
-  // Assuming a single round-robin for a 5-player league = 10 matches total.
-  // If double round-robin, it would be 20. We can guess based on generated matches.
   const isDoubleRoundRobin = tMatches.length > 10;
   const expectedMatches = isDoubleRoundRobin ? 20 : 10;
   
@@ -501,7 +964,6 @@ function AdminTournament({ activeTournament, matches = [], players = [], showToa
   const scheduledMatches = tMatches.filter(m => m.status === 'scheduled' || m.status === 'live');
   const upcoming = scheduledMatches.slice(0, 3);
   
-  // --- Standings ---
   const table = {};
   players.forEach(p => table[p.id] = { id: p.id, name: p.name, flag: p.flag, p: 0, w: 0, d: 0, l: 0, gf: 0, ga: 0, gd: 0, pts: 0 });
   
@@ -523,7 +985,6 @@ function AdminTournament({ activeTournament, matches = [], players = [], showToa
   
   const standings = Object.values(table).sort((a, b) => b.pts - a.pts || b.gd - a.gd || b.gf - a.gf);
   
-  // --- Stats ---
   const totalGoals = completedMatches.reduce((acc, m) => acc + m.homeScore + m.awayScore, 0);
   const avgGoals = completedMatches.length > 0 ? (totalGoals / completedMatches.length).toFixed(1) : "0.0";
   
@@ -536,16 +997,18 @@ function AdminTournament({ activeTournament, matches = [], players = [], showToa
     mostWins = byWins[0];
   }
   
-  // --- Status badges ---
   const isCompleted = progressPercent >= 100;
   const hasFixtures = tMatches.length > 0;
-  const statusBadge = isCompleted 
-    ? <Badge color="var(--primary)" className="ml-3">COMPLETED</Badge> 
-    : (hasFixtures ? <Badge color="var(--success)" pulse className="ml-3">LIVE</Badge> : <Badge color="var(--gold)" className="ml-3">DRAFT</Badge>);
+  // Use actual theme color values — CSS vars like --primary/--success don't map to Badge's color prop
+  const statusBadge = isCompleted
+    ? <span className="ml-3"><Badge color="#1F8A5C">COMPLETED</Badge></span>
+    : (hasFixtures
+        ? <span className="ml-3"><Badge color="#29C179" pulse>LIVE</Badge></span>
+        : <span className="ml-3"><Badge color="#D9A93B">DRAFT</Badge></span>
+      );
 
   return (
     <div className="flex flex-col gap-6">
-      {/* 1. HERO SECTION */}
       <Card className="p-8 border-primary/30 bg-gradient-to-br from-primary/10 via-background to-background relative overflow-hidden">
         <div className="absolute -right-16 -top-16 opacity-[0.03] pointer-events-none">
           <Trophy size={300} />
@@ -590,7 +1053,6 @@ function AdminTournament({ activeTournament, matches = [], players = [], showToa
         </div>
       </Card>
 
-      {/* 2. QUICK ACTIONS */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <MagicCard className="p-5 flex flex-col items-center justify-center gap-3 hover:bg-secondary/80 cursor-pointer transition-colors group" onClick={!hasFixtures ? handleGenerateFixtures : () => showToast("Fixtures already exist")}>
           <div className={`p-3 rounded-full ${!hasFixtures ? 'bg-gold/20 text-gold' : 'bg-secondary text-muted-foreground opacity-50'}`}>
@@ -630,7 +1092,6 @@ function AdminTournament({ activeTournament, matches = [], players = [], showToa
       </div>
 
       <div className="grid md:grid-cols-12 gap-6">
-        {/* 3. LEAGUE PROGRESS & FIXTURES */}
         <div className="md:col-span-4 flex flex-col gap-6">
           <Card className="p-6">
             <SectionTitle icon={BarChart2}>League Progress</SectionTitle>
@@ -680,7 +1141,6 @@ function AdminTournament({ activeTournament, matches = [], players = [], showToa
           </Card>
         </div>
 
-        {/* 4. STANDINGS & PARTICIPANTS */}
         <div className="md:col-span-8 flex flex-col gap-6">
            <Card className="p-6 flex-1">
              <div className="flex items-center justify-between mb-6">
@@ -705,25 +1165,22 @@ function AdminTournament({ activeTournament, matches = [], players = [], showToa
                    </tr>
                  </thead>
                  <tbody>
-                   {standings.map((row, idx) => {
-                     const isQualified = idx < 4;
-                     return (
-                       <tr key={row.id} className={`border-b border-border/30 last:border-0 hover:bg-secondary/20 transition-colors ${idx === 3 ? 'border-b-2 border-b-success/30' : ''}`}>
-                         <td className="px-4 py-4 text-center font-mono font-bold text-lg">
-                           {idx === 0 ? "🥇" : idx === 1 ? "🥈" : idx === 2 ? "🥉" : <span className="text-muted-foreground">{idx + 1}</span>}
-                         </td>
-                         <td className="px-4 py-4 font-bold text-base flex items-center gap-2">
-                           {row.name} {row.flag}
-                         </td>
-                         <td className="px-3 py-4 text-center font-mono text-muted-foreground">{row.p}</td>
-                         <td className="px-3 py-4 text-center font-mono text-muted-foreground">{row.w}</td>
-                         <td className="px-3 py-4 text-center font-mono text-muted-foreground">{row.d}</td>
-                         <td className="px-3 py-4 text-center font-mono text-muted-foreground">{row.l}</td>
-                         <td className="px-3 py-4 text-center font-mono">{row.gd > 0 ? `+${row.gd}` : row.gd}</td>
-                         <td className="px-4 py-4 text-center font-mono font-bold text-xl text-primary">{row.pts}</td>
-                       </tr>
-                     );
-                   })}
+                   {standings.map((row, idx) => (
+                     <tr key={row.id} className={`border-b border-border/30 last:border-0 hover:bg-secondary/20 transition-colors ${idx === 3 ? 'border-b-2 border-b-success/30' : ''}`}>
+                       <td className="px-4 py-4 text-center font-mono font-bold text-lg">
+                         {idx === 0 ? "🥇" : idx === 1 ? "🥈" : idx === 2 ? "🥉" : <span className="text-muted-foreground">{idx + 1}</span>}
+                       </td>
+                       <td className="px-4 py-4 font-bold text-base flex items-center gap-2">
+                         {row.name} {row.flag}
+                       </td>
+                       <td className="px-3 py-4 text-center font-mono text-muted-foreground">{row.p}</td>
+                       <td className="px-3 py-4 text-center font-mono text-muted-foreground">{row.w}</td>
+                       <td className="px-3 py-4 text-center font-mono text-muted-foreground">{row.d}</td>
+                       <td className="px-3 py-4 text-center font-mono text-muted-foreground">{row.l}</td>
+                       <td className="px-3 py-4 text-center font-mono">{row.gd > 0 ? `+${row.gd}` : row.gd}</td>
+                       <td className="px-4 py-4 text-center font-mono font-bold text-xl text-primary">{row.pts}</td>
+                     </tr>
+                   ))}
                    {standings.length === 0 && (
                      <tr>
                        <td colSpan={8} className="py-12 text-center text-muted-foreground">No matches played yet</td>
@@ -753,7 +1210,6 @@ function AdminTournament({ activeTournament, matches = [], players = [], showToa
       </div>
 
       <div className="grid md:grid-cols-2 gap-6">
-        {/* 5. STATISTICS */}
         <Card className="p-6">
           <SectionTitle icon={BarChart2}>Statistics</SectionTitle>
           <div className="grid grid-cols-2 gap-px bg-border/50 mt-4 rounded-xl overflow-hidden border border-border/50">
@@ -778,7 +1234,6 @@ function AdminTournament({ activeTournament, matches = [], players = [], showToa
           </div>
         </Card>
 
-        {/* 6. PLAYOFF STATUS */}
         <Card className="p-6">
           <SectionTitle icon={Swords}>Playoff Status</SectionTitle>
           <div className="flex flex-col gap-2 mt-4">
@@ -804,16 +1259,13 @@ function AdminTournament({ activeTournament, matches = [], players = [], showToa
         </Card>
       </div>
       
-      {/* 7. TOURNAMENT TIMELINE */}
       <Card className="p-8">
         <SectionTitle icon={Clock}>Tournament Timeline</SectionTitle>
         <div className="flex items-center justify-between mt-10 relative px-4 md:px-12">
-           {/* Line behind steps */}
            <div className="absolute top-3 left-10 right-10 md:left-16 md:right-16 h-1 bg-secondary -translate-y-1/2 z-0">
               <div className="h-full bg-gold transition-all duration-1000" style={{ width: isCompleted ? '100%' : hasFixtures ? (progressPercent > 0 ? '75%' : '50%') : '25%' }} />
            </div>
            
-           {/* Steps */}
            {['Created', 'Fixtures Generated', 'League Running', 'Playoffs', 'Champion'].map((step, idx) => {
               let active = false;
               if (idx === 0) active = true;
@@ -833,7 +1285,6 @@ function AdminTournament({ activeTournament, matches = [], players = [], showToa
         </div>
       </Card>
 
-      {/* 8. DANGER ZONE */}
       <Card className="p-6 border-claret/30 bg-claret/5">
         <div className="flex items-center gap-2 mb-2 text-claret">
            <AlertTriangle size={20} />

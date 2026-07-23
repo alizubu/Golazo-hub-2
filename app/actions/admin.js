@@ -53,6 +53,23 @@ export async function awardTrophy(data) {
   }
 }
 
+export async function updateTrophy(id, data) {
+  try {
+    const trophy = await prisma.trophy.update({
+      where: { id },
+      data: {
+        title: data.title,
+        season: data.season,
+        description: data.description,
+        icon: data.icon,
+      },
+    });
+    return { trophy };
+  } catch (error) {
+    return { error: 'Failed to update trophy.' };
+  }
+}
+
 export async function removeTrophy(id) {
   try {
     await prisma.trophy.delete({ where: { id } });
@@ -71,5 +88,53 @@ export async function getTrophies(playerId) {
     return trophies;
   } catch (error) {
     return [];
+  }
+}
+
+export async function getAllTrophies() {
+  try {
+    const trophies = await prisma.trophy.findMany({
+      orderBy: { createdAt: 'desc' },
+    });
+    return trophies;
+  } catch (error) {
+    return [];
+  }
+}
+
+// ─── Trophy Templates ─────────────────────────────────────────────────────────
+
+export async function getTrophyTemplates() {
+  try {
+    const templates = await prisma.trophyTemplate.findMany({
+      orderBy: { createdAt: 'asc' },
+    });
+    return templates;
+  } catch (error) {
+    return [];
+  }
+}
+
+export async function createTrophyTemplate(data) {
+  try {
+    const template = await prisma.trophyTemplate.create({
+      data: {
+        name: data.name,
+        icon: data.icon,
+        description: data.description,
+      },
+    });
+    return { template };
+  } catch (error) {
+    return { error: 'Failed to create trophy template.' };
+  }
+}
+
+export async function deleteTrophyTemplate(id) {
+  try {
+    await prisma.trophyTemplate.delete({ where: { id } });
+    return { success: true };
+  } catch (error) {
+    return { error: 'Failed to delete trophy template.' };
   }
 }

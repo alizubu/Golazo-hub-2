@@ -118,3 +118,11 @@ model Announcement {
   content   String
   createdAt DateTime @default(now())
 }
+
+model TrophyTemplate {
+  id          String   @id @default(cuid())
+  name        String
+  icon        String   // emoji or /assets/trophies/... path
+  description String?
+  createdAt   DateTime @default(now())
+}
