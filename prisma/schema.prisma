@@ -26,6 +26,7 @@ model Player {
   favoriteCompetition  String?
   coverBanner          String?
   lastActive           DateTime?
+  lastReadNotificationAt DateTime?
   onlineStatus         String    @default("online")
   assists              Int       @default(0)
   createdAt    DateTime  @default(now())

@@ -1,6 +1,7 @@
 'use server';
 
 import prisma from '@/lib/db';
+import { broadcastEvent } from '@/lib/broadcast';
 import { revalidatePath } from 'next/cache';
 
 export async function getMatches(seasonId) {

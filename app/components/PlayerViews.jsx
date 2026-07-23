@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import { PageHeader } from './PageHeader';
 import { Trophy, Clock, ListOrdered, Calendar, Swords, Megaphone, Bell, Pen, Target, Handshake, Shield, Activity, Lock, Flame, BadgeCheck } from 'lucide-react';
 import { Btn, Badge, Avatar, PlayerChip, SectionTitle, EmptyState, MagicCard, FadeIn, ShinyButton, Label } from './UI';
 import { Card, CardHeader, CardTitle, CardContent } from '@/app/components/ui/card';
@@ -8,6 +9,7 @@ import { NumberTicker } from './ui/number-ticker';
 import { motion } from 'framer-motion';
 import SettingsView from './SettingsView';
 import { BorderBeam } from './magicui/BorderBeam';
+import { markNotificationsRead } from '@/app/actions/player';
 import { Skeleton } from '@/app/components/ui/skeleton';
 import { HoverCard, HoverCardContent, HoverCardTrigger } from '@/app/components/ui/hover-card';
 import clubsData from '@/lib/data/clubs.json';
@@ -375,7 +377,7 @@ function PlayerDashboard({ me, activeSeason, matches, players, announcements = [
                 <CardTitle className="text-xl flex items-center gap-2"><Activity className="text-pitch-bright" size={20}/> Player Statistics</CardTitle>
               </CardHeader>
               <CardContent className="flex-1">
-                <div className="grid grid-cols-2 lg:grid-cols-6 gap-4 mt-2 h-full">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-4 mt-2 h-full">
                   <Card className="relative overflow-hidden bg-gradient-to-br from-gold/10 to-transparent border-t-2 border-t-gold border-x-border/50 border-b-border/50 flex flex-col items-center justify-center text-center p-6 group shadow-none min-h-[140px] flex-1">
                     {myRank === 1 && <BorderBeam size={150} duration={8} delay={1} colorFrom="var(--gold)" colorTo="transparent" />}
                     <Label className="text-gold/80 mb-1 z-10">Current Rank</Label>
@@ -424,7 +426,7 @@ function PlayerDashboard({ me, activeSeason, matches, players, announcements = [
                 <h3 className="text-xl font-bold flex items-center gap-2 text-foreground"><Trophy className="text-gold" size={20}/> Trophy Cabinet</h3>
               </CardHeader>
               <CardContent className="pt-6">
-                <motion.div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4" variants={{hidden: { opacity: 0 }, show: { opacity: 1, transition: { staggerChildren: 0.06 } }}} initial="hidden" whileInView="show" viewport={{ once: true }}>
+                <motion.div className="flex md:grid md:grid-cols-3 lg:grid-cols-6 overflow-x-auto snap-x snap-mandatory gap-4 pb-4 md:pb-0 w-full min-w-0" variants={{hidden: { opacity: 0 }, show: { opacity: 1, transition: { staggerChildren: 0.06 } }}} initial="hidden" whileInView="show" viewport={{ once: true }}>
                   {[
                     { id: "bb-champion", name: "BB Champion", image: "/assets/trophies/BB-Champion.png", locked: true },
                     { id: "world-cup", name: "World Cup Winner", image: "/assets/trophies/World-Cup-Winner-Trophy.png", locked: true },
@@ -658,6 +660,10 @@ function PlayoffBracketDisplay({ tMatches, players }) {
 
   return (
     <div className="space-y-6">
+      <PageHeader title="Matches" onBack={() => props.setTab('dashboard')} />
+
+      <PageHeader title="Standings" onBack={() => props.setTab('dashboard')} />
+
       <div className="grid md:grid-cols-2 gap-4">
         <div>
           <div className="text-[11px] uppercase tracking-wider mb-2 font-semibold text-gold">Top match (Rank 1 vs 2)</div>
@@ -719,6 +725,10 @@ function RosterView({ players, matches }) {
 
   return (
     <div className="grid md:grid-cols-2 gap-4">
+      <PageHeader title="Roster" onBack={() => props.setTab('dashboard')} />
+
+      <PageHeader title="Playoffs" onBack={() => props.setTab('dashboard')} />
+
       {players.map((p, i) => {
         const pm = matches.filter((m) => m.status === "completed" && (m.homeId === p.id || m.awayId === p.id));
         const wins = pm.filter((m) => matchWinnerId(m) === p.id).length;
@@ -754,6 +764,8 @@ function HistoryView({ history, players }) {
   
   return (
     <div className="flex flex-col gap-4">
+      <PageHeader title="History" onBack={() => props.setTab('dashboard')} />
+
       {history.map((t, i) => {
         const champ = players.find((p) => p.id === t.championId);
         const runner = players.find((p) => p.id === t.runnerUpId);
@@ -799,26 +811,50 @@ function HistoryView({ history, players }) {
   );
 }
 
-function NotificationsView({ notifications }) {
+function NotificationsView({ notifications, me }) {
+  const [localReadAt, setLocalReadAt] = React.useState(me?.lastReadNotificationAt);
+
+  const handleMarkRead = async () => {
+    setLocalReadAt(new Date().toISOString());
+    
+    await markNotificationsRead(me.id);
+  };
+
+  const unreadCount = notifications ? notifications.filter(n => !localReadAt || new Date(n.createdAt) > new Date(localReadAt)).length : 0;
+
   if (!notifications || notifications.length === 0) return <FadeIn delay={0.1}><Card className="p-6"><EmptyState text="No notifications yet." /></Card></FadeIn>;
   return (
     <FadeIn delay={0.1}>
       <Card className="p-6">
-        <SectionTitle icon={Bell}>Notifications</SectionTitle>
+        <SectionTitle 
+          icon={Bell}
+          right={
+            unreadCount > 0 ? (
+              <button onClick={handleMarkRead} className="text-xs font-semibold text-pitch-bright hover:underline cursor-pointer bg-transparent border-none">
+                Mark all as read
+              </button>
+            ) : null
+          }
+        >
+          Notifications
+        </SectionTitle>
         <div className="flex flex-col gap-3">
-          {notifications.map((n, i) => (
-            <motion.div 
-              key={n.id} 
-              initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }}
-              className="p-4 rounded-xl flex items-start gap-3 bg-secondary/50 border border-border/50"
-            >
-              <div className={`mt-0.5 shrink-0 w-2 h-2 rounded-full ${n.type === 'season' ? 'bg-gold' : n.type === 'fixtures' ? 'bg-pitch-bright' : 'bg-claret'}`} />
-              <div>
-                <div className="text-sm font-medium">{n.text}</div>
-                <div className="text-[10px] mt-1 text-muted-foreground font-mono">{new Date(n.createdAt).toLocaleString()}</div>
-              </div>
-            </motion.div>
-          ))}
+          {notifications.map((n, i) => {
+            const isUnread = !localReadAt || new Date(n.createdAt) > new Date(localReadAt);
+            return (
+              <motion.div 
+                key={n.id} 
+                initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }}
+                className={`p-4 rounded-xl flex items-start gap-3 border ${isUnread ? 'bg-secondary border-pitch-bright/30' : 'bg-secondary/20 border-border/30 opacity-70'}`}
+              >
+                <div className={`mt-0.5 shrink-0 w-2 h-2 rounded-full ${isUnread ? 'bg-pitch-bright animate-pulse' : 'bg-muted-foreground/30'}`} />
+                <div>
+                  <div className={`text-sm ${isUnread ? 'font-bold text-foreground' : 'font-medium text-muted-foreground'}`}>{n.text}</div>
+                  <div className="text-[10px] mt-1 text-muted-foreground font-mono">{new Date(n.createdAt).toLocaleString()}</div>
+                </div>
+              </motion.div>
+            );
+          })}
         </div>
       </Card>
     </FadeIn>

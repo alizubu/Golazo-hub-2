@@ -71,7 +71,10 @@ export default function FloatingNav({ session, me, tab, setTab, onLogout, player
   const bgOpacity = useTransform(scrollY, [0, 80], [0.5, 0.85]);
   const blurAmount = useTransform(scrollY, [0, 80], [12, 24]);
 
-  const unreadCount = notifications.filter(n => !n.read).length;
+  const unreadCount = notifications.filter(n => {
+    if (!me?.lastReadNotificationAt) return true;
+    return new Date(n.createdAt) > new Date(me.lastReadNotificationAt);
+  }).length;
 
   const handleTabChange = (id) => {
     setTab(id);
@@ -87,7 +90,7 @@ export default function FloatingNav({ session, me, tab, setTab, onLogout, player
   return (
     <>
       {/* Floating Pill Nav */}
-      <div className="sticky top-0 z-50 w-full px-4 sm:px-6 pt-4 pb-2">
+      <div className="hidden md:block sticky top-0 z-50 w-full px-4 sm:px-6 pt-4 pb-2">
         <motion.div
           className="mx-auto max-w-6xl rounded-full border border-white/10 shadow-2xl flex items-center justify-between px-3 sm:px-5 py-2.5 relative overflow-hidden"
           style={{
@@ -245,11 +248,24 @@ export default function FloatingNav({ session, me, tab, setTab, onLogout, player
               </>
             ) : null}
 
-            {/* Mobile Hamburger */}
-            <div className="flex md:hidden">
-              <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
+            </div>
+        </motion.div>
+      </div>
+
+      {/* Mobile Nav Bar */}
+      <div className="md:hidden sticky top-0 z-50 w-full bg-background/85 backdrop-blur-md border-b border-border p-3 flex items-center justify-between shadow-sm" style={{ paddingTop: 'max(0.75rem, env(safe-area-inset-top))' }}>
+        <div className="flex items-center gap-2">
+          <span className="text-xl leading-none drop-shadow-sm">🏆</span>
+          <span className="font-display text-sm font-bold tracking-tight text-white">FRIENDS eLEAGUE</span>
+        </div>
+        
+        <div className="flex items-center gap-2">
+          <button onClick={() => setSearchOpen(true)} className="flex items-center justify-center min-w-[44px] min-h-[44px] text-muted-foreground hover:text-white rounded-full transition-colors">
+            <Search size={20} />
+          </button>
+          <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
                 <SheetTrigger asChild>
-                  <button className="flex items-center justify-center w-8 h-8 rounded-full text-muted-foreground hover:text-white hover:bg-white/10 transition-colors">
+                  <button className="flex items-center justify-center min-w-[44px] min-h-[44px] rounded-full text-muted-foreground hover:text-white hover:bg-secondary transition-colors">
                     <Menu size={16} />
                   </button>
                 </SheetTrigger>
@@ -280,7 +296,7 @@ export default function FloatingNav({ session, me, tab, setTab, onLogout, player
                         <button
                           key={it.id}
                           onClick={() => handleTabChange(it.id)}
-                          className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition-all text-left w-full ${
+                          className={`flex items-center gap-3 px-4 py-4 min-h-[44px] rounded-xl text-sm font-semibold transition-all text-left w-full ${
                             active
                               ? 'bg-pitch-bright/15 text-pitch-bright border border-pitch-bright/20'
                               : 'text-muted-foreground hover:text-foreground hover:bg-secondary/50'
@@ -296,7 +312,7 @@ export default function FloatingNav({ session, me, tab, setTab, onLogout, player
                     <div className="h-px bg-border/30" />
                     <button
                       onClick={() => { onLogout(); setSheetOpen(false); }}
-                      className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold text-destructive hover:bg-destructive/10 transition-all w-full"
+                      className="flex items-center gap-3 px-4 py-4 min-h-[44px] rounded-xl text-sm font-semibold text-destructive hover:bg-destructive/10 transition-all w-full"
                     >
                       <LogOut size={17} />
                       Log out
@@ -304,14 +320,13 @@ export default function FloatingNav({ session, me, tab, setTab, onLogout, player
                   </div>
                 </SheetContent>
               </Sheet>
-            </div>
-          </div>
-        </motion.div>
+        </div>
       </div>
+
 
       {/* Command Search Dialog */}
       <Dialog open={searchOpen} onOpenChange={setSearchOpen}>
-        <DialogContent className="p-0 gap-0 max-w-lg bg-card border-border/50 shadow-2xl overflow-hidden">
+        <DialogContent className="p-0 gap-0 w-screen h-screen sm:h-auto max-w-full sm:max-w-lg sm:rounded-xl bg-card border-border/50 sm:shadow-2xl overflow-hidden m-0 sm:border-solid">
           <DialogHeader className="sr-only">
             <DialogTitle>Search</DialogTitle>
           </DialogHeader>

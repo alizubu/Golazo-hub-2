@@ -26,38 +26,50 @@ export default function AvatarUpload({ me, form, setForm, showToast }) {
     setUploading(true);
     setProgress(0);
     
-    // Simulate upload progress
     const interval = setInterval(() => {
       setProgress(prev => {
         if (prev >= 90) return 90;
         return prev + 15;
       });
-    }, 200);
+    }, 100);
 
     try {
-      const formData = new FormData();
-      formData.append('file', file);
-      
-      const res = await fetch('/api/user/avatar', {
-        method: 'POST',
-        body: formData
+      const base64String = await new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = (event) => {
+          const img = new Image();
+          img.src = event.target.result;
+          img.onload = () => {
+            const canvas = document.createElement('canvas');
+            const MAX_WIDTH = 400;
+            const MAX_HEIGHT = 400;
+            let width = img.width;
+            let height = img.height;
+            if (width > height) {
+              if (width > MAX_WIDTH) { height = Math.round((height *= MAX_WIDTH / width)); width = MAX_WIDTH; }
+            } else {
+              if (height > MAX_HEIGHT) { width = Math.round((width *= MAX_HEIGHT / height)); height = MAX_HEIGHT; }
+            }
+            canvas.width = width;
+            canvas.height = height;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0, width, height);
+            resolve(canvas.toDataURL('image/jpeg', 0.8));
+          };
+          img.onerror = (err) => reject(err);
+        };
+        reader.onerror = (err) => reject(err);
       });
-      
-      const data = await res.json();
-      
-      if (!res.ok) throw new Error(data.error || 'Upload failed');
-      
+
       clearInterval(interval);
       setProgress(100);
       setSuccess(true);
       
-      // Update DB directly
-      const updateRes = await updatePlayerProfile(me.id, { avatarImage: data.url });
+      const updateRes = await updatePlayerProfile(me.id, { avatarImage: base64String });
+      if (updateRes.error) throw new Error(updateRes.error);
       
-      if (!updateRes.error) {
-        setForm(prev => ({ ...prev, avatarImage: data.url }));
-      }
-      
+      setForm(prev => ({ ...prev, avatarImage: base64String }));
       setTimeout(() => setSuccess(false), 2000);
     } catch (err) {
       clearInterval(interval);
@@ -65,7 +77,6 @@ export default function AvatarUpload({ me, form, setForm, showToast }) {
       console.error(err);
       if (showToast) showToast(err.message || 'Upload failed');
       else if (typeof window !== 'undefined') alert(err.message || 'Upload failed');
-
     } finally {
       setTimeout(() => {
         setUploading(false);

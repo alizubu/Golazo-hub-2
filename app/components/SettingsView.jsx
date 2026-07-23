@@ -1,5 +1,6 @@
 'use client';
 
+import { PageHeader } from './PageHeader';
 import React, { useState, useRef } from 'react';
 import { Camera, KeyRound, Shield, CheckCircle2, Flame, Eye, EyeOff, Settings } from 'lucide-react';
 import { motion } from 'framer-motion';
@@ -74,25 +75,44 @@ export default function SettingsView({ me, showToast }) {
       
       const interval = setInterval(() => {
         setCoverProgress(prev => (prev >= 90 ? 90 : prev + 15));
-      }, 200);
+      }, 100);
 
       try {
-        const formData = new FormData();
-        formData.append('file', file);
-        const res = await fetch('/api/user/cover', {
-          method: 'POST',
-          body: formData
+        const base64String = await new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          reader.readAsDataURL(file);
+          reader.onload = (event) => {
+            const img = new Image();
+            img.src = event.target.result;
+            img.onload = () => {
+              const canvas = document.createElement('canvas');
+              const MAX_WIDTH = 1200;
+              const MAX_HEIGHT = 400;
+              let width = img.width;
+              let height = img.height;
+              if (width > height) {
+                if (width > MAX_WIDTH) { height = Math.round((height *= MAX_WIDTH / width)); width = MAX_WIDTH; }
+              } else {
+                if (height > MAX_HEIGHT) { width = Math.round((width *= MAX_HEIGHT / height)); height = MAX_HEIGHT; }
+              }
+              canvas.width = width;
+              canvas.height = height;
+              const ctx = canvas.getContext('2d');
+              ctx.drawImage(img, 0, 0, width, height);
+              resolve(canvas.toDataURL('image/jpeg', 0.8));
+            };
+            img.onerror = (err) => reject(err);
+          };
+          reader.onerror = (err) => reject(err);
         });
-        const data = await res.json();
-        
-        if (!res.ok) throw new Error(data.error || 'Upload failed');
-        
+
         clearInterval(interval);
         setCoverProgress(100);
         
-        await updatePlayerProfile(me.id, { coverBanner: data.url });
+        const updateRes = await updatePlayerProfile(me.id, { coverBanner: base64String });
+        if (updateRes.error) throw new Error(updateRes.error);
         
-        setForm({ ...form, coverBanner: data.url });
+        setForm({ ...form, coverBanner: base64String });
       } catch (err) {
         clearInterval(interval);
         showToast(err.message || 'Cover upload failed');

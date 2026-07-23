@@ -157,7 +157,7 @@ function Avatar({ p, size = 40, ring, glow }) {
   const [imgError, setImgError] = React.useState(false);
 
   // Reset error state if image url changes
-  React.useEffect(() => { setImgError(false); }, [p?.avatarImage]);
+  React.useEffect(() => { setTimeout(() => setImgError(false), 0); }, [p?.avatarImage]);
 
   if (p?.avatarImage && !imgError) {
     return <img src={p.avatarImage} alt={p.name} onError={() => {

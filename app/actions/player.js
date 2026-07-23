@@ -175,3 +175,16 @@ export async function adminUpdatePlayer(id, data) {
     return { error: 'Failed to update player.' };
   }
 }
+
+export async function markNotificationsRead(id) {
+  try {
+    const updated = await prisma.player.update({
+      where: { id },
+      data: { lastReadNotificationAt: new Date() }
+    });
+    return { success: true, lastReadNotificationAt: updated.lastReadNotificationAt };
+  } catch (error) {
+    console.error("markNotificationsRead error:", error);
+    return { error: 'Failed to mark notifications read' };
+  }
+}

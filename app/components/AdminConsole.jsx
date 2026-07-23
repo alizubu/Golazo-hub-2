@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { Trophy, Calendar, Users, Radio, Clock, Check, Archive, Plus, Trash2, Settings, Swords, Edit2, ListOrdered, BarChart2, AlertTriangle, ArrowRight, Megaphone, ChevronDown, Package } from 'lucide-react';
 import { Card, Btn, Input, Label, SectionTitle, EmptyState, MagicCard, FadeIn, ShinyButton, Badge } from './UI';
+import AdminOverviewDashboard from './AdminOverviewDashboard';
 import { startSeason, deleteSeason, renameSeason, completeSeason } from '@/app/actions/season';
 import { generateFixtures, generatePlayoffs, updateMatchStatus, updateMatchScore } from '@/app/actions/match';
 import { getTrophyTemplates, awardTrophy, removeTrophy, updateTrophy, createTrophyTemplate, deleteTrophyTemplate, createAnnouncement, deleteAnnouncement } from '@/app/actions/admin';
@@ -61,54 +62,9 @@ export default function AdminConsole(props) {
   return <EmptyState text="Admin feature in progress..." />;
 }
 
-function AdminOverview({ players, activeSeason, matches, history }) {
-  const tMatches = activeSeason ? matches.filter((m) => m.seasonId === activeSeason.id) : [];
-  const live = tMatches.filter((m) => m.status === "live").length;
-  const scheduled = tMatches.filter((m) => m.status === "scheduled").length;
-  const completed = tMatches.filter((m) => m.status === "completed").length;
-  
-  const stats = [
-    { label: "Players", value: players.length, icon: Users, color: 'text-pitch-bright' },
-    { label: "Live now", value: live, icon: Radio, color: 'text-claret' },
-    { label: "Upcoming", value: scheduled, icon: Clock, color: 'text-gold' },
-    { label: "Completed", value: completed, icon: Check, color: 'text-muted-foreground' },
-  ];
-
-  return (
-    <div className="flex flex-col gap-6">
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        {stats.map((s, i) => {
-          const Icon = s.icon; 
-          return (
-            <FadeIn delay={i * 0.1} key={s.label}>
-              <MagicCard className="p-5 flex flex-col items-center justify-center text-center">
-                <Icon size={24} className={`mb-3 ${s.color}`} />
-                <div className="text-3xl font-bold font-mono tracking-tighter">{s.value}</div>
-                <div className="text-[11px] uppercase tracking-widest text-muted-foreground mt-1 font-semibold">{s.label}</div>
-              </MagicCard>
-            </FadeIn>
-          ); 
-        })}
-      </div>
-      <FadeIn delay={0.4}>
-        <Card className="p-6">
-          <SectionTitle icon={Trophy}>Current season</SectionTitle>
-          {activeSeason ? 
-            <div className="text-sm text-muted-foreground"><strong className="text-foreground">{activeSeason.name}</strong> — started {new Date(activeSeason.createdAt).toLocaleDateString()}</div> 
-            : <EmptyState text="No active season. Go to the Season tab to start one." />
-          }
-        </Card>
-      </FadeIn>
-      <FadeIn delay={0.5}>
-        <Card className="p-6">
-          <SectionTitle icon={Archive}>Completed seasons</SectionTitle>
-          <div className="text-4xl font-bold font-mono text-gold">{history.length}</div>
-        </Card>
-      </FadeIn>
-    </div>
-  );
+function AdminOverview({ players, activeSeason, matches, announcements }) {
+  return <AdminOverviewDashboard players={players} activeSeason={activeSeason} matches={matches} announcements={announcements} />;
 }
-
 function AdminPlayers({ players, showToast }) {
   const [editing, setEditing] = useState(null);
   const blank = { name: "", username: "", email: "", avatar: null, flag: null, teamName: "", teamLogo: null, password: "" };
@@ -153,7 +109,7 @@ function AdminPlayers({ players, showToast }) {
             <div className="text-xl font-bold font-display tracking-wide mb-4 text-gold">
               {editing === "new" ? "New player account" : "Edit player"}
             </div>
-            <div className="grid md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div><Label>Display name</Label><Input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} placeholder="Player name" /></div>
               <div><Label>Username</Label><Input value={form.username} onChange={(e) => setForm({ ...form, username: e.target.value })} placeholder="username" /></div>
               <div className="md:col-span-2"><Label>Email</Label><Input value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} placeholder="email" /></div>
@@ -171,7 +127,7 @@ function AdminPlayers({ players, showToast }) {
           </Card>
         </FadeIn>
       )}
-      <div className="grid md:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {players.map((p, i) => (
           <FadeIn key={p.id} delay={i * 0.05}>
             <MagicCard className="p-4 flex items-center gap-4">
@@ -663,7 +619,7 @@ function AdminTrophies({ players, trophies = [], showToast }) {
               </div>
             </div>
 
-            <div className="grid md:grid-cols-2 gap-4 mt-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
               <div className="md:col-span-2">
                 <Label>Player</Label>
                 <PlayerCombobox players={players} value={form.playerId} onChange={v => setForm({...form, playerId: v})} />
@@ -1351,7 +1307,7 @@ function AdminSeason({ activeSeason, matches = [], players = [], showToast, setT
         </div>
         <p className="text-sm text-claret/70 mb-6">These actions are destructive and cannot be easily undone. Please proceed with caution.</p>
         
-        <div className="grid md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
            <Btn variant="outline" className="border-claret/30 text-claret hover:bg-claret hover:text-white justify-center" onClick={() => showToast("Not implemented in this demo")}>
               Reset Standings
            </Btn>
