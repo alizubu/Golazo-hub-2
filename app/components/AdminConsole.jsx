@@ -64,11 +64,7 @@ export default function AdminConsole(props) {
 }
 
 function AdminOverview({ players, activeSeason, matches, announcements }) {
-  return (
-    <ErrorBoundary>
-      <AdminOverviewDashboard players={players} activeSeason={activeSeason} matches={matches} announcements={announcements} />
-    </ErrorBoundary>
-  );
+  return <AdminOverviewDashboard players={players} activeSeason={activeSeason} matches={matches} announcements={announcements} />;
 }
 
 function AdminPlayers({ players, showToast }) {

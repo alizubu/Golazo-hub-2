@@ -439,10 +439,10 @@ export default function AdminOverviewDashboard({ players, activeSeason, matches,
   const [liveMatches, setLiveMatches] = useState(matches);
 
   useEffect(() => {
-    if (matches !== liveMatches) {
-      setTimeout(() => setLiveMatches(matches), 0);
-    }
+    setLiveMatches(matches);
+  }, [matches]);
 
+  useEffect(() => {
     const channel = supabase.channel('league-events')
       .on('broadcast', { event: 'match_update' }, (payload) => {
         const matchData = payload.payload;
@@ -467,8 +467,7 @@ export default function AdminOverviewDashboard({ players, activeSeason, matches,
     return () => {
       supabase.removeChannel(channel);
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [matches]);
+  }, []);
 
   if (!activeSeason) {
     return (
