@@ -250,21 +250,34 @@ export default function FloatingNav({ session, me, tab, setTab, onLogout, player
         </motion.div>
       </div>
 
-      {/* Mobile Nav Bar */}
-      <div className="md:hidden sticky top-0 z-50 w-full bg-background/85 backdrop-blur-md border-b border-border p-3 flex items-center justify-between shadow-sm" style={{ paddingTop: 'max(0.75rem, env(safe-area-inset-top))' }}>
-        <div className="flex items-center gap-2">
-          <span className="text-xl leading-none drop-shadow-sm">🏆</span>
-          <span className="font-display text-sm font-bold tracking-tight text-white">FRIENDS eLEAGUE</span>
-        </div>
-        
-        <div className="flex items-center gap-2">
-          <button onClick={() => setSearchOpen(true)} className="flex items-center justify-center min-w-[44px] min-h-[44px] text-muted-foreground hover:text-white rounded-full transition-colors">
-            <Search size={20} />
-          </button>
-          <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
+      {/* Mobile Nav Bar (Floating Pill style) */}
+      <div className="md:hidden sticky top-0 z-50 w-full px-3 pt-3 pb-2" style={{ paddingTop: 'max(0.75rem, env(safe-area-inset-top))' }}>
+        <motion.div 
+          className="mx-auto max-w-full rounded-full border border-white/10 shadow-2xl flex items-center justify-between px-4 py-2 relative overflow-hidden"
+          style={{
+            backgroundColor: `rgba(10, 14, 20, var(--nav-opacity, 0.85))`,
+            backdropFilter: `blur(16px)`,
+          }}
+        >
+          {/* Subtle gradient shimmer border */}
+          <div className="pointer-events-none absolute inset-0 rounded-full overflow-hidden">
+            <div className="absolute inset-0 rounded-full border border-white/10" />
+            <div className="absolute -inset-1 rounded-full bg-gradient-to-r from-transparent via-white/5 to-transparent opacity-0 hover:opacity-100 transition-opacity duration-700" />
+          </div>
+
+          <div className="flex items-center gap-2 z-10">
+            <span className="text-xl leading-none drop-shadow-sm">🏆</span>
+            <span className="font-display text-sm font-bold tracking-tight text-white">FRIENDS eLEAGUE</span>
+          </div>
+          
+          <div className="flex items-center gap-1 z-10">
+            <button onClick={() => setSearchOpen(true)} className="flex items-center justify-center w-9 h-9 text-muted-foreground hover:text-white rounded-full transition-colors outline-none focus-visible:ring-2 focus-visible:ring-pitch-bright">
+              <Search size={18} />
+            </button>
+            <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
                 <SheetTrigger asChild>
-                  <button className="flex items-center justify-center min-w-[44px] min-h-[44px] rounded-full text-muted-foreground hover:text-white hover:bg-secondary transition-colors">
-                    <Menu size={16} />
+                  <button className="flex items-center justify-center w-9 h-9 rounded-full text-muted-foreground hover:text-white hover:bg-white/10 transition-colors outline-none focus-visible:ring-2 focus-visible:ring-pitch-bright">
+                    <Menu size={18} />
                   </button>
                 </SheetTrigger>
                 <SheetContent side="left" className="w-[280px] bg-card border-r border-border/50 p-0">
@@ -318,7 +331,8 @@ export default function FloatingNav({ session, me, tab, setTab, onLogout, player
                   </div>
                 </SheetContent>
               </Sheet>
-        </div>
+          </div>
+        </motion.div>
       </div>
 
 

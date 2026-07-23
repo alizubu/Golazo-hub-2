@@ -382,8 +382,8 @@ function PlayerDashboard({ me, activeSeason, matches, players, announcements = [
                 <CardTitle className="text-xl flex items-center gap-2"><Activity className="text-pitch-bright" size={20}/> Player Statistics</CardTitle>
               </CardHeader>
               <CardContent className="flex-1">
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-4 mt-2 h-full">
-                  <Card className="relative overflow-hidden bg-gradient-to-br from-gold/10 to-transparent border-t-2 border-t-gold border-x-border/50 border-b-border/50 flex flex-col items-center justify-center text-center p-6 group shadow-none min-h-[140px] flex-1">
+                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4 mt-2 h-full">
+                  <Card className="col-span-2 sm:col-span-1 relative overflow-hidden bg-gradient-to-br from-gold/10 to-transparent border-t-2 border-t-gold border-x-border/50 border-b-border/50 flex flex-col items-center justify-center text-center p-6 group shadow-none min-h-[140px] flex-1">
                     {myRank === 1 && <BorderBeam size={150} duration={8} delay={1} colorFrom="var(--gold)" colorTo="transparent" />}
                     <Label className="text-gold/80 mb-1 z-10">Current Rank</Label>
                     <div className="text-4xl font-black font-mono text-gold z-10 drop-shadow-md">#{myRank || '-'}</div>
@@ -392,7 +392,7 @@ function PlayerDashboard({ me, activeSeason, matches, players, announcements = [
                   <PlayerStatCard label="ELO Rating" value={elo} loaded={statsLoaded} icon={Activity} />
                   <PlayerStatCard label="Matches" value={played} loaded={statsLoaded} icon={Swords} emptyValue={0} />
                   
-                  <Card className="relative overflow-hidden bg-secondary/30 border-t-2 border-t-green-500 border-x-border/50 border-b-border/50 flex flex-col items-center justify-center text-center p-6 shadow-none min-h-[140px] flex-1">
+                  <Card className="col-span-2 sm:col-span-1 relative overflow-hidden bg-secondary/30 border-t-2 border-t-green-500 border-x-border/50 border-b-border/50 flex flex-col items-center justify-center text-center p-6 shadow-none min-h-[140px] flex-1">
                     <Label className="mb-2">Win Rate</Label>
                     {statsLoaded ? (
                       winRate > 0 ? (

@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { Trophy, Calendar, Users, Radio, Clock, Check, Archive, Plus, Trash2, Settings, Swords, Edit2, ListOrdered, BarChart2, AlertTriangle, ArrowRight, Megaphone, ChevronDown, Package } from 'lucide-react';
 import { Card, Btn, Input, Label, SectionTitle, EmptyState, MagicCard, FadeIn, ShinyButton, Badge } from './UI';
 import AdminOverviewDashboard from './AdminOverviewDashboard';
+import LiveMatchControl from './LiveMatchControl';
 import { startSeason, deleteSeason, renameSeason, completeSeason } from '@/app/actions/season';
 import { generateFixtures, generatePlayoffs, updateMatchStatus, updateMatchScore } from '@/app/actions/match';
 import { getTrophyTemplates, awardTrophy, removeTrophy, updateTrophy, createTrophyTemplate, deleteTrophyTemplate, createAnnouncement, deleteAnnouncement } from '@/app/actions/admin';
@@ -1010,9 +1011,11 @@ function AdminSeason({ activeSeason, matches = [], players = [], showToast, setT
             )}
           </div>
         </div>
-      </Card>
+    </Card>
 
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+    <LiveMatchControl matches={matches} players={players} activeSeason={activeSeason} showToast={showToast} />
+
+    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <MagicCard className="p-5 flex flex-col items-center justify-center gap-3 hover:bg-secondary/80 cursor-pointer transition-colors group" onClick={!hasFixtures ? handleGenerateFixtures : () => showToast("Fixtures already exist")}>
           <div className={`p-3 rounded-full ${!hasFixtures ? 'bg-gold/20 text-gold' : 'bg-secondary text-muted-foreground opacity-50'}`}>
              <Calendar size={24} />

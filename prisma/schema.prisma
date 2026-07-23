@@ -29,6 +29,12 @@ model Player {
   lastReadNotificationAt DateTime?
   onlineStatus         String    @default("online")
   assists              Int       @default(0)
+  elo                  Int       @default(1200)
+  careerGoals          Int       @default(0)
+  careerWins           Int       @default(0)
+  careerDraws          Int       @default(0)
+  careerLosses         Int       @default(0)
+  careerMatches        Int       @default(0)
   createdAt    DateTime  @default(now())
 
   // Relations
