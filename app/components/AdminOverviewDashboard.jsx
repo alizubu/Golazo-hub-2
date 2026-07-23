@@ -438,9 +438,12 @@ export default function AdminOverviewDashboard({ players, activeSeason, matches,
   const [realtimeEvents, setRealtimeEvents] = useState([]);
   const [liveMatches, setLiveMatches] = useState(matches);
 
-  useEffect(() => {
+  const [prevMatchesProp, setPrevMatchesProp] = useState(matches);
+
+  if (matches !== prevMatchesProp) {
+    setPrevMatchesProp(matches);
     setLiveMatches(matches);
-  }, [matches]);
+  }
 
   useEffect(() => {
     const channel = supabase.channel('league-events')
