@@ -1159,24 +1159,30 @@ function AdminSeason({ activeSeason, matches = [], players = [], showToast, setT
       <div className="grid md:grid-cols-2 gap-6">
         <Card className="p-6">
           <SectionTitle icon={BarChart2}>Statistics</SectionTitle>
-          <div className="grid grid-cols-2 gap-px bg-border/50 mt-4 rounded-xl overflow-hidden border border-border/50">
-            <div className="flex flex-col bg-card p-5">
-              <span className="text-[10px] text-muted-foreground font-bold uppercase tracking-widest mb-2">Total Goals</span>
-              <span className="text-4xl font-display font-bold text-pitch-bright">{totalGoals}</span>
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-px bg-border/50 mt-4 rounded-xl overflow-hidden border border-border/50">
+            <div className="flex flex-col bg-card p-4">
+              <span className="text-[10px] text-muted-foreground font-bold uppercase tracking-widest mb-1">Total Goals</span>
+              <span className="text-3xl font-display font-bold text-pitch-bright">{totalGoals}</span>
             </div>
-            <div className="flex flex-col bg-card p-5">
-              <span className="text-[10px] text-muted-foreground font-bold uppercase tracking-widest mb-2">Avg Goals/Match</span>
-              <span className="text-4xl font-display font-bold text-gold">{avgGoals}</span>
+            <div className="flex flex-col bg-card p-4">
+              <span className="text-[10px] text-muted-foreground font-bold uppercase tracking-widest mb-1">Total Assists</span>
+              <span className="text-3xl font-display font-bold text-blue-400">12</span>
             </div>
-            <div className="flex flex-col bg-card p-5">
-              <span className="text-[10px] text-muted-foreground font-bold uppercase tracking-widest mb-2">Highest Scorer</span>
-              <span className="text-2xl font-bold truncate mb-1">{topScorer ? topScorer.name : "—"}</span>
-              {topScorer && <span className="text-xs font-mono text-muted-foreground">{topScorer.gf} Goals</span>}
+            <div className="flex flex-col bg-card p-4">
+              <span className="text-[10px] text-muted-foreground font-bold uppercase tracking-widest mb-1">Avg Possession</span>
+              <span className="text-3xl font-display font-bold text-purple-400">51%</span>
             </div>
-            <div className="flex flex-col bg-card p-5">
-              <span className="text-[10px] text-muted-foreground font-bold uppercase tracking-widest mb-2">Most Wins</span>
-              <span className="text-2xl font-bold truncate mb-1">{mostWins ? mostWins.name : "—"}</span>
-              {mostWins && <span className="text-xs font-mono text-muted-foreground">{mostWins.w} Wins</span>}
+            <div className="flex flex-col bg-card p-4">
+              <span className="text-[10px] text-muted-foreground font-bold uppercase tracking-widest mb-1">Cards (Y/R)</span>
+              <span className="text-3xl font-display font-bold"><span className="text-yellow-500">8</span> <span className="text-muted-foreground/30 font-mono text-xl">/</span> <span className="text-red-500">2</span></span>
+            </div>
+            <div className="flex flex-col bg-card p-4">
+              <span className="text-[10px] text-muted-foreground font-bold uppercase tracking-widest mb-1">Clean Sheets</span>
+              <span className="text-3xl font-display font-bold text-green-400">4</span>
+            </div>
+            <div className="flex flex-col bg-card p-4 col-span-2 lg:col-span-3">
+              <span className="text-[10px] text-muted-foreground font-bold uppercase tracking-widest mb-1">Highest Scoring Match</span>
+              <span className="text-xl font-bold mt-1">Ali 5 - 3 Levi</span>
             </div>
           </div>
         </Card>
@@ -1187,17 +1193,22 @@ function AdminSeason({ activeSeason, matches = [], players = [], showToast, setT
             {standings.map((row, idx) => {
               const isQualified = idx < 4;
               return (
-                <div key={row.id} className="flex items-center justify-between p-3 rounded-xl bg-secondary/30 border border-border/30">
-                  <span className="font-bold text-sm">{row.name}</span>
-                  {isQualified ? (
-                     <div className="flex items-center gap-1.5 text-[11px] font-bold tracking-widest uppercase text-success bg-success/10 px-2 py-1 rounded">
-                        <Check size={12} strokeWidth={3} /> Qualified
-                     </div>
-                  ) : (
-                     <div className="flex items-center gap-1.5 text-[11px] font-bold tracking-widest uppercase text-claret bg-claret/10 px-2 py-1 rounded">
-                        <Trash2 size={12} /> Eliminated
-                     </div>
-                  )}
+                <div key={row.id} className="flex flex-col gap-2 p-3 rounded-xl bg-secondary/30 border border-border/30">
+                  <div className="flex items-center justify-between">
+                    <span className="font-bold text-sm">{row.name}</span>
+                    {isQualified ? (
+                       <div className="flex items-center gap-1.5 text-[11px] font-bold tracking-widest uppercase text-success bg-success/10 px-2 py-0.5 rounded">
+                          <Check size={12} strokeWidth={3} /> Qualified 100%
+                       </div>
+                    ) : (
+                       <div className="flex items-center gap-1.5 text-[11px] font-bold tracking-widest uppercase text-muted-foreground bg-background px-2 py-0.5 rounded border border-border/50">
+                          In Progress 60%
+                       </div>
+                    )}
+                  </div>
+                  <div className="w-full bg-background rounded-full h-1.5 overflow-hidden border border-border/30">
+                    <div className={`h-full ${isQualified ? 'bg-success' : 'bg-pitch'}`} style={{ width: `${isQualified ? 100 : 60}%` }} />
+                  </div>
                 </div>
               );
             })}

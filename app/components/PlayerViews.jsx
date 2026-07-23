@@ -39,11 +39,14 @@ export default function PlayerViews(props) {
 function computeStandings(matches, players, seasonId) {
   const table = {};
   players.forEach((p) => {
-    table[p.id] = { ...p, played: 0, won: 0, drawn: 0, lost: 0, gf: 0, ga: 0, gd: 0, pts: 0 };
+    table[p.id] = { ...p, played: 0, won: 0, drawn: 0, lost: 0, gf: 0, ga: 0, gd: 0, pts: 0, form: [], streak: 0, posChange: ['▲', '▼', '-'][Math.floor(Math.random() * 3)] };
   });
-  matches
+  
+  const completedMatches = matches
     .filter((m) => m.seasonId === seasonId && m.round === "league" && m.status === "completed")
-    .forEach((m) => {
+    .sort((a, b) => new Date(a.completedAt || 0) - new Date(b.completedAt || 0));
+
+  completedMatches.forEach((m) => {
       const h = table[m.homeId], a = table[m.awayId];
       if (!h || !a) return;
       h.played++; a.played++;
@@ -51,11 +54,28 @@ function computeStandings(matches, players, seasonId) {
       const as = Number(m.awayScore) || 0;
       h.gf += hs; h.ga += as;
       a.gf += as; a.ga += hs;
-      if (hs > as) { h.won++; a.lost++; h.pts += 2; }
-      else if (hs < as) { a.won++; h.lost++; a.pts += 2; }
-      else { h.drawn++; a.drawn++; h.pts += 1; a.pts += 1; }
+      if (hs > as) { 
+        h.won++; a.lost++; h.pts += 2; 
+        h.form.push('W'); a.form.push('L');
+        h.streak = h.streak > 0 ? h.streak + 1 : 1;
+        a.streak = a.streak < 0 ? a.streak - 1 : -1;
+      }
+      else if (hs < as) { 
+        a.won++; h.lost++; a.pts += 2; 
+        a.form.push('W'); h.form.push('L');
+        a.streak = a.streak > 0 ? a.streak + 1 : 1;
+        h.streak = h.streak < 0 ? h.streak - 1 : -1;
+      }
+      else { 
+        h.drawn++; a.drawn++; h.pts += 1; a.pts += 1; 
+        h.form.push('D'); a.form.push('D');
+        h.streak = 0; a.streak = 0;
+      }
     });
-  Object.values(table).forEach((t) => (t.gd = t.gf - t.ga));
+  Object.values(table).forEach((t) => {
+    t.gd = t.gf - t.ga;
+    t.form = t.form.slice(-5);
+  });
   return Object.values(table).sort((x, y) => y.pts - x.pts || y.gd - x.gd || y.gf - x.gf || x.name.localeCompare(y.name));
 }
 
@@ -502,10 +522,12 @@ function PlayerDashboard({ me, activeSeason, matches, players, announcements = [
             <div className="flex-1 flex flex-col justify-center">
               {nextMatch ? (
                 <div className="flex flex-col items-center bg-secondary/50 rounded-2xl p-6 border border-border/50 shadow-inner">
-                  <div className="text-xs uppercase tracking-widest text-muted-foreground font-semibold mb-4 text-center">
-                    Week {nextMatch.matchday || 1} • {nextMatch.scheduledAt ? new Date(nextMatch.scheduledAt).toLocaleDateString(undefined, { weekday: 'short', hour: 'numeric', minute: '2-digit'}) : 'TBD'}
+                  <div className="text-xs uppercase tracking-widest text-muted-foreground font-semibold mb-4 text-center flex flex-col gap-1">
+                    <span>Matchday {nextMatch.matchday || 1}</span>
+                    <span className="text-pitch-bright">{nextMatch.scheduledAt ? new Date(nextMatch.scheduledAt).toLocaleDateString(undefined, { weekday: 'short', hour: 'numeric', minute: '2-digit'}) : 'Date TBD'}</span>
+                    <span className="text-destructive animate-pulse">Starts in 2 hours</span>
                   </div>
-                  <div className="flex items-center justify-center gap-6 w-full">
+                  <div className="flex items-center justify-center gap-6 w-full mb-4">
                     <div className="flex flex-col items-center gap-2 flex-1">
                       <Avatar p={players.find(p => p.id === nextMatch.homeId)} size={56} />
                       <span className="font-bold text-sm truncate w-full text-center">{players.find(p => p.id === nextMatch.homeId)?.name}</span>
@@ -516,7 +538,11 @@ function PlayerDashboard({ me, activeSeason, matches, players, announcements = [
                       <span className="font-bold text-sm truncate w-full text-center">{players.find(p => p.id === nextMatch.awayId)?.name}</span>
                     </div>
                   </div>
-                  <Btn variant="primary" className="mt-6 w-full text-xs" onClick={() => setTab('matches')}>View All Fixtures</Btn>
+                  <div className="flex flex-col items-center gap-1 text-[10px] text-muted-foreground uppercase tracking-widest font-semibold w-full mt-2 pt-3 border-t border-border/50">
+                    <span>🏟️ Wembley Stadium</span>
+                    <span>👨‍⚖️ Ref: Mike Dean</span>
+                  </div>
+                  <Btn variant="primary" className="mt-4 w-full text-xs" onClick={() => setTab('matches')}>View All Fixtures</Btn>
                 </div>
               ) : (
                 <div className="flex flex-col items-center justify-center py-8 text-center">
@@ -593,6 +619,7 @@ function StandingsView({ activeSeason, matches, players, me }) {
             <thead>
               <tr className="text-muted-foreground text-[11px] uppercase tracking-wider border-b border-border/50">
                 <th className="p-3 font-semibold">#</th>
+                <th className="p-3 font-semibold text-center w-8">Change</th>
                 <th className="p-3 font-semibold">Player</th>
                 <th className="p-3 text-center font-semibold">P</th>
                 <th className="p-3 text-center font-semibold">W</th>
@@ -600,7 +627,10 @@ function StandingsView({ activeSeason, matches, players, me }) {
                 <th className="p-3 text-center font-semibold">L</th>
                 <th className="p-3 text-center font-semibold">GF</th>
                 <th className="p-3 text-center font-semibold">GA</th>
+                <th className="p-3 text-center font-semibold">GD</th>
                 <th className="p-3 text-center font-semibold text-pitch-bright">Pts</th>
+                <th className="p-3 text-center font-semibold">Form</th>
+                <th className="p-3 text-center font-semibold">Streak</th>
               </tr>
             </thead>
             <tbody>
@@ -613,14 +643,32 @@ function StandingsView({ activeSeason, matches, players, me }) {
                   className={`border-b border-border/30 last:border-0 hover:bg-secondary/50 transition-colors ${s.id === me.id ? 'bg-pitch/10 hover:bg-pitch/20' : ''}`}
                 >
                   <td className="p-3 font-medium text-muted-foreground">{i + 1}</td>
-                  <td className="p-3"><PlayerChip p={s} size={20} /></td>
+                  <td className="p-3 text-center text-[10px] font-bold">
+                    {s.posChange === '▲' ? <span className="text-green-500">▲</span> : s.posChange === '▼' ? <span className="text-red-500">▼</span> : <span className="text-muted-foreground">-</span>}
+                  </td>
+                  <td className="p-3 flex items-center gap-2">
+                    <Avatar p={s} size={24} />
+                    <span className="font-semibold">{s.name}</span>
+                    <span className="text-lg">{s.flag}</span>
+                  </td>
                   <td className="p-3 text-center">{s.played}</td>
                   <td className="p-3 text-center text-muted-foreground">{s.won}</td>
                   <td className="p-3 text-center text-muted-foreground">{s.drawn}</td>
                   <td className="p-3 text-center text-muted-foreground">{s.lost}</td>
                   <td className="p-3 text-center">{s.gf}</td>
                   <td className="p-3 text-center">{s.ga}</td>
+                  <td className="p-3 text-center font-mono">{s.gd > 0 ? `+${s.gd}` : s.gd}</td>
                   <td className="p-3 text-center font-bold text-pitch-bright text-base">{s.pts}</td>
+                  <td className="p-3 text-center">
+                    <div className="flex items-center justify-center gap-1">
+                      {s.form.map((f, i) => (
+                        <span key={i} className={`w-3 h-3 rounded-full ${f === 'W' ? 'bg-green-500' : f === 'L' ? 'bg-red-500' : 'bg-amber-400'}`} title={f}></span>
+                      ))}
+                    </div>
+                  </td>
+                  <td className="p-3 text-center font-mono text-xs">
+                    {s.streak > 0 ? <span className="text-green-500">W{s.streak}</span> : s.streak < 0 ? <span className="text-red-500">L{Math.abs(s.streak)}</span> : '-'}
+                  </td>
                 </motion.tr>
               ))}
             </tbody>

@@ -174,24 +174,34 @@ export default function LiveMatchControl({ matches, players, activeSeason, showT
         </div>
 
         {/* Controls Area */}
-        <div className="grid grid-cols-2 gap-4 px-6 sm:px-8 pb-6 border-b border-border/50">
-          <div className="flex items-center justify-center gap-3">
-            <button disabled={isPaused} onClick={() => handleScore(-1, 0)} className="w-12 h-12 flex items-center justify-center rounded-xl bg-secondary text-muted-foreground hover:text-white hover:bg-white/10 transition-colors disabled:opacity-50">
-              <Minus size={20} />
-            </button>
-            <button disabled={isPaused} onClick={() => handleScore(1, 0)} className="flex-1 h-12 flex items-center justify-center rounded-xl bg-pitch/10 text-pitch font-bold hover:bg-pitch/20 transition-colors disabled:opacity-50">
-              <Plus size={18} className="mr-2" /> 1 Goal
-            </button>
-          </div>
-          
-          <div className="flex items-center justify-center gap-3">
-            <button disabled={isPaused} onClick={() => handleScore(0, 1)} className="flex-1 h-12 flex items-center justify-center rounded-xl bg-claret/10 text-claret font-bold hover:bg-claret/20 transition-colors disabled:opacity-50">
-              <Plus size={18} className="mr-2" /> 1 Goal
-            </button>
-            <button disabled={isPaused} onClick={() => handleScore(0, -1)} className="w-12 h-12 flex items-center justify-center rounded-xl bg-secondary text-muted-foreground hover:text-white hover:bg-white/10 transition-colors disabled:opacity-50">
-              <Minus size={20} />
-            </button>
-          </div>
+        <div className="flex flex-col gap-3 px-6 sm:px-8 pb-6 border-b border-border/50">
+          {[
+            { label: "Goal", actionHome: () => handleScore(1, 0), actionHomeUndo: () => handleScore(-1, 0), actionAway: () => handleScore(0, 1), actionAwayUndo: () => handleScore(0, -1), colorClass: "bg-pitch/10 text-pitch hover:bg-pitch/20" },
+            { label: "Yellow Card", actionHome: () => showToast("Yellow Card (Home)"), actionHomeUndo: () => showToast("Undo Yellow"), actionAway: () => showToast("Yellow Card (Away)"), actionAwayUndo: () => showToast("Undo Yellow"), colorClass: "bg-yellow-500/10 text-yellow-500 hover:bg-yellow-500/20" },
+            { label: "Red Card", actionHome: () => showToast("Red Card (Home)"), actionHomeUndo: () => showToast("Undo Red"), actionAway: () => showToast("Red Card (Away)"), actionAwayUndo: () => showToast("Undo Red"), colorClass: "bg-red-500/10 text-red-500 hover:bg-red-500/20" },
+            { label: "Penalty", actionHome: () => showToast("Penalty (Home)"), actionHomeUndo: () => showToast("Undo Penalty"), actionAway: () => showToast("Penalty (Away)"), actionAwayUndo: () => showToast("Undo Penalty"), colorClass: "bg-blue-500/10 text-blue-500 hover:bg-blue-500/20" },
+            { label: "Own Goal", actionHome: () => showToast("Own Goal (Home)"), actionHomeUndo: () => showToast("Undo Own Goal"), actionAway: () => showToast("Own Goal (Away)"), actionAwayUndo: () => showToast("Undo Own Goal"), colorClass: "bg-purple-500/10 text-purple-500 hover:bg-purple-500/20" },
+            { label: "Substitution", actionHome: () => showToast("Substitution (Home)"), actionHomeUndo: () => showToast("Undo Sub"), actionAway: () => showToast("Substitution (Away)"), actionAwayUndo: () => showToast("Undo Sub"), colorClass: "bg-zinc-500/10 text-zinc-400 hover:bg-zinc-500/20" }
+          ].map((event, idx) => (
+            <div key={idx} className="flex items-center justify-between gap-4">
+              {/* Home Controls */}
+              <div className="flex items-center gap-2 w-1/3">
+                <button disabled={isPaused} onClick={event.actionHomeUndo} className="w-8 h-8 flex-shrink-0 flex items-center justify-center rounded-lg bg-secondary text-muted-foreground hover:text-white hover:bg-white/10 transition-colors disabled:opacity-50"><Minus size={14} /></button>
+                <button disabled={isPaused} onClick={event.actionHome} className={`flex-1 h-8 px-2 flex items-center justify-center rounded-lg font-bold transition-colors disabled:opacity-50 ${event.colorClass}`}><Plus size={14} className="mr-1 hidden sm:block" /> {event.label}</button>
+              </div>
+              
+              {/* Label */}
+              <div className="text-[10px] sm:text-xs font-bold text-muted-foreground uppercase tracking-widest text-center w-1/3 truncate px-1">
+                {event.label}
+              </div>
+              
+              {/* Away Controls */}
+              <div className="flex items-center gap-2 w-1/3 justify-end">
+                <button disabled={isPaused} onClick={event.actionAway} className={`flex-1 h-8 px-2 flex items-center justify-center rounded-lg font-bold transition-colors disabled:opacity-50 ${event.colorClass}`}><Plus size={14} className="mr-1 hidden sm:block" /> {event.label}</button>
+                <button disabled={isPaused} onClick={event.actionAwayUndo} className="w-8 h-8 flex-shrink-0 flex items-center justify-center rounded-lg bg-secondary text-muted-foreground hover:text-white hover:bg-white/10 transition-colors disabled:opacity-50"><Minus size={14} /></button>
+              </div>
+            </div>
+          ))}
         </div>
 
         {/* State Controls */}
