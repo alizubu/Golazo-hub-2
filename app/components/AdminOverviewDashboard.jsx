@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Trophy, Calendar, Users, Radio, Activity, ArrowRight, Shield, Flame, Swords, Target, Goal, TrendingUp, History } from 'lucide-react';
+import { Trophy, Calendar, Users, Radio, Activity, ArrowRight, Shield, Flame, Swords, Target, Goal, TrendingUp, History, ListOrdered } from 'lucide-react';
 import { Card, SectionTitle, EmptyState, MagicCard, FadeIn, Badge, Btn } from './UI';
 import { supabase } from '@/lib/supabaseClient';
 import { BorderBeam } from './magicui/BorderBeam';

@@ -64,8 +64,13 @@ export default function AdminConsole(props) {
 }
 
 function AdminOverview({ players, activeSeason, matches, announcements }) {
-  return <AdminOverviewDashboard players={players} activeSeason={activeSeason} matches={matches} announcements={announcements} />;
+  return (
+    <ErrorBoundary>
+      <AdminOverviewDashboard players={players} activeSeason={activeSeason} matches={matches} announcements={announcements} />
+    </ErrorBoundary>
+  );
 }
+
 function AdminPlayers({ players, showToast }) {
   const [editing, setEditing] = useState(null);
   const blank = { name: "", username: "", email: "", avatar: null, flag: null, teamName: "", teamLogo: null, password: "" };
