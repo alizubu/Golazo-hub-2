@@ -51,7 +51,7 @@ const playerTabs = [
 const adminTabs = [
   { id: "admin", label: "Overview", icon: Home },
   { id: "admin-players", label: "Players", icon: Users },
-  { id: "admin-tournament", label: "Tournament", icon: Trophy },
+  { id: "admin-season", label: "Season", icon: Trophy },
   { id: "admin-matches", label: "Matches", icon: Calendar },
   { id: "admin-playoffs", label: "Playoffs", icon: Swords },
   { id: "admin-trophies", label: "Trophies", icon: Trophy },

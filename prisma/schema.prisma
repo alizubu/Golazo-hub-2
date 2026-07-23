@@ -35,39 +35,43 @@ model Player {
   awayMatches Match[] @relation("AwayMatches")
   trophies    Trophy[] @relation("PlayerTrophies")
   
-  // Tournament Relations (for history)
-  wonTournaments     Tournament[] @relation("TournamentChampion")
-  runnerUpTournaments Tournament[] @relation("TournamentRunnerUp")
-  thirdTournaments    Tournament[] @relation("TournamentThirdPlace")
-  mvpTournaments      Tournament[] @relation("TournamentMVP")
+  // Season Relations (for history)
+  wonSeasons     Season[] @relation("SeasonChampion")
+  runnerUpSeasons Season[] @relation("SeasonRunnerUp")
+  thirdSeasons    Season[] @relation("SeasonThirdPlace")
+  mvpSeasons      Season[] @relation("SeasonMVP")
 }
 
-model Tournament {
-  id         String   @id @default(cuid())
+model Season {
+  id         String    @id @default(cuid())
   name       String
-  status     String   @default("active") // "active", "completed", "archived_incomplete"
-  createdAt  DateTime @default(now())
+  type       String    @default("League") // "League", "League + Playoffs"
+  status     String    @default("Live") // "Live", "Archived"
+  isArchived Boolean   @default(false)
+  fixtures   Json?     // Stores the generated schedule arrays
+  startDate  DateTime?
+  createdAt  DateTime  @default(now())
   completedAt DateTime?
 
   championId String?
-  champion   Player? @relation("TournamentChampion", fields: [championId], references: [id])
+  champion   Player?   @relation("SeasonChampion", fields: [championId], references: [id])
   
   runnerUpId String?
-  runnerUp   Player? @relation("TournamentRunnerUp", fields: [runnerUpId], references: [id])
+  runnerUp   Player?   @relation("SeasonRunnerUp", fields: [runnerUpId], references: [id])
   
   thirdId    String?
-  third      Player? @relation("TournamentThirdPlace", fields: [thirdId], references: [id])
+  third      Player?   @relation("SeasonThirdPlace", fields: [thirdId], references: [id])
   
   mvpId      String?
-  mvp        Player? @relation("TournamentMVP", fields: [mvpId], references: [id])
+  mvp        Player?   @relation("SeasonMVP", fields: [mvpId], references: [id])
 
   matches Match[]
 }
 
 model Match {
   id           String   @id @default(cuid())
-  tournamentId String
-  tournament   Tournament @relation(fields: [tournamentId], references: [id], onDelete: Cascade)
+  seasonId     String
+  season       Season   @relation(fields: [seasonId], references: [id], onDelete: Cascade)
   
   round        String // "league", "semiA", "semiB", "challenger", "final"
   

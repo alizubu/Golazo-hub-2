@@ -7,7 +7,7 @@ import PlayerViews from './PlayerViews';
 import AdminConsole from './AdminConsole';
 import { AnimatePresence, motion } from 'framer-motion';
 
-export default function ClientApp({ initialPlayers, initialTournaments, initialMatches, initialNotifications, initialAnnouncements, initialTrophies, adminConfig }) {
+export default function ClientApp({ initialPlayers, initialSeasons, initialMatches, initialNotifications, initialAnnouncements, initialTrophies, adminConfig }) {
   const [session, setSession] = useState(null);
   const [tab, setTab] = useState('dashboard');
   const [toast, setToast] = useState(null);
@@ -16,7 +16,7 @@ export default function ClientApp({ initialPlayers, initialTournaments, initialM
   if (session?.type === 'player' && session.player && !players.find(p => p.id === session.playerId)) {
     players = [...players, session.player];
   }
-  const tournaments = initialTournaments || [];
+  const seasons = initialSeasons || [];
   const matches = initialMatches || [];
   const notifications = initialNotifications || [];
   const announcements = initialAnnouncements || [];
@@ -27,8 +27,8 @@ export default function ClientApp({ initialPlayers, initialTournaments, initialM
     setTimeout(() => setToast(null), 2600);
   };
 
-  const activeTournament = tournaments.find((t) => t.status === 'active') || null;
-  const history = tournaments.filter((t) => t.status === 'completed').sort((a, b) => new Date(b.completedAt) - new Date(a.completedAt));
+  const activeSeason = seasons.find((t) => !t.isArchived) || null;
+  const history = seasons.filter((t) => t.isArchived).sort((a, b) => new Date(b.completedAt) - new Date(a.completedAt));
 
   if (!session) {
     return (
@@ -42,7 +42,7 @@ export default function ClientApp({ initialPlayers, initialTournaments, initialM
   }
 
   const me = session.type === 'player' ? players.find((p) => p.id === session.playerId) : null;
-  const ctx = { players, tournaments, matches, notifications, announcements, trophies, activeTournament, history, showToast };
+  const ctx = { players, seasons, matches, notifications, announcements, trophies, activeSeason, history, showToast };
 
   return (
     <div className="min-h-screen bg-background text-foreground pb-20">

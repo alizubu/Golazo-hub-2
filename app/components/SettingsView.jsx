@@ -12,6 +12,7 @@ import { Input } from '@/app/components/ui/input';
 import { Textarea } from '@/app/components/ui/textarea';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/app/components/ui/tabs';
 import { Progress } from '@/app/components/ui/progress';
+import { updatePlayerProfile, changePlayerPassword } from '@/app/actions/player';
 
 import clubsData from '@/lib/data/clubs.json';
 import nationalTeamsData from '@/lib/data/national_teams.json';
@@ -39,6 +40,7 @@ export default function SettingsView({ me, showToast }) {
   const [showPwd2, setShowPwd2] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [pwdError, setPwdError] = useState(false);
+  const [coverFailedUrl, setCoverFailedUrl] = useState(null);
 
   // Cover photo upload states
   const fileInputRef = useRef(null);
@@ -47,7 +49,6 @@ export default function SettingsView({ me, showToast }) {
 
   const saveProfile = async () => {
     setIsSaving(true);
-    const { updatePlayerProfile } = await import('@/app/actions/player');
     const res = await updatePlayerProfile(me.id, form);
     setIsSaving(false);
     if (res.error) showToast(res.error);
@@ -60,7 +61,6 @@ export default function SettingsView({ me, showToast }) {
       setTimeout(() => setPwdError(false), 500);
       return showToast("Passwords don't match");
     }
-    const { changePlayerPassword } = await import('@/app/actions/player');
     const res = await changePlayerPassword(me.id, pwd);
     if (res.error) showToast(res.error);
     else { showToast("Password updated ✓"); setPwd(""); setPwd2(""); }
@@ -90,7 +90,6 @@ export default function SettingsView({ me, showToast }) {
         clearInterval(interval);
         setCoverProgress(100);
         
-        const { updatePlayerProfile } = await import('@/app/actions/player');
         await updatePlayerProfile(me.id, { coverBanner: data.url });
         
         setForm({ ...form, coverBanner: data.url });
@@ -142,15 +141,15 @@ export default function SettingsView({ me, showToast }) {
                 <div className="flex flex-col md:flex-row gap-8 items-start">
                   <div className="flex flex-col items-center gap-2">
                     <Label className="mb-1 text-xs opacity-70">Avatar</Label>
-                    <AvatarUpload me={me} form={form} setForm={setForm} />
+                    <AvatarUpload me={me} form={form} setForm={setForm} showToast={showToast} />
                   </div>
 
                   <div className="flex-1 w-full space-y-4">
                     <div className="space-y-1.5">
                       <Label className="text-xs opacity-70">Cover Photo</Label>
                       <div className="relative h-32 w-full rounded-xl overflow-hidden bg-secondary/50 border border-dashed border-border/50 group flex items-center justify-center">
-                        {form.coverBanner ? (
-                          <img src={form.coverBanner} alt="Cover Banner" className="w-full h-full object-cover" />
+                        {form.coverBanner && coverFailedUrl !== form.coverBanner ? (
+                          <img src={form.coverBanner} alt="Cover Banner" className="w-full h-full object-cover" onError={() => setCoverFailedUrl(form.coverBanner)} />
                         ) : (
                           <div className="text-xs text-muted-foreground">No cover photo set</div>
                         )}

@@ -3,8 +3,9 @@
 import React, { useState, useEffect } from 'react';
 import { Trophy, Calendar, Users, Radio, Clock, Check, Archive, Plus, Trash2, Settings, Swords, Edit2, ListOrdered, BarChart2, AlertTriangle, ArrowRight, Megaphone, ChevronDown, Package } from 'lucide-react';
 import { Card, Btn, Input, Label, SectionTitle, EmptyState, MagicCard, FadeIn, ShinyButton, Badge } from './UI';
-import { startTournament, deleteTournament, renameTournament } from '@/app/actions/tournament';
-import { generateFixtures } from '@/app/actions/match';
+import { startSeason, deleteSeason, renameSeason, completeSeason } from '@/app/actions/season';
+import { generateFixtures, generatePlayoffs } from '@/app/actions/match';
+import { signUpPlayer, adminUpdatePlayer, adminDeletePlayer } from '@/app/actions/player';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/app/components/ui/tabs';
 import {
   Dialog,
@@ -39,9 +40,9 @@ import { motion } from 'framer-motion';
 // Trophy template data — the 6 official trophies
 const TROPHY_TEMPLATES = [
   { id: 'bb-champion', name: 'BB Champion', image: '/assets/trophies/BB-Champion.png', icon: '/assets/trophies/BB-Champion.png', defaultDesc: 'Champion of the BB League season.' },
-  { id: 'world-cup', name: 'World Cup Winner', image: '/assets/trophies/World-Cup-Winner-Trophy.png', icon: '/assets/trophies/World-Cup-Winner-Trophy.png', defaultDesc: 'Won the World Cup tournament.' },
+  { id: 'world-cup', name: 'World Cup Winner', image: '/assets/trophies/World-Cup-Winner-Trophy.png', icon: '/assets/trophies/World-Cup-Winner-Trophy.png', defaultDesc: 'Won the World Cup season.' },
   { id: 'golden-boot', name: 'Golden Boot', image: '/assets/trophies/Golden-boot.png', icon: '/assets/trophies/Golden-boot.png', defaultDesc: 'Top goalscorer of the season.' },
-  { id: 'mvp', name: 'MVP', image: '/assets/trophies/MVP.png', icon: '/assets/trophies/MVP.png', defaultDesc: 'Most Valuable Player of the tournament.' },
+  { id: 'mvp', name: 'MVP', image: '/assets/trophies/MVP.png', icon: '/assets/trophies/MVP.png', defaultDesc: 'Most Valuable Player of the season.' },
   { id: 'la-liga', name: 'La Liga Champion', image: '/assets/trophies/La-Liga-trophy.png', icon: '/assets/trophies/La-Liga-trophy.png', defaultDesc: 'La Liga season champion.' },
   { id: 'premier-league', name: 'Premier League Champion', image: '/assets/trophies/Premier-League.png', icon: '/assets/trophies/Premier-League.png', defaultDesc: 'Premier League season champion.' },
 ];
@@ -50,7 +51,7 @@ export default function AdminConsole(props) {
   const { tab } = props;
   if (tab === "admin") return <AdminOverview {...props} />;
   if (tab === "admin-players") return <AdminPlayers {...props} />;
-  if (tab === "admin-tournament") return <AdminTournament {...props} />;
+  if (tab === "admin-season") return <AdminSeason {...props} />;
   if (tab === "admin-matches") return <AdminMatches {...props} />;
   if (tab === "admin-playoffs") return <AdminPlayoffs {...props} />;
   if (tab === "admin-settings") return <AdminSettings {...props} />;
@@ -59,8 +60,8 @@ export default function AdminConsole(props) {
   return <EmptyState text="Admin feature in progress..." />;
 }
 
-function AdminOverview({ players, activeTournament, matches, history }) {
-  const tMatches = activeTournament ? matches.filter((m) => m.tournamentId === activeTournament.id) : [];
+function AdminOverview({ players, activeSeason, matches, history }) {
+  const tMatches = activeSeason ? matches.filter((m) => m.seasonId === activeSeason.id) : [];
   const live = tMatches.filter((m) => m.status === "live").length;
   const scheduled = tMatches.filter((m) => m.status === "scheduled").length;
   const completed = tMatches.filter((m) => m.status === "completed").length;
@@ -90,10 +91,10 @@ function AdminOverview({ players, activeTournament, matches, history }) {
       </div>
       <FadeIn delay={0.4}>
         <Card className="p-6">
-          <SectionTitle icon={Trophy}>Current tournament</SectionTitle>
-          {activeTournament ? 
-            <div className="text-sm text-muted-foreground"><strong className="text-foreground">{activeTournament.name}</strong> — started {new Date(activeTournament.createdAt).toLocaleDateString()}</div> 
-            : <EmptyState text="No active tournament. Go to the Tournament tab to start one." />
+          <SectionTitle icon={Trophy}>Current season</SectionTitle>
+          {activeSeason ? 
+            <div className="text-sm text-muted-foreground"><strong className="text-foreground">{activeSeason.name}</strong> — started {new Date(activeSeason.createdAt).toLocaleDateString()}</div> 
+            : <EmptyState text="No active season. Go to the Season tab to start one." />
           }
         </Card>
       </FadeIn>
@@ -121,12 +122,10 @@ function AdminPlayers({ players, showToast }) {
       if (!form.username.trim() || !form.email.trim()) return showToast("Username and email are required");
       if (form.password.length < 4) return showToast("Set a temporary password (4+ chars)");
       
-      const { signUpPlayer } = await import('@/app/actions/player');
       const res = await signUpPlayer(form);
       if (res.error) showToast(res.error);
       else showToast(`${form.name} added`);
     } else {
-      const { adminUpdatePlayer } = await import('@/app/actions/player');
       const res = await adminUpdatePlayer(editing, form);
       if (res.error) showToast(res.error);
       else showToast("Player updated");
@@ -136,7 +135,6 @@ function AdminPlayers({ players, showToast }) {
   
   const remove = async (id) => { 
     if (!confirm("Delete player?")) return;
-    const { adminDeletePlayer } = await import('@/app/actions/player');
     const res = await adminDeletePlayer(id);
     if (res.error) showToast(res.error);
     else showToast("Player removed");
@@ -191,9 +189,9 @@ function AdminPlayers({ players, showToast }) {
   );
 }
 
-function AdminMatches({ matches, activeTournament, players, showToast }) {
-  if (!activeTournament) return <EmptyState text="Start a tournament first." />;
-  const tMatches = matches.filter((m) => m.tournamentId === activeTournament.id);
+function AdminMatches({ matches, activeSeason, players, showToast }) {
+  if (!activeSeason) return <EmptyState text="Start a season first." />;
+  const tMatches = matches.filter((m) => m.seasonId === activeSeason.id);
   
   return (
     <div className="flex flex-col gap-6">
@@ -313,11 +311,11 @@ function AdminMatchControl({ m, players, showToast }) {
   );
 }
 
-function AdminPlayoffs({ activeTournament, matches, players, showToast }) {
-  if (!activeTournament) return <EmptyState text="Start a tournament first." />;
+function AdminPlayoffs({ activeSeason, matches, players, showToast }) {
+  if (!activeSeason) return <EmptyState text="Start a season first." />;
   
   const handleGeneratePlayoffs = async () => {
-    const tMatches = matches.filter((m) => m.tournamentId === activeTournament.id && m.round === "league" && m.status === "completed");
+    const tMatches = matches.filter((m) => m.seasonId === activeSeason.id && m.round === "league" && m.status === "completed");
     
     const table = {};
     players.forEach(p => table[p.id] = { id: p.id, pts: 0, gd: 0, gf: 0 });
@@ -335,8 +333,7 @@ function AdminPlayoffs({ activeTournament, matches, players, showToast }) {
     const top4 = standings.slice(0, 4).map(s => s.id);
     if (top4.length < 4) return showToast("Not enough players for playoffs (need 4)");
     
-    const { generatePlayoffs } = await import('@/app/actions/match');
-    const res = await generatePlayoffs(activeTournament.id, top4);
+    const res = await generatePlayoffs(activeSeason.id, top4);
     if (res.error) showToast(res.error);
     else showToast("Playoff bracket generated");
   };
@@ -881,7 +878,7 @@ function AdminAnnouncements({ announcements, showToast }) {
       <Card className="p-6">
         <SectionTitle icon={Megaphone}>Post Announcement</SectionTitle>
         <div className="grid gap-4 mt-4">
-          <div><Label>Title</Label><Input value={form.title} onChange={e => setForm({...form, title: e.target.value})} placeholder="e.g. Tournament Start!" /></div>
+          <div><Label>Title</Label><Input value={form.title} onChange={e => setForm({...form, title: e.target.value})} placeholder="e.g. Season Start!" /></div>
           <div><Label>Message</Label><Input value={form.content} onChange={e => setForm({...form, content: e.target.value})} placeholder="Type message..." /></div>
         </div>
         <ShinyButton className="mt-6" onClick={handlePost}>Publish</ShinyButton>
@@ -904,57 +901,72 @@ function AdminAnnouncements({ announcements, showToast }) {
   );
 }
 
-function AdminTournament({ activeTournament, matches = [], players = [], showToast, setTab }) {
+function AdminSeason({ activeSeason, matches = [], players = [], showToast, setTab }) {
   const [name, setName] = useState("");
+  const [seasonType, setSeasonType] = useState("League (Single)");
+  const [startDate, setStartDate] = useState(new Date().toISOString().split('T')[0]);
   const [rename, setRename] = useState("");
 
   const handleStart = async () => {
-    if (!name.trim()) return showToast("Enter a tournament name");
-    const res = await startTournament(name);
+    if (!name.trim()) return showToast("Enter a season name");
+    const res = await startSeason(name, seasonType, startDate);
     if (res.error) showToast(res.error);
-    else { showToast("Tournament started!"); setName(""); }
+    else { showToast("Season started with fixtures generated!"); setName(""); }
   };
 
   const handleRename = async () => {
     if (!rename.trim()) return showToast("Enter a new name");
-    const res = await renameTournament(activeTournament.id, rename);
+    const res = await renameSeason(activeSeason.id, rename);
     if (res.error) showToast(res.error);
-    else { showToast("Tournament renamed!"); setRename(""); }
+    else { showToast("Season renamed!"); setRename(""); }
   };
 
   const handleDelete = async () => {
-    if (!confirm("Are you sure you want to completely delete the active tournament? This cannot be undone.")) return;
-    const res = await deleteTournament(activeTournament.id);
+    if (!confirm("Are you sure you want to completely delete the active season? This cannot be undone.")) return;
+    const res = await deleteSeason(activeSeason.id);
     if (res.error) showToast(res.error);
-    else showToast("Tournament deleted.");
+    else showToast("Season deleted.");
   };
 
   const handleGenerateFixtures = async () => {
-    if (!activeTournament) return;
-    const res = await generateFixtures(activeTournament.id, players.map(p => p.id));
+    if (!activeSeason) return;
+    const res = await generateFixtures(activeSeason.id, players.map(p => p.id));
     if (res.error) showToast(res.error);
     else showToast("Fixtures generated!");
   };
 
-  if (!activeTournament) {
+  if (!activeSeason) {
     return (
       <Card className="p-12 flex flex-col items-center justify-center text-center border-dashed border-2">
         <Trophy size={64} className="text-gold mb-6 opacity-80 drop-shadow-[0_0_15px_rgba(255,215,0,0.5)]" />
-        <h2 className="text-3xl font-bold font-display mb-3">No Active Tournament</h2>
+        <h2 className="text-3xl font-bold font-display mb-3">No Active Season</h2>
         <p className="text-muted-foreground mb-8 max-w-md text-lg">Create a new season to begin league matches, track standings, and manage playoffs.</p>
         
-        <div className="flex flex-col items-center gap-4 w-full max-w-sm">
-          <Label className="self-start text-muted-foreground">Tournament Name</Label>
-          <div className="flex gap-2 w-full">
-            <Input className="flex-1 bg-secondary border-border" value={name} onChange={e => setName(e.target.value)} placeholder="e.g. Season 4" />
-            <ShinyButton onClick={handleStart} className="px-6">Create Season</ShinyButton>
+        <div className="flex flex-col gap-4 w-full max-w-sm mt-4 text-left">
+          <div className="space-y-1.5">
+            <Label className="text-muted-foreground">Season Name</Label>
+            <Input className="w-full bg-secondary border-border" value={name} onChange={e => setName(e.target.value)} placeholder="e.g. Season 4" />
           </div>
+          <div className="space-y-1.5">
+            <Label className="text-muted-foreground">Season Type</Label>
+            <select className="flex h-10 w-full rounded-md border border-border bg-secondary px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pitch" value={seasonType} onChange={e => setSeasonType(e.target.value)}>
+              <option value="League (Single)">League (Single)</option>
+              <option value="League (Double)">League (Double)</option>
+              <option value="League + Playoffs (Single)">League + Playoffs (Single)</option>
+              <option value="League + Playoffs (Double)">League + Playoffs (Double)</option>
+            </select>
+          </div>
+          <div className="space-y-1.5">
+            <Label className="text-muted-foreground">Start Date</Label>
+            <Input type="date" className="w-full bg-secondary border-border" value={startDate} onChange={e => setStartDate(e.target.value)} />
+          </div>
+          <ShinyButton onClick={handleStart} className="w-full mt-2">Create Season & Generate Fixtures</ShinyButton>
         </div>
       </Card>
     );
   }
 
-  const tMatches = matches.filter((m) => m.tournamentId === activeTournament.id && m.round === "league");
+  const tMatches = matches.filter((m) => m.seasonId === activeSeason.id && m.round === "league");
   const isDoubleRoundRobin = tMatches.length > 10;
   const expectedMatches = isDoubleRoundRobin ? 20 : 10;
   
@@ -1017,11 +1029,11 @@ function AdminTournament({ activeTournament, matches = [], players = [], showToa
           <div>
             <div className="text-xs font-bold tracking-widest text-primary uppercase mb-2">League Stage</div>
             <div className="flex items-center">
-              <h1 className="text-4xl font-display font-bold tracking-wide">{activeTournament.name}</h1>
+              <h1 className="text-4xl font-display font-bold tracking-wide">{activeSeason.name}</h1>
               {statusBadge}
             </div>
             <div className="flex flex-wrap gap-4 text-sm text-muted-foreground font-mono mt-4">
-              <div className="flex items-center gap-1.5"><Calendar size={14} /> Started: {new Date(activeTournament.createdAt).toLocaleDateString()}</div>
+              <div className="flex items-center gap-1.5"><Calendar size={14} /> Started: {new Date(activeSeason.createdAt).toLocaleDateString()}</div>
               <div>•</div>
               <div className="flex items-center gap-1.5"><Users size={14} /> Players: {players.length} / 5</div>
               <div>•</div>
@@ -1062,18 +1074,18 @@ function AdminTournament({ activeTournament, matches = [], players = [], showToa
         </MagicCard>
         
         <MagicCard className="p-5 flex flex-col items-center justify-center gap-3 hover:bg-secondary/80 cursor-pointer transition-colors group" onClick={() => {
-            const newName = prompt("Enter new tournament name:", activeTournament.name);
-            if (newName && newName !== activeTournament.name) {
-                renameTournament(activeTournament.id, newName).then(res => {
+            const newName = prompt("Enter new season name:", activeSeason.name);
+            if (newName && newName !== activeSeason.name) {
+                renameSeason(activeSeason.id, newName).then(res => {
                     if(res.error) showToast(res.error);
-                    else showToast("Tournament renamed!");
+                    else showToast("Season renamed!");
                 });
             }
         }}>
           <div className="p-3 rounded-full bg-pitch-bright/20 text-pitch-bright">
              <Edit2 size={24} />
           </div>
-          <span className="text-sm font-bold tracking-wide">Edit Tournament</span>
+          <span className="text-sm font-bold tracking-wide">Edit Season</span>
         </MagicCard>
         
         <MagicCard className="p-5 flex flex-col items-center justify-center gap-3 hover:bg-secondary/80 cursor-pointer transition-colors group" onClick={() => setTab && setTab("admin-playoffs")}>
@@ -1082,12 +1094,68 @@ function AdminTournament({ activeTournament, matches = [], players = [], showToa
           </div>
           <span className="text-sm font-bold tracking-wide">Manage Playoffs</span>
         </MagicCard>
+
+        {activeSeason.type?.includes("Playoffs") && isCompleted && (
+          <MagicCard className="p-5 flex flex-col items-center justify-center gap-3 hover:bg-secondary/80 cursor-pointer transition-colors group" onClick={async () => {
+             const tMatches = matches.filter((m) => m.seasonId === activeSeason.id && m.round === "league" && m.status === "completed");
+             const top4 = standings.slice(0, 4).map(s => s.id);
+             if (top4.length < 4) return showToast("Not enough players for playoffs (need 4)");
+             
+             const res = await generatePlayoffs(activeSeason.id, top4);
+             if (res.error) showToast(res.error);
+             else { showToast("Playoff bracket generated!"); setTab("admin-playoffs"); }
+          }}>
+            <div className="p-3 rounded-full bg-gold/20 text-gold">
+               <Swords size={24} />
+            </div>
+            <span className="text-sm font-bold tracking-wide">Start Playoffs</span>
+          </MagicCard>
+        )}
         
-        <MagicCard className="p-5 flex flex-col items-center justify-center gap-3 hover:bg-secondary/80 cursor-pointer transition-colors group" onClick={() => showToast("Archive functionality not yet implemented.")}>
+        <MagicCard className="p-5 flex flex-col items-center justify-center gap-3 hover:bg-secondary/80 cursor-pointer transition-colors group" onClick={async () => {
+            if (!isCompleted && !confirm("League phase is not 100% complete. End and archive anyway?")) return;
+            if (activeSeason.type?.includes("Playoffs")) {
+              const playoffMatches = matches.filter(m => m.seasonId === activeSeason.id && m.round !== "league");
+              const incompletePlayoffs = playoffMatches.filter(m => m.status !== "completed");
+              if (playoffMatches.length === 0) return showToast("Please start and finish playoffs first.");
+              if (incompletePlayoffs.length > 0) return showToast("Finish all playoff matches first.");
+            }
+
+            if (!confirm("Are you sure you want to end this season? This will automatically calculate standings, assign awards and issue trophies.")) return;
+             
+            const championId = standings[0]?.id;
+            const runnerUpId = standings[1]?.id;
+            const thirdId = standings[2]?.id;
+            const mvpId = standings[0]?.id; // Default MVP to Champion
+             
+            const trophies = [];
+            if (championId) trophies.push({ playerId: championId, title: "League Champion", season: activeSeason.name, icon: "🏆", description: `Won the ${activeSeason.name} league.` });
+            if (runnerUpId) trophies.push({ playerId: runnerUpId, title: "Runner-Up", season: activeSeason.name, icon: "🥈", description: `2nd place in ${activeSeason.name}.` });
+             
+            const byGoals = [...standings].sort((a, b) => b.gf - a.gf);
+            const topScorer = byGoals[0];
+            if (topScorer && topScorer.gf > 0) {
+              trophies.push({ playerId: topScorer.id, title: "Golden Boot", season: activeSeason.name, icon: "👟", description: `Top scorer with ${topScorer.gf} goals.` });
+            }
+             
+            const eligibleForGlove = [...standings].filter(s => s.p >= 3);
+            if (eligibleForGlove.length > 0) {
+                const byGlove = eligibleForGlove.sort((a, b) => (a.ga / a.p) - (b.ga / b.p));
+                const topGlove = byGlove[0];
+                trophies.push({ playerId: topGlove.id, title: "Golden Glove", season: activeSeason.name, icon: "🧤", description: `Fewest goals conceded (${topGlove.ga} in ${topGlove.p} games).` });
+            }
+
+            const res = await completeSeason(activeSeason.id, {
+                championId, runnerUpId, thirdId, mvpId, championName: standings[0]?.name, trophies
+            });
+             
+            if (res.error) showToast(res.error);
+            else { showToast("Season archived & trophies issued!"); setTab("admin-overview"); }
+        }}>
           <div className="p-3 rounded-full bg-muted-foreground/20 text-muted-foreground">
              <Archive size={24} />
           </div>
-          <span className="text-sm font-bold tracking-wide">Archive Season</span>
+          <span className="text-sm font-bold tracking-wide">End Season</span>
         </MagicCard>
       </div>
 
@@ -1260,7 +1328,7 @@ function AdminTournament({ activeTournament, matches = [], players = [], showToa
       </div>
       
       <Card className="p-8">
-        <SectionTitle icon={Clock}>Tournament Timeline</SectionTitle>
+        <SectionTitle icon={Clock}>Season Timeline</SectionTitle>
         <div className="flex items-center justify-between mt-10 relative px-4 md:px-12">
            <div className="absolute top-3 left-10 right-10 md:left-16 md:right-16 h-1 bg-secondary -translate-y-1/2 z-0">
               <div className="h-full bg-gold transition-all duration-1000" style={{ width: isCompleted ? '100%' : hasFixtures ? (progressPercent > 0 ? '75%' : '50%') : '25%' }} />
@@ -1300,7 +1368,7 @@ function AdminTournament({ activeTournament, matches = [], players = [], showToa
               Remove Fixtures
            </Btn>
            <Btn variant="danger" className="justify-center font-bold" onClick={handleDelete}>
-              Delete Tournament
+              Delete Season
            </Btn>
         </div>
       </Card>

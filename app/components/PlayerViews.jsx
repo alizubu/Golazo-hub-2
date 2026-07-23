@@ -29,13 +29,13 @@ export default function PlayerViews(props) {
   return null;
 }
 
-function computeStandings(matches, players, tournamentId) {
+function computeStandings(matches, players, seasonId) {
   const table = {};
   players.forEach((p) => {
     table[p.id] = { ...p, played: 0, won: 0, drawn: 0, lost: 0, gf: 0, ga: 0, gd: 0, pts: 0 };
   });
   matches
-    .filter((m) => m.tournamentId === tournamentId && m.round === "league" && m.status === "completed")
+    .filter((m) => m.seasonId === seasonId && m.round === "league" && m.status === "completed")
     .forEach((m) => {
       const h = table[m.homeId], a = table[m.awayId];
       if (!h || !a) return;
@@ -138,9 +138,9 @@ function CircularProgress({ value, color = "var(--pitch-bright)", label }) {
   );
 }
 
-function PlayerDashboard({ me, activeTournament, matches, players, announcements = [], trophies = [], notifications = [], setTab, persistPlayers }) {
-  const t = activeTournament;
-  const tMatches = t ? matches.filter((m) => m.tournamentId === t.id) : [];
+function PlayerDashboard({ me, activeSeason, matches, players, announcements = [], trophies = [], notifications = [], setTab, persistPlayers }) {
+  const t = activeSeason;
+  const tMatches = t ? matches.filter((m) => m.seasonId === t.id) : [];
   const standings = t ? computeStandings(tMatches, players, t.id) : [];
   const myRank = standings.findIndex((s) => s.id === me.id) + 1;
   const myRow = standings.find((s) => s.id === me.id);
@@ -572,15 +572,15 @@ function PlayerDashboard({ me, activeTournament, matches, players, announcements
   );
 }
 
-function StandingsView({ activeTournament, matches, players, me }) {
-  if (!activeTournament) return <EmptyState text="No active tournament yet." />;
-  const tMatches = matches.filter((m) => m.tournamentId === activeTournament.id);
-  const standings = computeStandings(tMatches, players, activeTournament.id);
+function StandingsView({ activeSeason, matches, players, me }) {
+  if (!activeSeason) return <EmptyState text="No active season yet." />;
+  const tMatches = matches.filter((m) => m.seasonId === activeSeason.id);
+  const standings = computeStandings(tMatches, players, activeSeason.id);
   
   return (
     <FadeIn delay={0.1}>
       <Card className="p-5">
-        <SectionTitle icon={ListOrdered}>{activeTournament.name} — Table</SectionTitle>
+        <SectionTitle icon={ListOrdered}>{activeSeason.name} — Table</SectionTitle>
         <div className="overflow-x-auto">
           <table className="w-full text-sm text-left">
             <thead>
@@ -624,9 +624,9 @@ function StandingsView({ activeTournament, matches, players, me }) {
   );
 }
 
-function MatchesView({ activeTournament, matches, players }) {
-  if (!activeTournament) return <EmptyState text="No active tournament yet." />;
-  const tMatches = matches.filter((m) => m.tournamentId === activeTournament.id && m.round === "league");
+function MatchesView({ activeSeason, matches, players }) {
+  if (!activeSeason) return <EmptyState text="No active season yet." />;
+  const tMatches = matches.filter((m) => m.seasonId === activeSeason.id && m.round === "league");
   return (
     <FadeIn delay={0.1}>
       <Card className="p-5">
@@ -688,9 +688,9 @@ function PlayoffBracketDisplay({ tMatches, players }) {
   );
 }
 
-function PlayoffsView({ activeTournament, matches, players }) {
-  if (!activeTournament) return <EmptyState text="No active tournament yet." />;
-  const tMatches = matches.filter((m) => m.tournamentId === activeTournament.id && m.round !== "league");
+function PlayoffsView({ activeSeason, matches, players }) {
+  if (!activeSeason) return <EmptyState text="No active season yet." />;
+  const tMatches = matches.filter((m) => m.seasonId === activeSeason.id && m.round !== "league");
   
   if (tMatches.length === 0) return <FadeIn delay={0.1}><Card className="p-6"><EmptyState text="Playoffs haven't started yet. They unlock once the admin closes the league phase." /></Card></FadeIn>;
   return (
@@ -750,7 +750,7 @@ function RosterView({ players, matches }) {
 }
 
 function HistoryView({ history, players }) {
-  if (!history || history.length === 0) return <FadeIn delay={0.1}><Card className="p-6"><EmptyState text="No completed tournaments yet." /></Card></FadeIn>;
+  if (!history || history.length === 0) return <FadeIn delay={0.1}><Card className="p-6"><EmptyState text="No completed seasons yet." /></Card></FadeIn>;
   
   return (
     <div className="flex flex-col gap-4">
@@ -788,7 +788,7 @@ function HistoryView({ history, players }) {
               </div>
               {mvp && (
                 <div className="mt-4 text-sm flex items-center gap-2 justify-center text-pitch-bright font-medium">
-                  <Trophy size={16} /> MVP of the tournament: <strong className="font-bold">{mvp.name}</strong>
+                  <Trophy size={16} /> MVP of the season: <strong className="font-bold">{mvp.name}</strong>
                 </div>
               )}
             </MagicCard>
@@ -812,7 +812,7 @@ function NotificationsView({ notifications }) {
               initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }}
               className="p-4 rounded-xl flex items-start gap-3 bg-secondary/50 border border-border/50"
             >
-              <div className={`mt-0.5 shrink-0 w-2 h-2 rounded-full ${n.type === 'tournament' ? 'bg-gold' : n.type === 'fixtures' ? 'bg-pitch-bright' : 'bg-claret'}`} />
+              <div className={`mt-0.5 shrink-0 w-2 h-2 rounded-full ${n.type === 'season' ? 'bg-gold' : n.type === 'fixtures' ? 'bg-pitch-bright' : 'bg-claret'}`} />
               <div>
                 <div className="text-sm font-medium">{n.text}</div>
                 <div className="text-[10px] mt-1 text-muted-foreground font-mono">{new Date(n.createdAt).toLocaleString()}</div>

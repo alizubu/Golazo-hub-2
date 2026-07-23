@@ -3,9 +3,9 @@
 import prisma from '@/lib/db';
 import { revalidatePath } from 'next/cache';
 
-export async function getMatches(tournamentId) {
+export async function getMatches(seasonId) {
   return await prisma.match.findMany({
-    where: tournamentId ? { tournamentId } : undefined,
+    where: seasonId ? { seasonId } : undefined,
     orderBy: [
       { status: 'desc' },
       { scheduledAt: 'asc' },
@@ -14,7 +14,7 @@ export async function getMatches(tournamentId) {
   });
 }
 
-export async function generateFixtures(tournamentId, playerIds, doubleRound) {
+export async function generateFixtures(seasonId, playerIds, doubleRound) {
   if (playerIds.length < 2) return { error: 'Need at least 2 players' };
 
   const legs = [];
@@ -30,7 +30,7 @@ export async function generateFixtures(tournamentId, playerIds, doubleRound) {
   try {
     await prisma.match.createMany({
       data: legs.map(leg => ({
-        tournamentId,
+        seasonId,
         round: 'league',
         homeId: leg.homeId,
         awayId: leg.awayId,
@@ -105,7 +105,7 @@ export async function updateMatchScore(matchId, homeScore, awayScore) {
   }
 }
 
-export async function generatePlayoffs(tournamentId, top4PlayerIds) {
+export async function generatePlayoffs(seasonId, top4PlayerIds) {
   if (top4PlayerIds.length < 4) return { error: 'Need 4 players for playoffs' };
   
   try {
@@ -114,7 +114,7 @@ export async function generatePlayoffs(tournamentId, top4PlayerIds) {
     await prisma.match.createMany({
       data: [
         {
-          tournamentId,
+          seasonId,
           round: 'semiA',
           homeId: r1,
           awayId: r2,
@@ -123,7 +123,7 @@ export async function generatePlayoffs(tournamentId, top4PlayerIds) {
           decisive: true
         },
         {
-          tournamentId,
+          seasonId,
           round: 'semiB',
           homeId: r3,
           awayId: r4,
@@ -141,11 +141,11 @@ export async function generatePlayoffs(tournamentId, top4PlayerIds) {
   }
 }
 
-export async function createPlayoffMatch(tournamentId, round, homeId, awayId, label) {
+export async function createPlayoffMatch(seasonId, round, homeId, awayId, label) {
   try {
     const match = await prisma.match.create({
       data: {
-        tournamentId,
+        seasonId,
         round,
         homeId,
         awayId,

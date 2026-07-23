@@ -5,8 +5,9 @@ import { Camera, CheckCircle2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Avatar } from '@/app/components/UI';
 import { Progress } from '@/app/components/ui/progress';
+import { updatePlayerProfile } from '@/app/actions/player';
 
-export default function AvatarUpload({ me, form, setForm }) {
+export default function AvatarUpload({ me, form, setForm, showToast }) {
   const [isHovered, setIsHovered] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
   const [uploading, setUploading] = useState(false);
@@ -51,7 +52,6 @@ export default function AvatarUpload({ me, form, setForm }) {
       setSuccess(true);
       
       // Update DB directly
-      const { updatePlayerProfile } = await import('@/app/actions/player');
       const updateRes = await updatePlayerProfile(me.id, { avatarImage: data.url });
       
       if (!updateRes.error) {
@@ -62,9 +62,10 @@ export default function AvatarUpload({ me, form, setForm }) {
     } catch (err) {
       clearInterval(interval);
       setSuccess(false);
-      // We would ideally show a toast here:
-      // showToast(err.message);
       console.error(err);
+      if (showToast) showToast(err.message || 'Upload failed');
+      else if (typeof window !== 'undefined') alert(err.message || 'Upload failed');
+
     } finally {
       setTimeout(() => {
         setUploading(false);

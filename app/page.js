@@ -1,5 +1,5 @@
 import { getPlayers } from '@/app/actions/player';
-import { getTournaments } from '@/app/actions/tournament';
+import { getSeasons } from '@/app/actions/season';
 import { getMatches } from '@/app/actions/match';
 import prisma from '@/lib/db';
 import ClientApp from './components/ClientApp';
@@ -8,7 +8,7 @@ export const dynamic = 'force-dynamic';
 
 export default async function Home() {
   const players = await getPlayers();
-  const tournaments = await getTournaments();
+  const seasons = await getSeasons();
   const matches = await getMatches();
   const notifications = await prisma.notification.findMany({ orderBy: { createdAt: 'desc' }, take: 50 });
   const announcements = await prisma.announcement.findMany({ orderBy: { createdAt: 'desc' } });
@@ -19,7 +19,7 @@ export default async function Home() {
   return (
     <ClientApp 
       initialPlayers={players}
-      initialTournaments={tournaments}
+      initialSeasons={seasons}
       initialMatches={matches}
       initialNotifications={notifications}
       initialAnnouncements={announcements}
