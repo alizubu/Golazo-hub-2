@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Trophy, Calendar, Users, Radio, Clock, Check, Archive, Plus, Trash2, Settings, Swords, Edit2, ListOrdered, BarChart2, AlertTriangle, ArrowRight, Megaphone, ChevronDown, Package } from 'lucide-react';
-import { Card, Btn, Input, Label, SectionTitle, EmptyState, MagicCard, FadeIn, ShinyButton, Badge } from './UI';
+import { Card, Btn, Input, Label, SectionTitle, EmptyState, MagicCard, FadeIn, ShinyButton, Badge, Avatar } from './UI';
 import { motion } from 'framer-motion';
 import AdminOverviewDashboard from './AdminOverviewDashboard';
 import LiveMatchControl from './LiveMatchControl';
@@ -144,7 +144,7 @@ function AdminPlayers({ players, showToast }) {
         {players.map((p, i) => (
           <FadeIn key={p.id} delay={i * 0.05}>
             <MagicCard className="p-4 flex items-center gap-4">
-              <div className="w-12 h-12 flex-shrink-0 flex items-center justify-center bg-secondary rounded-full text-2xl">{p.avatar || '👤'}</div>
+              <Avatar p={p} size={48} />
               <div className="flex-1 min-w-0">
                 <div className="font-bold font-display truncate text-lg">{p.name} {p.flag}</div>
                 <div className="text-xs text-muted-foreground truncate">{p.teamLogo} {p.teamName} · @{p.username}</div>
@@ -406,7 +406,7 @@ function PlayerCombobox({ players, value, onChange }) {
         >
           {selected ? (
             <span className="flex items-center gap-2">
-              <span className="text-lg leading-none">{selected.avatarImage ? <img src={selected.avatarImage} className="w-6 h-6 rounded-full object-cover inline" alt="" /> : selected.avatar || '👤'}</span>
+              <Avatar p={selected} size={24} className="inline-block align-middle" />
               <span className="font-semibold">{selected.name}</span>
             </span>
           ) : (
@@ -428,9 +428,7 @@ function PlayerCombobox({ players, value, onChange }) {
                   onSelect={() => { onChange(p.id); setOpen(false); }}
                   className="flex items-center gap-3 rounded-lg cursor-pointer py-2.5"
                 >
-                  <span className="flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-full bg-secondary overflow-hidden text-base">
-                    {p.avatarImage ? <img src={p.avatarImage} className="w-full h-full object-cover" alt="" /> : (p.avatar || '👤')}
-                  </span>
+                  <Avatar p={p} size={32} />
                   <div className="min-w-0">
                     <div className="font-semibold text-sm truncate">{p.name}</div>
                     {p.teamName && <div className="text-xs text-muted-foreground truncate">{p.teamName}</div>}
@@ -555,7 +553,7 @@ function EditTrophyDialog({ open, onOpenChange, trophy, players, onSave }) {
         <div className="space-y-4 mt-2">
           {player && (
             <div className="flex items-center gap-2 p-2 bg-secondary/30 rounded-lg">
-              <span className="text-lg">{player.avatar || '👤'}</span>
+              <Avatar p={player} size={28} />
               <span className="font-semibold text-sm">{player.name}</span>
             </div>
           )}
@@ -754,7 +752,7 @@ function AdminTrophies({ players, trophies = [], showToast }) {
                           </td>
                           <td className="py-3 px-2">
                             <div className="flex items-center gap-2">
-                              <span className="text-base leading-none">{player?.avatar || '👤'}</span>
+                              <Avatar p={player} size={24} />
                               <span className="font-medium">{player?.name || t.playerId}</span>
                             </div>
                           </td>

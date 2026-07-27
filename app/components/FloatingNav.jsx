@@ -7,7 +7,7 @@ import {
   LogOut, Settings, Menu, Search, Bell, Trophy,
   Home, ListOrdered, Calendar, Swords, Users, Archive, Megaphone
 } from 'lucide-react';
-import { Badge, Btn } from './UI';
+import { Badge, Btn, Avatar } from './UI';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -195,17 +195,7 @@ export default function FloatingNav({ session, me, tab, setTab, onLogout, player
                   <DropdownMenuTrigger asChild>
                     <button className="flex items-center gap-1.5 pl-1.5 pr-2.5 py-1 rounded-full bg-white/5 hover:bg-white/10 transition-colors outline-none focus:ring-2 focus:ring-pitch-bright border border-white/5 group">
                       <span className="relative flex-shrink-0">
-                        {me.avatarImage ? (
-                          <img
-                            src={me.avatarImage}
-                            className="w-6 h-6 rounded-full object-cover ring-1 ring-pitch-bright/50"
-                            alt={me.name}
-                          />
-                        ) : (
-                          <span className="flex items-center justify-center w-6 h-6 rounded-full bg-secondary text-base leading-none ring-1 ring-pitch-bright/50">
-                            {me.avatar || '👤'}
-                          </span>
-                        )}
+                        <Avatar p={me} size={24} ring="rgba(41, 193, 121, 0.5)" />
                         {/* Online dot */}
                         <span className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 bg-green-500 border-2 border-background rounded-full" />
                       </span>
@@ -317,11 +307,7 @@ export default function FloatingNav({ session, me, tab, setTab, onLogout, player
                     </div>
                     {me && (
                       <div className="flex items-center gap-2 mt-1">
-                        {me.avatarImage ? (
-                          <img src={me.avatarImage} className="w-8 h-8 rounded-full object-cover ring-1 ring-pitch-bright/50" alt={me.name} />
-                        ) : (
-                          <span className="text-xl">{me.avatar || '👤'}</span>
-                        )}
+                        <Avatar p={me} size={32} ring="rgba(41, 193, 121, 0.5)" />
                         <div className="min-w-0">
                           <p className="text-sm font-semibold truncate text-foreground">{me.name}</p>
                           <p className="text-xs text-muted-foreground truncate">@{me.username}</p>
@@ -452,13 +438,7 @@ export default function FloatingNav({ session, me, tab, setTab, onLogout, player
                       onSelect={() => setSearchOpen(false)}
                       className="flex items-center gap-2 rounded-lg cursor-pointer py-2"
                     >
-                      {p.avatarImage ? (
-                        <img src={p.avatarImage} className="w-6 h-6 rounded-full object-cover" alt={p.name} />
-                      ) : (
-                        <span className="w-6 h-6 flex items-center justify-center rounded-full bg-secondary text-sm">
-                          {p.avatar || '👤'}
-                        </span>
-                      )}
+                      <Avatar p={p} size={24} />
                       <span className="font-semibold">{p.name}</span>
                       {p.teamName && <span className="text-xs text-muted-foreground ml-1">{p.teamName}</span>}
                     </CommandItem>

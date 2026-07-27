@@ -33,6 +33,18 @@
     --ring: 154 62% 33%;
  
     --radius: 0.5rem;
+
+    /* Stadium at night identity tokens */
+    --bg-base: #0B0E14;
+    --bg-surface: #141821;
+    --bg-surface-raised: #1B2029;
+    --border-subtle: #252B38;
+    --turf: #3DDC84;
+    --floodlight-gold: #E8B34C;
+    --pitch-blue: #5B8DEF;
+    --text-primary: #F4F6F8;
+    --text-secondary: #8A93A3;
+    --text-muted: #565F70;
   }
 }
  
@@ -48,6 +60,17 @@
 
 /* Retain the animations needed for Magic UI and legacy */
 @layer utilities {
+  .tabular-nums {
+    font-variant-numeric: tabular-nums;
+  }
+  .bg-stadium-base { background-color: var(--bg-base); }
+  .bg-stadium-surface { background-color: var(--bg-surface); }
+  .bg-stadium-raised { background-color: var(--bg-surface-raised); }
+  .border-stadium-subtle { border-color: var(--border-subtle); }
+  .text-stadium-primary { color: var(--text-primary); }
+  .text-stadium-secondary { color: var(--text-secondary); }
+  .text-stadium-muted { color: var(--text-muted); }
+
   .score-pop {
     animation: popIn 0.45s cubic-bezier(0.34, 1.56, 0.64, 1) both;
   }

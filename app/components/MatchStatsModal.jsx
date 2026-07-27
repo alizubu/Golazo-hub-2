@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Trophy, X } from 'lucide-react';
 import { supabase } from '@/lib/supabaseClient';
 import { Skeleton } from '@/app/components/ui/skeleton';
+import { Avatar } from './UI';
 
 const statDefinitions = [
   { key: 'possession', label: 'BALL POSSESSION', format: 'percent' },
@@ -167,11 +168,7 @@ export default function MatchStatsModal({ matchId, onClose }) {
                 {/* Home Player */}
                 <div className="flex flex-col items-center gap-2 relative">
                   <div className="relative">
-                    <img 
-                      src={match.home.avatarImage || '/default-avatar.png'} 
-                      alt={match.home.name} 
-                      className="w-14 h-14 rounded-full object-cover ring-2 ring-pitch-bright shadow-lg"
-                    />
+                    <Avatar p={match.home} size={56} ring="var(--pitch-bright)" className="shadow-lg" />
                     {match.stats?.homeRating && (
                       <motion.div 
                         initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ delay: 0.5, type: 'spring' }}
@@ -216,11 +213,7 @@ export default function MatchStatsModal({ matchId, onClose }) {
                 {/* Away Player */}
                 <div className="flex flex-col items-center gap-2 relative">
                   <div className="relative">
-                    <img 
-                      src={match.away.avatarImage || '/default-avatar.png'} 
-                      alt={match.away.name} 
-                      className="w-14 h-14 rounded-full object-cover ring-2 ring-claret shadow-lg"
-                    />
+                    <Avatar p={match.away} size={56} ring="var(--claret)" className="shadow-lg" />
                     {match.stats?.awayRating && (
                       <motion.div 
                         initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ delay: 0.6, type: 'spring' }}

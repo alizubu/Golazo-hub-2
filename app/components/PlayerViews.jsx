@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { PageHeader } from './PageHeader';
-import { Trophy, Clock, ListOrdered, Calendar, Swords, Megaphone, Bell, Pen, Target, Handshake, Shield, Activity, Lock, Flame, BadgeCheck } from 'lucide-react';
+import { Trophy, Clock, ListOrdered, Calendar, Swords, Megaphone, Bell, Pen, Target, Handshake, Shield, Activity, Lock, Flame, BadgeCheck, TrendingUp } from 'lucide-react';
 import { Btn, Badge, Avatar, PlayerChip, SectionTitle, EmptyState, MagicCard, FadeIn, ShinyButton, Label } from './UI';
 import { Card, CardHeader, CardTitle, CardContent } from '@/app/components/ui/card';
 import { NumberTicker } from './ui/number-ticker';
@@ -11,6 +11,7 @@ import SettingsView from './SettingsView';
 import MatchesPage from './MatchesPage';
 import MatchCard from './MatchCard';
 import MatchStatsModal from './MatchStatsModal';
+import TrophyDetailModal from './TrophyDetailModal';
 import { BorderBeam } from './magicui/BorderBeam';
 import { markNotificationsRead } from '@/app/actions/player';
 import { Skeleton } from '@/app/components/ui/skeleton';
@@ -206,6 +207,7 @@ function PlayerDashboard({ me, activeSeason, matches, players, announcements = [
 
   const [statsLoaded, setStatsLoaded] = React.useState(false);
   const [failedCoverUrl, setFailedCoverUrl] = React.useState(null);
+  const [selectedTrophy, setSelectedTrophy] = React.useState(null);
 
   React.useEffect(() => {
     const timer = setTimeout(() => setStatsLoaded(true), 800);
@@ -398,45 +400,78 @@ function PlayerDashboard({ me, activeSeason, matches, players, announcements = [
         <FadeIn delay={0.2} className="col-span-1 md:col-span-12 h-full">
           <MagicCard gradientColor="rgba(250, 204, 21, 0.1)" className="h-full">
             <Card className="h-full bg-transparent border-none shadow-none flex flex-col">
-              <CardHeader className="pb-2">
-                <CardTitle className="text-xl flex items-center gap-2"><Activity className="text-pitch-bright" size={20}/> Player Statistics</CardTitle>
+              <CardHeader className="pb-3 border-b border-stadium-subtle/50 flex flex-row items-center justify-between">
+                <CardTitle className="text-lg sm:text-xl font-display font-bold flex items-center gap-2.5 text-stadium-primary">
+                  <Activity className="text-turf" size={20}/> Player Statistics
+                </CardTitle>
+                <div className="flex items-center gap-2">
+                  <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-[10px] sm:text-xs font-mono font-bold text-emerald-400 uppercase tracking-wider">
+                    <span className="w-1.5 h-1.5 rounded-full bg-turf animate-pulse" /> S2026 ACTIVE
+                  </span>
+                </div>
               </CardHeader>
-              <CardContent className="flex-1">
-                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4 mt-2 h-full">
-                  <Card className="col-span-2 sm:col-span-1 relative overflow-hidden bg-gradient-to-br from-gold/10 to-transparent border-t-2 border-t-gold border-x-border/50 border-b-border/50 flex flex-col items-center justify-center text-center p-3 sm:p-6 group shadow-none min-h-[120px] sm:min-h-[140px] flex-1">
-                    {myRank === 1 && <BorderBeam size={150} duration={8} delay={1} colorFrom="var(--gold)" colorTo="transparent" />}
-                    <Label className="text-gold/80 mb-1 z-10 text-xs sm:text-sm">Current Rank</Label>
-                    <div className="text-3xl sm:text-4xl font-black font-mono text-gold z-10 drop-shadow-md">#{myRank || '-'}</div>
-                  </Card>
-
-                  <PlayerStatCard label="ELO Rating" value={elo} loaded={statsLoaded} icon={Activity} />
-                  <PlayerStatCard label="Matches" value={played} loaded={statsLoaded} icon={Swords} emptyValue={0} />
-                  
-                  <Card className="col-span-2 sm:col-span-1 relative overflow-hidden bg-secondary/30 border-t-2 border-t-green-500 border-x-border/50 border-b-border/50 flex flex-col items-center justify-center text-center p-3 sm:p-6 shadow-none min-h-[120px] sm:min-h-[140px] flex-1">
-                    <Label className="mb-2 text-xs sm:text-sm">Win Rate</Label>
-                    {statsLoaded ? (
-                      winRate > 0 ? (
-                        <div className="relative w-16 h-16 flex items-center justify-center mt-1">
-                          <svg className="w-full h-full transform -rotate-90" viewBox="0 0 36 36">
-                            <path className="text-secondary-foreground/10 stroke-current" strokeWidth="3" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
-                            <motion.path className="text-pitch-bright stroke-current" strokeWidth="3" strokeDasharray={`${winRate}, 100`} strokeLinecap="round" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" initial={{ strokeDasharray: "0, 100" }} animate={{ strokeDasharray: `${winRate}, 100` }} transition={{ duration: 1.5, ease: "easeOut" }} />
-                          </svg>
-                          <div className="absolute inset-0 flex items-center justify-center text-sm font-bold font-mono">
-                            <NumberTicker value={winRate} />%
-                          </div>
-                        </div>
-                      ) : (
-                        <div className="flex flex-col items-center gap-1 text-muted-foreground opacity-50 mt-1">
-                          <span className="text-2xl sm:text-3xl font-mono font-bold">—</span>
-                        </div>
-                      )
-                    ) : (
-                      <Skeleton className="w-16 h-16 rounded-full" />
-                    )}
-                  </Card>
-
-                  <PlayerStatCard label="Goals" value={goals} loaded={statsLoaded} icon={Target} emptyValue={0} />
-                  <PlayerStatCard label="Assists" value={assists} loaded={statsLoaded} icon={Handshake} emptyValue={0} />
+              <CardContent className="pt-4 pb-2 flex-1">
+                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4 h-full">
+                  <PlayerStatCard 
+                    label="Current Rank" 
+                    value={myRank ? `#${myRank}` : null} 
+                    loaded={statsLoaded} 
+                    icon={Trophy} 
+                    accent="hero" 
+                    emptyHint="Unranked" 
+                    className="col-span-2 sm:col-span-1 md:col-span-2 lg:col-span-1"
+                    heroBeam={myRank === 1}
+                  />
+                  <PlayerStatCard 
+                    label="ELO Rating" 
+                    value={elo || 1200} 
+                    loaded={statsLoaded} 
+                    icon={Activity} 
+                    accent="neutral" 
+                    emptyHint="No games"
+                    className="col-span-1 sm:col-span-1 lg:col-span-1"
+                  />
+                  <PlayerStatCard 
+                    label="Matches" 
+                    value={played} 
+                    loaded={statsLoaded} 
+                    icon={Swords} 
+                    emptyValue={0} 
+                    accent="neutral" 
+                    emptyHint="No matches yet"
+                    className="col-span-1 sm:col-span-1 lg:col-span-1"
+                  />
+                  <PlayerStatCard 
+                    label="Win Rate" 
+                    value={winRate} 
+                    loaded={statsLoaded} 
+                    icon={TrendingUp} 
+                    emptyValue={0} 
+                    accent="positive" 
+                    isPercentage={true} 
+                    emptyHint="Play 1+ match"
+                    className="col-span-1 sm:col-span-1 md:col-span-1 lg:col-span-1"
+                  />
+                  <PlayerStatCard 
+                    label="Goals" 
+                    value={goals} 
+                    loaded={statsLoaded} 
+                    icon={Target} 
+                    emptyValue={0} 
+                    accent="neutral" 
+                    emptyHint="No goals yet"
+                    className="col-span-1 sm:col-span-1 lg:col-span-1"
+                  />
+                  <PlayerStatCard 
+                    label="Assists" 
+                    value={assists} 
+                    loaded={statsLoaded} 
+                    icon={Handshake} 
+                    emptyValue={0} 
+                    accent="neutral" 
+                    emptyHint="No assists yet"
+                    className="col-span-2 sm:col-span-1 lg:col-span-1"
+                  />
                 </div>
               </CardContent>
             </Card>
@@ -447,25 +482,77 @@ function PlayerDashboard({ me, activeSeason, matches, players, announcements = [
         <FadeIn delay={0.25} className="col-span-12">
           <MagicCard gradientColor="rgba(251, 191, 36, 0.15)">
             <Card className="bg-transparent border-none shadow-none">
-              <CardHeader className="pb-4 border-b border-border/30">
-                <h3 className="text-xl font-bold flex items-center gap-2 text-foreground"><Trophy className="text-gold" size={20}/> Trophy Cabinet</h3>
-              </CardHeader>
-              <CardContent className="pt-6">
-                <motion.div className="flex md:grid md:grid-cols-3 lg:grid-cols-6 overflow-x-auto snap-x snap-mandatory gap-4 pb-4 md:pb-0 w-full min-w-0" variants={{hidden: { opacity: 0 }, show: { opacity: 1, transition: { staggerChildren: 0.06 } }}} initial="hidden" whileInView="show" viewport={{ once: true }}>
-                  {[
-                    { id: "bb-champion", name: "BB Champion", image: "/assets/trophies/BB-Champion.png", locked: true },
-                    { id: "world-cup", name: "World Cup Winner", image: "/assets/trophies/World-Cup-Winner-Trophy.png", locked: true },
-                    { id: "golden-boot", name: "Golden Boot", image: "/assets/trophies/Golden-boot.png", locked: true },
-                    { id: "mvp", name: "MVP", image: "/assets/trophies/MVP.png", locked: true },
-                    { id: "la-liga", name: "La Liga Champion", image: "/assets/trophies/La-Liga-trophy.png", locked: true },
-                    { id: "premier-league", name: "Premier League Champion", image: "/assets/trophies/Premier-League.png", locked: true },
-                  ].map((tr) => {
-                    const instances = myTrophies.filter(t => t.title === tr.name || t.id === tr.id);
-                    const isUnlocked = instances.length > 0 || !tr.locked;
-                    return <TrophyCard key={tr.id} trophy={tr} unlocked={isUnlocked} count={instances.length} instances={instances} />;
-                  })}
-                </motion.div>
-              </CardContent>
+              {(() => {
+                const trophyList = [
+                  { id: "bb-champion", name: "BB Champion", image: "/assets/trophies/BB-Champion.png", locked: true, requirement: "Win 10 Championship matches", currentStat: won, targetStat: 10, statLabel: "Wins" },
+                  { id: "world-cup", name: "World Cup Winner", image: "/assets/trophies/World-Cup-Winner-Trophy.png", locked: true, requirement: "Play 15 official tournament matches", currentStat: played, targetStat: 15, statLabel: "Matches" },
+                  { id: "golden-boot", name: "Golden Boot", image: "/assets/trophies/Golden-boot.png", locked: true, requirement: "Score 25 career goals", currentStat: goals, targetStat: 25, statLabel: "Goals" },
+                  { id: "mvp", name: "MVP", image: "/assets/trophies/MVP.png", locked: true, requirement: "Achieve 10+ assists & high ELO", currentStat: assists, targetStat: 10, statLabel: "Assists" },
+                  { id: "la-liga", name: "La Liga Champion", image: "/assets/trophies/La-Liga-trophy.png", locked: true, requirement: "Win 5 league matches in La Liga", currentStat: won, targetStat: 5, statLabel: "Wins" },
+                  { id: "premier-league", name: "Premier League Champion", image: "/assets/trophies/Premier-League.png", locked: true, requirement: "Win 8 league matches in Premier League", currentStat: won, targetStat: 8, statLabel: "Wins" },
+                ];
+
+                const unlockedCount = trophyList.filter(tr => {
+                  const instances = myTrophies.filter(t => t.title === tr.name || t.id === tr.id);
+                  return instances.length > 0 || !tr.locked;
+                }).length;
+
+                return (
+                  <>
+                    <CardHeader className="pb-3 border-b border-stadium-subtle/50 flex flex-row items-center justify-between">
+                      <h3 className="text-lg sm:text-xl font-display font-bold flex items-center gap-2.5 text-stadium-primary">
+                        <Trophy className="text-amber-400" size={20}/> Trophy Cabinet
+                      </h3>
+                      <div className="flex items-center gap-2">
+                        <Badge variant="gold" className="px-2.5 py-1 font-mono text-[10px] sm:text-xs font-bold bg-amber-500/15 text-amber-300 border border-amber-500/30">
+                          {unlockedCount}/{trophyList.length} UNLOCKED
+                        </Badge>
+                      </div>
+                    </CardHeader>
+                    <CardContent className="pt-6">
+                      <motion.div 
+                        className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4 w-full min-w-0" 
+                        variants={{hidden: { opacity: 0 }, show: { opacity: 1, transition: { staggerChildren: 0.06 } }}} 
+                        initial="hidden" 
+                        whileInView="show" 
+                        viewport={{ once: true }}
+                      >
+                        {trophyList.map((tr) => {
+                          const instances = myTrophies.filter(t => t.title === tr.name || t.id === tr.id);
+                          const isUnlocked = instances.length > 0 || !tr.locked;
+                          const progressRatio = isUnlocked ? 1 : Math.min(1, Math.max(0, (tr.currentStat || 0) / (tr.targetStat || 1)));
+
+                          return (
+                            <TrophyCard 
+                              key={tr.id} 
+                              trophy={tr} 
+                              unlocked={isUnlocked} 
+                              count={instances.length} 
+                              instances={instances}
+                              progressRatio={progressRatio}
+                              currentStat={tr.currentStat}
+                              targetStat={tr.targetStat}
+                              statLabel={tr.statLabel}
+                              requirement={tr.requirement}
+                              onSelect={() => setSelectedTrophy({
+                                trophy: tr,
+                                unlocked: isUnlocked,
+                                count: instances.length,
+                                instances,
+                                progressRatio,
+                                currentStat: tr.currentStat,
+                                targetStat: tr.targetStat,
+                                statLabel: tr.statLabel,
+                                requirement: tr.requirement
+                              })}
+                            />
+                          );
+                        })}
+                      </motion.div>
+                    </CardContent>
+                  </>
+                );
+              })()}
             </Card>
           </MagicCard>
         </FadeIn>
@@ -860,6 +947,11 @@ function HistoryView({ history, players }) {
           </FadeIn>
         );
       })}
+      <TrophyDetailModal 
+        open={!!selectedTrophy} 
+        onOpenChange={(open) => !open && setSelectedTrophy(null)} 
+        {...selectedTrophy} 
+      />
     </div>
   );
 }
@@ -914,133 +1006,185 @@ function NotificationsView({ notifications, me }) {
   );
 }
 
-function PlayerStatCard({ label, value, loaded, icon: Icon, emptyValue = null }) {
-  const isEmpty = value === emptyValue || !value;
+function PlayerStatCard({ 
+  label, 
+  value, 
+  loaded, 
+  icon: Icon, 
+  emptyValue = null, 
+  accent = 'neutral',
+  emptyHint = 'No matches yet',
+  isPercentage = false,
+  className = '',
+  heroBeam = false
+}) {
+  const isEmpty = value === emptyValue || value === null || value === undefined || value === '';
+
+  let borderClass = 'border-t-stadium-border';
+  let bgClass = 'bg-stadium-surface';
+  let valueColor = 'text-stadium-primary';
+  let labelColor = 'text-stadium-secondary';
+
+  if (accent === 'hero') {
+    borderClass = 'border-t-amber-500 border-amber-500/30';
+    bgClass = 'bg-gradient-to-b from-amber-500/10 via-stadium-raised to-stadium-surface shadow-lg shadow-amber-500/5';
+    valueColor = 'text-amber-400 font-black drop-shadow-[0_2px_4px_rgba(232,179,76,0.3)]';
+    labelColor = 'text-amber-300/90 font-bold';
+  } else if (accent === 'positive') {
+    borderClass = 'border-t-emerald-500 border-emerald-500/20';
+    bgClass = 'bg-gradient-to-b from-emerald-500/5 to-stadium-surface';
+    valueColor = 'text-emerald-400';
+  } else if (accent === 'neutral') {
+    borderClass = 'border-t-blue-500/50 border-stadium-subtle';
+    bgClass = 'bg-stadium-surface/80 hover:bg-stadium-surface transition-colors';
+  }
+
   return (
-    <Card className={`bg-secondary/30 border-t-2 border-x-border/50 border-b-border/50 flex flex-col items-center justify-center text-center p-3 sm:p-6 shadow-none flex-1 min-h-[120px] sm:min-h-[140px] overflow-hidden ${isEmpty ? 'border-t-border/50' : 'border-t-blue-500/50'}`}>
-      {Icon && isEmpty && <Icon size={24} className="mb-2 text-muted-foreground/30 hidden sm:block" />}
-      <Label className="mb-2 text-[10px] sm:text-sm tracking-tighter sm:tracking-normal truncate w-full px-1">{label}</Label>
-      {loaded ? (
-        isEmpty ? (
-          <span className="text-2xl sm:text-3xl font-mono font-bold text-muted-foreground opacity-50">—</span>
+    <Card className={`relative flex flex-col justify-between p-3 sm:p-5 rounded-xl border border-stadium-subtle overflow-visible min-h-[130px] sm:min-h-[145px] transition-all ${bgClass} ${borderClass} ${className}`}>
+      {heroBeam && <BorderBeam size={120} duration={8} delay={1} colorFrom="#E8B34C" colorTo="transparent" />}
+      
+      {/* Header: Icon (Top-Left) + Label */}
+      <div className="flex items-center justify-between w-full gap-1.5 z-10">
+        <div className="flex items-center gap-1.5 min-w-0">
+          {Icon && <Icon size={16} className={`shrink-0 ${accent === 'hero' ? 'text-amber-400' : accent === 'positive' ? 'text-emerald-400' : 'text-stadium-secondary'}`} />}
+          <Label className={`text-[11px] font-semibold uppercase tracking-wider truncate cursor-default ${labelColor}`}>
+            {label}
+          </Label>
+        </div>
+      </div>
+
+      {/* Body: Value or Empty State */}
+      <div className="flex-1 flex items-center justify-center my-2 z-10 w-full overflow-visible">
+        {loaded ? (
+          isEmpty ? (
+            <div className="flex flex-col items-center justify-center gap-1 text-stadium-muted py-2">
+              <span className="text-xl sm:text-2xl font-mono font-bold">—</span>
+              <span className="text-[10px] font-mono tracking-tight text-stadium-secondary/70">{emptyHint}</span>
+            </div>
+          ) : isPercentage ? (
+            <div className="relative w-16 h-16 flex items-center justify-center my-1">
+              <svg className="w-full h-full transform -rotate-90" viewBox="0 0 36 36">
+                <path className="text-stadium-border stroke-current" strokeWidth="3" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                <motion.path className="text-emerald-400 stroke-current" strokeWidth="3" strokeDasharray={`${value}, 100`} strokeLinecap="round" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" initial={{ strokeDasharray: "0, 100" }} animate={{ strokeDasharray: `${value}, 100` }} transition={{ duration: 1.5, ease: "easeOut" }} />
+              </svg>
+              <div className="absolute inset-0 flex items-center justify-center text-sm font-bold font-mono tabular-nums text-stadium-primary">
+                <NumberTicker value={value} />%
+              </div>
+            </div>
+          ) : (
+            <div className={`w-full text-center tabular-nums leading-none tracking-tight overflow-visible ${valueColor}`} style={{ fontSize: 'clamp(1.5rem, 3.2vw, 2.25rem)' }}>
+              {typeof value === 'number' ? <NumberTicker value={value} /> : value}
+            </div>
+          )
         ) : (
-          <NumberTicker value={value} className="text-2xl sm:text-3xl font-bold font-mono text-foreground truncate w-full px-1" />
-        )
-      ) : (
-        <Skeleton className="h-7 w-12 sm:h-9 sm:w-20" />
-      )}
+          <Skeleton className="h-8 w-20 rounded-md bg-stadium-raised" />
+        )}
+      </div>
+
+      <div className="h-1" />
     </Card>
   );
 }
 
-function TrophyCard({ trophy, unlocked, count = 0, instances = [] }) {
+function TrophyCard({ trophy, unlocked, count = 0, instances = [], progressRatio = 0, currentStat = 0, targetStat = 1, statLabel = 'Wins', requirement, onSelect }) {
   const [imgLoaded, setImgLoaded] = React.useState(false);
   const showDuplicate = count > 1;
+  const percent = Math.min(100, Math.max(0, Math.round(progressRatio * 100)));
 
   return (
-    <HoverCard>
-      <HoverCardTrigger asChild>
+    <motion.div
+      variants={{ hidden: { opacity: 0, y: 20 }, show: { opacity: 1, y: 0 } }}
+      onClick={() => onSelect && onSelect()}
+      className={`relative flex flex-col justify-between items-center p-4 sm:p-5 border rounded-2xl text-center cursor-pointer transition-all group overflow-visible min-h-[220px] sm:min-h-[240px] w-full ${
+        unlocked
+          ? 'bg-gradient-to-b from-amber-500/15 via-stadium-raised to-stadium-surface border-amber-500/40 shadow-lg shadow-amber-500/5 hover:-translate-y-1.5 hover:border-amber-400/80 hover:shadow-amber-500/15'
+          : 'bg-stadium-surface/80 border-stadium-subtle hover:bg-stadium-surface hover:border-stadium-subtle/80 hover:-translate-y-0.5'
+      }`}
+    >
+      {unlocked && (
+        <BorderBeam size={100} duration={8} delay={0} colorFrom="#E8B34C" colorTo="transparent" />
+      )}
+
+      {/* Duplicate count badge */}
+      {showDuplicate && (
         <motion.div
-          variants={{ hidden: { opacity: 0, y: 20 }, show: { opacity: 1, y: 0 } }}
-          className={`relative flex flex-col items-center p-5 border rounded-2xl text-center cursor-help transition-all group overflow-visible h-full ${
-            unlocked
-              ? 'bg-gradient-to-b from-gold/15 to-transparent border-gold/30 shadow-lg shadow-gold/5 hover:-translate-y-1 hover:border-gold/60'
-              : 'bg-secondary/20 border-border/50 hover:bg-secondary/30'
-          }`}
+          initial={{ scale: 0, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          transition={{ type: 'spring', stiffness: 500, damping: 20, delay: 0.15 }}
+          className="absolute -top-2.5 -right-2.5 z-20 flex items-center justify-center"
         >
-          {unlocked && (
-            <BorderBeam size={100} duration={8} delay={0} colorFrom="var(--gold)" colorTo="transparent" />
-          )}
-
-          {/* Duplicate count badge */}
-          {showDuplicate && (
-            <motion.div
-              initial={{ scale: 0, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              transition={{ type: 'spring', stiffness: 500, damping: 20, delay: 0.15 }}
-              className="absolute -top-2.5 -right-2.5 z-20 flex items-center justify-center"
-            >
-              {/* Glow ring behind badge */}
-              <span className="absolute w-6 h-6 rounded-full bg-amber-400/40 animate-ping" />
-              <span className="relative flex items-center justify-center w-6 h-6 rounded-full bg-amber-400 text-black text-[10px] font-black shadow-lg shadow-amber-500/40 border border-amber-300/60">
-                ×{count}
-              </span>
-            </motion.div>
-          )}
-
-          <div className="mb-3 relative w-20 h-20 flex items-center justify-center shrink-0">
-            {!imgLoaded && <Skeleton className="absolute inset-0 rounded-xl" />}
-
-            <motion.img
-              src={trophy.image}
-              alt={trophy.name}
-              className={`w-full h-full object-contain drop-shadow-md z-10 transition-opacity duration-300 ${imgLoaded ? 'opacity-100' : 'opacity-0'} ${!unlocked ? 'grayscale opacity-[0.45]' : ''}`}
-              whileHover={{ scale: 1.08, rotate: [-2, 2, -2, 2, 0] }}
-              transition={{ type: 'spring', stiffness: 300, damping: 10 }}
-              onLoad={() => setImgLoaded(true)}
-              onError={(e) => {
-                e.target.style.display = 'none';
-                setImgLoaded(true);
-                if (e.target.nextSibling) e.target.nextSibling.style.display = 'flex';
-              }}
-            />
-
-            <div className="hidden absolute inset-0 items-center justify-center text-5xl transition-transform group-hover:scale-110 opacity-30 grayscale">
-              🏆
-            </div>
-
-            {!unlocked && imgLoaded && (
-              <div className="absolute inset-0 z-20 flex items-center justify-center pointer-events-none">
-                <Lock className="text-foreground/80 drop-shadow-md bg-background/50 p-1.5 rounded-full backdrop-blur-sm" size={28} />
-              </div>
-            )}
-          </div>
-
-          <div className="flex-1 flex flex-col justify-between items-center w-full">
-            <div className="font-bold text-sm leading-tight text-foreground relative z-10 mb-2">{trophy.name}</div>
-
-            <div className="mt-auto">
-              {!unlocked ? (
-                <span className="inline-flex items-center px-1.5 py-0.5 rounded-full bg-background border border-border text-[9px] font-bold shadow-sm z-10">LOCKED</span>
-              ) : (
-                <div className="text-[10px] text-muted-foreground uppercase tracking-widest font-semibold relative z-10">
-                  {count > 0 ? `Won ×${count}` : 'Unlocked'}
-                </div>
-              )}
-            </div>
-          </div>
+          <span className="absolute w-6 h-6 rounded-full bg-amber-400/40 animate-ping" />
+          <span className="relative flex items-center justify-center w-6 h-6 rounded-full bg-amber-400 text-black text-[10px] font-black shadow-lg shadow-amber-500/40 border border-amber-300/60">
+            ×{count}
+          </span>
         </motion.div>
-      </HoverCardTrigger>
-      <HoverCardContent side="top" align="center" className="w-64 bg-card/95 backdrop-blur shadow-xl border-border z-50">
-        <div className="space-y-2">
-          <h4 className="text-sm font-semibold flex items-center gap-2">
-            {trophy.name}
-            {showDuplicate && (
-              <span className="px-1.5 py-0.5 bg-amber-400/20 text-amber-400 rounded-full text-[10px] font-bold border border-amber-400/30">×{count}</span>
-            )}
-          </h4>
-          {/* Individual award instances */}
-          {instances.length > 0 ? (
-            <div className="space-y-1.5 mt-2 pt-2 border-t border-border/50">
-              {instances.map((inst, i) => (
-                <div key={inst.id || i} className="flex items-center justify-between text-xs">
-                  <span className="font-semibold text-pitch-bright">{inst.season}</span>
-                  <span className="text-muted-foreground font-mono">{inst.createdAt ? new Date(inst.createdAt).toLocaleDateString() : ''}</span>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <p className="text-xs text-muted-foreground">
-              {trophy.desc || `Win the ${trophy.name} to unlock this achievement.`}
-            </p>
-          )}
-          {!unlocked && (
-            <div className="flex items-center gap-1.5 text-[10px] uppercase tracking-widest text-pitch-bright font-bold mt-2 pt-2 border-t border-border/50">
-              <Lock size={10} /> Keep playing to unlock
-            </div>
-          )}
+      )}
+
+      {/* Top: Trophy Artwork */}
+      <div className="my-2 relative w-20 h-20 sm:w-24 sm:h-24 flex items-center justify-center shrink-0">
+        {!imgLoaded && <Skeleton className="absolute inset-0 rounded-xl bg-stadium-raised" />}
+
+        <motion.img
+          src={trophy.image || trophy.icon}
+          alt={trophy.name}
+          className={`w-full h-full object-contain drop-shadow-md z-10 transition-all duration-300 ${imgLoaded ? 'opacity-100' : 'opacity-0'} ${!unlocked ? 'grayscale opacity-40 group-hover:opacity-60' : 'group-hover:scale-110'}`}
+          whileHover={{ scale: unlocked ? 1.15 : 1.05, rotate: [-2, 2, -2, 2, 0] }}
+          transition={{ type: 'spring', stiffness: 300, damping: 10 }}
+          onLoad={() => setImgLoaded(true)}
+          onError={(e) => {
+            e.target.style.display = 'none';
+            setImgLoaded(true);
+            if (e.target.nextSibling) e.target.nextSibling.style.display = 'flex';
+          }}
+        />
+
+        <div className="hidden absolute inset-0 items-center justify-center text-5xl transition-transform group-hover:scale-110 opacity-30 grayscale select-none">
+          🏆
         </div>
-      </HoverCardContent>
-    </HoverCard>
+      </div>
+
+      {/* Middle: Trophy Name */}
+      <div className="w-full my-2 flex flex-col items-center justify-center flex-1">
+        <h4 className="font-bold font-display text-xs sm:text-sm leading-tight text-stadium-primary line-clamp-2 px-1 relative z-10 group-hover:text-amber-300 transition-colors" title={trophy.name}>
+          {trophy.name}
+        </h4>
+      </div>
+
+      {/* Bottom: 3-Tier Achievement State System */}
+      <div className="w-full mt-auto pt-2 border-t border-stadium-subtle/40 z-10">
+        {unlocked ? (
+          <div className="flex flex-col items-center gap-0.5">
+            <span className="text-[10px] text-amber-400 uppercase tracking-widest font-black font-mono">
+              {count > 1 ? `WON ×${count}` : 'UNLOCKED'}
+            </span>
+            <span className="text-[9px] text-stadium-secondary font-mono truncate max-w-full">
+              {instances[0]?.createdAt ? new Date(instances[0].createdAt).toLocaleDateString(undefined, { month: 'short', year: 'numeric' }) : 'Champion'}
+            </span>
+          </div>
+        ) : percent > 0 ? (
+          /* Tier 2: Locked, In Progress */
+          <div className="w-full space-y-1.5 px-1">
+            <div className="flex items-center justify-between text-[9px] font-mono font-semibold text-stadium-secondary">
+              <span className="truncate max-w-[65%]" title={requirement}>{statLabel}</span>
+              <span className="text-stadium-primary font-bold tabular-nums">{currentStat}/{targetStat}</span>
+            </div>
+            <div className="relative h-1.5 w-full bg-stadium-base rounded-full overflow-hidden border border-stadium-subtle/60">
+              <div 
+                className="absolute top-0 left-0 bottom-0 bg-gradient-to-r from-emerald-500 to-turf rounded-full transition-all duration-500" 
+                style={{ width: `${percent}%` }}
+              />
+            </div>
+          </div>
+        ) : (
+          /* Tier 1: Locked, No Progress (0%) */
+          <div className="w-full flex items-center justify-center gap-1 text-[10px] font-medium text-stadium-muted py-0.5 px-1">
+            <Lock size={10} className="shrink-0 text-stadium-secondary/60" />
+            <span className="truncate" title={requirement || 'Locked achievement'}>
+              {requirement || 'Locked'}
+            </span>
+          </div>
+        )}
+      </div>
+    </motion.div>
   );
 }

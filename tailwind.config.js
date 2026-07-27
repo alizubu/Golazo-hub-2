@@ -63,6 +63,18 @@ module.exports = {
         claret: {
           DEFAULT: "#B23A48",
           dim: "#7A2933"
+        },
+        stadium: {
+          base: "#0B0E14",
+          surface: "#141821",
+          raised: "#1B2029",
+          border: "#252B38",
+          turf: "#3DDC84",
+          gold: "#E8B34C",
+          blue: "#5B8DEF",
+          "text-primary": "#F4F6F8",
+          "text-secondary": "#8A93A3",
+          "text-muted": "#565F70",
         }
       },
       borderRadius: {
