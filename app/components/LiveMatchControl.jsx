@@ -17,6 +17,16 @@ export default function LiveMatchControl({ matches, players, activeSeason, showT
   // Find next scheduled match
   const nextMatch = matches.find(m => m.status === 'scheduled' && m.seasonId === activeSeason?.id);
 
+  const [optHome, setOptHome] = useState(0);
+  const [optAway, setOptAway] = useState(0);
+
+  useEffect(() => {
+    if (liveMatch) {
+      setOptHome(liveMatch.homeScore || 0);
+      setOptAway(liveMatch.awayScore || 0);
+    }
+  }, [liveMatch?.homeScore, liveMatch?.awayScore, liveMatch?.id]);
+
   const startNextMatch = async () => {
     if (!nextMatch) return;
     setLoading(true);
@@ -31,32 +41,40 @@ export default function LiveMatchControl({ matches, players, activeSeason, showT
     setLoading(false);
   };
 
-  const handleScore = async (homeDelta, awayDelta) => {
+  const handleScore = (homeDelta, awayDelta) => {
     if (!liveMatch) return;
-    const newHome = Math.max(0, (liveMatch.homeScore || 0) + homeDelta);
-    const newAway = Math.max(0, (liveMatch.awayScore || 0) + awayDelta);
+    const newHome = Math.max(0, optHome + homeDelta);
+    const newAway = Math.max(0, optAway + awayDelta);
     
-    // Optimistic UI updates are handled by Supabase Realtime in the parent, but we push directly to DB.
-    const res = await updateMatchScore(liveMatch.id, newHome, newAway);
-    if (res.error) {
-      showToast(res.error);
-      return;
-    }
-    
+    // 1. Immediate optimistic UI update & animation
+    setOptHome(newHome);
+    setOptAway(newAway);
+
     const byId = Object.fromEntries(players.map(p => [p.id, p]));
     const home = byId[liveMatch.homeId];
     const away = byId[liveMatch.awayId];
     const scorer = homeDelta > 0 ? home?.name : away?.name;
     
     if (homeDelta > 0 || awayDelta > 0) {
-      showToast(`${scorer} Scored! ${newHome} - ${newAway}`);
-      // Push event to Supabase so everything updates
-      supabase.channel('matches-page').send({
-        type: 'broadcast',
-        event: 'match_update',
-        payload: { ...liveMatch, homeScore: newHome, awayScore: newAway }
-      });
+      showToast(`${scorer || 'Team'} Scored! ${newHome} - ${newAway}`);
     }
+
+    // 2. Immediate realtime broadcast to sync observers/widgets
+    const optMatch = { ...liveMatch, homeScore: newHome, awayScore: newAway };
+    supabase.channel('matches-page').send({
+      type: 'broadcast',
+      event: 'match_update',
+      payload: optMatch
+    });
+
+    // 3. Background server sync without blocking UI
+    updateMatchScore(liveMatch.id, newHome, newAway).then(res => {
+      if (res?.error) {
+        showToast(res.error);
+        setOptHome(liveMatch.homeScore || 0);
+        setOptAway(liveMatch.awayScore || 0);
+      }
+    });
   };
 
   const togglePause = async () => {
@@ -143,33 +161,32 @@ export default function LiveMatchControl({ matches, players, activeSeason, showT
           {isPaused ? (
             <Badge color="var(--amber-500)" pulse>⏸ PAUSED</Badge>
           ) : (
-            <Badge color="var(--destructive)" pulse>🔴 LIVE</Badge>
+            <Badge color="#e11d48" pulse>
+              🔴 LIVE • {liveMatch.liveState?.clock ? `${liveMatch.liveState.clock}'` : (liveMatch.liveState?.phase === 'first' ? '1st Half' : liveMatch.liveState?.phase === 'second' ? '2nd Half' : liveMatch.liveState?.phase === 'extra' ? 'Extra Time' : liveMatch.liveState?.phase === 'penalties' ? 'Penalties' : 'IN PROGRESS')}
+            </Badge>
           )}
         </div>
 
         {/* Score Display Area */}
-        <div className="flex items-center justify-between p-6 sm:p-8 relative">
+        <div className="flex items-center justify-between p-6 sm:p-8 relative gap-2 sm:gap-6">
           {isPaused && <div className="absolute inset-0 bg-black/50 z-10 backdrop-blur-[1px] flex items-center justify-center pointer-events-none"></div>}
           
-          <div className="flex-1 flex flex-col items-center gap-3">
-            <Avatar p={h} size={64} className="ring-2 ring-pitch" />
-            <span className="font-bold font-display text-base text-center text-white">{h?.name}</span>
+          <div className="flex-1 min-w-0 flex flex-col items-center justify-center gap-3 w-full">
+            <Avatar p={h} size={64} className="ring-2 ring-pitch shrink-0" />
+            <span className="font-bold font-display text-base text-center text-white truncate w-full px-2" title={h?.name}>{h?.name || 'Home'}</span>
           </div>
           
-          <div className="px-4 sm:px-8 flex flex-col items-center gap-2">
-            <div className="text-xs font-bold uppercase tracking-widest text-muted-foreground mb-1">
-              {liveMatch.liveState?.clock ? `${liveMatch.liveState.clock}'` : (liveMatch.liveState?.phase === 'first' ? '1st Half' : liveMatch.liveState?.phase === 'second' ? '2nd Half' : liveMatch.liveState?.phase === 'extra' ? 'Extra Time' : liveMatch.liveState?.phase === 'penalties' ? 'Penalties' : 'LIVE')}
-            </div>
-            <div className="flex items-center gap-3">
-              <NumberTicker value={liveMatch.homeScore || 0} className="text-5xl sm:text-6xl font-mono font-bold text-pitch-bright" />
-              <span className="text-3xl text-muted-foreground/30 font-mono">-</span>
-              <NumberTicker value={liveMatch.awayScore || 0} className="text-5xl sm:text-6xl font-mono font-bold text-white" />
+          <div className="px-2 sm:px-6 flex flex-col items-center justify-center gap-2 shrink-0">
+            <div className="flex items-center gap-3 sm:gap-4">
+              <motion.span key={optHome} initial={{ scale: 1.3, color: '#22c55e' }} animate={{ scale: 1, color: 'inherit' }} className="text-5xl sm:text-6xl font-mono font-bold text-pitch-bright select-none w-14 sm:w-16 text-center">{optHome}</motion.span>
+              <span className="text-3xl text-muted-foreground/30 font-mono select-none">-</span>
+              <motion.span key={optAway} initial={{ scale: 1.3, color: '#22c55e' }} animate={{ scale: 1, color: 'inherit' }} className="text-5xl sm:text-6xl font-mono font-bold text-white select-none w-14 sm:w-16 text-center">{optAway}</motion.span>
             </div>
           </div>
           
-          <div className="flex-1 flex flex-col items-center gap-3">
-            <Avatar p={a} size={64} className="ring-2 ring-claret" />
-            <span className="font-bold font-display text-base text-center text-white">{a?.name}</span>
+          <div className="flex-1 min-w-0 flex flex-col items-center justify-center gap-3 w-full">
+            <Avatar p={a} size={64} className="ring-2 ring-claret shrink-0" />
+            <span className="font-bold font-display text-base text-center text-white truncate w-full px-2" title={a?.name}>{a?.name || 'Away'}</span>
           </div>
         </div>
 
@@ -186,8 +203,8 @@ export default function LiveMatchControl({ matches, players, activeSeason, showT
             <div key={idx} className="flex items-center justify-between gap-4">
               {/* Home Controls */}
               <div className="flex items-center gap-2 w-1/3">
-                <button disabled={isPaused} onClick={event.actionHomeUndo} className="w-8 h-8 flex-shrink-0 flex items-center justify-center rounded-lg bg-secondary text-muted-foreground hover:text-white hover:bg-white/10 transition-colors disabled:opacity-50"><Minus size={14} /></button>
-                <button disabled={isPaused} onClick={event.actionHome} className={`flex-1 h-8 px-2 flex items-center justify-center rounded-lg font-bold transition-colors disabled:opacity-50 ${event.colorClass}`}><Plus size={14} className="mr-1 hidden sm:block" /> {event.label}</button>
+                <button disabled={isPaused} onClick={event.actionHomeUndo} className="w-8 h-8 flex-shrink-0 flex items-center justify-center rounded-lg bg-secondary text-muted-foreground hover:text-white hover:bg-white/10 transition-colors disabled:opacity-50 cursor-pointer"><Minus size={14} /></button>
+                <button disabled={isPaused} onClick={event.actionHome} className={`flex-1 h-8 px-2 flex items-center justify-center rounded-lg font-bold transition-colors disabled:opacity-50 cursor-pointer ${event.colorClass}`}><Plus size={14} className="mr-1 hidden sm:block" /> {event.label}</button>
               </div>
               
               {/* Label */}
@@ -197,8 +214,8 @@ export default function LiveMatchControl({ matches, players, activeSeason, showT
               
               {/* Away Controls */}
               <div className="flex items-center gap-2 w-1/3 justify-end">
-                <button disabled={isPaused} onClick={event.actionAway} className={`flex-1 h-8 px-2 flex items-center justify-center rounded-lg font-bold transition-colors disabled:opacity-50 ${event.colorClass}`}><Plus size={14} className="mr-1 hidden sm:block" /> {event.label}</button>
-                <button disabled={isPaused} onClick={event.actionAwayUndo} className="w-8 h-8 flex-shrink-0 flex items-center justify-center rounded-lg bg-secondary text-muted-foreground hover:text-white hover:bg-white/10 transition-colors disabled:opacity-50"><Minus size={14} /></button>
+                <button disabled={isPaused} onClick={event.actionAway} className={`flex-1 h-8 px-2 flex items-center justify-center rounded-lg font-bold transition-colors disabled:opacity-50 cursor-pointer ${event.colorClass}`}><Plus size={14} className="mr-1 hidden sm:block" /> {event.label}</button>
+                <button disabled={isPaused} onClick={event.actionAwayUndo} className="w-8 h-8 flex-shrink-0 flex items-center justify-center rounded-lg bg-secondary text-muted-foreground hover:text-white hover:bg-white/10 transition-colors disabled:opacity-50 cursor-pointer"><Minus size={14} /></button>
               </div>
             </div>
           ))}
@@ -206,10 +223,10 @@ export default function LiveMatchControl({ matches, players, activeSeason, showT
 
         {/* State Controls */}
         <div className="p-4 sm:p-5 bg-background flex flex-wrap items-center justify-center gap-3">
-          <Btn onClick={togglePause} disabled={loading} variant="outline" className="border-border text-muted-foreground hover:text-white">
+          <Btn onClick={togglePause} disabled={loading} variant="outline" className="border-border text-muted-foreground hover:text-white cursor-pointer">
             {isPaused ? <><Play size={16} className="mr-2" /> Resume Match</> : <><Pause size={16} className="mr-2" /> Pause Match</>}
           </Btn>
-          <Btn onClick={() => setModalOpen(true)} disabled={loading} className="bg-primary text-primary-foreground hover:bg-primary/90">
+          <Btn onClick={() => setModalOpen(true)} disabled={loading} variant="outline" className="border-destructive/80 text-destructive hover:bg-destructive/15 font-bold uppercase tracking-wider text-sm px-6 py-2.5 cursor-pointer">
             <Square size={14} className="mr-2" fill="currentColor" /> Finish Match
           </Btn>
         </div>

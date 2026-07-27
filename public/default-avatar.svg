@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100%" height="100%">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#18181b" />
+      <stop offset="50%" stop-color="#27272a" />
+      <stop offset="100%" stop-color="#18181b" />
+    </linearGradient>
+    <linearGradient id="shimmer" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="rgba(255,255,255,0)" />
+      <stop offset="50%" stop-color="rgba(255,255,255,0.08)" />
+      <stop offset="100%" stop-color="rgba(255,255,255,0)" />
+    </linearGradient>
+    <linearGradient id="sil" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#52525b" />
+      <stop offset="100%" stop-color="#3f3f46" />
+    </linearGradient>
+    <style>
+      @keyframes shimmer {
+        0% { transform: translateX(-100%); }
+        100% { transform: translateX(100%); }
+      }
+      .shimmer-rect {
+        animation: shimmer 2.5s infinite linear;
+      }
+    </style>
+  </defs>
+  <circle cx="50" cy="50" r="50" fill="url(#bg)" />
+  <!-- Silhouette -->
+  <path d="M50 46C58.836 46 66 38.836 66 30C66 21.164 58.836 14 50 14C41.164 14 34 21.164 34 30C34 38.836 41.164 46 50 46ZM50 54C34.008 54 18 61.992 18 78V86H82V78C82 61.992 65.992 54 50 54Z" fill="url(#sil)" />
+  <!-- Shimmer overlay -->
+  <rect x="-100" y="0" width="100" height="100" fill="url(#shimmer)" class="shimmer-rect" />
+</svg>

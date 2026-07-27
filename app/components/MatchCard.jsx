@@ -1,5 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
+import { toTitleCase } from './UI';
 
 export default function MatchCard({ m, players, onClick }) {
   const byId = Object.fromEntries(players.map((p) => [p.id, p]));
@@ -42,7 +43,10 @@ export default function MatchCard({ m, players, onClick }) {
             alt={h?.name} 
             className="w-10 h-10 sm:w-12 sm:h-12 rounded-full object-cover shrink-0 ring-2 ring-[#0f1117]"
           />
-          <div className="font-bold font-display text-sm sm:text-base truncate">{h?.name}</div>
+          <div className={`font-bold font-display text-sm sm:text-base truncate flex items-center gap-1.5 ${m.homeScore > m.awayScore && isCompleted ? 'text-pitch-bright font-black' : ''}`} title={h?.name}>
+            {m.homeScore > m.awayScore && isCompleted && <span className="text-xs shrink-0" title="Winner">🏆</span>}
+            <span className="truncate">{toTitleCase(h?.name)}</span>
+          </div>
         </div>
 
         {/* Center Score / Status */}
@@ -82,7 +86,10 @@ export default function MatchCard({ m, players, onClick }) {
 
         {/* Away Player */}
         <div className="flex flex-1 min-w-0 items-center justify-end gap-3 text-right">
-          <div className="font-bold font-display text-sm sm:text-base truncate">{a?.name}</div>
+          <div className={`font-bold font-display text-sm sm:text-base truncate flex items-center justify-end gap-1.5 ${m.awayScore > m.homeScore && isCompleted ? 'text-pitch-bright font-black' : ''}`} title={a?.name}>
+            <span className="truncate">{toTitleCase(a?.name)}</span>
+            {m.awayScore > m.homeScore && isCompleted && <span className="text-xs shrink-0" title="Winner">🏆</span>}
+          </div>
           <img 
             src={a?.avatarImage || '/default-avatar.png'} 
             alt={a?.name} 

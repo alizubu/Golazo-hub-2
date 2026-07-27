@@ -9,6 +9,16 @@ import { Avatar as ShadcnAvatar, AvatarFallback, AvatarImage } from './ui/avatar
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 
+export const toTitleCase = (str) => {
+  if (!str || typeof str !== 'string') return 'TBD';
+  return str
+    .trim()
+    .toLowerCase()
+    .split(/\s+/)
+    .map(word => word ? word.charAt(0).toUpperCase() + word.slice(1) : '')
+    .join(' ');
+};
+
 export const Card = ({ children, className = "", ...rest }) => (
   <ShadcnCard className={`overflow-hidden rounded-2xl border border-border/60 bg-card shadow-lg transition-all hover:border-border/80 hover:shadow-xl ${className}`} {...rest}>
     {children}
@@ -76,17 +86,56 @@ export const Badge = ({ children, color = 'var(--pitch)', bg, pulse }) => (
   </ShadcnBadge>
 );
 
-export const Avatar = ({ p, size = 40, ring, glow }) => {
+export const SkeletonAvatar = ({ size = 40, ring, glow, className = "" }) => (
+  <div 
+    className={cn("shrink-0 relative overflow-hidden rounded-full bg-gradient-to-br from-[#18181b] via-[#27272a] to-[#18181b] flex items-center justify-center shadow-inner", glow ? 'animate-pulse' : '', className)} 
+    style={{ width: size, height: size, border: ring ? `2px solid ${ring}` : `1px solid var(--border)` }}
+  >
+    <div 
+      className="absolute inset-0 bg-gradient-to-r from-transparent via-white/[0.08] to-transparent animate-shimmer pointer-events-none" 
+      style={{ backgroundSize: '200% 100%' }} 
+    />
+    <svg viewBox="0 0 24 24" fill="none" className="w-[62%] h-[62%] text-zinc-500/70 relative z-10 drop-shadow" xmlns="http://www.w3.org/2000/svg">
+      <path d="M12 12C14.21 12 16 10.21 16 8C16 5.79 14.21 4 12 4C9.79 4 8 5.79 8 8C8 10.21 9.79 12 12 12ZM12 14C9.33 14 4 15.34 4 18V20H20V18C20 15.34 14.67 14 12 14Z" fill="currentColor" />
+    </svg>
+  </div>
+);
+
+export const Avatar = ({ p, size = 40, ring, glow, className = "" }) => {
+  const [failedSrc, setFailedSrc] = React.useState(null);
+
+  const isError = failedSrc && failedSrc === p?.avatarImage;
+  const hasValidImage = p?.avatarImage && 
+    p.avatarImage !== '/default-avatar.png' && 
+    p.avatarImage !== '/default-avatar.svg' && 
+    !isError;
+
   return (
-    <ShadcnAvatar className={`shrink-0 ${glow ? 'animate-pulse' : ''}`} style={{ width: size, height: size, border: ring ? `2px solid ${ring}` : `1px solid var(--border)` }}>
-      {p?.avatarImage ? (
-        <AvatarImage src={p.avatarImage} alt={p.name} className="object-cover" />
+    <ShadcnAvatar 
+      className={cn("shrink-0 relative overflow-hidden rounded-full bg-secondary/80", glow ? 'animate-pulse' : '', className)} 
+      style={{ width: size, height: size, border: ring ? `2px solid ${ring}` : `1px solid var(--border)` }}
+    >
+      {hasValidImage ? (
+        <AvatarImage 
+          src={p.avatarImage} 
+          alt={p?.name || "Player"} 
+          className="object-cover w-full h-full" 
+          onError={() => setFailedSrc(p.avatarImage)} 
+        />
       ) : null}
-      <AvatarFallback className="bg-secondary flex items-center justify-center">
+      <AvatarFallback className="w-full h-full flex items-center justify-center bg-transparent relative overflow-hidden">
         {p?.avatar ? (
-          <span style={{ fontSize: size * 0.55 }}>{p.avatar}</span>
+          <span style={{ fontSize: size * 0.55 }} className="relative z-10 select-none flex items-center justify-center w-full h-full bg-secondary">{p.avatar}</span>
         ) : (
-          <UserCircle2 size={size * 0.6} className="text-muted-foreground" />
+          <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-[#18181b] via-[#27272a] to-[#18181b] w-full h-full overflow-hidden">
+            <div 
+              className="absolute inset-0 bg-gradient-to-r from-transparent via-white/[0.08] to-transparent animate-shimmer pointer-events-none" 
+              style={{ backgroundSize: '200% 100%' }} 
+            />
+            <svg viewBox="0 0 24 24" fill="none" className="w-[62%] h-[62%] text-zinc-500/70 relative z-10 drop-shadow" xmlns="http://www.w3.org/2000/svg">
+              <path d="M12 12C14.21 12 16 10.21 16 8C16 5.79 14.21 4 12 4C9.79 4 8 5.79 8 8C8 10.21 9.79 12 12 12ZM12 14C9.33 14 4 15.34 4 18V20H20V18C20 15.34 14.67 14 12 14Z" fill="currentColor" />
+            </svg>
+          </div>
         )}
       </AvatarFallback>
     </ShadcnAvatar>

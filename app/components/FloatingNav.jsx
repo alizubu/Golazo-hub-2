@@ -1,7 +1,8 @@
 'use client';
 
 import React, { useState } from 'react';
-import { motion, useScroll, useTransform } from 'framer-motion';
+import { createPortal } from 'react-dom';
+import { motion, useScroll, useTransform, AnimatePresence } from 'framer-motion';
 import {
   LogOut, Settings, Menu, Search, Bell, Trophy,
   Home, ListOrdered, Calendar, Swords, Users, Archive, Megaphone
@@ -16,13 +17,6 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/app/components/ui/dropdown-menu";
-import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
-} from "@/app/components/ui/sheet";
 import {
   Dialog,
   DialogContent,
@@ -281,34 +275,65 @@ export default function FloatingNav({ session, me, tab, setTab, onLogout, player
             </button>
             <button 
               type="button"
-              onClick={() => setSheetOpen(prev => !prev)} 
+              onClick={() => {
+                console.log("[MobileNav] Hamburger clicked. Toggling sheetOpen from:", sheetOpen, "to:", !sheetOpen);
+                setSheetOpen(prev => !prev);
+              }} 
               className="flex items-center justify-center w-9 h-9 rounded-full text-muted-foreground hover:text-white hover:bg-white/10 transition-colors outline-none focus-visible:ring-2 focus-visible:ring-pitch-bright cursor-pointer"
               aria-label="Toggle navigation menu"
               aria-expanded={sheetOpen}
             >
               <Menu size={18} />
             </button>
-            <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
-                <SheetContent side="left" className="w-[280px] sm:w-[320px] bg-card border-r border-border/60 p-0 flex flex-col h-full z-[10001]">
-                  <SheetHeader className="p-5 pb-3 border-b border-border/30">
-                    <SheetTitle className="font-display text-lg tracking-tight flex items-center gap-2">
-                      <span>🏆</span> FRIENDS eLEAGUE
-                    </SheetTitle>
+
+            {sheetOpen && typeof window !== 'undefined' && createPortal(
+              <div className="fixed inset-0 z-[99999] flex">
+                <motion.div 
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  onClick={() => setSheetOpen(false)}
+                  className="fixed inset-0 bg-black/80 backdrop-blur-sm cursor-pointer"
+                />
+                
+                <motion.div
+                  initial={{ x: "-100%" }}
+                  animate={{ x: 0 }}
+                  exit={{ x: "-100%" }}
+                  transition={{ type: "spring", damping: 25, stiffness: 300 }}
+                  className="relative z-10 w-[280px] sm:w-[320px] max-w-[85vw] bg-card border-r border-border/60 shadow-2xl flex flex-col max-h-[100dvh]"
+                  style={{ height: "100dvh" }}
+                >
+                  <div className="p-5 pb-4 border-b border-border/30 flex flex-col gap-2 shrink-0">
+                    <div className="flex items-center justify-between">
+                      <div className="font-display text-lg font-bold tracking-tight flex items-center gap-2">
+                        <span>🏆</span> FRIENDS eLEAGUE
+                      </div>
+                      {session?.type === "admin" && (
+                        <span className="px-2 py-0.5 rounded-full text-[10px] font-bold tracking-widest uppercase border border-gold/40 text-gold bg-gold/10">
+                          ADMIN
+                        </span>
+                      )}
+                    </div>
                     {me && (
-                      <div className="flex items-center gap-2 mt-2">
+                      <div className="flex items-center gap-2 mt-1">
                         {me.avatarImage ? (
-                          <img src={me.avatarImage} className="w-8 h-8 rounded-full object-cover" alt={me.name} />
+                          <img src={me.avatarImage} className="w-8 h-8 rounded-full object-cover ring-1 ring-pitch-bright/50" alt={me.name} />
                         ) : (
                           <span className="text-xl">{me.avatar || '👤'}</span>
                         )}
                         <div className="min-w-0">
-                          <p className="text-sm font-semibold truncate">{me.name}</p>
+                          <p className="text-sm font-semibold truncate text-foreground">{me.name}</p>
                           <p className="text-xs text-muted-foreground truncate">@{me.username}</p>
                         </div>
                       </div>
                     )}
-                  </SheetHeader>
+                  </div>
+
                   <div className="flex flex-col gap-1 p-3 overflow-y-auto flex-1">
+                    <div className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/70 px-4 py-1.5">
+                      {session?.type === "admin" ? "Admin Navigation" : "Navigation"}
+                    </div>
                     {items.map((it) => {
                       const Icon = it.icon;
                       const active = tab === it.id;
@@ -316,30 +341,75 @@ export default function FloatingNav({ session, me, tab, setTab, onLogout, player
                         <button
                           key={it.id}
                           onClick={() => handleTabChange(it.id)}
-                          className={`flex items-center gap-3 px-4 py-4 min-h-[44px] rounded-xl text-sm font-semibold transition-all text-left w-full ${
+                          className={`flex items-center gap-3 px-4 py-3.5 min-h-[44px] rounded-xl text-sm font-semibold transition-all text-left w-full cursor-pointer ${
                             active
                               ? 'bg-pitch-bright/15 text-pitch-bright border border-pitch-bright/20'
                               : 'text-muted-foreground hover:text-foreground hover:bg-secondary/50'
                           }`}
                         >
-                          <Icon size={17} />
-                          {it.label}
+                          <Icon size={18} className="shrink-0" />
+                          <span className="truncate">{it.label}</span>
                         </button>
                       );
                     })}
-                  </div>
-                  <div className="mt-auto p-3 pb-6 flex flex-col gap-2 bg-card z-10">
-                    <div className="h-px bg-border/30 mb-1" />
+
+                    {session?.type === "admin" && (
+                      <>
+                        <div className="h-px bg-border/30 my-2" />
+                        <div className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/70 px-4 py-1.5">
+                          Player Shortcuts
+                        </div>
+                        {[
+                          { id: "players", label: "Roster", icon: Users },
+                          { id: "history", label: "History", icon: Archive },
+                          { id: "notifications", label: "Alerts", icon: Bell },
+                        ].map((it) => {
+                          const Icon = it.icon;
+                          const active = tab === it.id;
+                          return (
+                            <button
+                              key={it.id}
+                              onClick={() => handleTabChange(it.id)}
+                              className={`flex items-center gap-3 px-4 py-3.5 min-h-[44px] rounded-xl text-sm font-semibold transition-all text-left w-full cursor-pointer ${
+                                active
+                                  ? 'bg-pitch-bright/15 text-pitch-bright border border-pitch-bright/20'
+                                  : 'text-muted-foreground hover:text-foreground hover:bg-secondary/50'
+                              }`}
+                            >
+                              <Icon size={18} className="shrink-0" />
+                              <span className="truncate">{it.label}</span>
+                            </button>
+                          );
+                        })}
+                      </>
+                    )}
+
+                    <div className="h-px bg-border/40 my-2" />
+
+                    <button
+                      onClick={() => handleTabChange(session?.type === "admin" ? "admin-settings" : "settings")}
+                      className={`flex items-center gap-3 px-4 py-3.5 min-h-[44px] rounded-xl text-sm font-semibold transition-all text-left w-full cursor-pointer ${
+                        tab === (session?.type === "admin" ? "admin-settings" : "settings")
+                          ? 'bg-pitch-bright/15 text-pitch-bright border border-pitch-bright/20'
+                          : 'text-muted-foreground hover:text-foreground hover:bg-secondary/50'
+                      }`}
+                    >
+                      <Settings size={18} className="shrink-0" />
+                      <span>Settings</span>
+                    </button>
+
                     <button
                       onClick={() => { onLogout(); setSheetOpen(false); }}
-                      className="flex items-center gap-3 px-4 py-4 min-h-[44px] rounded-xl text-sm font-semibold text-destructive hover:bg-destructive/10 transition-all w-full"
+                      className="flex items-center gap-3 px-4 py-3.5 min-h-[44px] rounded-xl text-sm font-semibold text-destructive hover:bg-destructive/15 transition-all text-left w-full cursor-pointer mb-6"
                     >
-                      <LogOut size={17} />
-                      Log out
+                      <LogOut size={18} className="shrink-0" />
+                      <span>Log out</span>
                     </button>
                   </div>
-                </SheetContent>
-              </Sheet>
+                </motion.div>
+              </div>,
+              document.body
+            )}
           </div>
         </motion.div>
       </div>

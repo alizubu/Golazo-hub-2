@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Trophy, Calendar, Users, Radio, Activity, ArrowRight, Shield, Flame, Swords, Target, Goal, TrendingUp, History, ListOrdered, Zap, PlusCircle, CheckCircle2, Megaphone, Clock, AlertTriangle, ChevronRight, BarChart2, Star, CalendarDays, PlayCircle, Edit2, Bell } from 'lucide-react';
-import { Card, SectionTitle, EmptyState, MagicCard, FadeIn, Badge, Btn, Avatar } from './UI';
+import { Card, SectionTitle, EmptyState, MagicCard, FadeIn, Badge, Btn, Avatar, toTitleCase } from './UI';
 import { supabase } from '@/lib/supabaseClient';
 import { BorderBeam } from './magicui/BorderBeam';
 import { NumberTicker } from './ui/number-ticker';
@@ -12,11 +12,12 @@ import { computeStandings } from './StandingsTable';
 
 function formatName(name) {
   if (!name) return 'TBD';
-  const parts = name.trim().split(/\s+/);
-  if (parts.length > 1 && name.length > 10) {
+  const titleCased = toTitleCase(name);
+  const parts = titleCased.trim().split(/\s+/);
+  if (parts.length > 1 && titleCased.length > 12) {
     return `${parts[0]} ${parts[parts.length - 1][0]}.`;
   }
-  return name;
+  return titleCased;
 }
 
 // 1. Season Hero
@@ -165,7 +166,7 @@ function LiveMatchCenter({ matches, players, activeSeason, setTab }) {
             <div className="flex items-center justify-between mb-8">
               <div className="flex flex-col items-center gap-3 w-1/3">
                 <Avatar p={home} size={80} className="ring-2 ring-pitch ring-offset-2 ring-offset-card shadow-lg" />
-                <span className="font-bold text-base md:text-lg uppercase tracking-wide text-center">{home?.name}</span>
+                <span className="font-bold text-base md:text-lg tracking-wide text-center truncate w-full px-1" title={home?.name}>{toTitleCase(home?.name)}</span>
               </div>
               
               <div className="flex flex-col items-center justify-center gap-2 w-1/3">
@@ -178,7 +179,7 @@ function LiveMatchCenter({ matches, players, activeSeason, setTab }) {
               
               <div className="flex flex-col items-center gap-3 w-1/3">
                 <Avatar p={away} size={80} className="ring-2 ring-claret ring-offset-2 ring-offset-card shadow-lg" />
-                <span className="font-bold text-base md:text-lg uppercase tracking-wide text-center">{away?.name}</span>
+                <span className="font-bold text-base md:text-lg tracking-wide text-center truncate w-full px-1" title={away?.name}>{toTitleCase(away?.name)}</span>
               </div>
             </div>
 
@@ -339,14 +340,26 @@ function RecentResults({ matches, players, activeSeason }) {
             const h = players.find(p => p.id === m.homeId);
             const a = players.find(p => p.id === m.awayId);
             const timeStr = m.completedAt ? new Date(m.completedAt).toLocaleDateString() : "Recent";
+            const hScore = m.homeScore || 0;
+            const aScore = m.awayScore || 0;
+            const hWon = hScore > aScore;
+            const aWon = aScore > hScore;
             return (
               <div key={m.id} className="flex items-center justify-between py-2 sm:py-2.5 border-b border-border/20 last:border-0">
                 <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
-                  <div className="font-bold text-sm min-w-0 flex-1 truncate" title={h?.name}>{formatName(h?.name)}</div>
-                  <div className="font-mono text-xs bg-secondary/50 px-2 py-1 rounded font-bold border border-border/50 shrink-0">
-                    {m.homeScore || 0} - {m.awayScore || 0}
+                  <div className={`font-bold text-sm min-w-0 flex-1 truncate flex items-center gap-1.5 ${hWon ? 'text-pitch-bright font-black' : 'text-muted-foreground'}`} title={h?.name}>
+                    {hWon && <span className="text-xs shrink-0" title="Winner">🏆</span>}
+                    <span className="truncate">{formatName(h?.name)}</span>
                   </div>
-                  <div className="font-bold text-sm min-w-0 flex-1 text-right truncate" title={a?.name}>{formatName(a?.name)}</div>
+                  <div className="font-mono text-xs bg-secondary/80 px-2.5 py-1 rounded-lg font-black border border-border/50 shrink-0 flex items-center gap-1">
+                    <span className={hWon ? 'text-pitch-bright text-sm' : ''}>{hScore}</span>
+                    <span className="text-muted-foreground/50">-</span>
+                    <span className={aWon ? 'text-pitch-bright text-sm' : ''}>{aScore}</span>
+                  </div>
+                  <div className={`font-bold text-sm min-w-0 flex-1 text-right truncate flex items-center justify-end gap-1.5 ${aWon ? 'text-pitch-bright font-black' : 'text-muted-foreground'}`} title={a?.name}>
+                    <span className="truncate">{formatName(a?.name)}</span>
+                    {aWon && <span className="text-xs shrink-0" title="Winner">🏆</span>}
+                  </div>
                 </div>
                 <div className="text-[10px] uppercase tracking-widest text-muted-foreground font-semibold shrink-0 ml-3">{timeStr}</div>
               </div>

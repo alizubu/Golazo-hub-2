@@ -1,5 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
+import { Avatar } from './UI';
 
 export function computeStandings(matches, players, seasonId) {
   const table = {};
@@ -9,42 +10,56 @@ export function computeStandings(matches, players, seasonId) {
   matches
     .filter((m) => m.seasonId === seasonId && m.round === "league" && m.status === "completed")
     .forEach((m) => {
-      const h = table[m.homeId], a = table[m.awayId];
-      if (!h || !a) return;
-      h.played++; a.played++;
-      const hs = Number(m.homeScore) || 0;
-      const as = Number(m.awayScore) || 0;
-      h.gf += hs; h.ga += as;
-      a.gf += as; a.ga += hs;
-      if (hs > as) { h.won++; a.lost++; h.pts += 3; }
-      else if (hs < as) { a.won++; h.lost++; a.pts += 3; }
-      else { h.drawn++; a.drawn++; h.pts += 1; a.pts += 1; }
+      if (!table[m.homeId] || !table[m.awayId]) return;
+      const h = table[m.homeId];
+      const a = table[m.awayId];
+      h.played++;
+      a.played++;
+      h.gf += m.homeScore;
+      h.ga += m.awayScore;
+      a.gf += m.awayScore;
+      a.ga += m.homeScore;
+      if (m.homeScore > m.awayScore) {
+        h.won++;
+        h.pts += 3;
+        a.lost++;
+      } else if (m.homeScore < m.awayScore) {
+        a.won++;
+        a.pts += 3;
+        h.lost++;
+      } else {
+        h.drawn++;
+        a.drawn++;
+        h.pts += 1;
+        a.pts += 1;
+      }
     });
-  Object.values(table).forEach((t) => (t.gd = t.gf - t.ga));
-  return Object.values(table).sort((x, y) => y.pts - x.pts || y.gd - x.gd || y.gf - x.gf || x.name.localeCompare(y.name));
+  return Object.values(table)
+    .map((s) => ({ ...s, gd: s.gf - s.ga }))
+    .sort((a, b) => b.pts - a.pts || b.gd - a.gd || b.gf - a.gf || a.name.localeCompare(b.name));
 }
 
 export default function StandingsTable({ matches, players, seasonId, me }) {
   const standings = computeStandings(matches, players, seasonId);
 
   return (
-    <div className="w-full overflow-x-auto rounded-xl border border-border/50 bg-secondary/30 pb-2">
-      <table className="w-full text-sm text-left whitespace-nowrap">
+    <div className="overflow-x-auto rounded-xl border border-border/50 bg-card shadow-lg">
+      <table className="w-full text-left border-collapse text-sm">
         <thead>
-          <tr className="text-muted-foreground text-[10px] sm:text-[11px] uppercase tracking-wider border-b border-border/50">
-            <th className="p-3 font-semibold text-center w-8">#</th>
-            <th className="p-3 font-semibold">Player</th>
-            <th className="p-2 sm:p-3 text-center font-semibold">P</th>
-            <th className="p-2 sm:p-3 text-center font-semibold hidden sm:table-cell">W</th>
-            <th className="p-2 sm:p-3 text-center font-semibold hidden sm:table-cell">D</th>
-            <th className="p-2 sm:p-3 text-center font-semibold hidden sm:table-cell">L</th>
-            <th className="p-2 sm:p-3 text-center font-semibold">GF</th>
-            <th className="p-2 sm:p-3 text-center font-semibold">GA</th>
-            <th className="p-2 sm:p-3 text-center font-semibold">GD</th>
-            <th className="p-2 sm:p-3 text-center font-semibold text-pitch-bright">Pts</th>
+          <tr className="border-b border-border/50 bg-secondary/80 font-display uppercase tracking-wider text-xs text-muted-foreground">
+            <th className="p-3 w-12 text-center">#</th>
+            <th className="p-3">Player</th>
+            <th className="p-2 sm:p-3 text-center">P</th>
+            <th className="p-2 sm:p-3 text-center hidden sm:table-cell">W</th>
+            <th className="p-2 sm:p-3 text-center hidden sm:table-cell">D</th>
+            <th className="p-2 sm:p-3 text-center hidden sm:table-cell">L</th>
+            <th className="p-2 sm:p-3 text-center">GF</th>
+            <th className="p-2 sm:p-3 text-center">GA</th>
+            <th className="p-2 sm:p-3 text-center">GD</th>
+            <th className="p-2 sm:p-3 text-center font-bold text-white">PTS</th>
           </tr>
         </thead>
-        <tbody>
+        <tbody className="divide-y divide-border/20 font-mono text-xs">
           {standings.map((s, i) => (
             <motion.tr 
               initial={{ opacity: 0, x: -10 }} 
@@ -57,7 +72,7 @@ export default function StandingsTable({ matches, players, seasonId, me }) {
                 {i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : i + 1}
               </td>
               <td className="p-3 flex items-center gap-2">
-                <img src={s.avatarImage || '/default-avatar.png'} alt={s.name} className="w-6 h-6 rounded-full object-cover" />
+                <Avatar p={s} size={24} />
                 <span className="font-bold text-white font-display text-sm">{s.name}</span>
               </td>
               <td className="p-2 sm:p-3 text-center">{s.played}</td>

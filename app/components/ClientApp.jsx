@@ -72,7 +72,12 @@ export default function ClientApp({ initialPlayers, initialSeasons, initialMatch
         notifications={notifications}
       />
 
-      <FloatingLiveWidget initialMatches={matches} players={players} />
+      <FloatingLiveWidget 
+        initialMatches={matches} 
+        players={players} 
+        tab={tab} 
+        onNavigate={() => setTab(session?.type === 'admin' ? 'admin-matches' : 'matches')} 
+      />
       {/* Main Content */}
       <div className="max-w-5xl mx-auto px-4 pt-4">
         <AnimatePresence mode="wait">

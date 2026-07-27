@@ -205,7 +205,7 @@ function AdminMatchControl({ m, players, showToast }) {
 
   const startMatch = () => update({ status: "live", liveState: { phase: "first" }, homeScore: 0, awayScore: 0 });
   
-  const bumpScore = async (side, delta) => {
+  const bumpScore = (side, delta) => {
     const nextHome = side === "home" ? Math.max(0, optHome + delta) : optHome;
     const nextAway = side === "away" ? Math.max(0, optAway + delta) : optAway;
     
@@ -221,18 +221,17 @@ function AdminMatchControl({ m, players, showToast }) {
       payload: optMatch
     });
 
-    // 3. Background server sync
-    setLoading(true);
-    const res = await updateMatchScore(m.id, nextHome, nextAway);
-    if (res.error) {
-      showToast(res.error);
-      setOptHome(m.homeScore || 0);
-      setOptAway(m.awayScore || 0);
-    } else if (res.match) {
-      setOptHome(res.match.homeScore);
-      setOptAway(res.match.awayScore);
-    }
-    setLoading(false);
+    // 3. Background server sync without blocking UI
+    updateMatchScore(m.id, nextHome, nextAway).then(res => {
+      if (res?.error) {
+        showToast(res.error);
+        setOptHome(m.homeScore || 0);
+        setOptAway(m.awayScore || 0);
+      } else if (res?.match) {
+        setOptHome(res.match.homeScore);
+        setOptAway(res.match.awayScore);
+      }
+    });
   };
 
   const endRegulation = () => {
@@ -275,58 +274,60 @@ function AdminMatchControl({ m, players, showToast }) {
   }
 
   return (
-    <MagicCard className="p-5 border-claret/50 bg-claret/5">
+    <MagicCard className="p-5 border-destructive/50 bg-destructive/5">
       <div className="flex items-center justify-center mb-4">
-        <Badge color="var(--claret)" pulse>LIVE {m.liveState?.phase === "extra" ? " (AET)" : m.liveState?.phase === "penalties" ? " (PENS)" : ""}</Badge>
+        <Badge color="#e11d48" pulse>
+          🔴 LIVE • {m.liveState?.clock ? `${m.liveState.clock}'` : (m.liveState?.phase === 'first' ? '1ST HALF' : m.liveState?.phase === 'second' ? '2ND HALF' : m.liveState?.phase === 'extra' ? 'AET' : m.liveState?.phase === 'penalties' ? 'PENS' : 'IN PROGRESS')}
+        </Badge>
       </div>
-      <div className="flex items-center justify-between gap-4">
-        <div className="flex-1 flex flex-col items-center gap-3">
-          <div className="font-bold truncate max-w-[120px]">{h?.name}</div>
+      <div className="flex items-center justify-between gap-2 sm:gap-6">
+        <div className="flex-1 min-w-0 flex flex-col items-center justify-center gap-3 w-full">
+          <div className="font-bold text-center truncate w-full px-2" title={h?.name}>{h?.name || 'Home'}</div>
           <div className="flex items-center gap-2">
-            <Btn variant="ghost" className="px-3.5 py-2.5 text-lg" onClick={() => bumpScore("home", -1)} disabled={loading}>-</Btn>
+            <Btn variant="ghost" className="px-3.5 py-2.5 text-lg cursor-pointer" onClick={() => bumpScore("home", -1)}>-</Btn>
             <motion.div 
               key={optHome}
               initial={{ scale: 1.4, color: '#22c55e' }}
               animate={{ scale: 1, color: 'inherit' }}
               transition={{ type: 'spring', stiffness: 400, damping: 15 }}
-              className="text-4xl font-mono w-12 text-center font-black select-none"
+              className="text-4xl font-mono w-14 text-center font-black select-none"
             >
               {optHome}
             </motion.div>
-            <Btn variant="primary" className="px-3.5 py-2.5 text-lg bg-pitch hover:bg-pitch-bright" onClick={() => bumpScore("home", 1)} disabled={loading}>+</Btn>
+            <Btn variant="primary" className="px-3.5 py-2.5 text-lg bg-pitch hover:bg-pitch-bright cursor-pointer" onClick={() => bumpScore("home", 1)}>+</Btn>
           </div>
         </div>
-        <div className="flex flex-col items-center justify-center gap-1">
-          <div className="text-sm font-mono opacity-30 font-bold">VS</div>
+        <div className="flex flex-col items-center justify-center gap-1 shrink-0">
+          <div className="text-sm font-mono opacity-30 font-bold select-none">-</div>
           {loading && <span className="text-[10px] text-pitch-bright animate-pulse font-mono">saving...</span>}
         </div>
-        <div className="flex-1 flex flex-col items-center gap-3">
-          <div className="font-bold truncate max-w-[120px]">{a?.name}</div>
+        <div className="flex-1 min-w-0 flex flex-col items-center justify-center gap-3 w-full">
+          <div className="font-bold text-center truncate w-full px-2" title={a?.name}>{a?.name || 'Away'}</div>
           <div className="flex items-center gap-2">
-            <Btn variant="ghost" className="px-3.5 py-2.5 text-lg" onClick={() => bumpScore("away", -1)} disabled={loading}>-</Btn>
+            <Btn variant="ghost" className="px-3.5 py-2.5 text-lg cursor-pointer" onClick={() => bumpScore("away", -1)}>-</Btn>
             <motion.div 
               key={optAway}
               initial={{ scale: 1.4, color: '#22c55e' }}
               animate={{ scale: 1, color: 'inherit' }}
               transition={{ type: 'spring', stiffness: 400, damping: 15 }}
-              className="text-4xl font-mono w-12 text-center font-black select-none"
+              className="text-4xl font-mono w-14 text-center font-black select-none"
             >
               {optAway}
             </motion.div>
-            <Btn variant="primary" className="px-3.5 py-2.5 text-lg bg-pitch hover:bg-pitch-bright" onClick={() => bumpScore("away", 1)} disabled={loading}>+</Btn>
+            <Btn variant="primary" className="px-3.5 py-2.5 text-lg bg-pitch hover:bg-pitch-bright cursor-pointer" onClick={() => bumpScore("away", 1)}>+</Btn>
           </div>
         </div>
       </div>
       
       <div className="mt-6 pt-4 border-t border-border/50 flex justify-center gap-3">
-        {m.liveState?.phase === "first" && <ShinyButton onClick={endRegulation} loading={loading}>End Match</ShinyButton>}
-        {m.liveState?.phase === "extra" && <ShinyButton onClick={endExtra} loading={loading}>End Extra Time</ShinyButton>}
+        {m.liveState?.phase === "first" && <Btn variant="outline" onClick={endRegulation} disabled={loading} className="border-destructive/80 text-destructive hover:bg-destructive/15 font-bold uppercase tracking-wider text-sm px-6 py-2.5 cursor-pointer">End Match</Btn>}
+        {m.liveState?.phase === "extra" && <Btn variant="outline" onClick={endExtra} disabled={loading} className="border-destructive/80 text-destructive hover:bg-destructive/15 font-bold uppercase tracking-wider text-sm px-6 py-2.5 cursor-pointer">End Extra Time</Btn>}
         {m.liveState?.phase === "penalties" && (
           <div className="flex flex-col gap-3 w-full">
             <div className="text-center text-sm mb-2 text-muted-foreground">Admin: Set penalty winner directly</div>
             <div className="flex gap-2 justify-center">
-              <Btn loading={loading} className="flex-1 bg-claret hover:bg-claret-dim" onClick={() => update({ status: 'completed', penaltyResult: { winner: 'home', home: 1, away: 0 }})}>{h?.name} wins on pens</Btn>
-              <Btn loading={loading} className="flex-1 bg-claret hover:bg-claret-dim" onClick={() => update({ status: 'completed', penaltyResult: { winner: 'away', home: 0, away: 1 }})}>{a?.name} wins on pens</Btn>
+              <Btn loading={loading} className="flex-1 bg-claret hover:bg-claret-dim cursor-pointer" onClick={() => update({ status: 'completed', penaltyResult: { winner: 'home', home: 1, away: 0 }})}>{h?.name} wins on pens</Btn>
+              <Btn loading={loading} className="flex-1 bg-claret hover:bg-claret-dim cursor-pointer" onClick={() => update({ status: 'completed', penaltyResult: { winner: 'away', home: 0, away: 1 }})}>{a?.name} wins on pens</Btn>
             </div>
           </div>
         )}

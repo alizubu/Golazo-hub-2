@@ -4,14 +4,12 @@ import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { supabase } from '@/lib/supabaseClient';
 
-export default function FloatingLiveWidget({ initialMatches, players }) {
+export default function FloatingLiveWidget({ initialMatches = [], players = [], tab, onNavigate }) {
   const [liveMatches, setLiveMatches] = useState(
     initialMatches.filter(m => m.status === 'live')
   );
-  const [expanded, setExpanded] = useState(false);
 
   useEffect(() => {
-    // Keep internal state in sync with props changes (e.g. Server Component refresh)
     const newLive = initialMatches.filter(m => m.status === 'live');
     if (newLive.length !== liveMatches.length) {
       setTimeout(() => setLiveMatches(newLive), 0);
@@ -42,10 +40,12 @@ export default function FloatingLiveWidget({ initialMatches, players }) {
     };
   }, []);
 
+  // Hide widget if no live matches OR if user is already viewing Match/Tournament screens where the live card is prominently displayed
   if (liveMatches.length === 0) return null;
+  if (tab === 'matches' || tab === 'admin-matches' || tab === 'admin-season') return null;
 
   return (
-    <div className="fixed bottom-6 right-6 z-50 flex flex-col gap-3">
+    <div className="fixed bottom-6 left-1/2 -translate-x-1/2 sm:left-auto sm:right-6 sm:translate-x-0 z-50 flex flex-col gap-3 w-[92vw] sm:w-auto max-w-md">
       <AnimatePresence>
         {liveMatches.map(m => {
           const home = players.find(p => p.id === m.homeId);
@@ -54,32 +54,33 @@ export default function FloatingLiveWidget({ initialMatches, players }) {
           return (
             <motion.div
               key={m.id}
-              initial={{ opacity: 0, y: 20, scale: 0.9 }}
+              initial={{ opacity: 0, y: 20, scale: 0.95 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, x: 50, scale: 0.9 }}
-              onClick={() => setExpanded(prev => !prev)}
-              className="bg-card border-2 border-claret rounded-2xl shadow-2xl p-4 flex flex-col gap-2 min-w-[150px] cursor-pointer hover:bg-secondary/20 transition-colors"
+              exit={{ opacity: 0, y: 20, scale: 0.95 }}
+              onClick={onNavigate}
+              className="bg-card/95 backdrop-blur-md border-2 border-destructive/80 rounded-2xl shadow-2xl p-3.5 sm:p-4 flex items-center justify-between gap-3 sm:gap-6 cursor-pointer hover:bg-secondary/40 hover:border-destructive transition-all group"
+              title="Tap to jump to live match"
             >
-              {expanded ? (
-                <>
-                  <div className="flex items-center justify-between text-[10px] font-bold text-destructive tracking-widest uppercase mb-1">
-                    <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-destructive animate-ping absolute" /><span className="w-2 h-2 rounded-full bg-destructive relative" /> {timeDisplay}</span>
-                  </div>
-                  <div className="flex items-center justify-between gap-4 font-bold text-sm">
-                    <span>{home?.name}</span>
-                    <span className="text-pitch-bright text-lg font-mono">{m.homeScore || 0}</span>
-                  </div>
-                  <div className="flex items-center justify-between gap-4 font-bold text-sm">
-                    <span>{away?.name}</span>
-                    <span className="text-pitch-bright text-lg font-mono">{m.awayScore || 0}</span>
-                  </div>
-                </>
-              ) : (
-                <div className="flex items-center justify-between gap-3 text-sm font-bold font-mono">
-                  <span className="flex items-center gap-1.5 text-destructive text-[10px] uppercase tracking-widest"><span className="w-2 h-2 rounded-full bg-destructive animate-ping absolute" /><span className="w-2 h-2 rounded-full bg-destructive relative" /> {timeDisplay}</span>
-                  <span className="text-pitch-bright">{m.homeScore || 0} - {m.awayScore || 0}</span>
-                </div>
-              )}
+              <div className="flex items-center gap-2 text-destructive text-xs font-bold uppercase tracking-widest font-mono shrink-0">
+                <span className="relative flex h-2.5 w-2.5">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-destructive opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-destructive"></span>
+                </span>
+                <span>LIVE • {timeDisplay}</span>
+              </div>
+              
+              <div className="flex items-center gap-2 sm:gap-3 text-sm sm:text-base font-bold min-w-0 flex-1 justify-center">
+                <span className="text-foreground truncate max-w-[80px] sm:max-w-[120px] text-right">{home?.name || 'Home'}</span>
+                <span className="px-2.5 py-1 bg-destructive/15 text-destructive rounded-lg font-mono text-base sm:text-lg font-black shrink-0">
+                  {m.homeScore || 0} - {m.awayScore || 0}
+                </span>
+                <span className="text-foreground truncate max-w-[80px] sm:max-w-[120px]">{away?.name || 'Away'}</span>
+              </div>
+
+              <div className="hidden sm:flex items-center text-xs font-semibold text-muted-foreground group-hover:text-foreground transition-colors shrink-0">
+                <span>View</span>
+                <span className="ml-1 font-mono">→</span>
+              </div>
             </motion.div>
           );
         })}
