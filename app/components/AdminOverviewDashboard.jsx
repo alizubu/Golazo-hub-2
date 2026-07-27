@@ -42,7 +42,7 @@ function HeroSeasonSummary({ activeSeason, players, matches, setTab }) {
             {activeSeason.name}
           </h1>
           <p className="text-sm text-muted-foreground line-clamp-2">
-            {activeSeason.type || "Standard Tournament"} • Started {new Date(activeSeason.startDate || Date.now()).toLocaleDateString()}
+            {activeSeason.type || "Standard Tournament"}{(activeSeason.startDate || activeSeason.createdAt) ? ` • Started ${new Date(activeSeason.startDate || activeSeason.createdAt).toLocaleDateString()}` : ''}
           </p>
         </div>
 

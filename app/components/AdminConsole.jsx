@@ -875,7 +875,7 @@ function AdminAnnouncements({ announcements, showToast }) {
 function AdminSeason({ activeSeason, matches = [], players = [], showToast, setTab }) {
   const [name, setName] = useState("");
   const [seasonType, setSeasonType] = useState("League (Single)");
-  const [startDate, setStartDate] = useState(new Date().toISOString().split('T')[0]);
+  const [startDate, setStartDate] = useState(() => new Date().toISOString().split('T')[0]);
   const [rename, setRename] = useState("");
 
   const handleStart = async () => {
