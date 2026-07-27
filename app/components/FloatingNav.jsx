@@ -271,16 +271,25 @@ export default function FloatingNav({ session, me, tab, setTab, onLogout, player
           </div>
           
           <div className="flex items-center gap-1 z-10">
-            <button onClick={() => setSearchOpen(true)} className="flex items-center justify-center w-9 h-9 text-muted-foreground hover:text-white rounded-full transition-colors outline-none focus-visible:ring-2 focus-visible:ring-pitch-bright">
+            <button 
+              type="button"
+              onClick={() => setSearchOpen(true)} 
+              className="flex items-center justify-center w-9 h-9 text-muted-foreground hover:text-white rounded-full transition-colors outline-none focus-visible:ring-2 focus-visible:ring-pitch-bright cursor-pointer"
+              aria-label="Search"
+            >
               <Search size={18} />
             </button>
+            <button 
+              type="button"
+              onClick={() => setSheetOpen(prev => !prev)} 
+              className="flex items-center justify-center w-9 h-9 rounded-full text-muted-foreground hover:text-white hover:bg-white/10 transition-colors outline-none focus-visible:ring-2 focus-visible:ring-pitch-bright cursor-pointer"
+              aria-label="Toggle navigation menu"
+              aria-expanded={sheetOpen}
+            >
+              <Menu size={18} />
+            </button>
             <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
-                <SheetTrigger asChild>
-                  <button className="flex items-center justify-center w-9 h-9 rounded-full text-muted-foreground hover:text-white hover:bg-white/10 transition-colors outline-none focus-visible:ring-2 focus-visible:ring-pitch-bright">
-                    <Menu size={18} />
-                  </button>
-                </SheetTrigger>
-                <SheetContent side="left" className="w-[280px] bg-card border-r border-border/50 p-0 flex flex-col h-full">
+                <SheetContent side="left" className="w-[280px] sm:w-[320px] bg-card border-r border-border/60 p-0 flex flex-col h-full z-[10001]">
                   <SheetHeader className="p-5 pb-3 border-b border-border/30">
                     <SheetTitle className="font-display text-lg tracking-tight flex items-center gap-2">
                       <span>🏆</span> FRIENDS eLEAGUE

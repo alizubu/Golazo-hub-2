@@ -10,6 +10,15 @@ import { NumberTicker } from './ui/number-ticker';
 import confetti from 'canvas-confetti';
 import { computeStandings } from './StandingsTable';
 
+function formatName(name) {
+  if (!name) return 'TBD';
+  const parts = name.trim().split(/\s+/);
+  if (parts.length > 1 && name.length > 10) {
+    return `${parts[0]} ${parts[parts.length - 1][0]}.`;
+  }
+  return name;
+}
+
 // 1. Season Hero
 function HeroSeasonSummary({ activeSeason, players, matches, setTab }) {
   if (!activeSeason) return null;
@@ -75,7 +84,7 @@ function HeroSeasonSummary({ activeSeason, players, matches, setTab }) {
 }
 
 // 2. Metrics Ribbon
-function AdminMetrics({ matches, activeSeason, notifications = [] }) {
+function AdminMetrics({ matches, activeSeason, notifications = [], setTab }) {
   if (!activeSeason) return null;
   const tMatches = matches.filter(m => m.seasonId === activeSeason.id);
   const liveMatchesCount = tMatches.filter(m => m.status === 'live').length;
@@ -84,24 +93,36 @@ function AdminMetrics({ matches, activeSeason, notifications = [] }) {
   const unreadNotifs = notifications.length;
 
   const metrics = [
-    { label: "Live Matches", value: liveMatchesCount, icon: Radio, color: "text-destructive", bg: "bg-destructive/10" },
-    { label: "Upcoming Fixtures", value: scheduledCount, icon: Calendar, color: "text-blue-500", bg: "bg-blue-500/10" },
-    { label: "Completed Matches", value: completedCount, icon: CheckCircle2, color: "text-green-500", bg: "bg-green-500/10" },
-    { label: "System Alerts", value: unreadNotifs, icon: AlertTriangle, color: "text-pitch-bright", bg: "bg-pitch/10" }
+    { label: "Live Matches", value: liveMatchesCount, icon: Radio, color: "text-destructive", bg: "bg-destructive/15", pulse: liveMatchesCount > 0, tab: "admin-matches" },
+    { label: "Upcoming Fixtures", value: scheduledCount, icon: Calendar, color: "text-sky-400", bg: "bg-sky-400/15", tab: "admin-matches" },
+    { label: "Completed Matches", value: completedCount, icon: CheckCircle2, color: "text-green-500", bg: "bg-green-500/15", tab: "admin-matches" },
+    { label: "System Alerts", value: unreadNotifs, icon: AlertTriangle, color: unreadNotifs > 0 ? "text-amber-500" : "text-muted-foreground", bg: unreadNotifs > 0 ? "bg-amber-500/15" : "bg-secondary/50", sub: unreadNotifs > 0 ? "Click to review alerts" : "System normal", tab: "notifications" }
   ];
 
   return (
     <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
       {metrics.map((m, i) => (
         <FadeIn key={m.label} delay={i * 0.05}>
-          <MagicCard className="p-4 flex items-center justify-between bg-card hover:bg-secondary/20 transition-colors">
-            <div className="space-y-1">
-              <span className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground block">{m.label}</span>
-              <div className="text-3xl font-display font-black font-mono text-foreground">{m.value}</div>
+          <MagicCard 
+            onClick={() => m.tab && setTab && setTab(m.tab)}
+            className={`p-5 flex flex-col justify-between bg-card hover:bg-secondary/20 transition-all h-full ${m.tab ? 'cursor-pointer hover:border-white/20' : ''}`}
+          >
+            <div className="flex items-center justify-between w-full">
+              <span className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground truncate mr-2">
+                {m.label}
+              </span>
+              <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${m.bg} ${m.color}`}>
+                <m.icon size={20} className={m.pulse ? "animate-pulse" : ""} />
+              </div>
             </div>
-            <div className={`p-3 rounded-xl ${m.bg} ${m.color}`}>
-              <m.icon size={22} className={m.label === "Live Matches" && m.value > 0 ? "animate-pulse" : ""} />
+            <div className="text-3xl font-display font-black font-mono text-foreground mt-3">
+              {m.value}
             </div>
+            {m.sub && (
+              <div className={`text-[10px] font-semibold mt-1.5 ${m.color}`}>
+                {m.sub}
+              </div>
+            )}
           </MagicCard>
         </FadeIn>
       ))}
@@ -196,11 +217,19 @@ function LiveMatchCenter({ matches, players, activeSeason, setTab }) {
   }
 
   return (
-    <Card className="p-8 flex flex-col items-center justify-center text-center border-dashed border-border/50 bg-secondary/10">
-      <Radio size={48} className="text-muted-foreground/30 mb-4" />
-      <h3 className="text-lg font-bold">No Live Matches</h3>
-      <p className="text-sm text-muted-foreground mt-1 mb-4">Start a match from the Match Control panel to see it here.</p>
-      <Btn onClick={() => setTab && setTab('admin-matches')} className="text-xs uppercase tracking-wider font-bold cursor-pointer">Go to Match Control <ChevronRight size={14} className="ml-1" /></Btn>
+    <Card className="p-4 sm:p-5 flex flex-col sm:flex-row items-center justify-between gap-4 border-dashed border-border/60 bg-secondary/10">
+      <div className="flex items-center gap-3.5 text-center sm:text-left">
+        <div className="w-10 h-10 rounded-xl bg-secondary/50 flex items-center justify-center text-muted-foreground/50 shrink-0">
+          <Radio size={20} />
+        </div>
+        <div>
+          <h3 className="text-sm font-bold font-display text-foreground">No Live Matches Active</h3>
+          <p className="text-xs text-muted-foreground mt-0.5">Start a fixture from Match Control to broadcast live stats and scores.</p>
+        </div>
+      </div>
+      <Btn onClick={() => setTab && setTab('admin-matches')} variant="outline" className="text-xs uppercase tracking-wider font-bold shrink-0 cursor-pointer border-border/80 hover:bg-secondary">
+        Go to Match Control <ChevronRight size={14} className="ml-1" />
+      </Btn>
     </Card>
   );
 }
@@ -220,11 +249,11 @@ function QuickActions({ setTab, showToast }) {
     <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
       {actions.map((act, i) => (
         <FadeIn key={act.label} delay={i * 0.05}>
-          <button onClick={act.onClick} className="w-full flex flex-col items-center justify-center gap-3 p-4 bg-card border border-border/50 rounded-xl hover:bg-secondary/40 transition-colors group h-full cursor-pointer">
-            <div className={`p-3 rounded-full ${act.bg} group-hover:scale-110 transition-transform`}>
+          <button onClick={act.onClick} className="w-full h-full min-h-[110px] flex flex-col items-center justify-start p-4 bg-card border border-border/60 rounded-xl hover:bg-secondary/30 hover:border-white/20 transition-all group cursor-pointer shadow-sm">
+            <div className={`w-11 h-11 rounded-xl flex items-center justify-center shrink-0 mb-2.5 ${act.bg} group-hover:scale-105 transition-transform`}>
               <act.icon size={20} />
             </div>
-            <span className="text-xs font-semibold text-center leading-tight">{act.label}</span>
+            <span className="text-xs font-bold text-center leading-snug line-clamp-2 text-foreground/90 group-hover:text-foreground mt-auto flex items-center justify-center flex-1">{act.label}</span>
           </button>
         </FadeIn>
       ))}
@@ -243,11 +272,11 @@ function LeagueSnapshot({ matches, players, activeSeason, setTab }) {
       <div className="flex-1 flex flex-col justify-center gap-4 py-4">
         {standings.map((s, i) => (
           <div key={s.id} className="flex items-center justify-between p-3 rounded-lg bg-secondary/30 border border-border/30">
-            <div className="flex items-center gap-3">
-              <span className="text-xl">{i === 0 ? '🥇' : i === 1 ? '🥈' : '🥉'}</span>
-              <span className="font-bold text-sm">{s.name}</span>
+            <div className="flex items-center gap-3 min-w-0 flex-1">
+              <span className="text-xl shrink-0">{i === 0 ? '🥇' : i === 1 ? '🥈' : '🥉'}</span>
+              <span className="font-bold text-sm truncate" title={s.name}>{formatName(s.name)}</span>
             </div>
-            <div className="text-pitch-bright font-bold font-mono text-sm">{s.pts} pts</div>
+            <div className="text-pitch-bright font-bold font-mono text-sm shrink-0 ml-2">{s.pts} pts</div>
           </div>
         ))}
         {standings.length === 0 && <EmptyState text="No matches played." />}
@@ -277,10 +306,10 @@ function UpcomingMatchesMini({ matches, players, activeSeason, setTab }) {
             const a = players.find(p => p.id === m.awayId);
             return (
               <div key={m.id} onClick={() => setTab && setTab('admin-matches')} className="flex flex-col p-3 rounded-lg bg-secondary/20 border border-border/30 gap-1.5 hover:bg-secondary/40 transition-colors cursor-pointer">
-                <div className="flex justify-between items-center text-sm">
-                  <span className="font-bold truncate flex-1">{h?.name}</span>
-                  <span className="text-[10px] font-mono text-muted-foreground px-2 py-0.5 bg-background rounded-full mx-2 border border-border/50">VS</span>
-                  <span className="font-bold truncate flex-1 text-right">{a?.name}</span>
+                <div className="flex justify-between items-center text-sm gap-2">
+                  <span className="font-bold truncate flex-1" title={h?.name}>{formatName(h?.name)}</span>
+                  <span className="text-[10px] font-mono text-muted-foreground px-2 py-0.5 bg-background rounded-full shrink-0 border border-border/50">VS</span>
+                  <span className="font-bold truncate flex-1 text-right" title={a?.name}>{formatName(a?.name)}</span>
                 </div>
               </div>
             );
@@ -311,15 +340,15 @@ function RecentResults({ matches, players, activeSeason }) {
             const a = players.find(p => p.id === m.awayId);
             const timeStr = m.completedAt ? new Date(m.completedAt).toLocaleDateString() : "Recent";
             return (
-              <div key={m.id} className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="font-bold text-sm min-w-[50px] truncate max-w-[80px]">{h?.name}</div>
-                  <div className="font-mono text-xs bg-secondary/50 px-2 py-1 rounded font-bold border border-border/50">
+              <div key={m.id} className="flex items-center justify-between py-2 sm:py-2.5 border-b border-border/20 last:border-0">
+                <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
+                  <div className="font-bold text-sm min-w-0 flex-1 truncate" title={h?.name}>{formatName(h?.name)}</div>
+                  <div className="font-mono text-xs bg-secondary/50 px-2 py-1 rounded font-bold border border-border/50 shrink-0">
                     {m.homeScore || 0} - {m.awayScore || 0}
                   </div>
-                  <div className="font-bold text-sm min-w-[50px] text-right truncate max-w-[80px]">{a?.name}</div>
+                  <div className="font-bold text-sm min-w-0 flex-1 text-right truncate" title={a?.name}>{formatName(a?.name)}</div>
                 </div>
-                <div className="text-[10px] uppercase tracking-widest text-muted-foreground font-semibold">{timeStr}</div>
+                <div className="text-[10px] uppercase tracking-widest text-muted-foreground font-semibold shrink-0 ml-3">{timeStr}</div>
               </div>
             );
           })
@@ -438,16 +467,16 @@ function TopPlayersHorizontal({ matches, players, activeSeason }) {
   return (
     <Card className="p-6">
       <SectionTitle icon={Flame}>Top Players</SectionTitle>
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-6">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mt-6">
         {categories.map((cat, i) => (
           <FadeIn key={cat.label} delay={i * 0.1}>
-            <div className="flex items-center gap-4 p-4 bg-secondary/30 rounded-xl border border-border/50 h-full group hover:bg-secondary/50 transition-colors">
-              <Avatar p={cat.player} size={48} className="ring-1 ring-border" />
-              <div className="min-w-0 flex-1">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4 p-3.5 sm:p-4 bg-secondary/30 rounded-xl border border-border/50 h-full group hover:bg-secondary/50 transition-colors">
+              <Avatar p={cat.player} size={42} className="ring-1 ring-border" />
+              <div className="min-w-0 flex-1 w-full">
                 <div className="text-[9px] text-muted-foreground uppercase tracking-widest font-bold mb-0.5 flex items-center gap-1">
                   <cat.icon size={10} /> {cat.label}
                 </div>
-                <div className="font-bold text-sm truncate">{cat.player?.name || "—"}</div>
+                <div className="font-bold text-sm truncate" title={cat.player?.name}>{formatName(cat.player?.name || "—")}</div>
                 <div className="text-xs font-mono text-pitch-bright font-bold mt-1 truncate">{cat.stat}</div>
               </div>
             </div>
@@ -516,21 +545,36 @@ function DashboardTimeline({ activeSeason, matches }) {
   const isArchived = activeSeason.isArchived || activeSeason.status === 'Archived';
 
   const steps = [
-    { label: "Season Created", active: true },
-    { label: "Fixtures Generated", active: hasFixtures },
-    { label: "League Running", active: hasFixtures && completedCount > 0 },
-    { label: "Playoffs / Finals", active: hasPlayoffs || isArchived }
+    { label: "Season Created", active: true, desc: "Tournament initialized" },
+    { label: "Fixtures Generated", active: hasFixtures, desc: "Schedule ready" },
+    { label: "League Running", active: hasFixtures && completedCount > 0, desc: "Matches in progress" },
+    { label: "Playoffs / Finals", active: hasPlayoffs || isArchived, desc: "Championship stage" }
   ];
 
   return (
     <Card className="p-6 h-full flex flex-col justify-center">
       <SectionTitle icon={Activity}>Season Timeline</SectionTitle>
-      <div className="flex justify-between items-center mt-12 mb-4 relative">
-        <div className="absolute top-1/2 left-0 right-0 h-0.5 bg-border/50 -translate-y-1/2 z-0" />
+      <div className="mt-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6 sm:gap-2 relative w-full">
+        {/* Horizontal line for Desktop */}
+        <div className="hidden sm:block absolute top-3 left-[12%] right-[12%] h-0.5 bg-border/60 z-0" />
+        {/* Vertical line for Mobile */}
+        <div className="sm:hidden absolute top-3 bottom-3 left-3 w-0.5 bg-border/60 z-0" />
+
         {steps.map((s, i) => (
-          <div key={i} className="flex flex-col items-center gap-3 z-10 relative bg-card px-2">
-            <div className={`w-4 h-4 rounded-full border-2 ${s.active ? 'bg-pitch border-pitch ring-4 ring-pitch/20' : 'bg-secondary border-border'}`} />
-            <span className={`absolute top-8 w-24 text-center text-[10px] uppercase font-bold tracking-wider ${s.active ? 'text-foreground' : 'text-muted-foreground'}`}>{s.label}</span>
+          <div key={i} className="flex sm:flex-col items-center sm:items-center gap-3 sm:gap-2 flex-1 relative z-10 w-full sm:w-auto">
+            <div className={`w-6 h-6 shrink-0 rounded-full flex items-center justify-center border-2 transition-all ${
+              s.active ? 'bg-pitch border-pitch text-background shadow-lg shadow-pitch/20 ring-4 ring-pitch/20' : 'bg-secondary border-border/80 text-muted-foreground'
+            }`}>
+              <span className="text-[10px] font-bold">{i + 1}</span>
+            </div>
+            <div className="flex flex-col sm:items-center text-left sm:text-center min-w-0 flex-1 sm:w-full sm:px-1">
+              <span className={`text-xs font-bold font-display leading-tight break-words ${s.active ? 'text-foreground' : 'text-muted-foreground'}`}>
+                {s.label}
+              </span>
+              <span className="hidden md:block text-[10px] text-muted-foreground mt-0.5 leading-tight">
+                {s.desc}
+              </span>
+            </div>
           </div>
         ))}
       </div>
@@ -556,7 +600,7 @@ function MiniCalendar({ matches, players, activeSeason }) {
             const timeStr = m.scheduledAt ? new Date(m.scheduledAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : "Scheduled";
             return (
               <div key={m.id} className="flex justify-between items-center bg-secondary/20 p-3 rounded-lg border border-border/30">
-                <span className="text-sm font-semibold truncate max-w-[150px]">{h?.name || 'TBD'} vs {a?.name || 'TBD'}</span>
+                <span className="text-sm font-semibold truncate flex-1 mr-2" title={`${h?.name || 'TBD'} vs ${a?.name || 'TBD'}`}>{formatName(h?.name)} vs {formatName(a?.name)}</span>
                 <span className="text-xs font-mono font-bold text-pitch-bright shrink-0">{timeStr}</span>
               </div>
             );
@@ -615,7 +659,7 @@ export default function AdminOverviewDashboard({ players = [], activeSeason, mat
   return (
     <div className="flex flex-col gap-6">
       <HeroSeasonSummary activeSeason={activeSeason} players={players} matches={liveMatches} setTab={setTab} />
-      <AdminMetrics matches={liveMatches} activeSeason={activeSeason} notifications={notifications} />
+      <AdminMetrics matches={liveMatches} activeSeason={activeSeason} notifications={notifications} setTab={setTab} />
       <LiveMatchCenter matches={liveMatches} players={players} activeSeason={activeSeason} setTab={setTab} />
       <QuickActions setTab={setTab} showToast={showToast} />
 

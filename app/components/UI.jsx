@@ -10,7 +10,7 @@ import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 
 export const Card = ({ children, className = "", ...rest }) => (
-  <ShadcnCard className={`overflow-hidden border-border bg-card shadow-md transition-all hover:shadow-lg ${className}`} {...rest}>
+  <ShadcnCard className={`overflow-hidden rounded-2xl border border-border/60 bg-card shadow-lg transition-all hover:border-border/80 hover:shadow-xl ${className}`} {...rest}>
     {children}
   </ShadcnCard>
 );
@@ -103,11 +103,11 @@ export const PlayerChip = ({ p, size = 8 }) => (
 
 export const SectionTitle = ({ icon: Icon, children, right }) => (
   <div className="flex items-center justify-between mb-4">
-    <div className="flex items-center gap-2">
-      <Icon size={18} className="text-pitch-bright" />
-      <h2 className="text-lg font-semibold">{children}</h2>
+    <div className="flex items-center gap-2.5">
+      {Icon && <Icon size={20} className="text-pitch-bright shrink-0" />}
+      <h2 className="text-base sm:text-lg font-bold font-display tracking-tight text-foreground">{children}</h2>
     </div>
-    {right}
+    {right && <div className="flex items-center gap-2">{right}</div>}
   </div>
 );
 
@@ -131,9 +131,9 @@ export const FadeIn = ({ children, delay = 0, className = "" }) => (
 
 export const MagicCard = ({ children, className = "", ...rest }) => (
   <motion.div
-    whileHover={{ scale: 1.01, boxShadow: "0px 10px 30px rgba(0,0,0,0.2)" }}
+    whileHover={{ scale: 1.01, boxShadow: "0px 10px 30px rgba(0,0,0,0.25)" }}
     transition={{ duration: 0.2 }}
-    className={`overflow-hidden border border-border bg-card shadow-md transition-colors rounded-xl relative ${className}`}
+    className={`overflow-hidden rounded-2xl border border-border/60 bg-card shadow-md transition-colors relative ${className}`}
     {...rest}
   >
     <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent opacity-0 hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
