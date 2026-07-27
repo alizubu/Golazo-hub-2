@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { Trophy, Calendar, Users, Radio, Clock, Check, Archive, Plus, Trash2, Settings, Swords, Edit2, ListOrdered, BarChart2, AlertTriangle, ArrowRight, Megaphone, ChevronDown, Package } from 'lucide-react';
 import { Card, Btn, Input, Label, SectionTitle, EmptyState, MagicCard, FadeIn, ShinyButton, Badge } from './UI';
+import { motion } from 'framer-motion';
 import AdminOverviewDashboard from './AdminOverviewDashboard';
 import LiveMatchControl from './LiveMatchControl';
 import { startSeason, deleteSeason, renameSeason, completeSeason } from '@/app/actions/season';
@@ -39,7 +40,6 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@/app/components/ui/popover';
-import { motion } from 'framer-motion';
 
 // Trophy template data — the 6 official trophies
 const TROPHY_TEMPLATES = [
@@ -76,6 +76,7 @@ function AdminOverview(props) {
 
 function AdminPlayers({ players, showToast }) {
   const [editing, setEditing] = useState(null);
+  const [loading, setLoading] = useState(false);
   const blank = { name: "", username: "", email: "", avatar: null, flag: null, teamName: "", teamLogo: null, password: "" };
   const [form, setForm] = useState(blank);
   const startNew = () => { setForm(blank); setEditing("new"); };
@@ -83,10 +84,10 @@ function AdminPlayers({ players, showToast }) {
 
   const save = async () => {
     if (!form.name.trim()) return showToast("Enter a player name");
-    
+    setLoading(true);
     if (editing === "new") {
-      if (!form.username.trim() || !form.email.trim()) return showToast("Username and email are required");
-      if (form.password.length < 4) return showToast("Set a temporary password (4+ chars)");
+      if (!form.username.trim() || !form.email.trim()) { setLoading(false); return showToast("Username and email are required"); }
+      if (form.password.length < 4) { setLoading(false); return showToast("Set a temporary password (4+ chars)"); }
       
       const res = await signUpPlayer(form);
       if (res.error) showToast(res.error);
@@ -96,14 +97,17 @@ function AdminPlayers({ players, showToast }) {
       if (res.error) showToast(res.error);
       else showToast("Player updated");
     }
+    setLoading(false);
     setEditing(null);
   };
   
   const remove = async (id) => { 
     if (!confirm("Delete player?")) return;
+    setLoading(true);
     const res = await adminDeletePlayer(id);
     if (res.error) showToast(res.error);
     else showToast("Player removed");
+    setLoading(false);
   };
 
   return (
@@ -130,8 +134,8 @@ function AdminPlayers({ players, showToast }) {
               )}
             </div>
             <div className="flex gap-3 mt-6">
-              <ShinyButton onClick={save}><Check size={15} /> Save</ShinyButton>
-              <Btn variant="ghost" onClick={() => setEditing(null)}>Cancel</Btn>
+              <ShinyButton onClick={save} loading={loading}><Check size={15} /> Save</ShinyButton>
+              <Btn variant="ghost" onClick={() => setEditing(null)} disabled={loading}>Cancel</Btn>
             </div>
           </Card>
         </FadeIn>
@@ -145,8 +149,8 @@ function AdminPlayers({ players, showToast }) {
                 <div className="font-bold font-display truncate text-lg">{p.name} {p.flag}</div>
                 <div className="text-xs text-muted-foreground truncate">{p.teamLogo} {p.teamName} · @{p.username}</div>
               </div>
-              <Btn variant="ghost" className="p-2" onClick={() => startEdit(p)}>Edit</Btn>
-              <Btn variant="danger" className="p-2" onClick={() => remove(p.id)}>Del</Btn>
+              <Btn variant="ghost" className="p-2" onClick={() => startEdit(p)} disabled={loading}>Edit</Btn>
+              <Btn variant="danger" className="p-2" onClick={() => remove(p.id)} loading={loading}>Del</Btn>
             </MagicCard>
           </FadeIn>
         ))}
@@ -177,6 +181,13 @@ function AdminMatchControl({ m, players, showToast }) {
   const byId = Object.fromEntries(players.map((p) => [p.id, p]));
   const h = byId[m.homeId], a = byId[m.awayId];
   const [loading, setLoading] = useState(false);
+  const [optHome, setOptHome] = useState(m.homeScore || 0);
+  const [optAway, setOptAway] = useState(m.awayScore || 0);
+
+  useEffect(() => {
+    setOptHome(m.homeScore || 0);
+    setOptAway(m.awayScore || 0);
+  }, [m.homeScore, m.awayScore]);
 
   const update = async (data) => {
     setLoading(true);
@@ -193,29 +204,44 @@ function AdminMatchControl({ m, players, showToast }) {
   };
 
   const startMatch = () => update({ status: "live", liveState: { phase: "first" }, homeScore: 0, awayScore: 0 });
+  
   const bumpScore = async (side, delta) => {
-    if (loading) return;
-    const key = side === "home" ? "homeScore" : "awayScore";
-    const next = Math.max(0, (m[key] || 0) + delta);
+    const nextHome = side === "home" ? Math.max(0, optHome + delta) : optHome;
+    const nextAway = side === "away" ? Math.max(0, optAway + delta) : optAway;
+    
+    // 1. Immediate optimistic UI update & animation
+    setOptHome(nextHome);
+    setOptAway(nextAway);
+
+    // 2. Immediate realtime broadcast to sync observers/widgets
+    const optMatch = { ...m, homeScore: nextHome, awayScore: nextAway };
+    supabase.channel('matches-page').send({
+      type: 'broadcast',
+      event: 'match_update',
+      payload: optMatch
+    });
+
+    // 3. Background server sync
     setLoading(true);
-    const res = await updateMatchScore(m.id, side === "home" ? next : (m.homeScore||0), side === "away" ? next : (m.awayScore||0));
-    if (res.error) showToast(res.error);
-    else if (res.match) {
-      supabase.channel('matches-page').send({
-        type: 'broadcast',
-        event: 'match_update',
-        payload: res.match
-      });
+    const res = await updateMatchScore(m.id, nextHome, nextAway);
+    if (res.error) {
+      showToast(res.error);
+      setOptHome(m.homeScore || 0);
+      setOptAway(m.awayScore || 0);
+    } else if (res.match) {
+      setOptHome(res.match.homeScore);
+      setOptAway(res.match.awayScore);
     }
     setLoading(false);
   };
+
   const endRegulation = () => {
-    if (m.decisive && m.homeScore === m.awayScore) {
+    if (m.decisive && optHome === optAway) {
       update({ liveState: { phase: "extra" }, wentToExtra: true });
     } else finishMatch();
   };
   const endExtra = () => {
-    if (m.homeScore === m.awayScore) {
+    if (optHome === optAway) {
       update({ liveState: { phase: "penalties", penalties: { kicks: [], winner: null } } });
     } else finishMatch();
   };
@@ -242,7 +268,7 @@ function AdminMatchControl({ m, players, showToast }) {
           <div className="flex-1 text-right font-bold truncate">{a?.name}</div>
         </div>
         <div className="mt-4 flex justify-center">
-          <ShinyButton onClick={startMatch} disabled={loading}><Radio size={14} className="mr-2"/> Start Live Match</ShinyButton>
+          <ShinyButton onClick={startMatch} loading={loading}><Radio size={14} className="mr-2"/> Start Live Match</ShinyButton>
         </div>
       </MagicCard>
     );
@@ -255,33 +281,52 @@ function AdminMatchControl({ m, players, showToast }) {
       </div>
       <div className="flex items-center justify-between gap-4">
         <div className="flex-1 flex flex-col items-center gap-3">
-          <div className="font-bold">{h?.name}</div>
+          <div className="font-bold truncate max-w-[120px]">{h?.name}</div>
           <div className="flex items-center gap-2">
-            <Btn variant="ghost" className="px-2" onClick={() => bumpScore("home", -1)}>-</Btn>
-            <div className="text-3xl font-mono w-10 text-center font-bold">{m.homeScore}</div>
-            <Btn className="px-2 bg-pitch hover:bg-pitch-bright" onClick={() => bumpScore("home", 1)}>+</Btn>
+            <Btn variant="ghost" className="px-3.5 py-2.5 text-lg" onClick={() => bumpScore("home", -1)} disabled={loading}>-</Btn>
+            <motion.div 
+              key={optHome}
+              initial={{ scale: 1.4, color: '#22c55e' }}
+              animate={{ scale: 1, color: 'inherit' }}
+              transition={{ type: 'spring', stiffness: 400, damping: 15 }}
+              className="text-4xl font-mono w-12 text-center font-black select-none"
+            >
+              {optHome}
+            </motion.div>
+            <Btn variant="primary" className="px-3.5 py-2.5 text-lg bg-pitch hover:bg-pitch-bright" onClick={() => bumpScore("home", 1)} disabled={loading}>+</Btn>
           </div>
         </div>
-        <div className="text-sm font-mono opacity-30">VS</div>
+        <div className="flex flex-col items-center justify-center gap-1">
+          <div className="text-sm font-mono opacity-30 font-bold">VS</div>
+          {loading && <span className="text-[10px] text-pitch-bright animate-pulse font-mono">saving...</span>}
+        </div>
         <div className="flex-1 flex flex-col items-center gap-3">
-          <div className="font-bold">{a?.name}</div>
+          <div className="font-bold truncate max-w-[120px]">{a?.name}</div>
           <div className="flex items-center gap-2">
-            <Btn variant="ghost" className="px-2" onClick={() => bumpScore("away", -1)}>-</Btn>
-            <div className="text-3xl font-mono w-10 text-center font-bold">{m.awayScore}</div>
-            <Btn className="px-2 bg-pitch hover:bg-pitch-bright" onClick={() => bumpScore("away", 1)}>+</Btn>
+            <Btn variant="ghost" className="px-3.5 py-2.5 text-lg" onClick={() => bumpScore("away", -1)} disabled={loading}>-</Btn>
+            <motion.div 
+              key={optAway}
+              initial={{ scale: 1.4, color: '#22c55e' }}
+              animate={{ scale: 1, color: 'inherit' }}
+              transition={{ type: 'spring', stiffness: 400, damping: 15 }}
+              className="text-4xl font-mono w-12 text-center font-black select-none"
+            >
+              {optAway}
+            </motion.div>
+            <Btn variant="primary" className="px-3.5 py-2.5 text-lg bg-pitch hover:bg-pitch-bright" onClick={() => bumpScore("away", 1)} disabled={loading}>+</Btn>
           </div>
         </div>
       </div>
       
       <div className="mt-6 pt-4 border-t border-border/50 flex justify-center gap-3">
-        {m.liveState?.phase === "first" && <ShinyButton onClick={endRegulation} disabled={loading}>End Match</ShinyButton>}
-        {m.liveState?.phase === "extra" && <ShinyButton onClick={endExtra} disabled={loading}>End Extra Time</ShinyButton>}
+        {m.liveState?.phase === "first" && <ShinyButton onClick={endRegulation} loading={loading}>End Match</ShinyButton>}
+        {m.liveState?.phase === "extra" && <ShinyButton onClick={endExtra} loading={loading}>End Extra Time</ShinyButton>}
         {m.liveState?.phase === "penalties" && (
           <div className="flex flex-col gap-3 w-full">
             <div className="text-center text-sm mb-2 text-muted-foreground">Admin: Set penalty winner directly</div>
             <div className="flex gap-2 justify-center">
-              <Btn className="flex-1 bg-claret hover:bg-claret-dim" onClick={() => update({ status: 'completed', penaltyResult: { winner: 'home', home: 1, away: 0 }})}>{h?.name} wins on pens</Btn>
-              <Btn className="flex-1 bg-claret hover:bg-claret-dim" onClick={() => update({ status: 'completed', penaltyResult: { winner: 'away', home: 0, away: 1 }})}>{a?.name} wins on pens</Btn>
+              <Btn loading={loading} className="flex-1 bg-claret hover:bg-claret-dim" onClick={() => update({ status: 'completed', penaltyResult: { winner: 'home', home: 1, away: 0 }})}>{h?.name} wins on pens</Btn>
+              <Btn loading={loading} className="flex-1 bg-claret hover:bg-claret-dim" onClick={() => update({ status: 'completed', penaltyResult: { winner: 'away', home: 0, away: 1 }})}>{a?.name} wins on pens</Btn>
             </div>
           </div>
         )}
@@ -291,6 +336,7 @@ function AdminMatchControl({ m, players, showToast }) {
 }
 
 function AdminPlayoffs({ activeSeason, matches, players, showToast }) {
+  const [loading, setLoading] = useState(false);
   if (!activeSeason) return <EmptyState text="Start a season first." />;
   
   const handleGeneratePlayoffs = async () => {
@@ -312,9 +358,11 @@ function AdminPlayoffs({ activeSeason, matches, players, showToast }) {
     const top4 = standings.slice(0, 4).map(s => s.id);
     if (top4.length < 4) return showToast("Not enough players for playoffs (need 4)");
     
+    setLoading(true);
     const res = await generatePlayoffs(activeSeason.id, top4);
     if (res.error) showToast(res.error);
     else showToast("Playoff bracket generated");
+    setLoading(false);
   };
 
   return (
@@ -323,7 +371,7 @@ function AdminPlayoffs({ activeSeason, matches, players, showToast }) {
       <p className="text-sm text-muted-foreground mb-4">
         Once all league matches are complete, generate the Top Match and Bottom Match.
       </p>
-      <ShinyButton onClick={handleGeneratePlayoffs}>Generate Playoff Semi-Finals</ShinyButton>
+      <ShinyButton onClick={handleGeneratePlayoffs} loading={loading}>Generate Playoff Semi-Finals</ShinyButton>
       
       <div className="mt-8 border-t border-border pt-6">
         <div className="text-sm mb-4">For Challenger and Final matches, you can create them manually based on the winners/losers of the semi-finals.</div>
@@ -829,19 +877,24 @@ function AdminTrophies({ players, trophies = [], showToast }) {
 
 function AdminAnnouncements({ announcements, showToast }) {
   const [form, setForm] = useState({ title: "", content: "" });
+  const [loading, setLoading] = useState(false);
 
   const handlePost = async () => {
     if (!form.title || !form.content) return showToast("Title and Content required.");
+    setLoading(true);
     const res = await createAnnouncement(form);
     if (res.error) showToast(res.error);
     else { showToast("Announcement posted!"); setForm({ title: "", content: "" }); }
+    setLoading(false);
   };
 
   const handleRemove = async (id) => {
     if (!confirm("Remove announcement?")) return;
+    setLoading(true);
     const res = await deleteAnnouncement(id);
     if (res.error) showToast(res.error);
     else showToast("Announcement removed.");
+    setLoading(false);
   };
 
   return (
@@ -852,7 +905,7 @@ function AdminAnnouncements({ announcements, showToast }) {
           <div><Label>Title</Label><Input value={form.title} onChange={e => setForm({...form, title: e.target.value})} placeholder="e.g. Season Start!" /></div>
           <div><Label>Message</Label><Input value={form.content} onChange={e => setForm({...form, content: e.target.value})} placeholder="Type message..." /></div>
         </div>
-        <ShinyButton className="mt-6" onClick={handlePost}>Publish</ShinyButton>
+        <ShinyButton className="mt-6" onClick={handlePost} loading={loading}>Publish</ShinyButton>
       </Card>
 
       <div className="flex flex-col gap-4">
@@ -863,7 +916,7 @@ function AdminAnnouncements({ announcements, showToast }) {
                 <div className="font-bold">{a.title}</div>
                 <div className="text-sm text-muted-foreground mt-1">{a.content}</div>
               </div>
-              <Btn variant="danger" className="shrink-0" onClick={() => handleRemove(a.id)}>Delete</Btn>
+              <Btn variant="danger" className="shrink-0" onClick={() => handleRemove(a.id)} loading={loading}>Delete</Btn>
             </MagicCard>
           </FadeIn>
         ))}
@@ -877,33 +930,42 @@ function AdminSeason({ activeSeason, matches = [], players = [], showToast, setT
   const [seasonType, setSeasonType] = useState("League (Single)");
   const [startDate, setStartDate] = useState(() => new Date().toISOString().split('T')[0]);
   const [rename, setRename] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const handleStart = async () => {
     if (!name.trim()) return showToast("Enter a season name");
+    setLoading(true);
     const res = await startSeason(name, seasonType, startDate);
     if (res.error) showToast(res.error);
     else { showToast("Season started with fixtures generated!"); setName(""); }
+    setLoading(false);
   };
 
   const handleRename = async () => {
     if (!rename.trim()) return showToast("Enter a new name");
+    setLoading(true);
     const res = await renameSeason(activeSeason.id, rename);
     if (res.error) showToast(res.error);
     else { showToast("Season renamed!"); setRename(""); }
+    setLoading(false);
   };
 
   const handleDelete = async () => {
     if (!confirm("Are you sure you want to completely delete the active season? This cannot be undone.")) return;
+    setLoading(true);
     const res = await deleteSeason(activeSeason.id);
     if (res.error) showToast(res.error);
     else showToast("Season deleted.");
+    setLoading(false);
   };
 
   const handleGenerateFixtures = async () => {
     if (!activeSeason) return;
+    setLoading(true);
     const res = await generateFixtures(activeSeason.id, players.map(p => p.id));
     if (res.error) showToast(res.error);
     else showToast("Fixtures generated!");
+    setLoading(false);
   };
 
   if (!activeSeason) {
@@ -931,7 +993,7 @@ function AdminSeason({ activeSeason, matches = [], players = [], showToast, setT
             <Label className="text-muted-foreground">Start Date</Label>
             <Input type="date" className="w-full bg-secondary border-border" value={startDate} onChange={e => setStartDate(e.target.value)} />
           </div>
-          <ShinyButton onClick={handleStart} className="w-full mt-2">Create Season & Generate Fixtures</ShinyButton>
+          <ShinyButton onClick={handleStart} className="w-full mt-2" loading={loading}>Create Season & Generate Fixtures</ShinyButton>
         </div>
       </Card>
     );
@@ -1295,7 +1357,7 @@ function AdminSeason({ activeSeason, matches = [], players = [], showToast, setT
            <Btn variant="outline" className="border-claret/30 text-claret hover:bg-claret hover:text-white justify-center" onClick={() => showToast("Not implemented in this demo")}>
               Remove Fixtures
            </Btn>
-           <Btn variant="danger" className="justify-center font-bold" onClick={handleDelete}>
+           <Btn variant="danger" className="justify-center font-bold" onClick={handleDelete} loading={loading}>
               Delete Season
            </Btn>
         </div>

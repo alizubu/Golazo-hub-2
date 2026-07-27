@@ -1,5 +1,5 @@
 import React from 'react';
-import { UserCircle2 } from 'lucide-react';
+import { UserCircle2, Loader2 } from 'lucide-react';
 import { Button } from './ui/button';
 import { Card as ShadcnCard } from './ui/card';
 import { Input as ShadcnInput } from './ui/input';
@@ -7,6 +7,7 @@ import { Label as ShadcnLabel } from './ui/label';
 import { Badge as ShadcnBadge } from './ui/badge';
 import { Avatar as ShadcnAvatar, AvatarFallback, AvatarImage } from './ui/avatar';
 import { motion } from 'framer-motion';
+import { cn } from '@/lib/utils';
 
 export const Card = ({ children, className = "", ...rest }) => (
   <ShadcnCard className={`overflow-hidden border-border bg-card shadow-md transition-all hover:shadow-lg ${className}`} {...rest}>
@@ -14,25 +15,38 @@ export const Card = ({ children, className = "", ...rest }) => (
   </ShadcnCard>
 );
 
-export const Btn = ({ children, variant = "primary", className = "", disabled, ...rest }) => {
-  // Map our custom variants to Tailwind classes on top of Shadcn button
+export const Btn = ({ children, variant = "primary", className = "", disabled, loading, icon: Icon, ...rest }) => {
   let variantClasses = "";
   switch(variant) {
-    case 'primary': variantClasses = "bg-pitch hover:bg-pitch-bright text-white"; break;
-    case 'gold': variantClasses = "bg-gold hover:bg-gold-dim text-black"; break;
-    case 'claret': variantClasses = "bg-claret hover:bg-claret-dim text-white"; break;
-    case 'ghost': variantClasses = "bg-transparent border border-border text-foreground hover:bg-secondary"; break;
-    case 'danger': variantClasses = "bg-transparent border border-destructive text-destructive hover:bg-destructive hover:text-white"; break;
+    case 'primary': variantClasses = "bg-pitch hover:bg-pitch-bright text-white shadow-md shadow-pitch/20"; break;
+    case 'gold': variantClasses = "bg-gold hover:bg-gold-dim text-black shadow-md shadow-gold/20"; break;
+    case 'claret': variantClasses = "bg-claret hover:bg-claret-dim text-white shadow-md shadow-claret/20"; break;
+    case 'ghost': variantClasses = "bg-transparent border border-border/60 text-foreground hover:bg-secondary/80 hover:border-border"; break;
+    case 'danger': variantClasses = "bg-transparent border border-destructive/60 text-destructive hover:bg-destructive hover:text-white"; break;
+    case 'outline': variantClasses = "bg-transparent border border-border text-foreground hover:bg-secondary/60"; break;
+    default: variantClasses = "bg-pitch hover:bg-pitch-bright text-white"; break;
   }
 
   return (
-    <Button 
-      disabled={disabled} 
-      className={`${variantClasses} ${className} font-semibold rounded-xl shadow-sm transition-all hover:-translate-y-0.5`} 
+    <motion.button
+      whileHover={disabled || loading ? {} : { scale: 1.03, y: -1.5 }}
+      whileTap={disabled || loading ? {} : { scale: 0.92 }}
+      disabled={disabled || loading}
+      className={cn(
+        "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-xl px-4 py-2 text-sm font-semibold shadow-sm transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pitch cursor-pointer select-none",
+        variantClasses,
+        disabled || loading ? "opacity-50 cursor-not-allowed" : "",
+        className
+      )}
       {...rest}
     >
+      {loading ? (
+        <Loader2 className="animate-spin text-current shrink-0" size={16} />
+      ) : Icon ? (
+        <Icon className="shrink-0" size={16} />
+      ) : null}
       {children}
-    </Button>
+    </motion.button>
   );
 };
 
@@ -127,15 +141,23 @@ export const MagicCard = ({ children, className = "", ...rest }) => (
   </motion.div>
 );
 
-export const ShinyButton = ({ children, onClick, className = "", disabled }) => (
+export const ShinyButton = ({ children, onClick, className = "", disabled, loading, ...rest }) => (
   <motion.button
-    whileHover={{ scale: 1.02 }}
-    whileTap={{ scale: 0.98 }}
+    whileHover={disabled || loading ? {} : { scale: 1.03, y: -2 }}
+    whileTap={disabled || loading ? {} : { scale: 0.92 }}
     onClick={onClick}
-    disabled={disabled}
-    className={`relative overflow-hidden rounded-xl bg-pitch px-6 py-3 font-semibold text-white shadow-lg transition-colors hover:bg-pitch-bright ${disabled ? 'opacity-50 cursor-not-allowed' : ''} ${className}`}
+    disabled={disabled || loading}
+    className={cn(
+      "relative overflow-hidden rounded-xl bg-pitch px-6 py-3 font-semibold text-white shadow-lg transition-colors hover:bg-pitch-bright cursor-pointer select-none",
+      disabled || loading ? "opacity-50 cursor-not-allowed" : "",
+      className
+    )}
+    {...rest}
   >
-    <span className="relative z-10 flex items-center justify-center gap-2">{children}</span>
+    <span className="relative z-10 flex items-center justify-center gap-2">
+      {loading && <Loader2 className="animate-spin text-white shrink-0" size={18} />}
+      {children}
+    </span>
     <div className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/20 to-transparent animate-[shimmer_1.5s_infinite] pointer-events-none" />
   </motion.button>
 );
