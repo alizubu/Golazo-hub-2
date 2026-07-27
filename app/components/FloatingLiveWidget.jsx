@@ -19,7 +19,7 @@ export default function FloatingLiveWidget({ initialMatches, players }) {
   }, [initialMatches, liveMatches.length]);
 
   useEffect(() => {
-    const channel = supabase.channel('floating-widget-events')
+    const channel = supabase.channel('matches-page')
       .on('broadcast', { event: 'match_update' }, (payload) => {
         const matchData = payload.payload;
         setLiveMatches(prev => {
@@ -50,6 +50,7 @@ export default function FloatingLiveWidget({ initialMatches, players }) {
         {liveMatches.map(m => {
           const home = players.find(p => p.id === m.homeId);
           const away = players.find(p => p.id === m.awayId);
+          const timeDisplay = m.liveState?.clock ? `${m.liveState.clock}'` : (m.liveState?.phase === 'first' ? '1st Half' : m.liveState?.phase === 'second' ? '2nd Half' : m.liveState?.phase === 'extra' ? 'AET' : m.liveState?.phase === 'penalties' ? 'PENS' : 'LIVE');
           return (
             <motion.div
               key={m.id}
@@ -62,7 +63,7 @@ export default function FloatingLiveWidget({ initialMatches, players }) {
               {expanded ? (
                 <>
                   <div className="flex items-center justify-between text-[10px] font-bold text-destructive tracking-widest uppercase mb-1">
-                    <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-destructive animate-ping absolute" /><span className="w-2 h-2 rounded-full bg-destructive relative" /> 72&apos;</span>
+                    <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-destructive animate-ping absolute" /><span className="w-2 h-2 rounded-full bg-destructive relative" /> {timeDisplay}</span>
                   </div>
                   <div className="flex items-center justify-between gap-4 font-bold text-sm">
                     <span>{home?.name}</span>
@@ -75,7 +76,7 @@ export default function FloatingLiveWidget({ initialMatches, players }) {
                 </>
               ) : (
                 <div className="flex items-center justify-between gap-3 text-sm font-bold font-mono">
-                  <span className="flex items-center gap-1.5 text-destructive text-[10px] uppercase tracking-widest"><span className="w-2 h-2 rounded-full bg-destructive animate-ping absolute" /><span className="w-2 h-2 rounded-full bg-destructive relative" /> LIVE</span>
+                  <span className="flex items-center gap-1.5 text-destructive text-[10px] uppercase tracking-widest"><span className="w-2 h-2 rounded-full bg-destructive animate-ping absolute" /><span className="w-2 h-2 rounded-full bg-destructive relative" /> {timeDisplay}</span>
                   <span className="text-pitch-bright">{m.homeScore || 0} - {m.awayScore || 0}</span>
                 </div>
               )}

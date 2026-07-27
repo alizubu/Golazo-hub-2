@@ -9,6 +9,7 @@ import { startSeason, deleteSeason, renameSeason, completeSeason } from '@/app/a
 import { generateFixtures, generatePlayoffs, updateMatchStatus, updateMatchScore } from '@/app/actions/match';
 import { getTrophyTemplates, awardTrophy, removeTrophy, updateTrophy, createTrophyTemplate, deleteTrophyTemplate, createAnnouncement, deleteAnnouncement } from '@/app/actions/admin';
 import { signUpPlayer, adminUpdatePlayer, adminDeletePlayer } from '@/app/actions/player';
+import { supabase } from '@/lib/supabaseClient';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/app/components/ui/tabs';
 import {
   Dialog,
@@ -65,10 +66,10 @@ export default function AdminConsole(props) {
 
 import { ErrorBoundary } from './ErrorBoundary';
 
-function AdminOverview({ players, activeSeason, matches, announcements }) {
+function AdminOverview(props) {
   return (
     <ErrorBoundary>
-      <AdminOverviewDashboard players={players} activeSeason={activeSeason} matches={matches} announcements={announcements} />
+      <AdminOverviewDashboard {...props} />
     </ErrorBoundary>
   );
 }
@@ -181,6 +182,13 @@ function AdminMatchControl({ m, players, showToast }) {
     setLoading(true);
     const res = await updateMatchStatus(m.id, data);
     if (res.error) showToast(res.error);
+    else if (res.match) {
+      supabase.channel('matches-page').send({
+        type: 'broadcast',
+        event: 'match_update',
+        payload: res.match
+      });
+    }
     setLoading(false);
   };
 
@@ -190,7 +198,15 @@ function AdminMatchControl({ m, players, showToast }) {
     const key = side === "home" ? "homeScore" : "awayScore";
     const next = Math.max(0, (m[key] || 0) + delta);
     setLoading(true);
-    await updateMatchScore(m.id, side === "home" ? next : (m.homeScore||0), side === "away" ? next : (m.awayScore||0));
+    const res = await updateMatchScore(m.id, side === "home" ? next : (m.homeScore||0), side === "away" ? next : (m.awayScore||0));
+    if (res.error) showToast(res.error);
+    else if (res.match) {
+      supabase.channel('matches-page').send({
+        type: 'broadcast',
+        event: 'match_update',
+        payload: res.match
+      });
+    }
     setLoading(false);
   };
   const endRegulation = () => {
@@ -963,6 +979,28 @@ function AdminSeason({ activeSeason, matches = [], players = [], showToast, setT
     const byWins = [...standings].sort((a, b) => b.w - a.w);
     mostWins = byWins[0];
   }
+
+  const totalAssists = players.reduce((acc, p) => acc + (p.assists || 0), 0);
+  let totalPoss = 0, possCount = 0;
+  let yellowCards = 0, redCards = 0;
+  let cleanSheets = 0;
+  let highestMatch = null;
+
+  completedMatches.forEach(m => {
+    if (m.stats?.possession?.a) { totalPoss += Number(m.stats.possession.a); possCount++; }
+    if (m.stats?.possession?.b) { totalPoss += Number(m.stats.possession.b); possCount++; }
+    if (m.stats?.yellowCards?.a) yellowCards += Number(m.stats.yellowCards.a);
+    if (m.stats?.yellowCards?.b) yellowCards += Number(m.stats.yellowCards.b);
+    if (m.stats?.redCards?.a) redCards += Number(m.stats.redCards.a);
+    if (m.stats?.redCards?.b) redCards += Number(m.stats.redCards.b);
+    if ((m.homeScore || 0) === 0 || (m.awayScore || 0) === 0) cleanSheets++;
+    if (!highestMatch || ((m.homeScore || 0) + (m.awayScore || 0)) > ((highestMatch.homeScore || 0) + (highestMatch.awayScore || 0))) {
+      highestMatch = m;
+    }
+  });
+
+  const avgPoss = possCount > 0 ? `${Math.round(totalPoss / possCount)}%` : "50%";
+  const highestMatchText = highestMatch ? `${table[highestMatch.homeId]?.name || 'Home'} ${highestMatch.homeScore} - ${highestMatch.awayScore} ${table[highestMatch.awayId]?.name || 'Away'}` : "None yet";
   
   const isCompleted = progressPercent >= 100;
   const hasFixtures = tMatches.length > 0;
@@ -1166,23 +1204,23 @@ function AdminSeason({ activeSeason, matches = [], players = [], showToast, setT
             </div>
             <div className="flex flex-col bg-card p-4">
               <span className="text-[10px] text-muted-foreground font-bold uppercase tracking-widest mb-1">Total Assists</span>
-              <span className="text-3xl font-display font-bold text-blue-400">12</span>
+              <span className="text-3xl font-display font-bold text-blue-400">{totalAssists}</span>
             </div>
             <div className="flex flex-col bg-card p-4">
               <span className="text-[10px] text-muted-foreground font-bold uppercase tracking-widest mb-1">Avg Possession</span>
-              <span className="text-3xl font-display font-bold text-purple-400">51%</span>
+              <span className="text-3xl font-display font-bold text-purple-400">{avgPoss}</span>
             </div>
             <div className="flex flex-col bg-card p-4">
               <span className="text-[10px] text-muted-foreground font-bold uppercase tracking-widest mb-1">Cards (Y/R)</span>
-              <span className="text-3xl font-display font-bold"><span className="text-yellow-500">8</span> <span className="text-muted-foreground/30 font-mono text-xl">/</span> <span className="text-red-500">2</span></span>
+              <span className="text-3xl font-display font-bold"><span className="text-yellow-500">{yellowCards}</span> <span className="text-muted-foreground/30 font-mono text-xl">/</span> <span className="text-red-500">{redCards}</span></span>
             </div>
             <div className="flex flex-col bg-card p-4">
               <span className="text-[10px] text-muted-foreground font-bold uppercase tracking-widest mb-1">Clean Sheets</span>
-              <span className="text-3xl font-display font-bold text-green-400">4</span>
+              <span className="text-3xl font-display font-bold text-green-400">{cleanSheets}</span>
             </div>
             <div className="flex flex-col bg-card p-4 col-span-2 lg:col-span-3">
               <span className="text-[10px] text-muted-foreground font-bold uppercase tracking-widest mb-1">Highest Scoring Match</span>
-              <span className="text-xl font-bold mt-1">Ali 5 - 3 Levi</span>
+              <span className="text-xl font-bold mt-1">{highestMatchText}</span>
             </div>
           </div>
         </Card>
@@ -1196,18 +1234,18 @@ function AdminSeason({ activeSeason, matches = [], players = [], showToast, setT
                 <div key={row.id} className="flex flex-col gap-2 p-3 rounded-xl bg-secondary/30 border border-border/30">
                   <div className="flex items-center justify-between">
                     <span className="font-bold text-sm">{row.name}</span>
-                    {isQualified ? (
-                       <div className="flex items-center gap-1.5 text-[11px] font-bold tracking-widest uppercase text-success bg-success/10 px-2 py-0.5 rounded">
-                          <Check size={12} strokeWidth={3} /> Qualified 100%
+                    {isCompleted ? (
+                       <div className={`flex items-center gap-1.5 text-[11px] font-bold tracking-widest uppercase px-2 py-0.5 rounded ${isQualified ? 'text-success bg-success/10' : 'text-muted-foreground bg-background border border-border/50'}`}>
+                          {isQualified ? <><Check size={12} strokeWidth={3} /> Qualified</> : 'Eliminated'}
                        </div>
                     ) : (
                        <div className="flex items-center gap-1.5 text-[11px] font-bold tracking-widest uppercase text-muted-foreground bg-background px-2 py-0.5 rounded border border-border/50">
-                          In Progress 60%
+                          {isQualified ? `Qualifying (${progressPercent}%)` : `In Progress (${progressPercent}%)`}
                        </div>
                     )}
                   </div>
                   <div className="w-full bg-background rounded-full h-1.5 overflow-hidden border border-border/30">
-                    <div className={`h-full ${isQualified ? 'bg-success' : 'bg-pitch'}`} style={{ width: `${isQualified ? 100 : 60}%` }} />
+                    <div className={`h-full ${isQualified ? 'bg-success' : 'bg-pitch'}`} style={{ width: `${isCompleted ? (isQualified ? 100 : 20) : Math.max(10, progressPercent)}%` }} />
                   </div>
                 </div>
               );

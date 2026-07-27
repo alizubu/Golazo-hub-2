@@ -95,12 +95,12 @@ export async function updateMatchStatus(matchId, data) {
 
 export async function updateMatchScore(matchId, homeScore, awayScore) {
   try {
-    await prisma.match.update({
+    const match = await prisma.match.update({
       where: { id: matchId },
       data: { homeScore, awayScore }
     });
     revalidatePath('/');
-    return { success: true };
+    return { success: true, match };
   } catch (error) {
     return { error: 'Failed to update match score' };
   }

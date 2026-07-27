@@ -158,7 +158,7 @@ export default function LiveMatchControl({ matches, players, activeSeason, showT
           
           <div className="px-4 sm:px-8 flex flex-col items-center gap-2">
             <div className="text-xs font-bold uppercase tracking-widest text-muted-foreground mb-1">
-              72&apos;
+              {liveMatch.liveState?.clock ? `${liveMatch.liveState.clock}'` : (liveMatch.liveState?.phase === 'first' ? '1st Half' : liveMatch.liveState?.phase === 'second' ? '2nd Half' : liveMatch.liveState?.phase === 'extra' ? 'Extra Time' : liveMatch.liveState?.phase === 'penalties' ? 'Penalties' : 'LIVE')}
             </div>
             <div className="flex items-center gap-3">
               <NumberTicker value={liveMatch.homeScore || 0} className="text-5xl sm:text-6xl font-mono font-bold text-pitch-bright" />
