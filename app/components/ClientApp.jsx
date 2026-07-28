@@ -5,7 +5,6 @@ import AuthGate from './AuthGate';
 import FloatingNav from './FloatingNav';
 import PlayerViews from './PlayerViews';
 import AdminConsole from './AdminConsole';
-import FloatingLiveWidget from './FloatingLiveWidget';
 import { AnimatePresence, motion } from 'framer-motion';
 
 export default function ClientApp({ initialPlayers, initialSeasons, initialMatches, initialNotifications, initialAnnouncements, initialTrophies, adminConfig }) {
@@ -70,14 +69,9 @@ export default function ClientApp({ initialPlayers, initialSeasons, initialMatch
         onLogout={() => { setSession(null); setTab('dashboard'); }}
         players={players}
         notifications={notifications}
+        matches={matches}
       />
 
-      <FloatingLiveWidget 
-        initialMatches={matches} 
-        players={players} 
-        tab={tab} 
-        onNavigate={() => setTab(session?.type === 'admin' ? 'admin-matches' : 'matches')} 
-      />
       {/* Main Content */}
       <div className="max-w-5xl mx-auto px-4 pt-4">
         <AnimatePresence mode="wait">

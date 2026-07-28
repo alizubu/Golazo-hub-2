@@ -50,7 +50,7 @@ const adminTabs = [
   { id: "admin-announcements", label: "Announcements", icon: Megaphone },
 ];
 
-export default function FloatingNav({ session, me, tab, setTab, onLogout, players = [], notifications = [] }) {
+export default function FloatingNav({ session, me, tab, setTab, onLogout, players = [], notifications = [], matches = [] }) {
   const [searchOpen, setSearchOpen] = useState(false);
   const [sheetOpen, setSheetOpen] = useState(false);
 
@@ -70,6 +70,8 @@ export default function FloatingNav({ session, me, tab, setTab, onLogout, player
     setTab(id);
     setSheetOpen(false);
   };
+
+  const hasLiveMatch = matches.some(m => m.status === 'live');
 
   // Search items: players + tabs
   const searchItems = [
@@ -127,6 +129,12 @@ export default function FloatingNav({ session, me, tab, setTab, onLogout, player
                   >
                     <Icon size={13} />
                     <span className={active ? 'font-bold' : ''}>{it.label}</span>
+                    {(it.id === 'matches' || it.id === 'admin-matches') && hasLiveMatch && (
+                      <span className="flex h-2 w-2 relative ml-0.5">
+                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                        <span className="relative inline-flex rounded-full h-2 w-2 bg-red-500"></span>
+                      </span>
+                    )}
                   </span>
                   {active && (
                     <motion.div
@@ -325,14 +333,21 @@ export default function FloatingNav({ session, me, tab, setTab, onLogout, player
                         <button
                           key={it.id}
                           onClick={() => handleTabChange(it.id)}
-                          className={`flex items-center gap-3 px-4 py-3.5 min-h-[44px] rounded-xl text-sm font-semibold transition-all text-left w-full cursor-pointer ${
+                          className={`flex items-center justify-between px-4 py-3.5 min-h-[44px] rounded-xl text-sm font-semibold transition-all text-left w-full cursor-pointer ${
                             active
                               ? 'bg-pitch-bright/15 text-pitch-bright border border-pitch-bright/20'
                               : 'text-muted-foreground hover:text-foreground hover:bg-secondary/50'
                           }`}
                         >
-                          <Icon size={18} className="shrink-0" />
-                          <span className="truncate">{it.label}</span>
+                          <div className="flex items-center gap-3">
+                            <Icon size={18} className="shrink-0" />
+                            <span className="truncate">{it.label}</span>
+                          </div>
+                          {(it.id === 'matches' || it.id === 'admin-matches') && hasLiveMatch && (
+                            <span className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-red-500/10 border border-red-500/20 text-[10px] font-bold text-red-500 uppercase tracking-widest animate-pulse">
+                              <span className="w-1.5 h-1.5 rounded-full bg-red-500" /> Live
+                            </span>
+                          )}
                         </button>
                       );
                     })}
