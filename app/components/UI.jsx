@@ -64,9 +64,7 @@ export const Input = ({ className = "", ...props }) => (
   <ShadcnInput {...props} className={`bg-secondary border-border focus-visible:ring-pitch ${className}`} />
 );
 
-export const Select = ({ className = "", ...props }) => (
-  <select {...props} className={`flex h-10 w-full rounded-md border border-border bg-secondary px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pitch focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 ${className}`} />
-);
+
 
 export const Label = ({ children }) => (
   <ShadcnLabel className="text-xs uppercase tracking-wider text-muted-foreground font-semibold mb-1 block">
@@ -86,20 +84,7 @@ export const Badge = ({ children, color = 'var(--pitch)', bg, pulse }) => (
   </ShadcnBadge>
 );
 
-export const SkeletonAvatar = ({ size = 40, ring, glow, className = "" }) => (
-  <div 
-    className={cn("shrink-0 relative overflow-hidden rounded-full bg-gradient-to-br from-[#18181b] via-[#27272a] to-[#18181b] flex items-center justify-center shadow-inner", glow ? 'animate-pulse' : '', className)} 
-    style={{ width: size, height: size, border: ring ? `2px solid ${ring}` : `1px solid var(--border)` }}
-  >
-    <div 
-      className="absolute inset-0 bg-gradient-to-r from-transparent via-white/[0.08] to-transparent animate-shimmer pointer-events-none" 
-      style={{ backgroundSize: '200% 100%' }} 
-    />
-    <svg viewBox="0 0 24 24" fill="none" className="w-[62%] h-[62%] text-zinc-500/70 relative z-10 drop-shadow" xmlns="http://www.w3.org/2000/svg">
-      <path d="M12 12C14.21 12 16 10.21 16 8C16 5.79 14.21 4 12 4C9.79 4 8 5.79 8 8C8 10.21 9.79 12 12 12ZM12 14C9.33 14 4 15.34 4 18V20H20V18C20 15.34 14.67 14 12 14Z" fill="currentColor" />
-    </svg>
-  </div>
-);
+
 
 export const Avatar = ({ p, size = 40, ring, glow, className = "" }) => {
   const [failedSrc, setFailedSrc] = React.useState(null);

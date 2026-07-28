@@ -12,6 +12,7 @@ import MatchesPage from './MatchesPage';
 import MatchCard from './MatchCard';
 import MatchStatsModal from './MatchStatsModal';
 import TrophyDetailModal from './TrophyDetailModal';
+import { PlayerStatistics } from './PlayerStatistics';
 import { BorderBeam } from './magicui/BorderBeam';
 import { markNotificationsRead } from '@/app/actions/player';
 import { Skeleton } from '@/app/components/ui/skeleton';
@@ -396,87 +397,15 @@ function PlayerDashboard({ me, activeSeason, matches, players, announcements = [
       </FadeIn>
 
       <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
-
-        <FadeIn delay={0.2} className="col-span-1 md:col-span-12 h-full">
-          <MagicCard gradientColor="rgba(250, 204, 21, 0.1)" className="h-full">
-            <Card className="h-full bg-transparent border-none shadow-none flex flex-col">
-              <CardHeader className="pb-3 border-b border-stadium-subtle/50 flex flex-row items-center justify-between">
-                <CardTitle className="text-lg sm:text-xl font-display font-bold flex items-center gap-2.5 text-stadium-primary">
-                  <Activity className="text-turf" size={20}/> Player Statistics
-                </CardTitle>
-                <div className="flex items-center gap-2">
-                  <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-[10px] sm:text-xs font-mono font-bold text-emerald-400 uppercase tracking-wider">
-                    <span className="w-1.5 h-1.5 rounded-full bg-turf animate-pulse" /> S2026 ACTIVE
-                  </span>
-                </div>
-              </CardHeader>
-              <CardContent className="pt-4 pb-2 flex-1">
-                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4 h-full">
-                  <PlayerStatCard 
-                    label="Current Rank" 
-                    value={myRank ? `#${myRank}` : null} 
-                    loaded={statsLoaded} 
-                    icon={Trophy} 
-                    accent="hero" 
-                    emptyHint="Unranked" 
-                    className="col-span-2 sm:col-span-1 md:col-span-2 lg:col-span-1"
-                    heroBeam={myRank === 1}
-                  />
-                  <PlayerStatCard 
-                    label="ELO Rating" 
-                    value={elo || 1200} 
-                    loaded={statsLoaded} 
-                    icon={Activity} 
-                    accent="neutral" 
-                    emptyHint="No games"
-                    className="col-span-1 sm:col-span-1 lg:col-span-1"
-                  />
-                  <PlayerStatCard 
-                    label="Matches" 
-                    value={played} 
-                    loaded={statsLoaded} 
-                    icon={Swords} 
-                    emptyValue={0} 
-                    accent="neutral" 
-                    emptyHint="No matches yet"
-                    className="col-span-1 sm:col-span-1 lg:col-span-1"
-                  />
-                  <PlayerStatCard 
-                    label="Win Rate" 
-                    value={winRate} 
-                    loaded={statsLoaded} 
-                    icon={TrendingUp} 
-                    emptyValue={0} 
-                    accent="positive" 
-                    isPercentage={true} 
-                    emptyHint="Play 1+ match"
-                    className="col-span-1 sm:col-span-1 md:col-span-1 lg:col-span-1"
-                  />
-                  <PlayerStatCard 
-                    label="Goals" 
-                    value={goals} 
-                    loaded={statsLoaded} 
-                    icon={Target} 
-                    emptyValue={0} 
-                    accent="neutral" 
-                    emptyHint="No goals yet"
-                    className="col-span-1 sm:col-span-1 lg:col-span-1"
-                  />
-                  <PlayerStatCard 
-                    label="Assists" 
-                    value={assists} 
-                    loaded={statsLoaded} 
-                    icon={Handshake} 
-                    emptyValue={0} 
-                    accent="neutral" 
-                    emptyHint="No assists yet"
-                    className="col-span-2 sm:col-span-1 lg:col-span-1"
-                  />
-                </div>
-              </CardContent>
-            </Card>
-          </MagicCard>
-        </FadeIn>
+        <PlayerStatistics 
+          myRank={myRank} 
+          elo={elo} 
+          played={played} 
+          winRate={winRate} 
+          goals={goals} 
+          assists={assists} 
+          statsLoaded={statsLoaded} 
+        />
 
         {/* Trophy Cabinet Row */}
         <FadeIn delay={0.25} className="col-span-12">
@@ -1006,87 +935,6 @@ function NotificationsView({ notifications, me }) {
   );
 }
 
-function PlayerStatCard({ 
-  label, 
-  value, 
-  loaded, 
-  icon: Icon, 
-  emptyValue = null, 
-  accent = 'neutral',
-  emptyHint = 'No matches yet',
-  isPercentage = false,
-  className = '',
-  heroBeam = false
-}) {
-  const isEmpty = value === emptyValue || value === null || value === undefined || value === '';
-
-  // One rule: color = meaning, and only one card gets to be loud.
-  // Positive green border is only applied when Win Rate actually exists AND is good (>= 50%).
-  const effectiveAccent = (accent === 'positive' && (isEmpty || Number(value) < 50)) ? 'neutral' : accent;
-
-  let borderShadowClass = 'border border-white/8';
-  let bgClass = 'bg-stadium-surface/80 hover:bg-stadium-surface transition-colors';
-  let iconColor = 'text-slate-500';
-  let labelColor = 'text-slate-400 font-semibold';
-  let valueColor = isEmpty ? 'text-white/25 font-mono font-bold' : 'text-white font-bold';
-
-  if (effectiveAccent === 'hero') {
-    borderShadowClass = 'border border-amber-400/30 shadow-[0_0_24px_-8px_rgba(251,191,36,0.35)]';
-    bgClass = 'bg-gradient-to-b from-amber-500/10 via-stadium-raised to-stadium-surface';
-    iconColor = 'text-amber-400';
-    labelColor = 'text-amber-300/90 font-bold';
-    valueColor = isEmpty ? 'text-white/25 font-mono font-bold' : 'text-amber-400 font-bold drop-shadow-[0_2px_4px_rgba(251,191,36,0.3)]';
-  } else if (effectiveAccent === 'positive') {
-    borderShadowClass = 'border border-emerald-500/25';
-    valueColor = 'text-white font-bold';
-  }
-
-  return (
-    <Card className={`relative flex flex-col justify-between p-3 sm:p-5 rounded-xl overflow-visible min-h-[130px] sm:min-h-[145px] transition-all ${bgClass} ${borderShadowClass} ${className}`}>
-      {heroBeam && <BorderBeam size={120} duration={8} delay={1} colorFrom="#E8B34C" colorTo="transparent" />}
-      
-      {/* Header: Icon (Top-Left) + Label */}
-      <div className="flex items-center justify-between w-full gap-1.5 z-10">
-        <div className="flex items-center gap-1.5 min-w-0">
-          {Icon && <Icon size={16} className={`shrink-0 ${iconColor}`} />}
-          <Label className={`text-[11px] uppercase tracking-wider truncate cursor-default ${labelColor}`}>
-            {label}
-          </Label>
-        </div>
-      </div>
-
-      {/* Body: Value or Empty State */}
-      <div className="flex-1 flex items-center justify-center my-2 z-10 w-full overflow-visible">
-        {loaded ? (
-          isEmpty ? (
-            <div className="flex flex-col items-center justify-center gap-1 py-2">
-              <span className="text-xl sm:text-2xl font-mono font-bold text-white/25">—</span>
-              <span className="text-[10px] font-mono tracking-tight text-white/40">{emptyHint}</span>
-            </div>
-          ) : isPercentage ? (
-            <div className="relative w-16 h-16 flex items-center justify-center my-1">
-              <svg className="w-full h-full transform -rotate-90" viewBox="0 0 36 36">
-                <path className="text-white/10 stroke-current" strokeWidth="3" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
-                <motion.path className="text-emerald-400 stroke-current" strokeWidth="3" strokeDasharray={`${value}, 100`} strokeLinecap="round" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" initial={{ strokeDasharray: "0, 100" }} animate={{ strokeDasharray: `${value}, 100` }} transition={{ duration: 1.5, ease: "easeOut" }} />
-              </svg>
-              <div className="absolute inset-0 flex items-center justify-center text-sm font-bold font-mono tabular-nums text-white">
-                <NumberTicker value={value} />%
-              </div>
-            </div>
-          ) : (
-            <div className={`w-full text-center tabular-nums leading-none tracking-tight overflow-visible ${valueColor}`} style={{ fontSize: 'clamp(1.5rem, 3.2vw, 2.25rem)' }}>
-              {typeof value === 'number' ? <NumberTicker value={value} /> : value}
-            </div>
-          )
-        ) : (
-          <Skeleton className="h-8 w-20 rounded-md bg-white/10" />
-        )}
-      </div>
-
-      <div className="h-1" />
-    </Card>
-  );
-}
 
 function TrophyCard({ trophy, unlocked, count = 0, instances = [], progressRatio = 0, currentStat = 0, targetStat = 1, statLabel = 'Wins', requirement, onSelect }) {
   const [imgLoaded, setImgLoaded] = React.useState(false);

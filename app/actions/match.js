@@ -142,22 +142,3 @@ export async function generatePlayoffs(seasonId, top4PlayerIds) {
   }
 }
 
-export async function createPlayoffMatch(seasonId, round, homeId, awayId, label) {
-  try {
-    const match = await prisma.match.create({
-      data: {
-        seasonId,
-        round,
-        homeId,
-        awayId,
-        status: 'scheduled',
-        label,
-        decisive: true
-      }
-    });
-    revalidatePath('/');
-    return { match };
-  } catch (error) {
-    return { error: 'Failed to create match' };
-  }
-}

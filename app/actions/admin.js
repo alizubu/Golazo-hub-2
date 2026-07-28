@@ -25,16 +25,6 @@ export async function deleteAnnouncement(id) {
   }
 }
 
-export async function getAnnouncements() {
-  try {
-    const announcements = await prisma.announcement.findMany({
-      orderBy: { createdAt: 'desc' },
-    });
-    return announcements;
-  } catch (error) {
-    return [];
-  }
-}
 
 export async function awardTrophy(data) {
   try {
@@ -79,28 +69,6 @@ export async function removeTrophy(id) {
   }
 }
 
-export async function getTrophies(playerId) {
-  try {
-    const trophies = await prisma.trophy.findMany({
-      where: { playerId },
-      orderBy: { createdAt: 'desc' },
-    });
-    return trophies;
-  } catch (error) {
-    return [];
-  }
-}
-
-export async function getAllTrophies() {
-  try {
-    const trophies = await prisma.trophy.findMany({
-      orderBy: { createdAt: 'desc' },
-    });
-    return trophies;
-  } catch (error) {
-    return [];
-  }
-}
 
 // ─── Trophy Templates ─────────────────────────────────────────────────────────
 

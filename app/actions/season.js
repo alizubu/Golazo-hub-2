@@ -10,11 +10,7 @@ export async function getSeasons() {
   });
 }
 
-export async function getActiveSeason() {
-  return await prisma.season.findFirst({
-    where: { isArchived: false }
-  });
-}
+
 
 export async function startSeason(name, type, startDate) {
   if (!name || !name.trim()) return { error: 'Give the season a name' };
@@ -74,19 +70,7 @@ export async function startSeason(name, type, startDate) {
   }
 }
 
-export async function closeSeasonEarly(id) {
-  try {
-    await prisma.season.update({
-      where: { id },
-      data: { status: 'Archived', isArchived: true, completedAt: new Date() }
-    });
-    revalidatePath('/');
-    revalidatePath('/admin');
-    return { success: true };
-  } catch (error) {
-    return { error: 'Failed to close season' };
-  }
-}
+
 
 export async function deleteSeason(id) {
   try {
@@ -117,47 +101,7 @@ export async function renameSeason(id, newName) {
   }
 }
 
-export async function regenerateFixtures(id, players, isDouble) {
-  try {
-    // Note: Only to be used before matches are played
-    await prisma.match.deleteMany({
-      where: { seasonId: id, round: 'league' }
-    });
 
-    const rounds = generateRoundRobinFixtures(players, isDouble);
-    
-    await prisma.season.update({
-      where: { id },
-      data: { fixtures: rounds }
-    });
-
-    const matchCreates = [];
-    rounds.forEach((roundMatches, index) => {
-       const roundLabel = `Week ${index + 1}`;
-       roundMatches.forEach(m => {
-          matchCreates.push({
-             seasonId: id,
-             round: 'league',
-             homeId: m.homeId,
-             awayId: m.awayId,
-             status: 'scheduled',
-             label: roundLabel
-          });
-       });
-    });
-
-    if (matchCreates.length > 0) {
-       await prisma.match.createMany({ data: matchCreates });
-    }
-
-    revalidatePath('/');
-    revalidatePath('/admin');
-    return { success: true };
-  } catch (error) {
-    console.error(error);
-    return { error: 'Failed to regenerate fixtures' };
-  }
-}
 
 export async function completeSeason(id, data) {
   try {

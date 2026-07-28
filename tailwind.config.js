@@ -101,6 +101,17 @@ module.exports = {
         },
         "shimmer": {
           "100%": { transform: "translateX(100%)" }
+        },
+        "shine": {
+          "0%": {
+            "background-position": "0% 0%",
+          },
+          "50%": {
+            "background-position": "100% 100%",
+          },
+          to: {
+            "background-position": "0% 0%",
+          },
         }
       },
       animation: {
@@ -109,6 +120,7 @@ module.exports = {
         "marquee": "marquee var(--duration) linear infinite",
         "marquee-vertical": "marquee-vertical var(--duration) linear infinite",
         "shimmer": "shimmer 2s infinite",
+        "shine": "shine var(--duration) infinite linear",
       },
     },
   },

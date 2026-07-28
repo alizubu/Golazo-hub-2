@@ -50,8 +50,6 @@ const adminTabs = [
   { id: "admin-announcements", label: "Announcements", icon: Megaphone },
 ];
 
-export { playerTabs, adminTabs };
-
 export default function FloatingNav({ session, me, tab, setTab, onLogout, players = [], notifications = [] }) {
   const [searchOpen, setSearchOpen] = useState(false);
   const [sheetOpen, setSheetOpen] = useState(false);
