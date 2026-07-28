@@ -5,16 +5,19 @@ import { Activity, Trophy, Swords, Target, Handshake, TrendingUp } from 'lucide-
 import { motion } from 'framer-motion';
 import { MagicCard, FadeIn } from '@/app/components/UI';
 import { StatTile } from './StatTile';
-import { DotPattern } from './magicui/DotPattern';
 
 export function PlayerStatistics({ myRank, elo, played, winRate, goals, assists, statsLoaded }) {
   return (
     <FadeIn delay={0.2} className="col-span-1 md:col-span-12 h-full">
-      <MagicCard gradientColor="rgba(250, 204, 21, 0.05)" className="h-full relative overflow-hidden">
+      <MagicCard gradientColor="rgba(255, 255, 255, 0.03)" className="h-full relative overflow-hidden group">
         
-        {/* Ambient lighting background */}
-        <DotPattern className="opacity-40" />
-        <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-500/5 rounded-full blur-3xl pointer-events-none" />
+        {/* Ambient lighting background: Sleek gradients instead of dot pattern */}
+        <div className="absolute inset-0 bg-gradient-to-br from-[#0c0e12] to-[#12161c] z-0" />
+        <div className="absolute top-0 right-0 w-96 h-96 bg-emerald-500/10 rounded-full blur-[100px] pointer-events-none transform translate-x-1/3 -translate-y-1/3 group-hover:bg-emerald-500/15 transition-colors duration-1000" />
+        <div className="absolute bottom-0 left-0 w-96 h-96 bg-amber-500/5 rounded-full blur-[100px] pointer-events-none transform -translate-x-1/3 translate-y-1/3 group-hover:bg-amber-500/10 transition-colors duration-1000" />
+        
+        {/* Noise overlay for premium texture */}
+        <div className="absolute inset-0 opacity-[0.015] mix-blend-overlay z-0 pointer-events-none" style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg viewBox=%220 0 200 200%22 xmlns=%22http://www.w3.org/2000/svg%22%3E%3Cfilter id=%22noiseFilter%22%3E%3CfeTurbulence type=%22fractalNoise%22 baseFrequency=%220.65%22 numOctaves=%223%22 stitchTiles=%22stitch%22/%3E%3C/filter%3E%3Crect width=%22100%25%22 height=%22100%25%22 filter=%22url(%23noiseFilter)%22/%3E%3C/svg%3E")' }} />
 
         <Card className="h-full bg-transparent border-none shadow-none flex flex-col relative z-10">
           <CardHeader className="pb-3 border-b border-white/5 flex flex-row items-center justify-between relative">

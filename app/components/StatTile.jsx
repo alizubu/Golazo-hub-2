@@ -56,8 +56,8 @@ export function StatTile({
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: '-50px' });
   const isEmpty = value === null || value === undefined || value === '' || value === 0;
-
-  const accent = accentColors[colorAccent] || accentColors.slate;
+  const resolvedColorAccent = (colorAccent === 'green' && isEmpty) ? 'slate' : colorAccent;
+  const accent = accentColors[resolvedColorAccent] || accentColors.slate;
   const isHero = tier === 'hero';
 
   const baseCardClasses = `relative flex flex-col justify-between p-4 rounded-xl border-x-border/30 border-b-border/30 overflow-visible min-h-[140px] transition-all w-full border-t-2 ${accent.border} ${className}`;
@@ -105,15 +105,15 @@ export function StatTile({
     }
     if (isCountUp && !isEmpty && typeof value === 'number') {
       return (
-        <div className="w-full text-center tabular-nums leading-none tracking-tight text-white font-bold" style={{ fontSize: 'clamp(1.5rem, 3.2vw, 2.25rem)' }}>
-          {isInView ? <NumberTicker value={value} /> : '0'}
+        <div className="w-full text-center tabular-nums leading-none tracking-tight text-white font-extrabold text-3xl md:text-4xl">
+          {isInView ? <NumberTicker value={value} className="text-white" /> : '0'}
         </div>
       );
     }
     
     // Default or hero value rendering
     return (
-      <div className={`w-full text-center tabular-nums leading-none tracking-tight font-bold ${isHero ? 'text-amber-400 drop-shadow-[0_2px_4px_rgba(251,191,36,0.3)]' : 'text-white'}`} style={{ fontSize: 'clamp(1.5rem, 3.2vw, 2.25rem)' }}>
+      <div className={`w-full text-center tabular-nums leading-none tracking-tight font-extrabold text-3xl md:text-4xl ${isHero ? 'text-amber-400 drop-shadow-[0_2px_4px_rgba(251,191,36,0.3)]' : 'text-white'}`}>
         {value}
       </div>
     );
@@ -127,7 +127,7 @@ export function StatTile({
           <div className="w-6 h-6 rounded-full bg-white/5 flex items-center justify-center shrink-0">
             {Icon && <Icon size={12} className="text-slate-400" />}
           </div>
-          <Label className="text-[10px] uppercase tracking-widest truncate cursor-default text-slate-400 font-semibold flex-1">
+          <Label className="text-xs uppercase tracking-wide text-muted-foreground font-semibold flex-1 truncate cursor-default">
             {label}
           </Label>
         </div>
