@@ -1020,34 +1020,36 @@ function PlayerStatCard({
 }) {
   const isEmpty = value === emptyValue || value === null || value === undefined || value === '';
 
-  let borderClass = 'border-t-stadium-border';
-  let bgClass = 'bg-stadium-surface';
-  let valueColor = 'text-stadium-primary';
-  let labelColor = 'text-stadium-secondary';
+  // One rule: color = meaning, and only one card gets to be loud.
+  // Positive green border is only applied when Win Rate actually exists AND is good (>= 50%).
+  const effectiveAccent = (accent === 'positive' && (isEmpty || Number(value) < 50)) ? 'neutral' : accent;
 
-  if (accent === 'hero') {
-    borderClass = 'border-t-amber-500 border-amber-500/30';
-    bgClass = 'bg-gradient-to-b from-amber-500/10 via-stadium-raised to-stadium-surface shadow-lg shadow-amber-500/5';
-    valueColor = 'text-amber-400 font-black drop-shadow-[0_2px_4px_rgba(232,179,76,0.3)]';
+  let borderShadowClass = 'border border-white/8';
+  let bgClass = 'bg-stadium-surface/80 hover:bg-stadium-surface transition-colors';
+  let iconColor = 'text-slate-500';
+  let labelColor = 'text-slate-400 font-semibold';
+  let valueColor = isEmpty ? 'text-white/25 font-mono font-bold' : 'text-white font-bold';
+
+  if (effectiveAccent === 'hero') {
+    borderShadowClass = 'border border-amber-400/30 shadow-[0_0_24px_-8px_rgba(251,191,36,0.35)]';
+    bgClass = 'bg-gradient-to-b from-amber-500/10 via-stadium-raised to-stadium-surface';
+    iconColor = 'text-amber-400';
     labelColor = 'text-amber-300/90 font-bold';
-  } else if (accent === 'positive') {
-    borderClass = 'border-t-emerald-500 border-emerald-500/20';
-    bgClass = 'bg-gradient-to-b from-emerald-500/5 to-stadium-surface';
-    valueColor = 'text-emerald-400';
-  } else if (accent === 'neutral') {
-    borderClass = 'border-t-blue-500/50 border-stadium-subtle';
-    bgClass = 'bg-stadium-surface/80 hover:bg-stadium-surface transition-colors';
+    valueColor = isEmpty ? 'text-white/25 font-mono font-bold' : 'text-amber-400 font-bold drop-shadow-[0_2px_4px_rgba(251,191,36,0.3)]';
+  } else if (effectiveAccent === 'positive') {
+    borderShadowClass = 'border border-emerald-500/25';
+    valueColor = 'text-white font-bold';
   }
 
   return (
-    <Card className={`relative flex flex-col justify-between p-3 sm:p-5 rounded-xl border border-stadium-subtle overflow-visible min-h-[130px] sm:min-h-[145px] transition-all ${bgClass} ${borderClass} ${className}`}>
+    <Card className={`relative flex flex-col justify-between p-3 sm:p-5 rounded-xl overflow-visible min-h-[130px] sm:min-h-[145px] transition-all ${bgClass} ${borderShadowClass} ${className}`}>
       {heroBeam && <BorderBeam size={120} duration={8} delay={1} colorFrom="#E8B34C" colorTo="transparent" />}
       
       {/* Header: Icon (Top-Left) + Label */}
       <div className="flex items-center justify-between w-full gap-1.5 z-10">
         <div className="flex items-center gap-1.5 min-w-0">
-          {Icon && <Icon size={16} className={`shrink-0 ${accent === 'hero' ? 'text-amber-400' : accent === 'positive' ? 'text-emerald-400' : 'text-stadium-secondary'}`} />}
-          <Label className={`text-[11px] font-semibold uppercase tracking-wider truncate cursor-default ${labelColor}`}>
+          {Icon && <Icon size={16} className={`shrink-0 ${iconColor}`} />}
+          <Label className={`text-[11px] uppercase tracking-wider truncate cursor-default ${labelColor}`}>
             {label}
           </Label>
         </div>
@@ -1057,17 +1059,17 @@ function PlayerStatCard({
       <div className="flex-1 flex items-center justify-center my-2 z-10 w-full overflow-visible">
         {loaded ? (
           isEmpty ? (
-            <div className="flex flex-col items-center justify-center gap-1 text-stadium-muted py-2">
-              <span className="text-xl sm:text-2xl font-mono font-bold">—</span>
-              <span className="text-[10px] font-mono tracking-tight text-stadium-secondary/70">{emptyHint}</span>
+            <div className="flex flex-col items-center justify-center gap-1 py-2">
+              <span className="text-xl sm:text-2xl font-mono font-bold text-white/25">—</span>
+              <span className="text-[10px] font-mono tracking-tight text-white/40">{emptyHint}</span>
             </div>
           ) : isPercentage ? (
             <div className="relative w-16 h-16 flex items-center justify-center my-1">
               <svg className="w-full h-full transform -rotate-90" viewBox="0 0 36 36">
-                <path className="text-stadium-border stroke-current" strokeWidth="3" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                <path className="text-white/10 stroke-current" strokeWidth="3" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
                 <motion.path className="text-emerald-400 stroke-current" strokeWidth="3" strokeDasharray={`${value}, 100`} strokeLinecap="round" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" initial={{ strokeDasharray: "0, 100" }} animate={{ strokeDasharray: `${value}, 100` }} transition={{ duration: 1.5, ease: "easeOut" }} />
               </svg>
-              <div className="absolute inset-0 flex items-center justify-center text-sm font-bold font-mono tabular-nums text-stadium-primary">
+              <div className="absolute inset-0 flex items-center justify-center text-sm font-bold font-mono tabular-nums text-white">
                 <NumberTicker value={value} />%
               </div>
             </div>
@@ -1077,7 +1079,7 @@ function PlayerStatCard({
             </div>
           )
         ) : (
-          <Skeleton className="h-8 w-20 rounded-md bg-stadium-raised" />
+          <Skeleton className="h-8 w-20 rounded-md bg-white/10" />
         )}
       </div>
 
