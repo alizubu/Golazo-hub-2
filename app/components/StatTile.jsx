@@ -67,7 +67,7 @@ export function StatTile({
   const isMedium = size === 'medium';
   const isSmall = size === 'small';
 
-  const baseCardClasses = `relative flex flex-col justify-between p-4 sm:p-5 rounded-2xl border-x-border/30 border-b-border/30 overflow-visible transition-all w-full h-full border-t-2 ${accent.border} ${className}`;
+  const baseCardClasses = `relative flex flex-col justify-start p-3 sm:p-4 rounded-2xl border-x-border/30 border-b-border/30 overflow-visible transition-all w-full h-full border-t-2 ${accent.border} ${className}`;
 
   // Interactive states
   const interactable = !!onClick;
@@ -133,10 +133,10 @@ export function StatTile({
   const CardContent = (
     <Card className={`${baseCardClasses} ${isHero ? 'bg-gradient-to-br from-amber-500/10 via-stadium-raised to-stadium-surface border-amber-400/40' : 'bg-stadium-surface/40 hover:bg-stadium-surface/60'} ${cursorClass} ${!isHero ? accent.shadowHover : ''}`}>
       {/* Header: Icon + Label */}
-      <div className={`flex w-full z-10 ${isHero ? 'flex-col items-start gap-4 mb-4' : 'flex-col items-center gap-2.5 mb-2'}`}>
-        <div className={`flex items-center w-full ${isHero ? 'gap-3' : 'gap-2 justify-center'}`}>
-          <div className={`${isHero ? 'w-10 h-10' : 'w-6 h-6'} rounded-full bg-white/5 flex items-center justify-center shrink-0`}>
-            {Icon && <Icon size={isHero ? 20 : 12} className={isHero ? 'text-amber-400' : 'text-slate-400'} />}
+      <div className={`flex w-full z-10 ${isHero ? 'flex-col items-start gap-1.5 mb-1.5' : 'flex-col items-center gap-1.5 mb-1.5'}`}>
+        <div className={`flex items-center w-full ${isHero ? 'gap-2' : 'gap-1.5 justify-center'}`}>
+          <div className={`${isHero ? 'w-8 h-8' : 'w-6 h-6'} rounded-full bg-white/5 flex items-center justify-center shrink-0`}>
+            {Icon && <Icon size={isHero ? 18 : 12} className={isHero ? 'text-amber-400' : 'text-slate-400'} />}
           </div>
           {!isHero && (
             <Label className={`${getLabelStyles()} truncate cursor-default flex-1`}>
@@ -152,13 +152,13 @@ export function StatTile({
       </div>
 
       {/* Body: Value */}
-      <div className={`flex-1 flex items-center overflow-visible z-10 w-full ${isHero ? 'justify-start' : 'justify-center'}`}>
+      <div className={`flex items-center overflow-visible z-10 w-full ${isHero ? 'justify-start mt-1' : 'justify-center'}`}>
         {renderValue()}
       </div>
       
       {/* Subtext (like "↑2 this season") for Hero tiles */}
       {isHero && subtext && (
-        <div className="mt-3 flex items-center gap-1.5 text-xs font-semibold text-emerald-400 bg-emerald-400/10 px-2 py-1 rounded-md w-fit">
+        <div className="mt-2 flex items-center gap-1.5 text-[10px] font-semibold text-emerald-400 bg-emerald-400/10 px-2 py-0.5 rounded-md w-fit">
           {subtext}
         </div>
       )}

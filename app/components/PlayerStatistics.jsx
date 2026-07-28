@@ -38,9 +38,9 @@ export function PlayerStatistics({ myRank, elo, played, winRate, goals, assists,
             </div>
           </CardHeader>
           
-          <CardContent className="pt-5 pb-3 flex-1">
+          <CardContent className="pt-4 pb-3 flex-1">
             <motion.div 
-              className="grid grid-cols-2 sm:grid-cols-6 grid-rows-auto sm:grid-rows-2 gap-3 sm:gap-4 h-full"
+              className="grid grid-cols-2 sm:grid-cols-6 auto-rows-min gap-2 sm:gap-2.5"
               initial="hidden"
               animate="show"
               variants={{
