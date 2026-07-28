@@ -1,7 +1,7 @@
 import './globals.css';
 
 export const metadata = {
-  title: 'Golazo Hub - Friends eLeague',
+  title: 'Golazo Hub',
   description: 'Matchday central for the crew',
 };
 
