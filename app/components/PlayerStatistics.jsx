@@ -40,93 +40,98 @@ export function PlayerStatistics({ myRank, elo, played, winRate, goals, assists,
           
           <CardContent className="pt-5 pb-3 flex-1">
             <motion.div 
-              className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4 h-full"
+              className="grid grid-cols-2 sm:grid-cols-6 grid-rows-auto sm:grid-rows-2 gap-3 sm:gap-4 h-full"
               initial="hidden"
               animate="show"
               variants={{
                 hidden: { opacity: 0 },
-                show: { opacity: 1, transition: { staggerChildren: 0.08 } }
+                show: { opacity: 1, transition: { staggerChildren: 0.1 } }
               }}
             >
-              {/* Tile 1: Current Rank (Hero) */}
-              <motion.div variants={{ hidden: { opacity: 0, y: 10 }, show: { opacity: 1, y: 0 } }} className="col-span-2 md:col-span-1 lg:col-span-1">
+              {/* Tile 1: Current Rank (Hero) - Tall on desktop, full width on mobile */}
+              <motion.div variants={{ hidden: { opacity: 0, scale: 0.95 }, show: { opacity: 1, scale: 1 } }} className="col-span-2 sm:col-span-2 sm:row-span-2 flex">
                 <StatTile 
                   icon={Trophy}
                   label="Current Rank"
                   value={myRank ? `#${myRank}` : null}
                   loaded={statsLoaded}
                   colorAccent="gold"
-                  tier="hero"
+                  size="hero"
                   emptyStateText="Unranked"
+                  subtext="↑2 this season"
                 />
               </motion.div>
 
-              {/* Tile 2: Elo Rating */}
-              <motion.div variants={{ hidden: { opacity: 0, y: 10 }, show: { opacity: 1, y: 0 } }} className="col-span-1 md:col-span-1 lg:col-span-1">
+              {/* Tile 2: Elo Rating - Row 1 */}
+              <motion.div variants={{ hidden: { opacity: 0, y: 15 }, show: { opacity: 1, y: 0 } }} className="col-span-1 sm:col-span-2 flex">
                 <StatTile 
                   icon={Activity}
                   label="Elo Rating"
                   value={elo}
                   loaded={statsLoaded}
                   colorAccent="blue"
+                  size="medium"
                   isCountUp={true}
                   emptyStateText="No matches"
                 />
               </motion.div>
 
-              {/* Tile 3: Matches */}
-              <motion.div variants={{ hidden: { opacity: 0, y: 10 }, show: { opacity: 1, y: 0 } }} className="col-span-1 md:col-span-1 lg:col-span-1">
+              {/* Tile 3: Matches - Row 1 */}
+              <motion.div variants={{ hidden: { opacity: 0, y: 15 }, show: { opacity: 1, y: 0 } }} className="col-span-2 sm:col-span-2 flex">
                 <StatTile 
                   icon={Swords}
                   label="Matches"
                   value={played}
                   loaded={statsLoaded}
                   colorAccent="slate"
+                  size="small"
                   isCountUp={true}
                   emptyStateText="No matches yet"
                   onClick={() => {
-                    // Placeholder for future deep-linking
                     console.log("Navigating to Matches...");
                   }}
                 />
               </motion.div>
 
-              {/* Tile 4: Win Rate */}
-              <motion.div variants={{ hidden: { opacity: 0, y: 10 }, show: { opacity: 1, y: 0 } }} className="col-span-1 md:col-span-1 lg:col-span-1">
+              {/* Tile 4: Win Rate - Row 2 (under Elo) */}
+              <motion.div variants={{ hidden: { opacity: 0, y: 15 }, show: { opacity: 1, y: 0 } }} className="col-span-1 sm:col-span-2 flex">
                 <StatTile 
                   icon={TrendingUp}
                   label="Win Rate"
                   value={winRate}
                   loaded={statsLoaded}
                   colorAccent="green"
+                  size="medium"
                   isPercentage={true}
                   emptyStateText="Play 1+ match"
                 />
               </motion.div>
 
-              {/* Tile 5: Goals */}
-              <motion.div variants={{ hidden: { opacity: 0, y: 10 }, show: { opacity: 1, y: 0 } }} className="col-span-1 md:col-span-1 lg:col-span-1">
+              {/* Tile 5: Goals - Row 2 */}
+              <motion.div variants={{ hidden: { opacity: 0, y: 15 }, show: { opacity: 1, y: 0 } }} className="col-span-1 sm:col-span-1 flex">
                 <StatTile 
                   icon={Target}
                   label="Goals"
                   value={goals}
                   loaded={statsLoaded}
-                  colorAccent="orange"
+                  colorAccent="slate"
+                  size="small"
                   isCountUp={true}
-                  emptyStateText="No goals yet"
+                  emptyStateText="No goals"
                 />
               </motion.div>
 
-              {/* Tile 6: Assists */}
-              <motion.div variants={{ hidden: { opacity: 0, y: 10 }, show: { opacity: 1, y: 0 } }} className="col-span-2 md:col-span-1 lg:col-span-1">
+              {/* Tile 6: Assists - Row 2 */}
+              <motion.div variants={{ hidden: { opacity: 0, y: 15 }, show: { opacity: 1, y: 0 } }} className="col-span-1 sm:col-span-1 flex">
                 <StatTile 
                   icon={Handshake}
                   label="Assists"
                   value={assists}
                   loaded={statsLoaded}
-                  colorAccent="purple"
+                  colorAccent="slate"
+                  size="small"
                   isCountUp={true}
-                  emptyStateText="No assists yet"
+                  emptyStateText="No assists"
                 />
               </motion.div>
 

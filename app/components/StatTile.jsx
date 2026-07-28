@@ -6,6 +6,7 @@ import { Skeleton } from '@/app/components/ui/skeleton';
 import { NumberTicker } from '@/app/components/ui/number-ticker';
 import { motion, useInView } from 'framer-motion';
 import { ShineBorder } from '@/app/components/magicui/ShineBorder';
+import { WinRateRing } from '@/app/components/ui/win-rate-ring';
 
 const accentColors = {
   gold: {
@@ -46,21 +47,27 @@ export function StatTile({
   value,
   loaded = true,
   colorAccent = 'slate',
-  tier = 'standard',
+  size = 'small', // 'hero' | 'medium' | 'small'
   emptyStateText,
   isPercentage = false,
   isCountUp = false,
+  subtext,
   onClick,
   className = '',
 }) {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: '-50px' });
   const isEmpty = value === null || value === undefined || value === '' || value === 0;
-  const resolvedColorAccent = (colorAccent === 'green' && isEmpty) ? 'slate' : colorAccent;
+  
+  // Force small tiles to be slate as per spec
+  const resolvedColorAccent = size === 'small' || (colorAccent === 'green' && isEmpty) ? 'slate' : colorAccent;
   const accent = accentColors[resolvedColorAccent] || accentColors.slate;
-  const isHero = tier === 'hero';
+  
+  const isHero = size === 'hero';
+  const isMedium = size === 'medium';
+  const isSmall = size === 'small';
 
-  const baseCardClasses = `relative flex flex-col justify-between p-4 rounded-xl border-x-border/30 border-b-border/30 overflow-visible min-h-[140px] transition-all w-full border-t-2 ${accent.border} ${className}`;
+  const baseCardClasses = `relative flex flex-col justify-between p-4 sm:p-5 rounded-2xl border-x-border/30 border-b-border/30 overflow-visible transition-all w-full h-full border-t-2 ${accent.border} ${className}`;
 
   // Interactive states
   const interactable = !!onClick;
@@ -70,80 +77,98 @@ export function StatTile({
     ? { whileHover: { y: -4 }, whileTap: { scale: 0.97 } }
     : { whileHover: { y: -4 } };
 
-  // Render the value depending on type
+  // Typography scaling based on size
+  const getNumberStyles = () => {
+    if (isHero) return 'text-5xl md:text-6xl text-amber-400 font-extrabold drop-shadow-[0_2px_12px_rgba(251,191,36,0.25)]';
+    if (isMedium) return 'text-4xl font-extrabold text-white';
+    return 'text-2xl font-bold text-white'; // small
+  };
+
+  const getLabelStyles = () => {
+    if (isHero) return 'text-sm uppercase tracking-widest text-amber-500/80 font-bold';
+    return 'text-xs uppercase tracking-wide text-muted-foreground font-semibold';
+  };
+
   const renderValue = () => {
     if (!loaded) return <Skeleton className="h-8 w-20 rounded-md bg-white/10" />;
+    
+    // WinRate specifically uses a ring when it's a percentage tile (as per prompt request for Win Rate)
+    if (isPercentage) {
+      return (
+        <WinRateRing 
+          value={value} 
+          isEmpty={isEmpty} 
+          emptyStateText={emptyStateText} 
+          accentColor={colorAccent === 'green' ? 'emerald-500' : 'blue-500'}
+        />
+      );
+    }
+    
     if (isEmpty && emptyStateText) {
       return (
-        <div className="flex flex-col items-center justify-center gap-1 py-2">
-          <span className="text-2xl font-mono font-bold text-white/25">—</span>
-          <span className="text-xs font-mono tracking-tight text-white/40 italic">{emptyStateText}</span>
+        <div className="flex flex-col items-center justify-center gap-1.5 py-1">
+          <span className="text-xl font-mono font-bold text-white/20">—</span>
+          <span className="text-[10px] font-mono tracking-tight text-white/40 italic text-center leading-tight max-w-[120px]">{emptyStateText}</span>
         </div>
       );
     }
-    if (isPercentage && !isEmpty) {
-      return (
-        <div className="relative w-16 h-16 flex items-center justify-center my-1">
-          <svg className="w-full h-full transform -rotate-90" viewBox="0 0 36 36">
-            <path className="text-white/10 stroke-current" strokeWidth="3" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
-            <motion.path 
-              className={`${accent.text} stroke-current`} 
-              strokeWidth="3" 
-              strokeLinecap="round" 
-              fill="none" 
-              d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" 
-              initial={{ strokeDasharray: "0, 100" }} 
-              animate={isInView ? { strokeDasharray: `${value}, 100` } : { strokeDasharray: "0, 100" }} 
-              transition={{ duration: 1.5, ease: "easeOut" }} 
-            />
-          </svg>
-          <div className="absolute inset-0 flex items-center justify-center text-sm font-bold font-mono tabular-nums text-white">
-            {isInView ? <NumberTicker value={value} /> : '0'}%
-          </div>
-        </div>
-      );
-    }
+
+    const valueStyles = getNumberStyles();
+
     if (isCountUp && !isEmpty && typeof value === 'number') {
       return (
-        <div className="w-full text-center tabular-nums leading-none tracking-tight text-white font-extrabold text-3xl md:text-4xl">
+        <div className={`w-full tabular-nums leading-none tracking-tight ${valueStyles} ${isHero ? 'text-left' : 'text-center'}`}>
           {isInView ? <NumberTicker value={value} className="text-white" /> : '0'}
         </div>
       );
     }
     
-    // Default or hero value rendering
     return (
-      <div className={`w-full text-center tabular-nums leading-none tracking-tight font-extrabold text-3xl md:text-4xl ${isHero ? 'text-amber-400 drop-shadow-[0_2px_4px_rgba(251,191,36,0.3)]' : 'text-white'}`}>
+      <div className={`w-full tabular-nums leading-none tracking-tight ${valueStyles} ${isHero ? 'text-left' : 'text-center'}`}>
         {value}
       </div>
     );
   };
 
   const CardContent = (
-    <Card className={`${baseCardClasses} ${isHero ? 'bg-gradient-to-b from-amber-500/15 via-stadium-raised to-stadium-surface border-amber-400/50' : 'bg-stadium-surface/50'} ${cursorClass} ${!isHero ? accent.shadowHover : ''}`}>
-      {/* Header: Muted Icon in Circle + Label */}
-      <div className="flex flex-col items-center gap-3 w-full z-10 mb-2">
-        <div className="flex items-center gap-2 w-full">
-          <div className="w-6 h-6 rounded-full bg-white/5 flex items-center justify-center shrink-0">
-            {Icon && <Icon size={12} className="text-slate-400" />}
+    <Card className={`${baseCardClasses} ${isHero ? 'bg-gradient-to-br from-amber-500/10 via-stadium-raised to-stadium-surface border-amber-400/40' : 'bg-stadium-surface/40 hover:bg-stadium-surface/60'} ${cursorClass} ${!isHero ? accent.shadowHover : ''}`}>
+      {/* Header: Icon + Label */}
+      <div className={`flex w-full z-10 ${isHero ? 'flex-col items-start gap-4 mb-4' : 'flex-col items-center gap-2.5 mb-2'}`}>
+        <div className={`flex items-center w-full ${isHero ? 'gap-3' : 'gap-2 justify-center'}`}>
+          <div className={`${isHero ? 'w-10 h-10' : 'w-6 h-6'} rounded-full bg-white/5 flex items-center justify-center shrink-0`}>
+            {Icon && <Icon size={isHero ? 20 : 12} className={isHero ? 'text-amber-400' : 'text-slate-400'} />}
           </div>
-          <Label className="text-xs uppercase tracking-wide text-muted-foreground font-semibold flex-1 truncate cursor-default">
+          {!isHero && (
+            <Label className={`${getLabelStyles()} truncate cursor-default flex-1`}>
+              {label}
+            </Label>
+          )}
+        </div>
+        {isHero && (
+          <Label className={`${getLabelStyles()} cursor-default`}>
             {label}
           </Label>
-        </div>
+        )}
       </div>
 
       {/* Body: Value */}
-      <div className="flex-1 flex items-center justify-center my-2 z-10 w-full overflow-visible">
+      <div className={`flex-1 flex items-center overflow-visible z-10 w-full ${isHero ? 'justify-start' : 'justify-center'}`}>
         {renderValue()}
       </div>
+      
+      {/* Subtext (like "↑2 this season") for Hero tiles */}
+      {isHero && subtext && (
+        <div className="mt-3 flex items-center gap-1.5 text-xs font-semibold text-emerald-400 bg-emerald-400/10 px-2 py-1 rounded-md w-fit">
+          {subtext}
+        </div>
+      )}
     </Card>
   );
 
   if (isHero) {
     return (
-      <motion.div ref={ref} initial={{ scale: 0.9, opacity: 0 }} animate={isInView ? { scale: 1, opacity: 1 } : {}} transition={{ type: 'spring', stiffness: 300, damping: 20 }} className="w-full h-full" {...motionProps} onClick={onClick}>
-        <ShineBorder color={["#FBBF24", "#F59E0B", "#D97706"]} className="p-0 w-full h-full border-0 min-w-0 bg-transparent dark:bg-transparent">
+      <motion.div ref={ref} initial={{ scale: 0.95, opacity: 0 }} animate={isInView ? { scale: 1, opacity: 1 } : {}} transition={{ type: 'spring', stiffness: 350, damping: 25 }} className="w-full h-full" {...motionProps} onClick={onClick}>
+        <ShineBorder color={["#FBBF24", "#F59E0B", "#D97706"]} className="p-0 w-full h-full border-0 min-w-0 bg-transparent dark:bg-transparent rounded-2xl">
           {CardContent}
         </ShineBorder>
       </motion.div>
