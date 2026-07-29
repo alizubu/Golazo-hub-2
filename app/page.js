@@ -17,11 +17,12 @@ export default async function Home() {
   const adminConfig = { enabled: true }; // Admin login allowed
 
   let initialSession = null;
-  const sessionCookie = cookies().get('golazo_session')?.value;
+  const cookieStore = await cookies();
+  const sessionCookie = cookieStore.get('golazo_session')?.value;
   if (sessionCookie === 'admin') {
     initialSession = { type: 'admin' };
   } else if (sessionCookie === 'player') {
-    const userId = cookies().get('golazo_user_id')?.value;
+    const userId = cookieStore.get('golazo_user_id')?.value;
     const player = players.find(p => p.id === userId);
     if (player) {
       initialSession = { type: 'player', playerId: player.id, player };
