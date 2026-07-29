@@ -24,12 +24,12 @@ export function PlayerStatistics({ myRank, elo, played, winRate, goals, assists,
             {/* Subtle glow on the divider */}
             <div className="absolute bottom-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-white/10 to-transparent" />
             
-            <CardTitle className="text-lg sm:text-xl font-display font-bold flex items-center gap-2.5 text-stadium-primary">
+            <CardTitle className="text-lg sm:text-xl font-heading font-bold flex items-center gap-2.5 text-stadium-primary">
               <Activity className="text-white/70" size={20}/> Player Statistics
             </CardTitle>
             
             <div className="flex items-center gap-2">
-              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-[10px] sm:text-xs font-mono font-bold text-emerald-400 uppercase tracking-wider shadow-[0_0_12px_-2px_rgba(16,185,129,0.2)]">
+              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-[10px] sm:text-xs font-score font-bold text-emerald-400 uppercase tracking-wider shadow-[0_0_12px_-2px_rgba(16,185,129,0.2)]">
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping relative">
                   <span className="absolute inset-0 rounded-full bg-emerald-400" />
                 </span> 

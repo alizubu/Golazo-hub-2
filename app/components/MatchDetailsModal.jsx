@@ -72,7 +72,7 @@ export default function MatchDetailsModal({ match, homePlayer, awayPlayer, onSav
               <Avatar p={homePlayer} size={64} className="ring-2 ring-pitch" />
               <div className="hidden sm:block">
                 <div className="text-xs uppercase tracking-widest text-muted-foreground font-bold">Home</div>
-                <div className="text-xl font-bold font-display text-white">{homePlayer?.name}</div>
+                <div className="text-xl font-bold font-heading text-white">{homePlayer?.name}</div>
               </div>
             </div>
 
@@ -80,15 +80,15 @@ export default function MatchDetailsModal({ match, homePlayer, awayPlayer, onSav
               <div className="flex items-center gap-4">
                 {scoreOverride ? (
                   <>
-                    <input type="number" value={homeScore} onChange={e => setHomeScore(parseInt(e.target.value)||0)} className="w-16 bg-background border border-border rounded-lg text-center text-3xl font-mono font-bold text-pitch-bright" />
+                    <input type="number" value={homeScore} onChange={e => setHomeScore(parseInt(e.target.value)||0)} className="w-16 bg-background border border-border rounded-lg text-center text-3xl font-score font-bold text-pitch-bright" />
                     <span className="text-muted-foreground text-2xl">-</span>
-                    <input type="number" value={awayScore} onChange={e => setAwayScore(parseInt(e.target.value)||0)} className="w-16 bg-background border border-border rounded-lg text-center text-3xl font-mono font-bold text-white" />
+                    <input type="number" value={awayScore} onChange={e => setAwayScore(parseInt(e.target.value)||0)} className="w-16 bg-background border border-border rounded-lg text-center text-3xl font-score font-bold text-white" />
                   </>
                 ) : (
                   <>
-                    <span className="text-4xl sm:text-5xl font-mono font-bold text-pitch-bright">{homeScore}</span>
-                    <span className="text-muted-foreground/50 text-3xl font-mono">-</span>
-                    <span className="text-4xl sm:text-5xl font-mono font-bold text-white">{awayScore}</span>
+                    <span className="text-4xl sm:text-5xl font-score font-bold text-pitch-bright">{homeScore}</span>
+                    <span className="text-muted-foreground/50 text-3xl font-score">-</span>
+                    <span className="text-4xl sm:text-5xl font-score font-bold text-white">{awayScore}</span>
                   </>
                 )}
               </div>
@@ -103,7 +103,7 @@ export default function MatchDetailsModal({ match, homePlayer, awayPlayer, onSav
             <div className="flex items-center gap-4 text-center sm:text-right flex-row-reverse sm:flex-row">
               <div className="hidden sm:block">
                 <div className="text-xs uppercase tracking-widest text-muted-foreground font-bold">Away</div>
-                <div className="text-xl font-bold font-display text-white">{awayPlayer?.name}</div>
+                <div className="text-xl font-bold font-heading text-white">{awayPlayer?.name}</div>
               </div>
               <Avatar p={awayPlayer} size={64} className="ring-2 ring-claret" />
             </div>

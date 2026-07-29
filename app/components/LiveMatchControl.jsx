@@ -156,7 +156,7 @@ export default function LiveMatchControl({ matches, players, activeSeason, showT
             <div className="p-2 bg-pitch/20 text-pitch rounded-lg">
               <Play size={18} />
             </div>
-            <h2 className="font-display font-bold text-white text-lg">Live Match Control</h2>
+            <h2 className="font-heading font-bold text-white text-lg">Live Match Control</h2>
           </div>
           {isPaused ? (
             <Badge color="var(--amber-500)" pulse>⏸ PAUSED</Badge>
@@ -173,20 +173,20 @@ export default function LiveMatchControl({ matches, players, activeSeason, showT
           
           <div className="flex-1 min-w-0 flex flex-col items-center justify-center gap-3 w-full">
             <Avatar p={h} size={64} className="ring-2 ring-pitch shrink-0" />
-            <span className="font-bold font-display text-base text-center text-white truncate w-full px-2" title={h?.name}>{h?.name || 'Home'}</span>
+            <span className="font-bold font-heading text-base text-center text-white truncate w-full px-2" title={h?.name}>{h?.name || 'Home'}</span>
           </div>
           
           <div className="px-2 sm:px-6 flex flex-col items-center justify-center gap-2 shrink-0">
             <div className="flex items-center gap-3 sm:gap-4">
-              <motion.span key={optHome} initial={{ scale: 1.3, color: '#22c55e' }} animate={{ scale: 1, color: 'inherit' }} className="text-5xl sm:text-6xl font-mono font-bold text-pitch-bright select-none w-14 sm:w-16 text-center">{optHome}</motion.span>
-              <span className="text-3xl text-muted-foreground/30 font-mono select-none">-</span>
-              <motion.span key={optAway} initial={{ scale: 1.3, color: '#22c55e' }} animate={{ scale: 1, color: 'inherit' }} className="text-5xl sm:text-6xl font-mono font-bold text-white select-none w-14 sm:w-16 text-center">{optAway}</motion.span>
+              <motion.span key={optHome} initial={{ scale: 1.3, color: '#22c55e' }} animate={{ scale: 1, color: 'inherit' }} className="text-5xl sm:text-6xl font-score font-bold text-pitch-bright select-none w-14 sm:w-16 text-center">{optHome}</motion.span>
+              <span className="text-3xl text-muted-foreground/30 font-score select-none">-</span>
+              <motion.span key={optAway} initial={{ scale: 1.3, color: '#22c55e' }} animate={{ scale: 1, color: 'inherit' }} className="text-5xl sm:text-6xl font-score font-bold text-white select-none w-14 sm:w-16 text-center">{optAway}</motion.span>
             </div>
           </div>
           
           <div className="flex-1 min-w-0 flex flex-col items-center justify-center gap-3 w-full">
             <Avatar p={a} size={64} className="ring-2 ring-claret shrink-0" />
-            <span className="font-bold font-display text-base text-center text-white truncate w-full px-2" title={a?.name}>{a?.name || 'Away'}</span>
+            <span className="font-bold font-heading text-base text-center text-white truncate w-full px-2" title={a?.name}>{a?.name || 'Away'}</span>
           </div>
         </div>
 

@@ -96,9 +96,9 @@ function LiveScoreboard({ m, players }) {
           <span className="text-sm font-semibold truncate text-center">{h?.name}</span>
         </div>
         <div className="flex items-center gap-3 shrink-0 px-2">
-          <NumberTicker value={m.homeScore ?? 0} className="text-5xl font-bold font-mono text-foreground" />
-          <span className="text-3xl opacity-40 font-mono">-</span>
-          <NumberTicker value={m.awayScore ?? 0} className="text-5xl font-bold font-mono text-foreground" />
+          <NumberTicker value={m.homeScore ?? 0} className="text-5xl font-bold font-score text-foreground" />
+          <span className="text-3xl opacity-40 font-score">-</span>
+          <NumberTicker value={m.awayScore ?? 0} className="text-5xl font-bold font-score text-foreground" />
         </div>
         <div className="flex-1 flex flex-col items-center gap-2 min-w-0">
           <Avatar p={a} size={56} />
@@ -118,7 +118,7 @@ function OldMatchCard({ m, players }) {
       <div className="px-4 text-center shrink-0">
         {m.status === "completed" ? (
           <div>
-            <div className="font-bold text-xl font-mono text-pitch-bright">{m.homeScore} – {m.awayScore}</div>
+            <div className="font-bold text-xl font-score text-pitch-bright">{m.homeScore} – {m.awayScore}</div>
             <div className="flex items-center gap-1 justify-center mt-1">
               <span className="text-[10px] text-muted-foreground uppercase tracking-widest font-semibold">FT</span>
             </div>
@@ -126,12 +126,12 @@ function OldMatchCard({ m, players }) {
         ) : m.status === "live" ? (
           <div>
             <Badge color="var(--claret)" pulse>LIVE</Badge>
-            <div className="font-bold text-xl mt-1 font-mono text-foreground">
+            <div className="font-bold text-xl mt-1 font-score text-foreground">
               <span className="score-pop">{m.homeScore ?? 0}</span> – <span className="score-pop">{m.awayScore ?? 0}</span>
             </div>
           </div>
         ) : (
-          <div className="text-xs text-muted-foreground font-mono font-medium">TBD</div>
+          <div className="text-xs text-muted-foreground font-score font-medium">TBD</div>
         )}
       </div>
       <div className="flex-1 min-w-0 flex justify-end"><PlayerChip p={a} size={20} /></div>
@@ -161,7 +161,7 @@ function CircularProgress({ value, color = "var(--pitch-bright)", label }) {
             style={{ strokeDasharray: circumference }}
           />
         </svg>
-        <div className="absolute font-mono font-bold text-lg">{value}%</div>
+        <div className="absolute font-score font-bold text-lg">{value}%</div>
       </div>
       <div className="text-[10px] uppercase tracking-widest text-muted-foreground font-semibold">{label}</div>
     </div>
@@ -300,7 +300,7 @@ function PlayerDashboard({ me, activeSeason, matches, players, announcements = [
                     transition={{ delay: 0.1, duration: 0.4 }}
                     className="flex flex-wrap items-center justify-center md:justify-start gap-3 w-full"
                   >
-                    <h1 className="text-3xl md:text-4xl font-black font-display tracking-tight flex items-center gap-2 truncate">
+                    <h1 className="text-3xl md:text-4xl font-black font-heading tracking-tight flex items-center gap-2 truncate">
                       {me.name}
                       {myRank === 1 && <BadgeCheck size={22} className="text-blue-400 shrink-0" title="Top Ranked Player" />}
                     </h1>
@@ -317,7 +317,7 @@ function PlayerDashboard({ me, activeSeason, matches, players, announcements = [
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     transition={{ delay: 0.15 }}
-                    className="text-muted-foreground font-mono text-sm mb-3"
+                    className="text-muted-foreground font-score text-sm mb-3"
                   >
                     @{me.username}
                   </motion.div>
@@ -453,11 +453,11 @@ function PlayerDashboard({ me, activeSeason, matches, players, announcements = [
                 return (
                   <>
                     <CardHeader className="pb-3 border-b border-stadium-subtle/50 flex flex-row items-center justify-between">
-                      <h3 className="text-lg sm:text-xl font-display font-bold flex items-center gap-2.5 text-stadium-primary">
+                      <h3 className="text-lg sm:text-xl font-heading font-bold flex items-center gap-2.5 text-stadium-primary">
                         <Trophy className="text-amber-400" size={20}/> Trophy Cabinet
                       </h3>
                       <div className="flex items-center gap-2">
-                        <Badge variant="gold" className="px-2.5 py-1 font-mono text-[10px] sm:text-xs font-bold bg-amber-500/15 text-amber-300 border border-amber-500/30">
+                        <Badge variant="gold" className="px-2.5 py-1 font-score text-[10px] sm:text-xs font-bold bg-amber-500/15 text-amber-300 border border-amber-500/30">
                           {unlockedCount}/{trophyList.length} UNLOCKED
                         </Badge>
                       </div>
@@ -538,7 +538,7 @@ function PlayerDashboard({ me, activeSeason, matches, players, announcements = [
                 <tbody>
                   {standings.slice(0, 5).map((s, i) => (
                     <tr key={s.id} className={`border-b border-border/30 last:border-0 ${s.id === me.id ? 'bg-white/5' : ''}`}>
-                      <td className="py-2.5 font-bold font-mono">
+                      <td className="py-2.5 font-bold font-score">
                         {i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : <span className="text-muted-foreground ml-1">{i + 1}</span>}
                       </td>
                       <td className="py-2.5"><PlayerChip p={s} size={20} /></td>
@@ -572,7 +572,7 @@ function PlayerDashboard({ me, activeSeason, matches, players, announcements = [
                       <Avatar p={players.find(p => p.id === nextMatch.homeId)} size={56} />
                       <span className="font-bold text-sm truncate w-full text-center">{players.find(p => p.id === nextMatch.homeId)?.name}</span>
                     </div>
-                    <div className="font-mono text-xl text-muted-foreground font-bold">VS</div>
+                    <div className="font-score text-xl text-muted-foreground font-bold">VS</div>
                     <div className="flex flex-col items-center gap-2 flex-1">
                       <Avatar p={players.find(p => p.id === nextMatch.awayId)} size={56} />
                       <span className="font-bold text-sm truncate w-full text-center">{players.find(p => p.id === nextMatch.awayId)?.name}</span>
@@ -612,7 +612,7 @@ function PlayerDashboard({ me, activeSeason, matches, players, announcements = [
                     </div>
                     <div className="text-sm font-semibold flex-1 flex items-center gap-1">
                       {res === 'W' ? 'Won' : res === 'L' ? 'Lost' : 'Draw'} 
-                      <span className="font-mono text-muted-foreground ml-1">{myScore}–{oppScore}</span> 
+                      <span className="font-score text-muted-foreground ml-1">{myScore}–{oppScore}</span> 
                       <span className="text-muted-foreground mx-1">vs</span> 
                       <span className="truncate max-w-[100px]">{opp?.name}</span>
                     </div>
@@ -697,7 +697,7 @@ function StandingsView({ activeSeason, matches, players, me }) {
                   <td className="p-3 text-center text-muted-foreground">{s.lost}</td>
                   <td className="p-3 text-center">{s.gf}</td>
                   <td className="p-3 text-center">{s.ga}</td>
-                  <td className="p-3 text-center font-mono">{s.gd > 0 ? `+${s.gd}` : s.gd}</td>
+                  <td className="p-3 text-center font-score">{s.gd > 0 ? `+${s.gd}` : s.gd}</td>
                   <td className="p-3 text-center font-bold text-pitch-bright text-base">{s.pts}</td>
                   <td className="p-3 text-center">
                     <div className="flex items-center justify-center gap-1">
@@ -706,7 +706,7 @@ function StandingsView({ activeSeason, matches, players, me }) {
                       ))}
                     </div>
                   </td>
-                  <td className="p-3 text-center font-mono text-xs">
+                  <td className="p-3 text-center font-score text-xs">
                     {s.streak > 0 ? <span className="text-green-500">W{s.streak}</span> : s.streak < 0 ? <span className="text-red-500">L{Math.abs(s.streak)}</span> : '-'}
                   </td>
                 </motion.tr>
@@ -758,7 +758,7 @@ function RosterView({ players, matches, setTab }) {
     <div className="flex flex-col gap-6">
       <div className="flex items-center gap-4">
         <PageHeader title="Roster" onBack={() => setTab('dashboard')} />
-        <Badge variant="outline" className="px-2 py-0.5 rounded-full text-xs font-mono font-semibold border-border/50 text-muted-foreground mt-1">
+        <Badge variant="outline" className="px-2 py-0.5 rounded-full text-xs font-score font-semibold border-border/50 text-muted-foreground mt-1">
           {players.length} Players
         </Badge>
       </div>
@@ -781,10 +781,10 @@ function RosterView({ players, matches, setTab }) {
                   </div>
                 </div>
                 <div className="min-w-0 flex-1">
-                  <div className="font-bold text-lg font-display flex items-center gap-2 truncate">
+                  <div className="font-bold text-lg font-heading flex items-center gap-2 truncate">
                     <span className="truncate">{p.name}</span>
                     {p.nationality && (
-                      <span className="shrink-0 text-[10px] font-mono tracking-wider font-semibold border border-border/50 rounded px-1.5 py-0.5 bg-background/50 shadow-sm text-muted-foreground">
+                      <span className="shrink-0 text-[10px] font-score tracking-wider font-semibold border border-border/50 rounded px-1.5 py-0.5 bg-background/50 shadow-sm text-muted-foreground">
                         {p.nationality}
                       </span>
                     )}
@@ -794,7 +794,7 @@ function RosterView({ players, matches, setTab }) {
                     {p.teamName || `${p.name}'s XI`}
                   </div>
                   
-                  <div className="flex gap-1.5 mt-3 text-[10px] font-mono tracking-wider">
+                  <div className="flex gap-1.5 mt-3 text-[10px] font-score tracking-wider">
                     <span className="flex items-center justify-center font-bold text-white bg-green-500/20 text-green-400 px-2 py-0.5 rounded-sm border border-green-500/20">
                       {wins}W
                     </span>
@@ -842,25 +842,25 @@ function HistoryView({ history, players }) {
           <FadeIn key={t.id} delay={i * 0.1}>
             <MagicCard className="p-6 bg-gradient-to-br from-card to-secondary/50">
               <div className="flex flex-col md:flex-row md:items-center justify-between mb-5 gap-2">
-                <div className="font-bold text-2xl font-display">{t.name}</div>
-                <span className="text-sm text-muted-foreground font-mono bg-background/50 px-3 py-1 rounded-full w-fit">
+                <div className="font-bold text-2xl font-heading">{t.name}</div>
+                <span className="text-sm text-muted-foreground font-score bg-background/50 px-3 py-1 rounded-full w-fit">
                   {t.completedAt ? new Date(t.completedAt).toLocaleDateString() : 'N/A'}
                 </span>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-3 text-center">
                 <div className="p-4 rounded-xl bg-gold/10 border border-gold/20">
                   <Trophy size={24} className="mx-auto mb-2 text-gold" />
-                  <div className="text-sm font-bold font-display tracking-wide">{champ?.name || "—"}</div>
+                  <div className="text-sm font-bold font-heading tracking-wide">{champ?.name || "—"}</div>
                   <div className="text-[10px] uppercase tracking-widest text-muted-foreground mt-1">Champion</div>
                 </div>
                 <div className="p-4 rounded-xl bg-zinc-400/10 border border-zinc-400/20">
                   <Trophy size={24} className="mx-auto mb-2 text-zinc-400" />
-                  <div className="text-sm font-bold font-display tracking-wide">{runner?.name || "—"}</div>
+                  <div className="text-sm font-bold font-heading tracking-wide">{runner?.name || "—"}</div>
                   <div className="text-[10px] uppercase tracking-widest text-muted-foreground mt-1">Runner-up</div>
                 </div>
                 <div className="p-4 rounded-xl bg-[#CD7F32]/10 border border-[#CD7F32]/20">
                   <Trophy size={24} className="mx-auto mb-2 text-[#CD7F32]" />
-                  <div className="text-sm font-bold font-display tracking-wide">{third?.name || "—"}</div>
+                  <div className="text-sm font-bold font-heading tracking-wide">{third?.name || "—"}</div>
                   <div className="text-[10px] uppercase tracking-widest text-muted-foreground mt-1">Third place</div>
                 </div>
               </div>
@@ -921,7 +921,7 @@ function NotificationsView({ notifications, me }) {
                 <div className={`mt-0.5 shrink-0 w-2 h-2 rounded-full ${isUnread ? 'bg-pitch-bright animate-pulse' : 'bg-muted-foreground/30'}`} />
                 <div>
                   <div className={`text-sm ${isUnread ? 'font-bold text-foreground' : 'font-medium text-muted-foreground'}`}>{n.text}</div>
-                  <div className="text-[10px] mt-1 text-muted-foreground font-mono">{new Date(n.createdAt).toLocaleString()}</div>
+                  <div className="text-[10px] mt-1 text-muted-foreground font-score">{new Date(n.createdAt).toLocaleString()}</div>
                 </div>
               </motion.div>
             );
@@ -992,7 +992,7 @@ function TrophyCard({ trophy, unlocked, count = 0, instances = [], progressRatio
 
       {/* Middle: Trophy Name */}
       <div className="w-full my-2 flex flex-col items-center justify-center flex-1">
-        <h4 className="font-bold font-display text-xs sm:text-sm leading-tight text-stadium-primary line-clamp-2 px-1 relative z-10 group-hover:text-amber-300 transition-colors" title={trophy.name}>
+        <h4 className="font-bold font-heading text-xs sm:text-sm leading-tight text-stadium-primary line-clamp-2 px-1 relative z-10 group-hover:text-amber-300 transition-colors" title={trophy.name}>
           {trophy.name}
         </h4>
       </div>
@@ -1001,17 +1001,17 @@ function TrophyCard({ trophy, unlocked, count = 0, instances = [], progressRatio
       <div className="w-full mt-auto pt-2 border-t border-stadium-subtle/40 z-10">
         {unlocked ? (
           <div className="flex flex-col items-center gap-0.5">
-            <span className="text-[10px] text-amber-400 uppercase tracking-widest font-black font-mono">
+            <span className="text-[10px] text-amber-400 uppercase tracking-widest font-black font-score">
               {count > 1 ? `WON ×${count}` : 'UNLOCKED'}
             </span>
-            <span className="text-[9px] text-stadium-secondary font-mono truncate max-w-full">
+            <span className="text-[9px] text-stadium-secondary font-score truncate max-w-full">
               {instances[0]?.createdAt ? new Date(instances[0].createdAt).toLocaleDateString(undefined, { month: 'short', year: 'numeric' }) : 'Champion'}
             </span>
           </div>
         ) : percent > 0 ? (
           /* Tier 2: Locked, In Progress */
           <div className="w-full space-y-1.5 px-1">
-            <div className="flex items-center justify-between text-[9px] font-mono font-semibold text-stadium-secondary">
+            <div className="flex items-center justify-between text-[9px] font-score font-semibold text-stadium-secondary">
               <span className="truncate max-w-[65%]" title={requirement}>{statLabel}</span>
               <span className="text-stadium-primary font-bold tabular-nums">{currentStat}/{targetStat}</span>
             </div>

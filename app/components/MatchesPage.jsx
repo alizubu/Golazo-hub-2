@@ -58,7 +58,7 @@ export default function MatchesPage({ activeSeason, matches: initialMatches, pla
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <h2 className="text-2xl font-bold font-display flex items-center gap-2">
+        <h2 className="text-2xl font-bold font-heading flex items-center gap-2">
           <Calendar className="text-pitch-bright" /> All Matches
         </h2>
 

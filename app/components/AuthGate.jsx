@@ -37,7 +37,7 @@ export default function AuthGate({ players, showToast, onPlayerLogin, onAdminLog
             🏆
           </motion.div>
           <AnimatedGradientText className="mb-2">
-            <h1 className="font-display text-3xl font-bold tracking-tight px-2 text-white">Golazo Hub</h1>
+            <h1 className="font-heading text-3xl font-bold tracking-tight px-2 text-white">Golazo Hub</h1>
           </AnimatedGradientText>
           <p className="text-sm text-muted-foreground mt-2 font-medium">Matchday central for the crew</p>
         </FadeIn>
@@ -223,7 +223,7 @@ function SignUpForm({ showToast, onPlayerLogin }) {
           <div className="space-y-1.5">
             <Label className="text-muted-foreground font-semibold text-xs uppercase tracking-wider">Username</Label>
             <div className="relative">
-              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground font-mono text-sm">@</span>
+              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground font-score text-sm">@</span>
               <Input value={form.username} onChange={(e) => set('username', e.target.value)} placeholder="shadow_striker" className="pl-9 h-11 bg-secondary/30 focus-visible:ring-pitch-bright border-border/50" />
             </div>
           </div>

@@ -100,7 +100,7 @@ export default function FloatingNav({ session, me, tab, setTab, onLogout, player
           {/* Logo */}
           <div className="flex items-center gap-2 flex-shrink-0 z-10 min-w-0">
             <span className="text-xl leading-none drop-shadow-sm">🏆</span>
-            <span className="hidden lg:inline font-display text-sm font-bold tracking-tight text-white whitespace-nowrap">
+            <span className="hidden lg:inline font-heading text-sm font-bold tracking-tight text-white whitespace-nowrap">
               GOLAZO HUB
             </span>
           </div>
@@ -257,7 +257,7 @@ export default function FloatingNav({ session, me, tab, setTab, onLogout, player
 
           <div className="flex items-center gap-2 z-10">
             <span className="text-xl leading-none drop-shadow-sm">🏆</span>
-            <span className="font-display text-sm font-bold tracking-tight text-white">GOLAZO HUB</span>
+            <span className="font-heading text-sm font-bold tracking-tight text-white">GOLAZO HUB</span>
           </div>
           
           <div className="flex items-center gap-1 z-10">
@@ -302,7 +302,7 @@ export default function FloatingNav({ session, me, tab, setTab, onLogout, player
                 >
                   <div className="p-5 pb-4 border-b border-border/30 flex flex-col gap-2 shrink-0">
                     <div className="flex items-center justify-between">
-                      <div className="font-display text-lg font-bold tracking-tight flex items-center gap-2">
+                      <div className="font-heading text-lg font-bold tracking-tight flex items-center gap-2">
                         <span>🏆</span> GOLAZO HUB
                       </div>
                       {session?.type === "admin" && (

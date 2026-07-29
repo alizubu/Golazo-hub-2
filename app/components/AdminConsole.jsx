@@ -119,7 +119,7 @@ function AdminPlayers({ players, showToast }) {
       {editing && (
         <FadeIn>
           <Card className="p-6 border-gold/50 bg-gold/5">
-            <div className="text-xl font-bold font-display tracking-wide mb-4 text-gold">
+            <div className="text-xl font-bold font-heading tracking-wide mb-4 text-gold">
               {editing === "new" ? "New player account" : "Edit player"}
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -146,7 +146,7 @@ function AdminPlayers({ players, showToast }) {
             <MagicCard className="p-4 flex items-center gap-4">
               <Avatar p={p} size={48} />
               <div className="flex-1 min-w-0">
-                <div className="font-bold font-display truncate text-lg">{p.name} {p.flag}</div>
+                <div className="font-bold font-heading truncate text-lg">{p.name} {p.flag}</div>
                 <div className="text-xs text-muted-foreground truncate">{p.teamLogo} {p.teamName} · @{p.username}</div>
               </div>
               <Btn variant="ghost" className="p-2" onClick={() => startEdit(p)} disabled={loading}>Edit</Btn>
@@ -184,10 +184,14 @@ function AdminMatchControl({ m, players, showToast }) {
   const [optHome, setOptHome] = useState(m.homeScore || 0);
   const [optAway, setOptAway] = useState(m.awayScore || 0);
 
-  useEffect(() => {
+  // Sync optimistic state when server props change, without using useEffect
+  // which causes cascading renders.
+  const [prevScores, setPrevScores] = useState({ home: m.homeScore, away: m.awayScore });
+  if (m.homeScore !== prevScores.home || m.awayScore !== prevScores.away) {
+    setPrevScores({ home: m.homeScore, away: m.awayScore });
     setOptHome(m.homeScore || 0);
     setOptAway(m.awayScore || 0);
-  }, [m.homeScore, m.awayScore]);
+  }
 
   const update = async (data) => {
     setLoading(true);
@@ -251,7 +255,7 @@ function AdminMatchControl({ m, players, showToast }) {
       <MagicCard className="p-4 bg-secondary/50">
         <div className="flex items-center justify-between opacity-60">
           <div className="font-bold">{h?.name}</div>
-          <div className="text-xl font-mono">{m.homeScore} - {m.awayScore}</div>
+          <div className="text-xl font-score">{m.homeScore} - {m.awayScore}</div>
           <div className="font-bold">{a?.name}</div>
         </div>
       </MagicCard>
@@ -263,7 +267,7 @@ function AdminMatchControl({ m, players, showToast }) {
       <MagicCard className="p-5">
         <div className="flex items-center justify-between gap-4">
           <div className="flex-1 font-bold truncate">{h?.name}</div>
-          <span className="text-xs text-muted-foreground font-mono">VS</span>
+          <span className="text-xs text-muted-foreground font-score">VS</span>
           <div className="flex-1 text-right font-bold truncate">{a?.name}</div>
         </div>
         <div className="mt-4 flex justify-center">
@@ -290,7 +294,7 @@ function AdminMatchControl({ m, players, showToast }) {
               initial={{ scale: 1.4, color: '#22c55e' }}
               animate={{ scale: 1, color: 'inherit' }}
               transition={{ type: 'spring', stiffness: 400, damping: 15 }}
-              className="text-4xl font-mono w-14 text-center font-black select-none"
+              className="text-4xl font-score w-14 text-center font-black select-none"
             >
               {optHome}
             </motion.div>
@@ -298,8 +302,8 @@ function AdminMatchControl({ m, players, showToast }) {
           </div>
         </div>
         <div className="flex flex-col items-center justify-center gap-1 shrink-0">
-          <div className="text-sm font-mono opacity-30 font-bold select-none">-</div>
-          {loading && <span className="text-[10px] text-pitch-bright animate-pulse font-mono">saving...</span>}
+          <div className="text-sm font-score opacity-30 font-bold select-none">-</div>
+          {loading && <span className="text-[10px] text-pitch-bright animate-pulse font-score">saving...</span>}
         </div>
         <div className="flex-1 min-w-0 flex flex-col items-center justify-center gap-3 w-full">
           <div className="font-bold text-center truncate w-full px-2" title={a?.name}>{a?.name || 'Away'}</div>
@@ -310,7 +314,7 @@ function AdminMatchControl({ m, players, showToast }) {
               initial={{ scale: 1.4, color: '#22c55e' }}
               animate={{ scale: 1, color: 'inherit' }}
               transition={{ type: 'spring', stiffness: 400, damping: 15 }}
-              className="text-4xl font-mono w-14 text-center font-black select-none"
+              className="text-4xl font-score w-14 text-center font-black select-none"
             >
               {optAway}
             </motion.div>
@@ -756,8 +760,8 @@ function AdminTrophies({ players, trophies = [], showToast }) {
                               <span className="font-medium">{player?.name || t.playerId}</span>
                             </div>
                           </td>
-                          <td className="py-3 px-2 font-mono text-muted-foreground text-xs">{t.season}</td>
-                          <td className="py-3 px-2 font-mono text-muted-foreground text-xs whitespace-nowrap">
+                          <td className="py-3 px-2 font-score text-muted-foreground text-xs">{t.season}</td>
+                          <td className="py-3 px-2 font-score text-muted-foreground text-xs whitespace-nowrap">
                             {new Date(t.createdAt).toLocaleDateString()}
                           </td>
                           <td className="py-3 px-2">
@@ -971,7 +975,7 @@ function AdminSeason({ activeSeason, matches = [], players = [], showToast, setT
     return (
       <Card className="p-12 flex flex-col items-center justify-center text-center border-dashed border-2">
         <Trophy size={64} className="text-gold mb-6 opacity-80 drop-shadow-[0_0_15px_rgba(255,215,0,0.5)]" />
-        <h2 className="text-3xl font-bold font-display mb-3">No Active Season</h2>
+        <h2 className="text-3xl font-bold font-heading mb-3">No Active Season</h2>
         <p className="text-muted-foreground mb-8 max-w-md text-lg">Create a new season to begin league matches, track standings, and manage playoffs.</p>
         
         <div className="flex flex-col gap-4 w-full max-w-sm mt-4 text-left">
@@ -1176,7 +1180,7 @@ function AdminSeason({ activeSeason, matches = [], players = [], showToast, setT
            <Card className="p-6 flex-1 w-full">
              <div className="flex items-center justify-between mb-6">
                 <SectionTitle icon={ListOrdered}>League Standings</SectionTitle>
-                <div className="text-xs font-mono text-muted-foreground flex items-center gap-2">
+                <div className="text-xs font-score text-muted-foreground flex items-center gap-2">
                    <div className="w-2 h-2 rounded-full bg-success"></div> Top 4 Qualify
                 </div>
              </div>
@@ -1198,18 +1202,18 @@ function AdminSeason({ activeSeason, matches = [], players = [], showToast, setT
                  <tbody>
                    {standings.map((row, idx) => (
                      <tr key={row.id} className={`border-b border-border/30 last:border-0 hover:bg-secondary/20 transition-colors ${idx === 3 ? 'border-b-2 border-b-success/30' : ''}`}>
-                       <td className="px-4 py-4 text-center font-mono font-bold text-lg">
+                       <td className="px-4 py-4 text-center font-score font-bold text-lg">
                          {idx === 0 ? "🥇" : idx === 1 ? "🥈" : idx === 2 ? "🥉" : <span className="text-muted-foreground">{idx + 1}</span>}
                        </td>
                        <td className="px-4 py-4 font-bold text-base flex items-center gap-2">
                          {row.name} {row.flag}
                        </td>
-                       <td className="px-3 py-4 text-center font-mono text-muted-foreground">{row.p}</td>
-                       <td className="px-3 py-4 text-center font-mono text-muted-foreground">{row.w}</td>
-                       <td className="px-3 py-4 text-center font-mono text-muted-foreground">{row.d}</td>
-                       <td className="px-3 py-4 text-center font-mono text-muted-foreground">{row.l}</td>
-                       <td className="px-3 py-4 text-center font-mono">{row.gd > 0 ? `+${row.gd}` : row.gd}</td>
-                       <td className="px-4 py-4 text-center font-mono font-bold text-xl text-primary">{row.pts}</td>
+                       <td className="px-3 py-4 text-center font-score text-muted-foreground">{row.p}</td>
+                       <td className="px-3 py-4 text-center font-score text-muted-foreground">{row.w}</td>
+                       <td className="px-3 py-4 text-center font-score text-muted-foreground">{row.d}</td>
+                       <td className="px-3 py-4 text-center font-score text-muted-foreground">{row.l}</td>
+                       <td className="px-3 py-4 text-center font-score">{row.gd > 0 ? `+${row.gd}` : row.gd}</td>
+                       <td className="px-4 py-4 text-center font-score font-bold text-xl text-primary">{row.pts}</td>
                      </tr>
                    ))}
                    {standings.length === 0 && (
@@ -1238,7 +1242,7 @@ function AdminSeason({ activeSeason, matches = [], players = [], showToast, setT
                        <div key={m.id} className="flex flex-col p-4 rounded-xl bg-secondary/30 border border-border/50 gap-2">
                           <div className="flex justify-between items-center">
                             <span className="font-bold text-sm truncate flex-1">{h?.name}</span>
-                            <span className="text-[10px] font-mono text-muted-foreground px-3 py-1 bg-background rounded-full mx-2">VS</span>
+                            <span className="text-[10px] font-score text-muted-foreground px-3 py-1 bg-background rounded-full mx-2">VS</span>
                             <span className="font-bold text-sm truncate flex-1 text-right">{a?.name}</span>
                           </div>
                           {m.status === 'live' && <div className="mt-2 text-[10px] text-claret font-bold text-center tracking-widest uppercase bg-claret/10 py-1.5 rounded flex items-center justify-center gap-1"><span className="w-1.5 h-1.5 rounded-full bg-claret animate-pulse"></span> Match Live</div>}
@@ -1261,23 +1265,23 @@ function AdminSeason({ activeSeason, matches = [], players = [], showToast, setT
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-px bg-border/50 mt-4 rounded-xl overflow-hidden border border-border/50">
             <div className="flex flex-col bg-card p-4">
               <span className="text-[10px] text-muted-foreground font-bold uppercase tracking-widest mb-1">Total Goals</span>
-              <span className="text-3xl font-display font-bold text-pitch-bright">{totalGoals}</span>
+              <span className="text-3xl font-heading font-bold text-pitch-bright">{totalGoals}</span>
             </div>
             <div className="flex flex-col bg-card p-4">
               <span className="text-[10px] text-muted-foreground font-bold uppercase tracking-widest mb-1">Total Assists</span>
-              <span className="text-3xl font-display font-bold text-blue-400">{totalAssists}</span>
+              <span className="text-3xl font-heading font-bold text-blue-400">{totalAssists}</span>
             </div>
             <div className="flex flex-col bg-card p-4">
               <span className="text-[10px] text-muted-foreground font-bold uppercase tracking-widest mb-1">Avg Possession</span>
-              <span className="text-3xl font-display font-bold text-purple-400">{avgPoss}</span>
+              <span className="text-3xl font-heading font-bold text-purple-400">{avgPoss}</span>
             </div>
             <div className="flex flex-col bg-card p-4">
               <span className="text-[10px] text-muted-foreground font-bold uppercase tracking-widest mb-1">Cards (Y/R)</span>
-              <span className="text-3xl font-display font-bold"><span className="text-yellow-500">{yellowCards}</span> <span className="text-muted-foreground/30 font-mono text-xl">/</span> <span className="text-red-500">{redCards}</span></span>
+              <span className="text-3xl font-heading font-bold"><span className="text-yellow-500">{yellowCards}</span> <span className="text-muted-foreground/30 font-score text-xl">/</span> <span className="text-red-500">{redCards}</span></span>
             </div>
             <div className="flex flex-col bg-card p-4">
               <span className="text-[10px] text-muted-foreground font-bold uppercase tracking-widest mb-1">Clean Sheets</span>
-              <span className="text-3xl font-display font-bold text-green-400">{cleanSheets}</span>
+              <span className="text-3xl font-heading font-bold text-green-400">{cleanSheets}</span>
             </div>
             <div className="flex flex-col bg-card p-4 col-span-2 lg:col-span-3">
               <span className="text-[10px] text-muted-foreground font-bold uppercase tracking-widest mb-1">Highest Scoring Match</span>
@@ -1324,18 +1328,47 @@ function AdminSeason({ activeSeason, matches = [], players = [], showToast, setT
            </div>
            
            {['Created', 'Fixtures Generated', 'League Running', 'Playoffs', 'Champion'].map((step, idx) => {
-              let active = false;
-              if (idx === 0) active = true;
-              else if (idx === 1 && hasFixtures) active = true;
-              else if (idx === 2 && hasFixtures && progressPercent > 0) active = true;
-              else if (idx === 3 && isCompleted) active = true;
+              const hasPlayoffs = tMatches.some(m => m.round !== 'league');
+              let state = 'upcoming'; // upcoming, active, completed, skipped
+              let dateStr = null;
+
+              if (idx === 0) {
+                 state = 'completed';
+                 dateStr = activeSeason.createdAt ? new Date(activeSeason.createdAt).toLocaleDateString() : null;
+              } else if (idx === 1) {
+                 if (hasFixtures && progressPercent === 0) state = 'active';
+                 else if (hasFixtures && progressPercent > 0) state = 'completed';
+              } else if (idx === 2) {
+                 if (hasFixtures && progressPercent > 0 && progressPercent < 100) state = 'active';
+                 else if (progressPercent >= 100) state = 'completed';
+              } else if (idx === 3) {
+                 if (!hasPlayoffs && progressPercent >= 100) state = 'skipped';
+                 else if (hasPlayoffs && !isCompleted) state = 'active';
+                 else if (hasPlayoffs && isCompleted) state = 'completed';
+              } else if (idx === 4) {
+                 if (isCompleted) {
+                    state = 'completed';
+                    dateStr = activeSeason.completedAt ? new Date(activeSeason.completedAt).toLocaleDateString() : null;
+                 }
+              }
               
               return (
-                 <div key={step} className="relative z-10 flex flex-col items-center gap-4 w-20 text-center">
-                    <div className={`w-6 h-6 rounded-full flex items-center justify-center ${active ? 'bg-gold text-gold-900 ring-4 ring-gold/20' : 'bg-secondary text-muted-foreground ring-4 ring-background'}`}>
-                       {active ? <Check size={12} strokeWidth={4} /> : <div className="w-1.5 h-1.5 rounded-full bg-muted-foreground/30" />}
+                 <div key={step} className="relative z-10 flex flex-col items-center gap-4 w-20 text-center" title={dateStr ? `${step} — ${dateStr}` : step}>
+                    <div className={`w-6 h-6 rounded-full flex items-center justify-center transition-all duration-300 ${
+                       state === 'completed' ? 'bg-gold text-gold-900 ring-4 ring-gold/20' : 
+                       state === 'active' ? 'bg-background border-2 border-gold text-gold animate-pulse shadow-[0_0_15px_rgba(232,179,76,0.5)]' :
+                       state === 'skipped' ? 'bg-secondary/50 text-muted-foreground/30 ring-4 ring-background line-through' :
+                       'bg-secondary text-muted-foreground ring-4 ring-background'
+                    }`}>
+                       {state === 'completed' ? <Check size={12} strokeWidth={4} /> : 
+                        state === 'active' ? <div className="w-2 h-2 rounded-full bg-gold animate-ping" /> : 
+                        <div className="w-1.5 h-1.5 rounded-full bg-muted-foreground/30" />}
                     </div>
-                    <span className={`text-[10px] uppercase tracking-widest font-bold ${active ? 'text-foreground' : 'text-muted-foreground'}`}>{step}</span>
+                    <span className={`text-[10px] uppercase tracking-widest font-bold ${
+                       state === 'completed' || state === 'active' ? 'text-foreground' : 
+                       state === 'skipped' ? 'text-muted-foreground/40 line-through' : 
+                       'text-muted-foreground'
+                    }`}>{step}</span>
                  </div>
               );
            })}
@@ -1345,15 +1378,35 @@ function AdminSeason({ activeSeason, matches = [], players = [], showToast, setT
       <Card className="p-6 border-claret/30 bg-claret/5">
         <div className="flex items-center gap-2 mb-2 text-claret">
            <AlertTriangle size={20} />
-           <h2 className="text-lg font-display font-bold">Danger Zone</h2>
+           <h2 className="text-lg font-heading font-bold">Danger Zone</h2>
         </div>
         <p className="text-sm text-claret/70 mb-6">These actions are destructive and cannot be easily undone. Please proceed with caution.</p>
         
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-           <Btn variant="outline" className="border-claret/30 text-claret hover:bg-claret hover:text-white justify-center" onClick={() => showToast("Not implemented in this demo")}>
+           <Btn variant="outline" className="border-claret/30 text-claret hover:bg-claret hover:text-white justify-center" onClick={async () => {
+              if (window.confirm("Are you sure? This will wipe all completed match scores for this season and recalculate standings to zero.")) {
+                 const res = await fetch(`/api/admin/seasons/${activeSeason.id}/reset-standings`, { method: 'POST' });
+                 if (res.ok) {
+                    showToast("Standings have been reset.");
+                    window.location.reload();
+                 } else {
+                    showToast("Failed to reset standings.");
+                 }
+              }
+           }}>
               Reset Standings
            </Btn>
-           <Btn variant="outline" className="border-claret/30 text-claret hover:bg-claret hover:text-white justify-center" onClick={() => showToast("Not implemented in this demo")}>
+           <Btn variant="outline" className="border-claret/30 text-claret hover:bg-claret hover:text-white justify-center" onClick={async () => {
+              if (window.confirm("Are you sure? This will delete all scheduled fixtures that have not been played yet.")) {
+                 const res = await fetch(`/api/admin/seasons/${activeSeason.id}/remove-fixtures`, { method: 'POST' });
+                 if (res.ok) {
+                    showToast("Unplayed fixtures removed.");
+                    window.location.reload();
+                 } else {
+                    showToast("Failed to remove fixtures.");
+                 }
+              }
+           }}>
               Remove Fixtures
            </Btn>
            <Btn variant="danger" className="justify-center font-bold" onClick={handleDelete} loading={loading}>

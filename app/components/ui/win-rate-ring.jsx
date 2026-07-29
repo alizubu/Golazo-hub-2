@@ -14,12 +14,12 @@ export function WinRateRing({ value, isEmpty, emptyStateText, accentColor = 'eme
           <svg className="w-full h-full transform -rotate-90" viewBox="0 0 36 36">
             <path className="text-white/5 stroke-current" strokeWidth="3" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
           </svg>
-          <div className="absolute inset-0 flex items-center justify-center text-sm font-bold font-mono text-white/20">
+          <div className="absolute inset-0 flex items-center justify-center text-sm font-bold font-score text-white/20">
             —
           </div>
         </div>
         {emptyStateText && (
-          <span className="text-[10px] font-mono tracking-tight text-white/40 italic">{emptyStateText}</span>
+          <span className="text-[10px] font-score tracking-tight text-white/40 italic">{emptyStateText}</span>
         )}
       </div>
     );
@@ -41,7 +41,7 @@ export function WinRateRing({ value, isEmpty, emptyStateText, accentColor = 'eme
             transition={{ duration: 1.5, ease: "easeOut" }} 
           />
         </svg>
-        <div className="absolute inset-0 flex items-center justify-center text-sm font-bold font-mono tabular-nums text-white">
+        <div className="absolute inset-0 flex items-center justify-center text-sm font-bold font-score tabular-nums text-white">
           {isInView ? <NumberTicker value={value} className="text-white" /> : '0'}%
         </div>
       </div>

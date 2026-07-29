@@ -15,7 +15,7 @@ export function PageHeader({ title, onBack }) {
             <ChevronLeft size={20} />
           </Button>
         </motion.div>
-        {title && <h2 className="text-xl font-bold font-display">{title}</h2>}
+        {title && <h2 className="text-xl font-bold font-heading">{title}</h2>}
       </div>
 
       {/* Mobile view: sticky header bar */}
@@ -25,7 +25,7 @@ export function PageHeader({ title, onBack }) {
             <ChevronLeft size={24} />
           </Button>
         </motion.div>
-        {title && <h1 className="text-lg font-bold font-display truncate flex-1">{title}</h1>}
+        {title && <h1 className="text-lg font-bold font-heading truncate flex-1">{title}</h1>}
       </div>
     </>
   );

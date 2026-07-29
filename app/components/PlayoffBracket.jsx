@@ -140,7 +140,7 @@ export default function PlayoffBracket({ matches, players, onMatchClick }) {
               className="absolute left-[800px] top-[290px] w-[320px] p-4 text-center bg-gradient-to-b from-amber-500/20 to-transparent border border-amber-500/50 rounded-2xl"
             >
               <Trophy className="mx-auto mb-2 text-amber-400" size={28} />
-              <div className="text-lg font-bold font-display text-amber-400">
+              <div className="text-lg font-bold font-heading text-amber-400">
                 {byId[matchWinnerId(final)]?.name} is the Champion! 🏆
               </div>
             </motion.div>

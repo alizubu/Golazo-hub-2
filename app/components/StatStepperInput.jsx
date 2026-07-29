@@ -35,7 +35,7 @@ export default function StatStepperInput({ label, statKey, values, onChange }) {
           >
             <Minus size={16} />
           </button>
-          <div className="w-8 md:w-12 text-center font-mono font-bold text-base md:text-lg text-white">
+          <div className="w-8 md:w-12 text-center font-score font-bold text-base md:text-lg text-white">
             {values.a || 0}
           </div>
           <button 
@@ -58,7 +58,7 @@ export default function StatStepperInput({ label, statKey, values, onChange }) {
           >
             <Minus size={16} />
           </button>
-          <div className="w-8 md:w-12 text-center font-mono font-bold text-base md:text-lg text-white">
+          <div className="w-8 md:w-12 text-center font-score font-bold text-base md:text-lg text-white">
             {values.b || 0}
           </div>
           <button 

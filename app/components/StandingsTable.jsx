@@ -46,7 +46,7 @@ export default function StandingsTable({ matches, players, seasonId, me }) {
     <div className="overflow-x-auto rounded-xl border border-border/50 bg-card shadow-lg">
       <table className="w-full text-left border-collapse text-sm">
         <thead>
-          <tr className="border-b border-border/50 bg-secondary/80 font-display uppercase tracking-wider text-xs text-muted-foreground">
+          <tr className="border-b border-border/50 bg-secondary/80 font-heading uppercase tracking-wider text-xs text-muted-foreground">
             <th className="p-3 w-12 text-center">#</th>
             <th className="p-3">Player</th>
             <th className="p-2 sm:p-3 text-center">P</th>
@@ -59,7 +59,7 @@ export default function StandingsTable({ matches, players, seasonId, me }) {
             <th className="p-2 sm:p-3 text-center font-bold text-white">PTS</th>
           </tr>
         </thead>
-        <tbody className="divide-y divide-border/20 font-mono text-xs">
+        <tbody className="divide-y divide-border/20 font-score text-xs">
           {standings.map((s, i) => (
             <motion.tr 
               initial={{ opacity: 0, x: -10 }} 
@@ -73,7 +73,7 @@ export default function StandingsTable({ matches, players, seasonId, me }) {
               </td>
               <td className="p-3 flex items-center gap-2">
                 <Avatar p={s} size={24} />
-                <span className="font-bold text-white font-display text-sm">{s.name}</span>
+                <span className="font-bold text-white font-heading text-sm">{s.name}</span>
               </td>
               <td className="p-2 sm:p-3 text-center">{s.played}</td>
               <td className="p-2 sm:p-3 text-center text-muted-foreground hidden sm:table-cell">{s.won}</td>

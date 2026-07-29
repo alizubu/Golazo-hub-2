@@ -140,7 +140,7 @@ export default function SettingsView({ me, showToast }) {
     <div className="flex flex-col gap-8 pb-10 max-w-4xl mx-auto min-h-screen">
       <div className="flex items-center gap-3 px-1">
         <Settings className="text-muted-foreground" size={28} />
-        <h1 className="text-3xl font-black font-display tracking-tight">Settings</h1>
+        <h1 className="text-3xl font-black font-heading tracking-tight">Settings</h1>
       </div>
 
       <Tabs defaultValue="profile" className="w-full">
@@ -199,7 +199,7 @@ export default function SettingsView({ me, showToast }) {
                   </div>
                   <div className="space-y-1.5">
                     <Label>Username</Label>
-                    <Input value={me.username} disabled className="opacity-50 cursor-not-allowed font-mono bg-secondary/30" />
+                    <Input value={me.username} disabled className="opacity-50 cursor-not-allowed font-score bg-secondary/30" />
                   </div>
                 </div>
 

@@ -139,7 +139,7 @@ export const SectionTitle = ({ icon: Icon, children, right }) => (
   <div className="flex items-center justify-between mb-4">
     <div className="flex items-center gap-2.5">
       {Icon && <Icon size={20} className="text-pitch-bright shrink-0" />}
-      <h2 className="text-base sm:text-lg font-bold font-display tracking-tight text-foreground">{children}</h2>
+      <h2 className="text-base sm:text-lg font-bold font-heading tracking-tight text-foreground">{children}</h2>
     </div>
     {right && <div className="flex items-center gap-2">{right}</div>}
   </div>

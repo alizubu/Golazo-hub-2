@@ -41,7 +41,7 @@ function StatBar({ label, valueA, valueB, colorA, colorB, format = 'number', ind
         {label}
       </div>
       <div className="flex items-center gap-3">
-        <div className="w-8 text-right text-xs font-bold font-mono" style={{ color: colorA }}>{displayA}</div>
+        <div className="w-8 text-right text-xs font-bold font-score" style={{ color: colorA }}>{displayA}</div>
         <div className="flex-1 flex h-2 bg-secondary rounded-full overflow-hidden">
           <motion.div 
             className="h-full rounded-full" 
@@ -58,7 +58,7 @@ function StatBar({ label, valueA, valueB, colorA, colorB, format = 'number', ind
             transition={{ duration: 1, ease: 'easeOut', delay: 0.4 + index * 0.05 }}
           />
         </div>
-        <div className="w-8 text-left text-xs font-bold font-mono" style={{ color: colorB }}>{displayB}</div>
+        <div className="w-8 text-left text-xs font-bold font-score" style={{ color: colorB }}>{displayB}</div>
       </div>
     </motion.div>
   );
@@ -178,7 +178,7 @@ export default function MatchStatsModal({ matchId, onClose }) {
                       </motion.div>
                     )}
                   </div>
-                  <div className="text-sm font-bold text-white font-display text-center truncate w-24">{match.home.name}</div>
+                  <div className="text-sm font-bold text-white font-heading text-center truncate w-24">{match.home.name}</div>
                 </div>
 
                 {/* Score */}
@@ -190,17 +190,17 @@ export default function MatchStatsModal({ matchId, onClose }) {
                     />
                   )}
                   {match.status === 'scheduled' ? (
-                    <div className="text-lg font-mono text-muted-foreground">TBD</div>
+                    <div className="text-lg font-score text-muted-foreground">TBD</div>
                   ) : (
                     <motion.div 
                       className="flex flex-col items-center"
                       animate={flash ? { scale: [1, 1.2, 1], color: ['#fff', '#29C179', '#fff'] } : {}}
                     >
-                      <div className={`text-4xl font-bold font-mono leading-none ${match.homeScore > match.awayScore ? 'text-pitch-bright' : 'text-white'}`}>
+                      <div className={`text-4xl font-bold font-score leading-none ${match.homeScore > match.awayScore ? 'text-pitch-bright' : 'text-white'}`}>
                         {match.homeScore ?? 0}
                       </div>
                       <div className="w-4 h-px bg-white/20 my-1" />
-                      <div className={`text-4xl font-bold font-mono leading-none ${match.awayScore > match.homeScore ? 'text-pitch-bright' : 'text-muted-foreground'}`}>
+                      <div className={`text-4xl font-bold font-score leading-none ${match.awayScore > match.homeScore ? 'text-pitch-bright' : 'text-muted-foreground'}`}>
                         {match.awayScore ?? 0}
                       </div>
                     </motion.div>
@@ -223,7 +223,7 @@ export default function MatchStatsModal({ matchId, onClose }) {
                       </motion.div>
                     )}
                   </div>
-                  <div className="text-sm font-bold text-white font-display text-center truncate w-24">{match.away.name}</div>
+                  <div className="text-sm font-bold text-white font-heading text-center truncate w-24">{match.away.name}</div>
                 </div>
               </div>
 
@@ -244,7 +244,7 @@ export default function MatchStatsModal({ matchId, onClose }) {
                     </div>
                   </div>
                   {match.stats.motmRating && (
-                    <div className="text-sm font-bold text-gold font-mono shrink-0">⭐ {match.stats.motmRating}</div>
+                    <div className="text-sm font-bold text-gold font-score shrink-0">⭐ {match.stats.motmRating}</div>
                   )}
                 </motion.div>
               )}

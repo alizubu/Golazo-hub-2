@@ -108,17 +108,17 @@ export default function TrophyDetailModal({
 
           {/* Title & Badge */}
           <div className="relative z-10">
-            <h2 className="text-2xl font-black font-display tracking-tight text-stadium-primary mb-1">
+            <h2 className="text-2xl font-black font-heading tracking-tight text-stadium-primary mb-1">
               {trophy.name}
             </h2>
             <div className="flex items-center justify-center gap-2 mt-2">
               {unlocked ? (
-                <Badge variant="gold" className="px-3 py-1 font-mono text-xs shadow-md border border-amber-400/50 flex items-center gap-1.5 bg-amber-500/20 text-amber-300">
+                <Badge variant="gold" className="px-3 py-1 font-score text-xs shadow-md border border-amber-400/50 flex items-center gap-1.5 bg-amber-500/20 text-amber-300">
                   <CheckCircle2 size={14} className="text-amber-400" />
                   {count > 1 ? `UNLOCKED ×${count}` : 'UNLOCKED ACHIEVEMENT'}
                 </Badge>
               ) : (
-                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-stadium-base border border-stadium-subtle text-stadium-secondary font-mono text-xs font-semibold uppercase tracking-wider">
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-stadium-base border border-stadium-subtle text-stadium-secondary font-score text-xs font-semibold uppercase tracking-wider">
                   <Lock size={12} className="text-stadium-muted" /> Locked
                 </span>
               )}
@@ -145,7 +145,7 @@ export default function TrophyDetailModal({
                 <span className="text-stadium-secondary flex items-center gap-1.5">
                   <TrendingUp size={14} className="text-turf" /> Current Progress
                 </span>
-                <span className="font-mono text-stadium-primary font-bold">
+                <span className="font-score text-stadium-primary font-bold">
                   {currentStat} / {targetStat} <span className="text-stadium-muted font-normal">{statLabel}</span> ({percent}%)
                 </span>
               </div>
@@ -164,7 +164,7 @@ export default function TrophyDetailModal({
               <div className="text-xs font-semibold uppercase tracking-wider text-stadium-secondary flex items-center gap-1.5">
                 <Calendar size={14} className="text-turf" /> Achievement History
               </div>
-              <div className="space-y-2 font-mono text-xs">
+              <div className="space-y-2 font-score text-xs">
                 {instances && instances.length > 0 ? (
                   instances.map((inst, idx) => (
                     <div key={inst.id || idx} className="flex items-center justify-between py-1.5 border-b border-stadium-subtle/50 last:border-0 text-stadium-primary">
@@ -188,7 +188,7 @@ export default function TrophyDetailModal({
           <div className="pt-2">
             <Btn 
               variant={unlocked ? "gold" : "secondary"} 
-              className="w-full py-2.5 font-display tracking-wide font-bold text-sm shadow-md"
+              className="w-full py-2.5 font-heading tracking-wide font-bold text-sm shadow-md"
               onClick={() => onOpenChange(false)}
             >
               {unlocked ? "Celebrate & Close" : "Keep Grinding"}

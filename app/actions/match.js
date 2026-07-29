@@ -106,6 +106,66 @@ export async function updateMatchScore(matchId, homeScore, awayScore) {
   }
 }
 
+export async function editMatchScoreAdmin(matchId, homeScore, awayScore, adminId) {
+  try {
+    const match = await prisma.match.findUnique({ where: { id: matchId } });
+    if (!match) return { error: 'Match not found' };
+    
+    const existingStats = (typeof match.stats === 'object' && match.stats !== null) ? match.stats : {};
+    const stats = {
+      ...existingStats,
+      audit: {
+        editedAt: new Date().toISOString(),
+        editedBy: adminId || 'admin'
+      }
+    };
+
+    const updated = await prisma.match.update({
+      where: { id: matchId },
+      data: { 
+        homeScore, 
+        awayScore,
+        stats
+      }
+    });
+    
+    // Also log this as an announcement/notification for transparency
+    await prisma.notification.create({
+      data: {
+        text: `Admin updated match score: ${homeScore} - ${awayScore}`,
+        type: 'info'
+      }
+    });
+
+    revalidatePath('/');
+    revalidatePath('/admin');
+    return { success: true, match: updated };
+  } catch (error) {
+    return { error: 'Failed to edit match score' };
+  }
+}
+
+export async function createRematch(homeId, awayId, seasonId) {
+  try {
+    const match = await prisma.match.create({
+      data: {
+        seasonId,
+        round: 'friendly', // or 'league' if it counts for standings. Prompt says "friendly/bonus match bucket"
+        homeId,
+        awayId,
+        status: 'scheduled',
+        decisive: false,
+        label: 'Rematch'
+      }
+    });
+    revalidatePath('/');
+    revalidatePath('/admin');
+    return { success: true, match };
+  } catch (error) {
+    return { error: 'Failed to create rematch' };
+  }
+}
+
 export async function generatePlayoffs(seasonId, top4PlayerIds) {
   if (top4PlayerIds.length < 4) return { error: 'Need 4 players for playoffs' };
   

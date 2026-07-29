@@ -39,7 +39,7 @@ export default function MatchCard({ m, players, onClick }) {
         {/* Home Player */}
         <div className="flex flex-1 min-w-0 items-center gap-3">
           <Avatar p={h} size={44} ring="#0f1117" className="w-10 h-10 sm:w-12 sm:h-12" />
-          <div className={`font-bold font-display text-sm sm:text-base truncate flex items-center gap-1.5 ${m.homeScore > m.awayScore && isCompleted ? 'text-pitch-bright font-black' : ''}`} title={h?.name}>
+          <div className={`font-bold font-heading text-sm sm:text-base truncate flex items-center gap-1.5 ${m.homeScore > m.awayScore && isCompleted ? 'text-pitch-bright font-black' : ''}`} title={h?.name}>
             {m.homeScore > m.awayScore && isCompleted && <span className="text-xs shrink-0" title="Winner">🏆</span>}
             <span className="truncate">{toTitleCase(h?.name)}</span>
           </div>
@@ -50,9 +50,9 @@ export default function MatchCard({ m, players, onClick }) {
           {isCompleted ? (
             <>
               <div className="flex items-center gap-2">
-                <span className={`text-xl sm:text-2xl font-bold font-mono ${m.homeScore > m.awayScore ? 'text-pitch-bright' : 'text-white'}`}>{m.homeScore ?? 0}</span>
+                <span className={`text-xl sm:text-2xl font-bold font-score ${m.homeScore > m.awayScore ? 'text-pitch-bright' : 'text-white'}`}>{m.homeScore ?? 0}</span>
                 <span className="text-muted-foreground/50 font-medium">—</span>
-                <span className={`text-xl sm:text-2xl font-bold font-mono ${m.awayScore > m.homeScore ? 'text-pitch-bright' : 'text-white'}`}>{m.awayScore ?? 0}</span>
+                <span className={`text-xl sm:text-2xl font-bold font-score ${m.awayScore > m.homeScore ? 'text-pitch-bright' : 'text-white'}`}>{m.awayScore ?? 0}</span>
               </div>
               <div className="text-[10px] sm:text-xs text-muted-foreground uppercase font-semibold tracking-widest mt-1">FT</div>
             </>
@@ -67,22 +67,22 @@ export default function MatchCard({ m, players, onClick }) {
                 <span className="text-[9px] sm:text-[10px] text-white font-bold tracking-widest">LIVE</span>
               </motion.div>
               <div className="flex items-center gap-2">
-                <motion.span key={`h-${m.homeScore}`} initial={{ scale: 1.3, color: '#fff' }} animate={{ scale: 1, color: '#fff' }} className="text-xl sm:text-2xl font-bold font-mono text-white">{m.homeScore ?? 0}</motion.span>
+                <motion.span key={`h-${m.homeScore}`} initial={{ scale: 1.3, color: '#fff' }} animate={{ scale: 1, color: '#fff' }} className="text-xl sm:text-2xl font-bold font-score text-white">{m.homeScore ?? 0}</motion.span>
                 <span className="text-muted-foreground/50 font-medium">—</span>
-                <motion.span key={`a-${m.awayScore}`} initial={{ scale: 1.3, color: '#fff' }} animate={{ scale: 1, color: '#fff' }} className="text-xl sm:text-2xl font-bold font-mono text-white">{m.awayScore ?? 0}</motion.span>
+                <motion.span key={`a-${m.awayScore}`} initial={{ scale: 1.3, color: '#fff' }} animate={{ scale: 1, color: '#fff' }} className="text-xl sm:text-2xl font-bold font-score text-white">{m.awayScore ?? 0}</motion.span>
               </div>
             </>
           ) : (
             <>
               <div className="text-[10px] sm:text-xs text-muted-foreground font-semibold uppercase tracking-widest mb-1">{formatKickoff(m.scheduledAt)}</div>
-              <div className="text-lg sm:text-xl font-bold font-mono text-muted-foreground">vs</div>
+              <div className="text-lg sm:text-xl font-bold font-score text-muted-foreground">vs</div>
             </>
           )}
         </div>
 
         {/* Away Player */}
         <div className="flex flex-1 min-w-0 items-center justify-end gap-3 text-right">
-          <div className={`font-bold font-display text-sm sm:text-base truncate flex items-center justify-end gap-1.5 ${m.awayScore > m.homeScore && isCompleted ? 'text-pitch-bright font-black' : ''}`} title={a?.name}>
+          <div className={`font-bold font-heading text-sm sm:text-base truncate flex items-center justify-end gap-1.5 ${m.awayScore > m.homeScore && isCompleted ? 'text-pitch-bright font-black' : ''}`} title={a?.name}>
             <span className="truncate">{toTitleCase(a?.name)}</span>
             {m.awayScore > m.homeScore && isCompleted && <span className="text-xs shrink-0" title="Winner">🏆</span>}
           </div>

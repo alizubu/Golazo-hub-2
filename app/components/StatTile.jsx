@@ -107,8 +107,8 @@ export function StatTile({
     if (isEmpty && emptyStateText) {
       return (
         <div className="flex flex-col items-center justify-center gap-1.5 py-1">
-          <span className="text-xl font-mono font-bold text-white/20">—</span>
-          <span className="text-[10px] font-mono tracking-tight text-white/40 italic text-center leading-tight max-w-[120px]">{emptyStateText}</span>
+          <span className="text-xl font-score font-bold text-white/20">—</span>
+          <span className="text-[10px] font-score tracking-tight text-white/40 italic text-center leading-tight max-w-[120px]">{emptyStateText}</span>
         </div>
       );
     }

@@ -2,13 +2,15 @@
 
 import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Trophy, Calendar, Users, Radio, Activity, ArrowRight, Shield, Flame, Swords, Target, Goal, TrendingUp, History, ListOrdered, Zap, PlusCircle, CheckCircle2, Megaphone, Clock, AlertTriangle, ChevronRight, BarChart2, Star, CalendarDays, PlayCircle, Edit2, Bell } from 'lucide-react';
+import { Trophy, Calendar, Users, Radio, Activity, ArrowRight, Shield, Flame, Swords, Target, Goal, TrendingUp, History, ListOrdered, Zap, PlusCircle, CheckCircle2, Megaphone, Clock, AlertTriangle, ChevronRight, BarChart2, Star, CalendarDays, PlayCircle, Edit2, Bell, MoreVertical } from 'lucide-react';
 import { Card, SectionTitle, EmptyState, MagicCard, FadeIn, Badge, Btn, Avatar, toTitleCase } from './UI';
 import { supabase } from '@/lib/supabaseClient';
 import { BorderBeam } from './magicui/BorderBeam';
 import { NumberTicker } from './ui/number-ticker';
 import confetti from 'canvas-confetti';
 import { computeStandings } from './StandingsTable';
+import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from './ui/dropdown-menu';
+import { editMatchScoreAdmin, createRematch } from '@/app/actions/match';
 
 function formatName(name) {
   if (!name) return 'TBD';
@@ -48,7 +50,7 @@ function HeroSeasonSummary({ activeSeason, players, matches, setTab }) {
               <Badge color="var(--gold)">Draft</Badge>
             )}
           </div>
-          <h1 className="text-3xl md:text-5xl font-display font-black tracking-tight text-foreground">
+          <h1 className="text-3xl md:text-5xl font-heading font-black tracking-tight text-foreground">
             {activeSeason.name}
           </h1>
           <p className="text-sm text-muted-foreground line-clamp-2">
@@ -60,12 +62,12 @@ function HeroSeasonSummary({ activeSeason, players, matches, setTab }) {
           <div className="flex flex-col justify-center px-2">
             <span className="text-[10px] uppercase font-bold text-muted-foreground tracking-wider mb-1">League Progress</span>
             <div className="flex items-center gap-3">
-              <span className="text-2xl font-mono font-bold text-foreground">{progress}%</span>
+              <span className="text-2xl font-score font-bold text-foreground">{progress}%</span>
               <div className="w-24 h-2 bg-background rounded-full overflow-hidden border border-border/50">
                 <div className="h-full bg-gradient-to-r from-pitch to-pitch-bright transition-all duration-500" style={{ width: `${progress}%` }} />
               </div>
             </div>
-            <span className="text-[10px] text-muted-foreground mt-1 font-mono">{completedMatches} / {totalMatches} Matches Played</span>
+            <span className="text-[10px] text-muted-foreground mt-1 font-score">{completedMatches} / {totalMatches} Matches Played</span>
           </div>
 
           <div className="h-full w-px bg-border/50 hidden sm:block" />
@@ -116,7 +118,7 @@ function AdminMetrics({ matches, activeSeason, notifications = [], setTab }) {
                 <m.icon size={20} className={m.pulse ? "animate-pulse" : ""} />
               </div>
             </div>
-            <div className="text-3xl font-display font-black font-mono text-foreground mt-3">
+            <div className="text-3xl font-heading font-black font-score text-foreground mt-3">
               {m.value}
             </div>
             {m.sub && (
@@ -171,9 +173,9 @@ function LiveMatchCenter({ matches, players, activeSeason, setTab }) {
               
               <div className="flex flex-col items-center justify-center gap-2 w-1/3">
                 <div className="flex items-center justify-center gap-4 w-full">
-                  <div className="text-5xl md:text-6xl font-display font-black text-pitch-bright w-12 text-center">{liveMatch.homeScore || 0}</div>
-                  <div className="text-2xl font-mono text-muted-foreground/30 font-bold">VS</div>
-                  <div className="text-5xl md:text-6xl font-display font-black text-white w-12 text-center">{liveMatch.awayScore || 0}</div>
+                  <div className="text-5xl md:text-6xl font-heading font-black text-pitch-bright w-12 text-center">{liveMatch.homeScore || 0}</div>
+                  <div className="text-2xl font-score text-muted-foreground/30 font-bold">VS</div>
+                  <div className="text-5xl md:text-6xl font-heading font-black text-white w-12 text-center">{liveMatch.awayScore || 0}</div>
                 </div>
               </div>
               
@@ -224,7 +226,7 @@ function LiveMatchCenter({ matches, players, activeSeason, setTab }) {
           <Radio size={20} />
         </div>
         <div>
-          <h3 className="text-sm font-bold font-display text-foreground">No Live Matches Active</h3>
+          <h3 className="text-sm font-bold font-heading text-foreground">No Live Matches Active</h3>
           <p className="text-xs text-muted-foreground mt-0.5">Start a fixture from Match Control to broadcast live stats and scores.</p>
         </div>
       </div>
@@ -277,7 +279,7 @@ function LeagueSnapshot({ matches, players, activeSeason, setTab }) {
               <span className="text-xl shrink-0">{i === 0 ? '🥇' : i === 1 ? '🥈' : '🥉'}</span>
               <span className="font-bold text-sm truncate" title={s.name}>{formatName(s.name)}</span>
             </div>
-            <div className="text-pitch-bright font-bold font-mono text-sm shrink-0 ml-2">{s.pts} pts</div>
+            <div className="text-pitch-bright font-bold font-score text-sm shrink-0 ml-2">{s.pts} pts</div>
           </div>
         ))}
         {standings.length === 0 && <EmptyState text="No matches played." />}
@@ -309,7 +311,7 @@ function UpcomingMatchesMini({ matches, players, activeSeason, setTab }) {
               <div key={m.id} onClick={() => setTab && setTab('admin-matches')} className="flex flex-col p-3 rounded-lg bg-secondary/20 border border-border/30 gap-1.5 hover:bg-secondary/40 transition-colors cursor-pointer">
                 <div className="flex justify-between items-center text-sm gap-2">
                   <span className="font-bold truncate flex-1" title={h?.name}>{formatName(h?.name)}</span>
-                  <span className="text-[10px] font-mono text-muted-foreground px-2 py-0.5 bg-background rounded-full shrink-0 border border-border/50">VS</span>
+                  <span className="text-[10px] font-score text-muted-foreground px-2 py-0.5 bg-background rounded-full shrink-0 border border-border/50">VS</span>
                   <span className="font-bold truncate flex-1 text-right" title={a?.name}>{formatName(a?.name)}</span>
                 </div>
               </div>
@@ -324,16 +326,62 @@ function UpcomingMatchesMini({ matches, players, activeSeason, setTab }) {
 }
 
 // 7. Recent Results
-function RecentResults({ matches, players, activeSeason }) {
+function RecentResults({ matches, players, activeSeason, showToast }) {
+  const [editingMatch, setEditingMatch] = useState(null);
+  const [homeScore, setHomeScore] = useState(0);
+  const [awayScore, setAwayScore] = useState(0);
+
   if (!activeSeason) return null;
   const completed = matches
     .filter(m => m.seasonId === activeSeason.id && m.status === 'completed')
     .slice(-4)
     .reverse();
 
+  const handleEditSave = async () => {
+    if(!editingMatch) return;
+    const res = await editMatchScoreAdmin(editingMatch.id, homeScore, awayScore, "admin");
+    if(res.error) showToast?.(res.error);
+    else showToast?.("Score updated!");
+    setEditingMatch(null);
+  };
+
+  const handleRematch = async (m) => {
+    const res = await createRematch(m.homeId, m.awayId, m.seasonId);
+    if(res.error) showToast?.(res.error);
+    else showToast?.(`Rematch scheduled!`);
+  };
+
   return (
     <Card className="p-6 h-full flex flex-col">
       <SectionTitle icon={History}>Recent Match Results</SectionTitle>
+
+      {/* Edit Score Dialog */}
+      <AnimatePresence>
+        {editingMatch && (
+          <motion.div initial={{opacity:0}} animate={{opacity:1}} exit={{opacity:0}} className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+              <motion.div initial={{scale:0.95, opacity:0}} animate={{scale:1, opacity:1}} exit={{scale:0.95, opacity:0}} className="bg-card border border-border p-6 rounded-2xl w-full max-w-sm shadow-xl">
+                <h3 className="font-heading font-bold text-lg mb-2 text-white">Edit Score</h3>
+                <p className="text-xs text-claret mb-6">Warning: Editing this score will recalculate standings and stats. Continue?</p>
+                <div className="flex items-center justify-between gap-4 mb-8">
+                    <div className="flex-1 flex flex-col items-center">
+                      <span className="text-sm font-bold truncate mb-3 text-white">{players.find(p=>p.id===editingMatch.homeId)?.name}</span>
+                      <input type="number" value={homeScore} onChange={e=>setHomeScore(Number(e.target.value))} className="w-20 bg-background/50 border border-border rounded-lg text-center text-4xl font-score font-bold text-pitch-bright p-2 outline-none focus:ring-2 focus:ring-pitch" />
+                    </div>
+                    <span className="text-3xl text-muted-foreground/30 font-score">-</span>
+                    <div className="flex-1 flex flex-col items-center">
+                      <span className="text-sm font-bold truncate mb-3 text-white">{players.find(p=>p.id===editingMatch.awayId)?.name}</span>
+                      <input type="number" value={awayScore} onChange={e=>setAwayScore(Number(e.target.value))} className="w-20 bg-background/50 border border-border rounded-lg text-center text-4xl font-score font-bold text-white p-2 outline-none focus:ring-2 focus:ring-pitch" />
+                    </div>
+                </div>
+                <div className="flex justify-end gap-3">
+                    <Btn variant="outline" onClick={() => setEditingMatch(null)}>Cancel</Btn>
+                    <Btn onClick={handleEditSave} className="bg-pitch text-pitch-foreground hover:bg-pitch-bright">Save Corrected Score</Btn>
+                </div>
+              </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       <div className="flex-1 flex flex-col justify-center gap-4 py-4">
         {completed.length > 0 ? (
           completed.map((m) => {
@@ -345,23 +393,39 @@ function RecentResults({ matches, players, activeSeason }) {
             const hWon = hScore > aScore;
             const aWon = aScore > hScore;
             return (
-              <div key={m.id} className="flex items-center justify-between py-2 sm:py-2.5 border-b border-border/20 last:border-0">
-                <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
-                  <div className={`font-bold text-sm min-w-0 flex-1 truncate flex items-center gap-1.5 ${hWon ? 'text-pitch-bright font-black' : 'text-muted-foreground'}`} title={h?.name}>
-                    {hWon && <span className="text-xs shrink-0" title="Winner">🏆</span>}
-                    <span className="truncate">{formatName(h?.name)}</span>
+              <div key={m.id} className="group relative flex items-center justify-between py-2 sm:py-2.5 border-b border-border/20 last:border-0 hover:bg-secondary/40 px-2 -mx-2 rounded-lg transition-colors">
+                <div className="grid grid-cols-[1fr_auto_1fr] gap-2 sm:gap-4 w-full items-center">
+                  <div className={`flex items-center justify-end gap-2 min-w-0 ${hWon ? 'text-pitch-bright font-black' : 'text-muted-foreground'}`} title={h?.name}>
+                    <span className="font-bold text-sm truncate">{formatName(h?.name)}</span>
+                    <Avatar p={h} size={20} className="shrink-0" />
                   </div>
-                  <div className="font-mono text-xs bg-secondary/80 px-2.5 py-1 rounded-lg font-black border border-border/50 shrink-0 flex items-center gap-1">
+                  <div className="font-score text-xs sm:text-sm bg-secondary/80 px-2 sm:px-3 py-1 rounded-lg font-black border border-border/50 shrink-0 flex items-center justify-center gap-1.5 min-w-[60px]">
                     <span className={hWon ? 'text-pitch-bright text-sm' : ''}>{hScore}</span>
                     <span className="text-muted-foreground/50">-</span>
                     <span className={aWon ? 'text-pitch-bright text-sm' : ''}>{aScore}</span>
                   </div>
-                  <div className={`font-bold text-sm min-w-0 flex-1 text-right truncate flex items-center justify-end gap-1.5 ${aWon ? 'text-pitch-bright font-black' : 'text-muted-foreground'}`} title={a?.name}>
-                    <span className="truncate">{formatName(a?.name)}</span>
-                    {aWon && <span className="text-xs shrink-0" title="Winner">🏆</span>}
+                  <div className={`flex items-center justify-start gap-2 min-w-0 ${aWon ? 'text-pitch-bright font-black' : 'text-muted-foreground'}`} title={a?.name}>
+                    <Avatar p={a} size={20} className="shrink-0" />
+                    <span className="font-bold text-sm truncate">{formatName(a?.name)}</span>
                   </div>
                 </div>
-                <div className="text-[10px] uppercase tracking-widest text-muted-foreground font-semibold shrink-0 ml-3">{timeStr}</div>
+
+                {/* Actions Menu */}
+                <div className="absolute right-0 opacity-100 sm:opacity-0 group-hover:opacity-100 transition-opacity flex items-center bg-card/80 backdrop-blur-sm rounded-md shadow-sm border border-border/50">
+                   <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                         <button className="p-1.5 hover:bg-secondary rounded text-muted-foreground transition-colors"><MoreVertical size={16}/></button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end" className="w-40 border-border bg-popover shadow-xl rounded-xl">
+                         <DropdownMenuItem className="cursor-pointer hover:bg-secondary/80 focus:bg-secondary/80 rounded-lg text-sm" onClick={() => { setEditingMatch(m); setHomeScore(m.homeScore||0); setAwayScore(m.awayScore||0); }}>
+                            <Edit2 size={14} className="mr-2 text-muted-foreground" /> Edit Score
+                         </DropdownMenuItem>
+                         <DropdownMenuItem className="cursor-pointer hover:bg-secondary/80 focus:bg-secondary/80 rounded-lg text-sm" onClick={() => { if(window.confirm('Schedule a rematch?')) handleRematch(m); }}>
+                            <History size={14} className="mr-2 text-muted-foreground" /> Rematch
+                         </DropdownMenuItem>
+                      </DropdownMenuContent>
+                   </DropdownMenu>
+                </div>
               </div>
             );
           })
@@ -490,7 +554,7 @@ function TopPlayersHorizontal({ matches, players, activeSeason }) {
                   <cat.icon size={10} /> {cat.label}
                 </div>
                 <div className="font-bold text-sm truncate" title={cat.player?.name}>{formatName(cat.player?.name || "—")}</div>
-                <div className="text-xs font-mono text-pitch-bright font-bold mt-1 truncate">{cat.stat}</div>
+                <div className="text-xs font-score text-pitch-bright font-bold mt-1 truncate">{cat.stat}</div>
               </div>
             </div>
           </FadeIn>
@@ -539,7 +603,7 @@ function DashboardStatistics({ matches, activeSeason }) {
       <div className="grid grid-cols-2 gap-4 mt-4 h-full pb-4">
         {stats.map((s, i) => (
           <div key={i} className="flex flex-col items-center justify-center text-center p-4 bg-secondary/10 border border-border/30 rounded-lg">
-            <div className="text-2xl font-bold font-mono text-foreground mb-1">{s.value}</div>
+            <div className="text-2xl font-bold font-score text-foreground mb-1">{s.value}</div>
             <div className="text-[10px] uppercase tracking-widest text-muted-foreground font-semibold">{s.label}</div>
           </div>
         ))}
@@ -581,7 +645,7 @@ function DashboardTimeline({ activeSeason, matches }) {
               <span className="text-[10px] font-bold">{i + 1}</span>
             </div>
             <div className="flex flex-col sm:items-center text-left sm:text-center min-w-0 flex-1 sm:w-full sm:px-1">
-              <span className={`text-xs font-bold font-display leading-tight break-words ${s.active ? 'text-foreground' : 'text-muted-foreground'}`}>
+              <span className={`text-xs font-bold font-heading leading-tight break-words ${s.active ? 'text-foreground' : 'text-muted-foreground'}`}>
                 {s.label}
               </span>
               <span className="hidden md:block text-[10px] text-muted-foreground mt-0.5 leading-tight">
@@ -614,7 +678,7 @@ function MiniCalendar({ matches, players, activeSeason }) {
             return (
               <div key={m.id} className="flex justify-between items-center bg-secondary/20 p-3 rounded-lg border border-border/30">
                 <span className="text-sm font-semibold truncate flex-1 mr-2" title={`${h?.name || 'TBD'} vs ${a?.name || 'TBD'}`}>{formatName(h?.name)} vs {formatName(a?.name)}</span>
-                <span className="text-xs font-mono font-bold text-pitch-bright shrink-0">{timeStr}</span>
+                <span className="text-xs font-score font-bold text-pitch-bright shrink-0">{timeStr}</span>
               </div>
             );
           })
@@ -662,7 +726,7 @@ export default function AdminOverviewDashboard({ players = [], activeSeason, mat
     return (
       <div className="flex flex-col items-center justify-center py-20">
         <Trophy size={64} className="text-muted-foreground mb-4 opacity-50" />
-        <h2 className="text-2xl font-bold font-display text-muted-foreground">No Active Tournament</h2>
+        <h2 className="text-2xl font-bold font-heading text-muted-foreground">No Active Tournament</h2>
         <p className="text-muted-foreground/70 mt-2 mb-4">Go to the Tournament tab to create a new season.</p>
         <Btn onClick={() => setTab && setTab('admin-season')} className="text-xs uppercase tracking-wider font-bold cursor-pointer">Create Season <ChevronRight size={14} className="ml-1" /></Btn>
       </div>
