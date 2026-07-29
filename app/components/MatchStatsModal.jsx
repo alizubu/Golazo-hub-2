@@ -94,7 +94,7 @@ export default function MatchStatsModal({ matchId, onClose }) {
     fetchMatch();
     
     // Subscribe if we are potentially live
-    const channel = supabase.channel(`modal-match-${matchId}`)
+    const channel = supabase.channel(`league-events`)
       .on('broadcast', { event: 'match_update' }, (payload) => {
         if (!isMounted) return;
         const updated = payload.payload;

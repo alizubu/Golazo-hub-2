@@ -6,18 +6,40 @@ import FloatingNav from './FloatingNav';
 import PlayerViews from './PlayerViews';
 import AdminConsole from './AdminConsole';
 import { AnimatePresence, motion } from 'framer-motion';
+import { supabase } from '@/lib/supabaseClient';
+import { clearAuthCookie } from '@/app/actions/auth';
 
-export default function ClientApp({ initialPlayers, initialSeasons, initialMatches, initialNotifications, initialAnnouncements, initialTrophies, adminConfig }) {
-  const [session, setSession] = useState(null);
+export default function ClientApp({ initialSession, initialPlayers, initialSeasons, initialMatches, initialNotifications, initialAnnouncements, initialTrophies, adminConfig }) {
+  const [session, setSession] = useState(initialSession || null);
   const [tab, setTab] = useState('dashboard');
   const [toast, setToast] = useState(null);
+  const [matches, setMatches] = useState(initialMatches || []);
+  
+  const [prevInitial, setPrevInitial] = useState(initialMatches);
+
+  if (initialMatches !== prevInitial) {
+    setPrevInitial(initialMatches);
+    setMatches(initialMatches || []);
+  }
+
+  React.useEffect(() => {
+    const channel = supabase.channel('league-events')
+      .on('broadcast', { event: 'match_update' }, (payload) => {
+        const updated = payload.payload;
+        setMatches(prev => prev.map(m => m.id === updated.id ? { ...m, ...updated } : m));
+      })
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, []);
 
   let players = initialPlayers || [];
   if (session?.type === 'player' && session.player && !players.find(p => p.id === session.playerId)) {
     players = [...players, session.player];
   }
   const seasons = initialSeasons || [];
-  const matches = initialMatches || [];
   const notifications = initialNotifications || [];
   const announcements = initialAnnouncements || [];
   const trophies = initialTrophies || [];
@@ -66,7 +88,7 @@ export default function ClientApp({ initialPlayers, initialSeasons, initialMatch
         me={me}
         tab={tab}
         setTab={setTab}
-        onLogout={() => { setSession(null); setTab('dashboard'); }}
+        onLogout={async () => { await clearAuthCookie(); setSession(null); setTab('dashboard'); }}
         players={players}
         notifications={notifications}
         matches={matches}

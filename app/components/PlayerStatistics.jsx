@@ -48,11 +48,11 @@ export function PlayerStatistics({ myRank, elo, played, winRate, goals, assists,
                 show: { opacity: 1, transition: { staggerChildren: 0.1 } }
               }}
             >
-              {/* Tile 1: Current Rank (Hero) - Tall on desktop, full width on mobile */}
-              <motion.div variants={{ hidden: { opacity: 0, scale: 0.95 }, show: { opacity: 1, scale: 1 } }} className="col-span-2 sm:col-span-2 sm:row-span-2 flex">
+              {/* Tile 1: Current Rank (Hero) */}
+              <motion.div variants={{ hidden: { opacity: 0, scale: 0.95 }, show: { opacity: 1, scale: 1 } }} className="col-span-1 sm:col-span-2 sm:row-span-2 flex">
                 <StatTile 
                   icon={Trophy}
-                  label="Current Rank"
+                  label="Rank"
                   value={myRank ? `#${myRank}` : null}
                   loaded={statsLoaded}
                   colorAccent="gold"
@@ -62,7 +62,7 @@ export function PlayerStatistics({ myRank, elo, played, winRate, goals, assists,
                 />
               </motion.div>
 
-              {/* Tile 2: Elo Rating - Row 1 */}
+              {/* Tile 2: Elo Rating */}
               <motion.div variants={{ hidden: { opacity: 0, y: 15 }, show: { opacity: 1, y: 0 } }} className="col-span-1 sm:col-span-2 flex">
                 <StatTile 
                   icon={Activity}
@@ -76,7 +76,21 @@ export function PlayerStatistics({ myRank, elo, played, winRate, goals, assists,
                 />
               </motion.div>
 
-              {/* Tile 3: Matches - Row 1 */}
+              {/* Tile 3: Win Rate */}
+              <motion.div variants={{ hidden: { opacity: 0, y: 15 }, show: { opacity: 1, y: 0 } }} className="col-span-1 sm:col-span-2 flex">
+                <StatTile 
+                  icon={TrendingUp}
+                  label="Win Rate"
+                  value={winRate}
+                  loaded={statsLoaded}
+                  colorAccent="green"
+                  size="medium"
+                  isPercentage={true}
+                  emptyStateText="Play 1+ match"
+                />
+              </motion.div>
+
+              {/* Tile 4: Matches */}
               <motion.div variants={{ hidden: { opacity: 0, y: 15 }, show: { opacity: 1, y: 0 } }} className="col-span-1 sm:col-span-2 flex">
                 <StatTile 
                   icon={Swords}
@@ -93,21 +107,7 @@ export function PlayerStatistics({ myRank, elo, played, winRate, goals, assists,
                 />
               </motion.div>
 
-              {/* Tile 4: Win Rate - Row 2 (under Elo) */}
-              <motion.div variants={{ hidden: { opacity: 0, y: 15 }, show: { opacity: 1, y: 0 } }} className="col-span-2 sm:col-span-2 flex">
-                <StatTile 
-                  icon={TrendingUp}
-                  label="Win Rate"
-                  value={winRate}
-                  loaded={statsLoaded}
-                  colorAccent="green"
-                  size="medium"
-                  isPercentage={true}
-                  emptyStateText="Play 1+ match"
-                />
-              </motion.div>
-
-              {/* Tile 5: Goals - Row 2 */}
+              {/* Tile 5: Goals */}
               <motion.div variants={{ hidden: { opacity: 0, y: 15 }, show: { opacity: 1, y: 0 } }} className="col-span-1 sm:col-span-1 flex">
                 <StatTile 
                   icon={Target}
@@ -121,7 +121,7 @@ export function PlayerStatistics({ myRank, elo, played, winRate, goals, assists,
                 />
               </motion.div>
 
-              {/* Tile 6: Assists - Row 2 */}
+              {/* Tile 6: Assists */}
               <motion.div variants={{ hidden: { opacity: 0, y: 15 }, show: { opacity: 1, y: 0 } }} className="col-span-1 sm:col-span-1 flex">
                 <StatTile 
                   icon={Handshake}

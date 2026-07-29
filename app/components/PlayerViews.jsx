@@ -12,6 +12,7 @@ import MatchesPage from './MatchesPage';
 import MatchCard from './MatchCard';
 import MatchStatsModal from './MatchStatsModal';
 import TrophyDetailModal from './TrophyDetailModal';
+import HeadToHeadModal from './HeadToHeadModal';
 import StatChip from './StatChip';
 import { PlayerStatistics } from './PlayerStatistics';
 import { BorderBeam } from './magicui/BorderBeam';
@@ -26,17 +27,34 @@ const nationalTeams = nationalTeamsData.map(nt => ({ ...nt, subtitle: nt.confede
 
 export default function PlayerViews(props) {
   const [selectedMatchId, setSelectedMatchId] = React.useState(null);
+  const [h2hTargetId, setH2hTargetId] = React.useState(null);
+
   const handleMatchClick = (id) => setSelectedMatchId(id);
   const handleCloseModal = () => setSelectedMatchId(null);
-  const newProps = { ...props, onMatchClick: handleMatchClick };
-  const { tab } = props;
-  if (tab === "dashboard") return <><PlayerDashboard {...newProps} />{selectedMatchId && <MatchStatsModal matchId={selectedMatchId} onClose={handleCloseModal} />}</>;
-  if (tab === "matches") return <><PageHeader title="Matches" onBack={() => props.setTab('dashboard')} /><div className="p-4 sm:p-8"><MatchesPage {...newProps} /></div>{selectedMatchId && <MatchStatsModal matchId={selectedMatchId} onClose={handleCloseModal} />}</>;
-  if (tab === "players") return <><RosterView {...props} />{selectedMatchId && <MatchStatsModal matchId={selectedMatchId} onClose={handleCloseModal} />}</>;
-  if (tab === "history") return <><HistoryView {...props} />{selectedMatchId && <MatchStatsModal matchId={selectedMatchId} onClose={handleCloseModal} />}</>;
-  if (tab === "notifications") return <NotificationsView {...props} />;
-  if (tab === "settings") return <SettingsView {...props} />;
-  return null;
+  const handleH2HClick = (id) => {
+    if (id !== props.me?.id) {
+      setH2hTargetId(id);
+    }
+  };
+
+  const newProps = { ...props, onMatchClick: handleMatchClick, onH2HClick: handleH2HClick };
+  const { tab, me, players, matches } = props;
+
+  const h2hTarget = players.find(p => p.id === h2hTargetId);
+
+  return (
+    <>
+      {tab === "dashboard" && <PlayerDashboard {...newProps} />}
+      {tab === "matches" && <><PageHeader title="Matches" onBack={() => props.setTab('dashboard')} /><div className="p-4 sm:p-8"><MatchesPage {...newProps} /></div></>}
+      {tab === "players" && <RosterView {...newProps} />}
+      {tab === "history" && <HistoryView {...newProps} />}
+      {tab === "notifications" && <NotificationsView {...newProps} />}
+      {tab === "settings" && <SettingsView {...newProps} />}
+      
+      {selectedMatchId && <MatchStatsModal matchId={selectedMatchId} onClose={handleCloseModal} />}
+      {h2hTarget && <HeadToHeadModal playerA={me} playerB={h2hTarget} allMatches={matches} onClose={() => setH2hTargetId(null)} onMatchClick={handleMatchClick} players={players} />}
+    </>
+  );
 }
 
 function computeStandings(matches, players, seasonId) {
@@ -168,8 +186,9 @@ function CircularProgress({ value, color = "var(--pitch-bright)", label }) {
   );
 }
 
-function PlayerDashboard({ me, activeSeason, matches, players, announcements = [], trophies = [], notifications = [], setTab, persistPlayers, onMatchClick }) {
-  const t = activeSeason;
+function PlayerDashboard({ me, activeSeason, seasons = [], matches, players, announcements = [], trophies = [], notifications = [], setTab, persistPlayers, onMatchClick }) {
+  const [selectedSeasonId, setSelectedSeasonId] = React.useState(activeSeason?.id);
+  const t = seasons.find(s => s.id === selectedSeasonId) || activeSeason;
   const tMatches = t ? matches.filter((m) => m.seasonId === t.id) : [];
   const standings = t ? computeStandings(tMatches, players, t.id) : [];
   const myRank = standings.findIndex((s) => s.id === me.id) + 1;
@@ -419,6 +438,19 @@ function PlayerDashboard({ me, activeSeason, matches, players, announcements = [
           </div>
         </div>
       </FadeIn>
+
+      <div className="flex items-center justify-between mt-2 mb-2 px-1">
+        <h3 className="font-heading font-bold text-lg">Season Stats</h3>
+        <select 
+          className="bg-secondary/50 border border-border/50 rounded-lg px-3 py-1.5 text-sm font-semibold outline-none focus:ring-1 focus:ring-pitch-bright text-foreground"
+          value={selectedSeasonId || ''}
+          onChange={(e) => setSelectedSeasonId(e.target.value)}
+        >
+          {seasons.map(s => (
+            <option key={s.id} value={s.id}>{s.name} {s.id === activeSeason?.id ? '(Active)' : ''}</option>
+          ))}
+        </select>
+      </div>
 
       <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
         <PlayerStatistics 

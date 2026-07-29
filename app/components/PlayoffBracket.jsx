@@ -131,10 +131,11 @@ export default function PlayoffBracket({ matches, players, onMatchClick }) {
   };
 
   return (
-    <div className="w-full relative py-2 md:py-8" ref={containerRef}>
-      
-      {/* DESKTOP VIEW (Hidden on Mobile) */}
-      <div className="hidden md:grid grid-cols-3 grid-rows-[auto_auto_auto_auto] gap-x-12 gap-y-6 relative w-full items-center">
+    <div className="w-full overflow-x-auto pb-4">
+      <div className="w-full relative py-2 md:py-8 min-w-[750px] px-4 md:px-0" ref={containerRef}>
+        
+        {/* MAIN GRID VIEW */}
+        <div className="grid grid-cols-3 grid-rows-[auto_auto_auto_auto] gap-x-12 gap-y-6 relative w-full items-center">
         
         {/* SVG Connector Canvas */}
         {lines && (
@@ -213,32 +214,7 @@ export default function PlayoffBracket({ matches, players, onMatchClick }) {
         </div>
 
       </div>
-
-      {/* MOBILE VIEW (Hidden on Desktop) */}
-      <div className="flex md:hidden flex-col relative px-2 w-full max-w-sm mx-auto">
-        <div className="flex flex-col gap-6 w-full">
-          <MatchNode label="Qualifier (1st vs 2nd)" labelColor="text-amber-500" m={semiA} players={players} onClick={onMatchClick} delay={0.1} />
-          <MatchNode label="Eliminator (3rd vs 4th)" labelColor="text-rose-500" m={semiB} players={players} onClick={onMatchClick} delay={0.2} />
-        </div>
-        
-        <div className="w-[3px] h-10 bg-gradient-to-b from-amber-500/50 to-slate-400/50 mx-auto my-4 rounded-full" />
-        
-        <MatchNode label="Challenger" labelColor="text-slate-400" m={challenger} players={players} onClick={onMatchClick} delay={0.3} />
-        
-        <div className="w-[3px] h-10 bg-gradient-to-b from-slate-400/50 to-green-500/50 mx-auto my-4 rounded-full" />
-        
-        <MatchNode label="Grand Final" labelColor="text-green-500" m={final} players={players} onClick={onMatchClick} delay={0.4} isFinal={true} />
-        
-        {final?.status === "completed" && (
-          <div className="mt-6 w-full p-4 text-center bg-gradient-to-b from-amber-500/10 to-transparent border border-amber-500/30 rounded-2xl">
-            <Trophy className="mx-auto mb-2 text-amber-400" size={24} />
-            <div className="text-base font-bold font-heading text-amber-400">
-              {byId[matchWinnerId(final)]?.name} is the Champion!
-            </div>
-          </div>
-        )}
       </div>
-
     </div>
   );
 }

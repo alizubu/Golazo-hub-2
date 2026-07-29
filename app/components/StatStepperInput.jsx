@@ -35,9 +35,17 @@ export default function StatStepperInput({ label, statKey, values, onChange }) {
           >
             <Minus size={16} />
           </button>
-          <div className="w-8 md:w-12 text-center font-score font-bold text-base md:text-lg text-white">
-            {values.a || 0}
-          </div>
+          <input
+            type="number"
+            min="0"
+            value={values.a || ''}
+            onChange={(e) => {
+              const val = parseInt(e.target.value, 10);
+              onChange(statKey, 'a', isNaN(val) ? 0 : val);
+            }}
+            className="w-12 md:w-16 text-center font-score font-bold text-base md:text-lg bg-transparent border-none outline-none text-white appearance-none m-0 p-0"
+            style={{ MozAppearance: 'textfield' }}
+          />
           <button 
             type="button"
             onClick={() => handleA(1)}
@@ -58,9 +66,17 @@ export default function StatStepperInput({ label, statKey, values, onChange }) {
           >
             <Minus size={16} />
           </button>
-          <div className="w-8 md:w-12 text-center font-score font-bold text-base md:text-lg text-white">
-            {values.b || 0}
-          </div>
+          <input
+            type="number"
+            min="0"
+            value={values.b || ''}
+            onChange={(e) => {
+              const val = parseInt(e.target.value, 10);
+              onChange(statKey, 'b', isNaN(val) ? 0 : val);
+            }}
+            className="w-12 md:w-16 text-center font-score font-bold text-base md:text-lg bg-transparent border-none outline-none text-white appearance-none m-0 p-0"
+            style={{ MozAppearance: 'textfield' }}
+          />
           <button 
             type="button"
             onClick={() => handleB(1)}

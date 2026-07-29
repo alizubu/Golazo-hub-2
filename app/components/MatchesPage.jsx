@@ -7,29 +7,8 @@ import PlayoffBracket from './PlayoffBracket';
 import { Calendar, ListOrdered, Swords } from 'lucide-react';
 import { supabase } from '@/lib/supabaseClient';
 
-export default function MatchesPage({ activeSeason, matches: initialMatches, players, me, onMatchClick }) {
+export default function MatchesPage({ activeSeason, matches, players, me, onMatchClick }) {
   const [view, setView] = useState("list");
-  const [matches, setMatches] = useState(initialMatches);
-
-  useEffect(() => {
-    // eslint-disable-next-line
-    setMatches(initialMatches);
-  }, [initialMatches]);
-
-  useEffect(() => {
-    if (!activeSeason) return;
-
-    const channel = supabase.channel('matches-page')
-      .on('broadcast', { event: 'match_update' }, (payload) => {
-        const updated = payload.payload;
-        setMatches(prev => prev.map(m => m.id === updated.id ? { ...m, ...updated } : m));
-      })
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  }, [activeSeason]);
 
   if (!activeSeason) {
     return (

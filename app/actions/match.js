@@ -3,6 +3,7 @@
 import prisma from '@/lib/db';
 import { broadcastEvent } from '@/lib/broadcast';
 import { revalidatePath } from 'next/cache';
+import { cookies } from 'next/headers';
 
 export async function getMatches(seasonId) {
   return await prisma.match.findMany({
@@ -16,6 +17,7 @@ export async function getMatches(seasonId) {
 }
 
 export async function generateFixtures(seasonId, playerIds, doubleRound) {
+  if (cookies().get('golazo_session')?.value !== 'admin') return { error: 'Unauthorized' };
   if (playerIds.length < 2) return { error: 'Need at least 2 players' };
 
   const legs = [];
@@ -165,6 +167,7 @@ export async function updateMatchStatus(matchId, data) {
     }
 
     revalidatePath('/');
+    broadcastEvent('match_update', match);
     return { match };
   } catch (error) {
     return { error: 'Failed to update match status' };
@@ -178,6 +181,7 @@ export async function updateMatchScore(matchId, homeScore, awayScore) {
       data: { homeScore, awayScore }
     });
     revalidatePath('/');
+    broadcastEvent('match_update', match);
     return { success: true, match };
   } catch (error) {
     return { error: 'Failed to update match score' };
@@ -185,6 +189,7 @@ export async function updateMatchScore(matchId, homeScore, awayScore) {
 }
 
 export async function editMatchScoreAdmin(matchId, homeScore, awayScore, adminId) {
+  if (cookies().get('golazo_session')?.value !== 'admin') return { error: 'Unauthorized' };
   try {
     const match = await prisma.match.findUnique({ where: { id: matchId } });
     if (!match) return { error: 'Match not found' };
@@ -217,6 +222,7 @@ export async function editMatchScoreAdmin(matchId, homeScore, awayScore, adminId
 
     revalidatePath('/');
     revalidatePath('/admin');
+    broadcastEvent('match_update', updated);
     return { success: true, match: updated };
   } catch (error) {
     return { error: 'Failed to edit match score' };
@@ -224,6 +230,7 @@ export async function editMatchScoreAdmin(matchId, homeScore, awayScore, adminId
 }
 
 export async function createRematch(homeId, awayId, seasonId) {
+  if (cookies().get('golazo_session')?.value !== 'admin') return { error: 'Unauthorized' };
   try {
     const match = await prisma.match.create({
       data: {
@@ -249,6 +256,7 @@ export async function createRematch(homeId, awayId, seasonId) {
 }
 
 export async function generatePlayoffs(seasonId, top4PlayerIds) {
+  if (cookies().get('golazo_session')?.value !== 'admin') return { error: 'Unauthorized' };
   if (top4PlayerIds.length < 4) return { error: 'Need 4 players for playoffs' };
   
   try {

@@ -3,6 +3,7 @@
 import prisma from '@/lib/db';
 import { revalidatePath } from 'next/cache';
 import { generateRoundRobinFixtures } from '@/lib/fixtures';
+import { cookies } from 'next/headers';
 
 export async function getSeasons() {
   return await prisma.season.findMany({
@@ -13,6 +14,7 @@ export async function getSeasons() {
 
 
 export async function startSeason(name, type, startDate) {
+  if (cookies().get('golazo_session')?.value !== 'admin') return { error: 'Unauthorized' };
   if (!name || !name.trim()) return { error: 'Give the season a name' };
   
   const active = await getActiveSeason();
@@ -73,6 +75,7 @@ export async function startSeason(name, type, startDate) {
 
 
 export async function deleteSeason(id) {
+  if (cookies().get('golazo_session')?.value !== 'admin') return { error: 'Unauthorized' };
   try {
     await prisma.season.delete({
       where: { id }
@@ -86,6 +89,7 @@ export async function deleteSeason(id) {
 }
 
 export async function renameSeason(id, newName) {
+  if (cookies().get('golazo_session')?.value !== 'admin') return { error: 'Unauthorized' };
   if (!newName || !newName.trim()) return { error: 'Name cannot be empty' };
   
   try {
@@ -104,6 +108,7 @@ export async function renameSeason(id, newName) {
 
 
 export async function completeSeason(id, data) {
+  if (cookies().get('golazo_session')?.value !== 'admin') return { error: 'Unauthorized' };
   try {
     await prisma.season.update({
       where: { id },

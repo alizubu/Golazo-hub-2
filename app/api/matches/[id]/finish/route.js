@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/db';
 import { revalidatePath } from 'next/cache';
+import { broadcastEvent } from '@/lib/broadcast';
 
 function computeRating(playerStats, score) {
   let r = 6.0;
@@ -112,6 +113,7 @@ export async function POST(req, { params }) {
     ]);
 
     revalidatePath('/');
+    broadcastEvent('match_update', updatedMatch);
     return NextResponse.json({ success: true, match: updatedMatch });
   } catch (error) {
     console.error(error);

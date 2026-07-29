@@ -39,7 +39,7 @@ export function computeStandings(matches, players, seasonId) {
     .sort((a, b) => b.pts - a.pts || b.gd - a.gd || b.gf - a.gf || a.name.localeCompare(b.name));
 }
 
-export default function StandingsTable({ matches, players, seasonId, me }) {
+export default function StandingsTable({ matches, players, seasonId, me, onH2HClick }) {
   const standings = computeStandings(matches, players, seasonId);
 
   return (
@@ -71,9 +71,14 @@ export default function StandingsTable({ matches, players, seasonId, me }) {
               <td className="p-3 text-center font-medium text-muted-foreground">
                 {i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : i + 1}
               </td>
-              <td className="p-3 flex items-center gap-2">
-                <Avatar p={s} size={24} />
-                <span className="font-bold text-white font-heading text-sm">{s.name}</span>
+              <td className="p-3">
+                <div 
+                  className={`flex items-center gap-2 ${me && s.id !== me.id ? 'cursor-pointer hover:opacity-80 transition-opacity' : ''}`}
+                  onClick={() => me && s.id !== me.id && onH2HClick && onH2HClick(s.id)}
+                >
+                  <Avatar p={s} size={24} />
+                  <span className="font-bold text-white font-heading text-sm">{s.name}</span>
+                </div>
               </td>
               <td className="p-2 sm:p-3 text-center">{s.played}</td>
               <td className="p-2 sm:p-3 text-center text-muted-foreground hidden sm:table-cell">{s.won}</td>

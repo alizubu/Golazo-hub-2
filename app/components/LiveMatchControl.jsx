@@ -17,15 +17,19 @@ export default function LiveMatchControl({ matches, players, activeSeason, showT
   // Find next scheduled match
   const nextMatch = matches.find(m => m.status === 'scheduled' && m.seasonId === activeSeason?.id);
 
-  const [optHome, setOptHome] = useState(0);
-  const [optAway, setOptAway] = useState(0);
+  const [optHome, setOptHome] = useState(liveMatch?.homeScore || 0);
+  const [optAway, setOptAway] = useState(liveMatch?.awayScore || 0);
+  
+  const currentLiveMatchHash = `${liveMatch?.id}-${liveMatch?.homeScore}-${liveMatch?.awayScore}`;
+  const [prevLiveMatchHash, setPrevLiveMatchHash] = useState(currentLiveMatchHash);
 
-  useEffect(() => {
+  if (currentLiveMatchHash !== prevLiveMatchHash) {
+    setPrevLiveMatchHash(currentLiveMatchHash);
     if (liveMatch) {
       setOptHome(liveMatch.homeScore || 0);
       setOptAway(liveMatch.awayScore || 0);
     }
-  }, [liveMatch?.homeScore, liveMatch?.awayScore, liveMatch?.id]);
+  }
 
   const startNextMatch = async () => {
     if (!nextMatch) return;
@@ -114,12 +118,6 @@ export default function LiveMatchControl({ matches, players, activeSeason, showT
     
     showToast("Match completed & stats saved!");
     setModalOpen(false);
-    
-    supabase.channel('matches-page').send({
-      type: 'broadcast',
-      event: 'match_update',
-      payload: data.match
-    });
     
     return true;
   };

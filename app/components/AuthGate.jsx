@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { Lock, User, UserPlus, ShieldAlert, Mail, Eye, EyeOff, Loader2 } from 'lucide-react';
 import { Card, Input, Label, FadeIn } from './UI';
 import { signInPlayer, signUpPlayer } from '@/app/actions/player';
+import { setAuthCookie } from '@/app/actions/auth';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Meteors } from './magicui/Meteors';
 import { AnimatedGradientText } from './magicui/AnimatedGradientText';
@@ -112,6 +113,7 @@ function SignInForm({ players, onPlayerLogin }) {
     const res = await signInPlayer({ id, password: pwd });
     setBusy(false);
     if (res.error) return setErr(res.error);
+    await setAuthCookie('player', res.player.id);
     onPlayerLogin(res.player);
   };
 
@@ -202,6 +204,7 @@ function SignUpForm({ showToast, onPlayerLogin }) {
     const res = await signUpPlayer(form);
     setBusy(false);
     if (res.error) return setErr(res.error);
+    await setAuthCookie('player', res.player.id);
     showToast(`Welcome to the league, ${res.player.name}! Set up your avatar and team in Profile.`);
     onPlayerLogin(res.player);
   };
@@ -302,7 +305,10 @@ function AdminLoginForm({ onAdminLogin, onBack }) {
     setBusy(true);
     const res = await fetch('/api/admin', { method: 'POST', body: JSON.stringify({ password: pwd }) });
     setBusy(false);
-    if (res.ok) onAdminLogin();
+    if (res.ok) {
+      await setAuthCookie('admin');
+      onAdminLogin();
+    }
     else setErr("Incorrect password.");
   };
 
