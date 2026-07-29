@@ -13,6 +13,7 @@ import { signUpPlayer, adminUpdatePlayer, adminDeletePlayer } from '@/app/action
 import { supabase } from '@/lib/supabaseClient';
 import PlayoffBracket from './PlayoffBracket';
 import { getCode } from 'country-list';
+import nationalTeamsData from '@/lib/data/national_teams.json';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/app/components/ui/tabs';
 import {
   Dialog,
@@ -182,7 +183,7 @@ function AdminMatches({ matches, activeSeason, players, showToast }) {
       <div className="grid gap-4">
         {tMatches.map((m, i) => (
           <FadeIn key={m.id} delay={i * 0.05}>
-            <AdminMatchControl m={m} players={players} showToast={showToast} />
+            <AdminMatchControl m={m} players={players} showToast={showToast} isPlayoff={false} />
           </FadeIn>
         ))}
       </div>
@@ -190,7 +191,7 @@ function AdminMatches({ matches, activeSeason, players, showToast }) {
   );
 }
 
-function AdminMatchControl({ m, players, showToast }) {
+function AdminMatchControl({ m, players, showToast, isPlayoff = false }) {
   const byId = Object.fromEntries(players.map((p) => [p.id, p]));
   const h = byId[m.homeId], a = byId[m.awayId];
   const [loading, setLoading] = useState(false);
@@ -264,19 +265,44 @@ function AdminMatchControl({ m, players, showToast }) {
   const finishMatch = () => update({ status: "completed", liveState: null });
 
   if (m.status === "completed") {
-    return <CompletedMatchCard m={m} h={h} a={a} players={players} showToast={showToast} />;
+    return <CompletedMatchCard m={m} h={h} a={a} players={players} showToast={showToast} isPlayoff={isPlayoff} />;
   }
 
   if (m.status === "scheduled") {
+    const hFlagUrl = nationalTeamsData.find(nt => nt.name === h?.flag)?.flag_url;
+    const aFlagUrl = nationalTeamsData.find(nt => nt.name === a?.flag)?.flag_url;
+
     return (
-      <MagicCard className="p-5">
-        <div className="flex items-center justify-between gap-4">
-          <div className="flex-1 font-bold truncate">{h?.name}</div>
-          <span className="text-xs text-muted-foreground font-score">VS</span>
-          <div className="flex-1 text-right font-bold truncate">{a?.name}</div>
-        </div>
-        <div className="mt-4 flex justify-center">
-          <ShinyButton onClick={startMatch} loading={loading}><Radio size={14} className="mr-2"/> Start Live Match</ShinyButton>
+      <MagicCard className="group p-3 sm:p-4 bg-secondary/30 relative overflow-hidden">
+        <div className="flex items-center gap-2">
+          {/* 3-Column Grid matching CompletedMatchCard */}
+          <div className="grid grid-cols-3 gap-2 items-center w-full pr-8">
+            {/* Col 1: Avatar Home */}
+            <div className="flex items-center justify-end gap-2 sm:gap-3">
+              <span className="text-foreground text-sm font-semibold truncate max-w-[100px] sm:max-w-none text-right" title={h?.name}>
+                {toTitleCase(h?.name)}
+              </span>
+              {hFlagUrl && <img src={hFlagUrl} alt={h?.flag} className="w-4 h-3 sm:w-5 sm:h-3.5 object-cover rounded-[2px] shadow-sm shrink-0" />}
+              <Avatar p={h} size={40} className="w-8 h-8 sm:w-10 sm:h-10 shrink-0" />
+            </div>
+
+            {/* Col 2: VS / Play Button */}
+            <div className="flex flex-col items-center justify-center">
+              <span className="text-xs text-muted-foreground font-score uppercase tracking-widest font-bold mb-1">vs</span>
+              <ShinyButton onClick={startMatch} loading={loading} className="px-3 py-1 text-xs">
+                <Radio size={12} className="mr-1.5"/> Start
+              </ShinyButton>
+            </div>
+
+            {/* Col 3: Flag + Name Away */}
+            <div className="flex items-center justify-start gap-2 sm:gap-3">
+              <Avatar p={a} size={40} className="w-8 h-8 sm:w-10 sm:h-10 shrink-0" />
+              {aFlagUrl && <img src={aFlagUrl} alt={a?.flag} className="w-4 h-3 sm:w-5 sm:h-3.5 object-cover rounded-[2px] shadow-sm shrink-0" />}
+              <span className="text-foreground text-sm font-semibold truncate max-w-[100px] sm:max-w-none text-left" title={a?.name}>
+                {toTitleCase(a?.name)}
+              </span>
+            </div>
+          </div>
         </div>
       </MagicCard>
     );
@@ -345,8 +371,8 @@ function AdminMatchControl({ m, players, showToast }) {
   );
 }
 
-// ─── Completed Match Card (5-col grid, flags, actions) ───────────────────────
-function CompletedMatchCard({ m, h, a, players, showToast }) {
+// ─── Completed Match Card (3-col grid, flags, actions) ───────────────────────
+function CompletedMatchCard({ m, h, a, players, showToast, isPlayoff = false }) {
   const [editOpen, setEditOpen] = useState(false);
   const [editHome, setEditHome] = useState(m.homeScore || 0);
   const [editAway, setEditAway] = useState(m.awayScore || 0);
@@ -356,8 +382,9 @@ function CompletedMatchCard({ m, h, a, players, showToast }) {
   const aScore = m.awayScore || 0;
   const hWon = hScore > aScore;
   const aWon = aScore > hScore;
-  const hFlagCode = h?.flag ? getCode(h.flag)?.toLowerCase() : null;
-  const aFlagCode = a?.flag ? getCode(a.flag)?.toLowerCase() : null;
+  
+  const hFlagUrl = nationalTeamsData.find(nt => nt.name === h?.flag)?.flag_url;
+  const aFlagUrl = nationalTeamsData.find(nt => nt.name === a?.flag)?.flag_url;
 
   const handleEditSave = async () => {
     setSaving(true);
@@ -374,26 +401,31 @@ function CompletedMatchCard({ m, h, a, players, showToast }) {
     else showToast('🔄 Rematch scheduled!');
   };
 
+  const handleReset = async () => {
+    setSaving(true);
+    const res = await updateMatchStatus(m.id, { status: 'scheduled', homeScore: 0, awayScore: 0 });
+    if (res.error) showToast(res.error);
+    else showToast('✅ Match reset to scheduled');
+    setSaving(false);
+  };
+
   return (
     <MagicCard className="group p-3 sm:p-4 bg-secondary/30 hover:bg-secondary/40 transition-all duration-300 relative overflow-hidden">
       <div className="flex items-center gap-2">
-        {/* 5-Column Grid */}
-        <div className="grid grid-cols-[32px_1fr_80px_1fr_32px] sm:grid-cols-[40px_1fr_96px_1fr_40px] gap-2 items-center flex-1">
-          {/* Col 1: Avatar Home */}
-          <div className="flex justify-start">
+        {/* 3-Column Grid for true centering */}
+        <div className="grid grid-cols-3 gap-2 items-center w-full pr-8">
+          
+          {/* Col 1: Home Player (Aligned Right) */}
+          <div className="flex items-center justify-end gap-2 sm:gap-3">
+            <span className="text-foreground text-sm font-semibold truncate max-w-[100px] sm:max-w-none text-right" title={h?.name}>
+              {toTitleCase(h?.name)}
+            </span>
+            {hFlagUrl && <img src={hFlagUrl} alt={h?.flag} className="w-4 h-3 sm:w-5 sm:h-3.5 object-cover rounded-[2px] shadow-sm shrink-0" />}
             <Avatar p={h} size={40} className="w-8 h-8 sm:w-10 sm:h-10 shrink-0" />
           </div>
 
-          {/* Col 2: Name + Flag Home */}
-          <div className="flex items-center justify-end gap-1.5 min-w-0">
-            <span className="text-foreground text-sm truncate max-w-[100px] sm:max-w-none" title={h?.name}>
-              {toTitleCase(h?.name)}
-            </span>
-            {hFlagCode && <span className={`fi fi-${hFlagCode} text-[12px] sm:text-[14px] rounded-[2px] overflow-hidden shrink-0 shadow-sm`} />}
-          </div>
-
-          {/* Col 3: Score Box */}
-          <div className="flex items-center justify-center shrink-0">
+          {/* Col 2: Score Box (Centered perfectly within the 3-col grid) */}
+          <div className="flex items-center justify-center">
             <div className={`w-20 sm:w-24 h-9 bg-black/40 border ${m.status === 'live' ? 'border-red-500/50' : 'border-border/50'} rounded-lg flex items-center justify-center gap-2`}>
               <span className={`font-score text-base ${hWon ? 'text-pitch-bright font-black drop-shadow-md' : 'text-muted-foreground font-semibold'}`}>{hScore}</span>
               <span className="text-muted-foreground/30 font-score text-sm">-</span>
@@ -401,22 +433,18 @@ function CompletedMatchCard({ m, h, a, players, showToast }) {
             </div>
           </div>
 
-          {/* Col 4: Flag + Name Away */}
-          <div className="flex items-center justify-start gap-1.5 min-w-0">
-            {aFlagCode && <span className={`fi fi-${aFlagCode} text-[12px] sm:text-[14px] rounded-[2px] overflow-hidden shrink-0 shadow-sm`} />}
-            <span className="text-foreground text-sm truncate max-w-[100px] sm:max-w-none" title={a?.name}>
+          {/* Col 3: Away Player (Aligned Left) */}
+          <div className="flex items-center justify-start gap-2 sm:gap-3">
+            <Avatar p={a} size={40} className="w-8 h-8 sm:w-10 sm:h-10 shrink-0" />
+            {aFlagUrl && <img src={aFlagUrl} alt={a?.flag} className="w-4 h-3 sm:w-5 sm:h-3.5 object-cover rounded-[2px] shadow-sm shrink-0" />}
+            <span className="text-foreground text-sm font-semibold truncate max-w-[100px] sm:max-w-none text-left" title={a?.name}>
               {toTitleCase(a?.name)}
             </span>
           </div>
-
-          {/* Col 5: Avatar Away */}
-          <div className="flex justify-end">
-            <Avatar p={a} size={40} className="w-8 h-8 sm:w-10 sm:h-10 shrink-0" />
-          </div>
         </div>
 
-        {/* Action Column */}
-        <div className="w-8 shrink-0 flex justify-end">
+        {/* Action Menu (Absolute position to not disrupt grid centering) */}
+        <div className="absolute right-3 sm:right-4 flex justify-end">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <button className="opacity-100 sm:opacity-0 group-hover:opacity-100 transition-opacity p-1.5 rounded-lg hover:bg-secondary text-muted-foreground">
@@ -431,12 +459,20 @@ function CompletedMatchCard({ m, h, a, players, showToast }) {
                 <Edit2 size={14} className="mr-2" /> Edit Score
               </DropdownMenuItem>
               <DropdownMenuSeparator className="bg-border/30" />
-              <DropdownMenuItem
-                className="cursor-pointer rounded-lg py-2"
-                onClick={handleRematch}
-              >
-                <History size={14} className="mr-2" /> Rematch
-              </DropdownMenuItem>
+              {isPlayoff ? (
+                <>
+                  <DropdownMenuItem className="cursor-pointer rounded-lg py-2" onClick={handleReset}>
+                    <Clock size={14} className="mr-2" /> Postpone
+                  </DropdownMenuItem>
+                  <DropdownMenuItem className="cursor-pointer rounded-lg py-2 text-destructive focus:text-destructive" onClick={handleReset}>
+                    <AlertTriangle size={14} className="mr-2" /> Reset Result
+                  </DropdownMenuItem>
+                </>
+              ) : (
+                <DropdownMenuItem className="cursor-pointer rounded-lg py-2" onClick={handleRematch}>
+                  <History size={14} className="mr-2" /> Rematch
+                </DropdownMenuItem>
+              )}
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
@@ -554,11 +590,15 @@ function AdminPlayoffs({ activeSeason, matches, players, showToast }) {
       />
 
       {/* Admin match controls for each playoff match */}
-      <div className="flex flex-col gap-4">
-        <h3 className="text-sm font-bold uppercase tracking-wider text-muted-foreground">Playoff Match Controls</h3>
+      <div className="flex flex-col gap-4 mt-4">
+        <div className="flex items-center gap-3 border-b border-border/50 pb-2 mb-2">
+          <h3 className="text-sm font-bold uppercase tracking-wider text-muted-foreground">Playoff Match Controls</h3>
+          <Badge color="#475569">{playoffMatches.length} Matches</Badge>
+        </div>
+        
         {playoffMatches.map((m, i) => (
           <FadeIn key={m.id} delay={i * 0.05}>
-            <AdminMatchControl m={m} players={players} showToast={showToast} />
+            <AdminMatchControl m={m} players={players} showToast={showToast} isPlayoff={true} />
           </FadeIn>
         ))}
       </div>

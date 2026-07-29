@@ -8,7 +8,7 @@ import { StatTile } from './StatTile';
 
 export function PlayerStatistics({ myRank, elo, played, winRate, goals, assists, statsLoaded }) {
   return (
-    <FadeIn delay={0.2} className="col-span-1 md:col-span-12 h-full">
+    <FadeIn delay={0.2} className="col-span-12 h-full">
       <MagicCard gradientColor="rgba(255, 255, 255, 0.03)" className="h-full relative overflow-hidden group">
         
         {/* Ambient lighting background: Sleek gradients instead of dot pattern */}
@@ -77,7 +77,7 @@ export function PlayerStatistics({ myRank, elo, played, winRate, goals, assists,
               </motion.div>
 
               {/* Tile 3: Matches - Row 1 */}
-              <motion.div variants={{ hidden: { opacity: 0, y: 15 }, show: { opacity: 1, y: 0 } }} className="col-span-2 sm:col-span-2 flex">
+              <motion.div variants={{ hidden: { opacity: 0, y: 15 }, show: { opacity: 1, y: 0 } }} className="col-span-1 sm:col-span-2 flex">
                 <StatTile 
                   icon={Swords}
                   label="Matches"
@@ -94,7 +94,7 @@ export function PlayerStatistics({ myRank, elo, played, winRate, goals, assists,
               </motion.div>
 
               {/* Tile 4: Win Rate - Row 2 (under Elo) */}
-              <motion.div variants={{ hidden: { opacity: 0, y: 15 }, show: { opacity: 1, y: 0 } }} className="col-span-1 sm:col-span-2 flex">
+              <motion.div variants={{ hidden: { opacity: 0, y: 15 }, show: { opacity: 1, y: 0 } }} className="col-span-2 sm:col-span-2 flex">
                 <StatTile 
                   icon={TrendingUp}
                   label="Win Rate"
