@@ -233,7 +233,11 @@ export async function createRematch(homeId, awayId, seasonId) {
         awayId,
         status: 'scheduled',
         decisive: false,
-        label: 'Rematch'
+        label: 'Rematch',
+        homeScore: null,
+        awayScore: null,
+        completedAt: null,
+        stats: null
       }
     });
     revalidatePath('/');

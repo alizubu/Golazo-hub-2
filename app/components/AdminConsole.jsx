@@ -12,6 +12,7 @@ import { getTrophyTemplates, awardTrophy, removeTrophy, updateTrophy, createTrop
 import { signUpPlayer, adminUpdatePlayer, adminDeletePlayer } from '@/app/actions/player';
 import { supabase } from '@/lib/supabaseClient';
 import PlayoffBracket from './PlayoffBracket';
+import { getCode } from 'country-list';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/app/components/ui/tabs';
 import {
   Dialog,
@@ -344,7 +345,7 @@ function AdminMatchControl({ m, players, showToast }) {
   );
 }
 
-// ─── Completed Match Card (3-col grid, flags, actions) ───────────────────────
+// ─── Completed Match Card (5-col grid, flags, actions) ───────────────────────
 function CompletedMatchCard({ m, h, a, players, showToast }) {
   const [editOpen, setEditOpen] = useState(false);
   const [editHome, setEditHome] = useState(m.homeScore || 0);
@@ -355,6 +356,8 @@ function CompletedMatchCard({ m, h, a, players, showToast }) {
   const aScore = m.awayScore || 0;
   const hWon = hScore > aScore;
   const aWon = aScore > hScore;
+  const hFlagCode = h?.flag ? getCode(h.flag)?.toLowerCase() : null;
+  const aFlagCode = a?.flag ? getCode(a.flag)?.toLowerCase() : null;
 
   const handleEditSave = async () => {
     setSaving(true);
@@ -372,66 +375,74 @@ function CompletedMatchCard({ m, h, a, players, showToast }) {
   };
 
   return (
-    <MagicCard className="group p-3 sm:p-4 bg-secondary/30 hover:bg-secondary/50 transition-colors">
-      <div className="grid grid-cols-[1fr_auto_1fr] gap-2 items-center w-full">
-        {/* Home: right-aligned */}
-        <div className={`flex items-center justify-end gap-1.5 min-w-0 ${hWon ? 'text-pitch-bright font-black' : 'text-muted-foreground'}`}>
-          <span className="font-bold text-sm truncate" title={h?.name}>
-            {toTitleCase(h?.name)}
-          </span>
-          {/* Club crest + national flag */}
-          {h?.teamLogo && <span className="text-base shrink-0">{h.teamLogo}</span>}
-          {h?.flag && <span className="text-base shrink-0">{h.flag}</span>}
-          <Avatar p={h} size={22} className="shrink-0" />
-        </div>
+    <MagicCard className="group p-3 sm:p-4 bg-secondary/30 hover:bg-secondary/40 transition-all duration-300 relative overflow-hidden">
+      <div className="flex items-center gap-2">
+        {/* 5-Column Grid */}
+        <div className="grid grid-cols-[32px_1fr_80px_1fr_32px] sm:grid-cols-[40px_1fr_96px_1fr_40px] gap-2 items-center flex-1">
+          {/* Col 1: Avatar Home */}
+          <div className="flex justify-start">
+            <Avatar p={h} size={40} className="w-8 h-8 sm:w-10 sm:h-10 shrink-0" />
+          </div>
 
-        {/* Score: fixed-width, centered, monospace Chakra Petch */}
-        <div className="flex items-center justify-center shrink-0">
-          <div className="font-score text-sm font-black bg-background/60 border border-border/50 rounded-lg px-3 py-1 flex items-center gap-1.5 min-w-[64px] justify-center">
-            <span className={hWon ? 'text-pitch-bright' : ''}>{hScore}</span>
-            <span className="text-muted-foreground/40">-</span>
-            <span className={aWon ? 'text-pitch-bright' : ''}>{aScore}</span>
+          {/* Col 2: Name + Flag Home */}
+          <div className="flex items-center justify-end gap-1.5 min-w-0">
+            <span className="text-foreground text-sm truncate max-w-[100px] sm:max-w-none" title={h?.name}>
+              {toTitleCase(h?.name)}
+            </span>
+            {hFlagCode && <span className={`fi fi-${hFlagCode} text-[12px] sm:text-[14px] rounded-[2px] overflow-hidden shrink-0 shadow-sm`} />}
+          </div>
+
+          {/* Col 3: Score Box */}
+          <div className="flex items-center justify-center shrink-0">
+            <div className={`w-20 sm:w-24 h-9 bg-black/40 border ${m.status === 'live' ? 'border-red-500/50' : 'border-border/50'} rounded-lg flex items-center justify-center gap-2`}>
+              <span className={`font-score text-base ${hWon ? 'text-pitch-bright font-black drop-shadow-md' : 'text-muted-foreground font-semibold'}`}>{hScore}</span>
+              <span className="text-muted-foreground/30 font-score text-sm">-</span>
+              <span className={`font-score text-base ${aWon ? 'text-pitch-bright font-black drop-shadow-md' : 'text-muted-foreground font-semibold'}`}>{aScore}</span>
+            </div>
+          </div>
+
+          {/* Col 4: Flag + Name Away */}
+          <div className="flex items-center justify-start gap-1.5 min-w-0">
+            {aFlagCode && <span className={`fi fi-${aFlagCode} text-[12px] sm:text-[14px] rounded-[2px] overflow-hidden shrink-0 shadow-sm`} />}
+            <span className="text-foreground text-sm truncate max-w-[100px] sm:max-w-none" title={a?.name}>
+              {toTitleCase(a?.name)}
+            </span>
+          </div>
+
+          {/* Col 5: Avatar Away */}
+          <div className="flex justify-end">
+            <Avatar p={a} size={40} className="w-8 h-8 sm:w-10 sm:h-10 shrink-0" />
           </div>
         </div>
 
-        {/* Away: left-aligned */}
-        <div className={`flex items-center justify-start gap-1.5 min-w-0 ${aWon ? 'text-pitch-bright font-black' : 'text-muted-foreground'}`}>
-          <Avatar p={a} size={22} className="shrink-0" />
-          {a?.flag && <span className="text-base shrink-0">{a.flag}</span>}
-          {a?.teamLogo && <span className="text-base shrink-0">{a.teamLogo}</span>}
-          <span className="font-bold text-sm truncate" title={a?.name}>
-            {toTitleCase(a?.name)}
-          </span>
+        {/* Action Column */}
+        <div className="w-8 shrink-0 flex justify-end">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <button className="opacity-100 sm:opacity-0 group-hover:opacity-100 transition-opacity p-1.5 rounded-lg hover:bg-secondary text-muted-foreground">
+                <MoreVertical size={16} />
+              </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="bg-card border-border/50 shadow-2xl rounded-xl w-40">
+              <DropdownMenuItem
+                className="cursor-pointer rounded-lg py-2"
+                onClick={() => { setEditHome(m.homeScore || 0); setEditAway(m.awayScore || 0); setEditOpen(true); }}
+              >
+                <Edit2 size={14} className="mr-2" /> Edit Score
+              </DropdownMenuItem>
+              <DropdownMenuSeparator className="bg-border/30" />
+              <DropdownMenuItem
+                className="cursor-pointer rounded-lg py-2"
+                onClick={handleRematch}
+              >
+                <History size={14} className="mr-2" /> Rematch
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
       </div>
 
-      {/* Actions menu — visible on hover */}
-      <div className="mt-2 flex justify-end">
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <button className="opacity-0 group-hover:opacity-100 transition-opacity p-1.5 rounded-lg hover:bg-secondary text-muted-foreground">
-              <MoreVertical size={15} />
-            </button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="bg-card border-border/50 shadow-2xl rounded-xl w-40">
-            <DropdownMenuItem
-              className="cursor-pointer rounded-lg py-2"
-              onClick={() => { setEditHome(m.homeScore || 0); setEditAway(m.awayScore || 0); setEditOpen(true); }}
-            >
-              <Edit2 size={14} className="mr-2" /> Edit Score
-            </DropdownMenuItem>
-            <DropdownMenuSeparator className="bg-border/30" />
-            <DropdownMenuItem
-              className="cursor-pointer rounded-lg py-2"
-              onClick={handleRematch}
-            >
-              <History size={14} className="mr-2" /> Rematch
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      </div>
-
-      {/* Edit Score Dialog */}
+      {/* Edit Dialog */}
       <Dialog open={editOpen} onOpenChange={setEditOpen}>
         <DialogContent className="bg-card border-border/50 shadow-2xl max-w-sm">
           <DialogHeader>
