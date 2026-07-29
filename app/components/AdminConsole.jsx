@@ -1,16 +1,17 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Trophy, Calendar, Users, Radio, Clock, Check, Archive, Plus, Trash2, Settings, Swords, Edit2, ListOrdered, BarChart2, AlertTriangle, ArrowRight, Megaphone, ChevronDown, Package } from 'lucide-react';
-import { Card, Btn, Input, Label, SectionTitle, EmptyState, MagicCard, FadeIn, ShinyButton, Badge, Avatar } from './UI';
+import { Trophy, Calendar, Users, Radio, Clock, Check, Archive, Plus, Trash2, Settings, Swords, Edit2, ListOrdered, BarChart2, AlertTriangle, ArrowRight, Megaphone, ChevronDown, Package, MoreVertical, History } from 'lucide-react';
+import { Card, Btn, Input, Label, SectionTitle, EmptyState, MagicCard, FadeIn, ShinyButton, Badge, Avatar, toTitleCase } from './UI';
 import { motion } from 'framer-motion';
 import AdminOverviewDashboard from './AdminOverviewDashboard';
 import LiveMatchControl from './LiveMatchControl';
 import { startSeason, deleteSeason, renameSeason, completeSeason } from '@/app/actions/season';
-import { generateFixtures, generatePlayoffs, updateMatchStatus, updateMatchScore } from '@/app/actions/match';
+import { generateFixtures, generatePlayoffs, updateMatchStatus, updateMatchScore, editMatchScoreAdmin, createRematch } from '@/app/actions/match';
 import { getTrophyTemplates, awardTrophy, removeTrophy, updateTrophy, createTrophyTemplate, deleteTrophyTemplate, createAnnouncement, deleteAnnouncement } from '@/app/actions/admin';
 import { signUpPlayer, adminUpdatePlayer, adminDeletePlayer } from '@/app/actions/player';
 import { supabase } from '@/lib/supabaseClient';
+import PlayoffBracket from './PlayoffBracket';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/app/components/ui/tabs';
 import {
   Dialog,
@@ -20,6 +21,17 @@ import {
   DialogFooter,
   DialogClose,
 } from '@/app/components/ui/dialog';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/app/components/ui/alert-dialog';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -251,15 +263,7 @@ function AdminMatchControl({ m, players, showToast }) {
   const finishMatch = () => update({ status: "completed", liveState: null });
 
   if (m.status === "completed") {
-    return (
-      <MagicCard className="p-4 bg-secondary/50">
-        <div className="flex items-center justify-between opacity-60">
-          <div className="font-bold">{h?.name}</div>
-          <div className="text-xl font-score">{m.homeScore} - {m.awayScore}</div>
-          <div className="font-bold">{a?.name}</div>
-        </div>
-      </MagicCard>
-    );
+    return <CompletedMatchCard m={m} h={h} a={a} players={players} showToast={showToast} />;
   }
 
   if (m.status === "scheduled") {
@@ -340,49 +344,214 @@ function AdminMatchControl({ m, players, showToast }) {
   );
 }
 
-function AdminPlayoffs({ activeSeason, matches, players, showToast }) {
-  const [loading, setLoading] = useState(false);
-  if (!activeSeason) return <EmptyState text="Start a season first." />;
-  
-  const handleGeneratePlayoffs = async () => {
-    const tMatches = matches.filter((m) => m.seasonId === activeSeason.id && m.round === "league" && m.status === "completed");
-    
-    const table = {};
-    players.forEach(p => table[p.id] = { id: p.id, pts: 0, gd: 0, gf: 0 });
-    tMatches.forEach(m => {
-      const h = table[m.homeId], a = table[m.awayId];
-      if (!h || !a) return;
-      h.gf += m.homeScore; a.gf += m.awayScore;
-      h.gd += (m.homeScore - m.awayScore); a.gd += (m.awayScore - m.homeScore);
-      if (m.homeScore > m.awayScore) h.pts += 2;
-      else if (m.homeScore < m.awayScore) a.pts += 2;
-      else { h.pts++; a.pts++; }
-    });
-    const standings = Object.values(table).sort((x, y) => y.pts - x.pts || y.gd - x.gd || y.gf - x.gf);
-    
-    const top4 = standings.slice(0, 4).map(s => s.id);
-    if (top4.length < 4) return showToast("Not enough players for playoffs (need 4)");
-    
-    setLoading(true);
-    const res = await generatePlayoffs(activeSeason.id, top4);
+// ─── Completed Match Card (3-col grid, flags, actions) ───────────────────────
+function CompletedMatchCard({ m, h, a, players, showToast }) {
+  const [editOpen, setEditOpen] = useState(false);
+  const [editHome, setEditHome] = useState(m.homeScore || 0);
+  const [editAway, setEditAway] = useState(m.awayScore || 0);
+  const [saving, setSaving] = useState(false);
+
+  const hScore = m.homeScore || 0;
+  const aScore = m.awayScore || 0;
+  const hWon = hScore > aScore;
+  const aWon = aScore > hScore;
+
+  const handleEditSave = async () => {
+    setSaving(true);
+    const res = await editMatchScoreAdmin(m.id, editHome, editAway, 'admin');
     if (res.error) showToast(res.error);
-    else showToast("Playoff bracket generated");
-    setLoading(false);
+    else showToast('✅ Score updated — standings recalculated');
+    setSaving(false);
+    setEditOpen(false);
+  };
+
+  const handleRematch = async () => {
+    const res = await createRematch(m.homeId, m.awayId, m.seasonId);
+    if (res.error) showToast(res.error);
+    else showToast('🔄 Rematch scheduled!');
   };
 
   return (
-    <Card className="p-6">
-      <SectionTitle icon={Swords}>Playoffs Control</SectionTitle>
-      <p className="text-sm text-muted-foreground mb-4">
-        Once all league matches are complete, generate the Top Match and Bottom Match.
-      </p>
-      <ShinyButton onClick={handleGeneratePlayoffs} loading={loading}>Generate Playoff Semi-Finals</ShinyButton>
-      
-      <div className="mt-8 border-t border-border pt-6">
-        <div className="text-sm mb-4">For Challenger and Final matches, you can create them manually based on the winners/losers of the semi-finals.</div>
-        <Btn onClick={() => showToast("Not implemented in this UI demo.")}>Create Challenger / Final</Btn>
+    <MagicCard className="group p-3 sm:p-4 bg-secondary/30 hover:bg-secondary/50 transition-colors">
+      <div className="grid grid-cols-[1fr_auto_1fr] gap-2 items-center w-full">
+        {/* Home: right-aligned */}
+        <div className={`flex items-center justify-end gap-1.5 min-w-0 ${hWon ? 'text-pitch-bright font-black' : 'text-muted-foreground'}`}>
+          <span className="font-bold text-sm truncate" title={h?.name}>
+            {toTitleCase(h?.name)}
+          </span>
+          {/* Club crest + national flag */}
+          {h?.teamLogo && <span className="text-base shrink-0">{h.teamLogo}</span>}
+          {h?.flag && <span className="text-base shrink-0">{h.flag}</span>}
+          <Avatar p={h} size={22} className="shrink-0" />
+        </div>
+
+        {/* Score: fixed-width, centered, monospace Chakra Petch */}
+        <div className="flex items-center justify-center shrink-0">
+          <div className="font-score text-sm font-black bg-background/60 border border-border/50 rounded-lg px-3 py-1 flex items-center gap-1.5 min-w-[64px] justify-center">
+            <span className={hWon ? 'text-pitch-bright' : ''}>{hScore}</span>
+            <span className="text-muted-foreground/40">-</span>
+            <span className={aWon ? 'text-pitch-bright' : ''}>{aScore}</span>
+          </div>
+        </div>
+
+        {/* Away: left-aligned */}
+        <div className={`flex items-center justify-start gap-1.5 min-w-0 ${aWon ? 'text-pitch-bright font-black' : 'text-muted-foreground'}`}>
+          <Avatar p={a} size={22} className="shrink-0" />
+          {a?.flag && <span className="text-base shrink-0">{a.flag}</span>}
+          {a?.teamLogo && <span className="text-base shrink-0">{a.teamLogo}</span>}
+          <span className="font-bold text-sm truncate" title={a?.name}>
+            {toTitleCase(a?.name)}
+          </span>
+        </div>
       </div>
-    </Card>
+
+      {/* Actions menu — visible on hover */}
+      <div className="mt-2 flex justify-end">
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <button className="opacity-0 group-hover:opacity-100 transition-opacity p-1.5 rounded-lg hover:bg-secondary text-muted-foreground">
+              <MoreVertical size={15} />
+            </button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="bg-card border-border/50 shadow-2xl rounded-xl w-40">
+            <DropdownMenuItem
+              className="cursor-pointer rounded-lg py-2"
+              onClick={() => { setEditHome(m.homeScore || 0); setEditAway(m.awayScore || 0); setEditOpen(true); }}
+            >
+              <Edit2 size={14} className="mr-2" /> Edit Score
+            </DropdownMenuItem>
+            <DropdownMenuSeparator className="bg-border/30" />
+            <DropdownMenuItem
+              className="cursor-pointer rounded-lg py-2"
+              onClick={handleRematch}
+            >
+              <History size={14} className="mr-2" /> Rematch
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </div>
+
+      {/* Edit Score Dialog */}
+      <Dialog open={editOpen} onOpenChange={setEditOpen}>
+        <DialogContent className="bg-card border-border/50 shadow-2xl max-w-sm">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Edit2 size={16} /> Edit Match Score
+            </DialogTitle>
+          </DialogHeader>
+          <p className="text-xs text-claret mt-1 mb-4">
+            ⚠️ Saving will recalculate standings, stats, and trophies tied to this match.
+          </p>
+          <div className="flex items-center justify-between gap-4">
+            <div className="flex flex-col items-center gap-2 flex-1">
+              <span className="text-sm font-bold truncate max-w-full" title={h?.name}>{toTitleCase(h?.name)}</span>
+              <input
+                type="number" min={0} value={editHome}
+                onChange={e => setEditHome(Number(e.target.value))}
+                className="w-20 bg-background/50 border border-border rounded-lg text-center text-4xl font-score font-bold text-pitch-bright p-2 outline-none focus:ring-2 focus:ring-pitch"
+              />
+            </div>
+            <span className="text-3xl text-muted-foreground/30 font-score">-</span>
+            <div className="flex flex-col items-center gap-2 flex-1">
+              <span className="text-sm font-bold truncate max-w-full" title={a?.name}>{toTitleCase(a?.name)}</span>
+              <input
+                type="number" min={0} value={editAway}
+                onChange={e => setEditAway(Number(e.target.value))}
+                className="w-20 bg-background/50 border border-border rounded-lg text-center text-4xl font-score font-bold text-white p-2 outline-none focus:ring-2 focus:ring-pitch"
+              />
+            </div>
+          </div>
+          <DialogFooter className="mt-6 flex gap-2 justify-end">
+            <DialogClose asChild><Btn variant="ghost">Cancel</Btn></DialogClose>
+            <ShinyButton onClick={handleEditSave} loading={saving}>Save Score</ShinyButton>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </MagicCard>
+  );
+}
+
+function AdminPlayoffs({ activeSeason, matches, players, showToast }) {
+  if (!activeSeason) return <EmptyState text="Start a season first." />;
+
+  // All playoff matches for this season (non-league rounds)
+  const playoffMatches = matches.filter(
+    m => m.seasonId === activeSeason.id && m.round !== 'league' && m.round !== 'friendly'
+  );
+
+  // League completion status
+  const leagueMatches = matches.filter(m => m.seasonId === activeSeason.id && m.round === 'league');
+  const leagueCompleted = leagueMatches.length > 0 && leagueMatches.every(m => m.status === 'completed');
+  const leagueProgress = leagueMatches.length > 0
+    ? Math.round((leagueMatches.filter(m => m.status === 'completed').length / leagueMatches.length) * 100)
+    : 0;
+
+  const hasBracket = playoffMatches.length > 0;
+
+  if (!hasBracket) {
+    return (
+      <Card className="p-8 flex flex-col items-center justify-center text-center border-dashed border-2 gap-4">
+        <div className="p-4 rounded-full bg-secondary/50">
+          <Swords size={40} className="text-muted-foreground opacity-50" />
+        </div>
+        <h2 className="text-2xl font-bold font-heading">Playoff Bracket Not Yet Generated</h2>
+        {leagueCompleted ? (
+          <p className="text-muted-foreground max-w-md">
+            All league matches are complete. The bracket will auto-generate momentarily — if it doesn&apos;t appear within a few seconds, reload the page.
+          </p>
+        ) : (
+          <>
+            <p className="text-muted-foreground max-w-md">
+              The playoff bracket auto-generates the moment the final league match is completed.
+              No manual action required.
+            </p>
+            <div className="w-full max-w-xs">
+              <div className="flex justify-between text-xs text-muted-foreground mb-1.5">
+                <span>League Progress</span>
+                <span className="font-score font-bold">{leagueProgress}%</span>
+              </div>
+              <div className="w-full h-2 bg-secondary rounded-full overflow-hidden">
+                <div
+                  className="h-full bg-gradient-to-r from-pitch to-pitch-bright transition-all duration-700"
+                  style={{ width: `${leagueProgress}%` }}
+                />
+              </div>
+              <p className="text-xs text-muted-foreground mt-2">
+                {leagueMatches.filter(m => m.status === 'completed').length} / {leagueMatches.length} league matches played
+              </p>
+            </div>
+          </>
+        )}
+      </Card>
+    );
+  }
+
+  return (
+    <div className="flex flex-col gap-6">
+      <div className="flex items-center justify-between">
+        <SectionTitle icon={Swords}>Playoff Bracket</SectionTitle>
+        <Badge color="#29C179">
+          <Check size={10} className="mr-1" strokeWidth={3} /> Auto-Generated
+        </Badge>
+      </div>
+
+      {/* The visual bracket */}
+      <PlayoffBracket
+        matches={playoffMatches}
+        players={players}
+        onMatchClick={null}
+      />
+
+      {/* Admin match controls for each playoff match */}
+      <div className="flex flex-col gap-4">
+        <h3 className="text-sm font-bold uppercase tracking-wider text-muted-foreground">Playoff Match Controls</h3>
+        {playoffMatches.map((m, i) => (
+          <FadeIn key={m.id} delay={i * 0.05}>
+            <AdminMatchControl m={m} players={players} showToast={showToast} />
+          </FadeIn>
+        ))}
+      </div>
+    </div>
   );
 }
 
@@ -1002,7 +1171,9 @@ function AdminSeason({ activeSeason, matches = [], players = [], showToast, setT
     );
   }
 
-  const tMatches = matches.filter((m) => m.seasonId === activeSeason.id && m.round === "league");
+  const tMatches = matches.filter((m) => m.seasonId === activeSeason.id && m.round === 'league');
+  // Use ALL season matches (not just league) for hasPlayoffs check
+  const allSeasonMatches = matches.filter((m) => m.seasonId === activeSeason.id);
   const isDoubleRoundRobin = tMatches.length > 10;
   const expectedMatches = isDoubleRoundRobin ? 20 : 10;
   
@@ -1328,7 +1499,8 @@ function AdminSeason({ activeSeason, matches = [], players = [], showToast, setT
            </div>
            
            {['Created', 'Fixtures Generated', 'League Running', 'Playoffs', 'Champion'].map((step, idx) => {
-              const hasPlayoffs = tMatches.some(m => m.round !== 'league');
+              // Use allSeasonMatches so non-league rounds (semiA, semiB, final) are detected
+              const hasPlayoffs = allSeasonMatches.some(m => m.round !== 'league' && m.round !== 'friendly');
               let state = 'upcoming'; // upcoming, active, completed, skipped
               let dateStr = null;
 
@@ -1383,35 +1555,109 @@ function AdminSeason({ activeSeason, matches = [], players = [], showToast, setT
         <p className="text-sm text-claret/70 mb-6">These actions are destructive and cannot be easily undone. Please proceed with caution.</p>
         
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-           <Btn variant="outline" className="border-claret/30 text-claret hover:bg-claret hover:text-white justify-center" onClick={async () => {
-              if (window.confirm("Are you sure? This will wipe all completed match scores for this season and recalculate standings to zero.")) {
-                 const res = await fetch(`/api/admin/seasons/${activeSeason.id}/reset-standings`, { method: 'POST' });
-                 if (res.ok) {
-                    showToast("Standings have been reset.");
-                    window.location.reload();
-                 } else {
-                    showToast("Failed to reset standings.");
-                 }
-              }
-           }}>
-              Reset Standings
-           </Btn>
-           <Btn variant="outline" className="border-claret/30 text-claret hover:bg-claret hover:text-white justify-center" onClick={async () => {
-              if (window.confirm("Are you sure? This will delete all scheduled fixtures that have not been played yet.")) {
-                 const res = await fetch(`/api/admin/seasons/${activeSeason.id}/remove-fixtures`, { method: 'POST' });
-                 if (res.ok) {
-                    showToast("Unplayed fixtures removed.");
-                    window.location.reload();
-                 } else {
-                    showToast("Failed to remove fixtures.");
-                 }
-              }
-           }}>
-              Remove Fixtures
-           </Btn>
-           <Btn variant="danger" className="justify-center font-bold" onClick={handleDelete} loading={loading}>
-              Delete Season
-           </Btn>
+
+           {/* ── Reset Standings ── */}
+           <AlertDialog>
+             <AlertDialogTrigger asChild>
+               <Btn variant="outline" className="border-claret/30 text-claret hover:bg-claret hover:text-white justify-center">
+                 Reset Standings
+               </Btn>
+             </AlertDialogTrigger>
+             <AlertDialogContent className="bg-card border-border/50">
+               <AlertDialogHeader>
+                 <AlertDialogTitle className="flex items-center gap-2 text-claret">
+                   <AlertTriangle size={18} /> Reset All Standings?
+                 </AlertDialogTitle>
+                 <AlertDialogDescription className="text-muted-foreground">
+                   This will wipe all completed match scores for <strong className="text-foreground">{activeSeason.name}</strong> and reset every result back to &quot;scheduled&quot;. Standings will return to zero. This cannot be undone.
+                 </AlertDialogDescription>
+               </AlertDialogHeader>
+               <AlertDialogFooter>
+                 <AlertDialogCancel>Cancel</AlertDialogCancel>
+                 <AlertDialogAction
+                   className="bg-claret text-white hover:bg-claret-dim"
+                   onClick={async () => {
+                     const res = await fetch(`/api/admin/seasons/${activeSeason.id}/reset-standings`, { method: 'POST' });
+                     if (res.ok) {
+                       showToast('✅ Standings have been reset.');
+                       window.location.reload();
+                     } else {
+                       const body = await res.json().catch(() => ({}));
+                       showToast(`❌ ${body.error || 'Failed to reset standings'}`);
+                     }
+                   }}
+                 >
+                   Yes, Reset Everything
+                 </AlertDialogAction>
+               </AlertDialogFooter>
+             </AlertDialogContent>
+           </AlertDialog>
+
+           {/* ── Remove Fixtures ── */}
+           <AlertDialog>
+             <AlertDialogTrigger asChild>
+               <Btn variant="outline" className="border-claret/30 text-claret hover:bg-claret hover:text-white justify-center">
+                 Remove Fixtures
+               </Btn>
+             </AlertDialogTrigger>
+             <AlertDialogContent className="bg-card border-border/50">
+               <AlertDialogHeader>
+                 <AlertDialogTitle className="flex items-center gap-2 text-claret">
+                   <AlertTriangle size={18} /> Remove Unplayed Fixtures?
+                 </AlertDialogTitle>
+                 <AlertDialogDescription className="text-muted-foreground">
+                   This will permanently delete all <strong className="text-foreground">scheduled (unplayed)</strong> fixtures for <strong className="text-foreground">{activeSeason.name}</strong>. Completed matches are unaffected.
+                 </AlertDialogDescription>
+               </AlertDialogHeader>
+               <AlertDialogFooter>
+                 <AlertDialogCancel>Cancel</AlertDialogCancel>
+                 <AlertDialogAction
+                   className="bg-claret text-white hover:bg-claret-dim"
+                   onClick={async () => {
+                     const res = await fetch(`/api/admin/seasons/${activeSeason.id}/remove-fixtures`, { method: 'POST' });
+                     if (res.ok) {
+                       showToast('✅ Unplayed fixtures removed.');
+                       window.location.reload();
+                     } else {
+                       const body = await res.json().catch(() => ({}));
+                       showToast(`❌ ${body.error || 'Failed to remove fixtures'}`);
+                     }
+                   }}
+                 >
+                   Yes, Remove Fixtures
+                 </AlertDialogAction>
+               </AlertDialogFooter>
+             </AlertDialogContent>
+           </AlertDialog>
+
+           {/* ── Delete Season ── */}
+           <AlertDialog>
+             <AlertDialogTrigger asChild>
+               <Btn variant="danger" className="justify-center font-bold">
+                 Delete Season
+               </Btn>
+             </AlertDialogTrigger>
+             <AlertDialogContent className="bg-card border-border/50">
+               <AlertDialogHeader>
+                 <AlertDialogTitle className="flex items-center gap-2 text-destructive">
+                   <Trash2 size={18} /> Delete Season Permanently?
+                 </AlertDialogTitle>
+                 <AlertDialogDescription className="text-muted-foreground">
+                   This will permanently delete <strong className="text-foreground">{activeSeason.name}</strong> and ALL associated matches, results, and data. This cannot be undone.
+                 </AlertDialogDescription>
+               </AlertDialogHeader>
+               <AlertDialogFooter>
+                 <AlertDialogCancel>Cancel</AlertDialogCancel>
+                 <AlertDialogAction
+                   className="bg-destructive text-white hover:bg-destructive/80"
+                   onClick={handleDelete}
+                 >
+                   Yes, Delete Forever
+                 </AlertDialogAction>
+               </AlertDialogFooter>
+             </AlertDialogContent>
+           </AlertDialog>
+
         </div>
       </Card>
     </div>

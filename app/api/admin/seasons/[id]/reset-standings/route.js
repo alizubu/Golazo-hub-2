@@ -4,7 +4,7 @@ import { revalidatePath } from 'next/cache';
 
 export async function POST(request, { params }) {
   try {
-    const { id } = params;
+    const { id } = await params;
     
     // Hard reset: we keep the match records but wipe the scores and status
     await prisma.match.updateMany({

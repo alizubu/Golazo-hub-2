@@ -4,7 +4,7 @@ import { revalidatePath } from 'next/cache';
 
 export async function POST(request, { params }) {
   try {
-    const { id } = params;
+    const { id } = await params;
     
     // Only delete fixtures that haven't been played yet
     await prisma.match.deleteMany({

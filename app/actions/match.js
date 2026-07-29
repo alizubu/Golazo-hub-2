@@ -84,6 +84,84 @@ export async function updateMatchStatus(matchId, data) {
           type: 'result'
         }
       });
+
+      // ── Auto-playoff trigger ──────────────────────────────────────────────
+      // When a league match completes, check if ALL league matches for this
+      // season are now done. If yes, and the season type includes Playoffs,
+      // and no playoff bracket has been created yet → auto-generate it.
+      if (match.seasonId) {
+        const season = await prisma.season.findUnique({ where: { id: match.seasonId } });
+        if (season && season.type && season.type.includes('Playoffs')) {
+          const allLeagueMatches = await prisma.match.findMany({
+            where: { seasonId: match.seasonId, round: 'league' }
+          });
+          const allCompleted = allLeagueMatches.length > 0 &&
+            allLeagueMatches.every(m => m.status === 'completed');
+
+          if (allCompleted) {
+            // Check no playoff bracket exists yet
+            const existingPlayoffs = await prisma.match.findFirst({
+              where: { seasonId: match.seasonId, round: { not: 'league' } }
+            });
+
+            if (!existingPlayoffs) {
+              // Compute standings from completed league matches
+              const table = {};
+              const players = await prisma.player.findMany({ select: { id: true } });
+              players.forEach(p => { table[p.id] = { id: p.id, pts: 0, gd: 0, gf: 0 }; });
+
+              allLeagueMatches.forEach(m => {
+                const h = table[m.homeId], a = table[m.awayId];
+                if (!h || !a) return;
+                h.gf += (m.homeScore || 0); a.gf += (m.awayScore || 0);
+                h.gd += ((m.homeScore || 0) - (m.awayScore || 0));
+                a.gd += ((m.awayScore || 0) - (m.homeScore || 0));
+                if (m.homeScore > m.awayScore) { h.pts += 3; }
+                else if (m.awayScore > m.homeScore) { a.pts += 3; }
+                else { h.pts++; a.pts++; }
+              });
+
+              const standings = Object.values(table)
+                .sort((x, y) => y.pts - x.pts || y.gd - x.gd || y.gf - x.gf);
+              const top4 = standings.slice(0, 4).map(s => s.id);
+
+              if (top4.length >= 4) {
+                const [r1, r2, r3, r4] = top4;
+                await prisma.match.createMany({
+                  data: [
+                    {
+                      seasonId: match.seasonId,
+                      round: 'semiA',
+                      homeId: r1,
+                      awayId: r2,
+                      status: 'scheduled',
+                      label: 'Top Match (1 vs 2)',
+                      decisive: true
+                    },
+                    {
+                      seasonId: match.seasonId,
+                      round: 'semiB',
+                      homeId: r3,
+                      awayId: r4,
+                      status: 'scheduled',
+                      label: 'Bottom Match (3 vs 4)',
+                      decisive: true
+                    }
+                  ]
+                });
+
+                await prisma.notification.create({
+                  data: {
+                    text: `🏆 Playoff bracket auto-generated for "${season.name}"! Top 4 seeded.`,
+                    type: 'info'
+                  }
+                });
+              }
+            }
+          }
+        }
+      }
+      // ─────────────────────────────────────────────────────────────────────
     }
 
     revalidatePath('/');
