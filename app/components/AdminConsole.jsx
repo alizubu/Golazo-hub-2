@@ -390,7 +390,16 @@ function CompletedMatchCard({ m, h, a, players, showToast, isPlayoff = false }) 
     setSaving(true);
     const res = await editMatchScoreAdmin(m.id, editHome, editAway, 'admin');
     if (res.error) showToast(res.error);
-    else showToast('✅ Score updated — standings recalculated');
+    else {
+      showToast('✅ Score updated — standings recalculated');
+      if (res.match) {
+        supabase.channel('matches-page').send({
+          type: 'broadcast',
+          event: 'match_update',
+          payload: res.match
+        });
+      }
+    }
     setSaving(false);
     setEditOpen(false);
   };
@@ -454,22 +463,22 @@ function CompletedMatchCard({ m, h, a, players, showToast, isPlayoff = false }) 
             <DropdownMenuContent align="end" className="bg-card border-border/50 shadow-2xl rounded-xl w-40">
               <DropdownMenuItem
                 className="cursor-pointer rounded-lg py-2"
-                onClick={() => { setEditHome(m.homeScore || 0); setEditAway(m.awayScore || 0); setEditOpen(true); }}
+                onSelect={(e) => { e.preventDefault(); setEditHome(m.homeScore || 0); setEditAway(m.awayScore || 0); setEditOpen(true); }}
               >
                 <Edit2 size={14} className="mr-2" /> Edit Score
               </DropdownMenuItem>
               <DropdownMenuSeparator className="bg-border/30" />
               {isPlayoff ? (
                 <>
-                  <DropdownMenuItem className="cursor-pointer rounded-lg py-2" onClick={handleReset}>
+                  <DropdownMenuItem className="cursor-pointer rounded-lg py-2" onSelect={(e) => { e.preventDefault(); handleReset(); }}>
                     <Clock size={14} className="mr-2" /> Postpone
                   </DropdownMenuItem>
-                  <DropdownMenuItem className="cursor-pointer rounded-lg py-2 text-destructive focus:text-destructive" onClick={handleReset}>
+                  <DropdownMenuItem className="cursor-pointer rounded-lg py-2 text-destructive focus:text-destructive" onSelect={(e) => { e.preventDefault(); if (window.confirm('Reset this playoff result?')) handleReset(); }}>
                     <AlertTriangle size={14} className="mr-2" /> Reset Result
                   </DropdownMenuItem>
                 </>
               ) : (
-                <DropdownMenuItem className="cursor-pointer rounded-lg py-2" onClick={handleRematch}>
+                <DropdownMenuItem className="cursor-pointer rounded-lg py-2" onSelect={(e) => { e.preventDefault(); if (window.confirm('Schedule a rematch?')) handleRematch(); }}>
                   <History size={14} className="mr-2" /> Rematch
                 </DropdownMenuItem>
               )}
@@ -486,9 +495,14 @@ function CompletedMatchCard({ m, h, a, players, showToast, isPlayoff = false }) 
               <Edit2 size={16} /> Edit Match Score
             </DialogTitle>
           </DialogHeader>
-          <p className="text-xs text-claret mt-1 mb-4">
+          <p className="text-xs text-claret mt-1 mb-2">
             ⚠️ Saving will recalculate standings, stats, and trophies tied to this match.
           </p>
+          {isPlayoff && (
+            <div className="bg-amber-500/10 border border-amber-500/30 text-amber-500 text-[11px] p-2 rounded-md mb-4 leading-tight">
+              <strong>Warning:</strong> Changing a playoff score may alter the bracket winner. If the next round has already started, this will cause inconsistencies. Use with caution.
+            </div>
+          )}
           <div className="flex items-center justify-between gap-4">
             <div className="flex flex-col items-center gap-2 flex-1">
               <span className="text-sm font-bold truncate max-w-full" title={h?.name}>{toTitleCase(h?.name)}</span>

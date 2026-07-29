@@ -341,14 +341,32 @@ function RecentResults({ matches, players, activeSeason, showToast }) {
     if(!editingMatch) return;
     const res = await editMatchScoreAdmin(editingMatch.id, homeScore, awayScore, "admin");
     if(res.error) showToast?.(res.error);
-    else showToast?.("Score updated!");
+    else {
+      showToast?.("Score updated!");
+      if (res.match) {
+        supabase.channel('matches-page').send({
+          type: 'broadcast',
+          event: 'match_update',
+          payload: res.match
+        });
+      }
+    }
     setEditingMatch(null);
   };
 
   const handleRematch = async (m) => {
     const res = await createRematch(m.homeId, m.awayId, m.seasonId);
     if(res.error) showToast?.(res.error);
-    else showToast?.(`Rematch scheduled!`);
+    else {
+      showToast?.(`Rematch scheduled!`);
+      if (res.match) {
+        supabase.channel('matches-page').send({
+          type: 'broadcast',
+          event: 'match_update',
+          payload: res.match
+        });
+      }
+    }
   };
 
   return (
@@ -417,10 +435,10 @@ function RecentResults({ matches, players, activeSeason, showToast }) {
                          <button className="p-1.5 hover:bg-secondary rounded text-muted-foreground transition-colors"><MoreVertical size={16}/></button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end" className="w-40 border-border bg-popover shadow-xl rounded-xl">
-                         <DropdownMenuItem className="cursor-pointer hover:bg-secondary/80 focus:bg-secondary/80 rounded-lg text-sm" onClick={() => { setEditingMatch(m); setHomeScore(m.homeScore||0); setAwayScore(m.awayScore||0); }}>
+                         <DropdownMenuItem className="cursor-pointer hover:bg-secondary/80 focus:bg-secondary/80 rounded-lg text-sm" onSelect={(e) => { e.preventDefault(); setEditingMatch(m); setHomeScore(m.homeScore||0); setAwayScore(m.awayScore||0); }}>
                             <Edit2 size={14} className="mr-2 text-muted-foreground" /> Edit Score
                          </DropdownMenuItem>
-                         <DropdownMenuItem className="cursor-pointer hover:bg-secondary/80 focus:bg-secondary/80 rounded-lg text-sm" onClick={() => { if(window.confirm('Schedule a rematch?')) handleRematch(m); }}>
+                         <DropdownMenuItem className="cursor-pointer hover:bg-secondary/80 focus:bg-secondary/80 rounded-lg text-sm" onSelect={(e) => { e.preventDefault(); if(window.confirm('Schedule a rematch?')) handleRematch(m); }}>
                             <History size={14} className="mr-2 text-muted-foreground" /> Rematch
                          </DropdownMenuItem>
                       </DropdownMenuContent>

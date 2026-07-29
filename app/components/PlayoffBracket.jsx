@@ -71,26 +71,45 @@ export default function PlayoffBracket({ matches, players, onMatchClick }) {
         };
       };
 
+      // Set the path coordinates and states
+      const qIsDone = semiA?.status === 'completed';
+      const eIsDone = semiB?.status === 'completed';
+      const cIsDone = challenger?.status === 'completed';
+      
       const qR = getCenter(qRef, 'right');
       const eR = getCenter(eRef, 'right');
       const cL = getCenter(cRef, 'left');
       const cR = getCenter(cRef, 'right');
-      const gfL = getCenter(gfRef, 'left');
+      const gfTopL = { x: getCenter(gfRef, 'left').x, y: gfRef.current.getBoundingClientRect().top + gfRef.current.getBoundingClientRect().height * 0.25 - containerRect.top };
+      const gfBotL = { x: getCenter(gfRef, 'left').x, y: gfRef.current.getBoundingClientRect().top + gfRef.current.getBoundingClientRect().height * 0.75 - containerRect.top };
 
-      const midX1 = qR.x + (cL.x - qR.x) / 2;
-      const midX2 = cR.x + (gfL.x - cR.x) / 2;
+      // Trunks in the gaps
+      const trunk1X = eR.x + (cL.x - eR.x) / 2;
+      const trunk2X = cR.x + (gfBotL.x - cR.x) / 2;
 
       setLines({
-        qToGf: `M ${qR.x} ${qR.y} L ${gfL.x} ${gfL.y}`,
-        qToC: `M ${qR.x} ${qR.y} L ${midX1} ${qR.y} L ${midX1} ${cL.y} L ${cL.x} ${cL.y}`,
-        eToC: `M ${eR.x} ${eR.y} L ${midX1} ${eR.y} L ${midX1} ${cL.y} L ${cL.x} ${cL.y}`,
-        cToGf: `M ${cR.x} ${cR.y} L ${midX2} ${cR.y} L ${midX2} ${gfL.y} L ${gfL.x} ${gfL.y}`,
+        pathA: {
+          d: `M ${eR.x} ${eR.y} L ${trunk1X} ${eR.y} L ${trunk1X} ${cL.y} L ${cL.x} ${cL.y}`,
+          isDone: eIsDone,
+          color: '#ef4444' // red
+        },
+        pathB: {
+          d: `M ${cR.x} ${cR.y} L ${trunk2X} ${cR.y} L ${trunk2X} ${gfBotL.y} L ${gfBotL.x} ${gfBotL.y}`,
+          isDone: cIsDone,
+          color: '#22c55e' // green
+        },
+        pathC: {
+          d: `M ${qR.x} ${qR.y} L ${trunk2X} ${qR.y} L ${trunk2X} ${gfTopL.y} L ${gfTopL.x} ${gfTopL.y}`,
+          isDone: qIsDone,
+          color: '#eab308' // gold
+        },
         dots: [
-          { x: qR.x, y: qR.y, type: 'q' },
-          { x: eR.x, y: eR.y, type: 'e' },
-          { x: cL.x, y: cL.y, type: 'c-in' },
-          { x: cR.x, y: cR.y, type: 'c-out' },
-          { x: gfL.x, y: gfL.y, type: 'gf' }
+          { x: eR.x, y: eR.y, isDone: eIsDone, color: '#ef4444' },
+          { x: cL.x, y: cL.y, isDone: eIsDone, color: eIsDone ? '#ef4444' : '#94a3b8' },
+          { x: cR.x, y: cR.y, isDone: cIsDone, color: cIsDone ? '#22c55e' : '#94a3b8' },
+          { x: gfBotL.x, y: gfBotL.y, isDone: cIsDone, color: cIsDone ? '#22c55e' : '#94a3b8' },
+          { x: qR.x, y: qR.y, isDone: qIsDone, color: '#eab308' },
+          { x: gfTopL.x, y: gfTopL.y, isDone: qIsDone, color: qIsDone ? '#eab308' : '#94a3b8' }
         ]
       });
     };
@@ -115,67 +134,56 @@ export default function PlayoffBracket({ matches, players, onMatchClick }) {
     <div className="w-full relative py-2 md:py-8" ref={containerRef}>
       
       {/* DESKTOP VIEW (Hidden on Mobile) */}
-      <div className="hidden md:grid grid-cols-3 gap-x-12 relative w-full">
+      <div className="hidden md:grid grid-cols-3 grid-rows-[auto_auto_auto_auto] gap-x-12 gap-y-6 relative w-full items-center">
         
         {/* SVG Connector Canvas */}
         {lines && (
           <svg className="absolute inset-0 pointer-events-none z-0 w-full h-full overflow-visible">
-            <defs>
-              <linearGradient id="grad-q-gf" x1="0" y1="0" x2="1" y2="0">
-                <stop offset="0%" stopColor="#f59e0b" stopOpacity={semiA?.status === 'completed' ? "0.8" : "0.3"} />
-                <stop offset="100%" stopColor="#22c55e" stopOpacity={final?.status === 'completed' ? "0.8" : "0.3"} />
-              </linearGradient>
-              <linearGradient id="grad-q-c" x1="0" y1="0" x2="1" y2="1">
-                <stop offset="0%" stopColor="#f59e0b" stopOpacity={semiA?.status === 'completed' ? "0.8" : "0.3"} />
-                <stop offset="100%" stopColor="#94a3b8" stopOpacity="0.5" />
-              </linearGradient>
-              <linearGradient id="grad-e-c" x1="0" y1="1" x2="1" y2="0">
-                <stop offset="0%" stopColor="#e11d48" stopOpacity={semiB?.status === 'completed' ? "0.8" : "0.3"} />
-                <stop offset="100%" stopColor="#94a3b8" stopOpacity="0.5" />
-              </linearGradient>
-              <linearGradient id="grad-c-gf" x1="0" y1="0" x2="1" y2="0">
-                <stop offset="0%" stopColor="#94a3b8" stopOpacity={challenger?.status === 'completed' ? "0.8" : "0.3"} />
-                <stop offset="100%" stopColor="#22c55e" stopOpacity="0.8" />
-              </linearGradient>
-            </defs>
+            {/* Path A */}
+            {lines.pathA.isDone ? (
+              <motion.path d={lines.pathA.d} fill="none" stroke={lines.pathA.color} strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" {...drawAnim} transition={{...drawAnim.transition, delay: 0.2}} />
+            ) : (
+              <path d={lines.pathA.d} fill="none" stroke="#64748b" strokeWidth="2" strokeDasharray="6 4" strokeOpacity="0.5" strokeLinecap="round" strokeLinejoin="round" />
+            )}
             
-            {/* Paths */}
-            <motion.path d={lines.qToGf} fill="none" stroke="url(#grad-q-gf)" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" {...drawAnim} transition={{...drawAnim.transition, delay: 0.5}} />
-            <motion.path d={lines.qToC} fill="none" stroke="url(#grad-q-c)" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" {...drawAnim} transition={{...drawAnim.transition, delay: 0.5}} />
-            <motion.path d={lines.eToC} fill="none" stroke="url(#grad-e-c)" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" {...drawAnim} transition={{...drawAnim.transition, delay: 0.7}} />
-            <motion.path d={lines.cToGf} fill="none" stroke="url(#grad-c-gf)" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" {...drawAnim} transition={{...drawAnim.transition, delay: 0.9}} />
+            {/* Path B */}
+            {lines.pathB.isDone ? (
+              <motion.path d={lines.pathB.d} fill="none" stroke={lines.pathB.color} strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" {...drawAnim} transition={{...drawAnim.transition, delay: 0.6}} />
+            ) : (
+              <path d={lines.pathB.d} fill="none" stroke="#64748b" strokeWidth="2" strokeDasharray="6 4" strokeOpacity="0.5" strokeLinecap="round" strokeLinejoin="round" />
+            )}
+            
+            {/* Path C */}
+            {lines.pathC.isDone ? (
+              <motion.path d={lines.pathC.d} fill="none" stroke={lines.pathC.color} strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" {...drawAnim} transition={{...drawAnim.transition, delay: 0.4}} />
+            ) : (
+              <path d={lines.pathC.d} fill="none" stroke="#64748b" strokeWidth="2" strokeDasharray="6 4" strokeOpacity="0.5" strokeLinecap="round" strokeLinejoin="round" />
+            )}
             
             {/* Junction Dots */}
             {lines.dots.map((dot, i) => (
-              <motion.circle 
-                key={i} cx={dot.x} cy={dot.y} r="5" 
-                initial={{ scale: 0, opacity: 0 }} 
-                animate={{ scale: 1, opacity: 1 }} 
-                transition={{ delay: 1.2 + (i * 0.1), type: 'spring' }}
-                className={
-                  dot.type === 'q' ? 'fill-amber-400' :
-                  dot.type === 'e' ? 'fill-rose-500' :
-                  dot.type === 'gf' ? 'fill-green-500' :
-                  'fill-slate-400'
-                }
-              />
+              dot.isDone ? (
+                <motion.circle 
+                  key={i} cx={dot.x} cy={dot.y} r="5" 
+                  initial={{ scale: 0, opacity: 0 }} 
+                  animate={{ scale: 1, opacity: 1 }} 
+                  transition={{ delay: 1.0 + (i * 0.1), type: 'spring' }}
+                  fill={dot.color}
+                />
+              ) : (
+                <circle key={i} cx={dot.x} cy={dot.y} r="4" fill="none" stroke={dot.color} strokeWidth="2" opacity="0.6" />
+              )
             ))}
           </svg>
         )}
 
-        {/* Column 1: Round 1 */}
-        <div className="flex flex-col justify-between gap-12 lg:gap-24 relative z-10 w-full">
+        {/* Row 1: Qualifier */}
+        <div className="col-start-1 row-start-1 z-10 w-full relative">
           <MatchNode innerRef={qRef} label="Qualifier (1st vs 2nd)" labelColor="text-amber-500" m={semiA} players={players} onClick={onMatchClick} delay={0.1} />
-          <MatchNode innerRef={eRef} label="Eliminator (3rd vs 4th)" labelColor="text-rose-500" m={semiB} players={players} onClick={onMatchClick} delay={0.2} />
         </div>
 
-        {/* Column 2: Round 2 */}
-        <div className="flex flex-col justify-center relative z-10 w-full">
-          <MatchNode innerRef={cRef} label="Challenger" labelColor="text-slate-400" m={challenger} players={players} onClick={onMatchClick} delay={0.3} />
-        </div>
-
-        {/* Column 3: Round 3 */}
-        <div className="flex flex-col justify-start relative z-10 w-full">
+        {/* Row 1 & 2 Span: Grand Final */}
+        <div className="col-start-3 row-start-1 row-span-2 z-10 w-full relative pt-16">
           <MatchNode innerRef={gfRef} label="Grand Final" labelColor="text-green-500" m={final} players={players} onClick={onMatchClick} delay={0.4} isFinal={true} />
           
           {/* Winner Banner */}
@@ -192,6 +200,16 @@ export default function PlayoffBracket({ matches, players, onMatchClick }) {
               </div>
             </motion.div>
           )}
+        </div>
+
+        {/* Row 2 & 3 Span: Challenger */}
+        <div className="col-start-2 row-start-2 row-span-2 z-10 w-full relative">
+          <MatchNode innerRef={cRef} label="Challenger" labelColor="text-slate-400" m={challenger} players={players} onClick={onMatchClick} delay={0.3} />
+        </div>
+
+        {/* Row 4: Eliminator */}
+        <div className="col-start-1 row-start-4 z-10 w-full relative">
+          <MatchNode innerRef={eRef} label="Eliminator (3rd vs 4th)" labelColor="text-rose-500" m={semiB} players={players} onClick={onMatchClick} delay={0.2} />
         </div>
 
       </div>
