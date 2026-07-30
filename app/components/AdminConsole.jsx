@@ -814,6 +814,7 @@ function EditTrophyDialog({ open, onOpenChange, trophy, players, onSave }) {
 
 // ─── Admin Trophies — 3-Tab System ───────────────────────────────────────────
 function AdminTrophies({ players, trophies = [], showToast }) {
+  const blankForm = { playerId: '', title: '', season: '', description: '', icon: '/assets/trophies/Golden-boot.png' };
   const [form, setForm] = useState(blankForm);
   const [revokeTarget, setRevokeTarget] = useState(null);
   const [editTarget, setEditTarget] = useState(null);
