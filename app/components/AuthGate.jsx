@@ -168,7 +168,6 @@ function SignInForm({ players, onPlayerLogin }) {
               </motion.div>
             )}
           </div>
-        </div>
         
         <div className="mt-7">
           <ShimmerButton 
@@ -185,6 +184,7 @@ function SignInForm({ players, onPlayerLogin }) {
             )}
           </ShimmerButton>
         </div>
+        </form>
       </Card>
     </motion.div>
   );
@@ -264,8 +264,8 @@ function SignUpForm({ showToast, onPlayerLogin }) {
               </div>
             </div>
           </div>
-        </div>
         
+
         {err && (
           <motion.div initial={{ opacity: 0, y: -5 }} animate={{ opacity: 1, y: 0 }} className="text-xs mt-3 text-red-400 font-medium">
             {err}

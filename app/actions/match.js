@@ -391,7 +391,6 @@ export async function progressPlayoffBracket(matchId) {
     console.error('Failed to progress playoff bracket:', error);
   }
 }
-}
 
 export async function adminTriggerBracketProgress(seasonId) {
   if ((await cookies()).get('golazo_session')?.value !== 'admin') return { error: 'Unauthorized' };

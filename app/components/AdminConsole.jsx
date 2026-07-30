@@ -78,7 +78,7 @@ export default function AdminConsole(props) {
   return <EmptyState text="Admin feature in progress..." />;
 }
 
-import { ErrorBoundary } from './ErrorBoundary';
+import ErrorBoundary from './ErrorBoundary';
 
 function AdminOverview(props) {
   return (
