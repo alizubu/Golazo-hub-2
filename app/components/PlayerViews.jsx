@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { PageHeader } from './PageHeader';
-import { Trophy, Clock, ListOrdered, Calendar, Swords, Megaphone, Bell, Pen, Target, Handshake, Shield, Activity, Lock, Flame, BadgeCheck, TrendingUp } from 'lucide-react';
+import { Trophy, Clock, ListOrdered, Calendar, Swords, Megaphone, Bell, Pen, Target, Handshake, Shield, Activity, Lock, Flame, BadgeCheck, TrendingUp, Users } from 'lucide-react';
 import { Btn, Badge, Avatar, PlayerChip, SectionTitle, EmptyState, MagicCard, FadeIn, ShinyButton, Label } from './UI';
 import { Card, CardHeader, CardTitle, CardContent } from '@/app/components/ui/card';
 import { NumberTicker } from './ui/number-ticker';
@@ -59,7 +59,7 @@ export default function PlayerViews(props) {
   );
 }
 
-function computeStandings(matches, players, seasonId) {
+export function computeStandings(matches, players, seasonId) {
   const table = {};
   players.forEach((p) => {
     table[p.id] = { ...p, played: 0, won: 0, drawn: 0, lost: 0, gf: 0, ga: 0, gd: 0, pts: 0, form: [], streak: 0, posChange: ['▲', '▼', '-'][Math.floor(Math.random() * 3)] };
@@ -188,7 +188,23 @@ function CircularProgress({ value, color = "var(--pitch-bright)", label }) {
   );
 }
 
-function PlayerDashboard({ me, activeSeason, seasons = [], matches, players, announcements = [], trophies = [], notifications = [], setTab, persistPlayers, onMatchClick, viewOnly }) {
+export function PlayerDashboard({ me, activeSeason, seasons = [], matches, players, announcements = [], trophies = [], notifications = [], setTab, persistPlayers, onMatchClick, viewOnly, onH2HClick }) {
+  // ── Guard: admin viewing player tabs has me === null ──────────────────────
+  // ALL code below assumes me is a player object. If me is null (admin viewOnly),
+  // bail out early before any me.id access crashes the render.
+  if (!me) {
+    return (
+      <div className="flex flex-col items-center justify-center py-24 text-muted-foreground gap-4">
+        <Users size={52} className="opacity-30" />
+        <div className="text-center">
+          <p className="font-bold text-foreground/70 text-lg">No Player Selected</p>
+          <p className="text-sm mt-1">You're viewing as admin. Player dashboards are only visible when logged in as a player.</p>
+        </div>
+      </div>
+    );
+  }
+  // ─────────────────────────────────────────────────────────────────────────
+
   const [selectedSeasonId, setSelectedSeasonId] = React.useState(activeSeason?.id);
   const t = seasons.find(s => s.id === selectedSeasonId) || activeSeason;
   const tMatches = t ? matches.filter((m) => m.seasonId === t.id) : [];
@@ -784,7 +800,7 @@ function MatchesView({ activeSeason, matches, players }) {
 
 
 
-function RosterView({ players, matches, setTab }) {
+export function RosterView({ players, matches, setTab }) {
   const router = useRouter();
   const matchWinnerId = (m) => {
     if (!m || m.status !== "completed") return null;
@@ -870,7 +886,7 @@ function RosterView({ players, matches, setTab }) {
   );
 }
 
-function HistoryView({ history, players }) {
+export function HistoryView({ history, players }) {
   if (!history || history.length === 0) return <FadeIn delay={0.1}><Card className="p-6"><EmptyState text="No completed seasons yet." /></Card></FadeIn>;
   
   return (
@@ -927,7 +943,7 @@ function HistoryView({ history, players }) {
   );
 }
 
-function NotificationsView({ notifications, me }) {
+export function NotificationsView({ notifications, me }) {
   const [localReadAt, setLocalReadAt] = React.useState(me?.lastReadNotificationAt);
 
   const handleMarkRead = async () => {

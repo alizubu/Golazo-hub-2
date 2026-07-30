@@ -31,28 +31,32 @@ import {
   CommandItem,
   CommandList,
 } from "@/app/components/ui/command";
+import Link from 'next/link';
+import { usePathname, useRouter } from 'next/navigation';
+import { clearAuthCookie } from '@/app/actions/auth';
 
 const playerTabs = [
-  { id: "dashboard", label: "Dashboard", icon: Home },
-  { id: "matches", label: "Matches", icon: Calendar },
-  { id: "players", label: "Roster", icon: Users },
-  { id: "history", label: "History", icon: Archive },
-  { id: "notifications", label: "Alerts", icon: Bell },
+  { href: "/dashboard", label: "Dashboard", icon: Home, matchRoot: true },
+  { href: "/matches", label: "Matches", icon: Calendar },
+  { href: "/players", label: "Roster", icon: Users },
+  { href: "/history", label: "History", icon: Archive },
+  { href: "/notifications", label: "Alerts", icon: Bell },
 ];
 
 const adminTabs = [
-  { id: "admin", label: "Dashboard", icon: Home },
-  { id: "admin-players", label: "Players", icon: Users },
-  { id: "admin-season", label: "Tournament", icon: Trophy },
-  { id: "admin-matches", label: "Matches", icon: Calendar },
-  { id: "admin-playoffs", label: "Playoffs", icon: Swords },
-  { id: "admin-trophies", label: "Trophies", icon: Trophy },
-  { id: "admin-announcements", label: "Announcements", icon: Megaphone },
+  { href: "/admin", label: "Dashboard", icon: Home, matchRoot: true },
+  { href: "/admin/players", label: "Players", icon: Users },
+  { href: "/admin/season", label: "Tournament", icon: Trophy },
+  { href: "/admin/matches", label: "Matches", icon: Calendar },
+  { href: "/admin/trophies", label: "Trophies", icon: Trophy },
+  { href: "/admin/announcements", label: "Announcements", icon: Megaphone },
 ];
 
-export default function FloatingNav({ session, me, tab, setTab, onLogout, players = [], notifications = [], matches = [] }) {
+export default function FloatingNav({ session, me, players = [], notifications = [], matches = [] }) {
   const [searchOpen, setSearchOpen] = useState(false);
   const [sheetOpen, setSheetOpen] = useState(false);
+  const pathname = usePathname();
+  const router = useRouter();
 
   const items = session?.type === "admin" ? adminTabs : playerTabs;
 
@@ -66,23 +70,17 @@ export default function FloatingNav({ session, me, tab, setTab, onLogout, player
     return new Date(n.createdAt) > new Date(me.lastReadNotificationAt);
   }).length;
 
-  const handleTabChange = (id) => {
-    setTab(id);
-    setSheetOpen(false);
+  const handleLogout = async () => {
+    await clearAuthCookie();
+    router.push('/login');
   };
 
   const hasLiveMatch = matches.some(m => m.status === 'live');
 
-  // Search items: players + tabs
-  const searchItems = [
-    ...items.map(it => ({ type: 'nav', id: it.id, label: it.label, icon: it.icon })),
-    ...players.map(p => ({ type: 'player', id: p.id, label: p.name, sub: p.teamName, avatar: p.avatar, avatarImage: p.avatarImage })),
-  ];
-
   return (
     <>
       {/* Floating Pill Nav */}
-      <div className="hidden md:block sticky top-0 z-50 w-full px-4 sm:px-6 pt-4 pb-2">
+      <div className="hidden md:block sticky top-0 z-[60] w-full px-4 sm:px-6 pt-4 pb-2">
         <motion.div
           className="mx-auto max-w-6xl rounded-full border border-white/10 shadow-2xl flex items-center justify-between px-3 sm:px-5 py-2.5 relative overflow-hidden"
           style={{
@@ -98,22 +96,22 @@ export default function FloatingNav({ session, me, tab, setTab, onLogout, player
           </div>
 
           {/* Logo */}
-          <div className="flex items-center gap-2 flex-shrink-0 z-10 min-w-0">
+          <Link href={session?.type === "admin" ? "/admin" : "/dashboard"} className="flex items-center gap-2 flex-shrink-0 z-10 min-w-0 outline-none">
             <span className="text-xl leading-none drop-shadow-sm">🏆</span>
             <span className="hidden lg:inline font-heading text-sm font-bold tracking-tight text-white whitespace-nowrap">
               GOLAZO HUB
             </span>
-          </div>
+          </Link>
 
           {/* Desktop Center Nav Links */}
           <div className="hidden md:flex items-center gap-0.5 absolute left-1/2 -translate-x-1/2 z-10">
             {items.map((it) => {
               const Icon = it.icon;
-              const active = tab === it.id;
+              const active = it.matchRoot ? pathname === it.href : pathname.startsWith(it.href);
               return (
-                <button
-                  key={it.id}
-                  onClick={() => setTab(it.id)}
+                <Link
+                  href={it.href}
+                  key={it.href}
                   className="relative px-3 py-1.5 rounded-full text-xs font-semibold transition-colors flex items-center gap-1.5 whitespace-nowrap outline-none focus-visible:ring-2 focus-visible:ring-pitch-bright"
                 >
                   {active && (
@@ -129,7 +127,7 @@ export default function FloatingNav({ session, me, tab, setTab, onLogout, player
                   >
                     <Icon size={13} />
                     <span className={active ? 'font-bold' : ''}>{it.label}</span>
-                    {(it.id === 'matches' || it.id === 'admin-matches') && hasLiveMatch && (
+                    {(it.href === '/matches' || it.href === '/admin/matches') && hasLiveMatch && (
                       <span className="flex h-2 w-2 relative ml-0.5">
                         <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
                         <span className="relative inline-flex rounded-full h-2 w-2 bg-red-500"></span>
@@ -143,7 +141,7 @@ export default function FloatingNav({ session, me, tab, setTab, onLogout, player
                       transition={{ type: "spring", stiffness: 400, damping: 35 }}
                     />
                   )}
-                </button>
+                </Link>
               );
             })}
           </div>
@@ -165,15 +163,15 @@ export default function FloatingNav({ session, me, tab, setTab, onLogout, player
                 <span className="hidden sm:flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold tracking-widest uppercase border border-gold/40 text-gold bg-gold/10">
                   ADMIN
                 </span>
-                <button
-                  onClick={() => setTab('admin-settings')}
+                <Link
+                  href="/admin/settings"
                   className="flex items-center justify-center w-8 h-8 rounded-full text-muted-foreground hover:text-white hover:bg-white/10 transition-colors outline-none"
                   title="Admin Settings"
                 >
                   <Settings size={15} />
-                </button>
+                </Link>
                 <button
-                  onClick={onLogout}
+                  onClick={handleLogout}
                   className="flex items-center justify-center w-8 h-8 rounded-full text-muted-foreground hover:text-white hover:bg-white/10 transition-colors border border-border/50 outline-none"
                   title="Log out"
                 >
@@ -183,8 +181,8 @@ export default function FloatingNav({ session, me, tab, setTab, onLogout, player
             ) : me ? (
               <>
                 {/* Notification Bell */}
-                <button
-                  onClick={() => setTab('notifications')}
+                <Link
+                  href="/notifications"
                   className="relative flex items-center justify-center w-8 h-8 rounded-full text-muted-foreground hover:text-white hover:bg-white/10 transition-colors outline-none focus-visible:ring-2 focus-visible:ring-pitch-bright"
                   title="Alerts"
                 >
@@ -194,7 +192,7 @@ export default function FloatingNav({ session, me, tab, setTab, onLogout, player
                       {unreadCount > 9 ? '9+' : unreadCount}
                     </span>
                   )}
-                </button>
+                </Link>
 
                 {/* Avatar Dropdown */}
                 <DropdownMenu>
@@ -210,7 +208,7 @@ export default function FloatingNav({ session, me, tab, setTab, onLogout, player
                       </span>
                     </button>
                   </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end" className="w-56 bg-card border-border/50 shadow-2xl rounded-xl mt-2">
+                  <DropdownMenuContent align="end" className="w-56 bg-card border-border/50 shadow-2xl rounded-xl mt-2 z-[70]">
                     <DropdownMenuLabel className="font-normal p-3">
                       <div className="flex flex-col space-y-0.5">
                         <p className="text-sm font-semibold leading-none text-foreground">{me.name}</p>
@@ -219,14 +217,16 @@ export default function FloatingNav({ session, me, tab, setTab, onLogout, player
                     </DropdownMenuLabel>
                     <DropdownMenuSeparator className="bg-border/50" />
                     <DropdownMenuGroup className="p-1">
-                      <DropdownMenuItem onClick={() => setTab('settings')} className="cursor-pointer rounded-lg hover:bg-secondary focus:bg-secondary py-2">
-                        <Settings className="mr-2 h-4 w-4" />
-                        <span>Settings</span>
+                      <DropdownMenuItem asChild>
+                        <Link href="/settings" className="cursor-pointer rounded-lg hover:bg-secondary focus:bg-secondary py-2 w-full flex items-center">
+                          <Settings className="mr-2 h-4 w-4" />
+                          <span>Settings</span>
+                        </Link>
                       </DropdownMenuItem>
                     </DropdownMenuGroup>
                     <DropdownMenuSeparator className="bg-border/50" />
                     <div className="p-1">
-                      <DropdownMenuItem onClick={onLogout} className="cursor-pointer rounded-lg text-destructive hover:bg-destructive/10 focus:bg-destructive/10 focus:text-destructive py-2">
+                      <DropdownMenuItem onClick={handleLogout} className="cursor-pointer rounded-lg text-destructive hover:bg-destructive/10 focus:bg-destructive/10 focus:text-destructive py-2">
                         <LogOut className="mr-2 h-4 w-4" />
                         <span>Log out</span>
                       </DropdownMenuItem>
@@ -241,7 +241,7 @@ export default function FloatingNav({ session, me, tab, setTab, onLogout, player
       </div>
 
       {/* Mobile Nav Bar (Floating Pill style) */}
-      <div className="md:hidden sticky top-0 z-50 w-full px-3 pt-3 pb-2" style={{ paddingTop: 'max(0.75rem, env(safe-area-inset-top))' }}>
+      <div className="md:hidden sticky top-0 z-[60] w-full px-3 pt-3 pb-2" style={{ paddingTop: 'max(0.75rem, env(safe-area-inset-top))' }}>
         <motion.div 
           className="mx-auto max-w-full rounded-full border border-white/10 shadow-2xl flex items-center justify-between px-4 py-2 relative overflow-hidden"
           style={{
@@ -255,10 +255,10 @@ export default function FloatingNav({ session, me, tab, setTab, onLogout, player
             <div className="absolute -inset-1 rounded-full bg-gradient-to-r from-transparent via-white/5 to-transparent opacity-0 hover:opacity-100 transition-opacity duration-700" />
           </div>
 
-          <div className="flex items-center gap-2 z-10">
+          <Link href={session?.type === "admin" ? "/admin" : "/dashboard"} className="flex items-center gap-2 z-10 outline-none">
             <span className="text-xl leading-none drop-shadow-sm">🏆</span>
             <span className="font-heading text-sm font-bold tracking-tight text-white">GOLAZO HUB</span>
-          </div>
+          </Link>
           
           <div className="flex items-center gap-1 z-10">
             <button 
@@ -272,7 +272,6 @@ export default function FloatingNav({ session, me, tab, setTab, onLogout, player
             <button 
               type="button"
               onClick={() => {
-                console.log("[MobileNav] Hamburger clicked. Toggling sheetOpen from:", sheetOpen, "to:", !sheetOpen);
                 setSheetOpen(prev => !prev);
               }} 
               className="flex items-center justify-center w-9 h-9 rounded-full text-muted-foreground hover:text-white hover:bg-white/10 transition-colors outline-none focus-visible:ring-2 focus-visible:ring-pitch-bright cursor-pointer"
@@ -328,12 +327,13 @@ export default function FloatingNav({ session, me, tab, setTab, onLogout, player
                     </div>
                     {items.map((it) => {
                       const Icon = it.icon;
-                      const active = tab === it.id;
+                      const active = it.matchRoot ? pathname === it.href : pathname.startsWith(it.href);
                       return (
-                        <button
-                          key={it.id}
-                          onClick={() => handleTabChange(it.id)}
-                          className={`flex items-center justify-between px-4 py-3.5 min-h-[44px] rounded-xl text-sm font-semibold transition-all text-left w-full cursor-pointer ${
+                        <Link
+                          key={it.href}
+                          href={it.href}
+                          onClick={() => setSheetOpen(false)}
+                          className={`flex items-center justify-between px-4 py-3.5 min-h-[44px] rounded-xl text-sm font-semibold transition-all text-left w-full cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-pitch-bright ${
                             active
                               ? 'bg-pitch-bright/15 text-pitch-bright border border-pitch-bright/20'
                               : 'text-muted-foreground hover:text-foreground hover:bg-secondary/50'
@@ -343,12 +343,12 @@ export default function FloatingNav({ session, me, tab, setTab, onLogout, player
                             <Icon size={18} className="shrink-0" />
                             <span className="truncate">{it.label}</span>
                           </div>
-                          {(it.id === 'matches' || it.id === 'admin-matches') && hasLiveMatch && (
+                          {(it.href === '/matches' || it.href === '/admin/matches') && hasLiveMatch && (
                             <span className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-red-500/10 border border-red-500/20 text-[10px] font-bold text-red-500 uppercase tracking-widest animate-pulse">
                               <span className="w-1.5 h-1.5 rounded-full bg-red-500" /> Live
                             </span>
                           )}
-                        </button>
+                        </Link>
                       );
                     })}
 
@@ -359,17 +359,18 @@ export default function FloatingNav({ session, me, tab, setTab, onLogout, player
                           Player Shortcuts
                         </div>
                         {[
-                          { id: "players", label: "Roster", icon: Users },
-                          { id: "history", label: "History", icon: Archive },
-                          { id: "notifications", label: "Alerts", icon: Bell },
+                          { href: "/players", label: "Roster", icon: Users },
+                          { href: "/history", label: "History", icon: Archive },
+                          { href: "/notifications", label: "Alerts", icon: Bell },
                         ].map((it) => {
                           const Icon = it.icon;
-                          const active = tab === it.id;
+                          const active = pathname.startsWith(it.href);
                           return (
-                            <button
-                              key={it.id}
-                              onClick={() => handleTabChange(it.id)}
-                              className={`flex items-center gap-3 px-4 py-3.5 min-h-[44px] rounded-xl text-sm font-semibold transition-all text-left w-full cursor-pointer ${
+                            <Link
+                              key={it.href}
+                              href={it.href}
+                              onClick={() => setSheetOpen(false)}
+                              className={`flex items-center gap-3 px-4 py-3.5 min-h-[44px] rounded-xl text-sm font-semibold transition-all text-left w-full cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-pitch-bright ${
                                 active
                                   ? 'bg-pitch-bright/15 text-pitch-bright border border-pitch-bright/20'
                                   : 'text-muted-foreground hover:text-foreground hover:bg-secondary/50'
@@ -377,7 +378,7 @@ export default function FloatingNav({ session, me, tab, setTab, onLogout, player
                             >
                               <Icon size={18} className="shrink-0" />
                               <span className="truncate">{it.label}</span>
-                            </button>
+                            </Link>
                           );
                         })}
                       </>
@@ -385,21 +386,22 @@ export default function FloatingNav({ session, me, tab, setTab, onLogout, player
 
                     <div className="h-px bg-border/40 my-2" />
 
-                    <button
-                      onClick={() => handleTabChange(session?.type === "admin" ? "admin-settings" : "settings")}
-                      className={`flex items-center gap-3 px-4 py-3.5 min-h-[44px] rounded-xl text-sm font-semibold transition-all text-left w-full cursor-pointer ${
-                        tab === (session?.type === "admin" ? "admin-settings" : "settings")
+                    <Link
+                      href={session?.type === "admin" ? "/admin/settings" : "/settings"}
+                      onClick={() => setSheetOpen(false)}
+                      className={`flex items-center gap-3 px-4 py-3.5 min-h-[44px] rounded-xl text-sm font-semibold transition-all text-left w-full cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-pitch-bright ${
+                        pathname === (session?.type === "admin" ? "/admin/settings" : "/settings")
                           ? 'bg-pitch-bright/15 text-pitch-bright border border-pitch-bright/20'
                           : 'text-muted-foreground hover:text-foreground hover:bg-secondary/50'
                       }`}
                     >
                       <Settings size={18} className="shrink-0" />
                       <span>Settings</span>
-                    </button>
+                    </Link>
 
                     <button
-                      onClick={() => { onLogout(); setSheetOpen(false); }}
-                      className="flex items-center gap-3 px-4 py-3.5 min-h-[44px] rounded-xl text-sm font-semibold text-destructive hover:bg-destructive/15 transition-all text-left w-full cursor-pointer mb-6"
+                      onClick={() => { handleLogout(); setSheetOpen(false); }}
+                      className="flex items-center gap-3 px-4 py-3.5 min-h-[44px] rounded-xl text-sm font-semibold text-destructive hover:bg-destructive/15 transition-all text-left w-full cursor-pointer mb-6 outline-none focus-visible:ring-2 focus-visible:ring-red-500"
                     >
                       <LogOut size={18} className="shrink-0" />
                       <span>Log out</span>
@@ -416,7 +418,7 @@ export default function FloatingNav({ session, me, tab, setTab, onLogout, player
 
       {/* Command Search Dialog */}
       <Dialog open={searchOpen} onOpenChange={setSearchOpen}>
-        <DialogContent className="p-0 gap-0 w-screen h-screen sm:h-auto max-w-full sm:max-w-lg sm:rounded-xl bg-card border-border/50 sm:shadow-2xl overflow-hidden m-0 sm:border-solid">
+        <DialogContent className="p-0 gap-0 w-screen h-screen sm:h-auto max-w-full sm:max-w-lg sm:rounded-xl bg-card border-border/50 sm:shadow-2xl overflow-hidden m-0 sm:border-solid z-[99999]">
           <DialogHeader className="sr-only">
             <DialogTitle>Search</DialogTitle>
           </DialogHeader>
@@ -431,9 +433,9 @@ export default function FloatingNav({ session, me, tab, setTab, onLogout, player
                   const Icon = it.icon;
                   return (
                     <CommandItem
-                      key={it.id}
+                      key={it.href}
                       value={it.label}
-                      onSelect={() => { setTab(it.id); setSearchOpen(false); }}
+                      onSelect={() => { router.push(it.href); setSearchOpen(false); }}
                       className="flex items-center gap-2 rounded-lg cursor-pointer py-2"
                     >
                       <Icon size={15} className="text-muted-foreground" />
@@ -448,7 +450,7 @@ export default function FloatingNav({ session, me, tab, setTab, onLogout, player
                     <CommandItem
                       key={p.id}
                       value={p.name}
-                      onSelect={() => setSearchOpen(false)}
+                      onSelect={() => { router.push('/player/' + p.id); setSearchOpen(false); }}
                       className="flex items-center gap-2 rounded-lg cursor-pointer py-2"
                     >
                       <Avatar p={p} size={24} />

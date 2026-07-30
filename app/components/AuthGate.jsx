@@ -11,8 +11,19 @@ import { AnimatedGradientText } from './magicui/AnimatedGradientText';
 import { ShimmerButton } from './magicui/ShimmerButton';
 import { BorderBeam } from './magicui/BorderBeam';
 
-export default function AuthGate({ players, showToast, onPlayerLogin, onAdminLogin }) {
+import { useRouter } from 'next/navigation';
+
+export default function AuthGate({ players, showToast }) {
   const [mode, setMode] = useState('signin'); // signin | signup | admin
+  const router = useRouter();
+
+  const handlePlayerLogin = (player) => {
+    router.push('/dashboard');
+  };
+
+  const handleAdminLogin = () => {
+    router.push('/admin');
+  };
 
   return (
     <div className="min-h-[100dvh] flex items-center justify-center px-4 md:px-6 py-8 bg-stadium-base text-foreground relative overflow-hidden">
@@ -77,9 +88,9 @@ export default function AuthGate({ players, showToast, onPlayerLogin, onAdminLog
               exit={{ opacity: 0, y: -10, scale: 0.98 }}
               transition={{ duration: 0.2 }}
             >
-              {mode === 'signin' && <SignInForm players={players} onPlayerLogin={onPlayerLogin} />}
-              {mode === 'signup' && <SignUpForm showToast={showToast} onPlayerLogin={onPlayerLogin} />}
-              {mode === 'admin' && <AdminLoginForm onAdminLogin={onAdminLogin} onBack={() => setMode('signin')} />}
+              {mode === 'signin' && <SignInForm players={players} onPlayerLogin={handlePlayerLogin} />}
+              {mode === 'signup' && <SignUpForm showToast={showToast} onPlayerLogin={handlePlayerLogin} />}
+              {mode === 'admin' && <AdminLoginForm onAdminLogin={handleAdminLogin} onBack={() => setMode('signin')} />}
             </motion.div>
           </AnimatePresence>
         </FadeIn>

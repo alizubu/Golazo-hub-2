@@ -89,7 +89,7 @@ function AdminOverview(props) {
   );
 }
 
-function AdminPlayers({ players, showToast }) {
+export function AdminPlayers({ players, showToast }) {
   const [editing, setEditing] = useState(null);
   const [loading, setLoading] = useState(false);
   const blank = { name: "", username: "", email: "", avatar: null, flag: null, teamName: "", teamLogo: null, password: "" };
@@ -174,7 +174,7 @@ function AdminPlayers({ players, showToast }) {
   );
 }
 
-function AdminMatches({ matches, activeSeason, players, showToast }) {
+export function AdminMatches({ matches, activeSeason, players, showToast }) {
   if (!activeSeason) return <EmptyState text="Start a season first." />;
   const tMatches = matches.filter((m) => m.seasonId === activeSeason.id);
   
@@ -199,8 +199,6 @@ function AdminMatchControl({ m, players, showToast, isPlayoff = false }) {
   const [optHome, setOptHome] = useState(m.homeScore || 0);
   const [optAway, setOptAway] = useState(m.awayScore || 0);
 
-  // Sync optimistic state when server props change, without using useEffect
-  // which causes cascading renders.
   const [prevScores, setPrevScores] = useState({ home: m.homeScore, away: m.awayScore });
   if (m.homeScore !== prevScores.home || m.awayScore !== prevScores.away) {
     setPrevScores({ home: m.homeScore, away: m.awayScore });
@@ -228,11 +226,9 @@ function AdminMatchControl({ m, players, showToast, isPlayoff = false }) {
     const nextHome = side === "home" ? Math.max(0, optHome + delta) : optHome;
     const nextAway = side === "away" ? Math.max(0, optAway + delta) : optAway;
     
-    // 1. Immediate optimistic UI update & animation
     setOptHome(nextHome);
     setOptAway(nextAway);
 
-    // 2. Immediate realtime broadcast to sync observers/widgets
     const optMatch = { ...m, homeScore: nextHome, awayScore: nextAway };
     supabase.channel('matches-page').send({
       type: 'broadcast',
@@ -240,7 +236,6 @@ function AdminMatchControl({ m, players, showToast, isPlayoff = false }) {
       payload: optMatch
     });
 
-    // 3. Background server sync without blocking UI
     updateMatchScore(m.id, nextHome, nextAway).then(res => {
       if (res?.error) {
         showToast(res.error);
@@ -276,9 +271,7 @@ function AdminMatchControl({ m, players, showToast, isPlayoff = false }) {
     return (
       <MagicCard className="group p-3 sm:p-4 bg-secondary/30 relative overflow-hidden">
         <div className="flex items-center gap-2">
-          {/* 3-Column Grid matching CompletedMatchCard */}
           <div className="grid grid-cols-3 gap-2 items-center w-full pr-8">
-            {/* Col 1: Avatar Home */}
             <div className="flex items-center justify-end gap-2 sm:gap-3">
               <span className="text-foreground text-sm font-semibold truncate max-w-[100px] sm:max-w-none text-right" title={h?.name}>
                 {toTitleCase(h?.name)}
@@ -287,7 +280,6 @@ function AdminMatchControl({ m, players, showToast, isPlayoff = false }) {
               <Avatar p={h} size={40} className="w-8 h-8 sm:w-10 sm:h-10 shrink-0" />
             </div>
 
-            {/* Col 2: VS / Play Button */}
             <div className="flex flex-col items-center justify-center">
               <span className="text-xs text-muted-foreground font-score uppercase tracking-widest font-bold mb-1">vs</span>
               <ShinyButton onClick={startMatch} loading={loading} className="px-3 py-1 text-xs">
@@ -295,7 +287,6 @@ function AdminMatchControl({ m, players, showToast, isPlayoff = false }) {
               </ShinyButton>
             </div>
 
-            {/* Col 3: Flag + Name Away */}
             <div className="flex items-center justify-start gap-2 sm:gap-3">
               <Avatar p={a} size={40} className="w-8 h-8 sm:w-10 sm:h-10 shrink-0" />
               {aFlagUrl && <img src={aFlagUrl} alt={a?.flag} className="w-4 h-3 sm:w-5 sm:h-3.5 object-cover rounded-[2px] shadow-sm shrink-0" />}
@@ -372,11 +363,10 @@ function AdminMatchControl({ m, players, showToast, isPlayoff = false }) {
   );
 }
 
-// ─── Completed Match Card (3-col grid, flags, actions) ───────────────────────
 function CompletedMatchCard({ m, h, a, players, showToast, isPlayoff = false }) {
   const [editOpen, setEditOpen] = useState(false);
-  const [editHome, setEditHome] = useState(m.homeScore || 0);
-  const [editAway, setEditAway] = useState(m.awayScore || 0);
+  const [editHome, setEditHome] = useState(0);
+  const [editAway, setEditAway] = useState(0);
   const [saving, setSaving] = useState(false);
 
   const hScore = m.homeScore || 0;
@@ -389,26 +379,32 @@ function CompletedMatchCard({ m, h, a, players, showToast, isPlayoff = false }) 
 
   const router = useRouter();
 
+  const openEditDialog = () => {
+    setEditHome(m.homeScore ?? 0);
+    setEditAway(m.awayScore ?? 0);
+    setEditOpen(true);
+  };
+
   const handleEditSave = async () => {
     setSaving(true);
     try {
       const res = await fetch(`/api/matches/${m.id}/score`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ homeScore: editHome, awayScore: editAway })
+        body: JSON.stringify({ homeScore: editHome, awayScore: editAway }),
       });
       const data = await res.json();
       if (!data.success) {
-        showToast(data.error || 'Failed to update score');
+        showToast(`❌ Failed to update score: ${data.error}`);
       } else {
-        showToast('✅ Score updated — standings recalculated');
+        showToast('✅ Score updated');
+        setEditOpen(false);
         router.refresh();
       }
     } catch (err) {
-      showToast("Failed to update score.");
+      showToast(`❌ Network error: ${err.message}`);
     } finally {
       setSaving(false);
-      setEditOpen(false);
     }
   };
 
@@ -438,10 +434,7 @@ function CompletedMatchCard({ m, h, a, players, showToast, isPlayoff = false }) 
   return (
     <MagicCard className="group p-3 sm:p-4 bg-secondary/30 hover:bg-secondary/40 transition-all duration-300 relative overflow-hidden">
       <div className="flex items-center gap-2">
-        {/* 3-Column Grid for true centering */}
         <div className="grid grid-cols-3 gap-2 items-center w-full pr-8">
-          
-          {/* Col 1: Home Player (Aligned Right) */}
           <div className="flex items-center justify-end gap-2 sm:gap-3">
             <span className="text-foreground text-sm font-semibold truncate max-w-[100px] sm:max-w-none text-right" title={h?.name}>
               {toTitleCase(h?.name)}
@@ -450,7 +443,6 @@ function CompletedMatchCard({ m, h, a, players, showToast, isPlayoff = false }) 
             <Avatar p={h} size={40} className="w-8 h-8 sm:w-10 sm:h-10 shrink-0" />
           </div>
 
-          {/* Col 2: Score Box (Centered perfectly within the 3-col grid) */}
           <div className="flex items-center justify-center">
             <div className={`w-20 sm:w-24 h-9 bg-black/40 border ${m.status === 'live' ? 'border-red-500/50' : 'border-border/50'} rounded-lg flex items-center justify-center gap-2`}>
               <span className={`font-score text-base ${hWon ? 'text-pitch-bright font-black drop-shadow-md' : 'text-muted-foreground font-semibold'}`}>{hScore}</span>
@@ -459,7 +451,6 @@ function CompletedMatchCard({ m, h, a, players, showToast, isPlayoff = false }) 
             </div>
           </div>
 
-          {/* Col 3: Away Player (Aligned Left) */}
           <div className="flex items-center justify-start gap-2 sm:gap-3">
             <Avatar p={a} size={40} className="w-8 h-8 sm:w-10 sm:h-10 shrink-0" />
             {aFlagUrl && <img src={aFlagUrl} alt={a?.flag} className="w-4 h-3 sm:w-5 sm:h-3.5 object-cover rounded-[2px] shadow-sm shrink-0" />}
@@ -469,7 +460,6 @@ function CompletedMatchCard({ m, h, a, players, showToast, isPlayoff = false }) 
           </div>
         </div>
 
-        {/* Action Menu (Absolute position to not disrupt grid centering) */}
         <div className="absolute right-3 sm:right-4 flex justify-end">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -480,7 +470,7 @@ function CompletedMatchCard({ m, h, a, players, showToast, isPlayoff = false }) 
             <DropdownMenuContent align="end" className="bg-card border-border/50 shadow-2xl rounded-xl w-40">
               <DropdownMenuItem
                 className="cursor-pointer rounded-lg py-2"
-                onSelect={(e) => { e.preventDefault(); setEditHome(m.homeScore || 0); setEditAway(m.awayScore || 0); setEditOpen(true); }}
+                onSelect={(e) => { e.preventDefault(); openEditDialog(); }}
               >
                 <Edit2 size={14} className="mr-2" /> Edit Score
               </DropdownMenuItem>
@@ -504,7 +494,6 @@ function CompletedMatchCard({ m, h, a, players, showToast, isPlayoff = false }) 
         </div>
       </div>
 
-      {/* Edit Dialog */}
       <Dialog open={editOpen} onOpenChange={setEditOpen}>
         <DialogContent className="bg-card border-border/50 shadow-2xl max-w-sm">
           <DialogHeader>
@@ -549,15 +538,13 @@ function CompletedMatchCard({ m, h, a, players, showToast, isPlayoff = false }) 
   );
 }
 
-function AdminPlayoffs({ activeSeason, matches, players, showToast }) {
+export function AdminPlayoffs({ activeSeason, matches, players, showToast }) {
   if (!activeSeason) return <EmptyState text="Start a season first." />;
 
-  // All playoff matches for this season (non-league rounds)
   const playoffMatches = matches.filter(
     m => m.seasonId === activeSeason.id && m.round !== 'league' && m.round !== 'friendly'
   );
 
-  // League completion status
   const leagueMatches = matches.filter(m => m.seasonId === activeSeason.id && m.round === 'league');
   const leagueCompleted = leagueMatches.length > 0 && leagueMatches.every(m => m.status === 'completed');
   const leagueProgress = leagueMatches.length > 0
@@ -613,14 +600,12 @@ function AdminPlayoffs({ activeSeason, matches, players, showToast }) {
         </Badge>
       </div>
 
-      {/* The visual bracket */}
       <PlayoffBracket
         matches={playoffMatches}
         players={players}
         onMatchClick={null}
       />
 
-      {/* Admin match controls for each playoff match */}
       <div className="flex flex-col gap-4 mt-4">
         <div className="flex items-center justify-between border-b border-border/50 pb-2 mb-2">
           <div className="flex items-center gap-3">
@@ -649,7 +634,7 @@ function AdminPlayoffs({ activeSeason, matches, players, showToast }) {
   );
 }
 
-function AdminSettings() {
+export function AdminSettings({ showToast }) {
   return (
     <Card className="p-6">
       <SectionTitle icon={Settings}>League Settings</SectionTitle>
@@ -658,7 +643,6 @@ function AdminSettings() {
   );
 }
 
-// ─── Player Combobox ─────────────────────────────────────────────────────────
 function PlayerCombobox({ players, value, onChange }) {
   const [open, setOpen] = useState(false);
   const selected = players.find(p => p.id === value);
@@ -711,9 +695,8 @@ function PlayerCombobox({ players, value, onChange }) {
   );
 }
 
-// ─── Trophy Icon Picker ───────────────────────────────────────────────────────
 function TrophyIconPicker({ value, onChange }) {
-  const [mode, setMode] = useState('png'); // 'png' | 'custom'
+  const [mode, setMode] = useState('png');
   const [custom, setCustom] = useState(value && !TROPHY_TEMPLATES.find(t => t.icon === value) ? value : '');
   
   return (
@@ -774,7 +757,6 @@ function TrophyIconPicker({ value, onChange }) {
   );
 }
 
-// ─── Revoke Confirm Dialog ────────────────────────────────────────────────────
 function RevokeDialog({ open, onOpenChange, trophy, players, onConfirm }) {
   const player = players.find(p => p.id === trophy?.playerId);
   return (
@@ -800,7 +782,6 @@ function RevokeDialog({ open, onOpenChange, trophy, players, onConfirm }) {
   );
 }
 
-// ─── Edit Trophy Dialog ───────────────────────────────────────────────────────
 function EditTrophyDialog({ open, onOpenChange, trophy, players, onSave }) {
   const [form, setForm] = useState(
     trophy ? { title: trophy.title, season: trophy.season, icon: trophy.icon || '🏆', description: trophy.description || '' }
@@ -841,8 +822,7 @@ function EditTrophyDialog({ open, onOpenChange, trophy, players, onSave }) {
   );
 }
 
-// ─── Admin Trophies — 3-Tab System ───────────────────────────────────────────
-function AdminTrophies({ players, trophies = [], seasons, showToast }) {
+export function AdminTrophies({ players, trophies = [], seasons, showToast }) {
   const router = useRouter();
   const blankForm = { playerId: '', title: '', season: '', description: '', icon: '/assets/trophies/Golden-boot.png' };
   const [form, setForm] = useState(blankForm);
@@ -852,12 +832,10 @@ function AdminTrophies({ players, trophies = [], seasons, showToast }) {
   const [isRevoking, setIsRevoking] = useState(false);
   const [celebrations, setCelebrations] = useState([]);
   
-  // DB-backed custom templates (loaded on mount, persisted on save)
   const [dbTemplates, setDbTemplates] = useState([]);
   const [newTemplate, setNewTemplate] = useState({ name: '', icon: '🏆', description: '' });
   const [templateSaving, setTemplateSaving] = useState(false);
 
-  // Load persisted custom templates & celebrations from DB
   useEffect(() => {
     async function loadTemplates() {
       const templates = await getTrophyTemplates();
@@ -869,7 +847,7 @@ function AdminTrophies({ players, trophies = [], seasons, showToast }) {
     }
     loadTemplates();
     loadCelebrations();
-  }, [trophies]); // reload celebrations if trophies change
+  }, [trophies]);
 
   const allTemplates = [
     ...TROPHY_TEMPLATES,
@@ -894,20 +872,21 @@ function AdminTrophies({ players, trophies = [], seasons, showToast }) {
     if (!revokeTarget) return;
     setIsRevoking(true);
     const target = revokeTarget;
-    setRevokeTarget(null); // Clear immediately to close dialog and avoid re-render referencing a deleted item
 
     try {
       const res = await fetch(`/api/admin/trophies/${target.id}`, { method: 'DELETE' });
       const data = await res.json();
+
       if (!data.success) {
-        showToast(data.error || 'Failed to revoke trophy');
+        showToast(`❌ Failed to revoke trophy: ${data.error}`);
       } else {
         const playerName = players.find(p => p.id === target.playerId)?.name || 'Player';
         showToast(`🗑️ ${target.title} revoked from ${playerName}`);
+        setRevokeTarget(null);
         router.refresh();
       }
     } catch (err) {
-      showToast("Failed to revoke trophy.");
+      showToast(`❌ Network error revoking trophy: ${err.message}`);
     } finally {
       setIsRevoking(false);
     }
@@ -984,12 +963,10 @@ function AdminTrophies({ players, trophies = [], seasons, showToast }) {
           </TabsTrigger>
         </TabsList>
 
-        {/* ── TAB 1: AWARD ── */}
         <TabsContent value="award" className="space-y-6">
           <Card className="p-6">
             <SectionTitle icon={Trophy}>Award a Trophy</SectionTitle>
             
-            {/* Quick templates */}
             <div className="mb-5">
               <Label>Quick-fill from template</Label>
               <div className="flex flex-wrap gap-2 mt-2">
@@ -1023,7 +1000,6 @@ function AdminTrophies({ players, trophies = [], seasons, showToast }) {
           </Card>
         </TabsContent>
 
-        {/* ── TAB 2: MANAGE ── */}
         <TabsContent value="manage" className="space-y-4">
           <Card className="p-6">
             <SectionTitle icon={ListOrdered}>All Awarded Trophies ({trophies.length})</SectionTitle>
@@ -1111,7 +1087,6 @@ function AdminTrophies({ players, trophies = [], seasons, showToast }) {
           </Card>
         </TabsContent>
 
-        {/* ── TAB 3: TEMPLATES ── */}
         <TabsContent value="templates" className="space-y-6">
           <Card className="p-6">
             <SectionTitle icon={Package}>Trophy Templates</SectionTitle>
@@ -1138,7 +1113,6 @@ function AdminTrophies({ players, trophies = [], seasons, showToast }) {
                       <div className="text-xs text-muted-foreground truncate">{t.defaultDesc || t.description || 'Click to use in Award form'}</div>
                     </div>
                   </button>
-                  {/* Only show delete for DB-persisted custom templates */}
                   {t.id && !t.id.startsWith('bb-') && !t.id.startsWith('world-') && !t.id.startsWith('golden-') && !t.id.startsWith('mvp') && !t.id.startsWith('la-') && !t.id.startsWith('premier-') && (
                     <button
                       onClick={() => handleDeleteTemplate(t.id, t.name)}
@@ -1170,7 +1144,6 @@ function AdminTrophies({ players, trophies = [], seasons, showToast }) {
           </Card>
         </TabsContent>
 
-        {/* ── TAB 4: CELEBRATIONS ── */}
         <TabsContent value="celebrations" className="space-y-6">
           <Card className="p-6">
             <SectionTitle icon={Megaphone}>Trophy Celebrations</SectionTitle>
@@ -1266,7 +1239,6 @@ function AdminTrophies({ players, trophies = [], seasons, showToast }) {
         </TabsContent>
       </Tabs>
 
-      {/* Revoke Confirm Dialog */}
       <RevokeDialog
         open={!!revokeTarget}
         onOpenChange={open => !open && !isRevoking && setRevokeTarget(null)}
@@ -1275,7 +1247,6 @@ function AdminTrophies({ players, trophies = [], seasons, showToast }) {
         onConfirm={handleRevoke}
       />
 
-      {/* Edit Dialog */}
       <EditTrophyDialog
         key={editTarget?.id || 'edit-dialog-new'}
         open={!!editTarget}
@@ -1288,7 +1259,7 @@ function AdminTrophies({ players, trophies = [], seasons, showToast }) {
   );
 }
 
-function AdminAnnouncements({ announcements, showToast }) {
+export function AdminAnnouncements({ announcements, showToast }) {
   const [form, setForm] = useState({ title: "", content: "" });
   const [loading, setLoading] = useState(false);
 
@@ -1338,12 +1309,15 @@ function AdminAnnouncements({ announcements, showToast }) {
   );
 }
 
-function AdminSeason({ activeSeason, matches = [], players = [], showToast, setTab }) {
+export function AdminSeason({ activeSeason, matches = [], players = [], showToast, setTab }) {
   const [name, setName] = useState("");
   const [seasonType, setSeasonType] = useState("League (Single)");
   const [startDate, setStartDate] = useState(() => new Date().toISOString().split('T')[0]);
   const [rename, setRename] = useState("");
   const [loading, setLoading] = useState(false);
+  // Delete Season — type-to-confirm state
+  const [deleteConfirmText, setDeleteConfirmText] = useState('');
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const handleStart = async () => {
     if (!name.trim()) return showToast("Enter a season name");
@@ -1363,13 +1337,28 @@ function AdminSeason({ activeSeason, matches = [], players = [], showToast, setT
     setLoading(false);
   };
 
-  const handleDelete = async () => {
-    if (!confirm("Are you sure you want to completely delete the active season? This cannot be undone.")) return;
-    setLoading(true);
-    const res = await deleteSeason(activeSeason.id);
-    if (res.error) showToast(res.error);
-    else showToast("Season deleted.");
-    setLoading(false);
+  // ── Delete Season — rebuilt from zero ──────────────────────────────────────
+  const handleDeleteSeason = async () => {
+    if (!activeSeason) return;
+    setIsDeleting(true);
+    try {
+      const res = await fetch(`/api/admin/seasons/${activeSeason.id}`, { method: 'DELETE' });
+      const data = await res.json();
+      if (!data.success) {
+        console.error('Delete season failed:', data.error);
+        showToast(`❌ Failed to delete season: ${data.error}`);
+      } else {
+        showToast(`🗑️ "${activeSeason.name}" deleted.`);
+        setDeleteConfirmText('');
+        // Reload — with no active season the page will show the empty "Create Season" state
+        window.location.reload();
+      }
+    } catch (err) {
+      console.error('Delete season network error:', err);
+      showToast(`❌ Network error: ${err.message}`);
+    } finally {
+      setIsDeleting(false);
+    }
   };
 
   const handleGenerateFixtures = async () => {
@@ -1871,8 +1860,8 @@ function AdminSeason({ activeSeason, matches = [], players = [], showToast, setT
              </AlertDialogContent>
            </AlertDialog>
 
-           {/* ── Delete Season ── */}
-           <AlertDialog>
+           {/* ── Delete Season — rebuilt from zero, type-to-confirm ── */}
+           <AlertDialog onOpenChange={(open) => { if (!open) setDeleteConfirmText(''); }}>
              <AlertDialogTrigger asChild>
                <Btn variant="danger" className="justify-center font-bold">
                  Delete Season
@@ -1883,17 +1872,34 @@ function AdminSeason({ activeSeason, matches = [], players = [], showToast, setT
                  <AlertDialogTitle className="flex items-center gap-2 text-destructive">
                    <Trash2 size={18} /> Delete Season Permanently?
                  </AlertDialogTitle>
-                 <AlertDialogDescription className="text-muted-foreground">
-                   This will permanently delete <strong className="text-foreground">{activeSeason.name}</strong> and ALL associated matches, results, and data. This cannot be undone.
+                 <AlertDialogDescription className="text-muted-foreground space-y-3">
+                   <span className="block">
+                     This will permanently delete <strong className="text-foreground">{activeSeason?.name}</strong> and <strong className="text-foreground">ALL</strong> associated matches, results, and data. This cannot be undone.
+                   </span>
+                   <span className="block pt-2">
+                     Type <strong className="text-foreground font-mono">{activeSeason?.name}</strong> to confirm:
+                   </span>
                  </AlertDialogDescription>
                </AlertDialogHeader>
+               <input
+                 type="text"
+                 value={deleteConfirmText}
+                 onChange={e => setDeleteConfirmText(e.target.value)}
+                 placeholder={activeSeason?.name}
+                 className="w-full mt-1 mb-2 px-3 py-2 rounded-md bg-background border border-border text-sm focus:outline-none focus:ring-2 focus:ring-destructive/50"
+                 autoFocus
+               />
                <AlertDialogFooter>
-                 <AlertDialogCancel>Cancel</AlertDialogCancel>
+                 <AlertDialogCancel onClick={() => setDeleteConfirmText('')}>Cancel</AlertDialogCancel>
                  <AlertDialogAction
-                   className="bg-destructive text-white hover:bg-destructive/80"
-                   onClick={handleDelete}
+                   className="bg-destructive text-white hover:bg-destructive/80 disabled:opacity-40 disabled:cursor-not-allowed"
+                   disabled={deleteConfirmText !== activeSeason?.name || isDeleting}
+                   onClick={async (e) => {
+                     e.preventDefault(); // prevent dialog auto-close
+                     await handleDeleteSeason();
+                   }}
                  >
-                   Yes, Delete Forever
+                   {isDeleting ? 'Deleting...' : 'Yes, Delete Forever'}
                  </AlertDialogAction>
                </AlertDialogFooter>
              </AlertDialogContent>

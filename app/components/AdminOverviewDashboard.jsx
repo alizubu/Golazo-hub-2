@@ -777,7 +777,7 @@ export default function AdminOverviewDashboard({ players = [], activeSeason, mat
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <RecentResults matches={liveMatches} players={players} activeSeason={activeSeason} />
+        <RecentResults matches={liveMatches} players={players} activeSeason={activeSeason} showToast={showToast} />
         <NotificationCenter notifications={notifications} announcements={announcements} matches={liveMatches} />
       </div>
 

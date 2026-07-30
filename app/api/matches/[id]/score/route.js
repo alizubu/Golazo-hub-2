@@ -2,58 +2,53 @@ import { NextResponse } from 'next/server';
 import prisma from '@/lib/db';
 import { revalidatePath } from 'next/cache';
 
-// Mock function representing standings recalculation.
-// In reality, you'd trigger whatever update standings script you have.
-async function triggerStandingsRecalculation(seasonId) {
-  try {
-    // We isolate this so it doesn't break the main request
-    console.log('[API] Triggering standings recalculation for season:', seasonId);
-    // (Actual recalculation logic would go here if needed)
-  } catch (e) {
-    console.error('[API] Failed to recalculate standings:', e);
-  }
-}
-
+// Rebuilt from zero — exact error surfaced to client, dead standings stub removed
 export async function PATCH(request, { params }) {
+  const { id } = await params;
+
+  let body;
   try {
-    const { id } = await params;
-    const body = await request.json();
-    const { homeScore, awayScore } = body;
+    body = await request.json();
+  } catch {
+    return NextResponse.json({ success: false, error: 'Invalid JSON body' }, { status: 400 });
+  }
 
-    // Validate inputs
-    const parsedHome = parseInt(homeScore, 10);
-    const parsedAway = parseInt(awayScore, 10);
+  const { homeScore, awayScore } = body;
+  const h = parseInt(homeScore, 10);
+  const a = parseInt(awayScore, 10);
 
-    if (isNaN(parsedHome) || parsedHome < 0 || isNaN(parsedAway) || parsedAway < 0) {
-      return NextResponse.json({ success: false, error: 'Scores must be non-negative integers.' }, { status: 400 });
-    }
+  if (isNaN(h) || h < 0 || isNaN(a) || a < 0) {
+    return NextResponse.json(
+      { success: false, error: 'Scores must be non-negative integers' },
+      { status: 400 }
+    );
+  }
 
+  try {
     const match = await prisma.match.findUnique({ where: { id } });
     if (!match) {
-      return NextResponse.json({ success: false, error: 'Match not found.' }, { status: 404 });
+      return NextResponse.json({ success: false, error: 'Match not found' }, { status: 404 });
     }
 
-    const updatedMatch = await prisma.match.update({
+    const updated = await prisma.match.update({
       where: { id },
       data: {
-        homeScore: parsedHome,
-        awayScore: parsedAway,
+        homeScore: h,
+        awayScore: a,
         status: 'completed',
-        completedAt: match.completedAt || new Date()
-      }
+        completedAt: match.completedAt || new Date(),
+      },
     });
-
-    // Isolate side effects (like standings recalculation)
-    if (match.seasonId) {
-      await triggerStandingsRecalculation(match.seasonId);
-    }
 
     revalidatePath('/');
     revalidatePath('/admin');
 
-    return NextResponse.json({ success: true, match: updatedMatch });
+    return NextResponse.json({ success: true, match: updated });
   } catch (error) {
-    console.error('[API] Error updating match score:', error);
-    return NextResponse.json({ success: false, error: 'Failed to update score.' }, { status: 500 });
+    console.error('Edit score failed:', error);
+    return NextResponse.json(
+      { success: false, error: error.message || 'Failed to update score' },
+      { status: 500 }
+    );
   }
 }
