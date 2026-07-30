@@ -107,7 +107,8 @@ function SignInForm({ players, onPlayerLogin }) {
   const [busy, setBusy] = useState(false);
   const [showPwd, setShowPwd] = useState(false);
 
-  const submit = async () => {
+  const submit = async (e) => {
+    if (e) e.preventDefault();
     setErr('');
     setBusy(true);
     const res = await signInPlayer({ id, password: pwd });
@@ -128,7 +129,7 @@ function SignInForm({ players, onPlayerLogin }) {
           </div>
         )}
         
-        <div className="space-y-4">
+        <form onSubmit={submit} className="space-y-4">
           <div className="space-y-1.5">
             <Label className="text-muted-foreground font-semibold text-xs uppercase tracking-wider">Username or email</Label>
             <div className="relative">
@@ -171,8 +172,8 @@ function SignInForm({ players, onPlayerLogin }) {
         
         <div className="mt-7">
           <ShimmerButton 
+            type="submit"
             className="w-full font-bold shadow-lg h-12" 
-            onClick={submit} 
             disabled={busy || !id || !pwd}
             shimmerColor="#ffffff80"
             background="#1F8A5C"
@@ -197,7 +198,8 @@ function SignUpForm({ showToast, onPlayerLogin }) {
   
   const set = (k, v) => setForm((f) => ({ ...f, [k]: v }));
 
-  const submit = async () => {
+  const submit = async (e) => {
+    if (e) e.preventDefault();
     setErr('');
     if (form.password !== form.confirm) return setErr("Passwords don't match.");
     setBusy(true);
@@ -214,7 +216,7 @@ function SignUpForm({ showToast, onPlayerLogin }) {
       <Card className="relative overflow-hidden p-6 bg-card border border-border shadow-2xl rounded-2xl">
         <BorderBeam size={150} duration={12} delay={2} colorFrom="#1F8A5C" colorTo="#3DDC84" />
         
-        <div className="space-y-4">
+        <form onSubmit={submit} className="space-y-4">
           <div className="space-y-1.5">
             <Label className="text-muted-foreground font-semibold text-xs uppercase tracking-wider">Display Name</Label>
             <div className="relative">
@@ -276,8 +278,8 @@ function SignUpForm({ showToast, onPlayerLogin }) {
         
         <div className="mt-4">
           <ShimmerButton 
+            type="submit"
             className="w-full font-bold shadow-lg h-12" 
-            onClick={submit} 
             disabled={busy || !form.username || !form.password}
             shimmerColor="#ffffff80"
             background="#1F8A5C"
@@ -289,6 +291,7 @@ function SignUpForm({ showToast, onPlayerLogin }) {
             )}
           </ShimmerButton>
         </div>
+        </form>
       </Card>
     </motion.div>
   );
@@ -300,7 +303,8 @@ function AdminLoginForm({ onAdminLogin, onBack }) {
   const [busy, setBusy] = useState(false);
   const [showPwd, setShowPwd] = useState(false);
 
-  const submit = async () => {
+  const submit = async (e) => {
+    if (e) e.preventDefault();
     setErr('');
     setBusy(true);
     const res = await fetch('/api/admin', { method: 'POST', body: JSON.stringify({ password: pwd }) });
@@ -326,6 +330,7 @@ function AdminLoginForm({ onAdminLogin, onBack }) {
           <p className="text-xs text-muted-foreground mt-1 text-center font-medium">Restricted access — authorized administrators only</p>
         </div>
         
+        <form onSubmit={submit}>
         <div className="space-y-1.5">
           <Label className="text-muted-foreground font-semibold text-xs uppercase tracking-wider">Admin Password</Label>
           <div className="relative">
@@ -355,8 +360,8 @@ function AdminLoginForm({ onAdminLogin, onBack }) {
         
         <div className="mt-7">
           <ShimmerButton 
+            type="submit"
             className="w-full font-bold shadow-lg h-12" 
-            onClick={submit} 
             disabled={busy || !pwd}
             shimmerColor="#ffffff80"
             background="#D9A93B"
@@ -368,6 +373,7 @@ function AdminLoginForm({ onAdminLogin, onBack }) {
             )}
           </ShimmerButton>
         </div>
+        </form>
         
         <motion.button 
           whileHover={{ x: -2 }}
