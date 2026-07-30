@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import prisma from '@/lib/db';
 import { revalidatePath } from 'next/cache';
 import { broadcastEvent } from '@/lib/broadcast';
+import { progressPlayoffBracket } from '@/app/actions/match';
 
 function computeRating(playerStats, score) {
   let r = 6.0;
@@ -114,6 +115,10 @@ export async function POST(req, { params }) {
 
     revalidatePath('/');
     broadcastEvent('match_update', updatedMatch);
+    
+    // Check and progress playoff bracket if applicable
+    await progressPlayoffBracket(id);
+    
     return NextResponse.json({ success: true, match: updatedMatch });
   } catch (error) {
     console.error(error);

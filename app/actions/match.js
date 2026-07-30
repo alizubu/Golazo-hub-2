@@ -164,6 +164,9 @@ export async function updateMatchStatus(matchId, data) {
         }
       }
       // ─────────────────────────────────────────────────────────────────────
+      
+      // Check and progress playoff bracket if applicable
+      await progressPlayoffBracket(matchId);
     }
 
     revalidatePath('/');
@@ -289,6 +292,96 @@ export async function generatePlayoffs(seasonId, top4PlayerIds) {
     return { success: true };
   } catch (error) {
     return { error: 'Failed to generate playoffs' };
+  }
+}
+
+export async function progressPlayoffBracket(matchId) {
+  try {
+    const match = await prisma.match.findUnique({ where: { id: matchId } });
+    if (!match || !match.seasonId || match.status !== 'completed') return;
+
+    const matchWinnerId = (m) => {
+      if (!m || m.status !== 'completed') return null;
+      if (m.homeScore > m.awayScore) return m.homeId;
+      if (m.awayScore > m.homeScore) return m.awayId;
+      if (m.penaltyWinner) return m.penaltyWinner === 'home' ? m.homeId : m.awayId;
+      return null;
+    };
+
+    const matchLoserId = (m) => {
+      const w = matchWinnerId(m);
+      if (!w) return null;
+      return w === m.homeId ? m.awayId : m.homeId;
+    };
+
+    if (match.round === 'semiA' || match.round === 'semiB') {
+      const semis = await prisma.match.findMany({
+        where: { seasonId: match.seasonId, round: { in: ['semiA', 'semiB'] } }
+      });
+      const semiA = semis.find(m => m.round === 'semiA');
+      const semiB = semis.find(m => m.round === 'semiB');
+
+      if (semiA?.status === 'completed' && semiB?.status === 'completed') {
+        const existingChallenger = await prisma.match.findFirst({
+          where: { seasonId: match.seasonId, round: 'challenger' }
+        });
+        if (!existingChallenger) {
+          const semiALoser = matchLoserId(semiA);
+          const semiBWinner = matchWinnerId(semiB);
+          
+          if (semiALoser && semiBWinner) {
+            const challenger = await prisma.match.create({
+              data: {
+                seasonId: match.seasonId,
+                round: 'challenger',
+                homeId: semiALoser,
+                awayId: semiBWinner,
+                status: 'scheduled',
+                label: 'Challenger',
+                decisive: true
+              },
+              include: { home: true, away: true }
+            });
+            await prisma.notification.create({
+              data: { text: `Challenger match auto-created: ${challenger.home.name} vs ${challenger.away.name}`, type: 'info' }
+            });
+            broadcastEvent('match_update', challenger);
+          }
+        }
+      }
+    } else if (match.round === 'challenger') {
+      const existingFinal = await prisma.match.findFirst({
+        where: { seasonId: match.seasonId, round: 'final' }
+      });
+      if (!existingFinal) {
+        const semiA = await prisma.match.findFirst({
+          where: { seasonId: match.seasonId, round: 'semiA' }
+        });
+        const semiAWinner = matchWinnerId(semiA);
+        const challengerWinner = matchWinnerId(match);
+        
+        if (semiAWinner && challengerWinner) {
+          const finalMatch = await prisma.match.create({
+            data: {
+              seasonId: match.seasonId,
+              round: 'final',
+              homeId: semiAWinner,
+              awayId: challengerWinner,
+              status: 'scheduled',
+              label: 'Grand Final',
+              decisive: true
+            },
+            include: { home: true, away: true }
+          });
+          await prisma.notification.create({
+            data: { text: `Grand Final auto-created: ${finalMatch.home.name} vs ${finalMatch.away.name}`, type: 'info' }
+          });
+          broadcastEvent('match_update', finalMatch);
+        }
+      }
+    }
+  } catch (error) {
+    console.error('Failed to progress playoff bracket:', error);
   }
 }
 

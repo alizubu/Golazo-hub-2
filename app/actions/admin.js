@@ -1,6 +1,7 @@
 'use server';
 
 import prisma from '@/lib/db';
+import { revalidatePath } from 'next/cache';
 
 export async function createAnnouncement(data) {
   try {
@@ -37,6 +38,18 @@ export async function awardTrophy(data) {
         icon: data.icon,
       },
     });
+
+    // Auto-create 24h celebration banner
+    await prisma.trophyCelebration.create({
+      data: {
+        trophyAwardId: trophy.id,
+        expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000),
+        status: 'active'
+      }
+    });
+
+    revalidatePath('/admin');
+    revalidatePath('/');
     return { trophy };
   } catch (error) {
     return { error: 'Failed to award trophy.' };
@@ -54,6 +67,8 @@ export async function updateTrophy(id, data) {
         icon: data.icon,
       },
     });
+    revalidatePath('/admin');
+    revalidatePath('/');
     return { trophy };
   } catch (error) {
     return { error: 'Failed to update trophy.' };
@@ -63,9 +78,62 @@ export async function updateTrophy(id, data) {
 export async function removeTrophy(id) {
   try {
     await prisma.trophy.delete({ where: { id } });
+    revalidatePath('/admin');
+    revalidatePath('/');
     return { success: true };
   } catch (error) {
     return { error: 'Failed to remove trophy.' };
+  }
+}
+
+export async function getCelebrations() {
+  try {
+    const celebrations = await prisma.trophyCelebration.findMany({
+      include: {
+        trophy: {
+          include: {
+            player: true
+          }
+        }
+      },
+      orderBy: {
+        startedAt: 'desc'
+      }
+    });
+    return { celebrations };
+  } catch (error) {
+    return { error: 'Failed to fetch celebrations.' };
+  }
+}
+
+export async function endCelebration(id) {
+  try {
+    await prisma.trophyCelebration.update({
+      where: { id },
+      data: { status: 'ended_early' }
+    });
+    revalidatePath('/admin');
+    revalidatePath('/');
+    return { success: true };
+  } catch (error) {
+    return { error: 'Failed to end celebration.' };
+  }
+}
+
+export async function retriggerCelebration(trophyId) {
+  try {
+    await prisma.trophyCelebration.create({
+      data: {
+        trophyAwardId: trophyId,
+        expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000),
+        status: 'active'
+      }
+    });
+    revalidatePath('/admin');
+    revalidatePath('/');
+    return { success: true };
+  } catch (error) {
+    return { error: 'Failed to retrigger celebration.' };
   }
 }
 

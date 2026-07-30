@@ -7,12 +7,14 @@ import { Btn, Badge, Avatar, PlayerChip, SectionTitle, EmptyState, MagicCard, Fa
 import { Card, CardHeader, CardTitle, CardContent } from '@/app/components/ui/card';
 import { NumberTicker } from './ui/number-ticker';
 import { motion } from 'framer-motion';
+import { useRouter } from 'next/navigation';
 import SettingsView from './SettingsView';
 import MatchesPage from './MatchesPage';
 import MatchCard from './MatchCard';
 import MatchStatsModal from './MatchStatsModal';
 import TrophyDetailModal from './TrophyDetailModal';
 import HeadToHeadModal from './HeadToHeadModal';
+import CelebrationBanner from './CelebrationBanner';
 import StatChip from './StatChip';
 import { PlayerStatistics } from './PlayerStatistics';
 import { BorderBeam } from './magicui/BorderBeam';
@@ -186,7 +188,7 @@ function CircularProgress({ value, color = "var(--pitch-bright)", label }) {
   );
 }
 
-function PlayerDashboard({ me, activeSeason, seasons = [], matches, players, announcements = [], trophies = [], notifications = [], setTab, persistPlayers, onMatchClick }) {
+function PlayerDashboard({ me, activeSeason, seasons = [], matches, players, announcements = [], trophies = [], notifications = [], setTab, persistPlayers, onMatchClick, viewOnly }) {
   const [selectedSeasonId, setSelectedSeasonId] = React.useState(activeSeason?.id);
   const t = seasons.find(s => s.id === selectedSeasonId) || activeSeason;
   const tMatches = t ? matches.filter((m) => m.seasonId === t.id) : [];
@@ -259,6 +261,12 @@ function PlayerDashboard({ me, activeSeason, seasons = [], matches, players, ann
 
   return (
     <div className="flex flex-col gap-6 pb-10">
+      <CelebrationBanner />
+      
+      {viewOnly && (
+        <PageHeader title="Player Profile" onBack={() => window.history.back()} />
+      )}
+      
       {announcements.length > 0 && (
         <FadeIn delay={0.05}>
           <div className="flex flex-col gap-3">
@@ -401,13 +409,15 @@ function PlayerDashboard({ me, activeSeason, seasons = [], matches, players, ann
                 className="flex flex-col items-center md:items-end gap-3 w-full md:w-auto pt-2 md:pt-0 shrink-0"
               >
                 {/* Online Status */}
-                <div className="flex items-center gap-1.5 text-xs text-muted-foreground font-semibold">
-                  <span className="relative flex h-2 w-2">
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75" />
-                    <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500" />
-                  </span>
-                  Online now
-                </div>
+                {!viewOnly && (
+                  <div className="flex items-center gap-1.5 text-xs text-muted-foreground font-semibold">
+                    <span className="relative flex h-2 w-2">
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75" />
+                      <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500" />
+                    </span>
+                    Online now
+                  </div>
+                )}
 
                 {/* FORM Indicator */}
                 {form.length > 0 && (
@@ -429,9 +439,11 @@ function PlayerDashboard({ me, activeSeason, seasons = [], matches, players, ann
                 )}
 
                 {/* Edit Profile Button */}
-                <Btn variant="outline" onClick={() => setTab('settings')} className="gap-2 rounded-xl border-border/50 text-xs shadow-sm bg-background hover:bg-secondary w-full md:w-auto mt-1 h-10 md:h-8">
-                  <Pen size={14} /> Edit Profile
-                </Btn>
+                {!viewOnly && (
+                  <Btn variant="outline" onClick={() => setTab('settings')} className="gap-2 rounded-xl border-border/50 text-xs shadow-sm bg-background hover:bg-secondary w-full md:w-auto mt-1 h-10 md:h-8">
+                    <Pen size={14} /> Edit Profile
+                  </Btn>
+                )}
               </motion.div>
               
             </div>
@@ -773,6 +785,7 @@ function MatchesView({ activeSeason, matches, players }) {
 
 
 function RosterView({ players, matches, setTab }) {
+  const router = useRouter();
   const matchWinnerId = (m) => {
     if (!m || m.status !== "completed") return null;
     if (m.homeScore > m.awayScore) return m.homeId;
@@ -805,7 +818,7 @@ function RosterView({ players, matches, setTab }) {
           
           return (
             <FadeIn key={p.id} delay={i * 0.05}>
-              <MagicCard className="p-5 flex items-center gap-4 hover:border-border transition-all hover:shadow-lg cursor-pointer group bg-stadium-surface/40 hover:bg-stadium-surface/60">
+              <MagicCard onClick={() => router.push(`/players/${p.id}`)} className="p-5 flex items-center gap-4 hover:border-border hover:scale-[1.02] transition-all hover:shadow-lg cursor-pointer group bg-stadium-surface/40 hover:bg-stadium-surface/60">
                 <div className="relative shrink-0">
                   <div className="absolute -inset-1 rounded-full bg-gradient-to-br from-gold/50 via-pitch-bright to-claret/50 blur-[2px] opacity-0 group-hover:opacity-100 transition-opacity" />
                   <div className="relative rounded-full bg-card p-0.5 border border-border/50 shadow-md">

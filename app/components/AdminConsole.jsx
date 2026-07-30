@@ -8,7 +8,7 @@ import AdminOverviewDashboard from './AdminOverviewDashboard';
 import LiveMatchControl from './LiveMatchControl';
 import { startSeason, deleteSeason, renameSeason, completeSeason } from '@/app/actions/season';
 import { generateFixtures, generatePlayoffs, updateMatchStatus, updateMatchScore, editMatchScoreAdmin, createRematch } from '@/app/actions/match';
-import { getTrophyTemplates, awardTrophy, removeTrophy, updateTrophy, createTrophyTemplate, deleteTrophyTemplate, createAnnouncement, deleteAnnouncement } from '@/app/actions/admin';
+import { getTrophyTemplates, awardTrophy, removeTrophy, updateTrophy, createTrophyTemplate, deleteTrophyTemplate, createAnnouncement, deleteAnnouncement, endCelebration, retriggerCelebration, getCelebrations } from '@/app/actions/admin';
 import { signUpPlayer, adminUpdatePlayer, adminDeletePlayer } from '@/app/actions/player';
 import { supabase } from '@/lib/supabaseClient';
 import PlayoffBracket from './PlayoffBracket';
@@ -814,23 +814,31 @@ function EditTrophyDialog({ open, onOpenChange, trophy, players, onSave }) {
 
 // ─── Admin Trophies — 3-Tab System ───────────────────────────────────────────
 function AdminTrophies({ players, trophies = [], showToast }) {
-  const blankForm = { playerId: '', title: '', season: '', description: '', icon: '/assets/trophies/Golden-boot.png' };
   const [form, setForm] = useState(blankForm);
   const [revokeTarget, setRevokeTarget] = useState(null);
   const [editTarget, setEditTarget] = useState(null);
+  const [isAwarding, setIsAwarding] = useState(false);
+  const [isRevoking, setIsRevoking] = useState(false);
+  const [celebrations, setCelebrations] = useState([]);
+  
   // DB-backed custom templates (loaded on mount, persisted on save)
   const [dbTemplates, setDbTemplates] = useState([]);
   const [newTemplate, setNewTemplate] = useState({ name: '', icon: '🏆', description: '' });
   const [templateSaving, setTemplateSaving] = useState(false);
 
-  // Load persisted custom templates from DB
+  // Load persisted custom templates & celebrations from DB
   useEffect(() => {
     async function loadTemplates() {
       const templates = await getTrophyTemplates();
       setDbTemplates(templates);
     }
+    async function loadCelebrations() {
+      const res = await getCelebrations();
+      if (res.celebrations) setCelebrations(res.celebrations);
+    }
     loadTemplates();
-  }, []);
+    loadCelebrations();
+  }, [trophies]); // reload celebrations if trophies change
 
   const allTemplates = [
     ...TROPHY_TEMPLATES,
@@ -839,22 +847,49 @@ function AdminTrophies({ players, trophies = [], showToast }) {
 
   const handleAward = async () => {
     if (!form.playerId || !form.title || !form.season) return showToast('Player, Title, and Season are required.');
+    setIsAwarding(true);
     const res = await awardTrophy(form);
-    if (res.error) return showToast(res.error);
-    const playerName = players.find(p => p.id === form.playerId)?.name || 'Player';
-    showToast(`🏆 ${form.title} awarded to ${playerName}`);
-    setForm(blankForm);
+    if (res.error) {
+      showToast(res.error);
+    } else {
+      const playerName = players.find(p => p.id === form.playerId)?.name || 'Player';
+      showToast(`🏆 ${form.title} awarded to ${playerName}`);
+      setForm(blankForm);
+    }
+    setIsAwarding(false);
   };
 
   const handleRevoke = async () => {
     if (!revokeTarget) return;
+    setIsRevoking(true);
     const res = await removeTrophy(revokeTarget.id);
-    if (res.error) showToast(res.error);
-    else {
+    if (res.error) {
+      showToast(res.error);
+    } else {
       const playerName = players.find(p => p.id === revokeTarget.playerId)?.name || 'Player';
       showToast(`🗑️ ${revokeTarget.title} revoked from ${playerName}`);
     }
     setRevokeTarget(null);
+    setIsRevoking(false);
+  };
+
+  const handleEndCelebration = async (id) => {
+    const res = await endCelebration(id);
+    if (res.error) showToast(res.error);
+    else {
+      showToast("Celebration ended early.");
+      setCelebrations(prev => prev.map(c => c.id === id ? { ...c, status: 'ended_early' } : c));
+    }
+  };
+
+  const handleRetrigger = async (trophyId) => {
+    const res = await retriggerCelebration(trophyId);
+    if (res.error) showToast(res.error);
+    else {
+      showToast("Celebration re-triggered!");
+      const fresh = await getCelebrations();
+      if (fresh.celebrations) setCelebrations(fresh.celebrations);
+    }
   };
 
   const handleEdit = async (updatedData) => {
@@ -904,6 +939,9 @@ function AdminTrophies({ players, trophies = [], showToast }) {
           <TabsTrigger value="templates" className="rounded-lg data-[state=active]:bg-card data-[state=active]:text-foreground">
             <Package size={14} className="mr-1.5" /> Templates
           </TabsTrigger>
+          <TabsTrigger value="celebrations" className="rounded-lg data-[state=active]:bg-card data-[state=active]:text-foreground">
+            <Megaphone size={14} className="mr-1.5" /> Celebrations
+          </TabsTrigger>
         </TabsList>
 
         {/* ── TAB 1: AWARD ── */}
@@ -941,7 +979,7 @@ function AdminTrophies({ players, trophies = [], showToast }) {
               </div>
               <div className="md:col-span-2"><Label>Description</Label><Input value={form.description} onChange={e => setForm({...form, description: e.target.value})} placeholder="e.g. Top goalscorer with 25 goals." /></div>
             </div>
-            <ShinyButton className="mt-6" onClick={handleAward}>🏆 Award Trophy</ShinyButton>
+            <ShinyButton className="mt-6" onClick={handleAward} disabled={isAwarding} loading={isAwarding}>🏆 Award Trophy</ShinyButton>
           </Card>
         </TabsContent>
 
@@ -1009,6 +1047,9 @@ function AdminTrophies({ players, trophies = [], showToast }) {
                               <DropdownMenuContent align="end" className="bg-card border-border/50 shadow-2xl rounded-xl w-36">
                                 <DropdownMenuItem onClick={() => setEditTarget(t)} className="cursor-pointer rounded-lg py-2">
                                   <Edit2 size={14} className="mr-2" /> Edit
+                                </DropdownMenuItem>
+                                <DropdownMenuItem onClick={() => handleRetrigger(t.id)} className="cursor-pointer rounded-lg py-2">
+                                  <Megaphone size={14} className="mr-2" /> Feature this again
                                 </DropdownMenuItem>
                                 <DropdownMenuSeparator className="bg-border/30" />
                                 <DropdownMenuItem
@@ -1088,12 +1129,107 @@ function AdminTrophies({ players, trophies = [], showToast }) {
             </div>
           </Card>
         </TabsContent>
+
+        {/* ── TAB 4: CELEBRATIONS ── */}
+        <TabsContent value="celebrations" className="space-y-6">
+          <Card className="p-6">
+            <SectionTitle icon={Megaphone}>Trophy Celebrations</SectionTitle>
+            <p className="text-sm text-muted-foreground mb-6">
+              Manage 24-hour celebration banners that appear on all player dashboards when a trophy is awarded.
+            </p>
+            {celebrations.length === 0 ? (
+              <EmptyState text="No celebrations yet." />
+            ) : (
+              <div className="overflow-x-auto -mx-2">
+                <table className="w-full text-sm min-w-[600px]">
+                  <thead>
+                    <tr className="text-muted-foreground text-[11px] uppercase tracking-wider border-b border-border/50">
+                      <th className="pb-3 text-left px-2 font-semibold">Status</th>
+                      <th className="pb-3 text-left px-2 font-semibold">Trophy</th>
+                      <th className="pb-3 text-left px-2 font-semibold">Player</th>
+                      <th className="pb-3 text-left px-2 font-semibold">Started At</th>
+                      <th className="pb-3 text-left px-2 font-semibold">Expires At</th>
+                      <th className="pb-3 px-2"></th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {celebrations.map((c, i) => {
+                      const isActive = c.status === 'active' && new Date(c.expiresAt) > new Date();
+                      return (
+                        <motion.tr
+                          key={c.id}
+                          initial={{ opacity: 0, y: 6 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ delay: i * 0.03 }}
+                          className="border-b border-border/30 last:border-0 hover:bg-secondary/20 transition-colors"
+                        >
+                          <td className="py-3 px-2">
+                            {isActive ? (
+                              <Badge color="var(--pitch)" pulse>ACTIVE</Badge>
+                            ) : (
+                              <Badge variant="outline" className="text-muted-foreground border-border/50">{c.status === 'ended_early' ? 'ENDED EARLY' : 'EXPIRED'}</Badge>
+                            )}
+                          </td>
+                          <td className="py-3 px-2">
+                            <div className="flex items-center gap-2">
+                              {c.trophy.icon && (c.trophy.icon.startsWith('/') || c.trophy.icon.startsWith('http')) ? (
+                                <img src={c.trophy.icon} className="w-5 h-5 object-contain" alt="" />
+                              ) : (
+                                <span>{c.trophy.icon || '🏆'}</span>
+                              )}
+                              <span className="font-semibold">{c.trophy.title}</span>
+                            </div>
+                          </td>
+                          <td className="py-3 px-2">
+                            <div className="flex items-center gap-2">
+                              <Avatar p={c.trophy.player} size={20} />
+                              <span className="font-medium">{c.trophy.player.name}</span>
+                            </div>
+                          </td>
+                          <td className="py-3 px-2 font-score text-muted-foreground text-xs whitespace-nowrap">
+                            {new Date(c.startedAt).toLocaleString(undefined, { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' })}
+                          </td>
+                          <td className="py-3 px-2 font-score text-muted-foreground text-xs whitespace-nowrap">
+                            {new Date(c.expiresAt).toLocaleString(undefined, { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' })}
+                          </td>
+                          <td className="py-3 px-2 text-right">
+                            {isActive && (
+                              <AlertDialog>
+                                <AlertDialogTrigger asChild>
+                                  <Btn variant="danger" className="py-1 px-2 text-[10px] h-6 rounded-md">End Now</Btn>
+                                </AlertDialogTrigger>
+                                <AlertDialogContent className="bg-card border-border/50">
+                                  <AlertDialogHeader>
+                                    <AlertDialogTitle>End this celebration early?</AlertDialogTitle>
+                                    <AlertDialogDescription>
+                                      It will stop showing on all dashboards immediately. The player keeps the trophy in their permanent Trophy Cabinet.
+                                    </AlertDialogDescription>
+                                  </AlertDialogHeader>
+                                  <AlertDialogFooter>
+                                    <AlertDialogCancel className="border-border">Cancel</AlertDialogCancel>
+                                    <AlertDialogAction onClick={() => handleEndCelebration(c.id)} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+                                      End Now
+                                    </AlertDialogAction>
+                                  </AlertDialogFooter>
+                                </AlertDialogContent>
+                              </AlertDialog>
+                            )}
+                          </td>
+                        </motion.tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </Card>
+        </TabsContent>
       </Tabs>
 
       {/* Revoke Confirm Dialog */}
       <RevokeDialog
         open={!!revokeTarget}
-        onOpenChange={open => !open && setRevokeTarget(null)}
+        onOpenChange={open => !open && !isRevoking && setRevokeTarget(null)}
         trophy={revokeTarget}
         players={players}
         onConfirm={handleRevoke}
