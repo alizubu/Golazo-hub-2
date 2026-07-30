@@ -106,9 +106,11 @@ export default function ClientApp({ initialSession, initialPlayers, initialSeaso
             transition={{ duration: 0.2 }}
           >
             <ErrorBoundary>
-              {session.type === 'admin'
+              {session.type === 'admin' && tab.startsWith('admin')
                 ? <AdminConsole {...ctx} tab={tab} setTab={setTab} />
-                : <PlayerViews {...ctx} me={me} tab={tab} setTab={setTab} />
+                : session.type === 'admin' || tab === 'admin'
+                  ? <PlayerViews {...ctx} me={null} tab={tab} setTab={setTab} viewOnly={true} />
+                  : <PlayerViews {...ctx} me={me} tab={tab} setTab={setTab} />
               }
             </ErrorBoundary>
           </motion.div>

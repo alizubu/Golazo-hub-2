@@ -10,7 +10,7 @@ import { NumberTicker } from './ui/number-ticker';
 import confetti from 'canvas-confetti';
 import { computeStandings } from './StandingsTable';
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from './ui/dropdown-menu';
-import { editMatchScoreAdmin, createRematch } from '@/app/actions/match';
+import { useRouter } from 'next/navigation';
 
 function formatName(name) {
   if (!name) return 'TBD';
@@ -330,6 +330,7 @@ function RecentResults({ matches, players, activeSeason, showToast }) {
   const [editingMatch, setEditingMatch] = useState(null);
   const [homeScore, setHomeScore] = useState(0);
   const [awayScore, setAwayScore] = useState(0);
+  const router = useRouter();
 
   if (!activeSeason) return null;
   const completed = matches
@@ -339,33 +340,38 @@ function RecentResults({ matches, players, activeSeason, showToast }) {
 
   const handleEditSave = async () => {
     if(!editingMatch) return;
-    const res = await editMatchScoreAdmin(editingMatch.id, homeScore, awayScore, "admin");
-    if(res.error) showToast?.(res.error);
-    else {
-      showToast?.("Score updated!");
-      if (res.match) {
-        supabase.channel('matches-page').send({
-          type: 'broadcast',
-          event: 'match_update',
-          payload: res.match
-        });
+    try {
+      const res = await fetch(`/api/matches/${editingMatch.id}/score`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ homeScore, awayScore })
+      });
+      const data = await res.json();
+      if (!data.success) {
+        showToast?.(data.error || 'Failed to update score');
+      } else {
+        showToast?.("Score updated!");
+        router.refresh();
       }
+    } catch (err) {
+      showToast?.("Failed to update score.");
+    } finally {
+      setEditingMatch(null);
     }
-    setEditingMatch(null);
   };
 
   const handleRematch = async (m) => {
-    const res = await createRematch(m.homeId, m.awayId, m.seasonId);
-    if(res.error) showToast?.(res.error);
-    else {
-      showToast?.(`Rematch scheduled!`);
-      if (res.match) {
-        supabase.channel('matches-page').send({
-          type: 'broadcast',
-          event: 'match_update',
-          payload: res.match
-        });
+    try {
+      const res = await fetch(`/api/matches/${m.id}/rematch`, { method: 'POST' });
+      const data = await res.json();
+      if (!data.success) {
+        showToast?.(data.error || 'Failed to create rematch');
+      } else {
+        showToast?.(data.message || `Rematch scheduled!`);
+        router.refresh();
       }
+    } catch (err) {
+      showToast?.("Failed to create rematch.");
     }
   };
 

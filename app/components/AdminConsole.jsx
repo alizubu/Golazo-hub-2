@@ -14,6 +14,7 @@ import { supabase } from '@/lib/supabaseClient';
 import PlayoffBracket from './PlayoffBracket';
 import { getCode } from 'country-list';
 import nationalTeamsData from '@/lib/data/national_teams.json';
+import { useRouter } from 'next/navigation';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/app/components/ui/tabs';
 import {
   Dialog,
@@ -67,14 +68,14 @@ const TROPHY_TEMPLATES = [
 
 export default function AdminConsole(props) {
   const { tab } = props;
-  if (tab === "admin") return <AdminOverview {...props} />;
-  if (tab === "admin-players") return <AdminPlayers {...props} />;
-  if (tab === "admin-season") return <AdminSeason {...props} />;
-  if (tab === "admin-matches") return <AdminMatches {...props} />;
-  if (tab === "admin-playoffs") return <AdminPlayoffs {...props} />;
-  if (tab === "admin-settings") return <AdminSettings {...props} />;
-  if (tab === "admin-trophies") return <AdminTrophies {...props} />;
-  if (tab === "admin-announcements") return <AdminAnnouncements {...props} />;
+  if (tab === "admin") return <ErrorBoundary><AdminOverview {...props} /></ErrorBoundary>;
+  if (tab === "admin-players") return <ErrorBoundary><AdminPlayers {...props} /></ErrorBoundary>;
+  if (tab === "admin-season") return <ErrorBoundary><AdminSeason {...props} /></ErrorBoundary>;
+  if (tab === "admin-matches") return <ErrorBoundary><AdminMatches {...props} /></ErrorBoundary>;
+  if (tab === "admin-playoffs") return <ErrorBoundary><AdminPlayoffs {...props} /></ErrorBoundary>;
+  if (tab === "admin-settings") return <ErrorBoundary><AdminSettings {...props} /></ErrorBoundary>;
+  if (tab === "admin-trophies") return <ErrorBoundary><AdminTrophies {...props} /></ErrorBoundary>;
+  if (tab === "admin-announcements") return <ErrorBoundary><AdminAnnouncements {...props} /></ErrorBoundary>;
   return <EmptyState text="Admin feature in progress..." />;
 }
 
@@ -386,28 +387,44 @@ function CompletedMatchCard({ m, h, a, players, showToast, isPlayoff = false }) 
   const hFlagUrl = nationalTeamsData.find(nt => nt.name === h?.flag)?.flag_url;
   const aFlagUrl = nationalTeamsData.find(nt => nt.name === a?.flag)?.flag_url;
 
+  const router = useRouter();
+
   const handleEditSave = async () => {
     setSaving(true);
-    const res = await editMatchScoreAdmin(m.id, editHome, editAway, 'admin');
-    if (res.error) showToast(res.error);
-    else {
-      showToast('✅ Score updated — standings recalculated');
-      if (res.match) {
-        supabase.channel('matches-page').send({
-          type: 'broadcast',
-          event: 'match_update',
-          payload: res.match
-        });
+    try {
+      const res = await fetch(`/api/matches/${m.id}/score`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ homeScore: editHome, awayScore: editAway })
+      });
+      const data = await res.json();
+      if (!data.success) {
+        showToast(data.error || 'Failed to update score');
+      } else {
+        showToast('✅ Score updated — standings recalculated');
+        router.refresh();
       }
+    } catch (err) {
+      showToast("Failed to update score.");
+    } finally {
+      setSaving(false);
+      setEditOpen(false);
     }
-    setSaving(false);
-    setEditOpen(false);
   };
 
   const handleRematch = async () => {
-    const res = await createRematch(m.homeId, m.awayId, m.seasonId);
-    if (res.error) showToast(res.error);
-    else showToast('🔄 Rematch scheduled!');
+    try {
+      const res = await fetch(`/api/matches/${m.id}/rematch`, { method: 'POST' });
+      const data = await res.json();
+      if (!data.success) {
+        showToast(data.error || 'Failed to create rematch');
+      } else {
+        showToast(data.message || '🔄 Rematch scheduled!');
+        router.refresh();
+      }
+    } catch (err) {
+      showToast("Failed to create rematch.");
+    }
   };
 
   const handleReset = async () => {
@@ -825,7 +842,8 @@ function EditTrophyDialog({ open, onOpenChange, trophy, players, onSave }) {
 }
 
 // ─── Admin Trophies — 3-Tab System ───────────────────────────────────────────
-function AdminTrophies({ players, trophies = [], showToast }) {
+function AdminTrophies({ players, trophies = [], seasons, showToast }) {
+  const router = useRouter();
   const blankForm = { playerId: '', title: '', season: '', description: '', icon: '/assets/trophies/Golden-boot.png' };
   const [form, setForm] = useState(blankForm);
   const [revokeTarget, setRevokeTarget] = useState(null);
@@ -878,16 +896,21 @@ function AdminTrophies({ players, trophies = [], showToast }) {
     const target = revokeTarget;
     setRevokeTarget(null); // Clear immediately to close dialog and avoid re-render referencing a deleted item
 
-    const res = await removeTrophy(target.id);
-    if (res.error) {
-      showToast(res.error);
-    } else {
-      const playerName = players.find(p => p.id === target.playerId)?.name || 'Player';
-      showToast(`🗑️ ${target.title} revoked from ${playerName}`);
-      // Proactively clear from local state to ensure no stale references survive
-      setCelebrations(prev => prev.filter(c => c.trophyAwardId !== target.id));
+    try {
+      const res = await fetch(`/api/admin/trophies/${target.id}`, { method: 'DELETE' });
+      const data = await res.json();
+      if (!data.success) {
+        showToast(data.error || 'Failed to revoke trophy');
+      } else {
+        const playerName = players.find(p => p.id === target.playerId)?.name || 'Player';
+        showToast(`🗑️ ${target.title} revoked from ${playerName}`);
+        router.refresh();
+      }
+    } catch (err) {
+      showToast("Failed to revoke trophy.");
+    } finally {
+      setIsRevoking(false);
     }
-    setIsRevoking(false);
   };
 
   const handleEndCelebration = async (id) => {

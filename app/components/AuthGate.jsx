@@ -109,6 +109,7 @@ function SignInForm({ players, onPlayerLogin }) {
 
   const submit = async (e) => {
     if (e) e.preventDefault();
+    if (busy) return;
     setErr('');
     setBusy(true);
     const res = await signInPlayer({ id, password: pwd });
@@ -200,6 +201,7 @@ function SignUpForm({ showToast, onPlayerLogin }) {
 
   const submit = async (e) => {
     if (e) e.preventDefault();
+    if (busy) return;
     setErr('');
     if (form.password !== form.confirm) return setErr("Passwords don't match.");
     setBusy(true);
@@ -305,6 +307,7 @@ function AdminLoginForm({ onAdminLogin, onBack }) {
 
   const submit = async (e) => {
     if (e) e.preventDefault();
+    if (busy) return;
     setErr('');
     setBusy(true);
     const res = await fetch('/api/admin', { method: 'POST', body: JSON.stringify({ password: pwd }) });
