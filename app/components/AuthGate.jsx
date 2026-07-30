@@ -110,11 +110,14 @@ function SignInForm({ players, onPlayerLogin }) {
   const submit = async (e) => {
     if (e) e.preventDefault();
     if (busy) return;
+    if (!id || !pwd) return setErr('Please enter both username and password.');
     setErr('');
     setBusy(true);
     const res = await signInPlayer({ id, password: pwd });
-    setBusy(false);
-    if (res.error) return setErr(res.error);
+    if (res.error) {
+      setBusy(false);
+      return setErr(res.error);
+    }
     await setAuthCookie('player', res.player.id);
     onPlayerLogin(res.player);
   };
@@ -173,8 +176,8 @@ function SignInForm({ players, onPlayerLogin }) {
         <div className="mt-7">
           <ShimmerButton 
             type="submit"
-            className="w-full font-bold shadow-lg h-12" 
-            disabled={busy || !id || !pwd}
+            className="w-full font-bold shadow-lg h-12 disabled:opacity-50 disabled:cursor-not-allowed" 
+            disabled={busy}
             shimmerColor="#ffffff80"
             background="#1F8A5C"
           >
@@ -203,11 +206,14 @@ function SignUpForm({ showToast, onPlayerLogin }) {
     if (e) e.preventDefault();
     if (busy) return;
     setErr('');
+    if (!form.username || !form.password || !form.email || !form.name) return setErr('All fields are required.');
     if (form.password !== form.confirm) return setErr("Passwords don't match.");
     setBusy(true);
     const res = await signUpPlayer(form);
-    setBusy(false);
-    if (res.error) return setErr(res.error);
+    if (res.error) {
+      setBusy(false);
+      return setErr(res.error);
+    }
     await setAuthCookie('player', res.player.id);
     showToast(`Welcome to the league, ${res.player.name}! Set up your avatar and team in Profile.`);
     onPlayerLogin(res.player);
@@ -281,8 +287,8 @@ function SignUpForm({ showToast, onPlayerLogin }) {
         <div className="mt-4">
           <ShimmerButton 
             type="submit"
-            className="w-full font-bold shadow-lg h-12" 
-            disabled={busy || !form.username || !form.password}
+            className="w-full font-bold shadow-lg h-12 disabled:opacity-50 disabled:cursor-not-allowed" 
+            disabled={busy}
             shimmerColor="#ffffff80"
             background="#1F8A5C"
           >
@@ -308,15 +314,17 @@ function AdminLoginForm({ onAdminLogin, onBack }) {
   const submit = async (e) => {
     if (e) e.preventDefault();
     if (busy) return;
+    if (!pwd) return setErr('Please enter the master password.');
     setErr('');
     setBusy(true);
     const res = await fetch('/api/admin', { method: 'POST', body: JSON.stringify({ password: pwd }) });
-    setBusy(false);
     if (res.ok) {
       await setAuthCookie('admin');
       onAdminLogin();
+    } else {
+      setBusy(false);
+      setErr("Incorrect password.");
     }
-    else setErr("Incorrect password.");
   };
 
   return (
@@ -364,8 +372,8 @@ function AdminLoginForm({ onAdminLogin, onBack }) {
         <div className="mt-7">
           <ShimmerButton 
             type="submit"
-            className="w-full font-bold shadow-lg h-12" 
-            disabled={busy || !pwd}
+            className="w-full font-bold shadow-lg h-12 disabled:opacity-50 disabled:cursor-not-allowed" 
+            disabled={busy}
             shimmerColor="#ffffff80"
             background="#D9A93B"
           >

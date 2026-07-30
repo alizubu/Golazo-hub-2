@@ -16,7 +16,7 @@ async function triggerStandingsRecalculation(seasonId) {
 
 export async function PATCH(request, { params }) {
   try {
-    const { id } = params;
+    const { id } = await params;
     const body = await request.json();
     const { homeScore, awayScore } = body;
 

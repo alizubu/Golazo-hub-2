@@ -110,42 +110,73 @@ export default function CelebrationBanner() {
             borderWidth={1.5}
           >
             <div className="flex flex-col md:flex-row items-center md:items-start gap-4 md:gap-6 flex-1 min-w-0 w-full">
-              <div className="shrink-0 self-center">
-                {current.trophy.icon && (current.trophy.icon.startsWith('http') || current.trophy.icon.startsWith('/')) ? (
-                  <img src={current.trophy.icon} alt={current.trophy.title} className="w-20 h-20 md:w-24 md:h-24 object-contain drop-shadow-[0_0_15px_rgba(251,191,36,0.5)]" />
-                ) : (
-                  <div className="w-20 h-20 md:w-24 md:h-24 bg-amber-500/20 rounded-full flex items-center justify-center text-5xl shadow-inner border border-amber-500/30">
-                    {current.trophy.icon || '🏆'}
-                  </div>
-                )}
-              </div>
+              <motion.div 
+                initial={{ scale: 0.8, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                transition={{ duration: 0.5, type: 'spring' }}
+                className="shrink-0 self-center relative"
+              >
+                {/* Pulsing glow behind trophy */}
+                <motion.div
+                  animate={{ boxShadow: ['0px 0px 15px 5px rgba(251,191,36,0.2)', '0px 0px 35px 15px rgba(251,191,36,0.6)', '0px 0px 15px 5px rgba(251,191,36,0.2)'] }}
+                  transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
+                  className="absolute inset-0 rounded-full z-0"
+                />
+                {/* Initial sparkle burst */}
+                <motion.div
+                  initial={{ opacity: 1, scale: 0 }}
+                  animate={{ opacity: 0, scale: 1.5 }}
+                  transition={{ duration: 1, ease: 'easeOut' }}
+                  className="absolute -inset-4 border-2 border-amber-400 rounded-full z-0 border-dashed"
+                />
+                
+                <div className="relative z-10">
+                  {current.trophy.icon && (current.trophy.icon.startsWith('http') || current.trophy.icon.startsWith('/')) ? (
+                    <img src={current.trophy.icon} alt={current.trophy.title} className="w-20 h-20 md:w-28 md:h-28 object-contain drop-shadow-[0_0_20px_rgba(251,191,36,0.8)]" />
+                  ) : (
+                    <div className="w-20 h-20 md:w-28 md:h-28 bg-amber-500/20 rounded-full flex items-center justify-center text-5xl md:text-6xl shadow-[inset_0_0_20px_rgba(251,191,36,0.4)] border border-amber-500/30">
+                      {current.trophy.icon || '🏆'}
+                    </div>
+                  )}
+                </div>
+              </motion.div>
               <div className="flex flex-col items-center md:items-start min-w-0 w-full text-center md:text-left">
                 <div className="text-amber-500 text-[10px] md:text-xs font-bold uppercase tracking-widest mb-1.5 flex items-center justify-center md:justify-start gap-2">
                   <span>League Announcement</span>
-                  <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span>
+                  <span className="relative flex h-2 w-2">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-2 w-2 bg-amber-500"></span>
+                  </span>
                 </div>
                 <h2 className="text-2xl md:text-3xl font-black font-heading truncate text-foreground drop-shadow-sm w-full">
                   {current.trophy.season} {current.trophy.title} Winner
                 </h2>
-                <div className="flex items-center justify-center md:justify-start gap-2 mt-3">
-                  <div className="flex items-center gap-2 bg-background/80 px-3.5 py-1.5 rounded-full border border-border/50 shadow-sm backdrop-blur">
+                <div className="flex items-center justify-center md:justify-start gap-4 mt-4">
+                  <motion.div 
+                    animate={{ boxShadow: ['0px 0px 0px rgba(251,191,36,0)', '0px 0px 15px rgba(251,191,36,0.4)', '0px 0px 0px rgba(251,191,36,0)'] }}
+                    transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut', delay: 1 }}
+                    className="flex items-center gap-2.5 bg-gradient-to-r from-amber-500/20 to-amber-600/40 px-4 py-2 rounded-full border border-amber-500/30 shadow-lg backdrop-blur"
+                  >
                     {current.trophy.player.avatarImage ? (
-                      <img src={current.trophy.player.avatarImage} className="w-5 h-5 md:w-6 md:h-6 rounded-full object-cover" alt="" />
+                      <img src={current.trophy.player.avatarImage} className="w-6 h-6 md:w-8 md:h-8 rounded-full object-cover border-2 border-amber-400" alt="" />
                     ) : (
-                      <div className="w-5 h-5 md:w-6 md:h-6 rounded-full bg-secondary flex items-center justify-center text-[10px] font-bold">
-                        {current.trophy.player.name.substring(0,2)}
+                      <div className="w-6 h-6 md:w-8 md:h-8 rounded-full bg-amber-500/80 flex items-center justify-center text-xs font-bold text-white border-2 border-amber-400 shadow-inner">
+                        {current.trophy.player.name.substring(0,2).toUpperCase()}
                       </div>
                     )}
-                    <span className="font-bold text-sm md:text-base">{current.trophy.player.name}</span>
-                  </div>
-                  <span className="text-[11px] text-muted-foreground ml-2 font-medium">Ends in {getHoursRemaining(current.expiresAt)}h</span>
+                    <span className="font-extrabold text-sm md:text-lg text-white tracking-wide">{current.trophy.player.name}</span>
+                  </motion.div>
+                  
+                  <div className="w-px h-6 bg-border/60"></div>
+                  
+                  <span className="text-[11px] md:text-sm text-muted-foreground font-medium">Ends in {getHoursRemaining(current.expiresAt)}h</span>
                 </div>
               </div>
             </div>
 
             <button 
               onClick={handleDismiss} 
-              className="absolute top-2 right-2 md:top-3 md:right-3 p-1.5 rounded-full bg-black/20 hover:bg-black/40 text-muted-foreground hover:text-white transition-colors"
+              className="absolute top-2 right-2 md:top-3 md:right-3 p-1.5 rounded-full bg-black/20 hover:bg-white/10 text-muted-foreground hover:text-white transition-all shadow-sm backdrop-blur-sm z-20"
             >
               <X size={16} />
             </button>

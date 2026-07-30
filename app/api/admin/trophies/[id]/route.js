@@ -4,7 +4,7 @@ import { revalidatePath } from 'next/cache';
 
 export async function DELETE(request, { params }) {
   try {
-    const { id } = params;
+    const { id } = await params;
 
     // Backend validation: check if trophy exists
     const existing = await prisma.trophy.findUnique({

@@ -4,7 +4,7 @@ import { revalidatePath } from 'next/cache';
 
 export async function POST(request, { params }) {
   try {
-    const { id } = params;
+    const { id } = await params;
     
     // 1. Fetch the original match to get pairing and season
     const originalMatch = await prisma.match.findUnique({
@@ -48,8 +48,7 @@ export async function POST(request, { params }) {
         homeId,
         awayId,
         status: 'scheduled',
-        round: 'league',
-        matchday: 1, // Defaulting to 1 for rematches outside typical generator
+        round: 'league'
       }
     });
 
