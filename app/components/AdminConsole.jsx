@@ -6,7 +6,7 @@ import { Card, Btn, Input, Label, SectionTitle, EmptyState, MagicCard, FadeIn, S
 import { motion } from 'framer-motion';
 import AdminOverviewDashboard from './AdminOverviewDashboard';
 import LiveMatchControl from './LiveMatchControl';
-import { startSeason, deleteSeason, renameSeason, completeSeason } from '@/app/actions/season';
+import { startSeason, deleteSeason, renameSeason, completeSeason, adminResetStandings, adminRemoveUnplayedFixtures } from '@/app/actions/season';
 import { generateFixtures, generatePlayoffs, updateMatchStatus, updateMatchScore, editMatchScoreAdmin, createRematch, adminTriggerBracketProgress } from '@/app/actions/match';
 import { getTrophyTemplates, awardTrophy, removeTrophy, updateTrophy, createTrophyTemplate, deleteTrophyTemplate, createAnnouncement, deleteAnnouncement, endCelebration, retriggerCelebration, getCelebrations } from '@/app/actions/admin';
 import { signUpPlayer, adminUpdatePlayer, adminDeletePlayer } from '@/app/actions/player';
@@ -1777,134 +1777,144 @@ export function AdminSeason({ activeSeason, matches = [], players = [], showToas
         </div>
       </Card>
 
-      <Card className="p-6 border-claret/30 bg-claret/5">
-        <div className="flex items-center gap-2 mb-2 text-claret">
-           <AlertTriangle size={20} />
-           <h2 className="text-lg font-heading font-bold">Danger Zone</h2>
-        </div>
-        <p className="text-sm text-claret/70 mb-6">These actions are destructive and cannot be easily undone. Please proceed with caution.</p>
-        
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <Card className="p-8 border-gold/20 bg-gradient-to-br from-card to-gold/5 relative overflow-hidden">
+        <div className="absolute top-0 right-0 p-32 bg-gold/10 blur-[100px] rounded-full pointer-events-none" />
+        <div className="relative z-10">
+          <SectionTitle icon={Settings} className="mb-2">Tournament Management</SectionTitle>
+          <p className="text-sm text-muted-foreground mb-8 max-w-2xl">
+            Administrative controls for the current season. These actions directly modify the database. Proceed with caution.
+          </p>
+          
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
 
-           {/* ── Reset Standings ── */}
-           <AlertDialog>
-             <AlertDialogTrigger asChild>
-               <Btn variant="outline" className="border-claret/30 text-claret hover:bg-claret hover:text-white justify-center">
-                 Reset Standings
-               </Btn>
-             </AlertDialogTrigger>
-             <AlertDialogContent className="bg-card border-border/50">
-               <AlertDialogHeader>
-                 <AlertDialogTitle className="flex items-center gap-2 text-claret">
-                   <AlertTriangle size={18} /> Reset All Standings?
-                 </AlertDialogTitle>
-                 <AlertDialogDescription className="text-muted-foreground">
-                   This will wipe all completed match scores for <strong className="text-foreground">{activeSeason.name}</strong> and reset every result back to &quot;scheduled&quot;. Standings will return to zero. This cannot be undone.
-                 </AlertDialogDescription>
-               </AlertDialogHeader>
-               <AlertDialogFooter>
-                 <AlertDialogCancel>Cancel</AlertDialogCancel>
-                 <AlertDialogAction
-                   className="bg-claret text-white hover:bg-claret-dim"
-                   onClick={async () => {
-                     const res = await fetch(`/api/admin/seasons/${activeSeason.id}/reset-standings`, { method: 'POST' });
-                     if (res.ok) {
-                       showToast('✅ Standings have been reset.');
-                       window.location.reload();
-                     } else {
-                       const body = await res.json().catch(() => ({}));
-                       showToast(`❌ ${body.error || 'Failed to reset standings'}`);
-                     }
-                   }}
-                 >
-                   Yes, Reset Everything
-                 </AlertDialogAction>
-               </AlertDialogFooter>
-             </AlertDialogContent>
-           </AlertDialog>
+             {/* ── Reset Standings ── */}
+             <AlertDialog>
+               <AlertDialogTrigger asChild>
+                 <button className="flex flex-col items-start p-5 rounded-2xl bg-secondary/40 border border-border/50 hover:border-pitch hover:bg-secondary/60 transition-all text-left group">
+                   <div className="w-10 h-10 rounded-full bg-pitch/10 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                     <ListOrdered size={20} className="text-pitch" />
+                   </div>
+                   <h3 className="font-bold text-foreground mb-1">Reset Standings</h3>
+                   <p className="text-xs text-muted-foreground">Wipes all completed match scores back to zero and scheduled.</p>
+                 </button>
+               </AlertDialogTrigger>
+               <AlertDialogContent className="bg-card border-border/50 shadow-2xl">
+                 <AlertDialogHeader>
+                   <AlertDialogTitle className="flex items-center gap-2">
+                     <AlertTriangle size={18} className="text-pitch" /> Reset All Standings?
+                   </AlertDialogTitle>
+                   <AlertDialogDescription className="text-muted-foreground">
+                     This will wipe all completed match scores for <strong className="text-foreground">{activeSeason?.name}</strong> and reset every result back to &quot;scheduled&quot;. Standings will return to zero. This cannot be undone.
+                   </AlertDialogDescription>
+                 </AlertDialogHeader>
+                 <AlertDialogFooter>
+                   <AlertDialogCancel>Cancel</AlertDialogCancel>
+                   <AlertDialogAction
+                     className="bg-pitch text-white hover:bg-pitch-bright"
+                     onClick={async () => {
+                       const res = await adminResetStandings(activeSeason.id);
+                       if (res.error) {
+                         showToast(`❌ ${res.error}`);
+                       } else {
+                         showToast('✅ Standings have been reset.');
+                       }
+                     }}
+                   >
+                     Yes, Reset Everything
+                   </AlertDialogAction>
+                 </AlertDialogFooter>
+               </AlertDialogContent>
+             </AlertDialog>
 
-           {/* ── Remove Fixtures ── */}
-           <AlertDialog>
-             <AlertDialogTrigger asChild>
-               <Btn variant="outline" className="border-claret/30 text-claret hover:bg-claret hover:text-white justify-center">
-                 Remove Fixtures
-               </Btn>
-             </AlertDialogTrigger>
-             <AlertDialogContent className="bg-card border-border/50">
-               <AlertDialogHeader>
-                 <AlertDialogTitle className="flex items-center gap-2 text-claret">
-                   <AlertTriangle size={18} /> Remove Unplayed Fixtures?
-                 </AlertDialogTitle>
-                 <AlertDialogDescription className="text-muted-foreground">
-                   This will permanently delete all <strong className="text-foreground">scheduled (unplayed)</strong> fixtures for <strong className="text-foreground">{activeSeason.name}</strong>. Completed matches are unaffected.
-                 </AlertDialogDescription>
-               </AlertDialogHeader>
-               <AlertDialogFooter>
-                 <AlertDialogCancel>Cancel</AlertDialogCancel>
-                 <AlertDialogAction
-                   className="bg-claret text-white hover:bg-claret-dim"
-                   onClick={async () => {
-                     const res = await fetch(`/api/admin/seasons/${activeSeason.id}/remove-fixtures`, { method: 'POST' });
-                     if (res.ok) {
-                       showToast('✅ Unplayed fixtures removed.');
-                       window.location.reload();
-                     } else {
-                       const body = await res.json().catch(() => ({}));
-                       showToast(`❌ ${body.error || 'Failed to remove fixtures'}`);
-                     }
-                   }}
-                 >
-                   Yes, Remove Fixtures
-                 </AlertDialogAction>
-               </AlertDialogFooter>
-             </AlertDialogContent>
-           </AlertDialog>
+             {/* ── Remove Fixtures ── */}
+             <AlertDialog>
+               <AlertDialogTrigger asChild>
+                 <button className="flex flex-col items-start p-5 rounded-2xl bg-secondary/40 border border-border/50 hover:border-amber-500 hover:bg-secondary/60 transition-all text-left group">
+                   <div className="w-10 h-10 rounded-full bg-amber-500/10 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                     <Calendar size={20} className="text-amber-500" />
+                   </div>
+                   <h3 className="font-bold text-foreground mb-1">Remove Fixtures</h3>
+                   <p className="text-xs text-muted-foreground">Deletes all unplayed matches from the calendar permanently.</p>
+                 </button>
+               </AlertDialogTrigger>
+               <AlertDialogContent className="bg-card border-border/50 shadow-2xl">
+                 <AlertDialogHeader>
+                   <AlertDialogTitle className="flex items-center gap-2">
+                     <AlertTriangle size={18} className="text-amber-500" /> Remove Unplayed Fixtures?
+                   </AlertDialogTitle>
+                   <AlertDialogDescription className="text-muted-foreground">
+                     This will permanently delete all <strong className="text-foreground">scheduled (unplayed)</strong> fixtures for <strong className="text-foreground">{activeSeason?.name}</strong>. Completed matches are unaffected.
+                   </AlertDialogDescription>
+                 </AlertDialogHeader>
+                 <AlertDialogFooter>
+                   <AlertDialogCancel>Cancel</AlertDialogCancel>
+                   <AlertDialogAction
+                     className="bg-amber-500 text-white hover:bg-amber-600"
+                     onClick={async () => {
+                       const res = await adminRemoveUnplayedFixtures(activeSeason.id);
+                       if (res.error) {
+                         showToast(`❌ ${res.error}`);
+                       } else {
+                         showToast('✅ Unplayed fixtures removed.');
+                       }
+                     }}
+                   >
+                     Yes, Remove Fixtures
+                   </AlertDialogAction>
+                 </AlertDialogFooter>
+               </AlertDialogContent>
+             </AlertDialog>
 
-           {/* ── Delete Season — rebuilt from zero, type-to-confirm ── */}
-           <AlertDialog onOpenChange={(open) => { if (!open) setDeleteConfirmText(''); }}>
-             <AlertDialogTrigger asChild>
-               <Btn variant="danger" className="justify-center font-bold">
-                 Delete Season
-               </Btn>
-             </AlertDialogTrigger>
-             <AlertDialogContent className="bg-card border-border/50">
-               <AlertDialogHeader>
-                 <AlertDialogTitle className="flex items-center gap-2 text-destructive">
-                   <Trash2 size={18} /> Delete Season Permanently?
-                 </AlertDialogTitle>
-                 <AlertDialogDescription className="text-muted-foreground space-y-3">
-                   <span className="block">
-                     This will permanently delete <strong className="text-foreground">{activeSeason?.name}</strong> and <strong className="text-foreground">ALL</strong> associated matches, results, and data. This cannot be undone.
-                   </span>
-                   <span className="block pt-2">
-                     Type <strong className="text-foreground font-mono">{activeSeason?.name}</strong> to confirm:
-                   </span>
-                 </AlertDialogDescription>
-               </AlertDialogHeader>
-               <input
-                 type="text"
-                 value={deleteConfirmText}
-                 onChange={e => setDeleteConfirmText(e.target.value)}
-                 placeholder={activeSeason?.name}
-                 className="w-full mt-1 mb-2 px-3 py-2 rounded-md bg-background border border-border text-sm focus:outline-none focus:ring-2 focus:ring-destructive/50"
-                 autoFocus
-               />
-               <AlertDialogFooter>
-                 <AlertDialogCancel onClick={() => setDeleteConfirmText('')}>Cancel</AlertDialogCancel>
-                 <AlertDialogAction
-                   className="bg-destructive text-white hover:bg-destructive/80 disabled:opacity-40 disabled:cursor-not-allowed"
-                   disabled={deleteConfirmText !== activeSeason?.name || isDeleting}
-                   onClick={async (e) => {
-                     e.preventDefault(); // prevent dialog auto-close
-                     await handleDeleteSeason();
-                   }}
-                 >
-                   {isDeleting ? 'Deleting...' : 'Yes, Delete Forever'}
-                 </AlertDialogAction>
-               </AlertDialogFooter>
-             </AlertDialogContent>
-           </AlertDialog>
+             {/* ── Delete Season ── */}
+             <AlertDialog onOpenChange={(open) => { if (!open) setDeleteConfirmText(''); }}>
+               <AlertDialogTrigger asChild>
+                 <button className="flex flex-col items-start p-5 rounded-2xl bg-destructive/5 border border-destructive/20 hover:border-destructive hover:bg-destructive/10 transition-all text-left group">
+                   <div className="w-10 h-10 rounded-full bg-destructive/10 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                     <Trash2 size={20} className="text-destructive" />
+                   </div>
+                   <h3 className="font-bold text-destructive mb-1">Delete Season</h3>
+                   <p className="text-xs text-destructive/80">Completely erase this tournament, all matches, and data.</p>
+                 </button>
+               </AlertDialogTrigger>
+               <AlertDialogContent className="bg-card border-border/50 shadow-2xl">
+                 <AlertDialogHeader>
+                   <AlertDialogTitle className="flex items-center gap-2 text-destructive">
+                     <Trash2 size={18} /> Delete Season Permanently?
+                   </AlertDialogTitle>
+                   <AlertDialogDescription className="text-muted-foreground space-y-3">
+                     <span className="block">
+                       This will permanently delete <strong className="text-foreground">{activeSeason?.name}</strong> and <strong className="text-foreground">ALL</strong> associated matches, results, and data. This cannot be undone.
+                     </span>
+                     <span className="block pt-2">
+                       Type <strong className="text-foreground font-mono">{activeSeason?.name}</strong> to confirm:
+                     </span>
+                   </AlertDialogDescription>
+                 </AlertDialogHeader>
+                 <input
+                   type="text"
+                   value={deleteConfirmText}
+                   onChange={e => setDeleteConfirmText(e.target.value)}
+                   placeholder={activeSeason?.name}
+                   className="w-full mt-1 mb-2 px-3 py-2 rounded-md bg-background border border-border text-sm focus:outline-none focus:ring-2 focus:ring-destructive/50"
+                   autoFocus
+                 />
+                 <AlertDialogFooter>
+                   <AlertDialogCancel onClick={() => setDeleteConfirmText('')}>Cancel</AlertDialogCancel>
+                   <AlertDialogAction
+                     className="bg-destructive text-white hover:bg-destructive/80 disabled:opacity-40 disabled:cursor-not-allowed"
+                     disabled={deleteConfirmText !== activeSeason?.name || isDeleting}
+                     onClick={async (e) => {
+                       e.preventDefault(); // prevent dialog auto-close
+                       await handleDeleteSeason();
+                     }}
+                   >
+                     {isDeleting ? 'Deleting...' : 'Yes, Delete Forever'}
+                   </AlertDialogAction>
+                 </AlertDialogFooter>
+               </AlertDialogContent>
+             </AlertDialog>
 
+          </div>
         </div>
       </Card>
     </div>

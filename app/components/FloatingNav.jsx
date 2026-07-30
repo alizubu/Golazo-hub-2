@@ -72,7 +72,7 @@ export default function FloatingNav({ session, me, players = [], notifications =
 
   const handleLogout = async () => {
     await clearAuthCookie();
-    router.push('/login');
+    window.location.href = '/login';
   };
 
   const hasLiveMatch = matches.some(m => m.status === 'live');

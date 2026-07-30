@@ -18,11 +18,11 @@ export default function AuthGate({ players, showToast }) {
   const router = useRouter();
 
   const handlePlayerLogin = (player) => {
-    router.push('/dashboard');
+    window.location.href = '/dashboard';
   };
 
   const handleAdminLogin = () => {
-    router.push('/admin');
+    window.location.href = '/admin';
   };
 
   return (
