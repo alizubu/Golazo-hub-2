@@ -318,8 +318,15 @@ export async function progressPlayoffBracket(matchId) {
       const semis = await prisma.match.findMany({
         where: { seasonId: match.seasonId, round: { in: ['semiA', 'semiB'] } }
       });
-      const semiA = semis.find(m => m.round === 'semiA');
-      const semiB = semis.find(m => m.round === 'semiB');
+      // Find the most relevant matches (completed ones take priority, otherwise newest)
+      const getRelevantMatch = (roundMatches) => {
+        const completed = roundMatches.filter(m => m.status === 'completed');
+        if (completed.length > 0) return completed.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))[0];
+        return roundMatches.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))[0];
+      };
+
+      const semiA = getRelevantMatch(semis.filter(m => m.round === 'semiA'));
+      const semiB = getRelevantMatch(semis.filter(m => m.round === 'semiB'));
 
       if (semiA?.status === 'completed' && semiB?.status === 'completed') {
         const existingChallenger = await prisma.match.findFirst({
@@ -384,4 +391,22 @@ export async function progressPlayoffBracket(matchId) {
     console.error('Failed to progress playoff bracket:', error);
   }
 }
+}
 
+export async function adminTriggerBracketProgress(seasonId) {
+  if ((await cookies()).get('golazo_session')?.value !== 'admin') return { error: 'Unauthorized' };
+  try {
+    // Find any completed semi matches that haven't triggered the challenger
+    const matches = await prisma.match.findMany({
+      where: { seasonId, round: { in: ['semiA', 'semiB', 'challenger'] }, status: 'completed' }
+    });
+    for (const match of matches) {
+      await progressPlayoffBracket(match.id);
+    }
+    revalidatePath('/');
+    revalidatePath('/admin');
+    return { success: true };
+  } catch (error) {
+    return { error: 'Failed to trigger bracket progress' };
+  }
+}

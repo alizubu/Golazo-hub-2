@@ -7,7 +7,7 @@ import { motion } from 'framer-motion';
 import AdminOverviewDashboard from './AdminOverviewDashboard';
 import LiveMatchControl from './LiveMatchControl';
 import { startSeason, deleteSeason, renameSeason, completeSeason } from '@/app/actions/season';
-import { generateFixtures, generatePlayoffs, updateMatchStatus, updateMatchScore, editMatchScoreAdmin, createRematch } from '@/app/actions/match';
+import { generateFixtures, generatePlayoffs, updateMatchStatus, updateMatchScore, editMatchScoreAdmin, createRematch, adminTriggerBracketProgress } from '@/app/actions/match';
 import { getTrophyTemplates, awardTrophy, removeTrophy, updateTrophy, createTrophyTemplate, deleteTrophyTemplate, createAnnouncement, deleteAnnouncement, endCelebration, retriggerCelebration, getCelebrations } from '@/app/actions/admin';
 import { signUpPlayer, adminUpdatePlayer, adminDeletePlayer } from '@/app/actions/player';
 import { supabase } from '@/lib/supabaseClient';
@@ -605,11 +605,23 @@ function AdminPlayoffs({ activeSeason, matches, players, showToast }) {
 
       {/* Admin match controls for each playoff match */}
       <div className="flex flex-col gap-4 mt-4">
-        <div className="flex items-center gap-3 border-b border-border/50 pb-2 mb-2">
-          <h3 className="text-sm font-bold uppercase tracking-wider text-muted-foreground">Playoff Match Controls</h3>
-          <Badge color="#475569">{playoffMatches.length} Matches</Badge>
+        <div className="flex items-center justify-between border-b border-border/50 pb-2 mb-2">
+          <div className="flex items-center gap-3">
+            <h3 className="text-sm font-bold uppercase tracking-wider text-muted-foreground">Playoff Match Controls</h3>
+            <Badge color="#475569">{playoffMatches.length} Matches</Badge>
+          </div>
+          <Btn 
+            variant="ghost" 
+            className="text-xs h-7 py-1 px-3 border border-border" 
+            onClick={async () => {
+              const res = await adminTriggerBracketProgress(activeSeason.id);
+              if (res.error) showToast(res.error);
+              else showToast("Bracket synchronized!");
+            }}
+          >
+            Sync Bracket
+          </Btn>
         </div>
-        
         {playoffMatches.map((m, i) => (
           <FadeIn key={m.id} delay={i * 0.05}>
             <AdminMatchControl m={m} players={players} showToast={showToast} isPlayoff={true} />
@@ -863,14 +875,18 @@ function AdminTrophies({ players, trophies = [], showToast }) {
   const handleRevoke = async () => {
     if (!revokeTarget) return;
     setIsRevoking(true);
-    const res = await removeTrophy(revokeTarget.id);
+    const target = revokeTarget;
+    setRevokeTarget(null); // Clear immediately to close dialog and avoid re-render referencing a deleted item
+
+    const res = await removeTrophy(target.id);
     if (res.error) {
       showToast(res.error);
     } else {
-      const playerName = players.find(p => p.id === revokeTarget.playerId)?.name || 'Player';
-      showToast(`🗑️ ${revokeTarget.title} revoked from ${playerName}`);
+      const playerName = players.find(p => p.id === target.playerId)?.name || 'Player';
+      showToast(`🗑️ ${target.title} revoked from ${playerName}`);
+      // Proactively clear from local state to ensure no stale references survive
+      setCelebrations(prev => prev.filter(c => c.trophyAwardId !== target.id));
     }
-    setRevokeTarget(null);
     setIsRevoking(false);
   };
 

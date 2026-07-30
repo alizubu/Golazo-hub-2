@@ -8,6 +8,7 @@ import AdminConsole from './AdminConsole';
 import { AnimatePresence, motion } from 'framer-motion';
 import { supabase } from '@/lib/supabaseClient';
 import { clearAuthCookie } from '@/app/actions/auth';
+import ErrorBoundary from './ErrorBoundary';
 
 export default function ClientApp({ initialSession, initialPlayers, initialSeasons, initialMatches, initialNotifications, initialAnnouncements, initialTrophies, adminConfig }) {
   const [session, setSession] = useState(initialSession || null);
@@ -104,10 +105,12 @@ export default function ClientApp({ initialSession, initialPlayers, initialSeaso
             exit={{ opacity: 0, y: -10 }}
             transition={{ duration: 0.2 }}
           >
-            {session.type === 'admin'
-              ? <AdminConsole {...ctx} tab={tab} setTab={setTab} />
-              : <PlayerViews {...ctx} me={me} tab={tab} setTab={setTab} />
-            }
+            <ErrorBoundary>
+              {session.type === 'admin'
+                ? <AdminConsole {...ctx} tab={tab} setTab={setTab} />
+                : <PlayerViews {...ctx} me={me} tab={tab} setTab={setTab} />
+              }
+            </ErrorBoundary>
           </motion.div>
         </AnimatePresence>
       </div>
