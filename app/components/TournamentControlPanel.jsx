@@ -44,12 +44,23 @@ export default function TournamentControlPanel({ season, showToast }) {
     setLoading(false);
   };
 
-  const handleAction = async (actionFn, successMsg) => {
-    setLoading(true);
+  const handleAction = async (actionFn, successMsg, willUnmount = false) => {
+    if (willUnmount) {
+      setActiveDialog(null);
+      await new Promise(resolve => setTimeout(resolve, 350));
+    } else {
+      setLoading(true);
+    }
+    
     const res = await actionFn(season.id);
+    
+    if (!willUnmount) {
+      setLoading(false);
+      setActiveDialog(null);
+    }
+    
     if (res.error) showToast(res.error);
     else showToast(successMsg);
-    setLoading(false);
   };
 
   const controls = [
@@ -85,7 +96,7 @@ export default function TournamentControlPanel({ season, showToast }) {
       label: 'End Tournament',
       desc: 'Forces the season to end. Player with most points wins instantly.',
       icon: Trophy,
-      action: () => handleAction(adminForceEndTournament, 'Tournament ended!'),
+      action: () => handleAction(adminForceEndTournament, 'Tournament ended!', true),
       color: 'text-green-500',
       bg: 'bg-green-500/10'
     },
@@ -94,7 +105,7 @@ export default function TournamentControlPanel({ season, showToast }) {
       label: 'Delete Season',
       desc: 'Completely deletes this season and all its matches forever.',
       icon: Trash2,
-      action: () => handleAction(adminDeleteSeason, 'Season deleted!'),
+      action: () => handleAction(adminDeleteSeason, 'Season deleted!', true),
       color: 'text-red-500',
       bg: 'bg-red-500/10'
     }
@@ -164,7 +175,6 @@ export default function TournamentControlPanel({ season, showToast }) {
                       onClick={async (e) => {
                         e.preventDefault();
                         await ctrl.action();
-                        setActiveDialog(null);
                       }}
                     >
                       Confirm
