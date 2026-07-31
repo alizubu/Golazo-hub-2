@@ -1,18 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { SectionTitle, MagicCard, Btn, FadeIn } from './UI';
 import { RotateCcw, Trophy, Trash2, Shuffle, AlertTriangle, PlayCircle, Pencil } from 'lucide-react';
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from '@/app/components/ui/alert-dialog';
 import {
   Dialog,
   DialogContent,
@@ -154,52 +143,69 @@ export default function TournamentControlPanel({ season, showToast }) {
                   {ctrl.label}
                 </Btn>
               ) : (
-                <>
-                  <Btn 
-                    variant={ctrl.id === 'delete-season' ? 'danger' : 'outline'} 
-                    className="w-full text-xs" 
-                    disabled={loading}
-                    onClick={() => setActiveDialog(ctrl.id)}
-                  >
-                    {ctrl.label}
-                  </Btn>
-
-                  <AlertDialog 
-                    open={activeDialog === ctrl.id} 
-                    onOpenChange={(open) => {
-                      if (!open && !loading) setActiveDialog(null);
-                    }}
-                  >
-                    <AlertDialogContent className="bg-card border-border shadow-2xl">
-                      <AlertDialogHeader>
-                        <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-                        <AlertDialogDescription>
-                          This action will execute <strong>{ctrl.label}</strong> for the season <strong>{season.name}</strong>. 
-                          {ctrl.id === 'delete-season' && " This cannot be undone."}
-                        </AlertDialogDescription>
-                      </AlertDialogHeader>
-                      <AlertDialogFooter>
-                        <AlertDialogCancel disabled={loading} className="bg-secondary text-foreground hover:bg-secondary/80 outline-none">Cancel</AlertDialogCancel>
-                        <Btn 
-                          variant={ctrl.id === 'delete-season' ? 'danger' : 'default'}
-                          className={ctrl.id !== 'delete-season' ? "bg-destructive text-destructive-foreground hover:bg-destructive/90" : ""}
-                          loading={loading}
-                          onClick={async (e) => {
-                            e.preventDefault();
-                            await ctrl.action();
-                          }}
-                        >
-                          Confirm
-                        </Btn>
-                      </AlertDialogFooter>
-                    </AlertDialogContent>
-                  </AlertDialog>
-                </>
+                <Btn 
+                  variant={ctrl.id === 'delete-season' ? 'danger' : 'outline'} 
+                  className="w-full text-xs" 
+                  disabled={loading}
+                  onClick={() => setActiveDialog(ctrl.id)}
+                >
+                  {ctrl.label}
+                </Btn>
               )}
             </MagicCard>
           </FadeIn>
         ))}
       </div>
+      
+      {/* Raw Custom Modal for Destructive Actions */}
+      <AnimatePresence>
+        {activeDialog && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+            <motion.div 
+              initial={{ opacity: 0 }} 
+              animate={{ opacity: 1 }} 
+              exit={{ opacity: 0 }}
+              className="absolute inset-0 bg-black/80 backdrop-blur-sm"
+              onClick={() => !loading && setActiveDialog(null)}
+            />
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.95 }} 
+              animate={{ opacity: 1, scale: 1 }} 
+              exit={{ opacity: 0, scale: 0.95 }}
+              className="relative bg-card border border-border shadow-2xl rounded-2xl w-full max-w-md p-6 flex flex-col z-10"
+            >
+              <div className="mb-6">
+                <h2 className="text-xl font-bold mb-2 font-heading tracking-tight">Are you absolutely sure?</h2>
+                <p className="text-sm text-muted-foreground leading-relaxed">
+                  This action will execute <strong>{controls.find(c => c.id === activeDialog)?.label}</strong> for the season <strong>{season.name}</strong>.
+                  {activeDialog === 'delete-season' && " This cannot be undone."}
+                </p>
+              </div>
+              <div className="flex justify-end gap-3">
+                <Btn 
+                  variant="outline" 
+                  disabled={loading} 
+                  onClick={() => setActiveDialog(null)}
+                  className="bg-secondary text-foreground hover:bg-secondary/80 outline-none"
+                >
+                  Cancel
+                </Btn>
+                <Btn 
+                  variant={activeDialog === 'delete-season' ? 'danger' : 'default'}
+                  className={activeDialog !== 'delete-season' ? "bg-destructive text-destructive-foreground hover:bg-destructive/90" : ""}
+                  loading={loading}
+                  onClick={async (e) => {
+                    e.preventDefault();
+                    await controls.find(c => c.id === activeDialog)?.action();
+                  }}
+                >
+                  Confirm
+                </Btn>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
       
       <Dialog open={renameOpen} onOpenChange={setRenameOpen}>
         <DialogContent className="bg-card border-border">
