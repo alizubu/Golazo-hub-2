@@ -290,9 +290,12 @@ export function PlayerDashboard({ me, activeSeason, seasons = [], matches, playe
               <MagicCard key={ann.id} className="p-4 bg-secondary/80 border-pitch/50 border-l-4 border-l-pitch backdrop-blur-sm">
                 <div className="flex gap-3">
                   <Megaphone className="text-pitch-bright shrink-0" size={20} />
-                  <div>
+                  <div className="w-full overflow-hidden">
                     <div className="font-bold text-sm">{ann.title}</div>
-                    <div className="text-sm text-muted-foreground mt-1">{ann.content}</div>
+                    <div 
+                      className="text-sm text-muted-foreground mt-1 max-w-none" 
+                      dangerouslySetInnerHTML={{ __html: ann.content }} 
+                    />
                   </div>
                 </div>
               </MagicCard>

@@ -11,6 +11,7 @@ import confetti from 'canvas-confetti';
 import { computeStandings } from './StandingsTable';
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from './ui/dropdown-menu';
 import { useRouter } from 'next/navigation';
+import TournamentControlPanel from './TournamentControlPanel';
 
 function formatName(name) {
   if (!name) return 'TBD';
@@ -327,84 +328,17 @@ function UpcomingMatchesMini({ matches, players, activeSeason, setTab }) {
 
 // 7. Recent Results
 function RecentResults({ matches, players, activeSeason, showToast }) {
-  const [editingMatch, setEditingMatch] = useState(null);
-  const [homeScore, setHomeScore] = useState(0);
-  const [awayScore, setAwayScore] = useState(0);
-  const router = useRouter();
-
   if (!activeSeason) return null;
   const completed = matches
     .filter(m => m.seasonId === activeSeason.id && m.status === 'completed')
     .slice(-4)
     .reverse();
 
-  const handleEditSave = async () => {
-    if(!editingMatch) return;
-    try {
-      const res = await fetch(`/api/matches/${editingMatch.id}/score`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ homeScore, awayScore })
-      });
-      const data = await res.json();
-      if (!data.success) {
-        showToast?.(data.error || 'Failed to update score');
-      } else {
-        showToast?.("Score updated!");
-        router.refresh();
-      }
-    } catch (err) {
-      showToast?.("Failed to update score.");
-    } finally {
-      setEditingMatch(null);
-    }
-  };
-
-  const handleRematch = async (m) => {
-    try {
-      const res = await fetch(`/api/matches/${m.id}/rematch`, { method: 'POST' });
-      const data = await res.json();
-      if (!data.success) {
-        showToast?.(data.error || 'Failed to create rematch');
-      } else {
-        showToast?.(data.message || `Rematch scheduled!`);
-        router.refresh();
-      }
-    } catch (err) {
-      showToast?.("Failed to create rematch.");
-    }
-  };
-
   return (
     <Card className="p-6 h-full flex flex-col">
       <SectionTitle icon={History}>Recent Match Results</SectionTitle>
 
-      {/* Edit Score Dialog */}
-      <AnimatePresence>
-        {editingMatch && (
-          <motion.div initial={{opacity:0}} animate={{opacity:1}} exit={{opacity:0}} className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
-              <motion.div initial={{scale:0.95, opacity:0}} animate={{scale:1, opacity:1}} exit={{scale:0.95, opacity:0}} className="bg-card border border-border p-6 rounded-2xl w-full max-w-sm shadow-xl">
-                <h3 className="font-heading font-bold text-lg mb-2 text-white">Edit Score</h3>
-                <p className="text-xs text-claret mb-6">Warning: Editing this score will recalculate standings and stats. Continue?</p>
-                <div className="flex items-center justify-between gap-4 mb-8">
-                    <div className="flex-1 flex flex-col items-center">
-                      <span className="text-sm font-bold truncate mb-3 text-white">{players.find(p=>p.id===editingMatch.homeId)?.name}</span>
-                      <input type="number" value={homeScore} onChange={e=>setHomeScore(Number(e.target.value))} className="w-20 bg-background/50 border border-border rounded-lg text-center text-4xl font-score font-bold text-pitch-bright p-2 outline-none focus:ring-2 focus:ring-pitch" />
-                    </div>
-                    <span className="text-3xl text-muted-foreground/30 font-score">-</span>
-                    <div className="flex-1 flex flex-col items-center">
-                      <span className="text-sm font-bold truncate mb-3 text-white">{players.find(p=>p.id===editingMatch.awayId)?.name}</span>
-                      <input type="number" value={awayScore} onChange={e=>setAwayScore(Number(e.target.value))} className="w-20 bg-background/50 border border-border rounded-lg text-center text-4xl font-score font-bold text-white p-2 outline-none focus:ring-2 focus:ring-pitch" />
-                    </div>
-                </div>
-                <div className="flex justify-end gap-3">
-                    <Btn variant="outline" onClick={() => setEditingMatch(null)}>Cancel</Btn>
-                    <Btn onClick={handleEditSave} className="bg-pitch text-pitch-foreground hover:bg-pitch-bright">Save Corrected Score</Btn>
-                </div>
-              </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+
 
       <div className="flex-1 flex flex-col justify-center gap-4 py-4">
         {completed.length > 0 ? (
@@ -434,18 +368,14 @@ function RecentResults({ matches, players, activeSeason, showToast }) {
                   </div>
                 </div>
 
-                {/* Actions Menu */}
                 <div className="absolute right-0 opacity-100 sm:opacity-0 group-hover:opacity-100 transition-opacity flex items-center bg-card/80 backdrop-blur-sm rounded-md shadow-sm border border-border/50">
                    <DropdownMenu>
                       <DropdownMenuTrigger asChild>
                          <button className="p-1.5 hover:bg-secondary rounded text-muted-foreground transition-colors"><MoreVertical size={16}/></button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end" className="w-40 border-border bg-popover shadow-xl rounded-xl">
-                         <DropdownMenuItem className="cursor-pointer hover:bg-secondary/80 focus:bg-secondary/80 rounded-lg text-sm" onSelect={(e) => { e.preventDefault(); setEditingMatch(m); setHomeScore(m.homeScore||0); setAwayScore(m.awayScore||0); }}>
-                            <Edit2 size={14} className="mr-2 text-muted-foreground" /> Edit Score
-                         </DropdownMenuItem>
-                         <DropdownMenuItem className="cursor-pointer hover:bg-secondary/80 focus:bg-secondary/80 rounded-lg text-sm" onSelect={(e) => { e.preventDefault(); if(window.confirm('Schedule a rematch?')) handleRematch(m); }}>
-                            <History size={14} className="mr-2 text-muted-foreground" /> Rematch
+                         <DropdownMenuItem className="cursor-pointer hover:bg-secondary/80 focus:bg-secondary/80 rounded-lg text-sm">
+                            <CheckCircle2 size={14} className="mr-2 text-muted-foreground" /> View Match
                          </DropdownMenuItem>
                       </DropdownMenuContent>
                    </DropdownMenu>
@@ -476,10 +406,11 @@ function NotificationCenter({ notifications = [], announcements = [], matches = 
   });
 
   announcements.slice(0, 2).forEach(a => {
+    const plainText = a.content ? a.content.replace(/<[^>]+>/g, '').substring(0, 50) + (a.content.length > 50 ? '...' : '') : "New league announcement";
     items.push({
       icon: "📢",
       title: a.title,
-      desc: a.content || "New league announcement",
+      desc: plainText,
       color: "border-l-blue-500"
     });
   });
@@ -787,6 +718,8 @@ export default function AdminOverviewDashboard({ players = [], activeSeason, mat
         <DashboardStatistics matches={liveMatches} activeSeason={activeSeason} />
         <DashboardTimeline activeSeason={activeSeason} matches={liveMatches} />
       </div>
+
+      <TournamentControlPanel season={activeSeason} showToast={showToast} />
     </div>
   );
 }

@@ -6,7 +6,7 @@ import { Card, Btn, Input, Label, SectionTitle, EmptyState, MagicCard, FadeIn, S
 import { motion } from 'framer-motion';
 import AdminOverviewDashboard from './AdminOverviewDashboard';
 import LiveMatchControl from './LiveMatchControl';
-import { generateFixtures, generatePlayoffs, updateMatchStatus, updateMatchScore, editMatchScoreAdmin, createRematch, adminTriggerBracketProgress } from '@/app/actions/match';
+import { generateFixtures, generatePlayoffs, updateMatchStatus, updateMatchScore, adminTriggerBracketProgress } from '@/app/actions/match';
 import { awardTrophy, removeTrophy, updateTrophy, createAnnouncement, deleteAnnouncement, endCelebration, retriggerCelebration, getCelebrations } from '@/app/actions/admin';
 import { signUpPlayer, adminUpdatePlayer, adminDeletePlayer } from '@/app/actions/player';
 import { supabase } from '@/lib/supabaseClient';
@@ -79,6 +79,9 @@ export default function AdminConsole(props) {
 }
 
 import ErrorBoundary from './ErrorBoundary';
+import dynamic from 'next/dynamic';
+const ReactQuill = dynamic(() => import('react-quill'), { ssr: false });
+import 'react-quill/dist/quill.snow.css';
 
 function AdminOverview(props) {
   return (
@@ -363,9 +366,6 @@ function AdminMatchControl({ m, players, showToast, isPlayoff = false }) {
 }
 
 function CompletedMatchCard({ m, h, a, players, showToast, isPlayoff = false }) {
-  const [editOpen, setEditOpen] = useState(false);
-  const [editHome, setEditHome] = useState(0);
-  const [editAway, setEditAway] = useState(0);
   const [saving, setSaving] = useState(false);
 
   const hScore = m.homeScore || 0;
@@ -378,49 +378,7 @@ function CompletedMatchCard({ m, h, a, players, showToast, isPlayoff = false }) 
 
   const router = useRouter();
 
-  const openEditDialog = () => {
-    setEditHome(m.homeScore ?? 0);
-    setEditAway(m.awayScore ?? 0);
-    setEditOpen(true);
-  };
 
-  const handleEditSave = async () => {
-    setSaving(true);
-    try {
-      const res = await fetch(`/api/matches/${m.id}/score`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ homeScore: editHome, awayScore: editAway }),
-      });
-      const data = await res.json();
-      if (!data.success) {
-        showToast(`❌ Failed to update score: ${data.error}`);
-      } else {
-        showToast('✅ Score updated');
-        setEditOpen(false);
-        router.refresh();
-      }
-    } catch (err) {
-      showToast(`❌ Network error: ${err.message}`);
-    } finally {
-      setSaving(false);
-    }
-  };
-
-  const handleRematch = async () => {
-    try {
-      const res = await fetch(`/api/matches/${m.id}/rematch`, { method: 'POST' });
-      const data = await res.json();
-      if (!data.success) {
-        showToast(data.error || 'Failed to create rematch');
-      } else {
-        showToast(data.message || '🔄 Rematch scheduled!');
-        router.refresh();
-      }
-    } catch (err) {
-      showToast("Failed to create rematch.");
-    }
-  };
 
   const handleReset = async () => {
     setSaving(true);
@@ -467,13 +425,6 @@ function CompletedMatchCard({ m, h, a, players, showToast, isPlayoff = false }) 
               </button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="bg-card border-border/50 shadow-2xl rounded-xl w-40">
-              <DropdownMenuItem
-                className="cursor-pointer rounded-lg py-2"
-                onSelect={(e) => { e.preventDefault(); openEditDialog(); }}
-              >
-                <Edit2 size={14} className="mr-2" /> Edit Score
-              </DropdownMenuItem>
-              <DropdownMenuSeparator className="bg-border/30" />
               {isPlayoff ? (
                 <>
                   <DropdownMenuItem className="cursor-pointer rounded-lg py-2" onSelect={(e) => { e.preventDefault(); handleReset(); }}>
@@ -484,55 +435,15 @@ function CompletedMatchCard({ m, h, a, players, showToast, isPlayoff = false }) 
                   </DropdownMenuItem>
                 </>
               ) : (
-                <DropdownMenuItem className="cursor-pointer rounded-lg py-2" onSelect={(e) => { e.preventDefault(); if (window.confirm('Schedule a rematch?')) handleRematch(); }}>
-                  <History size={14} className="mr-2" /> Rematch
-                </DropdownMenuItem>
+                 <DropdownMenuItem className="cursor-pointer rounded-lg py-2">
+                    <CheckCircle2 size={14} className="mr-2 text-muted-foreground" /> View Match
+                 </DropdownMenuItem>
               )}
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
       </div>
 
-      <Dialog open={editOpen} onOpenChange={setEditOpen}>
-        <DialogContent className="bg-card border-border/50 shadow-2xl max-w-sm">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <Edit2 size={16} /> Edit Match Score
-            </DialogTitle>
-          </DialogHeader>
-          <p className="text-xs text-claret mt-1 mb-2">
-            ⚠️ Saving will recalculate standings, stats, and trophies tied to this match.
-          </p>
-          {isPlayoff && (
-            <div className="bg-amber-500/10 border border-amber-500/30 text-amber-500 text-[11px] p-2 rounded-md mb-4 leading-tight">
-              <strong>Warning:</strong> Changing a playoff score may alter the bracket winner. If the next round has already started, this will cause inconsistencies. Use with caution.
-            </div>
-          )}
-          <div className="flex items-center justify-between gap-4">
-            <div className="flex flex-col items-center gap-2 flex-1">
-              <span className="text-sm font-bold truncate max-w-full" title={h?.name}>{toTitleCase(h?.name)}</span>
-              <input
-                type="number" min={0} value={editHome}
-                onChange={e => setEditHome(Number(e.target.value))}
-                className="w-20 bg-background/50 border border-border rounded-lg text-center text-4xl font-score font-bold text-pitch-bright p-2 outline-none focus:ring-2 focus:ring-pitch"
-              />
-            </div>
-            <span className="text-3xl text-muted-foreground/30 font-score">-</span>
-            <div className="flex flex-col items-center gap-2 flex-1">
-              <span className="text-sm font-bold truncate max-w-full" title={a?.name}>{toTitleCase(a?.name)}</span>
-              <input
-                type="number" min={0} value={editAway}
-                onChange={e => setEditAway(Number(e.target.value))}
-                className="w-20 bg-background/50 border border-border rounded-lg text-center text-4xl font-score font-bold text-white p-2 outline-none focus:ring-2 focus:ring-pitch"
-              />
-            </div>
-          </div>
-          <DialogFooter className="mt-6 flex gap-2 justify-end">
-            <DialogClose asChild><Btn variant="ghost">Cancel</Btn></DialogClose>
-            <ShinyButton onClick={handleEditSave} loading={saving}>Save Score</ShinyButton>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
     </MagicCard>
   );
 }
@@ -1138,7 +1049,26 @@ export function AdminAnnouncements({ announcements, showToast }) {
         <SectionTitle icon={Megaphone}>Post Announcement</SectionTitle>
         <div className="grid gap-4 mt-4">
           <div><Label>Title</Label><Input value={form.title} onChange={e => setForm({...form, title: e.target.value})} placeholder="e.g. Season Start!" /></div>
-          <div><Label>Message</Label><Input value={form.content} onChange={e => setForm({...form, content: e.target.value})} placeholder="Type message..." /></div>
+          <div>
+            <Label>Message</Label>
+            <div className="mt-2 bg-white text-black rounded-md overflow-hidden">
+              <ReactQuill 
+                theme="snow" 
+                value={form.content} 
+                onChange={val => setForm({...form, content: val})} 
+                modules={{
+                  toolbar: [
+                    [{ 'header': [1, 2, 3, false] }],
+                    [{ 'font': [] }],
+                    ['bold', 'italic', 'underline', 'strike'],
+                    [{ 'color': [] }, { 'background': [] }],
+                    [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+                    ['link', 'clean']
+                  ]
+                }}
+              />
+            </div>
+          </div>
         </div>
         <ShinyButton className="mt-6" onClick={handlePost} loading={loading}>Publish</ShinyButton>
       </Card>
@@ -1149,7 +1079,10 @@ export function AdminAnnouncements({ announcements, showToast }) {
             <MagicCard className="p-4 flex flex-col md:flex-row md:items-center justify-between gap-4">
               <div>
                 <div className="font-bold">{a.title}</div>
-                <div className="text-sm text-muted-foreground mt-1">{a.content}</div>
+                <div 
+                  className="text-sm text-muted-foreground mt-1 max-w-none" 
+                  dangerouslySetInnerHTML={{ __html: a.content }}
+                />
               </div>
               <Btn variant="danger" className="shrink-0" onClick={() => handleRemove(a.id)} loading={loading}>Delete</Btn>
             </MagicCard>

@@ -28,9 +28,6 @@ export default function MatchDetailsModal({ match, homePlayer, awayPlayer, onSav
     return init;
   });
 
-  const [scoreOverride, setScoreOverride] = useState(false);
-  const [homeScore, setHomeScore] = useState(match.homeScore || 0);
-  const [awayScore, setAwayScore] = useState(match.awayScore || 0);
 
   const handleStatChange = (key, player, val) => {
     setStats(prev => ({ ...prev, [key]: { ...prev[key], [player]: val } }));
@@ -43,8 +40,8 @@ export default function MatchDetailsModal({ match, homePlayer, awayPlayer, onSav
     setLoading(true);
     // Package stats and score
     const finalData = {
-      homeScore,
-      awayScore,
+      homeScore: match.homeScore || 0,
+      awayScore: match.awayScore || 0,
       stats
     };
     
@@ -77,28 +74,12 @@ export default function MatchDetailsModal({ match, homePlayer, awayPlayer, onSav
             </div>
 
             <div className="flex flex-col items-center">
-              <div className="flex items-center gap-4">
-                {scoreOverride ? (
-                  <>
-                    <input type="number" value={homeScore} onChange={e => setHomeScore(parseInt(e.target.value)||0)} className="w-16 bg-background border border-border rounded-lg text-center text-3xl font-score font-bold text-pitch-bright" />
-                    <span className="text-muted-foreground text-2xl">-</span>
-                    <input type="number" value={awayScore} onChange={e => setAwayScore(parseInt(e.target.value)||0)} className="w-16 bg-background border border-border rounded-lg text-center text-3xl font-score font-bold text-white" />
-                  </>
-                ) : (
-                  <>
-                    <span className="text-4xl sm:text-5xl font-score font-bold text-pitch-bright">{homeScore}</span>
-                    <span className="text-muted-foreground/50 text-3xl font-score">-</span>
-                    <span className="text-4xl sm:text-5xl font-score font-bold text-white">{awayScore}</span>
-                  </>
-                )}
+                <div className="flex items-center gap-4">
+                  <span className="text-4xl sm:text-5xl font-score font-bold text-pitch-bright">{match.homeScore || 0}</span>
+                  <span className="text-muted-foreground/50 text-3xl font-score">-</span>
+                  <span className="text-4xl sm:text-5xl font-score font-bold text-white">{match.awayScore || 0}</span>
+                </div>
               </div>
-              <button 
-                onClick={() => setScoreOverride(!scoreOverride)}
-                className="mt-3 flex items-center gap-1.5 text-[11px] uppercase tracking-wider font-bold text-muted-foreground hover:text-white transition-colors"
-              >
-                <Edit2 size={12} /> {scoreOverride ? 'Lock Score' : 'Edit Score'}
-              </button>
-            </div>
 
             <div className="flex items-center gap-4 text-center sm:text-right flex-row-reverse sm:flex-row">
               <div className="hidden sm:block">

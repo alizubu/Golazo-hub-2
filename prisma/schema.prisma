@@ -9,101 +9,101 @@ datasource db {
 }
 
 model Player {
-  id           String    @id @default(cuid())
-  username     String    @unique
-  email        String    @unique
-  passwordHash String
-  salt         String
-  name         String
-  avatar       String?
-  avatarImage  String?
-  flag         String?
-  teamName     String
-  teamLogo     String?
-  bio                  String?
-  nationality          String?
-  favoriteClub         String?
-  favoriteCompetition  String?
-  coverBanner          String?
-  lastActive           DateTime?
+  id                     String    @id @default(cuid())
+  username               String    @unique
+  email                  String    @unique
+  passwordHash           String
+  salt                   String
+  name                   String
+  avatar                 String?
+  avatarImage            String?
+  flag                   String?
+  teamName               String
+  teamLogo               String?
+  bio                    String?
+  nationality            String?
+  favoriteClub           String?
+  favoriteCompetition    String?
+  coverBanner            String?
+  lastActive             DateTime?
   lastReadNotificationAt DateTime?
-  onlineStatus         String    @default("online")
-  assists              Int       @default(0)
-  elo                  Int       @default(1200)
-  careerGoals          Int       @default(0)
-  careerWins           Int       @default(0)
-  careerDraws          Int       @default(0)
-  careerLosses         Int       @default(0)
-  careerMatches        Int       @default(0)
-  createdAt    DateTime  @default(now())
+  onlineStatus           String    @default("online")
+  assists                Int       @default(0)
+  elo                    Int       @default(1200)
+  careerGoals            Int       @default(0)
+  careerWins             Int       @default(0)
+  careerDraws            Int       @default(0)
+  careerLosses           Int       @default(0)
+  careerMatches          Int       @default(0)
+  createdAt              DateTime  @default(now())
 
   // Relations
-  homeMatches Match[] @relation("HomeMatches")
-  awayMatches Match[] @relation("AwayMatches")
+  homeMatches Match[]  @relation("HomeMatches")
+  awayMatches Match[]  @relation("AwayMatches")
   trophies    Trophy[] @relation("PlayerTrophies")
-  
+
   // Season Relations (for history)
-  wonSeasons     Season[] @relation("SeasonChampion")
+  wonSeasons      Season[] @relation("SeasonChampion")
   runnerUpSeasons Season[] @relation("SeasonRunnerUp")
   thirdSeasons    Season[] @relation("SeasonThirdPlace")
   mvpSeasons      Season[] @relation("SeasonMVP")
 }
 
 model Season {
-  id         String    @id @default(cuid())
-  name       String
-  type       String    @default("League") // "League", "League + Playoffs"
-  status     String    @default("Live") // "Live", "Archived"
-  isArchived Boolean   @default(false)
-  fixtures   Json?     // Stores the generated schedule arrays
-  startDate  DateTime?
-  createdAt  DateTime  @default(now())
+  id          String    @id @default(cuid())
+  name        String
+  type        String    @default("League") // "League", "League + Playoffs"
+  status      String    @default("Live") // "Live", "Archived"
+  isArchived  Boolean   @default(false)
+  fixtures    Json? // Stores the generated schedule arrays
+  startDate   DateTime?
+  createdAt   DateTime  @default(now())
   completedAt DateTime?
 
   championId String?
-  champion   Player?   @relation("SeasonChampion", fields: [championId], references: [id])
-  
+  champion   Player? @relation("SeasonChampion", fields: [championId], references: [id])
+
   runnerUpId String?
-  runnerUp   Player?   @relation("SeasonRunnerUp", fields: [runnerUpId], references: [id])
-  
-  thirdId    String?
-  third      Player?   @relation("SeasonThirdPlace", fields: [thirdId], references: [id])
-  
-  mvpId      String?
-  mvp        Player?   @relation("SeasonMVP", fields: [mvpId], references: [id])
+  runnerUp   Player? @relation("SeasonRunnerUp", fields: [runnerUpId], references: [id])
+
+  thirdId String?
+  third   Player? @relation("SeasonThirdPlace", fields: [thirdId], references: [id])
+
+  mvpId String?
+  mvp   Player? @relation("SeasonMVP", fields: [mvpId], references: [id])
 
   matches Match[]
 }
 
 model Match {
-  id           String   @id @default(cuid())
-  seasonId     String
-  season       Season   @relation(fields: [seasonId], references: [id], onDelete: Cascade)
-  
-  round        String // "league", "semiA", "semiB", "challenger", "final"
-  
-  homeId       String
-  home         Player   @relation("HomeMatches", fields: [homeId], references: [id])
-  
-  awayId       String
-  away         Player   @relation("AwayMatches", fields: [awayId], references: [id])
-  
-  homeScore    Int?
-  awayScore    Int?
-  
-  status       String   @default("scheduled") // "scheduled", "live", "completed"
-  scheduledAt  DateTime?
-  completedAt  DateTime?
-  label        String?
-  
-  liveState    Json?    // Stores current phase, time, paused state, and penalties
-  wentToExtra  Boolean  @default(false)
-  decisive     Boolean  @default(false) // Whether a winner is required (knockouts)
-  
-  penaltyHome  Int?
-  penaltyAway  Int?
+  id       String @id @default(cuid())
+  seasonId String
+  season   Season @relation(fields: [seasonId], references: [id], onDelete: Cascade)
+
+  round String // "league", "semiA", "semiB", "challenger", "final"
+
+  homeId String
+  home   Player @relation("HomeMatches", fields: [homeId], references: [id])
+
+  awayId String
+  away   Player @relation("AwayMatches", fields: [awayId], references: [id])
+
+  homeScore Int?
+  awayScore Int?
+
+  status      String    @default("scheduled") // "scheduled", "live", "completed"
+  scheduledAt DateTime?
+  completedAt DateTime?
+  label       String?
+
+  liveState   Json? // Stores current phase, time, paused state, and penalties
+  wentToExtra Boolean @default(false)
+  decisive    Boolean @default(false) // Whether a winner is required (knockouts)
+
+  penaltyHome   Int?
+  penaltyAway   Int?
   penaltyWinner String? // "home" or "away"
-  stats        Json?    // Stores ratings, MOTM, 12 stat pairs
+  stats         Json? // Stores ratings, MOTM, 12 stat pairs
 }
 
 model Notification {
@@ -114,14 +114,14 @@ model Notification {
 }
 
 model Trophy {
-  id          String   @id @default(cuid())
-  playerId    String
-  player      Player   @relation("PlayerTrophies", fields: [playerId], references: [id], onDelete: Cascade)
-  title       String
-  season      String
-  description String?
-  icon        String?  // emoji or URL
-  createdAt   DateTime @default(now())
+  id           String              @id @default(cuid())
+  playerId     String
+  player       Player              @relation("PlayerTrophies", fields: [playerId], references: [id], onDelete: Cascade)
+  title        String
+  season       String
+  description  String?
+  icon         String? // emoji or URL
+  createdAt    DateTime            @default(now())
   celebrations TrophyCelebration[]
 }
 
@@ -132,13 +132,11 @@ model Announcement {
   createdAt DateTime @default(now())
 }
 
-
-
 model TrophyCelebration {
   id            String   @id @default(cuid())
   trophyAwardId String
   trophy        Trophy   @relation(fields: [trophyAwardId], references: [id], onDelete: Cascade)
   startedAt     DateTime @default(now())
-  expiresAt     DateTime
+  expiresAt     DateTime?
   status        String   @default("active") // "active", "ended_early"
 }
