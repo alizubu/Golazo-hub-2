@@ -50,7 +50,7 @@ export default async function CatchAllTabRoute({ params }) {
     ]);
     
     // Trophies and History might be needed by some tabs
-    trophies = await prisma.trophy.findMany({ include: { player: true, season: true }, orderBy: { dateAwarded: 'desc' } });
+    trophies = await prisma.trophy.findMany({ include: { player: true }, orderBy: { createdAt: 'desc' } });
     history = await prisma.season.findMany({ where: { isArchived: true }, include: { champion: true, runnerUp: true, matches: true }, orderBy: { endDate: 'desc' } });
   } catch (error) {
     console.error('Failed to load app data:', error);

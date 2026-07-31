@@ -5,7 +5,6 @@ import { Trophy, Calendar, Users, Radio, Clock, Check, Archive, Plus, Trash2, Se
 import { Card, Btn, Input, Label, SectionTitle, EmptyState, MagicCard, FadeIn, ShinyButton, Badge, Avatar, toTitleCase } from './UI';
 import { motion, AnimatePresence } from 'framer-motion';
 import AdminOverviewDashboard from './AdminOverviewDashboard';
-import LiveMatchControl from './LiveMatchControl';
 import { generateFixtures, generatePlayoffs, updateMatchStatus, updateMatchScore, adminTriggerBracketProgress } from '@/app/actions/match';
 import { awardTrophy, removeTrophy, updateTrophy, createAnnouncement, deleteAnnouncement, endCelebration, retriggerCelebration, getCelebrations, getTrophyTemplates, createTrophyTemplate, deleteTrophyTemplate } from '@/app/actions/admin';
 import { startSeason, renameSeason, completeSeason } from '@/app/actions/season';
@@ -176,7 +175,7 @@ export function AdminPlayers({ players, showToast }) {
   );
 }
 
-export function AdminMatches({ matches, activeSeason, players, showToast }) {
+export function AdminMatches({ matches, activeSeason, players, showToast, setTab }) {
   if (!activeSeason) return <EmptyState text="Start a season first." />;
   const tMatches = matches.filter((m) => m.seasonId === activeSeason.id);
   
@@ -186,7 +185,7 @@ export function AdminMatches({ matches, activeSeason, players, showToast }) {
       <div className="grid gap-4">
         {tMatches.map((m, i) => (
           <FadeIn key={m.id} delay={i * 0.05}>
-            <AdminMatchControl m={m} players={players} showToast={showToast} isPlayoff={false} />
+            <AdminMatchControl m={m} players={players} showToast={showToast} setTab={setTab} isPlayoff={false} />
           </FadeIn>
         ))}
       </div>
@@ -194,7 +193,7 @@ export function AdminMatches({ matches, activeSeason, players, showToast }) {
   );
 }
 
-function AdminMatchControl({ m, players, showToast, isPlayoff = false }) {
+function AdminMatchControl({ m, players, showToast, setTab, isPlayoff = false }) {
   const byId = Object.fromEntries(players.map((p) => [p.id, p]));
   const h = byId[m.homeId], a = byId[m.awayId];
   const [loading, setLoading] = useState(false);
@@ -312,54 +311,21 @@ function AdminMatchControl({ m, players, showToast, isPlayoff = false }) {
       <div className="flex items-center justify-between gap-2 sm:gap-6">
         <div className="flex-1 min-w-0 flex flex-col items-center justify-center gap-3 w-full">
           <div className="font-bold text-center truncate w-full px-2" title={h?.name}>{h?.name || 'Home'}</div>
-          <div className="flex items-center gap-2">
-            <Btn variant="ghost" className="px-3.5 py-2.5 text-lg cursor-pointer" onClick={() => bumpScore("home", -1)}>-</Btn>
-            <motion.div 
-              key={optHome}
-              initial={{ scale: 1.4, color: '#22c55e' }}
-              animate={{ scale: 1, color: 'inherit' }}
-              transition={{ type: 'spring', stiffness: 400, damping: 15 }}
-              className="text-4xl font-score w-14 text-center font-black select-none"
-            >
-              {optHome}
-            </motion.div>
-            <Btn variant="primary" className="px-3.5 py-2.5 text-lg bg-pitch hover:bg-pitch-bright cursor-pointer" onClick={() => bumpScore("home", 1)}>+</Btn>
-          </div>
+          <div className="text-4xl font-score text-center font-black">{optHome}</div>
         </div>
         <div className="flex flex-col items-center justify-center gap-1 shrink-0">
           <div className="text-sm font-score opacity-30 font-bold select-none">-</div>
-          {loading && <span className="text-[10px] text-pitch-bright animate-pulse font-score">saving...</span>}
         </div>
         <div className="flex-1 min-w-0 flex flex-col items-center justify-center gap-3 w-full">
           <div className="font-bold text-center truncate w-full px-2" title={a?.name}>{a?.name || 'Away'}</div>
-          <div className="flex items-center gap-2">
-            <Btn variant="ghost" className="px-3.5 py-2.5 text-lg cursor-pointer" onClick={() => bumpScore("away", -1)}>-</Btn>
-            <motion.div 
-              key={optAway}
-              initial={{ scale: 1.4, color: '#22c55e' }}
-              animate={{ scale: 1, color: 'inherit' }}
-              transition={{ type: 'spring', stiffness: 400, damping: 15 }}
-              className="text-4xl font-score w-14 text-center font-black select-none"
-            >
-              {optAway}
-            </motion.div>
-            <Btn variant="primary" className="px-3.5 py-2.5 text-lg bg-pitch hover:bg-pitch-bright cursor-pointer" onClick={() => bumpScore("away", 1)}>+</Btn>
-          </div>
+          <div className="text-4xl font-score text-center font-black">{optAway}</div>
         </div>
       </div>
       
-      <div className="mt-6 pt-4 border-t border-border/50 flex justify-center gap-3">
-        {m.liveState?.phase === "first" && <Btn variant="outline" onClick={endRegulation} disabled={loading} className="border-destructive/80 text-destructive hover:bg-destructive/15 font-bold uppercase tracking-wider text-sm px-6 py-2.5 cursor-pointer">End Match</Btn>}
-        {m.liveState?.phase === "extra" && <Btn variant="outline" onClick={endExtra} disabled={loading} className="border-destructive/80 text-destructive hover:bg-destructive/15 font-bold uppercase tracking-wider text-sm px-6 py-2.5 cursor-pointer">End Extra Time</Btn>}
-        {m.liveState?.phase === "penalties" && (
-          <div className="flex flex-col gap-3 w-full">
-            <div className="text-center text-sm mb-2 text-muted-foreground">Admin: Set penalty winner directly</div>
-            <div className="flex gap-2 justify-center">
-              <Btn loading={loading} className="flex-1 bg-claret hover:bg-claret-dim cursor-pointer" onClick={() => update({ status: 'completed', penaltyResult: { winner: 'home', home: 1, away: 0 }})}>{h?.name} wins on pens</Btn>
-              <Btn loading={loading} className="flex-1 bg-claret hover:bg-claret-dim cursor-pointer" onClick={() => update({ status: 'completed', penaltyResult: { winner: 'away', home: 0, away: 1 }})}>{a?.name} wins on pens</Btn>
-            </div>
-          </div>
-        )}
+      <div className="mt-6 pt-4 border-t border-border/50 flex justify-center">
+        <Btn variant="primary" onClick={() => setTab?.('admin')} className="font-bold uppercase tracking-wider text-sm px-6 py-2.5 cursor-pointer bg-destructive hover:bg-destructive-bright">
+          Manage in Dashboard
+        </Btn>
       </div>
     </MagicCard>
   );
@@ -448,7 +414,7 @@ function CompletedMatchCard({ m, h, a, players, showToast, isPlayoff = false }) 
   );
 }
 
-export function AdminPlayoffs({ activeSeason, matches, players, showToast }) {
+export function AdminPlayoffs({ activeSeason, matches, players, showToast, setTab }) {
   if (!activeSeason) return <EmptyState text="Start a season first." />;
 
   const playoffMatches = matches.filter(
@@ -536,7 +502,7 @@ export function AdminPlayoffs({ activeSeason, matches, players, showToast }) {
         </div>
         {playoffMatches.map((m, i) => (
           <FadeIn key={m.id} delay={i * 0.05}>
-            <AdminMatchControl m={m} players={players} showToast={showToast} isPlayoff={true} />
+            <AdminMatchControl m={m} players={players} showToast={showToast} setTab={setTab} isPlayoff={true} />
           </FadeIn>
         ))}
       </div>
@@ -702,12 +668,12 @@ function RevokeDialog({ open, onOpenChange, trophy, players, onConfirm }) {
 
 function EditTrophyDialog({ open, onOpenChange, trophy, players, onSave }) {
   const [form, setForm] = useState({ title: '', season: '', icon: '🏆', description: '' });
+  const [prevTrophy, setPrevTrophy] = useState(null);
   
-  useEffect(() => {
-    if (open && trophy) {
-      setForm({ title: trophy.title, season: trophy.season, icon: trophy.icon || '🏆', description: trophy.description || '' });
-    }
-  }, [open, trophy]);
+  if (open && trophy !== prevTrophy) {
+    setPrevTrophy(trophy);
+    setForm({ title: trophy.title, season: trophy.season, icon: trophy.icon || '🏆', description: trophy.description || '' });
+  }
 
   const player = players.find(p => p.id === trophy?.playerId);
   
@@ -1103,7 +1069,7 @@ export function AdminTrophies({ players, trophies = [], seasons, showToast }) {
           <Card className="p-6">
             <SectionTitle icon={Package}>Manage Templates</SectionTitle>
             <p className="text-sm text-muted-foreground mb-6">
-              Create new "Core" trophies. These will instantly appear as "locked" silhouettes in every player's cabinet!
+              Create new &quot;Core&quot; trophies. These will instantly appear as &quot;locked&quot; silhouettes in every player&apos;s cabinet!
             </p>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
@@ -1393,8 +1359,6 @@ export function AdminSeason({ activeSeason, matches = [], players = [], showToas
 
   return (
     <div className="flex flex-col gap-6">
-
-    <LiveMatchControl matches={matches} players={players} activeSeason={activeSeason} showToast={showToast} />
 
     <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <MagicCard className="p-5 flex flex-col items-center justify-center gap-3 hover:bg-secondary/80 cursor-pointer transition-colors group" onClick={!hasFixtures ? handleGenerateFixtures : () => showToast("Fixtures already exist")}>

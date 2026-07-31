@@ -12,6 +12,7 @@ import { computeStandings } from './StandingsTable';
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from './ui/dropdown-menu';
 import { useRouter } from 'next/navigation';
 import TournamentControlPanel from './TournamentControlPanel';
+import LiveMatchControl from './LiveMatchControl';
 
 function formatName(name) {
   if (!name) return 'TBD';
@@ -131,110 +132,6 @@ function AdminMetrics({ matches, activeSeason, notifications = [], setTab }) {
         </FadeIn>
       ))}
     </div>
-  );
-}
-
-// 3. Live Match Center (Banner)
-function LiveMatchCenter({ matches, players, activeSeason, setTab }) {
-  if (!activeSeason) return null;
-  const tMatches = matches.filter(m => m.seasonId === activeSeason.id);
-  const liveMatch = tMatches.find(m => m.status === 'live');
-  
-  if (liveMatch) {
-    const home = players.find(p => p.id === liveMatch.homeId);
-    const away = players.find(p => p.id === liveMatch.awayId);
-    
-    const homePoss = liveMatch.liveState?.possession?.home || liveMatch.stats?.possession?.a || 50;
-    const awayPoss = liveMatch.liveState?.possession?.away || liveMatch.stats?.possession?.b || (100 - homePoss);
-    const homeShots = liveMatch.liveState?.shots?.home || liveMatch.stats?.shots?.a || 0;
-    const awayShots = liveMatch.liveState?.shots?.away || liveMatch.stats?.shots?.b || 0;
-    const totalShots = (homeShots + awayShots) || 1;
-    const timeDisplay = liveMatch.liveState?.clock ? `${liveMatch.liveState.clock}'` : (liveMatch.liveState?.phase === 'first' ? '1st Half' : liveMatch.liveState?.phase === 'second' ? '2nd Half' : liveMatch.liveState?.phase === 'extra' ? 'AET' : liveMatch.liveState?.phase === 'penalties' ? 'PENS' : 'LIVE');
-
-    return (
-      <FadeIn>
-        <div className="relative rounded-2xl bg-gradient-to-b from-card to-secondary/30 border border-border shadow-xl p-0 overflow-hidden group">
-          <BorderBeam size={200} duration={8} delay={0} colorFrom="var(--destructive)" colorTo="var(--gold)" />
-          
-          <div className="flex justify-between items-center p-4 border-b border-border/50">
-            <div className="flex items-center gap-2 text-destructive font-bold text-xs tracking-widest uppercase">
-              <Radio size={14} className="animate-pulse" /> LIVE
-            </div>
-            <div className="text-xs font-bold bg-background px-3 py-1 rounded-full text-muted-foreground border border-border/50">
-              {timeDisplay}
-            </div>
-          </div>
-          
-          <div className="p-6 md:p-8">
-            <div className="flex items-center justify-between mb-8">
-              <div className="flex flex-col items-center gap-3 w-1/3">
-                <Avatar p={home} size={80} className="ring-2 ring-pitch ring-offset-2 ring-offset-card shadow-lg" />
-                <span className="font-bold text-base md:text-lg tracking-wide text-center truncate w-full px-1" title={home?.name}>{toTitleCase(home?.name)}</span>
-              </div>
-              
-              <div className="flex flex-col items-center justify-center gap-2 w-1/3">
-                <div className="flex items-center justify-center gap-4 w-full">
-                  <div className="text-5xl md:text-6xl font-heading font-black text-pitch-bright w-12 text-center">{liveMatch.homeScore || 0}</div>
-                  <div className="text-2xl font-score text-muted-foreground/30 font-bold">VS</div>
-                  <div className="text-5xl md:text-6xl font-heading font-black text-white w-12 text-center">{liveMatch.awayScore || 0}</div>
-                </div>
-              </div>
-              
-              <div className="flex flex-col items-center gap-3 w-1/3">
-                <Avatar p={away} size={80} className="ring-2 ring-claret ring-offset-2 ring-offset-card shadow-lg" />
-                <span className="font-bold text-base md:text-lg tracking-wide text-center truncate w-full px-1" title={away?.name}>{toTitleCase(away?.name)}</span>
-              </div>
-            </div>
-
-            <div className="space-y-4 max-w-sm mx-auto">
-              <div>
-                <div className="flex justify-between text-[10px] font-bold uppercase tracking-wider text-muted-foreground mb-1.5">
-                  <span>{homePoss}%</span>
-                  <span>Possession</span>
-                  <span>{awayPoss}%</span>
-                </div>
-                <div className="flex h-2 rounded-full overflow-hidden bg-background">
-                  <div style={{ width: `${homePoss}%` }} className="bg-pitch" />
-                  <div style={{ width: `${awayPoss}%` }} className="bg-claret" />
-                </div>
-              </div>
-              <div>
-                <div className="flex justify-between text-[10px] font-bold uppercase tracking-wider text-muted-foreground mb-1.5">
-                  <span>{homeShots}</span>
-                  <span>Shots</span>
-                  <span>{awayShots}</span>
-                </div>
-                <div className="flex h-2 rounded-full overflow-hidden bg-background">
-                  <div style={{ width: `${(homeShots/totalShots)*100}%` }} className="bg-pitch/60" />
-                  <div style={{ width: `${(awayShots/totalShots)*100}%` }} className="bg-claret/60" />
-                </div>
-              </div>
-            </div>
-
-            <div className="mt-8 flex justify-center">
-              <Btn variant="outline" onClick={() => setTab && setTab('admin-matches')} className="text-xs uppercase tracking-wider font-bold cursor-pointer">Open Match Center <ChevronRight size={14} className="ml-1" /></Btn>
-            </div>
-          </div>
-        </div>
-      </FadeIn>
-    );
-  }
-
-  return (
-    <Card className="p-4 sm:p-5 flex flex-col sm:flex-row items-center justify-between gap-4 border-dashed border-border/60 bg-secondary/10">
-      <div className="flex items-center gap-3.5 text-center sm:text-left">
-        <div className="w-10 h-10 rounded-xl bg-secondary/50 flex items-center justify-center text-muted-foreground/50 shrink-0">
-          <Radio size={20} />
-        </div>
-        <div>
-          <h3 className="text-sm font-bold font-heading text-foreground">No Live Matches Active</h3>
-          <p className="text-xs text-muted-foreground mt-0.5">Start a fixture from Match Control to broadcast live stats and scores.</p>
-        </div>
-      </div>
-      <Btn onClick={() => setTab && setTab('admin-matches')} variant="outline" className="text-xs uppercase tracking-wider font-bold shrink-0 cursor-pointer border-border/80 hover:bg-secondary">
-        Go to Match Control <ChevronRight size={14} className="ml-1" />
-      </Btn>
-    </Card>
   );
 }
 
@@ -692,7 +589,7 @@ export default function AdminOverviewDashboard({ players = [], activeSeason, mat
     <div className="flex flex-col gap-6">
       <HeroSeasonSummary activeSeason={activeSeason} players={players} matches={liveMatches} setTab={setTab} />
       <AdminMetrics matches={liveMatches} activeSeason={activeSeason} notifications={notifications} setTab={setTab} />
-      <LiveMatchCenter matches={liveMatches} players={players} activeSeason={activeSeason} setTab={setTab} />
+      <LiveMatchControl matches={liveMatches} players={players} activeSeason={activeSeason} showToast={showToast} />
       <QuickActions setTab={setTab} showToast={showToast} />
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
