@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Trophy, Calendar, Users, Radio, Clock, Check, Archive, Plus, Trash2, Settings, Swords, Edit2, ListOrdered, BarChart2, AlertTriangle, ArrowRight, Megaphone, ChevronDown, Package, MoreVertical, History } from 'lucide-react';
+import { Trophy, Calendar, Users, Radio, Clock, Check, Archive, Plus, Trash2, Settings, Swords, Edit2, ListOrdered, BarChart2, AlertTriangle, ArrowRight, Megaphone, ChevronDown, Package, MoreVertical, History, CheckCircle2 } from 'lucide-react';
 import { Card, Btn, Input, Label, SectionTitle, EmptyState, MagicCard, FadeIn, ShinyButton, Badge, Avatar, toTitleCase } from './UI';
 import { motion } from 'framer-motion';
 import AdminOverviewDashboard from './AdminOverviewDashboard';
@@ -799,6 +799,7 @@ export function AdminTrophies({ players, trophies = [], seasons, showToast }) {
       showToast(`❌ Network error revoking trophy: ${err.message}`);
     } finally {
       setIsRevoking(false);
+      setRevokeTarget(null);
     }
   };
 

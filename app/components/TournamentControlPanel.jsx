@@ -27,6 +27,7 @@ export default function TournamentControlPanel({ season, showToast }) {
   const [loading, setLoading] = useState(false);
   const [renameOpen, setRenameOpen] = useState(false);
   const [newName, setNewName] = useState(season?.name || '');
+  const [activeDialog, setActiveDialog] = useState(null);
 
   if (!season) return null;
 
@@ -34,11 +35,12 @@ export default function TournamentControlPanel({ season, showToast }) {
     if (!newName.trim()) return showToast("Enter a name");
     setLoading(true);
     const res = await renameSeason(season.id, newName);
-    if (res.error) showToast(res.error);
-    else {
+    if (res.error) {
+      showToast(res.error);
+    } else {
       showToast("Season renamed!");
-      setRenameOpen(false);
     }
+    setRenameOpen(false);
     setLoading(false);
   };
 
@@ -133,7 +135,13 @@ export default function TournamentControlPanel({ season, showToast }) {
                 <p className="text-xs text-muted-foreground mb-4">{ctrl.desc}</p>
               </div>
               
-              <AlertDialog>
+              <AlertDialog 
+                open={activeDialog === ctrl.id} 
+                onOpenChange={(open) => {
+                  if (open) setActiveDialog(ctrl.id);
+                  else if (!loading) setActiveDialog(null);
+                }}
+              >
                 <AlertDialogTrigger asChild>
                   <Btn variant={ctrl.id === 'delete-season' ? 'danger' : 'outline'} className="w-full text-xs" disabled={loading}>
                     {ctrl.label}
@@ -148,10 +156,19 @@ export default function TournamentControlPanel({ season, showToast }) {
                     </AlertDialogDescription>
                   </AlertDialogHeader>
                   <AlertDialogFooter>
-                    <AlertDialogCancel className="bg-secondary text-foreground hover:bg-secondary/80">Cancel</AlertDialogCancel>
-                    <AlertDialogAction onClick={ctrl.action} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+                    <AlertDialogCancel disabled={loading} className="bg-secondary text-foreground hover:bg-secondary/80">Cancel</AlertDialogCancel>
+                    <Btn 
+                      variant={ctrl.id === 'delete-season' ? 'danger' : 'default'}
+                      className={ctrl.id !== 'delete-season' ? "bg-destructive text-destructive-foreground hover:bg-destructive/90" : ""}
+                      loading={loading}
+                      onClick={async (e) => {
+                        e.preventDefault();
+                        await ctrl.action();
+                        setActiveDialog(null);
+                      }}
+                    >
                       Confirm
-                    </AlertDialogAction>
+                    </Btn>
                   </AlertDialogFooter>
                 </AlertDialogContent>
               </AlertDialog>
