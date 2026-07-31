@@ -1,6 +1,7 @@
 'use client';
+import Link from 'next/link';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, useScroll, useTransform, AnimatePresence } from 'framer-motion';
 import {
@@ -54,9 +55,10 @@ const adminTabs = [
 export default function FloatingNav({ session, me, players = [], notifications = [], matches = [] }) {
   const [searchOpen, setSearchOpen] = useState(false);
   const [sheetOpen, setSheetOpen] = useState(false);
-  const [pathname, setPathname] = useState(typeof window !== 'undefined' ? window.location.pathname : '');
+  const router = useRouter();
+  const nextPathname = usePathname();
+  const [pathname, setPathname] = useState(nextPathname || (typeof window !== 'undefined' ? window.location.pathname : ''));
   useEffect(() => {
-    setPathname(window.location.pathname);
     const handlePop = () => setPathname(window.location.pathname);
     const handleTabChange = (e) => setPathname('/' + e.detail.replace(/^\/+/, ''));
     
@@ -115,12 +117,12 @@ export default function FloatingNav({ session, me, players = [], notifications =
           </div>
 
           {/* Logo */}
-          <a href={session?.type === "admin" ? "/admin" : "/dashboard"} onClick={(e) => handleNav(e, session?.type === "admin" ? "/admin" : "/dashboard")} className="flex items-center gap-2 flex-shrink-0 z-10 min-w-0 outline-none">
+          <Link href={session?.type === "admin" ? "/admin" : "/dashboard"} onClick={(e) => handleNav(e, session?.type === "admin" ? "/admin" : "/dashboard")} className="flex items-center gap-2 flex-shrink-0 z-10 min-w-0 outline-none">
             <span className="text-xl leading-none drop-shadow-sm">🏆</span>
             <span className="hidden lg:inline font-heading text-sm font-bold tracking-tight text-white whitespace-nowrap">
               GOLAZO HUB
             </span>
-          </a>
+          </Link>
 
           {/* Desktop Center Nav Links */}
           <div className="hidden md:flex items-center gap-0.5 absolute left-1/2 -translate-x-1/2 z-10">
@@ -128,7 +130,7 @@ export default function FloatingNav({ session, me, players = [], notifications =
               const Icon = it.icon;
               const active = it.matchRoot ? pathname === it.href : pathname.startsWith(it.href);
               return (
-                <a href={it.href} onClick={(e) => handleNav(e, it.href)}
+                <Link href={it.href} onClick={(e) => handleNav(e, it.href)}
                   key={it.href}
                   className="relative px-3 py-1.5 rounded-full text-xs font-semibold transition-colors flex items-center gap-1.5 whitespace-nowrap outline-none focus-visible:ring-2 focus-visible:ring-pitch-bright"
                 >
@@ -159,7 +161,7 @@ export default function FloatingNav({ session, me, players = [], notifications =
                       transition={{ type: "spring", stiffness: 400, damping: 35 }}
                     />
                   )}
-                </a>
+                </Link>
               );
             })}
           </div>
@@ -181,12 +183,12 @@ export default function FloatingNav({ session, me, players = [], notifications =
                 <span className="hidden sm:flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold tracking-widest uppercase border border-gold/40 text-gold bg-gold/10">
                   ADMIN
                 </span>
-                <a href="/admin/settings" onClick={(e) => handleNav(e, "/admin/settings")}
+                <Link href="/admin/settings" onClick={(e) => handleNav(e, "/admin/settings")}
                   className="flex items-center justify-center w-8 h-8 rounded-full text-muted-foreground hover:text-white hover:bg-white/10 transition-colors outline-none"
                   title="Admin Settings"
                 >
                   <Settings size={15} />
-                </a>
+                </Link>
                 <button
                   onClick={handleLogout}
                   className="flex items-center justify-center w-8 h-8 rounded-full text-muted-foreground hover:text-white hover:bg-white/10 transition-colors border border-border/50 outline-none"
@@ -198,7 +200,7 @@ export default function FloatingNav({ session, me, players = [], notifications =
             ) : me ? (
               <>
                 {/* Notification Bell */}
-                <a href="/notifications" onClick={(e) => handleNav(e, "/notifications")}
+                <Link href="/notifications" onClick={(e) => handleNav(e, "/notifications")}
                   className="relative flex items-center justify-center w-8 h-8 rounded-full text-muted-foreground hover:text-white hover:bg-white/10 transition-colors outline-none focus-visible:ring-2 focus-visible:ring-pitch-bright"
                   title="Alerts"
                 >
@@ -208,7 +210,7 @@ export default function FloatingNav({ session, me, players = [], notifications =
                       {unreadCount > 9 ? '9+' : unreadCount}
                     </span>
                   )}
-                </a>
+                </Link>
 
                 {/* Avatar Dropdown */}
                 <DropdownMenu>
@@ -234,10 +236,10 @@ export default function FloatingNav({ session, me, players = [], notifications =
                     <DropdownMenuSeparator className="bg-border/50" />
                     <DropdownMenuGroup className="p-1">
                       <DropdownMenuItem asChild>
-                        <a href="/settings" onClick={(e) => handleNav(e, "/settings")} className="cursor-pointer rounded-lg hover:bg-secondary focus:bg-secondary py-2 w-full flex items-center">
+                        <Link href="/settings" onClick={(e) => handleNav(e, "/settings")} className="cursor-pointer rounded-lg hover:bg-secondary focus:bg-secondary py-2 w-full flex items-center">
                           <Settings className="mr-2 h-4 w-4" />
                           <span>Settings</span>
-                        </a>
+                        </Link>
                       </DropdownMenuItem>
                     </DropdownMenuGroup>
                     <DropdownMenuSeparator className="bg-border/50" />
@@ -271,10 +273,10 @@ export default function FloatingNav({ session, me, players = [], notifications =
             <div className="absolute -inset-1 rounded-full bg-gradient-to-r from-transparent via-white/5 to-transparent opacity-0 hover:opacity-100 transition-opacity duration-700" />
           </div>
 
-          <a href={session?.type === "admin" ? "/admin" : "/dashboard"} onClick={(e) => handleNav(e, session?.type === "admin" ? "/admin" : "/dashboard")} className="flex items-center gap-2 z-10 outline-none">
+          <Link href={session?.type === "admin" ? "/admin" : "/dashboard"} onClick={(e) => handleNav(e, session?.type === "admin" ? "/admin" : "/dashboard")} className="flex items-center gap-2 z-10 outline-none">
             <span className="text-xl leading-none drop-shadow-sm">🏆</span>
             <span className="font-heading text-sm font-bold tracking-tight text-white">GOLAZO HUB</span>
-          </a>
+          </Link>
           
           <div className="flex items-center gap-1 z-10">
             <button 
@@ -345,7 +347,7 @@ export default function FloatingNav({ session, me, players = [], notifications =
                       const Icon = it.icon;
                       const active = it.matchRoot ? pathname === it.href : pathname.startsWith(it.href);
                       return (
-                        <a
+                        <Link
                           key={it.href}
                           href={it.href}
                           onClick={(e) => handleNav(e, it.href)}
@@ -364,7 +366,7 @@ export default function FloatingNav({ session, me, players = [], notifications =
                               <span className="w-1.5 h-1.5 rounded-full bg-red-500" /> Live
                             </span>
                           )}
-                        </a>
+                        </Link>
                       );
                     })}
 
@@ -382,7 +384,7 @@ export default function FloatingNav({ session, me, players = [], notifications =
                           const Icon = it.icon;
                           const active = pathname.startsWith(it.href);
                           return (
-                            <a
+                            <Link
                               key={it.href}
                               href={it.href}
                               onClick={(e) => handleNav(e, it.href)}
@@ -394,7 +396,7 @@ export default function FloatingNav({ session, me, players = [], notifications =
                             >
                               <Icon size={18} className="shrink-0" />
                               <span className="truncate">{it.label}</span>
-                            </a>
+                            </Link>
                           );
                         })}
                       </>
@@ -402,7 +404,7 @@ export default function FloatingNav({ session, me, players = [], notifications =
 
                     <div className="h-px bg-border/40 my-2" />
 
-                    <a href={session?.type === "admin" ? "/admin/settings" : "/settings"} onClick={(e) => handleNav(e, session?.type === "admin" ? "/admin/settings" : "/settings")}
+                    <Link href={session?.type === "admin" ? "/admin/settings" : "/settings"} onClick={(e) => handleNav(e, session?.type === "admin" ? "/admin/settings" : "/settings")}
                       className={`flex items-center gap-3 px-4 py-3.5 min-h-[44px] rounded-xl text-sm font-semibold transition-all text-left w-full cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-pitch-bright ${
                         pathname === (session?.type === "admin" ? "/admin/settings" : "/settings")
                           ? 'bg-pitch-bright/15 text-pitch-bright border border-pitch-bright/20'
@@ -411,7 +413,7 @@ export default function FloatingNav({ session, me, players = [], notifications =
                     >
                       <Settings size={18} className="shrink-0" />
                       <span>Settings</span>
-                    </a>
+                    </Link>
 
                     <button
                       onClick={() => { handleLogout(); setSheetOpen(false); }}

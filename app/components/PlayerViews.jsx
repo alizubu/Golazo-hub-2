@@ -759,7 +759,7 @@ function StandingsView({ activeSeason, matches, players, me }) {
   );
 }
 
-function MatchesView({ activeSeason, matches, players }) {
+function MatchesView({ activeSeason, matches, players, onMatchClick }) {
   if (!activeSeason) return <EmptyState text="No active season yet." />;
   const tMatches = matches.filter((m) => m.seasonId === activeSeason.id && m.round === "league");
   return (
@@ -769,7 +769,7 @@ function MatchesView({ activeSeason, matches, players }) {
         <div className="flex flex-col gap-3">
           {tMatches.map((m, i) => (
             <motion.div key={m.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.03 }}>
-              <MatchCard onClick={props.onMatchClick} m={m} players={players} />
+              <MatchCard onClick={onMatchClick} m={m} players={players} />
             </motion.div>
           ))}
         </div>
@@ -866,12 +866,12 @@ export function RosterView({ players, matches, setTab }) {
   );
 }
 
-export function HistoryView({ history, players }) {
+export function HistoryView({ history, players, setTab }) {
   if (!history || history.length === 0) return <FadeIn delay={0.1}><Card className="p-6"><EmptyState text="No completed seasons yet." /></Card></FadeIn>;
   
   return (
     <div className="flex flex-col gap-4">
-      <PageHeader title="History" onBack={() => props.setTab('dashboard')} />
+      <PageHeader title="History" onBack={() => setTab('dashboard')} />
 
       {history.map((t, i) => {
         const champ = players.find((p) => p.id === t.championId);
@@ -914,11 +914,6 @@ export function HistoryView({ history, players }) {
           </FadeIn>
         );
       })}
-      <TrophyDetailModal 
-        open={!!selectedTrophy} 
-        onOpenChange={(open) => !open && setSelectedTrophy(null)} 
-        {...selectedTrophy} 
-      />
     </div>
   );
 }
