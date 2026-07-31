@@ -403,7 +403,6 @@ export default function FloatingNav({ session, me, players = [], notifications =
                     <div className="h-px bg-border/40 my-2" />
 
                     <a href={session?.type === "admin" ? "/admin/settings" : "/settings"} onClick={(e) => handleNav(e, session?.type === "admin" ? "/admin/settings" : "/settings")}
-                      onClick={() => setSheetOpen(false)}
                       className={`flex items-center gap-3 px-4 py-3.5 min-h-[44px] rounded-xl text-sm font-semibold transition-all text-left w-full cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-pitch-bright ${
                         pathname === (session?.type === "admin" ? "/admin/settings" : "/settings")
                           ? 'bg-pitch-bright/15 text-pitch-bright border border-pitch-bright/20'
