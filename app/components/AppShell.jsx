@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import PlayerViews from './PlayerViews';
 import AdminOverviewDashboard from './AdminOverviewDashboard';
 import { AdminSeason, AdminPlayers, AdminMatches, AdminTrophies, AdminAnnouncements, AdminSettings } from './AdminConsole';
+import HallOfFame from './HallOfFame';
 import { useAppContext } from './AppContextProvider';
 import FloatingNav from './FloatingNav';
 import SportsTicker from './SportsTicker';
@@ -84,7 +85,9 @@ export default function AppShell({
       <div className="pt-2">
         <SportsTicker matches={matches} announcements={announcements} players={players} />
       </div>
-      {session?.type === 'admin' ? (
+      {currentTab === 'hall-of-fame' ? (
+        <HallOfFame trophies={trophies} players={players} />
+      ) : session?.type === 'admin' ? (
         <>
           {currentTab === 'admin/players' ? <div className="pt-4"><AdminPlayers {...adminProps} /></div> :
            currentTab === 'admin/season' ? <div className="pt-4"><AdminSeason {...adminProps} /></div> :

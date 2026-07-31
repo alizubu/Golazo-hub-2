@@ -137,5 +137,46 @@ export async function retriggerCelebration(trophyId) {
   }
 }
 
+export async function getTrophyTemplates() {
+  try {
+    const templates = await prisma.trophyTemplate.findMany({
+      orderBy: { createdAt: 'asc' }
+    });
+    return templates;
+  } catch (error) {
+    console.error("Failed to fetch templates:", error);
+    return [];
+  }
+}
 
+export async function createTrophyTemplate(data) {
+  try {
+    const template = await prisma.trophyTemplate.create({
+      data: {
+        name: data.name,
+        icon: data.icon,
+        description: data.description,
+      }
+    });
+    revalidatePath('/admin');
+    revalidatePath('/');
+    return { template };
+  } catch (error) {
+    console.error("Failed to create template:", error);
+    return { error: 'Failed to create template.' };
+  }
+}
 
+export async function deleteTrophyTemplate(id) {
+  try {
+    await prisma.trophyTemplate.delete({
+      where: { id }
+    });
+    revalidatePath('/admin');
+    revalidatePath('/');
+    return { success: true };
+  } catch (error) {
+    console.error("Failed to delete template:", error);
+    return { error: 'Failed to delete template.' };
+  }
+}

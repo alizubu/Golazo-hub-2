@@ -140,3 +140,11 @@ model TrophyCelebration {
   expiresAt     DateTime?
   status        String   @default("active") // "active", "ended_early"
 }
+
+model TrophyTemplate {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  icon        String?
+  description String?
+  createdAt   DateTime @default(now())
+}

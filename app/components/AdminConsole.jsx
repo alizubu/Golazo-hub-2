@@ -3,11 +3,11 @@
 import React, { useState, useEffect } from 'react';
 import { Trophy, Calendar, Users, Radio, Clock, Check, Archive, Plus, Trash2, Settings, Swords, Edit2, ListOrdered, BarChart2, AlertTriangle, ArrowRight, Megaphone, ChevronDown, Package, MoreVertical, History, CheckCircle2 } from 'lucide-react';
 import { Card, Btn, Input, Label, SectionTitle, EmptyState, MagicCard, FadeIn, ShinyButton, Badge, Avatar, toTitleCase } from './UI';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import AdminOverviewDashboard from './AdminOverviewDashboard';
 import LiveMatchControl from './LiveMatchControl';
 import { generateFixtures, generatePlayoffs, updateMatchStatus, updateMatchScore, adminTriggerBracketProgress } from '@/app/actions/match';
-import { awardTrophy, removeTrophy, updateTrophy, createAnnouncement, deleteAnnouncement, endCelebration, retriggerCelebration, getCelebrations } from '@/app/actions/admin';
+import { awardTrophy, removeTrophy, updateTrophy, createAnnouncement, deleteAnnouncement, endCelebration, retriggerCelebration, getCelebrations, getTrophyTemplates, createTrophyTemplate, deleteTrophyTemplate } from '@/app/actions/admin';
 import { signUpPlayer, adminUpdatePlayer, adminDeletePlayer } from '@/app/actions/player';
 import { supabase } from '@/lib/supabaseClient';
 import PlayoffBracket from './PlayoffBracket';
@@ -669,65 +669,86 @@ function TrophyIconPicker({ value, onChange }) {
 function RevokeDialog({ open, onOpenChange, trophy, players, onConfirm }) {
   const player = players.find(p => p.id === trophy?.playerId);
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="bg-card border-border/50 shadow-2xl max-w-sm">
-        <DialogHeader>
-          <DialogTitle className="flex items-center gap-2 text-destructive">
-            <Trash2 size={18} /> Revoke Trophy?
-          </DialogTitle>
-        </DialogHeader>
-        <div className="text-sm text-muted-foreground mt-2 space-y-1">
-          <p>Are you sure you want to revoke <strong className="text-foreground">{trophy?.title}</strong></p>
-          <p>from <strong className="text-foreground">{player?.name || 'this player'}</strong>? This cannot be undone.</p>
+    <AnimatePresence>
+      {open && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+          <motion.div 
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            className="absolute inset-0 bg-black/80 backdrop-blur-sm"
+            onClick={() => onOpenChange(false)}
+          />
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }}
+            className="relative bg-card border border-border/50 shadow-2xl max-w-sm w-full p-6 rounded-2xl z-10"
+          >
+            <div className="flex items-center gap-2 text-destructive text-lg font-bold mb-2">
+              <Trash2 size={18} /> Revoke Trophy?
+            </div>
+            <div className="text-sm text-muted-foreground mt-2 space-y-1">
+              <p>Are you sure you want to revoke <strong className="text-foreground">{trophy?.title}</strong></p>
+              <p>from <strong className="text-foreground">{player?.name || 'this player'}</strong>? This cannot be undone.</p>
+            </div>
+            <div className="mt-6 flex gap-3 justify-end">
+              <Btn variant="ghost" onClick={() => onOpenChange(false)} className="bg-secondary text-foreground hover:bg-secondary/80">Cancel</Btn>
+              <Btn variant="danger" onClick={onConfirm}>Revoke</Btn>
+            </div>
+          </motion.div>
         </div>
-        <DialogFooter className="mt-4 flex gap-2 justify-end">
-          <DialogClose asChild>
-            <Btn variant="ghost">Cancel</Btn>
-          </DialogClose>
-          <Btn variant="danger" onClick={onConfirm}>Revoke</Btn>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+      )}
+    </AnimatePresence>
   );
 }
 
 function EditTrophyDialog({ open, onOpenChange, trophy, players, onSave }) {
-  const [form, setForm] = useState(
-    trophy ? { title: trophy.title, season: trophy.season, icon: trophy.icon || '🏆', description: trophy.description || '' }
-    : { title: '', season: '', icon: '🏆', description: '' }
-  );
+  const [form, setForm] = useState({ title: '', season: '', icon: '🏆', description: '' });
   
+  useEffect(() => {
+    if (open && trophy) {
+      setForm({ title: trophy.title, season: trophy.season, icon: trophy.icon || '🏆', description: trophy.description || '' });
+    }
+  }, [open, trophy]);
+
   const player = players.find(p => p.id === trophy?.playerId);
   
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="bg-card border-border/50 shadow-2xl max-w-md">
-        <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
-            <Edit2 size={16} /> Edit Trophy
-          </DialogTitle>
-        </DialogHeader>
-        <div className="space-y-4 mt-2">
-          {player && (
-            <div className="flex items-center gap-2 p-2 bg-secondary/30 rounded-lg">
-              <Avatar p={player} size={28} />
-              <span className="font-semibold text-sm">{player.name}</span>
+    <AnimatePresence>
+      {open && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+          <motion.div 
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            className="absolute inset-0 bg-black/80 backdrop-blur-sm"
+            onClick={() => onOpenChange(false)}
+          />
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }}
+            className="relative bg-card border border-border/50 shadow-2xl max-w-md w-full p-6 rounded-2xl z-10 max-h-[90vh] overflow-y-auto"
+          >
+            <div className="flex items-center gap-2 text-lg font-bold mb-4">
+              <Edit2 size={18} /> Edit Trophy
             </div>
-          )}
-          <div><Label>Trophy Title</Label><Input value={form.title || ''} onChange={e => setForm({...form, title: e.target.value})} /></div>
-          <div><Label>Season</Label><Input value={form.season || ''} onChange={e => setForm({...form, season: e.target.value})} /></div>
-          <div>
-            <Label>Icon</Label>
-            <TrophyIconPicker value={form.icon} onChange={v => setForm({...form, icon: v})} />
-          </div>
-          <div><Label>Description</Label><Input value={form.description || ''} onChange={e => setForm({...form, description: e.target.value})} /></div>
+            <div className="space-y-4">
+              {player && (
+                <div className="flex items-center gap-2 p-2 bg-secondary/30 rounded-lg">
+                  <Avatar p={player} size={28} />
+                  <span className="font-semibold text-sm">{player.name}</span>
+                </div>
+              )}
+              <div><Label>Trophy Title</Label><Input value={form.title || ''} onChange={e => setForm({...form, title: e.target.value})} /></div>
+              <div><Label>Season</Label><Input value={form.season || ''} onChange={e => setForm({...form, season: e.target.value})} /></div>
+              <div>
+                <Label>Icon</Label>
+                <TrophyIconPicker value={form.icon} onChange={v => setForm({...form, icon: v})} />
+              </div>
+              <div><Label>Description</Label><Input value={form.description || ''} onChange={e => setForm({...form, description: e.target.value})} /></div>
+            </div>
+            <div className="mt-6 flex gap-3 justify-end">
+              <Btn variant="ghost" onClick={() => onOpenChange(false)} className="bg-secondary text-foreground hover:bg-secondary/80">Cancel</Btn>
+              <ShinyButton onClick={() => onSave(form)}>Save Changes</ShinyButton>
+            </div>
+          </motion.div>
         </div>
-        <DialogFooter className="mt-4 flex gap-2 justify-end">
-          <DialogClose asChild><Btn variant="ghost">Cancel</Btn></DialogClose>
-          <ShinyButton onClick={() => onSave(form)}>Save Changes</ShinyButton>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+      )}
+    </AnimatePresence>
   );
 }
 
@@ -863,6 +884,10 @@ export function AdminTrophies({ players, trophies = [], seasons, showToast }) {
             <Plus size={14} className="mr-1.5" /> Award
           </TabsTrigger>
 
+          <TabsTrigger value="templates" className="rounded-lg data-[state=active]:bg-card data-[state=active]:text-foreground">
+            <Package size={14} className="mr-1.5" /> Templates
+          </TabsTrigger>
+
           <TabsTrigger value="celebrations" className="rounded-lg data-[state=active]:bg-card data-[state=active]:text-foreground">
             <Megaphone size={14} className="mr-1.5" /> Celebrations
           </TabsTrigger>
@@ -875,7 +900,7 @@ export function AdminTrophies({ players, trophies = [], seasons, showToast }) {
             <div className="mb-5">
               <Label>Quick-fill from template</Label>
               <div className="flex flex-wrap gap-2 mt-2">
-                {TROPHY_TEMPLATES.map(t => (
+                {allTemplates.map(t => (
                   <button
                     key={t.id}
                     onClick={() => applyTemplate(t)}
@@ -902,6 +927,79 @@ export function AdminTrophies({ players, trophies = [], seasons, showToast }) {
               <div className="md:col-span-2"><Label>Description</Label><Input value={form.description} onChange={e => setForm({...form, description: e.target.value})} placeholder="e.g. Top goalscorer with 25 goals." /></div>
             </div>
             <ShinyButton className="mt-6" onClick={handleAward} disabled={isAwarding} loading={isAwarding}>🏆 Award Trophy</ShinyButton>
+          </Card>
+
+          <Card className="p-6">
+            <SectionTitle icon={History}>Award History</SectionTitle>
+            <p className="text-sm text-muted-foreground mb-6">
+              View and manage all trophies awarded across the platform.
+            </p>
+            {trophies.length === 0 ? (
+              <EmptyState text="No trophies awarded yet." />
+            ) : (
+              <div className="overflow-x-auto -mx-2">
+                <table className="w-full text-sm min-w-[700px]">
+                  <thead>
+                    <tr className="text-muted-foreground text-[11px] uppercase tracking-wider border-b border-border/50">
+                      <th className="pb-3 text-left px-2 font-semibold">Trophy</th>
+                      <th className="pb-3 text-left px-2 font-semibold">Player</th>
+                      <th className="pb-3 text-left px-2 font-semibold">Season</th>
+                      <th className="pb-3 text-left px-2 font-semibold">Awarded On</th>
+                      <th className="pb-3 px-2"></th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {trophies.map((t, i) => (
+                      <motion.tr
+                        key={t.id}
+                        initial={{ opacity: 0, y: 6 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: i * 0.02 }}
+                        className="border-b border-border/30 last:border-0 hover:bg-secondary/20 transition-colors"
+                      >
+                        <td className="py-3 px-2">
+                          <div className="flex items-center gap-2">
+                            {t.icon && (t.icon.startsWith('/') || t.icon.startsWith('http')) ? (
+                              <img src={t.icon} className="w-6 h-6 object-contain drop-shadow-sm" alt="" />
+                            ) : (
+                              <span className="text-lg">{t.icon || '🏆'}</span>
+                            )}
+                            <div>
+                              <div className="font-bold text-foreground leading-tight">{t.title}</div>
+                              {t.description && <div className="text-[10px] text-muted-foreground line-clamp-1 max-w-[200px]">{t.description}</div>}
+                            </div>
+                          </div>
+                        </td>
+                        <td className="py-3 px-2">
+                          {t.player && (
+                            <div className="flex items-center gap-2">
+                              <Avatar p={t.player} size={24} />
+                              <span className="font-semibold truncate max-w-[150px] block">{t.player.name}</span>
+                            </div>
+                          )}
+                        </td>
+                        <td className="py-3 px-2 text-muted-foreground font-score text-xs font-semibold">
+                          {t.season}
+                        </td>
+                        <td className="py-3 px-2 text-muted-foreground font-score text-xs">
+                          {new Date(t.createdAt).toLocaleDateString()}
+                        </td>
+                        <td className="py-3 px-2 text-right">
+                          <div className="flex justify-end gap-1">
+                            <Btn variant="ghost" className="h-7 w-7 p-0 rounded-md text-stadium-secondary hover:text-white" onClick={() => setEditTarget(t)}>
+                              <Edit2 size={13} />
+                            </Btn>
+                            <Btn variant="ghost" className="h-7 w-7 p-0 rounded-md text-stadium-secondary hover:text-red-400 hover:bg-red-500/10" onClick={() => setRevokeTarget(t)}>
+                              <Trash2 size={13} />
+                            </Btn>
+                          </div>
+                        </td>
+                      </motion.tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
           </Card>
         </TabsContent>
 
@@ -997,6 +1095,47 @@ export function AdminTrophies({ players, trophies = [], seasons, showToast }) {
                 </table>
               </div>
             )}
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="templates" className="space-y-6">
+          <Card className="p-6">
+            <SectionTitle icon={Package}>Manage Templates</SectionTitle>
+            <p className="text-sm text-muted-foreground mb-6">
+              Create new "Core" trophies. These will instantly appear as "locked" silhouettes in every player's cabinet!
+            </p>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+              <div><Label>Template Name</Label><Input value={newTemplate.name} onChange={e => setNewTemplate({...newTemplate, name: e.target.value})} placeholder="e.g. Defender of the Year" /></div>
+              <div><Label>Icon</Label><TrophyIconPicker value={newTemplate.icon} onChange={v => setNewTemplate({...newTemplate, icon: v})} /></div>
+              <div className="md:col-span-2"><Label>Description (Optional)</Label><Input value={newTemplate.description} onChange={e => setNewTemplate({...newTemplate, description: e.target.value})} placeholder="e.g. Awarded to the best defender" /></div>
+              <div className="md:col-span-2 flex justify-end">
+                <ShinyButton onClick={handleSaveTemplate} disabled={templateSaving} loading={templateSaving}>💾 Create Template</ShinyButton>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+              {dbTemplates.map((t, i) => (
+                <FadeIn key={t.id} delay={i * 0.05}>
+                  <MagicCard className="p-4 flex flex-col justify-between h-full group relative">
+                    <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <Btn variant="ghost" className="h-6 w-6 p-0 rounded-md text-red-500 hover:bg-red-500/20" onClick={() => handleDeleteTemplate(t.id, t.name)}><Trash2 size={13} /></Btn>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      {t.icon && (t.icon.startsWith('/') || t.icon.startsWith('http')) ? (
+                        <img src={t.icon} className="w-8 h-8 object-contain" alt="" />
+                      ) : (
+                        <span className="text-2xl">{t.icon || '🏆'}</span>
+                      )}
+                      <div>
+                        <div className="font-bold text-sm leading-tight">{t.name}</div>
+                        {t.description && <div className="text-[10px] text-muted-foreground mt-1 line-clamp-2">{t.description}</div>}
+                      </div>
+                    </div>
+                  </MagicCard>
+                </FadeIn>
+              ))}
+            </div>
           </Card>
         </TabsContent>
       </Tabs>

@@ -6,7 +6,7 @@ import { createPortal } from 'react-dom';
 import { motion, useScroll, useTransform, AnimatePresence } from 'framer-motion';
 import {
   LogOut, Settings, Menu, Search, Bell, Trophy,
-  Home, ListOrdered, Calendar, Swords, Users, Archive, Megaphone
+  Home, ListOrdered, Calendar, Swords, Users, Archive, Megaphone, Star
 } from 'lucide-react';
 import { Badge, Btn, Avatar } from './UI';
 import {
@@ -40,6 +40,7 @@ const playerTabs = [
   { href: "/matches", label: "Matches", icon: Calendar },
   { href: "/players", label: "Roster", icon: Users },
   { href: "/history", label: "History", icon: Archive },
+  { href: "/hall-of-fame", label: "Hall of Fame", icon: Star },
   { href: "/notifications", label: "Alerts", icon: Bell },
 ];
 
@@ -49,6 +50,7 @@ const adminTabs = [
   { href: "/admin/season", label: "Tournament", icon: Trophy },
   { href: "/admin/matches", label: "Matches", icon: Calendar },
   { href: "/admin/trophies", label: "Trophies", icon: Trophy },
+  { href: "/hall-of-fame", label: "Hall of Fame", icon: Star },
   { href: "/admin/announcements", label: "Announcements", icon: Megaphone },
 ];
 

@@ -19,6 +19,7 @@ import StatChip from './StatChip';
 import { SeasonStats } from './SeasonStats';
 import { BorderBeam } from './magicui/BorderBeam';
 import { markNotificationsRead } from '@/app/actions/player';
+import { getTrophyTemplates } from '@/app/actions/admin';
 import { Skeleton } from '@/app/components/ui/skeleton';
 import { HoverCard, HoverCardContent, HoverCardTrigger } from '@/app/components/ui/hover-card';
 import clubsData from '@/lib/data/clubs.json';
@@ -194,6 +195,15 @@ export function PlayerDashboard({ me, activeSeason, seasons = [], matches, playe
   const [statsLoaded, setStatsLoaded] = React.useState(false);
   const [failedCoverUrl, setFailedCoverUrl] = React.useState(null);
   const [selectedTrophy, setSelectedTrophy] = React.useState(null);
+  const [trophyTemplates, setTrophyTemplates] = React.useState([]);
+
+  React.useEffect(() => {
+    async function loadTemplates() {
+      const templates = await getTrophyTemplates();
+      setTrophyTemplates(templates);
+    }
+    loadTemplates();
+  }, []);
 
   React.useEffect(() => {
     const timer = setTimeout(() => setStatsLoaded(true), 800);
@@ -485,14 +495,12 @@ export function PlayerDashboard({ me, activeSeason, seasons = [], matches, playe
           <MagicCard gradientColor="rgba(251, 191, 36, 0.15)">
             <Card className="bg-transparent border-none shadow-none">
               {(() => {
-                const trophyList = [
-                  { id: "bb-champion", name: "BB Champion", image: "/assets/trophies/BB-Champion.png", locked: true },
-                  { id: "world-cup", name: "World Cup Winner", image: "/assets/trophies/World-Cup-Winner-Trophy.png", locked: true },
-                  { id: "golden-boot", name: "Golden Boot", image: "/assets/trophies/Golden-boot.png", locked: true },
-                  { id: "mvp", name: "MVP", image: "/assets/trophies/MVP.png", locked: true },
-                  { id: "la-liga", name: "La Liga Champion", image: "/assets/trophies/La-Liga-trophy.png", locked: true },
-                  { id: "premier-league", name: "Premier League Champion", image: "/assets/trophies/Premier-League.png", locked: true },
-                ];
+                const trophyList = trophyTemplates.map(t => ({
+                  id: t.id,
+                  name: t.name,
+                  image: t.icon,
+                  locked: true
+                }));
 
                 const unlockedCount = trophyList.filter(tr => {
                   const instances = myTrophies.filter(t => t.title === tr.name || t.id === tr.id);
