@@ -15,10 +15,6 @@ export default function TrophyDetailModal({
   unlocked,
   count = 0,
   instances = [],
-  progressRatio = 0, // 0 to 1
-  currentStat = 0,
-  targetStat = 1,
-  statLabel = 'Wins',
   requirement = 'Complete qualification requirements'
 }) {
   useEffect(() => {
@@ -58,8 +54,6 @@ export default function TrophyDetailModal({
   }, [open, unlocked]);
 
   if (!trophy) return null;
-
-  const percent = Math.min(100, Math.max(0, Math.round(progressRatio * 100)));
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -138,24 +132,15 @@ export default function TrophyDetailModal({
             </p>
           </div>
 
-          {/* Progress Section (If Locked or Partially Achieved) */}
+          {/* Lock Section (If Locked) */}
           {!unlocked ? (
-            <div className="space-y-2.5 bg-stadium-raised/60 p-4 rounded-xl border border-stadium-subtle">
-              <div className="flex items-center justify-between text-xs font-semibold">
-                <span className="text-stadium-secondary flex items-center gap-1.5">
-                  <TrendingUp size={14} className="text-turf" /> Current Progress
-                </span>
-                <span className="font-score text-stadium-primary font-bold">
-                  {currentStat} / {targetStat} <span className="text-stadium-muted font-normal">{statLabel}</span> ({percent}%)
-                </span>
+            <div className="space-y-2.5 bg-stadium-raised/60 p-4 rounded-xl border border-stadium-subtle flex flex-col items-center justify-center text-center">
+              <Lock className="text-stadium-muted mb-1" size={20} />
+              <div className="text-sm font-semibold text-stadium-secondary">
+                Locked Achievement
               </div>
-              <div className="relative h-2.5 w-full bg-stadium-base rounded-full overflow-hidden border border-stadium-subtle/50">
-                <motion.div 
-                  initial={{ width: 0 }}
-                  animate={{ width: `${percent}%` }}
-                  transition={{ duration: 1, ease: 'easeOut', delay: 0.2 }}
-                  className="absolute top-0 left-0 bottom-0 bg-gradient-to-r from-emerald-500 to-turf rounded-full"
-                />
+              <div className="text-xs text-stadium-muted max-w-xs">
+                This honor is awarded manually by administrators to players who meet the criteria. Keep playing to earn your spot!
               </div>
             </div>
           ) : (

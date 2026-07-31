@@ -138,39 +138,4 @@ export async function retriggerCelebration(trophyId) {
 }
 
 
-// ─── Trophy Templates ─────────────────────────────────────────────────────────
 
-export async function getTrophyTemplates() {
-  try {
-    const templates = await prisma.trophyTemplate.findMany({
-      orderBy: { createdAt: 'asc' },
-    });
-    return templates;
-  } catch (error) {
-    return [];
-  }
-}
-
-export async function createTrophyTemplate(data) {
-  try {
-    const template = await prisma.trophyTemplate.create({
-      data: {
-        name: data.name,
-        icon: data.icon,
-        description: data.description,
-      },
-    });
-    return { template };
-  } catch (error) {
-    return { error: 'Failed to create trophy template.' };
-  }
-}
-
-export async function deleteTrophyTemplate(id) {
-  try {
-    await prisma.trophyTemplate.delete({ where: { id } });
-    return { success: true };
-  } catch (error) {
-    return { error: 'Failed to delete trophy template.' };
-  }
-}

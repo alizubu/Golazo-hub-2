@@ -16,7 +16,7 @@ import TrophyDetailModal from './TrophyDetailModal';
 import HeadToHeadModal from './HeadToHeadModal';
 import CelebrationBanner from './CelebrationBanner';
 import StatChip from './StatChip';
-import { PlayerStatistics } from './PlayerStatistics';
+import { SeasonStats } from './SeasonStats';
 import { BorderBeam } from './magicui/BorderBeam';
 import { markNotificationsRead } from '@/app/actions/player';
 import { Skeleton } from '@/app/components/ui/skeleton';
@@ -189,6 +189,40 @@ function CircularProgress({ value, color = "var(--pitch-bright)", label }) {
 }
 
 export function PlayerDashboard({ me, activeSeason, seasons = [], matches, players, announcements = [], trophies = [], notifications = [], setTab, persistPlayers, onMatchClick, viewOnly, onH2HClick }) {
+  const router = useRouter();
+  const [selectedSeasonId, setSelectedSeasonId] = React.useState(activeSeason?.id);
+  const [statsLoaded, setStatsLoaded] = React.useState(false);
+  const [failedCoverUrl, setFailedCoverUrl] = React.useState(null);
+  const [selectedTrophy, setSelectedTrophy] = React.useState(null);
+
+  React.useEffect(() => {
+    const timer = setTimeout(() => setStatsLoaded(true), 800);
+    return () => clearTimeout(timer);
+  }, []);
+
+  React.useEffect(() => {
+    async function syncProfile() {
+      if (!me) return;
+      try {
+        const res = await fetch(`/api/user/profile?id=${me.id}`);
+        if (res.ok) {
+          const data = await res.json();
+          if (data.player) {
+            const dbPlayer = data.player;
+            if (dbPlayer.avatarImage !== me.avatarImage || dbPlayer.coverBanner !== me.coverBanner) {
+              const newPlayers = players.map(p => p.id === me.id ? { ...p, avatarImage: dbPlayer.avatarImage, coverBanner: dbPlayer.coverBanner } : p);
+              if (persistPlayers) persistPlayers(newPlayers);
+            }
+          }
+        }
+      } catch (err) {
+        console.error('Failed to sync profile', err);
+      }
+    }
+    syncProfile();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [me?.id]);
+
   // ── Guard: admin viewing player tabs has me === null ──────────────────────
   // ALL code below assumes me is a player object. If me is null (admin viewOnly),
   // bail out early before any me.id access crashes the render.
@@ -198,14 +232,12 @@ export function PlayerDashboard({ me, activeSeason, seasons = [], matches, playe
         <Users size={52} className="opacity-30" />
         <div className="text-center">
           <p className="font-bold text-foreground/70 text-lg">No Player Selected</p>
-          <p className="text-sm mt-1">You're viewing as admin. Player dashboards are only visible when logged in as a player.</p>
+          <p className="text-sm mt-1">You&apos;re viewing as admin. Player dashboards are only visible when logged in as a player.</p>
         </div>
       </div>
     );
   }
   // ─────────────────────────────────────────────────────────────────────────
-
-  const [selectedSeasonId, setSelectedSeasonId] = React.useState(activeSeason?.id);
   const t = seasons.find(s => s.id === selectedSeasonId) || activeSeason;
   const tMatches = t ? matches.filter((m) => m.seasonId === t.id) : [];
   const standings = t ? computeStandings(tMatches, players, t.id) : [];
@@ -244,44 +276,12 @@ export function PlayerDashboard({ me, activeSeason, seasons = [], matches, playe
   const selectedClub = clubs.find(c => c.name === me.favoriteClub);
   const selectedNationalTeam = nationalTeams.find(nt => nt.name === me.flag);
 
-  const [statsLoaded, setStatsLoaded] = React.useState(false);
-  const [failedCoverUrl, setFailedCoverUrl] = React.useState(null);
-  const [selectedTrophy, setSelectedTrophy] = React.useState(null);
 
-  React.useEffect(() => {
-    const timer = setTimeout(() => setStatsLoaded(true), 800);
-    return () => clearTimeout(timer);
-  }, []);
-
-  React.useEffect(() => {
-    async function syncProfile() {
-      try {
-        const res = await fetch(`/api/user/profile?id=${me.id}`);
-        if (res.ok) {
-          const data = await res.json();
-          if (data.player) {
-            const dbPlayer = data.player;
-            if (dbPlayer.avatarImage !== me.avatarImage || dbPlayer.coverBanner !== me.coverBanner) {
-              const newPlayers = players.map(p => p.id === me.id ? { ...p, avatarImage: dbPlayer.avatarImage, coverBanner: dbPlayer.coverBanner } : p);
-              if (persistPlayers) persistPlayers(newPlayers);
-            }
-          }
-        }
-      } catch (err) {
-        console.error('Failed to sync profile', err);
-      }
-    }
-    syncProfile();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [me.id]);
 
   return (
     <div className="flex flex-col gap-6 pb-10">
+      {viewOnly && <PageHeader title={`${me.name}'s Profile`} onBack={() => router.back()} />}
       <CelebrationBanner />
-      
-      {viewOnly && (
-        <PageHeader title="Player Profile" onBack={() => window.history.back()} />
-      )}
       
       {announcements.length > 0 && (
         <FadeIn delay={0.05}>
@@ -467,28 +467,14 @@ export function PlayerDashboard({ me, activeSeason, seasons = [], matches, playe
         </div>
       </FadeIn>
 
-      <div className="flex items-center justify-between mt-2 mb-2 px-1">
-        <h3 className="font-heading font-bold text-lg">Season Stats</h3>
-        <select 
-          className="bg-secondary/50 border border-border/50 rounded-lg px-3 py-1.5 text-sm font-semibold outline-none focus:ring-1 focus:ring-pitch-bright text-foreground"
-          value={selectedSeasonId || ''}
-          onChange={(e) => setSelectedSeasonId(e.target.value)}
-        >
-          {seasons.map(s => (
-            <option key={s.id} value={s.id}>{s.name} {s.id === activeSeason?.id ? '(Active)' : ''}</option>
-          ))}
-        </select>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
-        <PlayerStatistics 
-          myRank={myRank} 
-          elo={elo} 
-          played={played} 
-          winRate={winRate} 
-          goals={goals} 
-          assists={assists} 
-          statsLoaded={statsLoaded} 
+      <div className="grid grid-cols-1 md:grid-cols-12 gap-6 mt-4">
+        <SeasonStats 
+          playerId={me.id}
+          initialStats={{ rank: myRank, elo, played, winRate, goals, assists }}
+          seasons={seasons}
+          activeSeason={activeSeason}
+          selectedSeasonId={selectedSeasonId}
+          onSeasonChange={setSelectedSeasonId}
         />
 
         {/* Trophy Cabinet Row */}
@@ -497,12 +483,12 @@ export function PlayerDashboard({ me, activeSeason, seasons = [], matches, playe
             <Card className="bg-transparent border-none shadow-none">
               {(() => {
                 const trophyList = [
-                  { id: "bb-champion", name: "BB Champion", image: "/assets/trophies/BB-Champion.png", locked: true, requirement: "Win 10 Championship matches", currentStat: won, targetStat: 10, statLabel: "Wins" },
-                  { id: "world-cup", name: "World Cup Winner", image: "/assets/trophies/World-Cup-Winner-Trophy.png", locked: true, requirement: "Play 15 official tournament matches", currentStat: played, targetStat: 15, statLabel: "Matches" },
-                  { id: "golden-boot", name: "Golden Boot", image: "/assets/trophies/Golden-boot.png", locked: true, requirement: "Score 25 career goals", currentStat: goals, targetStat: 25, statLabel: "Goals" },
-                  { id: "mvp", name: "MVP", image: "/assets/trophies/MVP.png", locked: true, requirement: "Achieve 10+ assists & high ELO", currentStat: assists, targetStat: 10, statLabel: "Assists" },
-                  { id: "la-liga", name: "La Liga Champion", image: "/assets/trophies/La-Liga-trophy.png", locked: true, requirement: "Win 5 league matches in La Liga", currentStat: won, targetStat: 5, statLabel: "Wins" },
-                  { id: "premier-league", name: "Premier League Champion", image: "/assets/trophies/Premier-League.png", locked: true, requirement: "Win 8 league matches in Premier League", currentStat: won, targetStat: 8, statLabel: "Wins" },
+                  { id: "bb-champion", name: "BB Champion", image: "/assets/trophies/BB-Champion.png", locked: true, requirement: "Win 10 Championship matches" },
+                  { id: "world-cup", name: "World Cup Winner", image: "/assets/trophies/World-Cup-Winner-Trophy.png", locked: true, requirement: "Play 15 official tournament matches" },
+                  { id: "golden-boot", name: "Golden Boot", image: "/assets/trophies/Golden-boot.png", locked: true, requirement: "Score 25 career goals" },
+                  { id: "mvp", name: "MVP", image: "/assets/trophies/MVP.png", locked: true, requirement: "Achieve 10+ assists & high ELO" },
+                  { id: "la-liga", name: "La Liga Champion", image: "/assets/trophies/La-Liga-trophy.png", locked: true, requirement: "Win 5 league matches in La Liga" },
+                  { id: "premier-league", name: "Premier League Champion", image: "/assets/trophies/Premier-League.png", locked: true, requirement: "Win 8 league matches in Premier League" },
                 ];
 
                 const unlockedCount = trophyList.filter(tr => {
@@ -533,7 +519,6 @@ export function PlayerDashboard({ me, activeSeason, seasons = [], matches, playe
                         {trophyList.map((tr) => {
                           const instances = myTrophies.filter(t => t.title === tr.name || t.id === tr.id);
                           const isUnlocked = instances.length > 0 || !tr.locked;
-                          const progressRatio = isUnlocked ? 1 : Math.min(1, Math.max(0, (tr.currentStat || 0) / (tr.targetStat || 1)));
 
                           return (
                             <TrophyCard 
@@ -542,20 +527,12 @@ export function PlayerDashboard({ me, activeSeason, seasons = [], matches, playe
                               unlocked={isUnlocked} 
                               count={instances.length} 
                               instances={instances}
-                              progressRatio={progressRatio}
-                              currentStat={tr.currentStat}
-                              targetStat={tr.targetStat}
-                              statLabel={tr.statLabel}
                               requirement={tr.requirement}
                               onSelect={() => setSelectedTrophy({
                                 trophy: tr,
                                 unlocked: isUnlocked,
                                 count: instances.length,
                                 instances,
-                                progressRatio,
-                                currentStat: tr.currentStat,
-                                targetStat: tr.targetStat,
-                                statLabel: tr.statLabel,
                                 requirement: tr.requirement
                               })}
                             />
@@ -994,10 +971,9 @@ export function NotificationsView({ notifications, me }) {
 }
 
 
-function TrophyCard({ trophy, unlocked, count = 0, instances = [], progressRatio = 0, currentStat = 0, targetStat = 1, statLabel = 'Wins', requirement, onSelect }) {
+function TrophyCard({ trophy, unlocked, count = 0, instances = [], requirement, onSelect }) {
   const [imgLoaded, setImgLoaded] = React.useState(false);
   const showDuplicate = count > 1;
-  const percent = Math.min(100, Math.max(0, Math.round(progressRatio * 100)));
 
   return (
     <motion.div
@@ -1058,7 +1034,7 @@ function TrophyCard({ trophy, unlocked, count = 0, instances = [], progressRatio
         </h4>
       </div>
 
-      {/* Bottom: 3-Tier Achievement State System */}
+      {/* Bottom: 2-Tier Achievement State System (Unlocked or Locked) */}
       <div className="w-full mt-auto pt-2 border-t border-stadium-subtle/40 z-10">
         {unlocked ? (
           <div className="flex flex-col items-center gap-0.5">
@@ -1069,22 +1045,8 @@ function TrophyCard({ trophy, unlocked, count = 0, instances = [], progressRatio
               {instances[0]?.createdAt ? new Date(instances[0].createdAt).toLocaleDateString(undefined, { month: 'short', year: 'numeric' }) : 'Champion'}
             </span>
           </div>
-        ) : percent > 0 ? (
-          /* Tier 2: Locked, In Progress */
-          <div className="w-full space-y-1.5 px-1">
-            <div className="flex items-center justify-between text-[9px] font-score font-semibold text-stadium-secondary">
-              <span className="truncate max-w-[65%]" title={requirement}>{statLabel}</span>
-              <span className="text-stadium-primary font-bold tabular-nums">{currentStat}/{targetStat}</span>
-            </div>
-            <div className="relative h-1.5 w-full bg-stadium-base rounded-full overflow-hidden border border-stadium-subtle/60">
-              <div 
-                className="absolute top-0 left-0 bottom-0 bg-gradient-to-r from-emerald-500 to-turf rounded-full transition-all duration-500" 
-                style={{ width: `${percent}%` }}
-              />
-            </div>
-          </div>
         ) : (
-          /* Tier 1: Locked, No Progress (0%) */
+          /* Locked, No Progress (0%) */
           <div className="w-full flex items-center justify-center gap-1 text-[10px] font-medium text-stadium-muted py-0.5 px-1">
             <Lock size={10} className="shrink-0 text-stadium-secondary/60" />
             <span className="truncate" title={requirement || 'Locked achievement'}>

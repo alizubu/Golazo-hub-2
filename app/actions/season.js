@@ -74,19 +74,7 @@ export async function startSeason(name, type, startDate) {
 
 
 
-export async function deleteSeason(id) {
-  if ((await cookies()).get('golazo_session')?.value !== 'admin') return { error: 'Unauthorized' };
-  try {
-    await prisma.season.delete({
-      where: { id }
-    });
-    revalidatePath('/');
-    revalidatePath('/admin');
-    return { success: true };
-  } catch (error) {
-    return { error: 'Failed to delete season' };
-  }
-}
+
 
 export async function renameSeason(id, newName) {
   if ((await cookies()).get('golazo_session')?.value !== 'admin') return { error: 'Unauthorized' };
@@ -149,60 +137,4 @@ export async function completeSeason(id, data) {
   }
 }
 
-export async function adminResetStandings(id) {
-  if ((await cookies()).get('golazo_session')?.value !== 'admin') return { error: 'Unauthorized' };
-  try {
-    await prisma.match.updateMany({
-      where: { seasonId: id },
-      data: {
-        status: 'scheduled',
-        homeScore: null,
-        awayScore: null,
-        liveState: null,
-        wentToExtra: false,
-        penaltyHome: null,
-        penaltyAway: null,
-        penaltyWinner: null
-      }
-    });
-    
-    // Also reset season if it was completed
-    await prisma.season.update({
-      where: { id },
-      data: {
-        status: 'Live',
-        isArchived: false,
-        completedAt: null,
-        championId: null,
-        runnerUpId: null,
-        thirdId: null,
-        mvpId: null
-      }
-    });
-    
-    revalidatePath('/');
-    revalidatePath('/admin');
-    return { success: true };
-  } catch (error) {
-    console.error(error);
-    return { error: 'Failed to reset standings' };
-  }
-}
 
-export async function adminRemoveUnplayedFixtures(id) {
-  if ((await cookies()).get('golazo_session')?.value !== 'admin') return { error: 'Unauthorized' };
-  try {
-    await prisma.match.deleteMany({
-      where: { 
-        seasonId: id,
-        status: 'scheduled'
-      }
-    });
-    revalidatePath('/');
-    revalidatePath('/admin');
-    return { success: true };
-  } catch (error) {
-    console.error(error);
-    return { error: 'Failed to remove fixtures' };
-  }
-}

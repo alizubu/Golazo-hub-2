@@ -4,6 +4,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ShineBorder } from './magicui/ShineBorder';
+import { useRouter } from 'next/navigation';
 
 const LoopingConfetti = () => {
   const [pieces, setPieces] = useState([]);
@@ -56,6 +57,7 @@ const LoopingConfetti = () => {
 };
 
 export default function CelebrationBanner() {
+  const router = useRouter();
   const [celebrations, setCelebrations] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [dismissed, setDismissed] = useState([]);
@@ -192,9 +194,12 @@ export default function CelebrationBanner() {
                 
                 <div className="flex flex-col sm:flex-row items-center justify-center sm:justify-start gap-3 sm:gap-4 mt-3 sm:mt-5">
                   <motion.div 
+                    onClick={() => router.push(`/players/${current.trophy.player.id}`)}
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
                     animate={{ boxShadow: ['0px 0px 0px rgba(251,191,36,0)', '0px 0px 15px rgba(251,191,36,0.4)', '0px 0px 0px rgba(251,191,36,0)'] }}
                     transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut', delay: 1 }}
-                    className="flex items-center gap-2.5 bg-gradient-to-r from-amber-500/20 to-amber-600/40 px-4 py-2 rounded-full border border-amber-500/30 shadow-lg backdrop-blur"
+                    className="cursor-pointer flex items-center gap-2.5 bg-gradient-to-r from-amber-500/20 to-amber-600/40 hover:from-amber-500/30 hover:to-amber-600/50 px-4 py-2 rounded-full border border-amber-500/30 hover:border-amber-400 shadow-lg backdrop-blur"
                   >
                     {current.trophy.player.avatarImage ? (
                       <img src={current.trophy.player.avatarImage} className="w-8 h-8 rounded-full object-cover border-2 border-amber-400" alt="" />
