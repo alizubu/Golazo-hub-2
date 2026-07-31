@@ -7,25 +7,43 @@ import MatchDetailsModal from './MatchDetailsModal';
 import { updateMatchStatus, updateMatchScore } from '@/app/actions/match';
 import { supabase } from '@/lib/supabaseClient';
 
+// Module-level variable for debouncing, avoids React ref lint errors
+let scoreTimeoutId = null;
+
 export default function LiveMatchControl({ matches, players, activeSeason, showToast }) {
   const [modalOpen, setModalOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   
+  const [optLiveMatch, setOptLiveMatch] = useState(null);
+  const [isEnding, setIsEnding] = useState(false);
+  
   // Find currently live match
-  const liveMatch = matches.find(m => m.status === 'live');
+  const serverLiveMatch = matches.find(m => m.status === 'live');
+  const liveMatch = isEnding ? null : (optLiveMatch || serverLiveMatch);
   
   // Find next scheduled match
   const nextMatch = matches.find(m => m.status === 'scheduled' && m.seasonId === activeSeason?.id);
 
   const [optHome, setOptHome] = useState(liveMatch?.homeScore || 0);
   const [optAway, setOptAway] = useState(liveMatch?.awayScore || 0);
-  
+  const [isMutatingScore, setIsMutatingScore] = useState(false);
+
+  // 1. Sync server catch-up for Start Match during render (React recommended pattern)
+  const [prevServerMatchId, setPrevServerMatchId] = useState(serverLiveMatch?.id);
+  if (serverLiveMatch?.id !== prevServerMatchId) {
+    setPrevServerMatchId(serverLiveMatch?.id);
+    if (serverLiveMatch && optLiveMatch && serverLiveMatch.id === optLiveMatch.id) {
+       setOptLiveMatch(null);
+    }
+  }
+
+  // 2. Sync server catch-up for Scores during render
   const currentLiveMatchHash = `${liveMatch?.id}-${liveMatch?.homeScore}-${liveMatch?.awayScore}`;
   const [prevLiveMatchHash, setPrevLiveMatchHash] = useState(currentLiveMatchHash);
 
   if (currentLiveMatchHash !== prevLiveMatchHash) {
     setPrevLiveMatchHash(currentLiveMatchHash);
-    if (liveMatch) {
+    if (liveMatch && !isMutatingScore) {
       setOptHome(liveMatch.homeScore || 0);
       setOptAway(liveMatch.awayScore || 0);
     }
@@ -33,16 +51,29 @@ export default function LiveMatchControl({ matches, players, activeSeason, showT
 
   const startNextMatch = async () => {
     if (!nextMatch) return;
-    setLoading(true);
+    
+    // Optimistically start the match instantly
+    setOptLiveMatch({
+      ...nextMatch,
+      status: 'live',
+      homeScore: 0,
+      awayScore: 0,
+      liveState: { phase: 'first', paused: false, clock: 0 }
+    });
+
     const res = await updateMatchStatus(nextMatch.id, { 
       status: 'live', 
       liveState: { phase: 'first', paused: false, clock: 0 },
       homeScore: 0,
       awayScore: 0
     });
-    if (res.error) showToast(res.error);
-    else showToast("Match Started!");
-    setLoading(false);
+    
+    if (res.error) {
+      setOptLiveMatch(null); // Rollback on error
+      showToast(res.error);
+    } else {
+      showToast("Match Started!");
+    }
   };
 
   const handleScore = (homeDelta, awayDelta) => {
@@ -50,9 +81,12 @@ export default function LiveMatchControl({ matches, players, activeSeason, showT
     const newHome = Math.max(0, optHome + homeDelta);
     const newAway = Math.max(0, optAway + awayDelta);
     
-    // 1. Immediate optimistic UI update & animation
+    // 1. Immediate optimistic UI update & lock server sync for 3 seconds
     setOptHome(newHome);
     setOptAway(newAway);
+    setIsMutatingScore(true);
+    clearTimeout(scoreTimeoutId);
+    scoreTimeoutId = setTimeout(() => { setIsMutatingScore(false); }, 3000);
 
     const byId = Object.fromEntries(players.map(p => [p.id, p]));
     const home = byId[liveMatch.homeId];
@@ -96,11 +130,12 @@ export default function LiveMatchControl({ matches, players, activeSeason, showT
       event: 'match_update',
       payload: { ...liveMatch, liveState: { ...liveMatch.liveState, paused: !isPaused } }
     });
-    setLoading(false);
   };
 
   const finishMatch = async (finalData) => {
-    setLoading(true);
+    setIsEnding(true); // Optimistically hide the match panel
+    setModalOpen(false);
+
     // 1. Call server action to finish match, compute ratings, MOTM, ELO, standings
     const response = await fetch('/api/matches/' + liveMatch.id + '/finish', {
       method: 'POST',
@@ -109,16 +144,14 @@ export default function LiveMatchControl({ matches, players, activeSeason, showT
     });
     
     const data = await response.json();
-    setLoading(false);
     
     if (data.error) {
+      setIsEnding(false); // Rollback on error
       showToast(data.error);
       return false;
     }
     
     showToast("Match completed & stats saved!");
-    setModalOpen(false);
-    
     return true;
   };
 
