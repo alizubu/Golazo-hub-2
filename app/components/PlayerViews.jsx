@@ -22,6 +22,7 @@ import { markNotificationsRead } from '@/app/actions/player';
 import { getTrophyTemplates } from '@/app/actions/admin';
 import { Skeleton } from '@/app/components/ui/skeleton';
 import { HoverCard, HoverCardContent, HoverCardTrigger } from '@/app/components/ui/hover-card';
+import { computeStandings } from './StandingsTable';
 import clubsData from '@/lib/data/clubs.json';
 import nationalTeamsData from '@/lib/data/national_teams.json';
 
@@ -60,48 +61,7 @@ export default function PlayerViews(props) {
   );
 }
 
-export function computeStandings(matches, players, seasonId) {
-  const table = {};
-  players.forEach((p) => {
-    table[p.id] = { ...p, played: 0, won: 0, drawn: 0, lost: 0, gf: 0, ga: 0, gd: 0, pts: 0, form: [], streak: 0, posChange: ['▲', '▼', '-'][Math.floor(Math.random() * 3)] };
-  });
-  
-  const completedMatches = matches
-    .filter((m) => m.seasonId === seasonId && m.round === "league" && m.status === "completed")
-    .sort((a, b) => new Date(a.completedAt || 0) - new Date(b.completedAt || 0));
 
-  completedMatches.forEach((m) => {
-      const h = table[m.homeId], a = table[m.awayId];
-      if (!h || !a) return;
-      h.played++; a.played++;
-      const hs = Number(m.homeScore) || 0;
-      const as = Number(m.awayScore) || 0;
-      h.gf += hs; h.ga += as;
-      a.gf += as; a.ga += hs;
-      if (hs > as) { 
-        h.won++; a.lost++; h.pts += 2; 
-        h.form.push('W'); a.form.push('L');
-        h.streak = h.streak > 0 ? h.streak + 1 : 1;
-        a.streak = a.streak < 0 ? a.streak - 1 : -1;
-      }
-      else if (hs < as) { 
-        a.won++; h.lost++; a.pts += 2; 
-        a.form.push('W'); h.form.push('L');
-        a.streak = a.streak > 0 ? a.streak + 1 : 1;
-        h.streak = h.streak < 0 ? h.streak - 1 : -1;
-      }
-      else { 
-        h.drawn++; a.drawn++; h.pts += 1; a.pts += 1; 
-        h.form.push('D'); a.form.push('D');
-        h.streak = 0; a.streak = 0;
-      }
-    });
-  Object.values(table).forEach((t) => {
-    t.gd = t.gf - t.ga;
-    t.form = t.form.slice(-5);
-  });
-  return Object.values(table).sort((x, y) => y.pts - x.pts || y.gd - x.gd || y.gf - x.gf || x.name.localeCompare(y.name));
-}
 
 function LiveScoreboard({ m, players }) {
   const byId = Object.fromEntries(players.map((p) => [p.id, p]));
@@ -578,26 +538,41 @@ export function PlayerDashboard({ me, activeSeason, seasons = [], matches, playe
                     <th className="pb-2 text-center font-semibold">P</th>
                     <th className="pb-2 text-center font-semibold">W</th>
                     <th className="pb-2 text-center font-semibold">L</th>
-                    <th className="pb-2 text-center font-semibold">GF</th>
-                    <th className="pb-2 text-center font-semibold">GA</th>
+                    <th className="pb-2 text-center font-semibold">GD</th>
                     <th className="pb-2 text-center font-semibold text-pitch-bright">Pts</th>
+                    <th className="pb-2 text-center font-semibold w-24">Form</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {standings.slice(0, 5).map((s, i) => (
-                    <tr key={s.id} className={`border-b border-border/30 last:border-0 ${s.id === me.id ? 'bg-white/5' : ''}`}>
-                      <td className="py-2.5 font-bold font-score">
-                        {i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : <span className="text-muted-foreground ml-1">{i + 1}</span>}
-                      </td>
-                      <td className="py-2.5"><PlayerChip p={s} size={20} /></td>
-                      <td className="py-2.5 text-center text-muted-foreground">{s.played}</td>
-                      <td className="py-2.5 text-center text-muted-foreground">{s.won}</td>
-                      <td className="py-2.5 text-center text-muted-foreground">{s.lost}</td>
-                      <td className="py-2.5 text-center text-muted-foreground">{s.gf}</td>
-                      <td className="py-2.5 text-center text-muted-foreground">{s.ga}</td>
-                      <td className="py-2.5 text-center font-bold text-pitch-bright">{s.pts}</td>
-                    </tr>
-                  ))}
+                  {standings.slice(0, 5).map((s, i) => {
+                    const isTop4 = i < 4;
+                    const rowBorderClass = isTop4 ? 'border-l-4 border-l-emerald-500' : 'border-l-4 border-l-transparent';
+                    
+                    return (
+                      <tr key={s.id} className={`border-b border-border/30 last:border-0 ${s.id === me.id ? 'bg-white/5' : ''} ${rowBorderClass}`}>
+                        <td className="py-2.5 font-bold font-score text-center">
+                          {i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : <span className="text-muted-foreground">{i + 1}</span>}
+                        </td>
+                        <td className="py-2.5"><PlayerChip p={s} size={20} /></td>
+                        <td className="py-2.5 text-center text-muted-foreground">{s.played}</td>
+                        <td className="py-2.5 text-center text-muted-foreground">{s.won}</td>
+                        <td className="py-2.5 text-center text-muted-foreground">{s.lost}</td>
+                        <td className="py-2.5 text-center text-muted-foreground">{s.gd > 0 ? `+${s.gd}` : s.gd}</td>
+                        <td className="py-2.5 text-center font-bold text-pitch-bright">{s.pts}</td>
+                        <td className="py-2.5 text-center">
+                          <div className="flex items-center justify-center gap-1">
+                            {s.form.slice(-3).map((res, idx) => (
+                              <span key={idx} className={`w-3 h-3 rounded-full flex items-center justify-center text-[7px] font-bold text-white
+                                ${res === 'W' ? 'bg-emerald-500' : res === 'D' ? 'bg-slate-400' : 'bg-red-500'}
+                              `}>
+                                {res}
+                              </span>
+                            ))}
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })}
                 </tbody>
               </table>
             </div>
