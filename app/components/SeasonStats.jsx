@@ -1,9 +1,8 @@
 'use client';
 import React, { useState, useEffect } from 'react';
-import { Card, CardHeader, CardTitle, CardContent } from '@/app/components/ui/card';
 import { Activity, Trophy, Swords, Target, Handshake, TrendingUp, Calendar, Check } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { MagicCard, FadeIn } from '@/app/components/UI';
+import { FadeIn } from '@/app/components/UI';
 import { StatTile } from './StatTile';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/app/components/ui/dropdown-menu';
 
@@ -29,8 +28,7 @@ export function SeasonStats({ playerId, initialStats, seasons, activeSeason, sel
       }
     };
     
-    // Skip fetch if initial render with the default selected season
-    // But actually, we might want to fetch if the parent passes a new season
+    // Fetch stats for the new season
     fetchStats();
     
     return () => { isMounted = false; };
@@ -44,79 +42,92 @@ export function SeasonStats({ playerId, initialStats, seasons, activeSeason, sel
 
   return (
     <FadeIn delay={0.2} className="col-span-12">
-      <MagicCard gradientColor="rgba(255, 255, 255, 0.03)" className="relative overflow-hidden group w-full">
-        {/* Subtle top accent gradient */}
-        <div className="absolute top-0 left-0 w-full h-[2px] bg-gradient-to-r from-transparent via-emerald-500/50 to-transparent" />
-        
-        {/* Ambient lighting background */}
-        <div className="absolute inset-0 bg-gradient-to-br from-[#0c0e12] to-[#12161c] z-0" />
-        <div className="absolute top-0 right-0 w-96 h-96 bg-emerald-500/10 rounded-full blur-[100px] pointer-events-none transform translate-x-1/3 -translate-y-1/3 group-hover:bg-emerald-500/15 transition-colors duration-1000" />
-        <div className="absolute bottom-0 left-0 w-96 h-96 bg-amber-500/5 rounded-full blur-[100px] pointer-events-none transform -translate-x-1/3 translate-y-1/3 group-hover:bg-amber-500/10 transition-colors duration-1000" />
-        
-        <Card className="bg-transparent border-none shadow-none flex flex-col relative z-10 w-full">
-          {/* Unified Header */}
-          <CardHeader className="pb-3 border-b border-white/5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 relative">
-            <CardTitle className="text-xl sm:text-2xl font-heading font-bold flex items-center gap-2.5 text-stadium-primary">
-              <Activity className="text-white/70" size={24}/> Season Stats
-            </CardTitle>
-            
-            {/* Pill-Style Season Selector */}
-            <DropdownMenu>
-              <DropdownMenuTrigger className="outline-none focus-visible:ring-2 focus-visible:ring-pitch-bright rounded-full">
-                <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-secondary/50 border border-border/50 hover:bg-secondary/80 hover:border-border transition-colors cursor-pointer text-sm font-semibold shadow-sm w-fit">
-                  <Calendar size={14} className="text-muted-foreground" />
-                  <span className="text-foreground">{selectedSeason?.name || "Select Season"}</span>
-                  
-                  {/* Indicator Dot */}
-                  {isActive ? (
-                    <span className="relative flex h-2 w-2 ml-1">
-                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
-                      <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
-                    </span>
-                  ) : (
-                    <span className="relative flex items-center ml-1">
-                      <span className="relative inline-flex rounded-full h-2 w-2 bg-muted-foreground/50 mr-1.5" />
-                      <span className="text-[10px] uppercase tracking-wider text-muted-foreground font-bold">Archived</span>
-                    </span>
-                  )}
-                </div>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-56 bg-card border-border/50 shadow-xl rounded-xl z-[60]">
-                {seasons.map(s => {
-                  const isAct = s.id === activeSeason?.id;
-                  const isSel = s.id === selectedSeasonId;
-                  return (
-                    <DropdownMenuItem 
-                      key={s.id} 
-                      onClick={() => onSeasonChange(s.id)}
-                      className="flex items-center justify-between cursor-pointer rounded-lg hover:bg-secondary py-2 px-3 m-1"
-                    >
-                      <div className="flex items-center gap-2">
-                        {isAct ? (
-                          <div className="w-2 h-2 rounded-full bg-emerald-500" />
-                        ) : (
-                          <div className="w-2 h-2 rounded-full bg-muted-foreground/30" />
-                        )}
-                        <span className={`font-semibold ${isSel ? 'text-foreground' : 'text-muted-foreground'}`}>{s.name}</span>
-                      </div>
-                      {isSel && <Check size={14} className="text-pitch-bright" />}
-                    </DropdownMenuItem>
-                  );
-                })}
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </CardHeader>
+      {/* 
+        Section Container:
+        Subtle 1px solid rgba(255,255,255,0.08) border, border-radius: 20px
+        Background: #0a0c10
+      */}
+      <div className="relative overflow-hidden group w-full bg-[#0a0c10] border border-white/[0.08] rounded-[20px]">
+        {/* Unified Header */}
+        <div className="pb-3 pt-5 px-5 sm:px-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4 relative">
+          <div className="text-xl sm:text-2xl font-bold flex items-center gap-2.5 text-white">
+            <Activity className="text-white/70" size={24}/> Season Stats
+          </div>
           
-          <CardContent className="pt-5 pb-5">
-            <div className="grid grid-cols-2 sm:grid-cols-6 auto-rows-min gap-3">
+          {/* Pill-Style Season Selector Redesign */}
+          <DropdownMenu>
+            <DropdownMenuTrigger className="outline-none focus-visible:ring-2 focus-visible:ring-white/20 rounded-full">
+              <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#12151b] border border-white/10 hover:bg-[#1a1e27] hover:border-white/20 transition-colors cursor-pointer text-sm font-[600] text-white shadow-sm w-fit h-[36px]">
+                <Calendar size={14} className="text-[#6b7280]" />
+                <span>{selectedSeason?.name || "Select Season"}</span>
+                
+                {/* Status Dot */}
+                {isActive ? (
+                  <motion.div 
+                    className="w-2 h-2 ml-1 rounded-full bg-[#22c55e]"
+                    animate={{ opacity: [0.6, 1, 0.6] }}
+                    transition={{ duration: 2.5, repeat: Infinity, ease: "easeInOut" }}
+                  />
+                ) : (
+                  <div className="w-2 h-2 ml-1 rounded-full bg-[#4b5563]" />
+                )}
+              </div>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-56 bg-[#12151b] border-white/10 shadow-[0_8px_32px_-8px_rgba(0,0,0,0.8)] rounded-xl z-[60] text-white">
+              {seasons.map(s => {
+                const isAct = s.id === activeSeason?.id;
+                const isSel = s.id === selectedSeasonId;
+                return (
+                  <DropdownMenuItem 
+                    key={s.id} 
+                    onClick={() => onSeasonChange(s.id)}
+                    className="flex items-center justify-between cursor-pointer rounded-lg hover:bg-white/5 py-2 px-3 m-1 focus:bg-white/5 focus:text-white"
+                  >
+                    <div className="flex items-center gap-2">
+                      {isAct ? (
+                        <div className="w-2 h-2 rounded-full bg-[#22c55e]" />
+                      ) : (
+                        <div className="w-2 h-2 rounded-full bg-[#4b5563]" />
+                      )}
+                      <span className={`font-[600] ${isSel ? 'text-white' : 'text-[#6b7280]'}`}>{s.name}</span>
+                    </div>
+                    {isSel && <Check size={14} className="text-white" />}
+                  </DropdownMenuItem>
+                );
+              })}
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+        
+        <div className="pt-2 pb-5 px-5 sm:px-6">
+          <AnimatePresence mode="wait">
+            <motion.div 
+              key={selectedSeasonId}
+              initial="hidden"
+              animate="visible"
+              exit="exit"
+              variants={{
+                hidden: { opacity: 0 },
+                visible: { 
+                  opacity: 1,
+                  transition: { staggerChildren: 0.06 }
+                },
+                exit: { opacity: 0, transition: { duration: 0.2 } }
+              }}
+              // MATHEMATICALLY PERFECT 8-COLUMN GRID
+              // Mobile: 2 cols
+              // Desktop: 8 cols to allow 2+3+3 on row 1, 2+2+2+2 on row 2
+              className="grid grid-cols-2 lg:grid-cols-8 auto-rows-min gap-4"
+            >
               {/* Tile 1: Current Rank (Hero) */}
-              <div className="col-span-2 sm:col-span-2 sm:row-span-2 flex">
+              {/* Desktop: takes 2 cols, spans 2 rows */}
+              {/* Mobile: takes 2 cols, normal height */}
+              <div className="col-span-2 lg:col-span-2 lg:row-span-2 flex min-h-[140px] lg:min-h-auto">
                 <StatTile 
                   icon={Trophy}
                   label="Rank"
                   value={hasData && rank ? `#${rank}` : null}
                   loaded={!loading}
-                  colorAccent="gold"
                   size="hero"
                   emptyStateText="Unranked"
                   subtext={isActive && hasData ? "Active season" : null}
@@ -124,13 +135,14 @@ export function SeasonStats({ playerId, initialStats, seasons, activeSeason, sel
               </div>
 
               {/* Tile 2: Elo Rating */}
-              <div className="col-span-2 sm:col-span-2 flex">
+              {/* Desktop: takes 3 cols out of 8 */}
+              {/* Mobile: takes 1 col out of 2 */}
+              <div className="col-span-1 lg:col-span-3 flex min-h-[140px]">
                 <StatTile 
                   icon={Activity}
                   label="Elo Rating"
                   value={hasData ? elo : null}
                   loaded={!loading}
-                  colorAccent="blue"
                   size="medium"
                   isCountUp={true}
                   emptyStateText="No matches"
@@ -138,7 +150,7 @@ export function SeasonStats({ playerId, initialStats, seasons, activeSeason, sel
               </div>
 
               {/* Tile 3: Win Rate */}
-              <div className="col-span-2 sm:col-span-2 flex">
+              <div className="col-span-1 lg:col-span-3 flex min-h-[140px]">
                 <StatTile 
                   icon={TrendingUp}
                   label="Win Rate"
@@ -152,27 +164,29 @@ export function SeasonStats({ playerId, initialStats, seasons, activeSeason, sel
               </div>
 
               {/* Tile 4: Matches */}
-              <div className="col-span-2 sm:col-span-2 flex h-full min-h-[90px]">
+              {/* Desktop: takes 2 cols out of 8 */}
+              {/* Mobile: takes 1 col */}
+              <div className="col-span-1 lg:col-span-2 flex h-full min-h-[120px]">
                 <StatTile 
                   icon={Swords}
                   label="Matches"
                   value={hasData ? played : null}
                   loaded={!loading}
-                  colorAccent="slate"
                   size="small"
                   isCountUp={true}
-                  emptyStateText="No matches yet"
+                  emptyStateText="No matches"
                 />
               </div>
 
               {/* Tile 5: Goals */}
-              <div className="col-span-1 sm:col-span-2 flex h-full min-h-[90px]">
+              {/* Desktop: takes 2 cols out of 8 */}
+              {/* Mobile: takes 1 col */}
+              <div className="col-span-1 lg:col-span-2 flex h-full min-h-[120px]">
                 <StatTile 
                   icon={Target}
                   label="Goals"
                   value={hasData ? goals : null}
                   loaded={!loading}
-                  colorAccent="slate"
                   size="small"
                   isCountUp={true}
                   emptyStateText="No goals"
@@ -180,22 +194,23 @@ export function SeasonStats({ playerId, initialStats, seasons, activeSeason, sel
               </div>
 
               {/* Tile 6: Assists */}
-              <div className="col-span-1 sm:col-span-2 flex h-full min-h-[90px]">
+              {/* Desktop: takes 2 cols out of 8 */}
+              {/* Mobile fallback: col-span-2 for 2+1 layout to avoid squishing */}
+              <div className="col-span-2 sm:col-span-1 lg:col-span-2 flex h-full min-h-[120px]">
                 <StatTile 
                   icon={Handshake}
                   label="Assists"
                   value={hasData ? assists : null}
                   loaded={!loading}
-                  colorAccent="slate"
                   size="small"
                   isCountUp={true}
                   emptyStateText="No assists"
                 />
               </div>
-            </div>
-          </CardContent>
-        </Card>
-      </MagicCard>
+            </motion.div>
+          </AnimatePresence>
+        </div>
+      </div>
     </FadeIn>
   );
 }
