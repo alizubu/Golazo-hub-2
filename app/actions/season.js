@@ -17,7 +17,7 @@ export async function startSeason(name, type, startDate) {
   if ((await cookies()).get('golazo_session')?.value !== 'admin') return { error: 'Unauthorized' };
   if (!name || !name.trim()) return { error: 'Give the season a name' };
   
-  const active = await getActiveSeason();
+  const active = await prisma.season.findFirst({ where: { status: 'Live' } });
   if (active) return { error: 'Finish or close the current season first' };
 
   try {
