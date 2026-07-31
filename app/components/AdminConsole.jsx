@@ -80,8 +80,7 @@ export default function AdminConsole(props) {
 
 import ErrorBoundary from './ErrorBoundary';
 import dynamic from 'next/dynamic';
-const ReactQuill = dynamic(() => import('react-quill'), { ssr: false });
-import 'react-quill/dist/quill.snow.css';
+import RichTextEditor from './RichTextEditor';
 
 function AdminOverview(props) {
   return (
@@ -1052,21 +1051,10 @@ export function AdminAnnouncements({ announcements, showToast }) {
           <div><Label>Title</Label><Input value={form.title} onChange={e => setForm({...form, title: e.target.value})} placeholder="e.g. Season Start!" /></div>
           <div>
             <Label>Message</Label>
-            <div className="mt-2 bg-white text-black rounded-md overflow-hidden">
-              <ReactQuill 
-                theme="snow" 
+            <div className="mt-2">
+              <RichTextEditor 
                 value={form.content} 
                 onChange={val => setForm({...form, content: val})} 
-                modules={{
-                  toolbar: [
-                    [{ 'header': [1, 2, 3, false] }],
-                    [{ 'font': [] }],
-                    ['bold', 'italic', 'underline', 'strike'],
-                    [{ 'color': [] }, { 'background': [] }],
-                    [{ 'list': 'ordered'}, { 'list': 'bullet' }],
-                    ['link', 'clean']
-                  ]
-                }}
               />
             </div>
           </div>

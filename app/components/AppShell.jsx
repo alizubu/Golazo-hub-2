@@ -6,6 +6,7 @@ import AdminOverviewDashboard from './AdminOverviewDashboard';
 import { AdminSeason, AdminPlayers, AdminMatches, AdminTrophies, AdminAnnouncements, AdminSettings } from './AdminConsole';
 import { useAppContext } from './AppContextProvider';
 import FloatingNav from './FloatingNav';
+import SportsTicker from './SportsTicker';
 
 export default function AppShell({ 
   initialTab, 
@@ -80,6 +81,9 @@ export default function AppShell({
         notifications={notifications}
         matches={matches}
       />
+      <div className="pt-2">
+        <SportsTicker matches={matches} announcements={announcements} players={players} />
+      </div>
       {session?.type === 'admin' ? (
         <>
           {currentTab === 'admin/players' ? <div className="pt-4"><AdminPlayers {...adminProps} /></div> :

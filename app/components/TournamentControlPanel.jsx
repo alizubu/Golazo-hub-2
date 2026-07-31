@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { SectionTitle, MagicCard, Btn, FadeIn } from './UI';
-import { RotateCcw, Trophy, Trash2, Shuffle, AlertTriangle, PlayCircle } from 'lucide-react';
+import { RotateCcw, Trophy, Trash2, Shuffle, AlertTriangle, PlayCircle, Pencil } from 'lucide-react';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -13,6 +13,14 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from '@/app/components/ui/alert-dialog';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from '@/app/components/ui/dialog';
 import { Input } from './UI';
 import {
   renameSeason,
@@ -47,8 +55,8 @@ export default function TournamentControlPanel({ season, showToast }) {
       showToast(res.error);
     } else {
       showToast("Season renamed!");
+      setRenameOpen(false);
     }
-    setRenameOpen(false);
     setLoading(false);
   };
 
@@ -110,6 +118,15 @@ export default function TournamentControlPanel({ season, showToast }) {
       action: () => handleAction(adminDeleteSeason, 'Season deleted!', true),
       color: 'text-red-500',
       bg: 'bg-red-500/10'
+    },
+    {
+      id: 'rename-season',
+      label: 'Rename Season',
+      desc: 'Change the display name for this season without affecting matches or stats.',
+      icon: Pencil,
+      action: () => setRenameOpen(true),
+      color: 'text-slate-400',
+      bg: 'bg-slate-400/10'
     }
   ];
 
@@ -117,27 +134,11 @@ export default function TournamentControlPanel({ season, showToast }) {
     <div className="flex flex-col gap-4 mt-8 mb-8 pb-8">
       <div className="flex items-center justify-between">
         <SectionTitle icon={AlertTriangle} className="text-red-400">Tournament Controls</SectionTitle>
-        <AlertDialog open={renameOpen} onOpenChange={setRenameOpen}>
-          <AlertDialogTrigger asChild>
-            <Btn variant="outline" className="text-xs">Rename Season</Btn>
-          </AlertDialogTrigger>
-          <AlertDialogContent className="bg-card border-border">
-            <AlertDialogHeader>
-              <AlertDialogTitle>Rename Season</AlertDialogTitle>
-              <AlertDialogDescription>Enter a new name for this season.</AlertDialogDescription>
-            </AlertDialogHeader>
-            <Input value={newName} onChange={e => setNewName(e.target.value)} placeholder="Season Name" className="mt-2" />
-            <AlertDialogFooter className="mt-4">
-              <AlertDialogCancel className="bg-secondary text-foreground hover:bg-secondary/80">Cancel</AlertDialogCancel>
-              <Btn onClick={handleRename} loading={loading}>Save</Btn>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {controls.map((ctrl, i) => (
           <FadeIn key={ctrl.id} delay={i * 0.1}>
-            <MagicCard className="p-4 flex flex-col justify-between h-full border border-red-500/10 hover:border-red-500/30 transition-colors">
+            <MagicCard className={`p-4 flex flex-col justify-between h-full border transition-colors ${ctrl.id === 'rename-season' ? 'border-border hover:border-slate-500/30' : 'border-red-500/10 hover:border-red-500/30'}`}>
               <div>
                 <div className="flex items-center gap-3 mb-2">
                   <div className={`p-2 rounded-lg ${ctrl.bg}`}>
@@ -148,19 +149,24 @@ export default function TournamentControlPanel({ season, showToast }) {
                 <p className="text-xs text-muted-foreground mb-4">{ctrl.desc}</p>
               </div>
               
-              <AlertDialog 
-                open={activeDialog === ctrl.id} 
-                onOpenChange={(open) => {
-                  if (open) setActiveDialog(ctrl.id);
-                  else if (!loading) setActiveDialog(null);
-                }}
-              >
-                <AlertDialogTrigger asChild>
-                  <Btn variant={ctrl.id === 'delete-season' ? 'danger' : 'outline'} className="w-full text-xs" disabled={loading}>
-                    {ctrl.label}
-                  </Btn>
-                </AlertDialogTrigger>
-                <AlertDialogContent className="bg-card border-border">
+              {ctrl.id === 'rename-season' ? (
+                <Btn variant="outline" className="w-full text-xs" onClick={ctrl.action}>
+                  {ctrl.label}
+                </Btn>
+              ) : (
+                <AlertDialog 
+                  open={activeDialog === ctrl.id} 
+                  onOpenChange={(open) => {
+                    if (open) setActiveDialog(ctrl.id);
+                    else if (!loading) setActiveDialog(null);
+                  }}
+                >
+                  <AlertDialogTrigger asChild>
+                    <Btn variant={ctrl.id === 'delete-season' ? 'danger' : 'outline'} className="w-full text-xs" disabled={loading}>
+                      {ctrl.label}
+                    </Btn>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent className="bg-card border-border">
                   <AlertDialogHeader>
                     <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
                     <AlertDialogDescription>
@@ -184,10 +190,25 @@ export default function TournamentControlPanel({ season, showToast }) {
                   </AlertDialogFooter>
                 </AlertDialogContent>
               </AlertDialog>
+              )}
             </MagicCard>
           </FadeIn>
         ))}
       </div>
+      
+      <Dialog open={renameOpen} onOpenChange={setRenameOpen}>
+        <DialogContent className="bg-card border-border">
+          <DialogHeader>
+            <DialogTitle>Rename Season</DialogTitle>
+            <DialogDescription>Change the display name for this season without affecting matches or stats.</DialogDescription>
+          </DialogHeader>
+          <Input value={newName} onChange={e => setNewName(e.target.value)} placeholder="Season Name" className="mt-2" />
+          <DialogFooter className="mt-4">
+            <Btn variant="outline" onClick={() => setRenameOpen(false)} className="bg-secondary text-foreground hover:bg-secondary/80">Cancel</Btn>
+            <Btn onClick={handleRename} loading={loading}>Save</Btn>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

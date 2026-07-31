@@ -25,7 +25,7 @@ export const Card = ({ children, className = "", ...rest }) => (
   </ShadcnCard>
 );
 
-export const Btn = ({ children, variant = "primary", className = "", disabled, loading, icon: Icon, ...rest }) => {
+export const Btn = React.forwardRef(({ children, variant = "primary", className = "", disabled, loading, icon: Icon, ...rest }, ref) => {
   let variantClasses = "";
   switch(variant) {
     case 'primary': variantClasses = "bg-pitch hover:bg-pitch-bright text-white shadow-md shadow-pitch/20"; break;
@@ -39,6 +39,7 @@ export const Btn = ({ children, variant = "primary", className = "", disabled, l
 
   return (
     <motion.button
+      ref={ref}
       whileHover={disabled || loading ? {} : { scale: 1.03, y: -1.5 }}
       whileTap={disabled || loading ? {} : { scale: 0.92 }}
       disabled={disabled || loading}
@@ -58,7 +59,8 @@ export const Btn = ({ children, variant = "primary", className = "", disabled, l
       {children}
     </motion.button>
   );
-};
+});
+Btn.displayName = "Btn";
 
 export const Input = ({ className = "", ...props }) => (
   <ShadcnInput {...props} className={`bg-secondary border-border focus-visible:ring-pitch ${className}`} />

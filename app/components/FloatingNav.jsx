@@ -62,11 +62,20 @@ export default function FloatingNav({ session, me, players = [], notifications =
     const handlePop = () => setPathname(window.location.pathname);
     const handleTabChange = (e) => setPathname('/' + e.detail.replace(/^\/+/, ''));
     
+    const handleKeyDown = (e) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+        e.preventDefault();
+        setSearchOpen(prev => !prev);
+      }
+    };
+    
     window.addEventListener('popstate', handlePop);
     window.addEventListener('tab-change', handleTabChange);
+    window.addEventListener('keydown', handleKeyDown);
     return () => {
       window.removeEventListener('popstate', handlePop);
       window.removeEventListener('tab-change', handleTabChange);
+      window.removeEventListener('keydown', handleKeyDown);
     };
   }, []);
 
@@ -100,20 +109,19 @@ export default function FloatingNav({ session, me, players = [], notifications =
 
   return (
     <>
-      {/* Floating Pill Nav */}
-      <div className="hidden md:block sticky top-0 z-[60] w-full px-4 sm:px-6 pt-4 pb-2">
+      {/* Full-Width Header */}
+      <div className="hidden md:block sticky top-0 z-[60] w-full">
         <motion.div
-          className="mx-auto max-w-6xl rounded-full border border-white/10 shadow-2xl flex items-center justify-between px-3 sm:px-5 py-2.5 relative overflow-hidden"
+          className="w-full border-b border-white/10 shadow-lg flex items-center justify-between px-6 h-16 relative overflow-hidden"
           style={{
-            backgroundColor: `rgba(10, 14, 20, var(--nav-opacity, 0.6))`,
+            backgroundColor: `rgba(10, 14, 20, var(--nav-opacity, 0.75))`,
             backdropFilter: `blur(16px)`,
           }}
           animate={{ backdropFilter: `blur(16px)` }}
         >
           {/* Subtle gradient shimmer border */}
-          <div className="pointer-events-none absolute inset-0 rounded-full overflow-hidden">
-            <div className="absolute inset-0 rounded-full border border-white/10" />
-            <div className="absolute -inset-1 rounded-full bg-gradient-to-r from-transparent via-white/5 to-transparent opacity-0 hover:opacity-100 transition-opacity duration-700" />
+          <div className="pointer-events-none absolute inset-0 overflow-hidden">
+            <div className="absolute -inset-1 bg-gradient-to-r from-transparent via-white/5 to-transparent opacity-0 hover:opacity-100 transition-opacity duration-700" />
           </div>
 
           {/* Logo */}
@@ -132,15 +140,8 @@ export default function FloatingNav({ session, me, players = [], notifications =
               return (
                 <Link href={it.href} onClick={(e) => handleNav(e, it.href)}
                   key={it.href}
-                  className="relative px-3 py-1.5 rounded-full text-xs font-semibold transition-colors flex items-center gap-1.5 whitespace-nowrap outline-none focus-visible:ring-2 focus-visible:ring-pitch-bright"
+                  className="relative px-3 py-1.5 h-16 flex items-center gap-1.5 text-sm font-semibold transition-colors whitespace-nowrap outline-none focus-visible:ring-2 focus-visible:ring-pitch-bright"
                 >
-                  {active && (
-                    <motion.div
-                      layoutId="nav-pill"
-                      className="absolute inset-0 rounded-full bg-pitch-bright/15 border border-pitch-bright/20"
-                      transition={{ type: "spring", stiffness: 400, damping: 35 }}
-                    />
-                  )}
                   <span
                     className="relative z-10 flex items-center gap-1.5 transition-colors"
                     style={{ color: active ? 'var(--pitch-bright, #29C179)' : 'hsl(var(--muted-foreground))' }}
@@ -157,7 +158,7 @@ export default function FloatingNav({ session, me, players = [], notifications =
                   {active && (
                     <motion.div
                       layoutId="nav-underline"
-                      className="absolute bottom-0 left-1/2 -translate-x-1/2 w-4 h-0.5 rounded-full bg-pitch-bright"
+                      className="absolute bottom-0 left-0 right-0 h-[3px] bg-pitch-bright shadow-[0_0_10px_rgba(41,193,121,0.6)]"
                       transition={{ type: "spring", stiffness: 400, damping: 35 }}
                     />
                   )}
@@ -168,14 +169,11 @@ export default function FloatingNav({ session, me, players = [], notifications =
 
           {/* Right Actions */}
           <div className="flex items-center gap-1.5 z-10 flex-shrink-0">
-            {/* Search Button */}
-            <button
-              onClick={() => setSearchOpen(true)}
-              className="flex items-center justify-center w-8 h-8 rounded-full text-muted-foreground hover:text-white hover:bg-white/10 transition-colors outline-none focus-visible:ring-2 focus-visible:ring-pitch-bright"
-              title="Search"
-            >
-              <Search size={15} />
-            </button>
+            {/* Search Keyboard Hint */}
+            <div className="hidden lg:flex items-center gap-1 mr-2 px-2 py-1 rounded bg-white/5 border border-white/10 text-xs text-muted-foreground font-mono select-none">
+              <Search size={12} />
+              <span>⌘K</span>
+            </div>
 
             {/* Admin: ADMIN badge + logout */}
             {session?.type === 'admin' ? (
@@ -258,19 +256,18 @@ export default function FloatingNav({ session, me, players = [], notifications =
         </motion.div>
       </div>
 
-      {/* Mobile Nav Bar (Floating Pill style) */}
-      <div className="md:hidden sticky top-0 z-[60] w-full px-3 pt-3 pb-2" style={{ paddingTop: 'max(0.75rem, env(safe-area-inset-top))' }}>
+      {/* Mobile Nav Bar (Full Width) */}
+      <div className="md:hidden sticky top-0 z-[60] w-full" style={{ paddingTop: 'env(safe-area-inset-top)' }}>
         <motion.div 
-          className="mx-auto max-w-full rounded-full border border-white/10 shadow-2xl flex items-center justify-between px-4 py-2 relative overflow-hidden"
+          className="w-full border-b border-white/10 shadow-md flex items-center justify-between px-4 h-14 relative overflow-hidden"
           style={{
             backgroundColor: `rgba(10, 14, 20, var(--nav-opacity, 0.85))`,
             backdropFilter: `blur(16px)`,
           }}
         >
           {/* Subtle gradient shimmer border */}
-          <div className="pointer-events-none absolute inset-0 rounded-full overflow-hidden">
-            <div className="absolute inset-0 rounded-full border border-white/10" />
-            <div className="absolute -inset-1 rounded-full bg-gradient-to-r from-transparent via-white/5 to-transparent opacity-0 hover:opacity-100 transition-opacity duration-700" />
+          <div className="pointer-events-none absolute inset-0 overflow-hidden">
+            <div className="absolute -inset-1 bg-gradient-to-r from-transparent via-white/5 to-transparent opacity-0 hover:opacity-100 transition-opacity duration-700" />
           </div>
 
           <Link href={session?.type === "admin" ? "/admin" : "/dashboard"} onClick={(e) => handleNav(e, session?.type === "admin" ? "/admin" : "/dashboard")} className="flex items-center gap-2 z-10 outline-none">
@@ -279,14 +276,6 @@ export default function FloatingNav({ session, me, players = [], notifications =
           </Link>
           
           <div className="flex items-center gap-1 z-10">
-            <button 
-              type="button"
-              onClick={() => setSearchOpen(true)} 
-              className="flex items-center justify-center w-9 h-9 text-muted-foreground hover:text-white rounded-full transition-colors outline-none focus-visible:ring-2 focus-visible:ring-pitch-bright cursor-pointer"
-              aria-label="Search"
-            >
-              <Search size={18} />
-            </button>
             <button 
               type="button"
               onClick={() => {
@@ -337,6 +326,16 @@ export default function FloatingNav({ session, me, players = [], notifications =
                         </div>
                       </div>
                     )}
+                  </div>
+                  
+                  <div className="px-4 py-3 border-b border-border/30 bg-background/50">
+                    <button 
+                      onClick={() => { setSearchOpen(true); setSheetOpen(false); }}
+                      className="flex items-center gap-2 w-full px-4 py-2.5 rounded-xl bg-secondary/50 text-muted-foreground hover:bg-secondary hover:text-white transition-colors"
+                    >
+                      <Search size={16} />
+                      <span className="text-sm font-semibold">Search...</span>
+                    </button>
                   </div>
 
                   <div className="flex flex-col gap-1 p-3 overflow-y-auto flex-1">
