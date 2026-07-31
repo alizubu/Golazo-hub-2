@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { SectionTitle, MagicCard, Btn, FadeIn } from './UI';
 import { RotateCcw, Trophy, Trash2, Shuffle, AlertTriangle, PlayCircle } from 'lucide-react';
@@ -29,6 +29,14 @@ export default function TournamentControlPanel({ season, showToast }) {
   const [newName, setNewName] = useState(season?.name || '');
   const [activeDialog, setActiveDialog] = useState(null);
 
+  useEffect(() => {
+    return () => {
+      // Radix UI leaves body locked if component unmounts mid-animation
+      document.body.style.pointerEvents = '';
+      document.body.removeAttribute('data-scroll-locked');
+    };
+  }, []);
+
   if (!season) return null;
 
   const handleRename = async () => {
@@ -45,13 +53,7 @@ export default function TournamentControlPanel({ season, showToast }) {
   };
 
   const handleAction = async (actionFn, successMsg, willUnmount = false) => {
-    if (willUnmount) {
-      setActiveDialog(null);
-      await new Promise(resolve => setTimeout(resolve, 350));
-    } else {
-      setLoading(true);
-    }
-    
+    setLoading(true);
     const res = await actionFn(season.id);
     
     if (!willUnmount) {
