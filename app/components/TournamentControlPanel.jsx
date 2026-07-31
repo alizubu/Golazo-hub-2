@@ -154,42 +154,47 @@ export default function TournamentControlPanel({ season, showToast }) {
                   {ctrl.label}
                 </Btn>
               ) : (
-                <AlertDialog 
-                  open={activeDialog === ctrl.id} 
-                  onOpenChange={(open) => {
-                    if (open) setActiveDialog(ctrl.id);
-                    else if (!loading) setActiveDialog(null);
-                  }}
-                >
-                  <AlertDialogTrigger asChild>
-                    <Btn variant={ctrl.id === 'delete-season' ? 'danger' : 'outline'} className="w-full text-xs" disabled={loading}>
-                      {ctrl.label}
-                    </Btn>
-                  </AlertDialogTrigger>
-                  <AlertDialogContent className="bg-card border-border">
-                  <AlertDialogHeader>
-                    <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-                    <AlertDialogDescription>
-                      This action will execute <strong>{ctrl.label}</strong> for the season <strong>{season.name}</strong>. 
-                      {ctrl.id === 'delete-season' && " This cannot be undone."}
-                    </AlertDialogDescription>
-                  </AlertDialogHeader>
-                  <AlertDialogFooter>
-                    <AlertDialogCancel disabled={loading} className="bg-secondary text-foreground hover:bg-secondary/80">Cancel</AlertDialogCancel>
-                    <Btn 
-                      variant={ctrl.id === 'delete-season' ? 'danger' : 'default'}
-                      className={ctrl.id !== 'delete-season' ? "bg-destructive text-destructive-foreground hover:bg-destructive/90" : ""}
-                      loading={loading}
-                      onClick={async (e) => {
-                        e.preventDefault();
-                        await ctrl.action();
-                      }}
-                    >
-                      Confirm
-                    </Btn>
-                  </AlertDialogFooter>
-                </AlertDialogContent>
-              </AlertDialog>
+                <>
+                  <Btn 
+                    variant={ctrl.id === 'delete-season' ? 'danger' : 'outline'} 
+                    className="w-full text-xs" 
+                    disabled={loading}
+                    onClick={() => setActiveDialog(ctrl.id)}
+                  >
+                    {ctrl.label}
+                  </Btn>
+
+                  <AlertDialog 
+                    open={activeDialog === ctrl.id} 
+                    onOpenChange={(open) => {
+                      if (!open && !loading) setActiveDialog(null);
+                    }}
+                  >
+                    <AlertDialogContent className="bg-card border-border shadow-2xl">
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                        <AlertDialogDescription>
+                          This action will execute <strong>{ctrl.label}</strong> for the season <strong>{season.name}</strong>. 
+                          {ctrl.id === 'delete-season' && " This cannot be undone."}
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel disabled={loading} className="bg-secondary text-foreground hover:bg-secondary/80 outline-none">Cancel</AlertDialogCancel>
+                        <Btn 
+                          variant={ctrl.id === 'delete-season' ? 'danger' : 'default'}
+                          className={ctrl.id !== 'delete-season' ? "bg-destructive text-destructive-foreground hover:bg-destructive/90" : ""}
+                          loading={loading}
+                          onClick={async (e) => {
+                            e.preventDefault();
+                            await ctrl.action();
+                          }}
+                        >
+                          Confirm
+                        </Btn>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
+                </>
               )}
             </MagicCard>
           </FadeIn>

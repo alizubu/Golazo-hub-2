@@ -486,12 +486,12 @@ export function PlayerDashboard({ me, activeSeason, seasons = [], matches, playe
             <Card className="bg-transparent border-none shadow-none">
               {(() => {
                 const trophyList = [
-                  { id: "bb-champion", name: "BB Champion", image: "/assets/trophies/BB-Champion.png", locked: true, requirement: "Win 10 Championship matches" },
-                  { id: "world-cup", name: "World Cup Winner", image: "/assets/trophies/World-Cup-Winner-Trophy.png", locked: true, requirement: "Play 15 official tournament matches" },
-                  { id: "golden-boot", name: "Golden Boot", image: "/assets/trophies/Golden-boot.png", locked: true, requirement: "Score 25 career goals" },
-                  { id: "mvp", name: "MVP", image: "/assets/trophies/MVP.png", locked: true, requirement: "Achieve 10+ assists & high ELO" },
-                  { id: "la-liga", name: "La Liga Champion", image: "/assets/trophies/La-Liga-trophy.png", locked: true, requirement: "Win 5 league matches in La Liga" },
-                  { id: "premier-league", name: "Premier League Champion", image: "/assets/trophies/Premier-League.png", locked: true, requirement: "Win 8 league matches in Premier League" },
+                  { id: "bb-champion", name: "BB Champion", image: "/assets/trophies/BB-Champion.png", locked: true },
+                  { id: "world-cup", name: "World Cup Winner", image: "/assets/trophies/World-Cup-Winner-Trophy.png", locked: true },
+                  { id: "golden-boot", name: "Golden Boot", image: "/assets/trophies/Golden-boot.png", locked: true },
+                  { id: "mvp", name: "MVP", image: "/assets/trophies/MVP.png", locked: true },
+                  { id: "la-liga", name: "La Liga Champion", image: "/assets/trophies/La-Liga-trophy.png", locked: true },
+                  { id: "premier-league", name: "Premier League Champion", image: "/assets/trophies/Premier-League.png", locked: true },
                 ];
 
                 const unlockedCount = trophyList.filter(tr => {
@@ -1047,8 +1047,8 @@ function TrophyCard({ trophy, unlocked, count = 0, instances = [], requirement, 
           /* Locked, No Progress (0%) */
           <div className="w-full flex items-center justify-center gap-1 text-[10px] font-medium text-stadium-muted py-0.5 px-1">
             <Lock size={10} className="shrink-0 text-stadium-secondary/60" />
-            <span className="truncate" title={requirement || 'Locked achievement'}>
-              {requirement || 'Locked'}
+            <span className="truncate" title="Awarded manually by Admin">
+              Awarded manually by Admin
             </span>
           </div>
         )}

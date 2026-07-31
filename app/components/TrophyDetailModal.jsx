@@ -14,8 +14,7 @@ export default function TrophyDetailModal({
   trophy,
   unlocked,
   count = 0,
-  instances = [],
-  requirement = 'Complete qualification requirements'
+  instances = []
 }) {
   useEffect(() => {
     if (open && unlocked) {
@@ -128,7 +127,7 @@ export default function TrophyDetailModal({
               <Award size={14} className="text-amber-400" /> Qualification Rule
             </div>
             <p className="text-sm font-medium text-stadium-primary bg-stadium-base/60 p-3.5 rounded-xl border border-stadium-subtle leading-relaxed">
-              {requirement || trophy.description || `Complete ${trophy.name} qualification in active tournaments.`}
+              Awarded manually by administrators to outstanding players.
             </p>
           </div>
 
