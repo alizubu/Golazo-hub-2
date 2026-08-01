@@ -455,12 +455,34 @@ export function PlayerDashboard({ me, activeSeason, seasons = [], matches, playe
           <MagicCard gradientColor="rgba(251, 191, 36, 0.15)">
             <Card className="bg-transparent border-none shadow-none">
               {(() => {
-                const trophyList = trophyTemplates.map(t => ({
-                  id: t.id,
-                  name: t.name,
-                  image: t.icon,
-                  locked: true
-                }));
+                // Combine templates and all unique awarded trophies in the game
+                const templateMap = new Map();
+                
+                // 1. Add all templates as locked
+                trophyTemplates.forEach(t => {
+                  templateMap.set(t.name, {
+                    id: t.id,
+                    name: t.name,
+                    image: t.icon,
+                    locked: true,
+                    requirement: t.description || 'Awarded by Admin'
+                  });
+                });
+
+                // 2. Add any unique trophies awarded to ANY player (so users see what's out there)
+                trophies.forEach(t => {
+                  if (!templateMap.has(t.title)) {
+                    templateMap.set(t.title, {
+                      id: t.id, // Just use the instance ID as a key
+                      name: t.title,
+                      image: t.icon || '🏆',
+                      locked: true,
+                      requirement: t.description || 'Awarded by Admin'
+                    });
+                  }
+                });
+
+                const trophyList = Array.from(templateMap.values());
 
                 const unlockedCount = trophyList.filter(tr => {
                   const instances = myTrophies.filter(t => t.title === tr.name || t.id === tr.id);
