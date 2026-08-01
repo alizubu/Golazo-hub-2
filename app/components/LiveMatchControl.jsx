@@ -1,7 +1,7 @@
 import React, { useState, useMemo, useRef, useEffect } from "react";
 import {
   Plus, Minus, Play, Pause, Square, SkipForward, Check, X, ChevronDown,
-  Timer, Calendar
+  Timer, Calendar, Upload, Loader2, ImageOff
 } from "lucide-react";
 import { updateMatchStatus, updateMatchScore } from '@/app/actions/match';
 import { supabase } from '@/lib/supabaseClient';
@@ -91,7 +91,7 @@ function StepIndicator({ phase, needsShootout }) {
   ];
   const currentIdx = order.indexOf(phase);
   return (
-    <div className="flex flex-wrap items-center gap-2 px-5 sm:px-6 pb-5">
+    <div className="flex items-center gap-2 px-5 sm:px-6 pb-4 pt-1 overflow-x-auto no-scrollbar">
       {steps.map((s, i) => {
         const idx = order.indexOf(s.key);
         const active = idx === currentIdx;
@@ -102,7 +102,7 @@ function StepIndicator({ phase, needsShootout }) {
               <div className={`w-1.5 h-1.5 rounded-full ${active || done ? "bg-pitch-bright" : "bg-zinc-800"}`} />
               <span className={`text-[11px] tracking-wide uppercase whitespace-nowrap ${active ? "text-zinc-50 font-bold" : "text-zinc-500 font-medium"}`}>{s.label}</span>
             </div>
-            {i < steps.length - 1 && <div className="w-4 sm:w-6 h-px bg-zinc-800" />}
+            {i < steps.length - 1 && <div className="w-4 shrink-0 h-px bg-zinc-800" />}
           </React.Fragment>
         );
       })}
@@ -323,6 +323,72 @@ function Shootout({ home, away, kicks, setKicks, onDecided }) {
 }
 
 // ---------------------------------------------------------------------------
+// Image import (uses local proxy endpoint to Gemini API)
+// ---------------------------------------------------------------------------
+function ImageImport({ onApply }) {
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+
+  const handleUpload = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setLoading(true);
+    setError(null);
+    try {
+      const reader = new FileReader();
+      reader.onload = async (event) => {
+        const base64 = event.target.result;
+        const res = await fetch("/api/ocr", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            image: base64,
+            prompt: `Extract these stats for the home team (left side usually) and away team (right side usually): possession (number only, no %), shots, shotsOnTarget, fouls, offsides, corners, freeKicks, passes, successfulPasses, crosses, interceptions, tackles, saves. Return a JSON object with this exact structure: { "home": { "possession": X, ... }, "away": { "possession": Y, ... } }. If a stat is missing in the image, set it to 0.`
+          }),
+        });
+
+        const data = await res.json();
+        if (data.error) throw new Error(data.error);
+        if (data.home && data.away) {
+          onApply(data);
+        } else {
+          throw new Error("Invalid format returned");
+        }
+      };
+      reader.readAsDataURL(file);
+    } catch (err) {
+      console.error(err);
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="mb-6 rounded-xl border border-dashed border-zinc-700 bg-zinc-900/50 p-6 flex flex-col items-center justify-center text-center relative overflow-hidden group hover:border-pitch-bright/50 transition-colors">
+      <input type="file" accept="image/*" onChange={handleUpload} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" disabled={loading} />
+      {loading ? (
+        <>
+          <Loader2 size={24} className="text-pitch-bright animate-spin mb-3" />
+          <p className="text-sm font-bold text-zinc-300">Analyzing image...</p>
+          <p className="text-xs text-zinc-500 mt-1 font-medium">Extracting stats via Gemini AI</p>
+        </>
+      ) : (
+        <>
+          <div className="w-12 h-12 rounded-full bg-zinc-800 flex items-center justify-center mb-3 group-hover:bg-pitch/20 transition-colors">
+            <Upload size={20} className="text-zinc-400 group-hover:text-pitch-bright transition-colors" />
+          </div>
+          <p className="text-sm font-bold text-zinc-300">Auto-fill from screenshot</p>
+          <p className="text-xs text-zinc-500 mt-1 font-medium">Tap or drag a scoreboard image here</p>
+          {error && <p className="text-xs text-claret mt-3 font-bold flex items-center gap-1 bg-claret-dim/20 px-3 py-1.5 rounded-full"><X size={12}/> {error}</p>}
+        </>
+      )}
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
 // Stats entry
 // ---------------------------------------------------------------------------
 function StatsEntry({ stats, setStats, onSave, onSkip, busy }) {
@@ -331,35 +397,52 @@ function StatsEntry({ stats, setStats, onSave, onSkip, busy }) {
     setStats((s) => ({ ...s, [side]: { ...s[side], [key]: num } }));
   };
 
+  const handleImportApply = (data) => {
+    setStats(prev => {
+      const merged = { home: { ...prev.home }, away: { ...prev.away } };
+      Object.keys(data.home || {}).forEach(k => merged.home[k] = data.home[k] ?? prev.home[k]);
+      Object.keys(data.away || {}).forEach(k => merged.away[k] = data.away[k] ?? prev.away[k]);
+      return merged;
+    });
+  };
+
   const half = Math.ceil(STAT_FIELDS.length / 2);
   const columns = [STAT_FIELDS.slice(0, half), STAT_FIELDS.slice(half)];
 
   const Row = ({ f, i }) => (
-    <div key={f.key} className={`grid grid-cols-[56px_1fr_56px] items-center gap-2 px-3 py-2.5 ${i % 2 === 0 ? "bg-zinc-950" : "bg-transparent"} ${i !== 0 ? "border-t border-zinc-800" : ""}`}>
+    <div key={f.key} className={`grid grid-cols-[3.5rem_1fr_3.5rem] sm:grid-cols-[4rem_1fr_4rem] items-center gap-3 px-4 py-3 ${i % 2 === 0 ? "bg-zinc-950" : "bg-transparent"} ${i !== 0 ? "border-t border-zinc-800" : ""}`}>
       <input type="number" inputMode="numeric" value={stats.home[f.key]} onChange={(e) => update("home", f.key, e.target.value)}
-        className="h-8 rounded-md text-center text-sm font-semibold tabular-nums outline-none bg-zinc-800 border border-zinc-700 text-pitch-bright focus:border-pitch-bright" />
-      <span className="text-[11px] text-center text-zinc-500 truncate">{f.label}{f.percent ? " (%)" : ""}</span>
+        className="h-10 rounded-lg text-center text-sm font-bold tabular-nums outline-none bg-zinc-900 border border-zinc-700 text-pitch-bright focus:border-pitch-bright focus:bg-pitch/10 transition-colors" />
+      <span className="text-[11px] sm:text-xs text-center text-zinc-400 uppercase tracking-widest font-bold truncate">{f.label}{f.percent ? " (%)" : ""}</span>
       <input type="number" inputMode="numeric" value={stats.away[f.key]} onChange={(e) => update("away", f.key, e.target.value)}
-        className="h-8 rounded-md text-center text-sm font-semibold tabular-nums outline-none bg-zinc-800 border border-zinc-700 text-claret focus:border-claret" />
+        className="h-10 rounded-lg text-center text-sm font-bold tabular-nums outline-none bg-zinc-900 border border-zinc-700 text-claret focus:border-claret focus:bg-claret-dim/20 transition-colors" />
     </div>
   );
 
   return (
     <div className="px-5 sm:px-6 pb-6">
-      <p className="text-xs text-zinc-500 mb-4">Enter the stats from the match, or skip and publish the result now.</p>
+      <ImageImport onApply={handleImportApply} />
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-5">
+      <div className="flex items-center gap-4 mb-4">
+        <div className="flex-1 h-px bg-zinc-800"></div>
+        <p className="text-[10px] text-zinc-500 uppercase tracking-[0.2em] font-bold">Or enter manually</p>
+        <div className="flex-1 h-px bg-zinc-800"></div>
+      </div>
+
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-x-6 gap-y-0 mb-6">
         {columns.map((col, ci) => (
-          <div key={ci} className="rounded-xl overflow-hidden border border-zinc-800">
+          <div key={ci} className="rounded-2xl overflow-hidden border border-zinc-800 bg-zinc-950 mb-4 xl:mb-0 shadow-lg shadow-black/20">
             {col.map((f, i) => <Row key={f.key} f={f} i={i} />)}
           </div>
         ))}
       </div>
 
       <div className="grid grid-cols-2 gap-3">
-        <button disabled={busy} onClick={onSkip} className="h-12 rounded-xl flex items-center justify-center gap-2 font-semibold text-sm bg-zinc-800 hover:bg-zinc-700 text-zinc-400 border border-zinc-700 transition-colors active:scale-[0.98] disabled:opacity-50"><SkipForward size={15} /> Skip</button>
-        <button disabled={busy} onClick={onSave} className="h-12 rounded-xl flex items-center justify-center gap-2 font-semibold text-sm bg-pitch-bright hover:bg-emerald-400 text-stadium-base transition-colors active:scale-[0.98] disabled:opacity-50">
-          <Check size={15} /> Save & Publish
+        <button disabled={busy} onClick={onSkip} className="h-14 rounded-xl flex items-center justify-center gap-2 font-bold text-sm bg-zinc-800 hover:bg-zinc-700 text-zinc-300 border border-zinc-700 transition-colors active:scale-[0.98] disabled:opacity-50">
+          <SkipForward size={16} /> Skip Stats
+        </button>
+        <button disabled={busy} onClick={onSave} className="h-14 rounded-xl flex items-center justify-center gap-2 font-bold text-sm bg-pitch-bright hover:bg-pitch text-stadium-base transition-colors active:scale-[0.98] disabled:opacity-50 shadow-lg shadow-pitch-bright/20">
+          <Check size={18} /> Save & Publish
         </button>
       </div>
     </div>
@@ -471,10 +554,19 @@ export default function LiveMatchControl({ matches, players, activeSeason, showT
   
   const nextMatch = matches.find(m => m.status === 'scheduled' && m.seasonId === activeSeason?.id);
 
+  // 2. Sync server catch-up for match data during render
+  const currentLiveMatchHash = `${liveMatch?.id}-${liveMatch?.homeScore}-${liveMatch?.awayScore}-${liveMatch?.liveState?.paused}`;
+  const [prevLiveMatchHash, setPrevLiveMatchHash] = useState(currentLiveMatchHash);
+
+  const byId = Object.fromEntries(players.map((p) => [p.id, p]));
+  const initMatch = optLiveMatch || serverLiveMatch;
+  const hInit = initMatch ? byId[initMatch.homeId] : null;
+  const aInit = initMatch ? byId[initMatch.awayId] : null;
+
   const [state, setState] = useState({
-    home: { name: "Home", goals: 0, penalties: 0 },
-    away: { name: "Away", goals: 0, penalties: 0 },
-    paused: false,
+    home: { name: hInit?.name || "Home", goals: initMatch?.homeScore || 0, penalties: 0 },
+    away: { name: aInit?.name || "Away", goals: initMatch?.awayScore || 0, penalties: 0 },
+    paused: initMatch?.liveState?.paused || false,
   });
 
   const [isMutatingScore, setIsMutatingScore] = useState(false);
@@ -488,14 +580,9 @@ export default function LiveMatchControl({ matches, players, activeSeason, showT
     }
   }
 
-  // 2. Sync server catch-up for match data during render
-  const currentLiveMatchHash = `${liveMatch?.id}-${liveMatch?.homeScore}-${liveMatch?.awayScore}-${liveMatch?.liveState?.paused}`;
-  const [prevLiveMatchHash, setPrevLiveMatchHash] = useState(currentLiveMatchHash);
-
   if (currentLiveMatchHash !== prevLiveMatchHash) {
     setPrevLiveMatchHash(currentLiveMatchHash);
     if (liveMatch && !isMutatingScore && !isPostMatch) {
-      const byId = Object.fromEntries(players.map((p) => [p.id, p]));
       const h = byId[liveMatch.homeId];
       const a = byId[liveMatch.awayId];
       
@@ -695,6 +782,11 @@ export default function LiveMatchControl({ matches, players, activeSeason, showT
         {/* Sidebar on web / top card on mobile */}
         <aside className="border-b lg:border-b-0 lg:border-r border-zinc-800/50 bg-zinc-900/50 h-full">
           <CardHeader title={h.title} status={h.status} tone={h.tone} />
+          
+          <div className="lg:hidden">
+            <StepIndicator phase={phase} needsShootout={needsShootoutStep} />
+          </div>
+
           <ScoreRow home={state.home.name} away={state.away.name} homeScore={state.home.goals} awayScore={state.away.goals} compact />
           <div className="hidden lg:block px-5 sm:px-6 pb-6">
             <StepIndicatorVertical phase={phase} needsShootout={needsShootoutStep} />
@@ -703,9 +795,6 @@ export default function LiveMatchControl({ matches, players, activeSeason, showT
 
         {/* Main panel */}
         <main className="bg-zinc-900">
-          <div className="lg:hidden">
-            <StepIndicator phase={phase} needsShootout={needsShootoutStep} />
-          </div>
           <div className="pt-5 lg:pt-6">
             {phase === "live" && <LiveControl state={state} setState={handleSetState} onTogglePause={handleTogglePause} onFinish={handleFinishFullTime} />}
             {phase === "extra_time" && <ExtraTime state={state} setState={handleSetState} etHalf={etHalf} setEtHalf={setEtHalf} onDone={handleEndExtraTime} />}

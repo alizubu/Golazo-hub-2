@@ -33,33 +33,33 @@ function StatBar({ label, valueA, valueB, colorA, colorB, format = 'number', ind
 
   return (
     <motion.div 
-      className="flex flex-col mb-4 last:mb-0"
+      className="flex flex-col mb-5 last:mb-0"
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.3 + index * 0.05 }}
     >
-      <div className="text-center text-[10px] tracking-[0.1em] text-muted-foreground uppercase mb-1 font-semibold">
-        {label}
-      </div>
-      <div className="flex items-center gap-3">
-        <div className="w-8 text-right text-xs font-bold font-score" style={{ color: colorA }}>{displayA}</div>
-        <div className="flex-1 flex h-2 bg-secondary rounded-full overflow-hidden">
-          <motion.div 
-            className="h-full rounded-full" 
-            style={{ backgroundColor: colorA }}
-            initial={{ width: '0%' }}
-            animate={{ width: `${pctA}%` }}
-            transition={{ duration: 1, ease: 'easeOut', delay: 0.4 + index * 0.05 }}
-          />
-          <motion.div 
-            className="h-full rounded-full" 
-            style={{ backgroundColor: colorB }}
-            initial={{ width: '0%' }}
-            animate={{ width: `${pctB}%` }}
-            transition={{ duration: 1, ease: 'easeOut', delay: 0.4 + index * 0.05 }}
-          />
+      <div className="flex items-center justify-between mb-2">
+        <div className="w-10 text-left text-sm font-bold font-score" style={{ color: colorA }}>{displayA}</div>
+        <div className="text-center text-[10px] sm:text-xs tracking-[0.1em] text-zinc-400 uppercase font-bold px-2 truncate">
+          {label}
         </div>
-        <div className="w-8 text-left text-xs font-bold font-score" style={{ color: colorB }}>{displayB}</div>
+        <div className="w-10 text-right text-sm font-bold font-score" style={{ color: colorB }}>{displayB}</div>
+      </div>
+      <div className="flex w-full h-2.5 sm:h-3 bg-zinc-900 rounded-full overflow-hidden shadow-inner ring-1 ring-white/5">
+        <motion.div 
+          className="h-full rounded-r-full shadow-[inset_0_1px_0_rgba(255,255,255,0.15)]" 
+          style={{ backgroundColor: colorA }}
+          initial={{ width: '0%' }}
+          animate={{ width: `${pctA}%` }}
+          transition={{ duration: 1, ease: 'easeOut', delay: 0.4 + index * 0.05 }}
+        />
+        <motion.div 
+          className="h-full rounded-l-full shadow-[inset_0_1px_0_rgba(255,255,255,0.15)]" 
+          style={{ backgroundColor: colorB }}
+          initial={{ width: '0%' }}
+          animate={{ width: `${pctB}%` }}
+          transition={{ duration: 1, ease: 'easeOut', delay: 0.4 + index * 0.05 }}
+        />
       </div>
     </motion.div>
   );
