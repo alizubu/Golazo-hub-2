@@ -127,29 +127,30 @@ export default function FloatingNav({ session, me, players = [], notifications =
           </div>
 
           {/* Logo */}
-          <Link href={session?.type === "admin" ? "/admin" : "/dashboard"} onClick={(e) => handleNav(e, session?.type === "admin" ? "/admin" : "/dashboard")} className="flex items-center gap-2 flex-shrink-0 z-10 min-w-0 outline-none">
+          <Link href={session?.type === "admin" ? "/admin" : "/dashboard"} onClick={(e) => handleNav(e, session?.type === "admin" ? "/admin" : "/dashboard")} className="flex items-center gap-2 flex-shrink-0 z-10 min-w-0 outline-none pr-4">
             <span className="text-xl leading-none drop-shadow-sm">🏆</span>
-            <span className="hidden lg:inline font-heading text-sm font-bold tracking-tight text-white whitespace-nowrap">
+            <span className="hidden xl:inline font-heading text-sm font-bold tracking-tight text-white whitespace-nowrap">
               GOLAZO HUB
             </span>
           </Link>
 
           {/* Desktop Center Nav Links */}
-          <div className="hidden md:flex items-center gap-0.5 absolute left-1/2 -translate-x-1/2 z-10">
-            {items.map((it) => {
-              const Icon = it.icon;
-              const active = it.matchRoot ? pathname === it.href : pathname.startsWith(it.href);
-              return (
-                <Link href={it.href} onClick={(e) => handleNav(e, it.href)}
-                  key={it.href}
-                  className="relative px-3 py-1.5 h-16 flex items-center gap-1.5 text-sm font-semibold transition-colors whitespace-nowrap outline-none focus-visible:ring-2 focus-visible:ring-pitch-bright"
-                >
-                  <span
-                    className="relative z-10 flex items-center gap-1.5 transition-colors"
-                    style={{ color: active ? 'var(--pitch-bright, #29C179)' : 'hsl(var(--muted-foreground))' }}
+          <div className="hidden md:flex flex-1 items-center justify-center z-10 min-w-0 overflow-hidden">
+            <div className="flex items-center overflow-x-auto no-scrollbar w-full justify-center">
+              {items.map((it) => {
+                const Icon = it.icon;
+                const active = it.matchRoot ? pathname === it.href : pathname.startsWith(it.href);
+                return (
+                  <Link href={it.href} onClick={(e) => handleNav(e, it.href)}
+                    key={it.href}
+                    className="relative px-2 lg:px-2.5 xl:px-3 py-1.5 h-16 flex items-center gap-1.5 text-xs xl:text-sm font-semibold transition-colors whitespace-nowrap outline-none flex-shrink-0 focus-visible:ring-2 focus-visible:ring-pitch-bright"
                   >
-                    <Icon size={13} />
-                    <span className={active ? 'font-bold' : ''}>{it.label}</span>
+                    <span
+                      className="relative z-10 flex items-center gap-1.5 transition-colors"
+                      style={{ color: active ? 'var(--pitch-bright, #29C179)' : 'hsl(var(--muted-foreground))' }}
+                    >
+                      <Icon size={14} className="flex-shrink-0" />
+                      <span className={`${active ? 'font-bold' : ''}`}>{it.label}</span>
                     {(it.href === '/matches' || it.href === '/admin/matches') && hasLiveMatch && (
                       <span className="flex h-2 w-2 relative ml-0.5">
                         <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
@@ -167,6 +168,7 @@ export default function FloatingNav({ session, me, players = [], notifications =
                 </Link>
               );
             })}
+            </div>
           </div>
 
           {/* Right Actions */}
