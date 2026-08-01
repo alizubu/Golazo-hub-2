@@ -465,7 +465,7 @@ export function PlayerDashboard({ me, activeSeason, seasons = [], matches, playe
                     name: t.name,
                     image: t.icon,
                     locked: true,
-                    requirement: t.description || 'Awarded by Admin'
+                    requirement: t.description || 'Locked'
                   });
                 });
 
@@ -477,7 +477,7 @@ export function PlayerDashboard({ me, activeSeason, seasons = [], matches, playe
                       name: t.title,
                       image: t.icon || '🏆',
                       locked: true,
-                      requirement: t.description || 'Awarded by Admin'
+                      requirement: t.description || 'Locked'
                     });
                   }
                 });
@@ -1052,8 +1052,8 @@ function TrophyCard({ trophy, unlocked, count = 0, instances = [], requirement, 
           /* Locked, No Progress (0%) */
           <div className="w-full flex items-center justify-center gap-1 text-[10px] font-medium text-stadium-muted py-0.5 px-1">
             <Lock size={10} className="shrink-0 text-stadium-secondary/60" />
-            <span className="truncate" title="Awarded manually by Admin">
-              Awarded manually by Admin
+            <span className="truncate" title={requirement || "Locked"}>
+              {requirement || "Locked"}
             </span>
           </div>
         )}
