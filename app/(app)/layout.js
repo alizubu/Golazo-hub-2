@@ -51,6 +51,13 @@ export default async function AppLayout({ children }) {
   return (
     <AppProvider initialMatches={matches}>
       <div className="min-h-screen bg-background text-foreground pb-20">
+        <FloatingNav 
+          session={session} 
+          me={me} 
+          players={players} 
+          notifications={notifications} 
+          matches={matches} 
+        />
         <div className="max-w-5xl mx-auto px-4 pt-4">
           <ErrorBoundary>
             {children}

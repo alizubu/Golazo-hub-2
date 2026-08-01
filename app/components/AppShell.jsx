@@ -6,7 +6,6 @@ import AdminOverviewDashboard from './AdminOverviewDashboard';
 import { AdminSeason, AdminPlayers, AdminMatches, AdminTrophies, AdminAnnouncements, AdminSettings } from './AdminConsole';
 import HallOfFame from './HallOfFame';
 import { useAppContext } from './AppContextProvider';
-import FloatingNav from './FloatingNav';
 import SportsTicker from './SportsTicker';
 import CelebrationBanner from './CelebrationBanner';
 
@@ -76,13 +75,6 @@ export default function AppShell({
 
   return (
     <>
-      <FloatingNav
-        session={session}
-        me={me}
-        players={players}
-        notifications={notifications}
-        matches={matches}
-      />
       <div className="pt-2">
         <CelebrationBanner />
         <SportsTicker matches={matches} announcements={announcements} players={players} />
