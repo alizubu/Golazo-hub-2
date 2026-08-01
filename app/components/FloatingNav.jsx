@@ -126,25 +126,23 @@ export default function FloatingNav({ session, me, players = [], notifications =
             <div className="absolute -inset-1 bg-gradient-to-r from-transparent via-white/5 to-transparent opacity-0 hover:opacity-100 transition-opacity duration-700" />
           </div>
 
-          {/* Left section: Logo + Desktop Links */}
-          <div className="flex items-center flex-1 min-w-0 overflow-hidden">
-            {/* Logo */}
-            <Link href={session?.type === "admin" ? "/admin" : "/dashboard"} onClick={(e) => handleNav(e, session?.type === "admin" ? "/admin" : "/dashboard")} className="flex items-center gap-2 flex-shrink-0 z-10 min-w-0 outline-none mr-2 lg:mr-8">
-              <span className="text-xl leading-none drop-shadow-sm">🏆</span>
-              <span className="hidden xl:inline font-heading text-sm font-bold tracking-tight text-white whitespace-nowrap">
-                GOLAZO HUB
-              </span>
-            </Link>
+          {/* Logo */}
+          <Link href={session?.type === "admin" ? "/admin" : "/dashboard"} onClick={(e) => handleNav(e, session?.type === "admin" ? "/admin" : "/dashboard")} className="flex items-center gap-2 flex-shrink-0 z-10 min-w-0 outline-none">
+            <span className="text-xl leading-none drop-shadow-sm">🏆</span>
+            <span className="hidden xl:inline font-heading text-sm font-bold tracking-tight text-white whitespace-nowrap">
+              GOLAZO HUB
+            </span>
+          </Link>
 
-            {/* Desktop Nav Links */}
-            <div className="hidden md:flex items-center gap-1 lg:gap-2 overflow-hidden flex-1">
-              {items.map((it) => {
+          {/* Desktop Nav Links */}
+          <div className="hidden md:flex items-center justify-center lg:justify-around flex-1 min-w-0 px-2 lg:px-6">
+            {items.map((it) => {
                 const Icon = it.icon;
                 const active = it.matchRoot ? pathname === it.href : pathname.startsWith(it.href);
                 return (
                   <Link href={it.href} onClick={(e) => handleNav(e, it.href)}
                     key={it.href}
-                    className="relative px-2 lg:px-2.5 xl:px-3 py-1.5 h-16 flex items-center gap-1.5 text-xs xl:text-sm font-semibold transition-colors whitespace-nowrap outline-none flex-shrink-0 focus-visible:ring-2 focus-visible:ring-pitch-bright"
+                    className="relative px-2 xl:px-3 py-1.5 h-16 flex items-center gap-1 lg:gap-1.5 text-xs lg:text-[13px] xl:text-sm font-semibold transition-colors whitespace-nowrap outline-none flex-shrink-0 focus-visible:ring-2 focus-visible:ring-pitch-bright"
                   >
                     <span
                       className="relative z-10 flex items-center gap-1.5 transition-colors"
@@ -169,7 +167,6 @@ export default function FloatingNav({ session, me, players = [], notifications =
                 </Link>
               );
             })}
-            </div>
           </div>
 
           {/* Right Actions */}
