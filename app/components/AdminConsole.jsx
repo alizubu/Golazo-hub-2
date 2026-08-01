@@ -212,7 +212,7 @@ function AdminMatchControl({ m, players, showToast, setTab, isPlayoff = false })
     const res = await updateMatchStatus(m.id, data);
     if (res.error) showToast(res.error);
     else if (res.match) {
-      supabase.channel('matches-page').send({
+      supabase.channel('league-events').send({
         type: 'broadcast',
         event: 'match_update',
         payload: res.match
@@ -231,7 +231,7 @@ function AdminMatchControl({ m, players, showToast, setTab, isPlayoff = false })
     setOptAway(nextAway);
 
     const optMatch = { ...m, homeScore: nextHome, awayScore: nextAway };
-    supabase.channel('matches-page').send({
+    supabase.channel('league-events').send({
       type: 'broadcast',
       event: 'match_update',
       payload: optMatch

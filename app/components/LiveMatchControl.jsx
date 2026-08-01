@@ -692,7 +692,7 @@ export default function LiveMatchControl({ matches, players, activeSeason, showT
           scoreTimeoutId = setTimeout(() => { setIsMutatingScore(false); }, 3000);
           
           const optMatch = { ...liveMatch, homeScore: newHome, awayScore: newAway };
-          supabase.channel('matches-page').send({ type: 'broadcast', event: 'match_update', payload: optMatch });
+          supabase.channel('league-events').send({ type: 'broadcast', event: 'match_update', payload: optMatch });
           
           updateMatchScore(liveMatch.id, newHome, newAway).then(res => {
             if (res?.error) showToast(res.error);
@@ -714,7 +714,7 @@ export default function LiveMatchControl({ matches, players, activeSeason, showT
     });
     if (res.error) showToast(res.error);
     
-    supabase.channel('matches-page').send({
+    supabase.channel('league-events').send({
       type: 'broadcast',
       event: 'match_update',
       payload: { ...liveMatch, liveState: { ...liveMatch.liveState, paused: isPaused } }

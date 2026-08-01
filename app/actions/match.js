@@ -169,7 +169,6 @@ export async function updateMatchStatus(matchId, data) {
       await progressPlayoffBracket(matchId);
     }
 
-    revalidatePath('/');
     broadcastEvent('match_update', match);
     return { match };
   } catch (error) {
@@ -183,7 +182,6 @@ export async function updateMatchScore(matchId, homeScore, awayScore) {
       where: { id: matchId },
       data: { homeScore, awayScore }
     });
-    revalidatePath('/');
     broadcastEvent('match_update', match);
     return { success: true, match };
   } catch (error) {

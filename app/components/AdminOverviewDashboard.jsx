@@ -554,7 +554,7 @@ export default function AdminOverviewDashboard({ players = [], activeSeason, mat
   }
 
   useEffect(() => {
-    const channel = supabase.channel('matches-page')
+    const channel = supabase.channel('league-events')
       .on('broadcast', { event: 'match_update' }, (payload) => {
         const matchData = payload.payload;
         setLiveMatches(prev => {
