@@ -84,7 +84,7 @@ export default function AppShell({
 
   return (
     <>
-      <div className="pt-2">
+      <div className="w-full">
         <CelebrationBanner />
         <SportsTicker
           matches={matches}
@@ -93,7 +93,8 @@ export default function AppShell({
           tickerConfig={tickerConfig}
         />
       </div>
-      {currentTab === 'hall-of-fame' ? (
+      <div className="max-w-5xl mx-auto px-4 pt-4">
+        {currentTab === 'hall-of-fame' ? (
         <HallOfFame trophies={trophies} players={players} />
       ) : session?.type === 'admin' ? (
         <>
@@ -108,6 +109,7 @@ export default function AppShell({
       ) : (
         <PlayerViews {...playerProps} />
       )}
+      </div>
     </>
   );
 }

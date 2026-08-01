@@ -155,15 +155,24 @@ export default function SportsTicker({ matches = [], announcements = [], players
 
   return (
     <>
+      <style dangerouslySetInnerHTML={{__html: `
+        @keyframes custom-marquee {
+          from { transform: translateX(0); }
+          to { transform: translateX(calc(-100% - var(--gap))); }
+        }
+        .animate-custom-marquee {
+          animation: custom-marquee var(--duration, 55s) linear infinite;
+        }
+      `}} />
       <div className="w-full bg-black/40 backdrop-blur-md border-b border-white/5 overflow-hidden flex items-center h-10 select-none z-40 relative">
         {/* Gradient fade edges */}
         <div className="absolute left-0 top-0 bottom-0 w-16 bg-gradient-to-r from-background to-transparent z-10 pointer-events-none" />
         <div className="absolute right-0 top-0 bottom-0 w-16 bg-gradient-to-l from-background to-transparent z-10 pointer-events-none" />
 
         <div
-          className={`flex whitespace-nowrap w-max ${pauseClass}`}
+          className={`flex whitespace-nowrap w-max animate-custom-marquee ${pauseClass}`}
           style={{
-            animation: `marquee ${duration} linear infinite`,
+            '--duration': duration,
             '--gap': '2rem',
           }}
         >

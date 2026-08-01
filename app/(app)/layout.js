@@ -58,11 +58,9 @@ export default async function AppLayout({ children }) {
           notifications={notifications} 
           matches={matches} 
         />
-        <div className="max-w-5xl mx-auto px-4 pt-4">
-          <ErrorBoundary>
-            {children}
-          </ErrorBoundary>
-        </div>
+        <ErrorBoundary>
+          {children}
+        </ErrorBoundary>
       </div>
     </AppProvider>
   );

@@ -1,11 +1,10 @@
 'use client';
 
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Trophy } from 'lucide-react';
 import { Avatar, MagicCard, FadeIn } from './UI';
 import { motion, AnimatePresence } from 'framer-motion';
 import { getTrophyTemplates } from '@/app/actions/admin';
-import confetti from 'canvas-confetti';
 
 // ---------------------------------------------------------------------------
 // Ambient smoke layer — slow morphing radial gradients
@@ -82,73 +81,41 @@ function EmberParticles() {
 // ---------------------------------------------------------------------------
 const containerVariants = {
   hidden: {},
-  show: { transition: { staggerChildren: 0.18 } },
+  show: { transition: { staggerChildren: 0.15 } },
 };
 const itemVariants = {
-  hidden: { opacity: 0, y: 24 },
-  show: { opacity: 1, y: 0, transition: { duration: 0.6, ease: [0.22, 1, 0.36, 1] } },
+  hidden: { opacity: 0, y: 15 },
+  show: { opacity: 1, y: 0, transition: { duration: 0.5, ease: 'easeOut' } },
 };
 
-function HeroSection({ trophyIconRef }) {
+function HeroSection() {
   return (
     <motion.div
       variants={containerVariants}
       initial="hidden"
       animate="show"
-      className="text-center space-y-4 pt-14 pb-10 relative z-10"
+      className="text-left space-y-2 pt-6 pb-8 relative z-10"
     >
-      {/* Glowing trophy orb */}
-      <motion.div variants={itemVariants} className="flex justify-center">
-        <motion.div
-          ref={trophyIconRef}
-          animate={{
-            boxShadow: [
-              '0 0 20px 4px rgba(251,191,36,0.25)',
-              '0 0 45px 12px rgba(251,191,36,0.45)',
-              '0 0 20px 4px rgba(251,191,36,0.25)',
-            ],
-          }}
-          transition={{ duration: 3.5, repeat: Infinity, ease: 'easeInOut' }}
-          className="inline-flex items-center justify-center w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-gradient-to-br from-amber-500/20 via-amber-400/10 to-transparent border border-amber-500/25 relative overflow-hidden"
-        >
-          {/* Shine sweep */}
-          <motion.div
-            animate={{ x: ['-200%', '200%'] }}
-            transition={{ duration: 2.5, repeat: Infinity, repeatDelay: 4, ease: 'easeInOut' }}
-            className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent skew-x-12 pointer-events-none"
-          />
-          <Trophy size={40} className="text-amber-400 relative z-10 drop-shadow-[0_0_12px_rgba(251,191,36,0.8)]" />
-        </motion.div>
+      <motion.div variants={itemVariants}>
+        <span className="text-[10px] font-bold tracking-[0.2em] text-amber-500/80 uppercase">
+          Archive
+        </span>
       </motion.div>
 
-      {/* Title */}
       <motion.div variants={itemVariants}>
-        <h1 className="text-5xl sm:text-7xl font-heading font-black tracking-tight uppercase leading-none">
-          <span
-            className="bg-clip-text text-transparent"
-            style={{
-              backgroundImage: 'linear-gradient(135deg, #fef3c7 0%, #fbbf24 30%, #d97706 60%, #fbbf24 80%, #fef3c7 100%)',
-              backgroundSize: '200% auto',
-              animation: 'goldShimmer 4s linear infinite',
-            }}
-          >
-            Hall of Fame
-          </span>
+        <h1 className="text-3xl sm:text-4xl font-heading font-bold text-amber-400 tracking-tight">
+          Hall of Fame
         </h1>
       </motion.div>
 
-      {/* Subtitle */}
-      <motion.div variants={itemVariants}>
-        <p className="text-muted-foreground text-base sm:text-lg max-w-2xl mx-auto leading-relaxed px-4">
+      <motion.div variants={itemVariants} className="pt-1">
+        <p className="text-muted-foreground text-sm sm:text-base max-w-2xl leading-relaxed">
           Honoring the greatest achievements, legendary seasons, and historic moments in Golazo Hub history.
         </p>
       </motion.div>
 
-      {/* Divider */}
-      <motion.div variants={itemVariants} className="flex items-center justify-center gap-3 pt-2">
-        <div className="h-px w-16 bg-gradient-to-r from-transparent to-amber-500/50" />
-        <div className="w-1.5 h-1.5 rounded-full bg-amber-500/60" />
-        <div className="h-px w-16 bg-gradient-to-l from-transparent to-amber-500/50" />
+      <motion.div variants={itemVariants} className="pt-5">
+        <div className="h-px w-full max-w-md bg-gradient-to-r from-amber-500/20 to-transparent" />
       </motion.div>
     </motion.div>
   );
@@ -235,7 +202,6 @@ function TrophyCategoryCard({ group, players, index }) {
 // ---------------------------------------------------------------------------
 export default function HallOfFame({ trophies = [], players = [] }) {
   const [templates, setTemplates] = useState([]);
-  const trophyIconRef = useRef(null);
 
   useEffect(() => {
     async function load() {
@@ -243,32 +209,6 @@ export default function HallOfFame({ trophies = [], players = [] }) {
       setTemplates(res);
     }
     load();
-  }, []);
-
-  // One-time confetti burst on first visit (sessionStorage guard)
-  useEffect(() => {
-    const key = 'hof-confetti-fired';
-    if (sessionStorage.getItem(key)) return;
-    sessionStorage.setItem(key, '1');
-
-    const timer = setTimeout(() => {
-      const el = trophyIconRef.current;
-      const rect = el?.getBoundingClientRect();
-      const originX = rect ? (rect.left + rect.width / 2) / window.innerWidth : 0.5;
-      const originY = rect ? (rect.top + rect.height / 2) / window.innerHeight : 0.2;
-
-      confetti({
-        particleCount: 90,
-        startVelocity: 28,
-        spread: 70,
-        origin: { x: originX, y: originY },
-        colors: ['#fbbf24', '#fef3c7', '#d97706', '#ffffff', '#f59e0b'],
-        gravity: 0.9,
-        scalar: 0.85,
-      });
-    }, 600);
-
-    return () => clearTimeout(timer);
   }, []);
 
   // Group trophies by title
@@ -284,21 +224,13 @@ export default function HallOfFame({ trophies = [], players = [] }) {
 
   return (
     <>
-      {/* Gold shimmer keyframe injected once */}
-      <style>{`
-        @keyframes goldShimmer {
-          0% { background-position: 0% center; }
-          100% { background-position: 200% center; }
-        }
-      `}</style>
-
       <div className="relative max-w-6xl mx-auto p-4 sm:p-8 pb-28">
         {/* Ambient layers */}
         <AmbientBackground />
         <EmberParticles />
 
         {/* Hero */}
-        <HeroSection trophyIconRef={trophyIconRef} />
+        <HeroSection />
 
         {/* Category grid */}
         {groups.length === 0 ? (
