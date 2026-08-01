@@ -798,6 +798,8 @@ export function AdminTrophies({ players, trophies = [], seasons, showToast }) {
     }
   };
 
+  const [endCelebrationTarget, setEndCelebrationTarget] = useState(null);
+
   const handleRetrigger = async (trophyId) => {
     const res = await retriggerCelebration(trophyId);
     if (res.error) showToast(res.error);
@@ -1033,25 +1035,13 @@ export function AdminTrophies({ players, trophies = [], seasons, showToast }) {
                           </td>
                           <td className="py-3 px-2 text-right">
                             {isActive && (
-                              <AlertDialog>
-                                <AlertDialogTrigger asChild>
-                                  <Btn variant="danger" className="py-1 px-2 text-[10px] h-6 rounded-md">End Now</Btn>
-                                </AlertDialogTrigger>
-                                <AlertDialogContent className="bg-card border-border/50">
-                                  <AlertDialogHeader>
-                                    <AlertDialogTitle>End this celebration early?</AlertDialogTitle>
-                                    <AlertDialogDescription>
-                                      It will stop showing on all dashboards immediately. The player keeps the trophy in their permanent Trophy Cabinet.
-                                    </AlertDialogDescription>
-                                  </AlertDialogHeader>
-                                  <AlertDialogFooter>
-                                    <AlertDialogCancel className="border-border">Cancel</AlertDialogCancel>
-                                    <AlertDialogAction onClick={() => handleEndCelebration(c.id)} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
-                                      End Now
-                                    </AlertDialogAction>
-                                  </AlertDialogFooter>
-                                </AlertDialogContent>
-                              </AlertDialog>
+                              <Btn
+                                variant="danger"
+                                className="py-1 px-2 text-[10px] h-6 rounded-md"
+                                onClick={() => setEndCelebrationTarget(c.id)}
+                              >
+                                End Now
+                              </Btn>
                             )}
                           </td>
                         </motion.tr>
@@ -1062,6 +1052,41 @@ export function AdminTrophies({ players, trophies = [], seasons, showToast }) {
               </div>
             )}
           </Card>
+
+          {/* Plain confirmation modal — no portal/animation state machines */}
+          {endCelebrationTarget && (
+            <div
+              className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm"
+              onClick={() => setEndCelebrationTarget(null)}
+            >
+              <div
+                className="bg-card border border-border/60 rounded-2xl shadow-2xl p-6 w-full max-w-sm mx-4"
+                onClick={e => e.stopPropagation()}
+              >
+                <h3 className="text-base font-bold text-foreground mb-2">End this celebration early?</h3>
+                <p className="text-sm text-muted-foreground mb-6">
+                  It will stop showing on all dashboards immediately. The player keeps the trophy in their permanent Trophy Cabinet.
+                </p>
+                <div className="flex gap-3 justify-end">
+                  <button
+                    onClick={() => setEndCelebrationTarget(null)}
+                    className="px-4 py-2 rounded-lg text-sm font-medium border border-border hover:bg-secondary transition-colors"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={async () => {
+                      await handleEndCelebration(endCelebrationTarget);
+                      setEndCelebrationTarget(null);
+                    }}
+                    className="px-4 py-2 rounded-lg text-sm font-bold bg-destructive text-destructive-foreground hover:bg-destructive/90 transition-colors"
+                  >
+                    End Now
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
         </TabsContent>
 
         <TabsContent value="templates" className="space-y-6">
