@@ -56,25 +56,32 @@ function CardHeader({ title, status, tone }) {
   );
 }
 
-function ScoreRow({ home, away, homeScore, awayScore, compact }) {
+function ScoreRow({ home, away, homeScore, awayScore }) {
   return (
-    <div className={`flex items-center justify-center gap-6 sm:gap-8 px-5 sm:px-6 ${compact ? "pb-5" : "pb-6"}`}>
-      <div className="flex flex-col items-center gap-2">
-        <div className={`${compact ? "w-12 h-12" : "w-14 h-14 sm:w-16 sm:h-16"} rounded-full flex items-center justify-center font-bold bg-zinc-800 text-zinc-50 border-2 border-pitch-bright`}>
-          {initials(home)}
+    <div className="relative overflow-hidden bg-gradient-to-b from-zinc-900 to-zinc-950 pb-8 pt-4">
+      <div className="absolute top-0 left-0 w-1/3 h-full bg-pitch/5 blur-[100px] pointer-events-none" />
+      <div className="absolute top-0 right-0 w-1/3 h-full bg-claret/5 blur-[100px] pointer-events-none" />
+      
+      <div className="relative flex items-center justify-center gap-4 sm:gap-12 px-5 sm:px-8">
+        <div className="flex flex-col items-center gap-3 flex-1 max-w-[12rem]">
+          <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl flex items-center justify-center font-black text-xl sm:text-2xl bg-zinc-900 text-zinc-50 border border-pitch/30 shadow-[0_0_20px_rgba(41,193,121,0.15)]">
+            {initials(home)}
+          </div>
+          <span className="text-sm sm:text-base font-bold text-zinc-50 text-center line-clamp-2">{home}</span>
         </div>
-        <span className="text-sm font-bold text-zinc-50 text-center max-w-[7rem] truncate">{home}</span>
-      </div>
-      <div className={`flex items-center gap-3 ${compact ? "text-2xl" : "text-3xl sm:text-4xl"} font-extrabold tabular-nums text-zinc-50`}>
-        <span>{homeScore}</span>
-        <span className="text-zinc-600">–</span>
-        <span>{awayScore}</span>
-      </div>
-      <div className="flex flex-col items-center gap-2">
-        <div className={`${compact ? "w-12 h-12" : "w-14 h-14 sm:w-16 sm:h-16"} rounded-full flex items-center justify-center font-bold bg-zinc-800 text-zinc-50 border-2 border-claret`}>
-          {initials(away)}
+        
+        <div className="flex items-center gap-4 text-5xl sm:text-7xl font-black tabular-nums tracking-tighter text-zinc-50">
+          <span className="text-pitch-bright">{homeScore}</span>
+          <span className="text-zinc-800 font-medium pb-2 sm:pb-3">-</span>
+          <span className="text-claret">{awayScore}</span>
         </div>
-        <span className="text-sm font-bold text-zinc-50 text-center max-w-[7rem] truncate">{away}</span>
+        
+        <div className="flex flex-col items-center gap-3 flex-1 max-w-[12rem]">
+          <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl flex items-center justify-center font-black text-xl sm:text-2xl bg-zinc-900 text-zinc-50 border border-claret/30 shadow-[0_0_20px_rgba(178,58,72,0.15)]">
+            {initials(away)}
+          </div>
+          <span className="text-sm sm:text-base font-bold text-zinc-50 text-center line-clamp-2">{away}</span>
+        </div>
       </div>
     </div>
   );
@@ -91,7 +98,7 @@ function StepIndicator({ phase, needsShootout }) {
   ];
   const currentIdx = order.indexOf(phase);
   return (
-    <div className="flex items-center gap-2 px-5 sm:px-6 pb-4 pt-1 overflow-x-auto no-scrollbar">
+    <div className="flex items-center justify-center gap-2 px-5 sm:px-6 py-4 overflow-x-auto no-scrollbar">
       {steps.map((s, i) => {
         const idx = order.indexOf(s.key);
         const active = idx === currentIdx;
@@ -102,36 +109,8 @@ function StepIndicator({ phase, needsShootout }) {
               <div className={`w-1.5 h-1.5 rounded-full ${active || done ? "bg-pitch-bright" : "bg-zinc-800"}`} />
               <span className={`text-[11px] tracking-wide uppercase whitespace-nowrap ${active ? "text-zinc-50 font-bold" : "text-zinc-500 font-medium"}`}>{s.label}</span>
             </div>
-            {i < steps.length - 1 && <div className="w-4 shrink-0 h-px bg-zinc-800" />}
+            {i < steps.length - 1 && <div className="w-4 sm:w-8 shrink-0 h-px bg-zinc-800" />}
           </React.Fragment>
-        );
-      })}
-    </div>
-  );
-}
-
-// Vertical variant of the step indicator, used in the web sidebar.
-function StepIndicatorVertical({ phase, needsShootout }) {
-  const order = ["live", "extra_time", "shootout", "stats", "done"];
-  const steps = [
-    { key: "live", label: "Match" },
-    ...(needsShootout ? [{ key: "extra_time", label: "Extra Time" }] : []),
-    ...(needsShootout ? [{ key: "shootout", label: "Penalties" }] : []),
-    { key: "stats", label: "Stats" },
-    { key: "done", label: "Published" },
-  ];
-  const currentIdx = order.indexOf(phase);
-  return (
-    <div className="flex flex-col gap-3">
-      {steps.map((s) => {
-        const idx = order.indexOf(s.key);
-        const active = idx === currentIdx;
-        const done = idx < currentIdx;
-        return (
-          <div key={s.key} className="flex items-center gap-2.5">
-            <div className={`w-2 h-2 rounded-full shrink-0 ${active || done ? "bg-pitch-bright" : "bg-zinc-800"}`} />
-            <span className={`text-xs uppercase tracking-wide ${active ? "text-zinc-50 font-bold" : "text-zinc-500 font-medium"}`}>{s.label}</span>
-          </div>
         );
       })}
     </div>
@@ -143,20 +122,20 @@ function StepIndicatorVertical({ phase, needsShootout }) {
 // ---------------------------------------------------------------------------
 function StepperRow({ label, count, accent, onInc, onDec }) {
   const accents = {
-    pitch: { count: "text-pitch-bright", btn: "bg-pitch-bright hover:bg-emerald-400 text-stadium-base" },
-    blue: { count: "text-blue-400", btn: "bg-blue-500 hover:bg-blue-400 text-blue-950" },
+    pitch: { count: "text-pitch-bright", btn: "bg-pitch-bright/10 hover:bg-pitch-bright/20 text-pitch-bright border-pitch-bright/20" },
+    blue: { count: "text-blue-400", btn: "bg-blue-500/10 hover:bg-blue-500/20 text-blue-400 border-blue-500/20" },
   };
   const a = accents[accent];
   return (
-    <div className="flex items-center justify-between rounded-xl bg-zinc-950 border border-zinc-800 px-3 py-2.5">
-      <div className="flex items-center gap-2 text-zinc-300">
+    <div className="flex items-center justify-between rounded-xl bg-zinc-900/50 border border-zinc-800/50 px-4 py-3">
+      <div className="flex items-center gap-2.5 text-zinc-300">
         <span className={`w-1.5 h-1.5 rounded-full ${accent === "pitch" ? "bg-pitch-bright" : "bg-blue-500"}`} />
-        <span className="text-sm font-medium">{label}</span>
+        <span className="text-sm font-semibold tracking-wide">{label}</span>
       </div>
-      <div className="flex items-center gap-3">
-        <button onClick={onDec} className="w-9 h-9 rounded-lg flex items-center justify-center bg-zinc-800 hover:bg-zinc-700 text-zinc-400 transition-colors active:scale-95"><Minus size={15} /></button>
-        <span className={`w-5 text-center font-bold tabular-nums text-base ${a.count}`}>{count}</span>
-        <button onClick={onInc} className={`w-9 h-9 rounded-lg flex items-center justify-center transition-colors active:scale-95 ${a.btn}`}><Plus size={15} /></button>
+      <div className="flex items-center gap-4">
+        <button onClick={onDec} className="w-10 h-10 rounded-lg flex items-center justify-center bg-zinc-800 hover:bg-zinc-700 text-zinc-400 transition-colors active:scale-95"><Minus size={16} /></button>
+        <span className={`w-6 text-center font-black tabular-nums text-xl ${a.count}`}>{count}</span>
+        <button onClick={onInc} className={`w-10 h-10 rounded-lg flex items-center justify-center border transition-colors active:scale-95 ${a.btn}`}><Plus size={16} /></button>
       </div>
     </div>
   );
@@ -166,12 +145,12 @@ function TeamStatCard({ team, accent, side, data, bump }) {
   const accentText = accent === "pitch" ? "text-pitch-bright" : "text-claret";
   const accentBar = accent === "pitch" ? "bg-pitch-bright" : "bg-claret";
   return (
-    <div className="rounded-xl bg-zinc-900 border border-zinc-800 p-4">
-      <div className="flex items-center gap-2 mb-3.5">
-        <span className={`w-1 h-4 rounded-full ${accentBar}`} />
-        <span className={`text-xs font-bold uppercase tracking-wide truncate ${accentText}`}>{team}</span>
+    <div className="rounded-xl bg-zinc-950 border border-zinc-800/80 p-5 shadow-inner">
+      <div className="flex items-center justify-center gap-2 mb-5">
+        <span className={`w-1.5 h-1.5 rounded-full ${accentBar}`} />
+        <span className={`text-sm font-bold uppercase tracking-widest truncate ${accentText}`}>{team}</span>
       </div>
-      <div className="space-y-2">
+      <div className="space-y-3 max-w-sm mx-auto">
         <StepperRow label="Goal" count={data.goals} accent="pitch" onInc={() => bump(side, "goals", 1)} onDec={() => bump(side, "goals", -1)} />
         <StepperRow label="Penalty" count={data.penalties} accent="blue" onInc={() => bump(side, "penalties", 1)} onDec={() => bump(side, "penalties", -1)} />
       </div>
@@ -183,20 +162,24 @@ function LiveControl({ state, setState, onFinish, onTogglePause }) {
   const { home, away, paused } = state;
   const bump = (side, field, delta) => setState((s) => ({ ...s, [side]: { ...s[side], [field]: Math.max(0, s[side][field] + delta) } }));
   return (
-    <div className="px-5 sm:px-6 pb-6">
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
+    <div className="px-5 sm:px-8 pb-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 mb-6">
         <TeamStatCard team={home.name} accent="pitch" side="home" data={home} bump={bump} />
         <TeamStatCard team={away.name} accent="rose" side="away" data={away} bump={bump} />
       </div>
-      <p className="text-[11px] text-center text-zinc-500 mb-5">A scored penalty also counts as a goal — add both if the kick beats the keeper.</p>
-      <div className="grid grid-cols-2 gap-3">
+      <div className="flex justify-center mb-6">
+        <p className="text-[11px] text-zinc-500 bg-zinc-950 px-3 py-1.5 rounded-full border border-zinc-800/50 text-center">
+          * A scored penalty also counts as a goal — add both if the kick beats the keeper.
+        </p>
+      </div>
+      <div className="flex flex-col sm:flex-row gap-3 sm:justify-center">
         <button onClick={onTogglePause}
-          className="h-12 rounded-xl flex items-center justify-center gap-2 font-semibold text-sm bg-zinc-800 hover:bg-zinc-700 text-zinc-50 border border-zinc-700 transition-colors active:scale-[0.98]">
-          {paused ? <Play size={15} /> : <Pause size={15} />}{paused ? "Resume Match" : "Pause Match"}
+          className="h-14 sm:w-48 rounded-xl flex items-center justify-center gap-2 font-bold text-sm bg-zinc-800 hover:bg-zinc-700 text-zinc-50 border border-zinc-700 transition-colors active:scale-[0.98]">
+          {paused ? <Play size={16} /> : <Pause size={16} />}{paused ? "Resume Match" : "Pause Match"}
         </button>
         <button onClick={onFinish}
-          className="h-12 rounded-xl flex items-center justify-center gap-2 font-semibold text-sm bg-claret-dim/20 hover:bg-claret-dim text-claret border border-claret-dim/30 transition-colors active:scale-[0.98]">
-          <Square size={13} className="fill-claret" />Finish Match
+          className="h-14 sm:w-48 rounded-xl flex items-center justify-center gap-2 font-bold text-sm bg-claret-dim/20 hover:bg-claret-dim text-claret border border-claret-dim/30 transition-colors active:scale-[0.98]">
+          <Square size={14} className="fill-claret" />Finish Match
         </button>
       </div>
     </div>
@@ -207,25 +190,25 @@ function ExtraTime({ state, setState, etHalf, setEtHalf, onDone }) {
   const { home, away } = state;
   const bump = (side, field, delta) => setState((s) => ({ ...s, [side]: { ...s[side], [field]: Math.max(0, s[side][field] + delta) } }));
   return (
-    <div className="px-5 sm:px-6 pb-6">
-      <div className="flex items-center justify-center gap-2 mb-4">
-        <Timer size={14} className="text-amber-400" />
-        <span className="text-xs font-semibold text-amber-400">Extra Time — {etHalf === 1 ? "1st Half (15')" : "2nd Half (15')"}</span>
+    <div className="px-5 sm:px-8 pb-8">
+      <div className="flex items-center justify-center gap-2 mb-6">
+        <Timer size={16} className="text-amber-400 animate-pulse" />
+        <span className="text-sm font-bold text-amber-400 tracking-wide uppercase">Extra Time — {etHalf === 1 ? "1st Half (15')" : "2nd Half (15')"}</span>
       </div>
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 mb-6">
         <TeamStatCard team={home.name} accent="pitch" side="home" data={home} bump={bump} />
         <TeamStatCard team={away.name} accent="rose" side="away" data={away} bump={bump} />
       </div>
-      <div className="grid grid-cols-2 gap-3">
+      <div className="flex justify-center">
         {etHalf === 1 ? (
           <button onClick={() => setEtHalf(2)}
-            className="col-span-2 h-12 rounded-xl flex items-center justify-center gap-2 font-semibold text-sm bg-amber-950 hover:bg-amber-900 text-amber-400 border border-amber-800 transition-colors active:scale-[0.98]">
+            className="h-14 w-full sm:w-64 rounded-xl flex items-center justify-center gap-2 font-bold text-sm bg-amber-950/40 hover:bg-amber-900/60 text-amber-400 border border-amber-800/50 transition-colors active:scale-[0.98]">
             Start 2nd Half of Extra Time
           </button>
         ) : (
           <button onClick={onDone}
-            className="col-span-2 h-12 rounded-xl flex items-center justify-center gap-2 font-semibold text-sm bg-claret-dim/20 hover:bg-claret-dim text-claret border border-claret-dim/30 transition-colors active:scale-[0.98]">
-            <Square size={13} className="fill-claret" />End Extra Time
+            className="h-14 w-full sm:w-64 rounded-xl flex items-center justify-center gap-2 font-bold text-sm bg-claret-dim/20 hover:bg-claret-dim text-claret border border-claret-dim/30 transition-colors active:scale-[0.98]">
+            <Square size={14} className="fill-claret" />End Extra Time
           </button>
         )}
       </div>
@@ -779,39 +762,28 @@ export default function LiveMatchControl({ matches, players, activeSeason, showT
   const h = headerFor();
 
   return (
-    <div className="w-full bg-[#0f1117] mb-6 rounded-2xl border border-border shadow-xl shadow-black/20 overflow-hidden font-sans">
-      <div className="lg:grid lg:grid-cols-[280px_1fr] lg:items-start h-full">
-        {/* Sidebar on web / top card on mobile */}
-        <aside className="border-b lg:border-b-0 lg:border-r border-zinc-800/50 bg-zinc-900/50 h-full">
-          <CardHeader title={h.title} status={h.status} tone={h.tone} />
-          
-          <div className="lg:hidden">
-            <StepIndicator phase={phase} needsShootout={needsShootoutStep} />
-          </div>
-
-          <ScoreRow home={state.home.name} away={state.away.name} homeScore={state.home.goals} awayScore={state.away.goals} compact />
-          <div className="hidden lg:block px-5 sm:px-6 pb-6">
-            <StepIndicatorVertical phase={phase} needsShootout={needsShootoutStep} />
-          </div>
-        </aside>
-
-        {/* Main panel */}
-        <main className="bg-zinc-900">
-          <div className="pt-5 lg:pt-6">
-            {phase === "live" && <LiveControl state={state} setState={handleSetState} onTogglePause={handleTogglePause} onFinish={handleFinishFullTime} />}
-            {phase === "extra_time" && <ExtraTime state={state} setState={handleSetState} etHalf={etHalf} setEtHalf={setEtHalf} onDone={handleEndExtraTime} />}
-            {phase === "shootout" && <Shootout home={state.home} away={state.away} kicks={kicks} setKicks={setKicks} onDecided={handleShootoutDecided} />}
-            {phase === "stats" && <StatsEntry stats={stats} setStats={setStats} busy={saving} onSave={() => finalizeMatch(false)} onSkip={() => finalizeMatch(true)} />}
-            {phase === "done" && <Published state={state} stats={stats} resultType={resultType} shootoutWinner={shootoutWinner} onClose={() => setPhase("live")} />}
-          </div>
-
-          {!["live", "done"].includes(phase) && (
-            <div className="px-5 sm:px-6 pb-5">
-              <button onClick={() => { setPhase("live"); setKicks([]); setShootoutWinner(null); setResultType(null); }} className="text-[11px] text-zinc-500 hover:text-zinc-300">← Back to match control</button>
-            </div>
-          )}
-        </main>
+    <div className="w-full bg-zinc-900 mb-6 rounded-2xl border border-zinc-800 shadow-2xl overflow-hidden font-sans">
+      <CardHeader title={h.title} status={h.status} tone={h.tone} />
+      
+      <ScoreRow home={state.home.name} away={state.away.name} homeScore={state.home.goals} awayScore={state.away.goals} />
+      
+      <div className="border-b border-zinc-800/50 bg-zinc-950/30">
+        <StepIndicator phase={phase} needsShootout={needsShootoutStep} />
       </div>
+
+      <main className="pt-6 sm:pt-8">
+        {phase === "live" && <LiveControl state={state} setState={handleSetState} onTogglePause={handleTogglePause} onFinish={handleFinishFullTime} />}
+        {phase === "extra_time" && <ExtraTime state={state} setState={handleSetState} etHalf={etHalf} setEtHalf={setEtHalf} onDone={handleEndExtraTime} />}
+        {phase === "shootout" && <Shootout home={state.home} away={state.away} kicks={kicks} setKicks={setKicks} onDecided={handleShootoutDecided} />}
+        {phase === "stats" && <StatsEntry stats={stats} setStats={setStats} busy={saving} onSave={() => finalizeMatch(false)} onSkip={() => finalizeMatch(true)} />}
+        {phase === "done" && <Published state={state} stats={stats} resultType={resultType} shootoutWinner={shootoutWinner} onClose={() => setPhase("live")} />}
+      </main>
+
+      {!["live", "done"].includes(phase) && (
+        <div className="px-5 sm:px-8 pb-5 flex justify-center">
+          <button onClick={() => { setPhase("live"); setKicks([]); setShootoutWinner(null); setResultType(null); }} className="text-xs font-medium text-zinc-500 hover:text-zinc-300 transition-colors">← Back to match control</button>
+        </div>
+      )}
     </div>
   );
 }
