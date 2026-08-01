@@ -3,7 +3,8 @@ import prisma from '@/lib/db';
 
 export async function GET(request, { params }) {
   try {
-    const id = params.id;
+    const paramsAwaited = await params;
+    const id = paramsAwaited.id;
     if (!id) {
       return NextResponse.json({ error: 'Missing match ID' }, { status: 400 });
     }

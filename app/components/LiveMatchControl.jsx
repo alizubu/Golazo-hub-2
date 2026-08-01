@@ -336,27 +336,29 @@ function ImageImport({ onApply }) {
     setLoading(true);
     setError(null);
     try {
-      const reader = new FileReader();
-      reader.onload = async (event) => {
-        const base64 = event.target.result;
-        const res = await fetch("/api/ocr", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            image: base64,
-            prompt: `Extract these stats for the home team (left side usually) and away team (right side usually): possession (number only, no %), shots, shotsOnTarget, fouls, offsides, corners, freeKicks, passes, successfulPasses, crosses, interceptions, tackles, saves. Return a JSON object with this exact structure: { "home": { "possession": X, ... }, "away": { "possession": Y, ... } }. If a stat is missing in the image, set it to 0.`
-          }),
-        });
+      const base64 = await new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = (event) => resolve(event.target.result);
+        reader.onerror = (err) => reject(err);
+        reader.readAsDataURL(file);
+      });
 
-        const data = await res.json();
-        if (data.error) throw new Error(data.error);
-        if (data.home && data.away) {
-          onApply(data);
-        } else {
-          throw new Error("Invalid format returned");
-        }
-      };
-      reader.readAsDataURL(file);
+      const res = await fetch("/api/ocr", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          image: base64,
+          prompt: `Extract these stats for the home team (left side usually) and away team (right side usually): possession (number only, no %), shots, shotsOnTarget, fouls, offsides, corners, freeKicks, passes, successfulPasses, crosses, interceptions, tackles, saves. Return a JSON object with this exact structure: { "home": { "possession": X, ... }, "away": { "possession": Y, ... } }. If a stat is missing in the image, set it to 0.`
+        }),
+      });
+
+      const data = await res.json();
+      if (data.error) throw new Error(data.error);
+      if (data.home && data.away) {
+        onApply(data);
+      } else {
+        throw new Error("Invalid format returned");
+      }
     } catch (err) {
       console.error(err);
       setError(err.message);

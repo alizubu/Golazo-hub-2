@@ -34,7 +34,8 @@ function calculateEloDelta(eloA, eloB, scoreA, scoreB) {
 
 export async function POST(req, { params }) {
   try {
-    const { id } = params;
+    const paramsAwaited = await params;
+    const id = paramsAwaited.id;
     const { 
       homeScore, 
       awayScore, 
