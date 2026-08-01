@@ -124,32 +124,47 @@ function StepIndicator({ phase, needsShootout }) {
 // ---------------------------------------------------------------------------
 function StepperRow({ label, count, accent, onInc, onDec }) {
   const accents = {
-    pitch: { count: "text-pitch-bright", btn: "bg-pitch-bright/10 hover:bg-pitch-bright/20 text-pitch-bright border-pitch-bright/20" },
-    blue: { count: "text-blue-400", btn: "bg-blue-500/10 hover:bg-blue-500/20 text-blue-400 border-blue-500/20" },
+    pitch: { 
+      text: "text-pitch-bright", 
+      btn: "bg-pitch-bright/10 hover:bg-pitch-bright/20 text-pitch-bright border-pitch-bright/30 shadow-[0_0_15px_rgba(41,193,121,0.15)]",
+      bg: "bg-pitch-bright/5 border-pitch-bright/20",
+      dot: "bg-pitch-bright"
+    },
+    blue: { 
+      text: "text-blue-400", 
+      btn: "bg-blue-500/10 hover:bg-blue-500/20 text-blue-400 border-blue-500/30 shadow-[0_0_15px_rgba(59,130,246,0.15)]",
+      bg: "bg-blue-500/5 border-blue-500/20",
+      dot: "bg-blue-500"
+    },
+    rose: {
+      text: "text-claret", 
+      btn: "bg-claret-dim/20 hover:bg-claret-dim/40 text-claret border-claret-dim/50 shadow-[0_0_15px_rgba(178,58,72,0.15)]",
+      bg: "bg-claret/5 border-claret/20",
+      dot: "bg-claret"
+    }
   };
   const a = accents[accent];
   return (
-    <div className="flex items-center justify-between rounded-xl bg-zinc-900/50 border border-zinc-800/50 px-4 py-3">
-      <div className="flex items-center gap-2.5 text-zinc-300">
-        <span className={`w-1.5 h-1.5 rounded-full ${accent === "pitch" ? "bg-pitch-bright" : "bg-blue-500"}`} />
-        <span className="text-sm font-semibold tracking-wide">{label}</span>
+    <div className={`flex flex-col gap-3 rounded-2xl ${a.bg} border p-4 backdrop-blur-md transition-all`}>
+      <div className="flex items-center justify-center gap-2">
+        <span className={`w-1.5 h-1.5 rounded-full ${a.dot} animate-pulse`} />
+        <span className="text-[11px] sm:text-xs font-bold uppercase tracking-widest text-zinc-400">{label}</span>
       </div>
-      <div className="flex items-center gap-4">
-        <button onClick={onDec} className="w-10 h-10 rounded-lg flex items-center justify-center bg-zinc-800 hover:bg-zinc-700 text-zinc-400 transition-colors active:scale-95"><Minus size={16} /></button>
-        <span className={`w-6 text-center font-black tabular-nums text-xl ${a.count}`}>{count}</span>
-        <button onClick={onInc} className={`w-10 h-10 rounded-lg flex items-center justify-center border transition-colors active:scale-95 ${a.btn}`}><Plus size={16} /></button>
+      <div className="flex items-center justify-between px-2">
+        <button onClick={onDec} className="w-12 h-12 sm:w-14 sm:h-14 rounded-xl flex items-center justify-center bg-zinc-900/80 hover:bg-zinc-800 border border-zinc-700/50 text-zinc-400 transition-all active:scale-90 shadow-lg backdrop-blur-sm"><Minus size={20} /></button>
+        <div className={`w-24 text-center font-black tabular-nums text-5xl sm:text-6xl tracking-tighter drop-shadow-md ${a.text}`}>{count}</div>
+        <button onClick={onInc} className={`w-12 h-12 sm:w-14 sm:h-14 rounded-xl flex items-center justify-center border transition-all active:scale-90 shadow-lg backdrop-blur-sm ${a.btn}`}><Plus size={20} /></button>
       </div>
     </div>
   );
 }
 
 function TeamStatCard({ accent, side, data, bump }) {
+  // If away, use rose for goals, else pitch for home. Penalties are always blue.
   return (
-    <div className="rounded-xl bg-zinc-950 border border-zinc-800/80 p-5 shadow-inner">
-      <div className="space-y-3 max-w-sm mx-auto">
-        <StepperRow label="Goal" count={data.goals} accent="pitch" onInc={() => bump(side, "goals", 1)} onDec={() => bump(side, "goals", -1)} />
-        <StepperRow label="Penalty" count={data.penalties} accent="blue" onInc={() => bump(side, "penalties", 1)} onDec={() => bump(side, "penalties", -1)} />
-      </div>
+    <div className="flex flex-col gap-4">
+      <StepperRow label="Goals" count={data.goals} accent={accent} onInc={() => bump(side, "goals", 1)} onDec={() => bump(side, "goals", -1)} />
+      <StepperRow label="Penalties" count={data.penalties} accent="blue" onInc={() => bump(side, "penalties", 1)} onDec={() => bump(side, "penalties", -1)} />
     </div>
   );
 }
