@@ -1,7 +1,7 @@
 import React, { useState, useMemo, useRef, useEffect } from "react";
 import {
   Plus, Minus, Play, Pause, Square, SkipForward, Check, X, ChevronDown,
-  Timer, Calendar, Upload, Loader2, ImageOff
+  Timer, Calendar, Upload, Loader2, ImageOff, ArrowLeftRight
 } from "lucide-react";
 import { updateMatchStatus, updateMatchScore } from '@/app/actions/match';
 import { supabase } from '@/lib/supabaseClient';
@@ -437,6 +437,13 @@ function StatsEntry({ stats, setStats, onSave, onSkip, busy }) {
     </div>
   );
 
+  const handleSwapStats = () => {
+    setStats(prev => {
+      const swapped = { home: { ...prev.away }, away: { ...prev.home } };
+      return swapped;
+    });
+  };
+
   return (
     <div className="px-5 sm:px-6 pb-6">
       <ImageImport onApply={handleImportApply} />
@@ -444,6 +451,9 @@ function StatsEntry({ stats, setStats, onSave, onSkip, busy }) {
       <div className="flex items-center gap-4 mb-4">
         <div className="flex-1 h-px bg-zinc-800"></div>
         <p className="text-[10px] text-zinc-500 uppercase tracking-[0.2em] font-bold">Or enter manually</p>
+        <button onClick={handleSwapStats} title="Swap Home and Away Stats" className="p-1 text-zinc-500 hover:text-pitch-bright hover:bg-pitch/10 rounded transition-colors" type="button">
+          <ArrowLeftRight size={14} />
+        </button>
         <div className="flex-1 h-px bg-zinc-800"></div>
       </div>
 
