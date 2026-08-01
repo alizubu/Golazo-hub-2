@@ -9,15 +9,16 @@ const statDefinitions = [
   { key: 'possession', label: 'BALL POSSESSION', format: 'percent' },
   { key: 'shots', label: 'TOTAL SHOTS', format: 'number' },
   { key: 'shotsOnTarget', label: 'SHOTS ON TARGET', format: 'number' },
+  { key: 'fouls', label: 'FOULS', format: 'number' },
+  { key: 'offsides', label: 'OFFSIDES', format: 'number' },
+  { key: 'corners', label: 'CORNER KICKS', format: 'number' },
+  { key: 'freeKicks', label: 'FREE KICKS', format: 'number' },
   { key: 'passes', label: 'PASSES', format: 'number' },
-  { key: 'accuratePasses', label: 'ACCURATE PASSES', format: 'number' },
+  { key: 'successfulPasses', label: 'SUCCESSFUL PASSES', format: 'number' },
   { key: 'crosses', label: 'CROSSES', format: 'number' },
   { key: 'interceptions', label: 'INTERCEPTIONS', format: 'number' },
   { key: 'tackles', label: 'TACKLES', format: 'number' },
   { key: 'saves', label: 'SAVES', format: 'number' },
-  { key: 'corners', label: 'CORNER KICKS', format: 'number' },
-  { key: 'fouls', label: 'FOULS', format: 'number' },
-  { key: 'freeKicks', label: 'FREE KICKS', format: 'number' },
 ];
 
 function StatBar({ label, valueA, valueB, colorA, colorB, format = 'number', index }) {
