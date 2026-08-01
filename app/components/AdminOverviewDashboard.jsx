@@ -9,6 +9,7 @@ import { BorderBeam } from './magicui/BorderBeam';
 import { NumberTicker } from './ui/number-ticker';
 import confetti from 'canvas-confetti';
 import { computeStandings } from './StandingsTable';
+import StandingsTable from './StandingsTable';
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from './ui/dropdown-menu';
 import { useRouter } from 'next/navigation';
 import TournamentControlPanel from './TournamentControlPanel';
@@ -592,21 +593,13 @@ export default function AdminOverviewDashboard({ players = [], activeSeason, mat
       <LiveMatchControl matches={liveMatches} players={players} activeSeason={activeSeason} showToast={showToast} />
       <QuickActions setTab={setTab} showToast={showToast} />
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-1">
-          <LeagueSnapshot matches={liveMatches} players={players} activeSeason={activeSeason} setTab={setTab} />
-        </div>
-        <div className="lg:col-span-1">
-          <UpcomingMatchesMini matches={liveMatches} players={players} activeSeason={activeSeason} setTab={setTab} />
-        </div>
-        <div className="lg:col-span-1">
-          <MiniCalendar matches={liveMatches} players={players} activeSeason={activeSeason} />
-        </div>
+      <div className="mb-6">
+        <StandingsTable matches={liveMatches} players={players} seasonId={activeSeason.id} />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <LeagueSnapshot matches={liveMatches} players={players} activeSeason={activeSeason} setTab={setTab} />
         <RecentResults matches={liveMatches} players={players} activeSeason={activeSeason} showToast={showToast} />
-        <NotificationCenter notifications={notifications} announcements={announcements} matches={liveMatches} />
       </div>
 
       <TopPlayersHorizontal matches={liveMatches} players={players} activeSeason={activeSeason} />
