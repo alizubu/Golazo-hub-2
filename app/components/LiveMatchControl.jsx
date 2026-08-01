@@ -58,7 +58,7 @@ function CardHeader({ title, status, tone }) {
   );
 }
 
-function ScoreRow({ home, away, homeScore, awayScore }) {
+function ScoreRow({ home, away, homeScore, awayScore, homeAvatar, awayAvatar }) {
   return (
     <div className="relative overflow-hidden bg-gradient-to-b from-zinc-900 to-zinc-950 pb-8 pt-4">
       <div className="absolute top-0 left-0 w-1/3 h-full bg-pitch/5 blur-[100px] pointer-events-none" />
@@ -66,8 +66,8 @@ function ScoreRow({ home, away, homeScore, awayScore }) {
       
       <div className="relative flex items-center justify-center gap-4 sm:gap-12 px-5 sm:px-8">
         <div className="flex flex-col items-center gap-3 flex-1 max-w-[12rem]">
-          <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl flex items-center justify-center font-black text-xl sm:text-2xl bg-zinc-900 text-zinc-50 border border-pitch/30 shadow-[0_0_20px_rgba(41,193,121,0.15)]">
-            {initials(home)}
+          <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full flex items-center justify-center font-black text-xl sm:text-2xl bg-zinc-900 text-zinc-50 border border-pitch/30 shadow-[0_0_20px_rgba(41,193,121,0.15)] overflow-hidden">
+            {homeAvatar ? <img src={homeAvatar} alt={home} className="w-full h-full object-cover" /> : initials(home)}
           </div>
           <span className="text-sm sm:text-base font-bold text-zinc-50 text-center line-clamp-2">{home}</span>
         </div>
@@ -79,8 +79,8 @@ function ScoreRow({ home, away, homeScore, awayScore }) {
         </div>
         
         <div className="flex flex-col items-center gap-3 flex-1 max-w-[12rem]">
-          <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl flex items-center justify-center font-black text-xl sm:text-2xl bg-zinc-900 text-zinc-50 border border-claret/30 shadow-[0_0_20px_rgba(178,58,72,0.15)]">
-            {initials(away)}
+          <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full flex items-center justify-center font-black text-xl sm:text-2xl bg-zinc-900 text-zinc-50 border border-claret/30 shadow-[0_0_20px_rgba(178,58,72,0.15)] overflow-hidden">
+            {awayAvatar ? <img src={awayAvatar} alt={away} className="w-full h-full object-cover" /> : initials(away)}
           </div>
           <span className="text-sm sm:text-base font-bold text-zinc-50 text-center line-clamp-2">{away}</span>
         </div>
@@ -143,15 +143,9 @@ function StepperRow({ label, count, accent, onInc, onDec }) {
   );
 }
 
-function TeamStatCard({ team, accent, side, data, bump }) {
-  const accentText = accent === "pitch" ? "text-pitch-bright" : "text-claret";
-  const accentBar = accent === "pitch" ? "bg-pitch-bright" : "bg-claret";
+function TeamStatCard({ accent, side, data, bump }) {
   return (
     <div className="rounded-xl bg-zinc-950 border border-zinc-800/80 p-5 shadow-inner">
-      <div className="flex items-center justify-center gap-2 mb-5">
-        <span className={`w-1.5 h-1.5 rounded-full ${accentBar}`} />
-        <span className={`text-sm font-bold uppercase tracking-widest truncate ${accentText}`}>{team}</span>
-      </div>
       <div className="space-y-3 max-w-sm mx-auto">
         <StepperRow label="Goal" count={data.goals} accent="pitch" onInc={() => bump(side, "goals", 1)} onDec={() => bump(side, "goals", -1)} />
         <StepperRow label="Penalty" count={data.penalties} accent="blue" onInc={() => bump(side, "penalties", 1)} onDec={() => bump(side, "penalties", -1)} />
@@ -166,8 +160,8 @@ function LiveControl({ state, setState, onFinish, onTogglePause }) {
   return (
     <div className="px-5 sm:px-8 pb-8">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 mb-6">
-        <TeamStatCard team={home.name} accent="pitch" side="home" data={home} bump={bump} />
-        <TeamStatCard team={away.name} accent="rose" side="away" data={away} bump={bump} />
+        <TeamStatCard accent="pitch" side="home" data={home} bump={bump} />
+        <TeamStatCard accent="rose" side="away" data={away} bump={bump} />
       </div>
       <div className="flex justify-center mb-6">
         <p className="text-[11px] text-zinc-500 bg-zinc-950 px-3 py-1.5 rounded-full border border-zinc-800/50 text-center">
@@ -198,8 +192,8 @@ function ExtraTime({ state, setState, etHalf, setEtHalf, onDone }) {
         <span className="text-sm font-bold text-amber-400 tracking-wide uppercase">Extra Time — {etHalf === 1 ? "1st Half (15')" : "2nd Half (15')"}</span>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 mb-6">
-        <TeamStatCard team={home.name} accent="pitch" side="home" data={home} bump={bump} />
-        <TeamStatCard team={away.name} accent="rose" side="away" data={away} bump={bump} />
+        <TeamStatCard accent="pitch" side="home" data={home} bump={bump} />
+        <TeamStatCard accent="rose" side="away" data={away} bump={bump} />
       </div>
       <div className="flex justify-center">
         {etHalf === 1 ? (
@@ -592,8 +586,8 @@ export default function LiveMatchControl({ matches, players, activeSeason, showT
   const aInit = initMatch ? byId[initMatch.awayId] : null;
 
   const [state, setState] = useState({
-    home: { name: hInit?.name || "Home", goals: initMatch?.homeScore || 0, penalties: 0 },
-    away: { name: aInit?.name || "Away", goals: initMatch?.awayScore || 0, penalties: 0 },
+    home: { name: hInit?.name || "Home", avatarUrl: hInit?.avatarUrl || null, goals: initMatch?.homeScore || 0, penalties: 0 },
+    away: { name: aInit?.name || "Away", avatarUrl: aInit?.avatarUrl || null, goals: initMatch?.awayScore || 0, penalties: 0 },
     paused: initMatch?.liveState?.paused || false,
   });
 
@@ -616,8 +610,8 @@ export default function LiveMatchControl({ matches, players, activeSeason, showT
       
       setState(prev => ({
         ...prev,
-        home: { ...prev.home, name: h?.name || "Home", goals: liveMatch.homeScore || 0 },
-        away: { ...prev.away, name: a?.name || "Away", goals: liveMatch.awayScore || 0 },
+        home: { ...prev.home, name: h?.name || "Home", avatarUrl: h?.avatarUrl || null, goals: liveMatch.homeScore || 0 },
+        away: { ...prev.away, name: a?.name || "Away", avatarUrl: a?.avatarUrl || null, goals: liveMatch.awayScore || 0 },
         paused: liveMatch.liveState?.paused || false
       }));
     }
@@ -640,8 +634,8 @@ export default function LiveMatchControl({ matches, players, activeSeason, showT
     const a = byId[nextMatch.awayId];
 
     setState({
-      home: { name: h?.name || "Home", goals: 0, penalties: 0 },
-      away: { name: a?.name || "Away", goals: 0, penalties: 0 },
+      home: { name: h?.name || "Home", avatarUrl: h?.avatarUrl || null, goals: 0, penalties: 0 },
+      away: { name: a?.name || "Away", avatarUrl: a?.avatarUrl || null, goals: 0, penalties: 0 },
       paused: false,
     });
     
@@ -808,7 +802,7 @@ export default function LiveMatchControl({ matches, players, activeSeason, showT
     <div className="w-full bg-zinc-900 mb-6 rounded-2xl border border-zinc-800 shadow-2xl overflow-hidden font-sans">
       <CardHeader title={h.title} status={h.status} tone={h.tone} />
       
-      <ScoreRow home={state.home.name} away={state.away.name} homeScore={state.home.goals} awayScore={state.away.goals} />
+      <ScoreRow home={state.home.name} away={state.away.name} homeScore={state.home.goals} awayScore={state.away.goals} homeAvatar={state.home.avatarUrl} awayAvatar={state.away.avatarUrl} />
       
       <div className="border-b border-zinc-800/50 bg-zinc-950/30">
         <StepIndicator phase={phase} needsShootout={needsShootoutStep} />
@@ -819,7 +813,7 @@ export default function LiveMatchControl({ matches, players, activeSeason, showT
         {phase === "extra_time" && <ExtraTime state={state} setState={handleSetState} etHalf={etHalf} setEtHalf={setEtHalf} onDone={handleEndExtraTime} />}
         {phase === "shootout" && <Shootout home={state.home} away={state.away} kicks={kicks} setKicks={setKicks} onDecided={handleShootoutDecided} />}
         {phase === "stats" && <StatsEntry stats={stats} setStats={setStats} busy={saving} onSave={() => finalizeMatch(false)} onSkip={() => finalizeMatch(true)} />}
-        {phase === "done" && <Published state={state} stats={stats} resultType={resultType} shootoutWinner={shootoutWinner} onClose={() => setPhase("live")} />}
+        {phase === "done" && <Published state={state} stats={stats} resultType={resultType} shootoutWinner={shootoutWinner} onClose={() => { setPhase("live"); setOptLiveMatch(null); setFinishedDataCache(null); }} />}
       </main>
 
       {!["live", "done"].includes(phase) && (
