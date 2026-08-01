@@ -35,13 +35,13 @@ function initials(name) {
 // Card chrome
 // ---------------------------------------------------------------------------
 function CardHeader({ title, status, tone }) {
-  const tones = { rose: "bg-rose-950 text-rose-400", amber: "bg-amber-950 text-amber-400", emerald: "bg-emerald-950 text-emerald-400" };
-  const dotTones = { rose: "bg-rose-500", amber: "bg-amber-500", emerald: "bg-emerald-500" };
+  const tones = { rose: "bg-claret-dim/20 text-claret", amber: "bg-amber-950 text-amber-400", emerald: "bg-pitch/20 text-pitch-bright" };
+  const dotTones = { rose: "bg-claret", amber: "bg-amber-500", emerald: "bg-pitch-bright" };
   return (
     <div className="flex items-center justify-between px-5 sm:px-6 pt-5 sm:pt-6 pb-4">
       <div className="flex items-center gap-3">
-        <div className="w-9 h-9 rounded-lg flex items-center justify-center bg-emerald-950 text-emerald-400">
-          <Play size={15} className="fill-emerald-400" />
+        <div className="w-9 h-9 rounded-lg flex items-center justify-center bg-pitch/20 text-pitch-bright">
+          <Play size={15} className="fill-pitch-bright" />
         </div>
         <h1 className="text-base sm:text-[17px] font-bold text-zinc-50">{title}</h1>
       </div>
@@ -60,7 +60,7 @@ function ScoreRow({ home, away, homeScore, awayScore, compact }) {
   return (
     <div className={`flex items-center justify-center gap-6 sm:gap-8 px-5 sm:px-6 ${compact ? "pb-5" : "pb-6"}`}>
       <div className="flex flex-col items-center gap-2">
-        <div className={`${compact ? "w-12 h-12" : "w-14 h-14 sm:w-16 sm:h-16"} rounded-full flex items-center justify-center font-bold bg-zinc-800 text-zinc-50 border-2 border-emerald-500`}>
+        <div className={`${compact ? "w-12 h-12" : "w-14 h-14 sm:w-16 sm:h-16"} rounded-full flex items-center justify-center font-bold bg-zinc-800 text-zinc-50 border-2 border-pitch-bright`}>
           {initials(home)}
         </div>
         <span className="text-sm font-bold text-zinc-50 text-center max-w-[7rem] truncate">{home}</span>
@@ -71,7 +71,7 @@ function ScoreRow({ home, away, homeScore, awayScore, compact }) {
         <span>{awayScore}</span>
       </div>
       <div className="flex flex-col items-center gap-2">
-        <div className={`${compact ? "w-12 h-12" : "w-14 h-14 sm:w-16 sm:h-16"} rounded-full flex items-center justify-center font-bold bg-zinc-800 text-zinc-50 border-2 border-rose-500`}>
+        <div className={`${compact ? "w-12 h-12" : "w-14 h-14 sm:w-16 sm:h-16"} rounded-full flex items-center justify-center font-bold bg-zinc-800 text-zinc-50 border-2 border-claret`}>
           {initials(away)}
         </div>
         <span className="text-sm font-bold text-zinc-50 text-center max-w-[7rem] truncate">{away}</span>
@@ -99,7 +99,7 @@ function StepIndicator({ phase, needsShootout }) {
         return (
           <React.Fragment key={s.key}>
             <div className="flex items-center gap-1.5">
-              <div className={`w-1.5 h-1.5 rounded-full ${active || done ? "bg-emerald-500" : "bg-zinc-800"}`} />
+              <div className={`w-1.5 h-1.5 rounded-full ${active || done ? "bg-pitch-bright" : "bg-zinc-800"}`} />
               <span className={`text-[11px] tracking-wide uppercase whitespace-nowrap ${active ? "text-zinc-50 font-bold" : "text-zinc-500 font-medium"}`}>{s.label}</span>
             </div>
             {i < steps.length - 1 && <div className="w-4 sm:w-6 h-px bg-zinc-800" />}
@@ -129,7 +129,7 @@ function StepIndicatorVertical({ phase, needsShootout }) {
         const done = idx < currentIdx;
         return (
           <div key={s.key} className="flex items-center gap-2.5">
-            <div className={`w-2 h-2 rounded-full shrink-0 ${active || done ? "bg-emerald-500" : "bg-zinc-800"}`} />
+            <div className={`w-2 h-2 rounded-full shrink-0 ${active || done ? "bg-pitch-bright" : "bg-zinc-800"}`} />
             <span className={`text-xs uppercase tracking-wide ${active ? "text-zinc-50 font-bold" : "text-zinc-500 font-medium"}`}>{s.label}</span>
           </div>
         );
@@ -143,14 +143,14 @@ function StepIndicatorVertical({ phase, needsShootout }) {
 // ---------------------------------------------------------------------------
 function StepperRow({ label, count, accent, onInc, onDec }) {
   const accents = {
-    emerald: { count: "text-emerald-400", btn: "bg-emerald-500 hover:bg-emerald-400 text-emerald-950" },
+    pitch: { count: "text-pitch-bright", btn: "bg-pitch-bright hover:bg-emerald-400 text-stadium-base" },
     blue: { count: "text-blue-400", btn: "bg-blue-500 hover:bg-blue-400 text-blue-950" },
   };
   const a = accents[accent];
   return (
     <div className="flex items-center justify-between rounded-xl bg-zinc-950 border border-zinc-800 px-3 py-2.5">
       <div className="flex items-center gap-2 text-zinc-300">
-        <span className={`w-1.5 h-1.5 rounded-full ${accent === "emerald" ? "bg-emerald-500" : "bg-blue-500"}`} />
+        <span className={`w-1.5 h-1.5 rounded-full ${accent === "pitch" ? "bg-pitch-bright" : "bg-blue-500"}`} />
         <span className="text-sm font-medium">{label}</span>
       </div>
       <div className="flex items-center gap-3">
@@ -163,8 +163,8 @@ function StepperRow({ label, count, accent, onInc, onDec }) {
 }
 
 function TeamStatCard({ team, accent, side, data, bump }) {
-  const accentText = accent === "emerald" ? "text-emerald-400" : "text-rose-400";
-  const accentBar = accent === "emerald" ? "bg-emerald-500" : "bg-rose-500";
+  const accentText = accent === "pitch" ? "text-pitch-bright" : "text-claret";
+  const accentBar = accent === "pitch" ? "bg-pitch-bright" : "bg-claret";
   return (
     <div className="rounded-xl bg-zinc-900 border border-zinc-800 p-4">
       <div className="flex items-center gap-2 mb-3.5">
@@ -172,7 +172,7 @@ function TeamStatCard({ team, accent, side, data, bump }) {
         <span className={`text-xs font-bold uppercase tracking-wide truncate ${accentText}`}>{team}</span>
       </div>
       <div className="space-y-2">
-        <StepperRow label="Goal" count={data.goals} accent="emerald" onInc={() => bump(side, "goals", 1)} onDec={() => bump(side, "goals", -1)} />
+        <StepperRow label="Goal" count={data.goals} accent="pitch" onInc={() => bump(side, "goals", 1)} onDec={() => bump(side, "goals", -1)} />
         <StepperRow label="Penalty" count={data.penalties} accent="blue" onInc={() => bump(side, "penalties", 1)} onDec={() => bump(side, "penalties", -1)} />
       </div>
     </div>
@@ -185,7 +185,7 @@ function LiveControl({ state, setState, onFinish, onTogglePause }) {
   return (
     <div className="px-5 sm:px-6 pb-6">
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
-        <TeamStatCard team={home.name} accent="emerald" side="home" data={home} bump={bump} />
+        <TeamStatCard team={home.name} accent="pitch" side="home" data={home} bump={bump} />
         <TeamStatCard team={away.name} accent="rose" side="away" data={away} bump={bump} />
       </div>
       <p className="text-[11px] text-center text-zinc-500 mb-5">A scored penalty also counts as a goal — add both if the kick beats the keeper.</p>
@@ -195,8 +195,8 @@ function LiveControl({ state, setState, onFinish, onTogglePause }) {
           {paused ? <Play size={15} /> : <Pause size={15} />}{paused ? "Resume Match" : "Pause Match"}
         </button>
         <button onClick={onFinish}
-          className="h-12 rounded-xl flex items-center justify-center gap-2 font-semibold text-sm bg-rose-950 hover:bg-rose-900 text-rose-400 border border-rose-800 transition-colors active:scale-[0.98]">
-          <Square size={13} className="fill-rose-400" />Finish Match
+          className="h-12 rounded-xl flex items-center justify-center gap-2 font-semibold text-sm bg-claret-dim/20 hover:bg-claret-dim text-claret border border-claret-dim/30 transition-colors active:scale-[0.98]">
+          <Square size={13} className="fill-claret" />Finish Match
         </button>
       </div>
     </div>
@@ -213,7 +213,7 @@ function ExtraTime({ state, setState, etHalf, setEtHalf, onDone }) {
         <span className="text-xs font-semibold text-amber-400">Extra Time — {etHalf === 1 ? "1st Half (15')" : "2nd Half (15')"}</span>
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
-        <TeamStatCard team={home.name} accent="emerald" side="home" data={home} bump={bump} />
+        <TeamStatCard team={home.name} accent="pitch" side="home" data={home} bump={bump} />
         <TeamStatCard team={away.name} accent="rose" side="away" data={away} bump={bump} />
       </div>
       <div className="grid grid-cols-2 gap-3">
@@ -224,8 +224,8 @@ function ExtraTime({ state, setState, etHalf, setEtHalf, onDone }) {
           </button>
         ) : (
           <button onClick={onDone}
-            className="col-span-2 h-12 rounded-xl flex items-center justify-center gap-2 font-semibold text-sm bg-rose-950 hover:bg-rose-900 text-rose-400 border border-rose-800 transition-colors active:scale-[0.98]">
-            <Square size={13} className="fill-rose-400" />End Extra Time
+            className="col-span-2 h-12 rounded-xl flex items-center justify-center gap-2 font-semibold text-sm bg-claret-dim/20 hover:bg-claret-dim text-claret border border-claret-dim/30 transition-colors active:scale-[0.98]">
+            <Square size={13} className="fill-claret" />End Extra Time
           </button>
         )}
       </div>
@@ -248,7 +248,7 @@ const KickTrack = ({ list }) => (
       return (
         <div
           key={i}
-          className={`w-7 h-7 rounded-full flex items-center justify-center text-sm leading-none ${scored ? "bg-emerald-500" : "bg-rose-500"}`}
+          className={`w-7 h-7 rounded-full flex items-center justify-center text-sm leading-none ${scored ? "bg-pitch-bright" : "bg-claret"}`}
           title={scored ? "Scored" : "Missed"}
         >
           {scored ? "⚽" : "❌"}
@@ -287,35 +287,35 @@ function Shootout({ home, away, kicks, setKicks, onDecided }) {
     <div className="px-5 sm:px-6 pb-6">
       <div className="flex items-center justify-between mb-4">
         <span className="text-xs font-semibold text-zinc-50">{inSuddenDeath ? "Sudden death" : `Round ${round} of 5`}</span>
-        {!decided && <span className={`text-xs font-semibold ${kicker === "home" ? "text-emerald-400" : "text-rose-400"}`}>{kicker === "home" ? home.name : away.name} to kick</span>}
+        {!decided && <span className={`text-xs font-semibold ${kicker === "home" ? "text-pitch-bright" : "text-claret"}`}>{kicker === "home" ? home.name : away.name} to kick</span>}
       </div>
       <div className="grid grid-cols-2 gap-4 mb-6">
         <div className="rounded-xl p-3 bg-zinc-950 border border-zinc-800">
           <div className="flex items-center justify-between mb-2">
             <span className="text-xs font-bold text-zinc-50 truncate">{home.name}</span>
-            <span className="text-lg font-extrabold tabular-nums text-emerald-400">{homeScore}</span>
+            <span className="text-lg font-extrabold tabular-nums text-pitch-bright">{homeScore}</span>
           </div>
           <KickTrack list={homeKicks} />
         </div>
         <div className="rounded-xl p-3 bg-zinc-950 border border-zinc-800">
           <div className="flex items-center justify-between mb-2">
             <span className="text-xs font-bold text-zinc-50 truncate">{away.name}</span>
-            <span className="text-lg font-extrabold tabular-nums text-rose-400">{awayScore}</span>
+            <span className="text-lg font-extrabold tabular-nums text-claret">{awayScore}</span>
           </div>
           <KickTrack list={awayKicks} />
         </div>
       </div>
       {!decided ? (
         <div className="grid grid-cols-2 gap-3">
-          <button onClick={() => record("scored")} className="h-14 rounded-xl flex items-center justify-center gap-2 font-semibold text-sm bg-emerald-950 hover:bg-emerald-900 text-emerald-400 border border-emerald-800 transition-colors active:scale-[0.98]"><Check size={16} /> Scored</button>
-          <button onClick={() => record("missed")} className="h-14 rounded-xl flex items-center justify-center gap-2 font-semibold text-sm bg-rose-950 hover:bg-rose-900 text-rose-400 border border-rose-800 transition-colors active:scale-[0.98]"><X size={16} /> Missed</button>
+          <button onClick={() => record("scored")} className="h-14 rounded-xl flex items-center justify-center gap-2 font-semibold text-sm bg-pitch/20 hover:bg-pitch text-pitch-bright border border-pitch/30 transition-colors active:scale-[0.98]"><Check size={16} /> Scored</button>
+          <button onClick={() => record("missed")} className="h-14 rounded-xl flex items-center justify-center gap-2 font-semibold text-sm bg-claret-dim/20 hover:bg-claret-dim text-claret border border-claret-dim/30 transition-colors active:scale-[0.98]"><X size={16} /> Missed</button>
         </div>
       ) : (
         <div className="text-center">
           <p className="text-sm mb-4 text-zinc-50">
-            <span className={`font-bold ${decided === "home" ? "text-emerald-400" : "text-rose-400"}`}>{decided === "home" ? home.name : away.name}</span> win the shootout {decided === "home" ? homeScore : awayScore}–{decided === "home" ? awayScore : homeScore}.
+            <span className={`font-bold ${decided === "home" ? "text-pitch-bright" : "text-claret"}`}>{decided === "home" ? home.name : away.name}</span> win the shootout {decided === "home" ? homeScore : awayScore}–{decided === "home" ? awayScore : homeScore}.
           </p>
-          <button onClick={() => onDecided(decided)} className="w-full h-12 rounded-xl flex items-center justify-center gap-2 font-semibold text-sm bg-emerald-500 hover:bg-emerald-400 text-emerald-950 transition-colors active:scale-[0.98]">Continue <SkipForward size={15} /></button>
+          <button onClick={() => onDecided(decided)} className="w-full h-12 rounded-xl flex items-center justify-center gap-2 font-semibold text-sm bg-pitch-bright hover:bg-emerald-400 text-stadium-base transition-colors active:scale-[0.98]">Continue <SkipForward size={15} /></button>
         </div>
       )}
     </div>
@@ -337,10 +337,10 @@ function StatsEntry({ stats, setStats, onSave, onSkip, busy }) {
   const Row = ({ f, i }) => (
     <div key={f.key} className={`grid grid-cols-[56px_1fr_56px] items-center gap-2 px-3 py-2.5 ${i % 2 === 0 ? "bg-zinc-950" : "bg-transparent"} ${i !== 0 ? "border-t border-zinc-800" : ""}`}>
       <input type="number" inputMode="numeric" value={stats.home[f.key]} onChange={(e) => update("home", f.key, e.target.value)}
-        className="h-8 rounded-md text-center text-sm font-semibold tabular-nums outline-none bg-zinc-800 border border-zinc-700 text-emerald-400 focus:border-emerald-600" />
+        className="h-8 rounded-md text-center text-sm font-semibold tabular-nums outline-none bg-zinc-800 border border-zinc-700 text-pitch-bright focus:border-pitch-bright" />
       <span className="text-[11px] text-center text-zinc-500 truncate">{f.label}{f.percent ? " (%)" : ""}</span>
       <input type="number" inputMode="numeric" value={stats.away[f.key]} onChange={(e) => update("away", f.key, e.target.value)}
-        className="h-8 rounded-md text-center text-sm font-semibold tabular-nums outline-none bg-zinc-800 border border-zinc-700 text-rose-400 focus:border-rose-600" />
+        className="h-8 rounded-md text-center text-sm font-semibold tabular-nums outline-none bg-zinc-800 border border-zinc-700 text-claret focus:border-claret" />
     </div>
   );
 
@@ -358,7 +358,7 @@ function StatsEntry({ stats, setStats, onSave, onSkip, busy }) {
 
       <div className="grid grid-cols-2 gap-3">
         <button disabled={busy} onClick={onSkip} className="h-12 rounded-xl flex items-center justify-center gap-2 font-semibold text-sm bg-zinc-800 hover:bg-zinc-700 text-zinc-400 border border-zinc-700 transition-colors active:scale-[0.98] disabled:opacity-50"><SkipForward size={15} /> Skip</button>
-        <button disabled={busy} onClick={onSave} className="h-12 rounded-xl flex items-center justify-center gap-2 font-semibold text-sm bg-emerald-500 hover:bg-emerald-400 text-emerald-950 transition-colors active:scale-[0.98] disabled:opacity-50">
+        <button disabled={busy} onClick={onSave} className="h-12 rounded-xl flex items-center justify-center gap-2 font-semibold text-sm bg-pitch-bright hover:bg-emerald-400 text-stadium-base transition-colors active:scale-[0.98] disabled:opacity-50">
           <Check size={15} /> Save & Publish
         </button>
       </div>
@@ -375,14 +375,14 @@ function StatRow({ label, value, percent }) {
   const homeWidth = total > 0 ? (h / total) * 100 : 50;
   const homeWins = h > a;
   const awayWins = a > h;
-  const homeColorClass = homeWins || (!homeWins && !awayWins) ? "bg-emerald-500" : "bg-emerald-900";
-  const awayColorClass = awayWins || (!homeWins && !awayWins) ? "bg-rose-500" : "bg-rose-900";
+  const homeColorClass = homeWins || (!homeWins && !awayWins) ? "bg-pitch-bright" : "bg-pitch";
+  const awayColorClass = awayWins || (!homeWins && !awayWins) ? "bg-claret" : "bg-claret-dim";
   return (
     <div className="mb-4 last:mb-0">
       <div className="flex items-center justify-between mb-1.5">
-        {percent ? <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-emerald-950 text-emerald-400">{h}%</span> : <span className={`text-sm font-bold tabular-nums ${homeWins ? "text-zinc-50" : "text-zinc-500"}`}>{h}</span>}
+        {percent ? <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-pitch/20 text-pitch-bright">{h}%</span> : <span className={`text-sm font-bold tabular-nums ${homeWins ? "text-zinc-50" : "text-zinc-500"}`}>{h}</span>}
         <span className="text-[13px] font-medium text-zinc-500">{label}</span>
-        {percent ? <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-rose-950 text-rose-400">{a}%</span> : <span className={`text-sm font-bold tabular-nums ${awayWins ? "text-zinc-50" : "text-zinc-500"}`}>{a}</span>}
+        {percent ? <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-claret-dim/20 text-claret">{a}%</span> : <span className={`text-sm font-bold tabular-nums ${awayWins ? "text-zinc-50" : "text-zinc-500"}`}>{a}</span>}
       </div>
       <div className="h-1.5 w-full rounded-full overflow-hidden flex bg-zinc-800">
         {total === 0 ? <div className="w-full h-full bg-zinc-800" /> : (
@@ -416,7 +416,7 @@ function Published({ state, stats, resultType, shootoutWinner, onClose }) {
     <div className="px-5 sm:px-6 pb-6">
       <button onClick={() => hasStats && setExpanded((o) => !o)} className="w-full flex items-center justify-between mb-2">
         <div className="text-left">
-          <p className="text-xs font-semibold text-emerald-400">Result published</p>
+          <p className="text-xs font-semibold text-pitch-bright">Result published</p>
           <p className="text-[11px] text-zinc-500 mt-0.5">{summary}</p>
         </div>
         {hasStats && <ChevronDown size={16} className={`text-zinc-500 transition-transform duration-300 ${expanded ? "rotate-180" : "rotate-0"}`} />}

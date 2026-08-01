@@ -168,7 +168,7 @@ export default function MatchStatsModal({ matchId, onClose }) {
                 {/* Home Player */}
                 <div className="flex flex-col items-center gap-2 relative">
                   <div className="relative">
-                    <Avatar p={match.home} size={56} ring="var(--pitch-bright)" className="shadow-lg" />
+                    <Avatar p={match.home} size={56} ring="#29C179" className="shadow-lg" />
                     {match.stats?.homeRating && (
                       <motion.div 
                         initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ delay: 0.5, type: 'spring' }}
@@ -213,7 +213,7 @@ export default function MatchStatsModal({ matchId, onClose }) {
                 {/* Away Player */}
                 <div className="flex flex-col items-center gap-2 relative">
                   <div className="relative">
-                    <Avatar p={match.away} size={56} ring="var(--claret)" className="shadow-lg" />
+                    <Avatar p={match.away} size={56} ring="#B23A48" className="shadow-lg" />
                     {match.stats?.awayRating && (
                       <motion.div 
                         initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ delay: 0.6, type: 'spring' }}
@@ -255,8 +255,8 @@ export default function MatchStatsModal({ matchId, onClose }) {
               <div className="flex flex-col">
                 {statDefinitions.map((def, i) => {
                   // Fallback to "-" or "0" if stats aren't filled yet
-                  const valA = match.stats?.[def.key]?.home ?? (match.status === 'scheduled' ? '-' : 0);
-                  const valB = match.stats?.[def.key]?.away ?? (match.status === 'scheduled' ? '-' : 0);
+                  const valA = match.stats?.[def.key]?.a ?? (match.status === 'scheduled' ? '-' : 0);
+                  const valB = match.stats?.[def.key]?.b ?? (match.status === 'scheduled' ? '-' : 0);
                   
                   return (
                     <StatBar 
@@ -265,8 +265,8 @@ export default function MatchStatsModal({ matchId, onClose }) {
                       label={def.label}
                       valueA={valA}
                       valueB={valB}
-                      colorA="var(--pitch-bright)"
-                      colorB="var(--claret)"
+                      colorA="#29C179"
+                      colorB="#B23A48"
                       format={def.format}
                     />
                   );
