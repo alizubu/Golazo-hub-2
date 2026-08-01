@@ -771,10 +771,9 @@ export function AdminTrophies({ players, trophies = [], seasons, showToast }) {
     const target = revokeTarget;
 
     try {
-      const res = await fetch(`/api/admin/trophies/${target.id}`, { method: 'DELETE' });
-      const data = await res.json();
+      const data = await removeTrophy(target.id);
 
-      if (!data.success) {
+      if (data.error) {
         showToast(`❌ Failed to revoke trophy: ${data.error}`);
       } else {
         const playerName = players.find(p => p.id === target.playerId)?.name || 'Player';
@@ -783,7 +782,7 @@ export function AdminTrophies({ players, trophies = [], seasons, showToast }) {
         router.refresh();
       }
     } catch (err) {
-      showToast(`❌ Network error revoking trophy: ${err.message}`);
+      showToast(`❌ Error revoking trophy: ${err.message}`);
     } finally {
       setIsRevoking(false);
       setRevokeTarget(null);
