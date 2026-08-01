@@ -35,7 +35,16 @@ function calculateEloDelta(eloA, eloB, scoreA, scoreB) {
 export async function POST(req, { params }) {
   try {
     const { id } = params;
-    const { homeScore, awayScore, stats } = await req.json();
+    const { 
+      homeScore, 
+      awayScore, 
+      stats, 
+      penaltyHome, 
+      penaltyAway, 
+      penaltyWinner, 
+      wentToExtra,
+      resultType 
+    } = await req.json();
 
     const match = await prisma.match.findUnique({
       where: { id },
@@ -71,7 +80,6 @@ export async function POST(req, { params }) {
     // Calculate ELO
     const { deltaA, deltaB } = calculateEloDelta(match.home.elo, match.away.elo, homeScore, awayScore);
 
-    // Run transaction
     const [updatedMatch, homeUpdate, awayUpdate, notification] = await prisma.$transaction([
       prisma.match.update({
         where: { id },
@@ -79,6 +87,10 @@ export async function POST(req, { params }) {
           status: 'completed',
           homeScore,
           awayScore,
+          penaltyHome,
+          penaltyAway,
+          penaltyWinner,
+          wentToExtra,
           stats: finalStatsObj,
           completedAt: new Date()
         }
