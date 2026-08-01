@@ -397,20 +397,17 @@ function ImageImport({ onApply }) {
         'shots': 'shots',
         'fouls': 'fouls',
         'offsides': 'offsides',
+        'corner kicks': 'corners',
         'corners': 'corners',
         'free kicks': 'freeKicks',
-        'passes': 'passes',
         'successful passes': 'successfulPasses',
+        'passes': 'passes',
         'crosses': 'crosses',
         'interceptions': 'interceptions',
         'tackles': 'tackles',
-        'saves': 'saves'
+        'saves': 'saves',
+        'expected goals': 'expectedGoals' // In case it exists in some future schema, though ignored for now
       };
-
-      Object.values(mappings).forEach(key => {
-        stats.home[key] = 0;
-        stats.away[key] = 0;
-      });
 
       for (const line of lines) {
         for (const [key, jsonKey] of Object.entries(mappings)) {
@@ -862,7 +859,7 @@ export default function LiveMatchControl({ matches, players, activeSeason, showT
   const h = headerFor();
 
   return (
-    <div className="w-full bg-zinc-900 mb-6 rounded-2xl border border-zinc-800 shadow-2xl overflow-hidden font-sans">
+    <div className="w-full bg-card mb-6 rounded-2xl border border-border/60 shadow-lg overflow-hidden font-sans">
       <CardHeader title={h.title} status={h.status} tone={h.tone} />
       
       <ScoreRow home={state.home.name} away={state.away.name} homeScore={state.home.goals} awayScore={state.away.goals} homeObj={state.home} awayObj={state.away} paused={state.paused} isLive={phase === "live" || phase === "extra_time"} />
