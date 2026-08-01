@@ -8,6 +8,30 @@ import { supabase } from '@/lib/supabaseClient';
 import { Btn, MagicCard } from './UI';
 import Tesseract from 'tesseract.js';
 import { MatchStatsPreview } from './AdminConsole';
+import { motion, AnimatePresence } from 'framer-motion';
+
+function MatchClock({ paused, isLive }) {
+  const [seconds, setSeconds] = useState(0);
+
+  useEffect(() => {
+    if (paused || !isLive) return;
+    const interval = setInterval(() => setSeconds(s => s + 1), 1000);
+    return () => clearInterval(interval);
+  }, [paused, isLive]);
+
+  const m = Math.floor(seconds / 60);
+  const s = seconds % 60;
+  return (
+    <div className="flex flex-col items-center justify-center mt-2 sm:mt-4 mb-2">
+      <div className={`text-2xl sm:text-3xl font-black font-score tabular-nums tracking-tighter transition-colors ${paused ? 'text-zinc-500' : 'text-pitch-bright'}`}>
+        {String(m).padStart(2, '0')}:{String(s).padStart(2, '0')}
+      </div>
+      <div className="text-[10px] sm:text-xs font-bold text-zinc-500 tracking-[0.2em] uppercase mt-1">
+        {paused ? 'Paused' : 'Match Time'}
+      </div>
+    </div>
+  );
+}
 
 // ---------------------------------------------------------------------------
 // Stat fields
@@ -37,8 +61,10 @@ function initials(name) {
 // Card chrome
 // ---------------------------------------------------------------------------
 function CardHeader({ title, status, tone }) {
-  const tones = { rose: "bg-claret-dim/20 text-claret", amber: "bg-amber-950 text-amber-400", emerald: "bg-pitch/20 text-pitch-bright" };
-  const dotTones = { rose: "bg-claret", amber: "bg-amber-500", emerald: "bg-pitch-bright" };
+  const tones = { rose: "bg-claret-dim/20 text-claret border-claret/30", amber: "bg-amber-950 text-amber-400 border-amber-500/30", emerald: "bg-pitch/20 text-pitch-bright border-pitch/30" };
+  const dotTones = { rose: "bg-claret shadow-[0_0_8px_rgba(178,58,72,0.8)]", amber: "bg-amber-500 shadow-[0_0_8px_rgba(245,158,11,0.8)]", emerald: "bg-pitch-bright shadow-[0_0_8px_rgba(41,193,121,0.8)]" };
+  const isLive = tone === "rose" && status.includes("LIVE");
+  
   return (
     <div className="flex items-center justify-between px-5 sm:px-6 pt-5 sm:pt-6 pb-4">
       <div className="flex items-center gap-3">
@@ -47,10 +73,10 @@ function CardHeader({ title, status, tone }) {
         </div>
         <h1 className="text-base sm:text-[17px] font-bold text-zinc-50">{title}</h1>
       </div>
-      <div className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold tracking-wide ${tones[tone]}`}>
-        <span className="relative flex h-1.5 w-1.5">
-          <span className={`animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 ${dotTones[tone]}`} />
-          <span className={`relative inline-flex rounded-full h-1.5 w-1.5 ${dotTones[tone]}`} />
+      <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-bold tracking-wider border ${tones[tone]}`}>
+        <span className="relative flex h-2 w-2">
+          {isLive && <span className={`animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 ${dotTones[tone].split(' ')[0]}`} />}
+          <span className={`relative inline-flex rounded-full h-2 w-2 ${dotTones[tone]}`} />
         </span>
         {status}
       </div>
@@ -58,31 +84,52 @@ function CardHeader({ title, status, tone }) {
   );
 }
 
-function ScoreRow({ home, away, homeScore, awayScore, homeAvatar, awayAvatar }) {
+function ScoreNumber({ score, colorClass }) {
+  return (
+    <motion.div
+      key={score}
+      initial={{ scale: 1.5, opacity: 0, filter: 'brightness(2)' }}
+      animate={{ scale: 1, opacity: 1, filter: 'brightness(1)' }}
+      className={`${colorClass}`}
+    >
+      {score}
+    </motion.div>
+  );
+}
+
+function ScoreRow({ home, away, homeScore, awayScore, homeAvatar, awayAvatar, paused, isLive }) {
   return (
     <div className="relative overflow-hidden bg-gradient-to-b from-zinc-900 to-zinc-950 pb-8 pt-4">
       <div className="absolute top-0 left-0 w-1/3 h-full bg-pitch/5 blur-[100px] pointer-events-none" />
       <div className="absolute top-0 right-0 w-1/3 h-full bg-claret/5 blur-[100px] pointer-events-none" />
       
-      <div className="relative flex items-center justify-center gap-4 sm:gap-12 px-5 sm:px-8">
-        <div className="flex flex-col items-center gap-3 flex-1 max-w-[12rem]">
-          <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full flex items-center justify-center font-black text-xl sm:text-2xl bg-zinc-900 text-zinc-50 border border-pitch/30 shadow-[0_0_20px_rgba(41,193,121,0.15)] overflow-hidden">
-            {homeAvatar ? <img src={homeAvatar} alt={home} className="w-full h-full object-cover" /> : initials(home)}
+      <div className="relative flex flex-col items-center px-4 sm:px-8">
+        <div className="flex items-center justify-center gap-6 sm:gap-16 w-full max-w-2xl mx-auto">
+          {/* Home */}
+          <div className="flex flex-col items-center gap-3 sm:gap-4 flex-1">
+            <div className="w-20 h-20 sm:w-28 sm:h-28 rounded-full flex items-center justify-center font-black text-2xl sm:text-4xl bg-zinc-900 text-zinc-50 border-4 border-pitch shadow-[0_0_30px_rgba(41,193,121,0.2)] overflow-hidden">
+              {homeAvatar ? <img src={homeAvatar} alt={home} className="w-full h-full object-cover" /> : initials(home)}
+            </div>
+            <span className="text-base sm:text-xl font-bold text-zinc-50 text-center line-clamp-2 leading-tight">{home}</span>
           </div>
-          <span className="text-sm sm:text-base font-bold text-zinc-50 text-center line-clamp-2">{home}</span>
-        </div>
-        
-        <div className="flex items-center gap-4 text-5xl sm:text-7xl font-black tabular-nums tracking-tighter text-zinc-50">
-          <span className="text-pitch-bright">{homeScore}</span>
-          <span className="text-zinc-800 font-medium pb-2 sm:pb-3">-</span>
-          <span className="text-claret">{awayScore}</span>
-        </div>
-        
-        <div className="flex flex-col items-center gap-3 flex-1 max-w-[12rem]">
-          <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full flex items-center justify-center font-black text-xl sm:text-2xl bg-zinc-900 text-zinc-50 border border-claret/30 shadow-[0_0_20px_rgba(178,58,72,0.15)] overflow-hidden">
-            {awayAvatar ? <img src={awayAvatar} alt={away} className="w-full h-full object-cover" /> : initials(away)}
+          
+          {/* Score */}
+          <div className="flex flex-col items-center justify-center">
+            <div className="flex items-center gap-4 sm:gap-8 text-7xl sm:text-9xl font-black font-score tabular-nums tracking-tighter text-zinc-50 drop-shadow-[0_0_15px_rgba(255,255,255,0.1)]">
+              <ScoreNumber score={homeScore} colorClass="text-pitch-bright" />
+              <span className="text-zinc-800 font-medium pb-2 sm:pb-6 text-6xl sm:text-8xl">-</span>
+              <ScoreNumber score={awayScore} colorClass="text-claret" />
+            </div>
+            <MatchClock paused={paused} isLive={isLive} />
           </div>
-          <span className="text-sm sm:text-base font-bold text-zinc-50 text-center line-clamp-2">{away}</span>
+          
+          {/* Away */}
+          <div className="flex flex-col items-center gap-3 sm:gap-4 flex-1">
+            <div className="w-20 h-20 sm:w-28 sm:h-28 rounded-full flex items-center justify-center font-black text-2xl sm:text-4xl bg-zinc-900 text-zinc-50 border-4 border-claret shadow-[0_0_30px_rgba(178,58,72,0.2)] overflow-hidden">
+              {awayAvatar ? <img src={awayAvatar} alt={away} className="w-full h-full object-cover" /> : initials(away)}
+            </div>
+            <span className="text-base sm:text-xl font-bold text-zinc-50 text-center line-clamp-2 leading-tight">{away}</span>
+          </div>
         </div>
       </div>
     </div>
@@ -100,21 +147,33 @@ function StepIndicator({ phase, needsShootout }) {
   ];
   const currentIdx = order.indexOf(phase);
   return (
-    <div className="flex items-center justify-center gap-2 px-5 sm:px-6 py-4 overflow-x-auto no-scrollbar">
-      {steps.map((s, i) => {
-        const idx = order.indexOf(s.key);
-        const active = idx === currentIdx;
-        const done = idx < currentIdx;
-        return (
-          <React.Fragment key={s.key}>
-            <div className="flex items-center gap-1.5">
-              <div className={`w-1.5 h-1.5 rounded-full ${active || done ? "bg-pitch-bright" : "bg-zinc-800"}`} />
-              <span className={`text-[11px] tracking-wide uppercase whitespace-nowrap ${active ? "text-zinc-50 font-bold" : "text-zinc-500 font-medium"}`}>{s.label}</span>
-            </div>
-            {i < steps.length - 1 && <div className="w-4 sm:w-8 shrink-0 h-px bg-zinc-800" />}
-          </React.Fragment>
-        );
-      })}
+    <div className="w-full max-w-3xl mx-auto px-4 py-6 sm:py-8">
+      <div className="flex sm:hidden flex-col items-center justify-center gap-1 mb-2">
+        <span className="text-[10px] font-bold text-pitch-bright uppercase tracking-widest">Phase {currentIdx + 1} of {steps.length}</span>
+        <span className="text-sm font-black text-zinc-50">{steps.find(s => s.key === phase)?.label}</span>
+      </div>
+      <div className="hidden sm:flex items-center justify-between w-full relative">
+        {steps.map((s, i) => {
+          const idx = order.indexOf(s.key);
+          const active = idx === currentIdx;
+          const done = idx < currentIdx;
+          return (
+            <React.Fragment key={s.key}>
+              <div className="flex flex-col items-center gap-2 relative z-10 w-16">
+                <div className={`w-4 h-4 rounded-full border-2 transition-all duration-300 flex items-center justify-center ${active ? "bg-pitch border-pitch-bright shadow-[0_0_12px_rgba(41,193,121,0.6)] scale-125" : done ? "bg-pitch-bright border-pitch-bright" : "bg-zinc-900 border-zinc-700"}`}>
+                   {done && <Check size={10} className="text-zinc-950 font-bold" />}
+                </div>
+                <span className={`text-[10px] sm:text-[11px] tracking-wider uppercase text-center absolute top-7 transition-colors whitespace-nowrap ${active ? "text-zinc-50 font-bold" : done ? "text-zinc-400 font-medium" : "text-zinc-600 font-medium"}`}>{s.label}</span>
+              </div>
+              {i < steps.length - 1 && (
+                <div className="flex-1 h-0.5 mx-2 bg-zinc-800 relative rounded-full overflow-hidden">
+                  <div className={`absolute left-0 top-0 h-full bg-pitch-bright transition-all duration-500 ease-out`} style={{ width: done ? '100%' : '0%' }} />
+                </div>
+              )}
+            </React.Fragment>
+          );
+        })}
+      </div>
     </div>
   );
 }
@@ -122,7 +181,7 @@ function StepIndicator({ phase, needsShootout }) {
 // ---------------------------------------------------------------------------
 // Stepper control + team card
 // ---------------------------------------------------------------------------
-function StepperRow({ label, count, accent, onInc, onDec }) {
+function StepperRow({ label, count, accent, onInc, onDec, isMuted }) {
   const accents = {
     pitch: { 
       text: "text-pitch-bright", 
@@ -144,27 +203,43 @@ function StepperRow({ label, count, accent, onInc, onDec }) {
     }
   };
   const a = accents[accent];
+  
+  if (isMuted) {
+    return (
+      <div className={`flex flex-col gap-2 rounded-2xl bg-zinc-950/50 border border-zinc-800/50 p-3 transition-all duration-300 opacity-60 hover:opacity-100`}>
+        <div className="flex items-center justify-center gap-2">
+          <span className="text-[10px] font-bold uppercase tracking-widest text-zinc-500">{label}</span>
+        </div>
+        <div className="flex items-center justify-between px-1">
+          <button onClick={onDec} className="w-10 h-10 rounded-xl flex items-center justify-center bg-zinc-900 border border-zinc-800 text-zinc-500 transition-all active:scale-90"><Minus size={14} /></button>
+          <div className="w-16 text-center font-black tabular-nums text-3xl text-zinc-600">{count}</div>
+          <button onClick={onInc} className="w-10 h-10 rounded-xl flex items-center justify-center bg-zinc-900 border border-zinc-800 text-zinc-500 transition-all active:scale-90"><Plus size={14} /></button>
+        </div>
+      </div>
+    );
+  }
+  
   return (
-    <div className={`flex flex-col gap-3 rounded-2xl ${a.bg} border p-4 backdrop-blur-md transition-all`}>
+    <div className={`flex flex-col gap-3 rounded-2xl ${a.bg} border p-4 backdrop-blur-md transition-all duration-300 shadow-lg`}>
       <div className="flex items-center justify-center gap-2">
         <span className={`w-1.5 h-1.5 rounded-full ${a.dot} animate-pulse`} />
-        <span className="text-[11px] sm:text-xs font-bold uppercase tracking-widest text-zinc-400">{label}</span>
+        <span className="text-[11px] sm:text-xs font-bold uppercase tracking-widest text-zinc-300">{label}</span>
       </div>
       <div className="flex items-center justify-between px-2">
-        <button onClick={onDec} className="w-12 h-12 sm:w-14 sm:h-14 rounded-xl flex items-center justify-center bg-zinc-900/80 hover:bg-zinc-800 border border-zinc-700/50 text-zinc-400 transition-all active:scale-90 shadow-lg backdrop-blur-sm"><Minus size={20} /></button>
-        <div className={`w-24 text-center font-black tabular-nums text-5xl sm:text-6xl tracking-tighter drop-shadow-md ${a.text}`}>{count}</div>
-        <button onClick={onInc} className={`w-12 h-12 sm:w-14 sm:h-14 rounded-xl flex items-center justify-center border transition-all active:scale-90 shadow-lg backdrop-blur-sm ${a.btn}`}><Plus size={20} /></button>
+        <button onClick={onDec} className="w-12 h-12 sm:w-16 sm:h-16 rounded-xl flex items-center justify-center bg-zinc-900/80 hover:bg-zinc-800 border border-zinc-700/50 text-zinc-400 transition-all active:scale-90 shadow-lg backdrop-blur-sm"><Minus size={20} /></button>
+        <div className={`w-24 text-center font-black tabular-nums text-5xl sm:text-7xl tracking-tighter drop-shadow-md ${a.text}`}>{count}</div>
+        <button onClick={onInc} className={`w-12 h-12 sm:w-16 sm:h-16 rounded-xl flex items-center justify-center border transition-all active:scale-90 shadow-lg backdrop-blur-sm ${a.btn}`}><Plus size={20} /></button>
       </div>
     </div>
   );
 }
 
-function TeamStatCard({ accent, side, data, bump }) {
-  // If away, use rose for goals, else pitch for home. Penalties are always blue.
+function TeamStatCard({ accent, side, data, bump, phase }) {
+  const isShootout = phase === 'shootout';
   return (
-    <div className="flex flex-col gap-4">
-      <StepperRow label="Goals" count={data.goals} accent={accent} onInc={() => bump(side, "goals", 1)} onDec={() => bump(side, "goals", -1)} />
-      <StepperRow label="Penalties" count={data.penalties} accent="blue" onInc={() => bump(side, "penalties", 1)} onDec={() => bump(side, "penalties", -1)} />
+    <div className="flex flex-col gap-4 w-full">
+      <StepperRow label="Goals" count={data.goals} accent={accent} onInc={() => bump(side, "goals", 1)} onDec={() => bump(side, "goals", -1)} isMuted={isShootout} />
+      <StepperRow label="Penalties" count={data.penalties} accent="blue" onInc={() => bump(side, "penalties", 1)} onDec={() => bump(side, "penalties", -1)} isMuted={!isShootout} />
     </div>
   );
 }
@@ -173,24 +248,19 @@ function LiveControl({ state, setState, onFinish, onTogglePause }) {
   const { home, away, paused } = state;
   const bump = (side, field, delta) => setState((s) => ({ ...s, [side]: { ...s[side], [field]: Math.max(0, s[side][field] + delta) } }));
   return (
-    <div className="px-5 sm:px-8 pb-8">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 mb-6">
-        <TeamStatCard accent="pitch" side="home" data={home} bump={bump} />
-        <TeamStatCard accent="rose" side="away" data={away} bump={bump} />
+    <div className="px-4 sm:px-8 pb-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-8 mb-8 max-w-4xl mx-auto">
+        <TeamStatCard accent="pitch" side="home" data={home} bump={bump} phase="live" />
+        <TeamStatCard accent="rose" side="away" data={away} bump={bump} phase="live" />
       </div>
-      <div className="flex justify-center mb-6">
-        <p className="text-[11px] text-zinc-500 bg-zinc-950 px-3 py-1.5 rounded-full border border-zinc-800/50 text-center">
-          * A scored penalty also counts as a goal — add both if the kick beats the keeper.
-        </p>
-      </div>
-      <div className="flex flex-col sm:flex-row gap-3 sm:justify-center">
+      <div className="flex flex-col sm:flex-row gap-4 justify-center max-w-2xl mx-auto">
         <button onClick={onTogglePause}
-          className="h-14 sm:w-48 rounded-xl flex items-center justify-center gap-2 font-bold text-sm bg-zinc-800 hover:bg-zinc-700 text-zinc-50 border border-zinc-700 transition-colors active:scale-[0.98]">
-          {paused ? <Play size={16} /> : <Pause size={16} />}{paused ? "Resume Match" : "Pause Match"}
+          className="h-16 flex-1 rounded-2xl flex items-center justify-center gap-3 font-bold text-base sm:text-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-50 border border-zinc-700 transition-colors active:scale-95 shadow-lg">
+          {paused ? <Play size={22} className="fill-zinc-50" /> : <Pause size={22} className="fill-zinc-50" />}{paused ? "Resume Match" : "Pause Match"}
         </button>
         <button onClick={onFinish}
-          className="h-14 sm:w-48 rounded-xl flex items-center justify-center gap-2 font-bold text-sm bg-claret-dim/20 hover:bg-claret-dim text-claret border border-claret-dim/30 transition-colors active:scale-[0.98]">
-          <Square size={14} className="fill-claret" />Finish Match
+          className="h-16 flex-1 rounded-2xl flex items-center justify-center gap-3 font-bold text-base sm:text-lg bg-destructive/10 hover:bg-destructive/20 text-destructive border border-destructive/30 transition-colors active:scale-95 shadow-lg shadow-destructive/10">
+          <Square size={20} className="fill-destructive" />Finish Match
         </button>
       </div>
     </div>
@@ -201,25 +271,25 @@ function ExtraTime({ state, setState, etHalf, setEtHalf, onDone }) {
   const { home, away } = state;
   const bump = (side, field, delta) => setState((s) => ({ ...s, [side]: { ...s[side], [field]: Math.max(0, s[side][field] + delta) } }));
   return (
-    <div className="px-5 sm:px-8 pb-8">
+    <div className="px-4 sm:px-8 pb-8">
       <div className="flex items-center justify-center gap-2 mb-6">
         <Timer size={16} className="text-amber-400 animate-pulse" />
         <span className="text-sm font-bold text-amber-400 tracking-wide uppercase">Extra Time — {etHalf === 1 ? "1st Half (15')" : "2nd Half (15')"}</span>
       </div>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 mb-6">
-        <TeamStatCard accent="pitch" side="home" data={home} bump={bump} />
-        <TeamStatCard accent="rose" side="away" data={away} bump={bump} />
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-8 mb-8 max-w-4xl mx-auto">
+        <TeamStatCard accent="pitch" side="home" data={home} bump={bump} phase="extra_time" />
+        <TeamStatCard accent="rose" side="away" data={away} bump={bump} phase="extra_time" />
       </div>
-      <div className="flex justify-center">
+      <div className="flex justify-center max-w-2xl mx-auto">
         {etHalf === 1 ? (
           <button onClick={() => setEtHalf(2)}
-            className="h-14 w-full sm:w-64 rounded-xl flex items-center justify-center gap-2 font-bold text-sm bg-amber-950/40 hover:bg-amber-900/60 text-amber-400 border border-amber-800/50 transition-colors active:scale-[0.98]">
+            className="h-16 w-full rounded-2xl flex items-center justify-center gap-2 font-bold text-base sm:text-lg bg-amber-950/40 hover:bg-amber-900/60 text-amber-400 border border-amber-800/50 transition-colors active:scale-95 shadow-lg">
             Start 2nd Half of Extra Time
           </button>
         ) : (
           <button onClick={onDone}
-            className="h-14 w-full sm:w-64 rounded-xl flex items-center justify-center gap-2 font-bold text-sm bg-claret-dim/20 hover:bg-claret-dim text-claret border border-claret-dim/30 transition-colors active:scale-[0.98]">
-            <Square size={14} className="fill-claret" />End Extra Time
+            className="h-16 w-full rounded-2xl flex items-center justify-center gap-3 font-bold text-base sm:text-lg bg-destructive/10 hover:bg-destructive/20 text-destructive border border-destructive/30 transition-colors active:scale-95 shadow-lg shadow-destructive/10">
+            <Square size={20} className="fill-destructive" />End Extra Time
           </button>
         )}
       </div>
@@ -817,7 +887,7 @@ export default function LiveMatchControl({ matches, players, activeSeason, showT
     <div className="w-full bg-zinc-900 mb-6 rounded-2xl border border-zinc-800 shadow-2xl overflow-hidden font-sans">
       <CardHeader title={h.title} status={h.status} tone={h.tone} />
       
-      <ScoreRow home={state.home.name} away={state.away.name} homeScore={state.home.goals} awayScore={state.away.goals} homeAvatar={state.home.avatarUrl} awayAvatar={state.away.avatarUrl} />
+      <ScoreRow home={state.home.name} away={state.away.name} homeScore={state.home.goals} awayScore={state.away.goals} homeAvatar={state.home.avatarUrl} awayAvatar={state.away.avatarUrl} paused={state.paused} isLive={phase === "live" || phase === "extra_time"} />
       
       <div className="border-b border-zinc-800/50 bg-zinc-950/30">
         <StepIndicator phase={phase} needsShootout={needsShootoutStep} />

@@ -5,6 +5,19 @@ import Link from '@tiptap/extension-link';
 import { Bold, Italic, Strikethrough, Heading1, Heading2, Heading3, List, ListOrdered, Link as LinkIcon, Unlink } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
+const ToolbarBtn = ({ active, onClick, children }) => (
+  <button
+    type="button"
+    onClick={onClick}
+    className={cn(
+      "p-1.5 rounded-md hover:bg-secondary/80 transition-colors",
+      active ? "bg-secondary text-foreground" : "text-muted-foreground hover:text-foreground"
+    )}
+  >
+    {children}
+  </button>
+);
+
 const MenuBar = ({ editor }) => {
   if (!editor) {
     return null;
@@ -28,19 +41,6 @@ const MenuBar = ({ editor }) => {
     // update link
     editor.chain().focus().extendMarkRange('link').setLink({ href: url }).run();
   };
-
-  const ToolbarBtn = ({ active, onClick, children }) => (
-    <button
-      type="button"
-      onClick={onClick}
-      className={cn(
-        "p-1.5 rounded-md hover:bg-secondary/80 transition-colors",
-        active ? "bg-secondary text-foreground" : "text-muted-foreground hover:text-foreground"
-      )}
-    >
-      {children}
-    </button>
-  );
 
   return (
     <div className="flex flex-wrap items-center gap-1 p-2 border-b border-border bg-card">

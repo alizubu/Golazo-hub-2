@@ -106,60 +106,85 @@ function AdminMetrics({ matches, activeSeason, notifications = [], setTab }) {
   ];
 
   return (
-    <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-      {metrics.map((m, i) => (
-        <FadeIn key={m.label} delay={i * 0.05}>
-          <MagicCard 
-            onClick={() => m.tab && setTab && setTab(m.tab)}
-            className={`p-5 flex flex-col justify-between bg-card hover:bg-secondary/20 transition-all h-full ${m.tab ? 'cursor-pointer hover:border-white/20' : ''}`}
-          >
-            <div className="flex items-center justify-between w-full">
-              <span className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground truncate mr-2">
-                {m.label}
-              </span>
-              <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${m.bg} ${m.color}`}>
-                <m.icon size={20} className={m.pulse ? "animate-pulse" : ""} />
+    <Card className="p-6">
+      <SectionTitle icon={Activity}>System Overview</SectionTitle>
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mt-4">
+        {metrics.map((m, i) => (
+          <FadeIn key={m.label} delay={i * 0.05}>
+            <div 
+              onClick={() => m.tab && setTab && setTab(m.tab)}
+              className={`p-5 flex flex-col justify-between bg-secondary/20 border border-border/50 rounded-xl hover:bg-secondary/40 transition-all h-full ${m.tab ? 'cursor-pointer hover:border-white/20' : ''}`}
+            >
+              <div className="flex items-center justify-between w-full">
+                <span className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground truncate mr-2">
+                  {m.label}
+                </span>
+                <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${m.bg} ${m.color}`}>
+                  <m.icon size={20} className={m.pulse ? "animate-pulse" : ""} />
+                </div>
               </div>
-            </div>
-            <div className="text-3xl font-heading font-black font-score text-foreground mt-3">
-              {m.value}
-            </div>
-            {m.sub && (
-              <div className={`text-[10px] font-semibold mt-1.5 ${m.color}`}>
-                {m.sub}
+              <div className="text-3xl font-heading font-black font-score text-foreground mt-3">
+                {m.value}
               </div>
-            )}
-          </MagicCard>
-        </FadeIn>
-      ))}
-    </div>
+              {m.sub && (
+                <div className={`text-[10px] font-semibold mt-1.5 ${m.color}`}>
+                  {m.sub}
+                </div>
+              )}
+            </div>
+          </FadeIn>
+        ))}
+      </div>
+    </Card>
   );
 }
 
-// 4. Action Grid
 function QuickActions({ setTab, showToast }) {
-  const actions = [
-    { label: "Generate Fixtures", icon: CalendarDays, bg: "bg-blue-500/10 text-blue-500", onClick: () => setTab ? setTab("admin-season") : showToast?.("Go to Season tab") },
-    { label: "Start Match", icon: PlayCircle, bg: "bg-green-500/10 text-green-500", onClick: () => setTab ? setTab("admin-matches") : showToast?.("Go to Matches tab") },
-    { label: "Create Announcement", icon: Megaphone, bg: "bg-purple-500/10 text-purple-500", onClick: () => setTab ? setTab("admin-announcements") : showToast?.("Go to Announcements tab") },
-    { label: "Edit Season", icon: Edit2, bg: "bg-orange-500/10 text-orange-500", onClick: () => setTab ? setTab("admin-season") : showToast?.("Go to Season tab") },
-    { label: "Manage Players", icon: Users, bg: "bg-pink-500/10 text-pink-500", onClick: () => setTab ? setTab("admin-players") : showToast?.("Go to Players tab") },
-    { label: "Manage Trophies", icon: Trophy, bg: "bg-gold/10 text-gold", onClick: () => setTab ? setTab("admin-trophies") : showToast?.("Go to Trophies tab") }
+  const groups = [
+    {
+      title: "Match Logistics",
+      actions: [
+        { label: "Start Match", icon: PlayCircle, bg: "bg-green-500/10 text-green-500", onClick: () => setTab ? setTab("admin-matches") : showToast?.("Go to Matches tab") },
+        { label: "Generate Fixtures", icon: CalendarDays, bg: "bg-blue-500/10 text-blue-500", onClick: () => setTab ? setTab("admin-season") : showToast?.("Go to Season tab") },
+        { label: "Edit Season", icon: Edit2, bg: "bg-orange-500/10 text-orange-500", onClick: () => setTab ? setTab("admin-season") : showToast?.("Go to Season tab") }
+      ]
+    },
+    {
+      title: "Content & Trophies",
+      actions: [
+        { label: "Create Announcement", icon: Megaphone, bg: "bg-purple-500/10 text-purple-500", onClick: () => setTab ? setTab("admin-announcements") : showToast?.("Go to Announcements tab") },
+        { label: "Manage Trophies", icon: Trophy, bg: "bg-gold/10 text-gold", onClick: () => setTab ? setTab("admin-trophies") : showToast?.("Go to Trophies tab") }
+      ]
+    },
+    {
+      title: "Player Management",
+      actions: [
+        { label: "Manage Players", icon: Users, bg: "bg-pink-500/10 text-pink-500", onClick: () => setTab ? setTab("admin-players") : showToast?.("Go to Players tab") }
+      ]
+    }
   ];
 
   return (
-    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
-      {actions.map((act, i) => (
-        <FadeIn key={act.label} delay={i * 0.05}>
-          <button onClick={act.onClick} className="w-full h-full min-h-[110px] flex flex-col items-center justify-start p-4 bg-card border border-border/60 rounded-xl hover:bg-secondary/30 hover:border-white/20 transition-all group cursor-pointer shadow-sm">
-            <div className={`w-11 h-11 rounded-xl flex items-center justify-center shrink-0 mb-2.5 ${act.bg} group-hover:scale-105 transition-transform`}>
-              <act.icon size={20} />
+    <Card className="p-6">
+      <SectionTitle icon={Zap}>Quick Actions</SectionTitle>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-4">
+        {groups.map((g, i) => (
+          <FadeIn key={g.title} delay={i * 0.05} className="flex flex-col gap-3">
+            <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-widest px-1 border-b border-border/50 pb-2 mb-1">{g.title}</h3>
+            <div className="flex flex-col gap-2">
+               {g.actions.map((act) => (
+                 <button key={act.label} onClick={act.onClick} className="w-full flex items-center justify-start gap-3 p-3 bg-secondary/20 border border-border/60 rounded-xl hover:bg-secondary/40 hover:border-white/20 transition-all group cursor-pointer shadow-sm">
+                   <div className={`w-9 h-9 rounded-lg flex items-center justify-center shrink-0 ${act.bg} group-hover:scale-105 transition-transform`}>
+                     <act.icon size={16} />
+                   </div>
+                   <span className="text-sm font-bold text-left leading-snug text-foreground/90 group-hover:text-foreground">{act.label}</span>
+                 </button>
+               ))}
             </div>
-            <span className="text-xs font-bold text-center leading-snug line-clamp-2 text-foreground/90 group-hover:text-foreground mt-auto flex items-center justify-center flex-1">{act.label}</span>
-          </button>
-        </FadeIn>
-      ))}
-    </div>
+          </FadeIn>
+        ))}
+      </div>
+    </Card>
   );
 }
 
