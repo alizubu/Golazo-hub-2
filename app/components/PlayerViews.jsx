@@ -455,10 +455,30 @@ export function PlayerDashboard({ me, activeSeason, seasons = [], matches, playe
           <MagicCard gradientColor="rgba(251, 191, 36, 0.15)">
             <Card className="bg-transparent border-none shadow-none">
               {(() => {
-                // Combine templates and all unique awarded trophies in the game
+                // Combine hardcoded templates, db templates, and all unique awarded trophies in the game
                 const templateMap = new Map();
+
+                // 0. Add the 6 official hardcoded trophies
+                const HARDCODED_TROPHIES = [
+                  { id: 'bb-champion', name: 'BB Champion', icon: '/assets/trophies/BB-Champion.png', requirement: 'Champion of the BB League season.' },
+                  { id: 'world-cup', name: 'World Cup Winner', icon: '/assets/trophies/World-Cup-Winner-Trophy.png', requirement: 'Won the World Cup season.' },
+                  { id: 'golden-boot', name: 'Golden Boot', icon: '/assets/trophies/Golden-boot.png', requirement: 'Top goalscorer of the season.' },
+                  { id: 'mvp', name: 'MVP', icon: '/assets/trophies/MVP.png', requirement: 'Most Valuable Player of the season.' },
+                  { id: 'la-liga', name: 'La Liga Champion', icon: '/assets/trophies/La-Liga-trophy.png', requirement: 'La Liga season champion.' },
+                  { id: 'premier-league', name: 'Premier League Champion', icon: '/assets/trophies/Premier-League.png', requirement: 'Premier League season champion.' },
+                ];
                 
-                // 1. Add all templates as locked
+                HARDCODED_TROPHIES.forEach(t => {
+                  templateMap.set(t.name, {
+                    id: t.id,
+                    name: t.name,
+                    image: t.icon,
+                    locked: true,
+                    requirement: t.requirement
+                  });
+                });
+                
+                // 1. Add all DB templates as locked
                 trophyTemplates.forEach(t => {
                   templateMap.set(t.name, {
                     id: t.id,
