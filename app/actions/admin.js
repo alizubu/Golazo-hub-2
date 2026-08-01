@@ -180,3 +180,46 @@ export async function deleteTrophyTemplate(id) {
     return { error: 'Failed to delete template.' };
   }
 }
+
+export async function getTickerConfig() {
+  try {
+    let config = await prisma.tickerConfig.findFirst();
+    if (!config) {
+      // Create default config on first access
+      config = await prisma.tickerConfig.create({
+        data: {}
+      });
+    }
+    return { config };
+  } catch (error) {
+    console.error("Failed to get ticker config:", error);
+    return { config: { enabled: true, source: 'live_recent', customMatchIds: [], scrollSpeed: 'normal', showAvatars: true, pauseOnHover: true } };
+  }
+}
+
+export async function saveTickerConfig(data) {
+  try {
+    const existing = await prisma.tickerConfig.findFirst();
+    let config;
+    if (existing) {
+      config = await prisma.tickerConfig.update({
+        where: { id: existing.id },
+        data: {
+          enabled: data.enabled,
+          source: data.source,
+          customMatchIds: data.customMatchIds || [],
+          scrollSpeed: data.scrollSpeed,
+          showAvatars: data.showAvatars,
+          pauseOnHover: data.pauseOnHover,
+        }
+      });
+    } else {
+      config = await prisma.tickerConfig.create({ data });
+    }
+    revalidatePath('/');
+    return { config };
+  } catch (error) {
+    console.error("Failed to save ticker config:", error);
+    return { error: 'Failed to save ticker config.' };
+  }
+}

@@ -148,3 +148,14 @@ model TrophyTemplate {
   description String?
   createdAt   DateTime @default(now())
 }
+
+model TickerConfig {
+  id             String   @id @default(cuid())
+  enabled        Boolean  @default(true)
+  source         String   @default("live_recent") // "live" | "live_recent" | "live_today" | "custom"
+  customMatchIds String[]
+  scrollSpeed    String   @default("normal") // "slow" | "normal" | "fast"
+  showAvatars    Boolean  @default(true)
+  pauseOnHover   Boolean  @default(true)
+  updatedAt      DateTime @updatedAt
+}

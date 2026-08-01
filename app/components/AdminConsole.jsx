@@ -1,12 +1,12 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Trophy, Calendar, Users, Radio, Clock, Check, Archive, Plus, Trash2, Settings, Swords, Edit2, ListOrdered, BarChart2, AlertTriangle, ArrowRight, Megaphone, ChevronDown, Package, MoreVertical, History, CheckCircle2 } from 'lucide-react';
+import { Trophy, Calendar, Users, Radio, Clock, Check, Archive, Plus, Trash2, Settings, Swords, Edit2, ListOrdered, BarChart2, AlertTriangle, ArrowRight, Megaphone, ChevronDown, Package, MoreVertical, History, CheckCircle2, Activity } from 'lucide-react';
 import { Card, Btn, Input, Label, SectionTitle, EmptyState, MagicCard, FadeIn, ShinyButton, Badge, Avatar, toTitleCase } from './UI';
 import { motion, AnimatePresence } from 'framer-motion';
 import AdminOverviewDashboard from './AdminOverviewDashboard';
 import { generateFixtures, generatePlayoffs, updateMatchStatus, updateMatchScore, adminTriggerBracketProgress } from '@/app/actions/match';
-import { awardTrophy, removeTrophy, updateTrophy, createAnnouncement, deleteAnnouncement, endCelebration, retriggerCelebration, getCelebrations, getTrophyTemplates, createTrophyTemplate, deleteTrophyTemplate } from '@/app/actions/admin';
+import { awardTrophy, removeTrophy, updateTrophy, createAnnouncement, deleteAnnouncement, endCelebration, retriggerCelebration, getCelebrations, getTrophyTemplates, createTrophyTemplate, deleteTrophyTemplate, saveTickerConfig } from '@/app/actions/admin';
 import { startSeason, renameSeason, completeSeason } from '@/app/actions/season';
 import { signUpPlayer, adminUpdatePlayer, adminDeletePlayer } from '@/app/actions/player';
 import { supabase } from '@/lib/supabaseClient';
@@ -1151,9 +1151,65 @@ export function AdminTrophies({ players, trophies = [], seasons, showToast }) {
   );
 }
 
-export function AdminAnnouncements({ announcements, showToast }) {
+const SourceBtn = ({ value, label, currentSource, onChange }) => (
+  <button
+    onClick={() => onChange(value)}
+    className={`px-3 py-1.5 rounded-lg text-xs font-semibold border transition-colors ${
+      currentSource === value
+        ? 'bg-pitch text-white border-pitch'
+        : 'bg-secondary/40 text-muted-foreground border-border/50 hover:bg-secondary'
+    }`}
+  >
+    {label}
+  </button>
+);
+
+const SpeedBtn = ({ value, label, currentSpeed, onChange }) => (
+  <button
+    onClick={() => onChange(value)}
+    className={`px-3 py-1.5 rounded-lg text-xs font-semibold border transition-colors ${
+      currentSpeed === value
+        ? 'bg-pitch text-white border-pitch'
+        : 'bg-secondary/40 text-muted-foreground border-border/50 hover:bg-secondary'
+    }`}
+  >
+    {label}
+  </button>
+);
+
+const Toggle = ({ checked, onChange, label }) => (
+  <label className="flex items-center justify-between gap-4 cursor-pointer py-2">
+    <span className="text-sm text-foreground/80">{label}</span>
+    <button
+      role="switch"
+      aria-checked={checked}
+      onClick={() => onChange(!checked)}
+      className={`relative w-10 h-5 rounded-full transition-colors ${checked ? 'bg-pitch' : 'bg-secondary border border-border'}`}
+    >
+      <div className={`absolute top-0.5 left-0.5 w-4 h-4 rounded-full bg-white shadow transition-transform ${checked ? 'translate-x-5' : 'translate-x-0'}`} />
+    </button>
+  </label>
+);
+
+export function AdminAnnouncements({ announcements, matches = [], players = [], showToast, onTickerConfigSaved }) {
   const [form, setForm] = useState({ title: "", content: "" });
   const [loading, setLoading] = useState(false);
+
+  // Ticker config state
+  const DEFAULT_TICKER = { enabled: true, source: 'live_recent', customMatchIds: [], scrollSpeed: 'normal', showAvatars: true, pauseOnHover: true };
+  const [tickerDraft, setTickerDraft] = useState(DEFAULT_TICKER);
+  const [tickerLoading, setTickerLoading] = useState(true);
+  const [tickerSaving, setTickerSaving] = useState(false);
+
+  useEffect(() => {
+    fetch('/api/admin/ticker-config')
+      .then(r => r.ok ? r.json() : null)
+      .then(data => {
+        if (data?.config) setTickerDraft(data.config);
+        setTickerLoading(false);
+      })
+      .catch(() => setTickerLoading(false));
+  }, []);
 
   const handlePost = async () => {
     if (!form.title || !form.content) return showToast("Title and Content required.");
@@ -1172,6 +1228,24 @@ export function AdminAnnouncements({ announcements, showToast }) {
     else showToast("Announcement removed.");
     setLoading(false);
   };
+
+  const handleSaveTicker = async () => {
+    setTickerSaving(true);
+    const res = await saveTickerConfig(tickerDraft);
+    if (res.error) showToast(res.error);
+    else {
+      showToast("✅ Ticker settings saved!");
+      if (onTickerConfigSaved) onTickerConfigSaved(res.config);
+    }
+    setTickerSaving(false);
+  };
+
+  // Mini ticker preview
+  const SPEED_DURATIONS = { slow: '90s', normal: '55s', fast: '30s' };
+  const previewDuration = SPEED_DURATIONS[tickerDraft.scrollSpeed] || '55s';
+  const liveMatches = matches.filter(m => m.status === 'live');
+  const recentCompleted = matches.filter(m => m.status === 'completed').slice(0, 3);
+  const previewMatches = [...liveMatches, ...recentCompleted].slice(0, 4);
 
   return (
     <div className="flex flex-col gap-6">
@@ -1208,9 +1282,168 @@ export function AdminAnnouncements({ announcements, showToast }) {
           </FadeIn>
         ))}
       </div>
+
+      {/* ── Match Ticker Control Panel ─────────────────────────────────────── */}
+      <Card className="p-6">
+        <div className="flex items-center justify-between mb-5">
+          <SectionTitle icon={Activity}>Match Ticker Settings</SectionTitle>
+          {!tickerLoading && (
+            <div className={`flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold border ${
+              tickerDraft.enabled
+                ? 'bg-pitch/10 text-pitch-bright border-pitch/20'
+                : 'bg-secondary text-muted-foreground border-border/40'
+            }`}>
+              <div className={`w-1.5 h-1.5 rounded-full ${tickerDraft.enabled ? 'bg-pitch-bright animate-pulse' : 'bg-muted-foreground'}`} />
+              {tickerDraft.enabled ? 'Ticker ON' : 'Ticker OFF'}
+            </div>
+          )}
+        </div>
+
+        {tickerLoading ? (
+          <div className="flex items-center gap-2 text-muted-foreground text-sm py-4">
+            <div className="w-4 h-4 rounded-full border-2 border-t-transparent border-muted-foreground animate-spin" />
+            Loading config…
+          </div>
+        ) : (
+          <div className="space-y-5">
+            {/* Enable / Disable */}
+            <div className="p-3 rounded-xl bg-secondary/30 border border-border/40">
+              <Toggle
+                checked={tickerDraft.enabled}
+                onChange={v => setTickerDraft(d => ({ ...d, enabled: v }))}
+                label="Enable ticker site-wide"
+              />
+            </div>
+
+            {/* Content source */}
+            <div>
+              <Label className="mb-2 block">Content Source</Label>
+              <div className="flex flex-wrap gap-2">
+                <SourceBtn value="live" label="Live Only" currentSource={tickerDraft.source} onChange={v => setTickerDraft(d => ({ ...d, source: v }))} />
+                <SourceBtn value="live_recent" label="Live + Recent (last 5)" currentSource={tickerDraft.source} onChange={v => setTickerDraft(d => ({ ...d, source: v }))} />
+                <SourceBtn value="live_today" label="Live + Today" currentSource={tickerDraft.source} onChange={v => setTickerDraft(d => ({ ...d, source: v }))} />
+                <SourceBtn value="custom" label="Custom Selection" currentSource={tickerDraft.source} onChange={v => setTickerDraft(d => ({ ...d, source: v }))} />
+              </div>
+            </div>
+
+            {/* Custom match picker */}
+            {tickerDraft.source === 'custom' && (
+              <FadeIn>
+                <div>
+                  <Label className="mb-2 block">Select Matches</Label>
+                  <div className="flex flex-col gap-1.5 max-h-48 overflow-y-auto p-2 rounded-xl border border-border/40 bg-secondary/20">
+                    {matches.map(m => {
+                      const h = players.find(p => p.id === m.homeId);
+                      const a = players.find(p => p.id === m.awayId);
+                      const checked = tickerDraft.customMatchIds?.includes(m.id);
+                      return (
+                        <label key={m.id} className="flex items-center gap-3 p-2 rounded-lg hover:bg-secondary/60 cursor-pointer transition-colors">
+                          <input
+                            type="checkbox"
+                            checked={checked}
+                            onChange={() => setTickerDraft(d => ({
+                              ...d,
+                              customMatchIds: checked
+                                ? d.customMatchIds.filter(id => id !== m.id)
+                                : [...(d.customMatchIds || []), m.id]
+                            }))}
+                            className="rounded"
+                          />
+                          <span className="text-sm font-medium">{h?.name || '?'} <span className="text-muted-foreground">vs</span> {a?.name || '?'}</span>
+                          <span className={`ml-auto text-[10px] font-bold uppercase px-1.5 py-0.5 rounded ${
+                            m.status === 'live' ? 'bg-red-500/20 text-red-400' :
+                            m.status === 'completed' ? 'bg-pitch/20 text-pitch-bright' :
+                            'bg-secondary text-muted-foreground'
+                          }`}>{m.status}</span>
+                        </label>
+                      );
+                    })}
+                    {matches.length === 0 && <p className="text-sm text-muted-foreground p-2">No matches found.</p>}
+                  </div>
+                </div>
+              </FadeIn>
+            )}
+
+            {/* Display settings */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <Label className="mb-2 block">Scroll Speed</Label>
+                <div className="flex gap-2">
+                  <SpeedBtn value="slow" label="Slow" currentSpeed={tickerDraft.scrollSpeed} onChange={v => setTickerDraft(d => ({ ...d, scrollSpeed: v }))} />
+                  <SpeedBtn value="normal" label="Normal" currentSpeed={tickerDraft.scrollSpeed} onChange={v => setTickerDraft(d => ({ ...d, scrollSpeed: v }))} />
+                  <SpeedBtn value="fast" label="Fast" currentSpeed={tickerDraft.scrollSpeed} onChange={v => setTickerDraft(d => ({ ...d, scrollSpeed: v }))} />
+                </div>
+              </div>
+              <div className="p-3 rounded-xl bg-secondary/20 border border-border/30 space-y-0.5">
+                <Toggle
+                  checked={tickerDraft.showAvatars}
+                  onChange={v => setTickerDraft(d => ({ ...d, showAvatars: v }))}
+                  label="Show player avatars"
+                />
+                <Toggle
+                  checked={tickerDraft.pauseOnHover}
+                  onChange={v => setTickerDraft(d => ({ ...d, pauseOnHover: v }))}
+                  label="Pause on hover"
+                />
+              </div>
+            </div>
+
+            {/* Live preview */}
+            <div>
+              <Label className="mb-2 block">Live Preview</Label>
+              <div className="w-full rounded-xl overflow-hidden border border-border/40 bg-black/40 backdrop-blur-md h-10 flex items-center relative select-none">
+                <div className="absolute left-0 top-0 bottom-0 w-10 bg-gradient-to-r from-black/60 to-transparent z-10 pointer-events-none" />
+                <div className="absolute right-0 top-0 bottom-0 w-10 bg-gradient-to-l from-black/60 to-transparent z-10 pointer-events-none" />
+                {tickerDraft.enabled ? (
+                  <div
+                    className="flex whitespace-nowrap w-max"
+                    style={{ animation: `marquee ${previewDuration} linear infinite`, '--gap': '2rem' }}
+                  >
+                    {[...previewMatches, ...previewMatches].map((m, i) => {
+                      const h = players.find(p => p.id === m.homeId);
+                      const a = players.find(p => p.id === m.awayId);
+                      const isLive = m.status === 'live';
+                      if (!h || !a) return null;
+                      return (
+                        <div key={`prev-${m.id}-${i}`} className="flex items-center gap-2 mr-10 shrink-0">
+                          <div className={`flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider ${
+                            isLive ? 'bg-red-500/15 text-red-400 border border-red-500/20' : 'text-zinc-500'
+                          }`}>
+                            {isLive ? <><span className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse" />LIVE</> : 'FT'}
+                          </div>
+                          <div className="flex items-center gap-1.5 text-xs font-semibold text-foreground/80">
+                            {tickerDraft.showAvatars && <Avatar p={h} size={14} />}
+                            <span>{h.name}</span>
+                            <span className={`px-1.5 py-0.5 rounded-full text-[10px] font-black ${
+                              isLive ? 'bg-red-500/15 text-red-400' : 'bg-pitch/15 text-pitch-bright'
+                            }`}>{m.homeScore ?? 0}-{m.awayScore ?? 0}</span>
+                            <span>{a.name}</span>
+                            {tickerDraft.showAvatars && <Avatar p={a} size={14} />}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                ) : (
+                  <p className="text-xs text-muted-foreground px-4">Ticker is disabled</p>
+                )}
+              </div>
+              <p className="text-[10px] text-muted-foreground mt-1.5">Preview uses current matches — save to apply to all users.</p>
+            </div>
+
+            {/* Save */}
+            <div className="flex justify-end pt-2">
+              <ShinyButton onClick={handleSaveTicker} loading={tickerSaving} disabled={tickerSaving}>
+                💾 Save Ticker Settings
+              </ShinyButton>
+            </div>
+          </div>
+        )}
+      </Card>
     </div>
   );
 }
+
 
 export function AdminSeason({ activeSeason, matches = [], players = [], showToast, setTab }) {
   const [name, setName] = useState("");
