@@ -14,7 +14,7 @@ import MatchCard from './MatchCard';
 import MatchStatsModal from './MatchStatsModal';
 import TrophyDetailModal from './TrophyDetailModal';
 import HeadToHeadModal from './HeadToHeadModal';
-import CelebrationBanner from './CelebrationBanner';
+
 import StatChip from './StatChip';
 import { SeasonStats } from './SeasonStats';
 import { BorderBeam } from './magicui/BorderBeam';
@@ -251,7 +251,7 @@ export function PlayerDashboard({ me, activeSeason, seasons = [], matches, playe
   return (
     <div className="flex flex-col gap-6 pb-10">
       {viewOnly && <PageHeader title={`${me.name}'s Profile`} onBack={() => router.back()} />}
-      <CelebrationBanner />
+
       
       {announcements.length > 0 && (
         <FadeIn delay={0.05}>

@@ -8,6 +8,7 @@ import HallOfFame from './HallOfFame';
 import { useAppContext } from './AppContextProvider';
 import FloatingNav from './FloatingNav';
 import SportsTicker from './SportsTicker';
+import CelebrationBanner from './CelebrationBanner';
 
 export default function AppShell({ 
   initialTab, 
@@ -83,6 +84,7 @@ export default function AppShell({
         matches={matches}
       />
       <div className="pt-2">
+        <CelebrationBanner />
         <SportsTicker matches={matches} announcements={announcements} players={players} />
       </div>
       {currentTab === 'hall-of-fame' ? (
