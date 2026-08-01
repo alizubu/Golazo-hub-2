@@ -6,6 +6,8 @@ import {
 import { updateMatchStatus, updateMatchScore } from '@/app/actions/match';
 import { supabase } from '@/lib/supabaseClient';
 import { Btn, MagicCard } from './UI';
+import Tesseract from 'tesseract.js';
+import { MatchStatsPreview } from './AdminConsole';
 
 // ---------------------------------------------------------------------------
 // Stat fields
@@ -326,22 +328,53 @@ function ImageImport({ onApply }) {
         reader.readAsDataURL(file);
       });
 
-      const res = await fetch("/api/ocr", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          image: base64,
-          prompt: `Extract these stats for the home team (left side usually) and away team (right side usually): possession (number only, no %), shots, shotsOnTarget, fouls, offsides, corners, freeKicks, passes, successfulPasses, crosses, interceptions, tackles, saves. Return a JSON object with this exact structure: { "home": { "possession": X, ... }, "away": { "possession": Y, ... } }. If a stat is missing in the image, set it to 0.`
-        }),
+      // Run Tesseract entirely on the client
+      const { data: { text } } = await Tesseract.recognize(base64, 'eng');
+      
+      const stats = { home: {}, away: {} };
+      const lines = text.split('\n').map(l => l.trim().toLowerCase()).filter(Boolean);
+
+      const mappings = {
+        'possession': 'possession',
+        'shots on target': 'shotsOnTarget',
+        'shots': 'shots',
+        'fouls': 'fouls',
+        'offsides': 'offsides',
+        'corners': 'corners',
+        'free kicks': 'freeKicks',
+        'passes': 'passes',
+        'successful passes': 'successfulPasses',
+        'crosses': 'crosses',
+        'interceptions': 'interceptions',
+        'tackles': 'tackles',
+        'saves': 'saves'
+      };
+
+      Object.values(mappings).forEach(key => {
+        stats.home[key] = 0;
+        stats.away[key] = 0;
       });
 
-      const data = await res.json();
-      if (data.error) throw new Error(data.error);
-      if (data.home && data.away) {
-        onApply(data);
-      } else {
-        throw new Error("Invalid format returned");
+      for (const line of lines) {
+        for (const [key, jsonKey] of Object.entries(mappings)) {
+          if (line.includes(key)) {
+            const match = line.match(/^(\d+)%?\s+.*\s+(\d+)%?$/);
+            if (match) {
+              stats.home[jsonKey] = parseInt(match[1], 10);
+              stats.away[jsonKey] = parseInt(match[2], 10);
+            } else {
+              const numbers = line.match(/\b(\d+)\b/g);
+              if (numbers && numbers.length >= 2) {
+                stats.home[jsonKey] = parseInt(numbers[0], 10);
+                stats.away[jsonKey] = parseInt(numbers[numbers.length - 1], 10);
+              }
+            }
+            break; 
+          }
+        }
       }
+
+      onApply(stats);
     } catch (err) {
       console.error(err);
       setError(err.message);
@@ -357,7 +390,7 @@ function ImageImport({ onApply }) {
         <>
           <Loader2 size={24} className="text-pitch-bright animate-spin mb-3" />
           <p className="text-sm font-bold text-zinc-300">Analyzing image...</p>
-          <p className="text-xs text-zinc-500 mt-1 font-medium">Extracting stats via Gemini AI</p>
+          <p className="text-xs text-zinc-500 mt-1 font-medium">Extracting stats via Tesseract OCR (this takes a few seconds)</p>
         </>
       ) : (
         <>
