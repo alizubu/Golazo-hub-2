@@ -17,7 +17,7 @@ export async function POST(req) {
     const mimeType = image.includes(';') ? image.split(';')[0].split(':')[1] : 'image/jpeg';
 
     const response = await ai.models.generateContent({
-      model: 'gemini-2.5-flash',
+      model: 'gemini-1.5-flash',
       contents: [
         { 
           role: 'user', 
