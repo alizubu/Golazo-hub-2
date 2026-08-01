@@ -126,17 +126,18 @@ export default function FloatingNav({ session, me, players = [], notifications =
             <div className="absolute -inset-1 bg-gradient-to-r from-transparent via-white/5 to-transparent opacity-0 hover:opacity-100 transition-opacity duration-700" />
           </div>
 
-          {/* Logo */}
-          <Link href={session?.type === "admin" ? "/admin" : "/dashboard"} onClick={(e) => handleNav(e, session?.type === "admin" ? "/admin" : "/dashboard")} className="flex items-center gap-2 flex-shrink-0 z-10 min-w-0 outline-none pr-4">
-            <span className="text-xl leading-none drop-shadow-sm">🏆</span>
-            <span className="hidden xl:inline font-heading text-sm font-bold tracking-tight text-white whitespace-nowrap">
-              GOLAZO HUB
-            </span>
-          </Link>
+          {/* Left section: Logo + Desktop Links */}
+          <div className="flex items-center flex-1 min-w-0 overflow-hidden">
+            {/* Logo */}
+            <Link href={session?.type === "admin" ? "/admin" : "/dashboard"} onClick={(e) => handleNav(e, session?.type === "admin" ? "/admin" : "/dashboard")} className="flex items-center gap-2 flex-shrink-0 z-10 min-w-0 outline-none mr-2 lg:mr-8">
+              <span className="text-xl leading-none drop-shadow-sm">🏆</span>
+              <span className="hidden xl:inline font-heading text-sm font-bold tracking-tight text-white whitespace-nowrap">
+                GOLAZO HUB
+              </span>
+            </Link>
 
-          {/* Desktop Center Nav Links */}
-          <div className="hidden md:flex flex-1 items-center justify-center z-10 min-w-0 overflow-hidden">
-            <div className="flex items-center overflow-x-auto no-scrollbar w-full justify-center">
+            {/* Desktop Nav Links */}
+            <div className="hidden md:flex items-center gap-1 lg:gap-2 overflow-hidden flex-1">
               {items.map((it) => {
                 const Icon = it.icon;
                 const active = it.matchRoot ? pathname === it.href : pathname.startsWith(it.href);
@@ -172,12 +173,8 @@ export default function FloatingNav({ session, me, players = [], notifications =
           </div>
 
           {/* Right Actions */}
-          <div className="flex items-center gap-1.5 z-10 flex-shrink-0">
-            {/* Search Keyboard Hint */}
-            <div className="hidden lg:flex items-center gap-1 mr-2 px-2 py-1 rounded bg-white/5 border border-white/10 text-xs text-muted-foreground font-mono select-none">
-              <Search size={12} />
-              <span>⌘K</span>
-            </div>
+          <div className="flex items-center gap-1.5 z-10 flex-shrink-0 ml-4">
+
 
             {/* Admin: ADMIN badge + logout */}
             {session?.type === 'admin' ? (
