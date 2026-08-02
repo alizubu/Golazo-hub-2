@@ -1,3 +1,5 @@
+'use client';
+
 import Link from 'next/link';
 import { Home } from 'lucide-react';
 import { Btn, MagicCard } from '@/app/components/UI';
