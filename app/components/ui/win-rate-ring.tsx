@@ -3,9 +3,12 @@ import React, { useRef } from 'react';
 import { motion, useInView } from 'framer-motion';
 import { NumberTicker } from './number-ticker';
 
-export function WinRateRing({ value, isEmpty, emptyStateText, accentColor = 'emerald-500' }) {
+export function WinRateRing({ value, isEmpty, emptyStateText }) {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: '-50px' });
+  
+  const numValue = typeof value === 'string' ? parseFloat(value.replace(/[^0-9.]/g, '')) : (value || 0);
+  const ringColor = numValue >= 50 ? 'text-[#22c55e]' : 'text-amber-500';
   
   if (isEmpty) {
     return (
@@ -31,18 +34,19 @@ export function WinRateRing({ value, isEmpty, emptyStateText, accentColor = 'eme
         <svg className="w-full h-full transform -rotate-90" viewBox="0 0 36 36">
           <path className="text-white/10 stroke-current" strokeWidth="3" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
           <motion.path 
-            className={`text-${accentColor} stroke-current`} 
+            className={`${ringColor} stroke-current`} 
             strokeWidth="3" 
             strokeLinecap="round" 
             fill="none" 
             d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" 
-            initial={{ strokeDasharray: "0, 100" }} 
-            animate={isInView ? { strokeDasharray: `${value}, 100` } : { strokeDasharray: "0, 100" }} 
-            transition={{ duration: 1.5, ease: "easeOut" }} 
+            strokeDasharray="100, 100" 
+            initial={{ strokeDashoffset: 100 }} 
+            animate={isInView ? { strokeDashoffset: 100 - numValue } : { strokeDashoffset: 100 }} 
+            transition={{ duration: 0.8, ease: "easeOut" }} 
           />
         </svg>
         <div className="absolute inset-0 flex items-center justify-center text-sm font-bold font-score tabular-nums text-white">
-          {isInView ? <NumberTicker value={value} className="text-white" /> : '0'}%
+          {isInView ? <NumberTicker value={numValue} className="text-white" /> : '0'}%
         </div>
       </div>
     </div>

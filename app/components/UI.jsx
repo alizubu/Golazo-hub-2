@@ -114,12 +114,8 @@ export const Avatar = ({ p, size = 40, ring, glow, className = "" }) => {
         {p?.avatar ? (
           <span style={{ fontSize: size * 0.55 }} className="relative z-10 select-none flex items-center justify-center w-full h-full bg-secondary">{p.avatar}</span>
         ) : (
-          <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-[#18181b] via-[#27272a] to-[#18181b] w-full h-full overflow-hidden">
-            <div 
-              className="absolute inset-0 bg-gradient-to-r from-transparent via-white/[0.08] to-transparent animate-shimmer pointer-events-none" 
-              style={{ backgroundSize: '200% 100%' }} 
-            />
-            <svg viewBox="0 0 24 24" fill="none" className="w-[62%] h-[62%] text-zinc-500/70 relative z-10 drop-shadow" xmlns="http://www.w3.org/2000/svg">
+          <div className="absolute inset-0 flex items-center justify-center bg-zinc-800/80 w-full h-full overflow-hidden">
+            <svg viewBox="0 0 24 24" fill="none" className="w-[60%] h-[60%] text-zinc-400 opacity-60 relative z-10" xmlns="http://www.w3.org/2000/svg">
               <path d="M12 12C14.21 12 16 10.21 16 8C16 5.79 14.21 4 12 4C9.79 4 8 5.79 8 8C8 10.21 9.79 12 12 12ZM12 14C9.33 14 4 15.34 4 18V20H20V18C20 15.34 14.67 14 12 14Z" fill="currentColor" />
             </svg>
           </div>

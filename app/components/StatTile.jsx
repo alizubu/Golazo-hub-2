@@ -53,7 +53,7 @@ export function StatTile({
   };
 
   // Surface treatment and Elevation based on design spec
-  const baseCardClasses = `relative flex flex-col justify-start p-4 sm:p-5 rounded-[14px] overflow-hidden transition-shadow duration-300 w-full h-full bg-[#12151b] border-t border-t-white/[0.06] border-r-0 border-l-0 border-b-0 ${cursorClass} ${className}`;
+  const baseCardClasses = `relative flex flex-col justify-start p-4 sm:p-5 rounded-[14px] transition-shadow duration-300 w-full h-full bg-[#12151b] border-t border-t-white/[0.06] border-r-0 border-l-0 border-b-0 ${cursorClass} ${className}`;
   
   const shadowClasses = 'shadow-[0_1px_2px_rgba(0,0,0,0.4),0_8px_24px_-8px_rgba(0,0,0,0.5)]';
   const heroShadowClasses = 'shadow-[0_1px_2px_rgba(0,0,0,0.4),0_8px_24px_-8px_rgba(0,0,0,0.5),0_0_32px_-8px_rgba(234,179,8,0.15)]';
@@ -113,11 +113,14 @@ export function StatTile({
     <Card className={`${baseCardClasses} ${isHero ? heroShadowClasses : shadowClasses} ${isHero ? hoverHeroShadowClasses : hoverShadowClasses}`}>
       {/* Hero Ambient Glow - Continuous breathing animation */}
       {isHero && !isEmpty && (
-        <motion.div 
-          className="absolute inset-0 rounded-[14px] pointer-events-none"
-          animate={{ boxShadow: ['0 0 32px -8px rgba(234,179,8,0.15)', '0 0 32px -8px rgba(234,179,8,0.25)', '0 0 32px -8px rgba(234,179,8,0.15)'] }}
-          transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-        />
+        <>
+          <motion.div 
+            className="absolute inset-0 rounded-[14px] pointer-events-none"
+            animate={{ boxShadow: ['0 0 32px -8px rgba(234,179,8,0.15)', '0 0 32px -8px rgba(234,179,8,0.25)', '0 0 32px -8px rgba(234,179,8,0.15)'] }}
+            transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+          />
+          <div className="absolute inset-0 rounded-[14px] pointer-events-none bg-gradient-to-br from-amber-500/[0.04] to-transparent" />
+        </>
       )}
 
       <div className={`flex w-full z-10 ${contentOpacity} ${isHero ? 'flex-col items-start gap-3 mb-2' : 'flex-col items-center gap-2 mb-2'}`}>
@@ -143,7 +146,7 @@ export function StatTile({
       </div>
       
       {isHero && subtext && !isEmpty && (
-        <div className="mt-4 flex items-center gap-2 text-[11px] font-[600] text-[#22c55e] bg-[#22c55e]/10 px-2.5 py-1 rounded-md w-fit z-10">
+        <div className="mt-auto flex items-center gap-2 text-[11px] font-[600] text-[#22c55e] bg-[#22c55e]/10 px-2.5 py-1 rounded-md w-fit z-10">
           <div className="w-1.5 h-1.5 rounded-full bg-[#22c55e]" />
           {subtext}
         </div>

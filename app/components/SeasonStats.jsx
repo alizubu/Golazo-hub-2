@@ -65,8 +65,8 @@ export function SeasonStats({ playerId, initialStats, seasons, activeSeason, sel
                 {isActive ? (
                   <motion.div 
                     className="w-2 h-2 ml-1 rounded-full bg-[#22c55e]"
-                    animate={{ opacity: [0.6, 1, 0.6] }}
-                    transition={{ duration: 2.5, repeat: Infinity, ease: "easeInOut" }}
+                    animate={{ opacity: [0.3, 1, 0.3] }}
+                    transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
                   />
                 ) : (
                   <div className="w-2 h-2 ml-1 rounded-full bg-[#4b5563]" />

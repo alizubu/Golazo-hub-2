@@ -140,47 +140,30 @@ function AdminMetrics({ matches, activeSeason, notifications = [], setTab }) {
 }
 
 function QuickActions({ setTab, showToast }) {
-  const groups = [
-    {
-      title: "Match Logistics",
-      actions: [
-        { label: "Start Match", icon: PlayCircle, bg: "bg-green-500/10 text-green-500", onClick: () => setTab ? setTab("admin-matches") : showToast?.("Go to Matches tab") },
-        { label: "Generate Fixtures", icon: CalendarDays, bg: "bg-blue-500/10 text-blue-500", onClick: () => setTab ? setTab("admin-season") : showToast?.("Go to Season tab") },
-        { label: "Edit Season", icon: Edit2, bg: "bg-orange-500/10 text-orange-500", onClick: () => setTab ? setTab("admin-season") : showToast?.("Go to Season tab") }
-      ]
-    },
-    {
-      title: "Content & Trophies",
-      actions: [
-        { label: "Create Announcement", icon: Megaphone, bg: "bg-purple-500/10 text-purple-500", onClick: () => setTab ? setTab("admin-announcements") : showToast?.("Go to Announcements tab") },
-        { label: "Manage Trophies", icon: Trophy, bg: "bg-gold/10 text-gold", onClick: () => setTab ? setTab("admin-trophies") : showToast?.("Go to Trophies tab") }
-      ]
-    },
-    {
-      title: "Player Management",
-      actions: [
-        { label: "Manage Players", icon: Users, bg: "bg-pink-500/10 text-pink-500", onClick: () => setTab ? setTab("admin-players") : showToast?.("Go to Players tab") }
-      ]
-    }
+  const actions = [
+    { label: "Start Match", category: "Match Logistics", icon: PlayCircle, bg: "bg-green-500/10 text-green-500", onClick: () => setTab ? setTab("admin-matches") : showToast?.("Go to Matches tab") },
+    { label: "Generate Fixtures", category: "Match Logistics", icon: CalendarDays, bg: "bg-blue-500/10 text-blue-500", onClick: () => setTab ? setTab("admin-season") : showToast?.("Go to Season tab") },
+    { label: "Edit Season", category: "Match Logistics", icon: Edit2, bg: "bg-orange-500/10 text-orange-500", onClick: () => setTab ? setTab("admin-season") : showToast?.("Go to Season tab") },
+    { label: "Create Announcement", category: "Content & Trophies", icon: Megaphone, bg: "bg-purple-500/10 text-purple-500", onClick: () => setTab ? setTab("admin-announcements") : showToast?.("Go to Announcements tab") },
+    { label: "Manage Trophies", category: "Content & Trophies", icon: Trophy, bg: "bg-gold/10 text-gold", onClick: () => setTab ? setTab("admin-trophies") : showToast?.("Go to Trophies tab") },
+    { label: "Manage Players", category: "Player Management", icon: Users, bg: "bg-pink-500/10 text-pink-500", onClick: () => setTab ? setTab("admin-players") : showToast?.("Go to Players tab") }
   ];
 
   return (
     <Card className="p-6">
       <SectionTitle icon={Zap}>Quick Actions</SectionTitle>
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-4">
-        {groups.map((g, i) => (
-          <FadeIn key={g.title} delay={i * 0.05} className="flex flex-col gap-3">
-            <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-widest px-1 border-b border-border/50 pb-2 mb-1">{g.title}</h3>
-            <div className="flex flex-col gap-2">
-               {g.actions.map((act) => (
-                 <button key={act.label} onClick={act.onClick} className="w-full flex items-center justify-start gap-3 p-3 bg-secondary/20 border border-border/60 rounded-xl hover:bg-secondary/40 hover:border-white/20 transition-all group cursor-pointer shadow-sm">
-                   <div className={`w-9 h-9 rounded-lg flex items-center justify-center shrink-0 ${act.bg} group-hover:scale-105 transition-transform`}>
-                     <act.icon size={16} />
-                   </div>
-                   <span className="text-sm font-bold text-left leading-snug text-foreground/90 group-hover:text-foreground">{act.label}</span>
-                 </button>
-               ))}
-            </div>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 mt-4">
+        {actions.map((act, i) => (
+          <FadeIn key={act.label} delay={i * 0.05} className="h-full">
+            <button onClick={act.onClick} className="w-full h-full flex items-center justify-start gap-4 p-4 bg-secondary/20 border border-border/60 rounded-xl hover:bg-secondary/40 hover:border-white/20 transition-all group cursor-pointer shadow-sm relative">
+              <div className={`w-10 h-10 rounded-lg flex items-center justify-center shrink-0 ${act.bg} group-hover:scale-105 transition-transform`}>
+                <act.icon size={18} />
+              </div>
+              <div className="flex flex-col items-start gap-0.5">
+                <span className="text-sm font-bold text-left leading-snug text-foreground/90 group-hover:text-foreground">{act.label}</span>
+                <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">{act.category}</span>
+              </div>
+            </button>
           </FadeIn>
         ))}
       </div>

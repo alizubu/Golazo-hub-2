@@ -40,8 +40,8 @@ function initials(name) {
 // Card chrome
 // ---------------------------------------------------------------------------
 function CardHeader({ title, status, tone }) {
-  const tones = { rose: "bg-claret-dim/20 text-claret border-claret/30", amber: "bg-amber-950 text-amber-400 border-amber-500/30", emerald: "bg-pitch/20 text-pitch-bright border-pitch/30" };
-  const dotTones = { rose: "bg-claret shadow-[0_0_8px_rgba(178,58,72,0.8)]", amber: "bg-amber-500 shadow-[0_0_8px_rgba(245,158,11,0.8)]", emerald: "bg-pitch-bright shadow-[0_0_8px_rgba(41,193,121,0.8)]" };
+  const tones = { rose: "bg-claret-dim/20 text-claret border-claret/30", amber: "bg-amber-950 text-amber-400 border-amber-500/30", emerald: "bg-pitch/20 text-pitch-bright border-pitch/30", paused: "bg-zinc-900/80 text-amber-500 border-zinc-700" };
+  const dotTones = { rose: "bg-claret shadow-[0_0_8px_rgba(178,58,72,0.8)]", amber: "bg-amber-500 shadow-[0_0_8px_rgba(245,158,11,0.8)]", emerald: "bg-pitch-bright shadow-[0_0_8px_rgba(41,193,121,0.8)]", paused: "bg-amber-500" };
   const isLive = tone === "rose" && status.includes("LIVE");
   
   return (
@@ -86,24 +86,24 @@ function ScoreRow({ home, away, homeScore, awayScore, homeObj, awayObj, paused, 
         <div className="flex items-center justify-center gap-4 sm:gap-8 w-full max-w-lg mx-auto">
           {/* Home */}
           <div className="flex flex-col items-center gap-2 sm:gap-3 flex-1">
-            <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-full flex items-center justify-center font-black text-lg sm:text-2xl bg-zinc-900 text-zinc-50 border-[3px] border-pitch shadow-[0_0_20px_rgba(41,193,121,0.2)] overflow-hidden">
+            <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-full flex items-center justify-center font-black text-lg sm:text-2xl bg-zinc-900 text-zinc-50 border-[3px] border-pitch shadow-[0_0_20px_rgba(41,193,121,0.4)] overflow-hidden">
               <Avatar p={homeObj} size={64} className="w-full h-full" />
             </div>
             <span className="text-sm sm:text-base font-bold text-zinc-50 text-center leading-tight bg-transparent selection:bg-pitch/30">{home}</span>
           </div>
           
           {/* Score */}
-          <div className="flex flex-col items-center justify-center">
-            <div className="flex items-center gap-3 sm:gap-5 text-5xl sm:text-7xl font-black font-score tabular-nums tracking-tighter text-zinc-50 drop-shadow-[0_0_10px_rgba(255,255,255,0.1)]">
-              <ScoreNumber score={homeScore} colorClass="text-pitch-bright" />
-              <span className="text-zinc-800 font-medium pb-1 sm:pb-3 text-4xl sm:text-6xl">-</span>
-              <ScoreNumber score={awayScore} colorClass="text-claret" />
+          <div className="flex flex-col items-center justify-center min-w-[120px] sm:min-w-[160px]">
+            <div className="flex items-center justify-center w-full text-5xl sm:text-7xl font-black font-score tabular-nums tracking-tighter text-zinc-50 drop-shadow-[0_0_10px_rgba(255,255,255,0.1)]">
+              <div className="flex-1 flex justify-end pr-3 sm:pr-5"><ScoreNumber score={homeScore} colorClass="text-pitch-bright" /></div>
+              <span className="text-zinc-800 font-medium pb-1 sm:pb-3 text-4xl sm:text-6xl flex-none">-</span>
+              <div className="flex-1 flex justify-start pl-3 sm:pl-5"><ScoreNumber score={awayScore} colorClass="text-claret" /></div>
             </div>
           </div>
           
           {/* Away */}
           <div className="flex flex-col items-center gap-2 sm:gap-3 flex-1">
-            <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-full flex items-center justify-center font-black text-lg sm:text-2xl bg-zinc-900 text-zinc-50 border-[3px] border-claret shadow-[0_0_20px_rgba(178,58,72,0.2)] overflow-hidden">
+            <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-full flex items-center justify-center font-black text-lg sm:text-2xl bg-zinc-900 text-zinc-50 border-[3px] border-claret shadow-[0_0_20px_rgba(178,58,72,0.4)] overflow-hidden">
               <Avatar p={awayObj} size={64} className="w-full h-full" />
             </div>
             <span className="text-sm sm:text-base font-bold text-zinc-50 text-center leading-tight bg-transparent selection:bg-claret/30">{away}</span>
@@ -114,12 +114,12 @@ function ScoreRow({ home, away, homeScore, awayScore, homeObj, awayObj, paused, 
   );
 }
 
-function StepIndicator({ phase, needsShootout }) {
+function StepIndicator({ phase }) {
   const order = ["live", "extra_time", "shootout", "stats", "done"];
   const steps = [
     { key: "live", label: "Match" },
-    ...(needsShootout ? [{ key: "extra_time", label: "Extra Time" }] : []),
-    ...(needsShootout ? [{ key: "shootout", label: "Penalties" }] : []),
+    { key: "extra_time", label: "Extra Time" },
+    { key: "shootout", label: "Penalties" },
     { key: "stats", label: "Stats" },
     { key: "done", label: "Published" },
   ];
@@ -233,8 +233,13 @@ function LiveControl({ state, setState, onFinish, onTogglePause }) {
       </div>
       <div className="flex flex-col sm:flex-row gap-3 justify-center max-w-xl mx-auto items-center">
         <button onClick={onTogglePause}
-          className="h-10 sm:h-11 w-full sm:w-48 rounded-xl flex items-center justify-center gap-2 font-bold text-sm bg-zinc-800 hover:bg-zinc-700 text-zinc-50 border border-zinc-700 transition-colors active:scale-95 shadow-md">
-          {paused ? <Play size={16} className="fill-zinc-50" /> : <Pause size={16} className="fill-zinc-50" />}{paused ? "Resume Match" : "Pause Match"}
+          className={`h-10 sm:h-11 w-full sm:w-48 rounded-xl flex items-center justify-center gap-2 font-bold text-sm transition-colors active:scale-95 shadow-md ${
+            paused 
+            ? "bg-pitch-bright/10 hover:bg-pitch-bright/20 text-pitch-bright border border-pitch-bright/30" 
+            : "bg-zinc-800 hover:bg-zinc-700 text-zinc-50 border border-zinc-700"
+          }`}>
+          {paused ? <Play size={16} className="fill-pitch-bright" /> : <Pause size={16} className="fill-zinc-50" />}
+          {paused ? "Resume Match" : "Pause Match"}
         </button>
         <button onClick={onFinish}
           className="h-12 sm:h-14 w-full sm:w-64 rounded-xl flex items-center justify-center gap-2 font-bold text-sm sm:text-base bg-destructive/10 hover:bg-destructive/20 text-destructive border border-destructive/30 transition-colors active:scale-95 shadow-md shadow-destructive/10">
@@ -828,10 +833,8 @@ export default function LiveMatchControl({ matches, players, activeSeason, showT
     }
   };
 
-  const needsShootoutStep = phase === "extra_time" || phase === "shootout" || resultType === "extra_time" || resultType === "penalties" || (phase === "live" && isLevel());
-
   const headerFor = () => {
-    if (phase === "live") return { title: "Live Match Control", status: state.paused ? "PAUSED" : "LIVE • 1ST HALF", tone: "rose" };
+    if (phase === "live") return { title: "Live Match Control", status: state.paused ? "PAUSED" : "LIVE • 1ST HALF", tone: state.paused ? "paused" : "rose" };
     if (phase === "extra_time") return { title: "Extra Time", status: `ET • HALF ${etHalf}`, tone: "amber" };
     if (phase === "shootout") return { title: "Penalty Shootout", status: "SHOOTOUT", tone: "amber" };
     if (phase === "stats") return { title: "Match Statistics", status: "FULL TIME", tone: "emerald" };
@@ -865,7 +868,7 @@ export default function LiveMatchControl({ matches, players, activeSeason, showT
       <ScoreRow home={state.home.name} away={state.away.name} homeScore={state.home.goals} awayScore={state.away.goals} homeObj={state.home} awayObj={state.away} paused={state.paused} isLive={phase === "live" || phase === "extra_time"} />
       
       <div className="border-b border-zinc-800/50 bg-zinc-950/30">
-        <StepIndicator phase={phase} needsShootout={needsShootoutStep} />
+        <StepIndicator phase={phase} />
       </div>
 
       <main className="pt-6 sm:pt-8">
