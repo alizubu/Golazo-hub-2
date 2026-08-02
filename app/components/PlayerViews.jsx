@@ -603,13 +603,16 @@ export function PlayerDashboard({ me, activeSeason, seasons = [], matches, playe
                         <td className="py-2.5 text-center font-bold text-pitch-bright">{s.pts}</td>
                         <td className="py-2.5 text-center">
                           <div className="flex items-center justify-center gap-1">
-                            {s.form.slice(-3).map((res, idx) => (
-                              <span key={idx} className={`w-3 h-3 rounded-full flex items-center justify-center text-[7px] font-bold text-white
-                                ${res === 'W' ? 'bg-emerald-500' : res === 'D' ? 'bg-slate-400' : 'bg-red-500'}
-                              `}>
-                                {res}
-                              </span>
-                            ))}
+                            {s.form.slice(-3).map((resObj, idx) => {
+                              const res = typeof resObj === 'object' && resObj !== null ? resObj.result : resObj;
+                              return (
+                                <span key={idx} className={`w-3 h-3 rounded-full flex items-center justify-center text-[7px] font-bold text-white
+                                  ${res === 'W' ? 'bg-emerald-500' : res === 'D' ? 'bg-slate-400' : 'bg-red-500'}
+                                `}>
+                                  {res}
+                                </span>
+                              );
+                            })}
                           </div>
                         </td>
                       </tr>
