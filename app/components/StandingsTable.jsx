@@ -1,14 +1,40 @@
 "use client";
 import React, { useRef, useState } from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Avatar } from './UI';
 import { HoverCard, HoverCardTrigger, HoverCardContent } from '@/app/components/ui/hover-card';
-import { Download, Loader2 } from 'lucide-react';
+import { Download, Loader2, Medal, ChevronDown, ChevronUp } from 'lucide-react';
+import nationalTeamsData from '@/lib/data/national_teams.json';
+import clubsData from '@/lib/data/clubs.json';
 
-const mockFlags = ['🇪🇸', '🇧🇷', '🇦🇷', '🇫🇷', '🇩🇪', '🇮🇹', '🇬🇧', '🇵🇹'];
-const getFlag = (id) => {
-  const strId = String(id || '0');
-  return mockFlags[strId.charCodeAt(0) % mockFlags.length];
+const getPlayerFlag = (player) => {
+  if (player?.flag) {
+    const nt = nationalTeamsData.find(n => n.name === player.flag);
+    if (nt && nt.flag_url) return nt.flag_url;
+  }
+  if (player?.favoriteClub) {
+    const club = clubsData.find(c => c.name === player.favoriteClub);
+    if (club && club.logo_url) return club.logo_url;
+  }
+  return null;
+};
+
+const RankMedal = ({ rank }) => {
+  if (rank === 1) {
+    return (
+      <div className="relative flex items-center justify-center">
+        <div className="absolute w-8 h-8 bg-yellow-500/20 rounded-full blur-md animate-pulse"></div>
+        <Medal className="text-yellow-400 drop-shadow-[0_0_8px_rgba(250,204,21,0.6)] relative z-10" size={24} strokeWidth={2.5} />
+      </div>
+    );
+  }
+  if (rank === 2) {
+    return <Medal className="text-slate-300 drop-shadow-[0_0_4px_rgba(203,213,225,0.4)] mx-auto" size={22} strokeWidth={2} />;
+  }
+  if (rank === 3) {
+    return <Medal className="text-amber-600 drop-shadow-[0_0_4px_rgba(217,119,6,0.4)] mx-auto" size={22} strokeWidth={2} />;
+  }
+  return <span className="font-bold font-score text-muted-foreground">{rank}</span>;
 };
 
 export function computeStandings(matches, players, seasonId) {
@@ -54,17 +80,51 @@ export function computeStandings(matches, players, seasonId) {
     
   Object.values(table).forEach((t) => {
     t.gd = t.gf - t.ga;
-    t.form = t.form.slice(-5); // Keep last 5 matches
+    t.form = t.form.slice(-5);
   });
   
   return Object.values(table).sort((x, y) => y.pts - x.pts || y.gd - x.gd || y.gf - x.gf || x.name.localeCompare(y.name));
 }
 
-export default function StandingsTable({ matches, players, seasonId, me, onH2HClick }) {
+const FormDots = ({ form }) => {
+  return (
+    <div className="flex items-center justify-center gap-1.5" onClick={(e) => e.stopPropagation()}>
+      {form.length > 0 ? form.map((res, idx) => {
+        const isLast = idx === form.length - 1;
+        return (
+          <HoverCard key={idx} openDelay={100} closeDelay={100}>
+            <HoverCardTrigger asChild>
+              <div 
+                className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold text-white shadow-inner cursor-pointer
+                  ${res.result === 'W' ? 'bg-gradient-to-br from-emerald-400 to-emerald-600' : res.result === 'D' ? 'bg-gradient-to-br from-slate-400 to-slate-600' : 'bg-gradient-to-br from-red-400 to-red-600'}
+                  ${isLast ? 'ring-2 ring-white/20 ring-offset-1 ring-offset-[#12151b] drop-shadow-[0_0_6px_rgba(255,255,255,0.2)] scale-110 z-10' : ''}
+                `}
+              >
+                {res.result}
+              </div>
+            </HoverCardTrigger>
+            <HoverCardContent align="center" sideOffset={6} className="w-auto p-2.5 text-xs bg-[#12151b] border-white/10 shadow-[0_8px_32px_-8px_rgba(0,0,0,0.8)] z-[100] rounded-lg">
+              <div className="flex flex-col gap-1 text-center font-score">
+                <span className="font-bold text-white text-[13px]">
+                  {res.result === 'W' ? 'Won' : res.result === 'D' ? 'Drew' : 'Lost'} {res.score}
+                </span>
+                <span className="text-white/60 text-[11px] font-medium tracking-wide uppercase">vs {res.opp}</span>
+              </div>
+            </HoverCardContent>
+          </HoverCard>
+        );
+      }) : (
+        <span className="text-muted-foreground text-xs">-</span>
+      )}
+    </div>
+  );
+};
+
+export default function StandingsTable({ matches, players, seasonId, me, onPlayerClick, onH2HClick }) {
   const standings = computeStandings(matches, players, seasonId);
-  const totalPlayers = standings.length;
   const tableRef = useRef(null);
   const [isExporting, setIsExporting] = useState(false);
+  const [expandedRow, setExpandedRow] = useState(null);
 
   const handleExport = async () => {
     if (!tableRef.current) return;
@@ -74,7 +134,7 @@ export default function StandingsTable({ matches, players, seasonId, me, onH2HCl
       const download = (await import('downloadjs')).default;
       const dataUrl = await htmlToImage.toPng(tableRef.current, {
         quality: 1,
-        backgroundColor: '#0a0c10', // match app background
+        backgroundColor: '#0a0c10',
         style: { transform: 'scale(1)', transformOrigin: 'top left' }
       });
       download(dataUrl, 'golazo-standings.png');
@@ -83,6 +143,93 @@ export default function StandingsTable({ matches, players, seasonId, me, onH2HCl
     } finally {
       setIsExporting(false);
     }
+  };
+
+  const handleRowClick = (id) => {
+    if (onPlayerClick) {
+      onPlayerClick(id);
+    } else if (onH2HClick) {
+      onH2HClick(id);
+    }
+  };
+
+  const MobileCard = ({ s, i }) => {
+    const isExpanded = expandedRow === s.id;
+    const isMe = me && s.id === me.id;
+    const isFirst = i === 0;
+    const flagUrl = getPlayerFlag(s);
+    
+    return (
+      <motion.div 
+        layout
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: i * 0.05 }}
+        onClick={() => setExpandedRow(isExpanded ? null : s.id)}
+        className={`relative overflow-hidden rounded-xl border p-4 shadow-md transition-colors
+          ${isMe ? 'bg-pitch/10 border-pitch/30' : 'bg-card border-border/40'}
+          ${isFirst ? 'border-l-4 border-l-yellow-500' : ''}
+          ${isMe && !isFirst ? 'border-l-4 border-l-pitch' : ''}
+        `}
+      >
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="w-8 flex justify-center">
+              <RankMedal rank={i + 1} />
+            </div>
+            <div className="relative" onClick={(e) => {
+                e.stopPropagation();
+                handleRowClick(s.id);
+              }}>
+              <Avatar p={s} size={40} />
+              {flagUrl && (
+                <div className="absolute -bottom-1 -right-1 w-[20px] h-[14px] bg-[#12151b] rounded-sm overflow-hidden shadow-sm">
+                  <img src={flagUrl} alt="flag" className="w-full h-full object-cover" />
+                </div>
+              )}
+            </div>
+            <div>
+              <div className="font-bold text-foreground text-sm cursor-pointer hover:underline" onClick={(e) => {
+                e.stopPropagation();
+                handleRowClick(s.id);
+              }}>
+                {s.name}
+              </div>
+              <div className="text-xs text-muted-foreground font-score uppercase">PTS: <span className="font-bold text-pitch-bright text-sm">{s.pts}</span></div>
+            </div>
+          </div>
+          <div className="flex flex-col items-end gap-2">
+            <FormDots form={s.form} />
+            {isExpanded ? <ChevronUp size={16} className="text-muted-foreground" /> : <ChevronDown size={16} className="text-muted-foreground" />}
+          </div>
+        </div>
+
+        <AnimatePresence>
+          {isExpanded && (
+            <motion.div
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: 'auto', opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              className="overflow-hidden"
+            >
+              <div className="pt-4 mt-4 border-t border-border/30 grid grid-cols-4 gap-2 text-center">
+                <div className="flex flex-col"><span className="text-[10px] text-muted-foreground uppercase tracking-wider">P</span><span className="font-score font-bold">{s.played}</span></div>
+                <div className="flex flex-col"><span className="text-[10px] text-muted-foreground uppercase tracking-wider">W</span><span className="font-score font-bold">{s.won}</span></div>
+                <div className="flex flex-col"><span className="text-[10px] text-muted-foreground uppercase tracking-wider">D</span><span className="font-score font-bold">{s.drawn}</span></div>
+                <div className="flex flex-col"><span className="text-[10px] text-muted-foreground uppercase tracking-wider">L</span><span className="font-score font-bold">{s.lost}</span></div>
+                <div className="flex flex-col"><span className="text-[10px] text-muted-foreground uppercase tracking-wider">GF</span><span className="font-score font-bold">{s.gf}</span></div>
+                <div className="flex flex-col"><span className="text-[10px] text-muted-foreground uppercase tracking-wider">GA</span><span className="font-score font-bold">{s.ga}</span></div>
+                <div className="flex flex-col col-span-2"><span className="text-[10px] text-muted-foreground uppercase tracking-wider">GD</span>
+                  <span className={`font-score font-bold ${s.gd > 0 ? 'text-emerald-500' : s.gd < 0 ? 'text-red-500' : 'text-muted-foreground'}`}>
+                    {s.gd > 0 ? `+${s.gd}` : s.gd}
+                  </span>
+                </div>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </motion.div>
+    );
   };
 
   return (
@@ -99,97 +246,92 @@ export default function StandingsTable({ matches, players, seasonId, me, onH2HCl
         </button>
       </div>
 
-      <div ref={tableRef} className="overflow-x-auto rounded-xl border border-border/50 bg-card shadow-lg">
-        <table className="w-full text-left border-collapse text-sm">
-        <thead>
-          <tr className="border-b border-border/50 bg-secondary/80 font-heading uppercase tracking-wider text-xs text-muted-foreground">
-            <th className="p-3 w-12 text-center">#</th>
-            <th className="p-3">Player</th>
-            <th className="p-2 sm:p-3 text-center">P</th>
-            <th className="p-2 sm:p-3 text-center hidden sm:table-cell">W</th>
-            <th className="p-2 sm:p-3 text-center hidden sm:table-cell">D</th>
-            <th className="p-2 sm:p-3 text-center hidden sm:table-cell">L</th>
-            <th className="p-2 sm:p-3 text-center hidden lg:table-cell">GF</th>
-            <th className="p-2 sm:p-3 text-center hidden lg:table-cell">GA</th>
-            <th className="p-2 sm:p-3 text-center">GD</th>
-            <th className="p-2 sm:p-3 text-center font-bold text-white">PTS</th>
-            <th className="p-2 sm:p-3 text-center hidden md:table-cell w-32">Form</th>
-          </tr>
-        </thead>
-        <tbody className="divide-y divide-border/20 font-score text-xs">
-          {standings.map((s, i) => {
-            const isTop4 = i < 4;
-            const isBottom3 = i >= totalPlayers - 3 && totalPlayers > 6;
-            
-            let rowBorderClass = 'border-l-4 border-l-transparent';
-            if (isTop4) rowBorderClass = 'border-l-4 border-l-emerald-500';
-            else if (isBottom3) rowBorderClass = 'border-l-4 border-l-red-500';
-            
-            if (me && s.id === me.id) {
-              rowBorderClass += ' bg-pitch/10';
-            }
+      {/* Mobile Stacked View */}
+      <div className="flex flex-col gap-3 md:hidden">
+        {standings.map((s, i) => <MobileCard key={s.id} s={s} i={i} />)}
+      </div>
 
-            return (
-              <motion.tr 
-                initial={{ opacity: 0, x: -10 }} 
-                animate={{ opacity: 1, x: 0 }} 
-                transition={{ delay: i * 0.05 }} 
-                key={s.id} 
-                className={`border-b border-border/30 last:border-0 hover:bg-secondary/50 transition-colors ${rowBorderClass}`}
-              >
-                <td className="p-3 text-center font-medium text-muted-foreground">
-                  {i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : i + 1}
-                </td>
-                <td className="p-3">
-                  <div 
-                    className={`flex items-center gap-2 ${me && s.id !== me.id ? 'cursor-pointer hover:opacity-80 transition-opacity' : ''}`}
-                    onClick={() => me && s.id !== me.id && onH2HClick && onH2HClick(s.id)}
+      {/* Desktop Table View */}
+      <div ref={tableRef} className="hidden md:block overflow-x-auto rounded-xl border border-border/40 bg-card shadow-[0_8px_30px_rgb(0,0,0,0.12)]">
+        <table className="w-full text-left border-collapse text-sm">
+          <thead>
+            <tr className="border-b-2 border-border/50 bg-secondary/80 font-heading uppercase tracking-widest text-[10px] text-muted-foreground">
+              <th className="p-3 w-16 text-center">#</th>
+              <th className="p-3">Player</th>
+              <th className="p-3 text-center">P</th>
+              <th className="p-3 text-center">W</th>
+              <th className="p-3 text-center">D</th>
+              <th className="p-3 text-center">L</th>
+              <th className="p-3 text-center hidden lg:table-cell">GF</th>
+              <th className="p-3 text-center hidden lg:table-cell">GA</th>
+              <th className="p-3 text-center">GD</th>
+              <th className="p-3 text-center font-bold text-white">PTS</th>
+              <th className="p-3 text-center w-40">Form</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-border/20 text-xs">
+            <AnimatePresence>
+              {standings.map((s, i) => {
+                const isFirst = i === 0;
+                const isMe = me && s.id === me.id;
+                const flagUrl = getPlayerFlag(s);
+                
+                let rowClasses = i % 2 === 0 ? 'bg-transparent' : 'bg-white/[0.01]';
+                
+                let borderClasses = 'border-l-4 border-l-transparent';
+                if (isFirst) borderClasses = 'border-l-4 border-l-yellow-500';
+                else if (isMe) borderClasses = 'border-l-4 border-l-pitch';
+                
+                if (isMe) {
+                  rowClasses += ' bg-pitch/10 hover:bg-pitch/20';
+                }
+
+                return (
+                  <motion.tr 
+                    layout
+                    initial={{ opacity: 0, y: 10 }} 
+                    animate={{ opacity: 1, y: 0 }} 
+                    exit={{ opacity: 0 }}
+                    transition={{ delay: i * 0.03, duration: 0.3 }} 
+                    key={s.id} 
+                    onClick={() => handleRowClick(s.id)}
+                    className={`border-b border-border/30 last:border-0 hover:bg-white/[0.04] transition-colors cursor-pointer group ${rowClasses} ${borderClasses}`}
                   >
-                    <div className="relative">
-                      <Avatar p={s} size={24} />
-                      <span className="absolute -bottom-1 -right-1 text-[10px] leading-none drop-shadow-md bg-[#12151b] rounded-full">{getFlag(s.id)}</span>
-                    </div>
-                    <span className="font-bold text-white font-heading text-sm">{s.name}</span>
-                  </div>
-                </td>
-                <td className="p-2 sm:p-3 text-center">{s.played}</td>
-                <td className="p-2 sm:p-3 text-center text-muted-foreground hidden sm:table-cell">{s.won}</td>
-                <td className="p-2 sm:p-3 text-center text-muted-foreground hidden sm:table-cell">{s.drawn}</td>
-                <td className="p-2 sm:p-3 text-center text-muted-foreground hidden sm:table-cell">{s.lost}</td>
-                <td className="p-2 sm:p-3 text-center hidden lg:table-cell">{s.gf}</td>
-                <td className="p-2 sm:p-3 text-center hidden lg:table-cell">{s.ga}</td>
-                <td className="p-2 sm:p-3 text-center text-muted-foreground">{s.gd > 0 ? `+${s.gd}` : s.gd}</td>
-                <td className="p-2 sm:p-3 text-center font-bold text-pitch-bright text-base">{s.pts}</td>
-                <td className="p-2 sm:p-3 text-center hidden md:table-cell">
-                  <div className="flex items-center justify-center gap-1">
-                    {s.form.length > 0 ? s.form.map((res, idx) => (
-                      <HoverCard key={idx} openDelay={100} closeDelay={100}>
-                        <HoverCardTrigger asChild>
-                          <span className={`w-4 h-4 rounded-full flex items-center justify-center text-[9px] font-bold text-white cursor-default
-                            ${res.result === 'W' ? 'bg-emerald-500' : res.result === 'D' ? 'bg-slate-500' : 'bg-red-500'}
-                          `}>
-                            {res.result}
-                          </span>
-                        </HoverCardTrigger>
-                        <HoverCardContent align="center" sideOffset={6} className="w-auto p-2.5 text-xs bg-[#12151b] border-white/10 shadow-[0_8px_32px_-8px_rgba(0,0,0,0.8)] z-[100] rounded-lg">
-                          <div className="flex flex-col gap-1 text-center font-score">
-                            <span className="font-bold text-white text-[13px]">
-                              {res.result === 'W' ? 'Won' : res.result === 'D' ? 'Drew' : 'Lost'} {res.score}
-                            </span>
-                            <span className="text-white/60 text-[11px] font-medium tracking-wide uppercase">vs {res.opp}</span>
-                          </div>
-                        </HoverCardContent>
-                      </HoverCard>
-                    )) : (
-                      <span className="text-muted-foreground text-[10px]">-</span>
-                    )}
-                  </div>
-                </td>
-              </motion.tr>
-            );
-          })}
-        </tbody>
-      </table>
+                    <td className="p-3 text-center font-medium">
+                      <RankMedal rank={i + 1} />
+                    </td>
+                    <td className="p-3">
+                      <div className="flex items-center gap-3">
+                        <div className="relative flex-shrink-0">
+                          <Avatar p={s} size={28} />
+                          {flagUrl && (
+                            <div className="absolute -bottom-1 -right-1 w-[18px] h-[14px] bg-[#12151b] rounded-sm overflow-hidden shadow-sm">
+                              <img src={flagUrl} alt="flag" className="w-full h-full object-cover" />
+                            </div>
+                          )}
+                        </div>
+                        <span className="font-bold text-white font-heading text-[13px] group-hover:underline">{s.name}</span>
+                      </div>
+                    </td>
+                    <td className="p-3 text-center font-score text-muted-foreground font-semibold text-[13px]">{s.played}</td>
+                    <td className="p-3 text-center font-score text-muted-foreground font-semibold text-[13px]">{s.won}</td>
+                    <td className="p-3 text-center font-score text-muted-foreground font-semibold text-[13px]">{s.drawn}</td>
+                    <td className="p-3 text-center font-score text-muted-foreground font-semibold text-[13px]">{s.lost}</td>
+                    <td className="p-3 text-center font-score text-muted-foreground font-semibold text-[13px] hidden lg:table-cell">{s.gf}</td>
+                    <td className="p-3 text-center font-score text-muted-foreground font-semibold text-[13px] hidden lg:table-cell">{s.ga}</td>
+                    <td className={`p-3 text-center font-score font-bold text-[13px] ${s.gd > 0 ? 'text-emerald-500' : s.gd < 0 ? 'text-red-500' : 'text-muted-foreground'}`}>
+                      {s.gd > 0 ? `+${s.gd}` : s.gd}
+                    </td>
+                    <td className="p-3 text-center font-score font-bold text-pitch-bright text-base">{s.pts}</td>
+                    <td className="p-3 text-center">
+                      <FormDots form={s.form} />
+                    </td>
+                  </motion.tr>
+                );
+              })}
+            </AnimatePresence>
+          </tbody>
+        </table>
       </div>
     </div>
   );
