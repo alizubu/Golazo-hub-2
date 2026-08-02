@@ -43,17 +43,17 @@ export function StatTile({
 
   // Base typography based on optical hierarchy design spec
   const getNumberStyles = () => {
-    if (isHero) return 'text-[64px] font-[800] tracking-[-0.02em] text-amber-400';
-    if (isMedium) return 'text-[40px] font-[700] tracking-[-0.01em] text-white';
-    return 'text-[28px] font-[700] tracking-normal text-white'; // small
+    if (isHero) return 'text-6xl font-extrabold tracking-[-0.02em] text-amber-400';
+    if (isMedium) return 'text-4xl font-bold tracking-[-0.01em] text-white';
+    return 'text-3xl font-bold tracking-normal text-white'; // small
   };
 
   const getLabelStyles = () => {
-    return 'text-[11px] font-[600] tracking-[0.08em] uppercase text-[#6b7280]';
+    return 'text-xs font-semibold uppercase tracking-wider text-slate-400';
   };
 
   // Surface treatment and Elevation based on design spec
-  const baseCardClasses = `relative flex flex-col justify-start p-4 sm:p-5 rounded-[14px] transition-shadow duration-300 w-full h-full bg-[#12151b] border-t border-t-white/[0.06] border-r-0 border-l-0 border-b-0 ${cursorClass} ${className}`;
+  const baseCardClasses = `relative flex flex-col justify-start p-5 sm:p-6 rounded-[14px] transition-shadow duration-300 w-full h-full bg-[#12151b] border-t border-t-white/[0.06] border-r-0 border-l-0 border-b-0 ${cursorClass} ${className}`;
   
   const shadowClasses = 'shadow-[0_1px_2px_rgba(0,0,0,0.4),0_8px_24px_-8px_rgba(0,0,0,0.5)]';
   const heroShadowClasses = 'shadow-[0_1px_2px_rgba(0,0,0,0.4),0_8px_24px_-8px_rgba(0,0,0,0.5),0_0_32px_-8px_rgba(234,179,8,0.15)]';
@@ -146,7 +146,7 @@ export function StatTile({
       </div>
       
       {isHero && subtext && !isEmpty && (
-        <div className="mt-auto flex items-center gap-2 text-[11px] font-[600] text-[#22c55e] bg-[#22c55e]/10 px-2.5 py-1 rounded-md w-fit z-10">
+        <div className="mt-auto flex items-center gap-2 text-xs font-semibold text-[#22c55e] bg-[#22c55e]/10 px-3 py-1.5 rounded-md w-fit z-10">
           <div className="w-1.5 h-1.5 rounded-full bg-[#22c55e]" />
           {subtext}
         </div>

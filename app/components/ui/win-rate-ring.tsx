@@ -13,11 +13,11 @@ export function WinRateRing({ value, isEmpty, emptyStateText }) {
   if (isEmpty) {
     return (
       <div className="flex flex-col items-center justify-center h-full w-full gap-1 py-1 mt-1">
-        <div className="relative w-14 h-14 sm:w-16 sm:h-16 flex items-center justify-center shrink-0">
+        <div className="relative w-20 h-20 sm:w-24 sm:h-24 flex items-center justify-center shrink-0">
           <svg className="w-full h-full transform -rotate-90" viewBox="0 0 36 36">
-            <path className="text-white/5 stroke-current" strokeWidth="3" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+            <path className="text-white/5 stroke-current" strokeWidth="2.5" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
           </svg>
-          <div className="absolute inset-0 flex items-center justify-center text-sm font-bold font-score text-white/20">
+          <div className="absolute inset-0 flex items-center justify-center text-4xl font-bold font-score text-white/20">
             —
           </div>
         </div>
@@ -30,12 +30,12 @@ export function WinRateRing({ value, isEmpty, emptyStateText }) {
 
   return (
     <div className="flex flex-col items-center justify-center h-full w-full gap-1 py-1 mt-1">
-      <div className="relative w-14 h-14 sm:w-16 sm:h-16 flex items-center justify-center shrink-0" ref={ref}>
+      <div className="relative w-20 h-20 sm:w-24 sm:h-24 flex items-center justify-center shrink-0" ref={ref}>
         <svg className="w-full h-full transform -rotate-90" viewBox="0 0 36 36">
-          <path className="text-white/10 stroke-current" strokeWidth="3" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+          <path className="text-white/10 stroke-current" strokeWidth="2.5" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
           <motion.path 
             className={`${ringColor} stroke-current`} 
-            strokeWidth="3" 
+            strokeWidth="2.5" 
             strokeLinecap="round" 
             fill="none" 
             d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" 
@@ -45,8 +45,8 @@ export function WinRateRing({ value, isEmpty, emptyStateText }) {
             transition={{ duration: 0.8, ease: "easeOut" }} 
           />
         </svg>
-        <div className="absolute inset-0 flex items-center justify-center text-sm font-bold font-score tabular-nums text-white">
-          {isInView ? <NumberTicker value={numValue} className="text-white" /> : '0'}%
+        <div className={`absolute inset-0 flex items-center justify-center text-4xl font-bold font-score tabular-nums ${ringColor}`}>
+          {isInView ? <NumberTicker value={numValue} className={ringColor} /> : '0'}%
         </div>
       </div>
     </div>
