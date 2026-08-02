@@ -10,7 +10,6 @@ export function SeasonStats({ playerId, initialStats, seasons, activeSeason, sel
   const [stats, setStats] = useState(initialStats);
   const [loading, setLoading] = useState(false);
 
-  // Fetch new stats when season changes
   useEffect(() => {
     let isMounted = true;
     const fetchStats = async () => {
@@ -28,9 +27,7 @@ export function SeasonStats({ playerId, initialStats, seasons, activeSeason, sel
       }
     };
     
-    // Fetch stats for the new season
     fetchStats();
-    
     return () => { isMounted = false; };
   }, [selectedSeasonId, playerId]);
 
@@ -42,26 +39,18 @@ export function SeasonStats({ playerId, initialStats, seasons, activeSeason, sel
 
   return (
     <FadeIn delay={0.2} className="col-span-12">
-      {/* 
-        Section Container:
-        Subtle 1px solid rgba(255,255,255,0.08) border, border-radius: 20px
-        Background: #0a0c10
-      */}
       <div className="relative overflow-hidden group w-full bg-[#0a0c10] border border-white/[0.08] rounded-[20px]">
-        {/* Unified Header */}
         <div className="pb-3 pt-5 px-5 sm:px-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4 relative">
           <div className="text-xl sm:text-2xl font-bold flex items-center gap-2.5 text-white">
             <Activity className="text-white/70" size={24}/> Season Stats
           </div>
           
-          {/* Pill-Style Season Selector Redesign */}
           <DropdownMenu>
             <DropdownMenuTrigger className="outline-none focus-visible:ring-2 focus-visible:ring-white/20 rounded-full">
               <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#12151b] border border-white/10 hover:bg-[#1a1e27] hover:border-white/20 transition-colors cursor-pointer text-sm font-[600] text-white shadow-sm w-fit h-[36px]">
                 <Calendar size={14} className="text-[#6b7280]" />
                 <span>{selectedSeason?.name || "Select Season"}</span>
                 
-                {/* Status Dot */}
                 {isActive ? (
                   <motion.div 
                     className="w-2 h-2 ml-1 rounded-full bg-[#22c55e]"
@@ -114,95 +103,70 @@ export function SeasonStats({ playerId, initialStats, seasons, activeSeason, sel
                 },
                 exit: { opacity: 0, transition: { duration: 0.2 } }
               }}
-              // MATHEMATICALLY PERFECT 8-COLUMN GRID
-              // Mobile: 2 cols
-              // Desktop: 8 cols to allow 2+3+3 on row 1, 2+2+2+2 on row 2
-              className="grid grid-cols-2 lg:grid-cols-8 auto-rows-min gap-4"
+              className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 auto-rows-fr gap-4"
             >
-              {/* Tile 1: Current Rank (Hero) */}
-              {/* Desktop: takes 2 cols, spans 2 rows */}
-              {/* Mobile: takes 2 cols, normal height */}
-              <div className="col-span-2 lg:col-span-2 lg:row-span-2 flex min-h-[140px] lg:min-h-auto">
+              <div className="col-span-1 flex min-h-[120px]">
                 <StatTile 
                   icon={Trophy}
                   label="Rank"
                   value={hasData && rank ? `#${rank}` : null}
                   loaded={!loading}
-                  size="hero"
+                  isHero={true}
                   emptyStateText="Unranked"
-                  subtext={isActive && hasData ? "Active season" : null}
                 />
               </div>
 
-              {/* Tile 2: Elo Rating */}
-              {/* Desktop: takes 3 cols out of 8 */}
-              {/* Mobile: takes 1 col out of 2 */}
-              <div className="col-span-1 lg:col-span-3 flex min-h-[140px]">
+              <div className="col-span-1 flex min-h-[120px]">
                 <StatTile 
                   icon={Activity}
                   label="Elo Rating"
                   value={hasData ? elo : null}
                   loaded={!loading}
-                  size="medium"
                   isCountUp={true}
                   emptyStateText="No matches"
                 />
               </div>
 
-              {/* Tile 3: Win Rate */}
-              <div className="col-span-1 lg:col-span-3 flex min-h-[140px]">
+              <div className="col-span-1 flex min-h-[120px]">
                 <StatTile 
                   icon={TrendingUp}
                   label="Win Rate"
                   value={hasData ? winRate : null}
                   loaded={!loading}
-                  colorAccent="green"
-                  size="medium"
                   isPercentage={true}
+                  isCountUp={true}
                   emptyStateText="Play 1+ match"
                 />
               </div>
 
-              {/* Tile 4: Matches */}
-              {/* Desktop: takes 2 cols out of 8 */}
-              {/* Mobile: takes 1 col */}
-              <div className="col-span-1 lg:col-span-2 flex h-full min-h-[120px]">
+              <div className="col-span-1 flex min-h-[120px]">
                 <StatTile 
                   icon={Swords}
                   label="Matches"
                   value={hasData ? played : null}
                   loaded={!loading}
-                  size="small"
                   isCountUp={true}
                   emptyStateText="No matches"
                 />
               </div>
 
-              {/* Tile 5: Goals */}
-              {/* Desktop: takes 2 cols out of 8 */}
-              {/* Mobile: takes 1 col */}
-              <div className="col-span-1 lg:col-span-2 flex h-full min-h-[120px]">
+              <div className="col-span-1 flex min-h-[120px]">
                 <StatTile 
                   icon={Target}
                   label="Goals"
                   value={hasData ? goals : null}
                   loaded={!loading}
-                  size="small"
                   isCountUp={true}
                   emptyStateText="No goals"
                 />
               </div>
 
-              {/* Tile 6: Assists */}
-              {/* Desktop: takes 2 cols out of 8 */}
-              {/* Mobile fallback: col-span-2 for 2+1 layout to avoid squishing */}
-              <div className="col-span-2 sm:col-span-1 lg:col-span-2 flex h-full min-h-[120px]">
+              <div className="col-span-1 flex min-h-[120px]">
                 <StatTile 
                   icon={Handshake}
                   label="Assists"
                   value={hasData ? assists : null}
                   loaded={!loading}
-                  size="small"
                   isCountUp={true}
                   emptyStateText="No assists"
                 />
