@@ -7,7 +7,10 @@ import download from 'downloadjs';
 import { Download, Loader2 } from 'lucide-react';
 
 const mockFlags = ['🇪🇸', '🇧🇷', '🇦🇷', '🇫🇷', '🇩🇪', '🇮🇹', '🇬🇧', '🇵🇹'];
-const getFlag = (id) => mockFlags[id.charCodeAt(0) % mockFlags.length];
+const getFlag = (id) => {
+  const strId = String(id || '0');
+  return mockFlags[strId.charCodeAt(0) % mockFlags.length];
+};
 
 export function computeStandings(matches, players, seasonId) {
   const table = {};
