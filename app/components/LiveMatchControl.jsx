@@ -6,7 +6,6 @@ import {
 import { updateMatchStatus, updateMatchScore } from '@/app/actions/match';
 import { supabase } from '@/lib/supabaseClient';
 import { Btn, MagicCard, Avatar } from './UI';
-import Tesseract from 'tesseract.js';
 import { MatchStatsPreview } from './AdminConsole';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -391,6 +390,7 @@ function ImageImport({ onApply }) {
       });
 
       // Run Tesseract entirely on the client
+      const Tesseract = (await import('tesseract.js')).default || await import('tesseract.js');
       const { data: { text } } = await Tesseract.recognize(base64, 'eng');
       
       const stats = { home: {}, away: {} };

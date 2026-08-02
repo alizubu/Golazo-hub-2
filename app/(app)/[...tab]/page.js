@@ -5,10 +5,13 @@ import { getCelebrations } from '@/app/actions/admin';
 import prisma from '@/lib/db';
 import { cookies } from 'next/headers';
 import AppShell from '@/app/components/AppShell';
+import { validateEnv } from '@/lib/env';
 
 export const dynamic = 'force-dynamic';
 
 export default async function CatchAllTabRoute({ params }) {
+  validateEnv(); // Ensure required env vars are present before doing anything else
+  
   // Extract initial tab from params
   const { tab } = await params;
   const initialTab = tab ? tab.join('/') : '';
@@ -25,6 +28,7 @@ export default async function CatchAllTabRoute({ params }) {
     players = await getPlayers();
   } catch (error) {
     console.error('Failed to load players:', error);
+    throw new Error('Failed to load players: ' + error.message);
   }
 
   if (sessionCookie === 'admin') {
@@ -51,9 +55,10 @@ export default async function CatchAllTabRoute({ params }) {
     
     // Trophies and History might be needed by some tabs
     trophies = await prisma.trophy.findMany({ include: { player: true }, orderBy: { createdAt: 'desc' } });
-    history = await prisma.season.findMany({ where: { isArchived: true }, include: { champion: true, runnerUp: true, matches: true }, orderBy: { endDate: 'desc' } });
+    history = await prisma.season.findMany({ where: { isArchived: true }, include: { champion: true, runnerUp: true, matches: true }, orderBy: { completedAt: 'desc' } });
   } catch (error) {
     console.error('Failed to load app data:', error);
+    throw new Error('Failed to load app data: ' + error.message);
   }
 
   return (
