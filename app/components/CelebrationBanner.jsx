@@ -37,11 +37,11 @@ const LoopingConfetti = () => {
 
   useEffect(() => {
     const timer = setTimeout(() => {
-      setPieces([...Array(15)].map((_, i) => ({
+      setPieces([...Array(35)].map((_, i) => ({
         id: i,
         left: Math.random() * 100,
-        duration: 5 + Math.random() * 7,
-        delay: Math.random() * 5,
+        duration: 4 + Math.random() * 6,
+        delay: Math.random() * 3,
         color: ['#FBBF24', '#FCD34D', '#FFFFFF'][Math.floor(Math.random() * 3)],
         isCircle: Math.random() > 0.5,
         drift: Math.random() * 20 - 10,
@@ -52,7 +52,7 @@ const LoopingConfetti = () => {
   }, []);
 
   return (
-    <div className="absolute inset-0 pointer-events-none overflow-hidden rounded-[14px] z-0 opacity-40">
+    <div className="absolute inset-0 pointer-events-none overflow-hidden rounded-[14px] z-0 opacity-70">
       {pieces.map((p) => (
         <ConfettiPiece key={p.id} p={p} />
       ))}
@@ -163,7 +163,7 @@ export default function CelebrationBanner() {
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.98 }}
-          className="relative w-full rounded-2xl overflow-hidden bg-[#09090b] border border-white/5 shadow-2xl"
+          className="relative w-full rounded-2xl overflow-hidden bg-[#09090b] border border-amber-500/30 shadow-[0_0_30px_rgba(251,191,36,0.08)]"
         >
           {/* Subtle animated background gradients */}
           <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
@@ -181,7 +181,8 @@ export default function CelebrationBanner() {
             {/* Left Side: Trophy */}
             <div className="flex-shrink-0 relative w-32 h-32 sm:w-44 sm:h-44 flex items-center justify-center">
               {/* Soft glow strictly behind trophy */}
-              <div className="absolute inset-0 bg-amber-500/15 blur-[40px] rounded-full" />
+              <div className="absolute inset-0 bg-amber-500/40 blur-[50px] rounded-full scale-125" />
+              <div className="absolute inset-0 bg-yellow-400/20 blur-[30px] rounded-full" />
               
               <motion.div
                 animate={{ y: [-5, 5, -5] }}
