@@ -5,6 +5,34 @@ import { Avatar, Badge, MagicCard } from './UI';
 import { NumberTicker } from './ui/number-ticker';
 import MatchCard from './MatchCard';
 
+function ComparisonBar({ leftValue, rightValue, middleValue = 0, label, suffix = "", leftColor = "bg-pitch-bright", rightColor = "bg-foreground", middleColor = "bg-slate-600" }) {
+  const sum = leftValue + rightValue + middleValue || 1;
+  const leftPct = (leftValue / sum) * 100;
+  const midPct = (middleValue / sum) * 100;
+  const rightPct = (rightValue / sum) * 100;
+
+  return (
+    <div className="flex flex-col gap-2 w-full px-6 py-4 border-b border-border/30 bg-secondary/10">
+      <div className="flex justify-between items-end font-score font-bold">
+        <span className="text-pitch-bright text-2xl flex items-baseline gap-0.5">
+          <NumberTicker value={leftValue} />{suffix}
+        </span>
+        <span className="text-[10px] uppercase font-bold tracking-[0.2em] text-muted-foreground pb-1.5">{label}</span>
+        <span className="text-foreground text-2xl flex items-baseline gap-0.5">
+          <NumberTicker value={rightValue} />{suffix}
+        </span>
+      </div>
+      <div className="flex h-2.5 w-full bg-background rounded-full overflow-hidden shadow-inner">
+        <motion.div className={leftColor} initial={{ width: 0 }} animate={{ width: `${leftPct}%` }} transition={{ duration: 1, ease: "easeOut" }} />
+        {middleValue > 0 && (
+           <motion.div className={middleColor} initial={{ width: 0 }} animate={{ width: `${midPct}%` }} transition={{ duration: 1, ease: "easeOut" }} />
+        )}
+        <motion.div className={rightColor} initial={{ width: 0 }} animate={{ width: `${rightPct}%` }} transition={{ duration: 1, ease: "easeOut" }} />
+      </div>
+    </div>
+  );
+}
+
 export default function HeadToHeadModal({ playerA, playerB, allMatches, onClose, onMatchClick, players }) {
   // Filter matches between these two players (any season, any round)
   const h2hMatches = allMatches.filter(m => 
@@ -32,6 +60,22 @@ export default function HeadToHeadModal({ playerA, playerB, allMatches, onClose,
   });
 
   const total = aWins + bWins + draws;
+
+  // Calculate Overall Win Rates
+  const getOverallWinRate = (playerId) => {
+    const matches = allMatches.filter(m => (m.homeId === playerId || m.awayId === playerId) && m.status === 'completed');
+    if (matches.length === 0) return 0;
+    let wins = 0;
+    matches.forEach(m => {
+      const isHome = m.homeId === playerId;
+      if (isHome && m.homeScore > m.awayScore) wins++;
+      if (!isHome && m.awayScore > m.homeScore) wins++;
+    });
+    return Math.round((wins / matches.length) * 100);
+  };
+
+  const aWinRate = getOverallWinRate(playerA.id);
+  const bWinRate = getOverallWinRate(playerB.id);
 
   return (
     <AnimatePresence>
@@ -76,31 +120,11 @@ export default function HeadToHeadModal({ playerA, playerB, allMatches, onClose,
             </div>
           </div>
 
-          {/* Stats Bar */}
-          <div className="grid grid-cols-3 gap-px bg-border/50">
-            <div className="bg-card p-4 text-center">
-              <div className="text-3xl font-score font-bold text-pitch-bright"><NumberTicker value={aWins} /></div>
-              <div className="text-[10px] uppercase font-bold tracking-widest text-muted-foreground mt-1">Wins</div>
-            </div>
-            <div className="bg-card p-4 text-center">
-              <div className="text-3xl font-score font-bold text-muted-foreground"><NumberTicker value={draws} /></div>
-              <div className="text-[10px] uppercase font-bold tracking-widest text-muted-foreground mt-1">Draws</div>
-            </div>
-            <div className="bg-card p-4 text-center">
-              <div className="text-3xl font-score font-bold text-foreground"><NumberTicker value={bWins} /></div>
-              <div className="text-[10px] uppercase font-bold tracking-widest text-muted-foreground mt-1">Wins</div>
-            </div>
-          </div>
-
-          {/* Goals Bar */}
-          <div className="px-6 py-4 bg-secondary/20 border-b border-border/30 flex items-center justify-between">
-            <div className="flex items-center gap-2 text-pitch-bright font-bold font-score">
-              <Target size={16} /> {aGoals} Goals
-            </div>
-            <div className="text-xs uppercase tracking-widest text-muted-foreground font-bold">Goal Diff</div>
-            <div className="flex items-center gap-2 text-foreground font-bold font-score">
-              {bGoals} Goals <Target size={16} />
-            </div>
+          {/* Comparative Stats Bars */}
+          <div className="flex flex-col">
+            <ComparisonBar leftValue={aWins} rightValue={bWins} middleValue={draws} label="Wins" />
+            <ComparisonBar leftValue={aGoals} rightValue={bGoals} label="Goals" />
+            <ComparisonBar leftValue={aWinRate} rightValue={bWinRate} label="Overall Win Rate" suffix="%" />
           </div>
 
           {/* Match History */}

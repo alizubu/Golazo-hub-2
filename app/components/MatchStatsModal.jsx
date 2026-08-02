@@ -65,6 +65,58 @@ function StatBar({ label, valueA, valueB, colorA, colorB, format = 'number', ind
   );
 }
 
+function MatchPredictionWidget({ match }) {
+  const [voted, setVoted] = useState(null);
+  
+  // Simulated initial vote state
+  const homeVotes = 45;
+  const awayVotes = 30;
+  const drawVotes = 15;
+  
+  const hV = voted === 'home' ? homeVotes + 1 : homeVotes;
+  const aV = voted === 'away' ? awayVotes + 1 : awayVotes;
+  const dV = voted === 'draw' ? drawVotes + 1 : drawVotes;
+  
+  const total = hV + aV + dV;
+  const hPct = total === 0 ? 0 : Math.round((hV / total) * 100);
+  const aPct = total === 0 ? 0 : Math.round((aV / total) * 100);
+  const dPct = total === 0 ? 0 : Math.round((dV / total) * 100);
+
+  return (
+    <div className="mt-2 border border-white/10 rounded-xl bg-secondary/10 p-5 overflow-hidden relative shadow-inner">
+      <div className="text-center font-heading font-bold text-sm mb-4 text-white">Who will win?</div>
+      
+      {!voted ? (
+        <div className="flex gap-2 w-full">
+          <button onClick={() => setVoted('home')} className="flex-1 py-2.5 rounded-lg bg-pitch/10 hover:bg-pitch/20 border border-pitch/30 text-pitch-bright font-bold text-[11px] uppercase tracking-wider transition-colors truncate px-1">
+            {match.home.name.split(' ')[0]}
+          </button>
+          <button onClick={() => setVoted('draw')} className="flex-1 py-2.5 rounded-lg bg-slate-500/10 hover:bg-slate-500/20 border border-slate-500/30 text-slate-300 font-bold text-[11px] uppercase tracking-wider transition-colors px-1">
+            Draw
+          </button>
+          <button onClick={() => setVoted('away')} className="flex-1 py-2.5 rounded-lg bg-claret/10 hover:bg-claret/20 border border-claret/30 text-claret font-bold text-[11px] uppercase tracking-wider transition-colors truncate px-1">
+            {match.away.name.split(' ')[0]}
+          </button>
+        </div>
+      ) : (
+        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="flex flex-col gap-3">
+          <div className="flex justify-between text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground">
+            <span className="text-pitch-bright">{hPct}%</span>
+            <span>{dPct}%</span>
+            <span className="text-claret">{aPct}%</span>
+          </div>
+          <div className="flex h-3 w-full bg-background rounded-full overflow-hidden shadow-inner ring-1 ring-white/5">
+            <motion.div className="bg-pitch-bright shadow-[inset_0_1px_0_rgba(255,255,255,0.15)]" initial={{ width: 0 }} animate={{ width: `${hPct}%` }} transition={{ duration: 1, ease: "easeOut" }} />
+            <motion.div className="bg-slate-500 shadow-[inset_0_1px_0_rgba(255,255,255,0.15)]" initial={{ width: 0 }} animate={{ width: `${dPct}%` }} transition={{ duration: 1, ease: "easeOut" }} />
+            <motion.div className="bg-claret shadow-[inset_0_1px_0_rgba(255,255,255,0.15)]" initial={{ width: 0 }} animate={{ width: `${aPct}%` }} transition={{ duration: 1, ease: "easeOut" }} />
+          </div>
+          <div className="text-center text-[11px] text-muted-foreground mt-2 italic">Thanks for voting!</div>
+        </motion.div>
+      )}
+    </div>
+  );
+}
+
 export default function MatchStatsModal({ matchId, onClose }) {
   const [match, setMatch] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -250,29 +302,33 @@ export default function MatchStatsModal({ matchId, onClose }) {
                 </motion.div>
               )}
 
-              <div className="w-full h-px bg-border/40 mb-6" />
-
-              {/* Stats Bars */}
-              <div className="flex flex-col">
-                {statDefinitions.map((def, i) => {
-                  // Fallback to "-" or "0" if stats aren't filled yet
-                  const valA = match.stats?.[def.key]?.a ?? (match.status === 'scheduled' ? '-' : 0);
-                  const valB = match.stats?.[def.key]?.b ?? (match.status === 'scheduled' ? '-' : 0);
-                  
-                  return (
-                    <StatBar 
-                      key={def.key}
-                      index={i}
-                      label={def.label}
-                      valueA={valA}
-                      valueB={valB}
-                      colorA="#29C179"
-                      colorB="#B23A48"
-                      format={def.format}
-                    />
-                  );
-                })}
-              </div>
+              {match.status === 'scheduled' ? (
+                <MatchPredictionWidget match={match} />
+              ) : (
+                <>
+                  <div className="w-full h-px bg-border/40 mb-6" />
+                  {/* Stats Bars */}
+                  <div className="flex flex-col">
+                    {statDefinitions.map((def, i) => {
+                      const valA = match.stats?.[def.key]?.a ?? 0;
+                      const valB = match.stats?.[def.key]?.b ?? 0;
+                      
+                      return (
+                        <StatBar 
+                          key={def.key}
+                          index={i}
+                          label={def.label}
+                          valueA={valA}
+                          valueB={valB}
+                          colorA="#29C179"
+                          colorB="#B23A48"
+                          format={def.format}
+                        />
+                      );
+                    })}
+                  </div>
+                </>
+              )}
             </div>
           )}
         </motion.div>
