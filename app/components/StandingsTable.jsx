@@ -2,8 +2,6 @@ import React, { useRef, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Avatar } from './UI';
 import { HoverCard, HoverCardTrigger, HoverCardContent } from '@/app/components/ui/hover-card';
-import * as htmlToImage from 'html-to-image';
-import download from 'downloadjs';
 import { Download, Loader2 } from 'lucide-react';
 
 const mockFlags = ['🇪🇸', '🇧🇷', '🇦🇷', '🇫🇷', '🇩🇪', '🇮🇹', '🇬🇧', '🇵🇹'];
@@ -71,6 +69,8 @@ export default function StandingsTable({ matches, players, seasonId, me, onH2HCl
     if (!tableRef.current) return;
     setIsExporting(true);
     try {
+      const htmlToImage = await import('html-to-image');
+      const download = (await import('downloadjs')).default;
       const dataUrl = await htmlToImage.toPng(tableRef.current, {
         quality: 1,
         backgroundColor: '#0a0c10', // match app background
