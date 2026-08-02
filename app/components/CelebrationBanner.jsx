@@ -5,7 +5,6 @@ import { X } from 'lucide-react';
 import { motion, AnimatePresence, useMotionValue, useSpring, useTransform } from 'framer-motion';
 import { ShineBorder } from './magicui/ShineBorder';
 import { useRouter } from 'next/navigation';
-import confetti from 'canvas-confetti';
 
 const ConfettiPiece = ({ p, mouseX, mouseY }) => {
   const x = useTransform(mouseX, [0, 1000], [-(p.z), p.z]);
@@ -132,27 +131,35 @@ export default function CelebrationBanner() {
       const duration = 3000;
       const end = Date.now() + duration;
 
-      const frame = () => {
-        confetti({
-          particleCount: 6,
-          angle: 60,
-          spread: 55,
-          origin: { x: 0, y: 0.8 },
-          colors: ['#FBBF24', '#F59E0B', '#ffffff']
-        });
-        confetti({
-          particleCount: 6,
-          angle: 120,
-          spread: 55,
-          origin: { x: 1, y: 0.8 },
-          colors: ['#FBBF24', '#F59E0B', '#ffffff']
-        });
+      const runConfetti = async () => {
+        try {
+          const confetti = (await import('canvas-confetti')).default;
+          const frame = () => {
+            confetti({
+              particleCount: 6,
+              angle: 60,
+              spread: 55,
+              origin: { x: 0, y: 0.8 },
+              colors: ['#FBBF24', '#F59E0B', '#ffffff']
+            });
+            confetti({
+              particleCount: 6,
+              angle: 120,
+              spread: 55,
+              origin: { x: 1, y: 0.8 },
+              colors: ['#FBBF24', '#F59E0B', '#ffffff']
+            });
 
-        if (Date.now() < end) {
-          requestAnimationFrame(frame);
+            if (Date.now() < end) {
+              requestAnimationFrame(frame);
+            }
+          };
+          frame();
+        } catch (e) {
+          console.error("Failed to load confetti", e);
         }
       };
-      frame();
+      runConfetti();
     }
   }, [activeCelebrations.length]);
 
