@@ -276,23 +276,20 @@ export default function FloatingNav({ session, me, players = [], notifications =
             <span className="font-heading text-sm font-bold tracking-tight text-white">GOLAZO HUB</span>
           </Link>
           
-          <div className="flex items-center gap-3 z-10">
-            <button 
-              onClick={() => setSearchOpen(true)}
-              className="flex items-center justify-center w-8 h-8 rounded-full text-muted-foreground hover:text-white transition-colors outline-none"
-            >
-              <Search size={18} />
-            </button>
-
-            {session?.type === "admin" ? (
-              <button onClick={handleLogout} disabled={isLoggingOut} className="flex items-center justify-center w-8 h-8 rounded-full text-muted-foreground hover:text-white outline-none">
-                {isLoggingOut ? <Loader2 size={16} className="animate-spin" /> : <LogOut size={16} />}
-              </button>
-            ) : me ? (
+          <div className="flex items-center gap-4 z-10">
+            {me && (
               <Link href="/settings" onClick={(e) => handleNav(e, "/settings")} className="flex items-center justify-center w-8 h-8 rounded-full border border-white/10 overflow-hidden">
                 <Avatar p={me} size={32} />
               </Link>
-            ) : null}
+            )}
+            
+            <button 
+              onClick={handleLogout} 
+              disabled={isLoggingOut} 
+              className="flex items-center justify-center w-8 h-8 rounded-full text-muted-foreground hover:text-white transition-colors outline-none"
+            >
+              {isLoggingOut ? <Loader2 size={18} className="animate-spin text-white" /> : <LogOut size={18} />}
+            </button>
           </div>
         </motion.div>
       </div>
