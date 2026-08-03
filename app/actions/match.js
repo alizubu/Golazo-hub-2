@@ -185,7 +185,7 @@ export async function updateMatchStatus(matchId, data) {
   }
 }
 
-export const matchWinnerId = (m) => {
+const matchWinnerId = (m) => {
   if (!m || m.status !== 'completed') return null;
   if (m.homeScore > m.awayScore) return m.homeId;
   if (m.awayScore > m.homeScore) return m.awayId;
@@ -193,7 +193,7 @@ export const matchWinnerId = (m) => {
   return null;
 };
 
-export const matchLoserId = (m) => {
+const matchLoserId = (m) => {
   const w = matchWinnerId(m);
   if (!w) return null;
   return w === m.homeId ? m.awayId : m.homeId;
