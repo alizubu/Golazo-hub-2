@@ -35,6 +35,7 @@
     "flag-icons": "^7.5.0",
     "framer-motion": "^12.42.2",
     "html-to-image": "^1.11.13",
+    "idb-keyval": "^6.3.0",
     "lucide-react": "^1.25.0",
     "next": "16.2.10",
     "prisma": "^5.22.0",
@@ -43,7 +44,8 @@
     "react-quill": "^2.0.0",
     "tailwind-merge": "^3.6.0",
     "tailwindcss-animate": "^1.0.7",
-    "tesseract.js": "^7.0.0"
+    "tesseract.js": "^7.0.0",
+    "web-push": "^3.6.7"
   },
   "devDependencies": {
     "@types/node": "^26.1.2",

@@ -4,13 +4,35 @@
   "description": "Local Football League & Tournament Manager",
   "start_url": "/",
   "display": "standalone",
+  "orientation": "portrait",
   "background_color": "#09090b",
   "theme_color": "#09090b",
   "icons": [
     {
-      "src": "/globe.svg",
-      "sizes": "any",
+      "src": "/icons/icon-default.svg",
+      "sizes": "192x192 512x512 any",
       "type": "image/svg+xml"
+    },
+    {
+      "src": "/icons/icon-default.svg",
+      "sizes": "192x192 512x512 any",
+      "type": "image/svg+xml",
+      "purpose": "maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "View Settings",
+      "short_name": "Settings",
+      "description": "Change your profile and preferences",
+      "url": "/?tab=settings",
+      "icons": [
+        {
+          "src": "/icons/icon-default.svg",
+          "sizes": "any",
+          "type": "image/svg+xml"
+        }
+      ]
     }
   ]
 }

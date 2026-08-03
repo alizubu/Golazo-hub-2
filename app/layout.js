@@ -24,16 +24,30 @@ export const metadata = {
   title: 'Golazo Hub',
   description: 'Matchday central for the crew',
   manifest: '/manifest.json',
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: 'black-translucent',
+    title: 'Golazo Hub',
+  },
+  icons: {
+    icon: '/icons/icon-default.svg',
+    apple: '/icons/icon-default.svg',
+  },
 };
 
 export const viewport = {
   themeColor: '#09090b',
 };
 
+import AppThemeProvider from '@/pwa/components/AppThemeProvider';
+import InstallPrompt from '@/pwa/components/InstallPrompt';
+
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <body className={`${jakarta.variable} ${sora.variable} ${chakra.variable} font-sans`}>
+        <AppThemeProvider />
+        <InstallPrompt />
         {children}
       </body>
     </html>

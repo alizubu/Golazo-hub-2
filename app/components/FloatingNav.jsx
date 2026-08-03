@@ -254,7 +254,7 @@ export default function FloatingNav({ session, me, players = [], notifications =
         </motion.div>
       </div>
 
-      {/* Mobile Nav Bar (Full Width) */}
+      {/* Mobile Nav Bar (Top Header) */}
       <div className="md:hidden sticky top-0 z-[60] w-full" style={{ paddingTop: 'env(safe-area-inset-top)' }}>
         <motion.div 
           className="w-full border-b border-white/10 shadow-md flex items-center justify-between px-4 h-14 relative overflow-hidden"
@@ -263,7 +263,6 @@ export default function FloatingNav({ session, me, players = [], notifications =
             backdropFilter: `blur(16px)`,
           }}
         >
-          {/* Subtle gradient shimmer border */}
           <div className="pointer-events-none absolute inset-0 overflow-hidden">
             <div className="absolute -inset-1 bg-gradient-to-r from-transparent via-white/5 to-transparent opacity-0 hover:opacity-100 transition-opacity duration-700" />
           </div>
@@ -273,159 +272,77 @@ export default function FloatingNav({ session, me, players = [], notifications =
             <span className="font-heading text-sm font-bold tracking-tight text-white">GOLAZO HUB</span>
           </Link>
           
-          <div className="flex items-center gap-1 z-10">
+          <div className="flex items-center gap-3 z-10">
             <button 
-              type="button"
-              onClick={() => {
-                setSheetOpen(prev => !prev);
-              }} 
-              className="flex items-center justify-center w-9 h-9 rounded-full text-muted-foreground hover:text-white hover:bg-white/10 transition-colors outline-none focus-visible:ring-2 focus-visible:ring-pitch-bright cursor-pointer"
-              aria-label="Toggle navigation menu"
-              aria-expanded={sheetOpen}
+              onClick={() => setSearchOpen(true)}
+              className="flex items-center justify-center w-8 h-8 rounded-full text-muted-foreground hover:text-white transition-colors outline-none"
             >
-              <Menu size={18} />
+              <Search size={18} />
             </button>
 
-            {sheetOpen && typeof window !== 'undefined' && createPortal(
-              <div className="fixed inset-0 z-[99999] flex">
-                <motion.div 
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  onClick={() => setSheetOpen(false)}
-                  className="fixed inset-0 bg-black/80 backdrop-blur-sm cursor-pointer"
-                />
-                
-                <motion.div
-                  initial={{ x: "-100%" }}
-                  animate={{ x: 0 }}
-                  exit={{ x: "-100%" }}
-                  transition={{ type: "spring", damping: 25, stiffness: 300 }}
-                  className="relative z-10 w-[280px] sm:w-[320px] max-w-[85vw] bg-card border-r border-border/60 shadow-2xl flex flex-col max-h-[100dvh]"
-                  style={{ height: "100dvh" }}
-                >
-                  <div className="p-5 pb-4 border-b border-border/30 flex flex-col gap-2 shrink-0">
-                    <div className="flex items-center justify-between">
-                      <div className="font-heading text-lg font-bold tracking-tight flex items-center gap-2">
-                        <span>🏆</span> GOLAZO HUB
-                      </div>
-                      {session?.type === "admin" && (
-                        <span className="px-2 py-0.5 rounded-full text-[10px] font-bold tracking-widest uppercase border border-gold/40 text-gold bg-gold/10">
-                          ADMIN
-                        </span>
-                      )}
-                    </div>
-                    {me && (
-                      <div className="flex items-center gap-2 mt-1">
-                        <Avatar p={me} size={32} ring="rgba(41, 193, 121, 0.5)" />
-                        <div className="min-w-0">
-                          <p className="text-sm font-semibold truncate text-foreground">{me.name}</p>
-                          <p className="text-xs text-muted-foreground truncate">@{me.username}</p>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                  
-                  <div className="px-4 py-3 border-b border-border/30 bg-background/50">
-                    <button 
-                      onClick={() => { setSearchOpen(true); setSheetOpen(false); }}
-                      className="flex items-center gap-2 w-full px-4 py-2.5 rounded-xl bg-secondary/50 text-muted-foreground hover:bg-secondary hover:text-white transition-colors"
-                    >
-                      <Search size={16} />
-                      <span className="text-sm font-semibold">Search...</span>
-                    </button>
-                  </div>
-
-                  <div className="flex flex-col gap-1 p-3 overflow-y-auto flex-1">
-                    <div className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/70 px-4 py-1.5">
-                      {session?.type === "admin" ? "Admin Navigation" : "Navigation"}
-                    </div>
-                    {items.map((it) => {
-                      const Icon = it.icon;
-                      const active = it.matchRoot ? pathname === it.href : pathname.startsWith(it.href);
-                      return (
-                        <Link
-                          key={it.href}
-                          href={it.href}
-                          onClick={(e) => handleNav(e, it.href)}
-                          className={`flex items-center justify-between px-4 py-3.5 min-h-[44px] rounded-xl text-sm font-semibold transition-all text-left w-full cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-pitch-bright ${
-                            active
-                              ? 'bg-pitch-bright/15 text-pitch-bright border border-pitch-bright/20'
-                              : 'text-muted-foreground hover:text-foreground hover:bg-secondary/50'
-                          }`}
-                        >
-                          <div className="flex items-center gap-3">
-                            <Icon size={18} className="shrink-0" />
-                            <span className="truncate">{it.label}</span>
-                          </div>
-                          {(it.href === '/matches' || it.href === '/admin/matches') && hasLiveMatch && (
-                            <span className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-red-500/10 border border-red-500/20 text-[10px] font-bold text-red-500 uppercase tracking-widest animate-pulse">
-                              <span className="w-1.5 h-1.5 rounded-full bg-red-500" /> Live
-                            </span>
-                          )}
-                        </Link>
-                      );
-                    })}
-
-                    {session?.type === "admin" && (
-                      <>
-                        <div className="h-px bg-border/30 my-2" />
-                        <div className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/70 px-4 py-1.5">
-                          Player Shortcuts
-                        </div>
-                        {[
-                          { href: "/players", label: "Roster", icon: Users },
-                          { href: "/history", label: "History", icon: Archive },
-                          { href: "/notifications", label: "Alerts", icon: Bell },
-                        ].map((it) => {
-                          const Icon = it.icon;
-                          const active = pathname.startsWith(it.href);
-                          return (
-                            <Link
-                              key={it.href}
-                              href={it.href}
-                              onClick={(e) => handleNav(e, it.href)}
-                              className={`flex items-center gap-3 px-4 py-3.5 min-h-[44px] rounded-xl text-sm font-semibold transition-all text-left w-full cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-pitch-bright ${
-                                active
-                                  ? 'bg-pitch-bright/15 text-pitch-bright border border-pitch-bright/20'
-                                  : 'text-muted-foreground hover:text-foreground hover:bg-secondary/50'
-                              }`}
-                            >
-                              <Icon size={18} className="shrink-0" />
-                              <span className="truncate">{it.label}</span>
-                            </Link>
-                          );
-                        })}
-                      </>
-                    )}
-
-                    <div className="h-px bg-border/40 my-2" />
-
-                    <Link href={session?.type === "admin" ? "/admin/settings" : "/settings"} onClick={(e) => handleNav(e, session?.type === "admin" ? "/admin/settings" : "/settings")}
-                      className={`flex items-center gap-3 px-4 py-3.5 min-h-[44px] rounded-xl text-sm font-semibold transition-all text-left w-full cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-pitch-bright ${
-                        pathname === (session?.type === "admin" ? "/admin/settings" : "/settings")
-                          ? 'bg-pitch-bright/15 text-pitch-bright border border-pitch-bright/20'
-                          : 'text-muted-foreground hover:text-foreground hover:bg-secondary/50'
-                      }`}
-                    >
-                      <Settings size={18} className="shrink-0" />
-                      <span>Settings</span>
-                    </Link>
-
-                    <button
-                      onClick={() => { handleLogout(); setSheetOpen(false); }}
-                      className="flex items-center gap-3 px-4 py-3.5 min-h-[44px] rounded-xl text-sm font-semibold text-destructive hover:bg-destructive/15 transition-all text-left w-full cursor-pointer mb-6 outline-none focus-visible:ring-2 focus-visible:ring-red-500"
-                    >
-                      <LogOut size={18} className="shrink-0" />
-                      <span>Log out</span>
-                    </button>
-                  </div>
-                </motion.div>
-              </div>,
-              document.body
-            )}
+            {session?.type === "admin" ? (
+              <button onClick={handleLogout} className="flex items-center justify-center w-8 h-8 rounded-full text-muted-foreground hover:text-white">
+                <LogOut size={16} />
+              </button>
+            ) : me ? (
+              <Link href="/settings" onClick={(e) => handleNav(e, "/settings")} className="flex items-center justify-center w-8 h-8 rounded-full border border-white/10 overflow-hidden">
+                <Avatar p={me} size={32} />
+              </Link>
+            ) : null}
           </div>
         </motion.div>
+      </div>
+
+      {/* Fixed Bottom Navigation Bar (Mobile) */}
+      <div className="md:hidden fixed bottom-0 left-0 right-0 z-[60] pb-[env(safe-area-inset-bottom)]">
+        <div 
+          className="w-full flex items-center justify-around h-16 border-t border-white/10 shadow-[0_-5px_20px_rgba(0,0,0,0.3)] px-1"
+          style={{
+            backgroundColor: `rgba(10, 14, 20, 0.95)`,
+            backdropFilter: `blur(16px)`,
+          }}
+        >
+          {items.slice(0, 4).map((it) => {
+            const Icon = it.icon;
+            const active = it.matchRoot ? pathname === it.href : pathname.startsWith(it.href);
+            return (
+              <Link
+                key={it.href}
+                href={it.href}
+                onClick={(e) => handleNav(e, it.href)}
+                className={`relative flex flex-col items-center justify-center w-full h-full gap-1 transition-colors ${
+                  active ? 'text-pitch-bright' : 'text-muted-foreground hover:text-white'
+                }`}
+              >
+                <Icon size={20} className={active ? 'drop-shadow-[0_0_8px_rgba(41,193,121,0.5)]' : ''} />
+                <span className="text-[10px] font-semibold">{it.label}</span>
+                
+                {(it.href === '/matches' || it.href === '/admin/matches') && hasLiveMatch && (
+                  <span className="absolute top-2 right-1/4 w-2 h-2 bg-red-500 rounded-full border border-background animate-pulse" />
+                )}
+                
+                {it.href === '/notifications' && unreadCount > 0 && (
+                  <span className="absolute top-2 right-1/4 flex items-center justify-center w-3.5 h-3.5 rounded-full bg-claret text-white text-[8px] font-bold border border-background">
+                    {unreadCount > 9 ? '9+' : unreadCount}
+                  </span>
+                )}
+              </Link>
+            );
+          })}
+          
+          <Link
+            href={session?.type === "admin" ? "/admin/settings" : "/settings"}
+            onClick={(e) => handleNav(e, session?.type === "admin" ? "/admin/settings" : "/settings")}
+            className={`flex flex-col items-center justify-center w-full h-full gap-1 transition-colors ${
+              pathname === (session?.type === "admin" ? "/admin/settings" : "/settings")
+                ? 'text-pitch-bright'
+                : 'text-muted-foreground hover:text-white'
+            }`}
+          >
+            <Settings size={20} className={pathname === (session?.type === "admin" ? "/admin/settings" : "/settings") ? 'drop-shadow-[0_0_8px_rgba(41,193,121,0.5)]' : ''} />
+            <span className="text-[10px] font-semibold">Settings</span>
+          </Link>
+        </div>
       </div>
 
 

@@ -2,10 +2,12 @@
 
 import { PageHeader } from './PageHeader';
 import React, { useState, useRef } from 'react';
-import { Camera, KeyRound, Shield, CheckCircle2, Flame, Eye, EyeOff, Settings } from 'lucide-react';
+import { Camera, KeyRound, Shield, CheckCircle2, Flame, Eye, EyeOff, Settings, Bell, BellOff } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Label, Btn } from './UI';
-import SearchableLogoPicker from './SearchableLogoPicker';
+import dynamic from 'next/dynamic';
+
+const SearchableLogoPicker = dynamic(() => import('./SearchableLogoPicker'), { ssr: false });
 import AvatarUpload from './AvatarUpload';
 import { MagicCard } from './magicui/MagicCard';
 import { Card, CardContent, CardHeader, CardTitle } from '@/app/components/ui/card';
@@ -14,6 +16,7 @@ import { Textarea } from '@/app/components/ui/textarea';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/app/components/ui/tabs';
 import { Progress } from '@/app/components/ui/progress';
 import { updatePlayerProfile, changePlayerPassword } from '@/app/actions/player';
+import { updateAppTheme } from '@/pwa/components/AppThemeProvider';
 
 import clubsData from '@/lib/data/clubs.json';
 import nationalTeamsData from '@/lib/data/national_teams.json';
@@ -42,6 +45,84 @@ export default function SettingsView({ me, showToast }) {
   const [isSaving, setIsSaving] = useState(false);
   const [pwdError, setPwdError] = useState(false);
   const [coverFailedUrl, setCoverFailedUrl] = useState(null);
+  const [appTheme, setAppTheme] = useState('default');
+  const [pushEnabled, setPushEnabled] = useState(false);
+
+  React.useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const savedTheme = localStorage.getItem('golazo_app_icon');
+      if (savedTheme && savedTheme !== 'default') {
+        // Resolve asynchronously to avoid synchronous setState inside useEffect warning
+        Promise.resolve().then(() => setAppTheme(savedTheme));
+      }
+      
+      if ('serviceWorker' in navigator && 'PushManager' in window) {
+        navigator.serviceWorker.ready.then(reg => {
+          reg.pushManager.getSubscription().then(sub => {
+            if (sub) setPushEnabled(true);
+          });
+        });
+      }
+    }
+  }, []);
+
+  const urlBase64ToUint8Array = (base64String) => {
+    const padding = '='.repeat((4 - base64String.length % 4) % 4);
+    const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
+    const rawData = window.atob(base64);
+    const outputArray = new Uint8Array(rawData.length);
+    for (let i = 0; i < rawData.length; ++i) {
+      outputArray[i] = rawData.charCodeAt(i);
+    }
+    return outputArray;
+  };
+
+  const togglePushNotifications = async () => {
+    if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
+      return showToast('Push notifications not supported by browser.');
+    }
+    
+    try {
+      const registration = await navigator.serviceWorker.ready;
+      
+      if (pushEnabled) {
+        const subscription = await registration.pushManager.getSubscription();
+        if (subscription) await subscription.unsubscribe();
+        setPushEnabled(false);
+        showToast('Push notifications disabled.');
+      } else {
+        const publicVapidKey = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY;
+        if (!publicVapidKey) return showToast('VAPID key not configured.');
+        
+        const subscription = await registration.pushManager.subscribe({
+          userVisibleOnly: true,
+          applicationServerKey: urlBase64ToUint8Array(publicVapidKey)
+        });
+        
+        await fetch('/api/web-push', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            type: 'subscribe',
+            playerId: me.id,
+            subscription
+          })
+        });
+        
+        setPushEnabled(true);
+        showToast('Push notifications enabled!');
+      }
+    } catch (err) {
+      console.error(err);
+      showToast('Failed to enable push notifications.');
+    }
+  };
+
+  const handleThemeChange = (themeName, color) => {
+    setAppTheme(themeName);
+    updateAppTheme(themeName, color);
+    showToast(`App icon updated to ${themeName}`);
+  };
 
   // Cover photo upload states
   const fileInputRef = useRef(null);
@@ -286,10 +367,52 @@ export default function SettingsView({ me, showToast }) {
 
         <TabsContent value="preferences" className="space-y-6">
           <MagicCard>
-            <Card className="bg-transparent border-none shadow-none text-center py-12">
-              <Settings className="mx-auto mb-4 text-muted-foreground opacity-50" size={48} />
-              <h3 className="text-lg font-semibold mb-2">Preferences</h3>
-              <p className="text-muted-foreground text-sm">Theme and notification settings coming soon.</p>
+            <Card className="bg-transparent border-none shadow-none">
+              <CardHeader className="pb-4 border-b border-border/30">
+                <CardTitle className="text-lg flex items-center gap-2"><Settings className="text-muted-foreground" size={18}/> App Personalization</CardTitle>
+                <p className="text-sm text-muted-foreground mt-1">Change how Golazo Hub looks on your device.</p>
+              </CardHeader>
+              <CardContent className="pt-6">
+                <div className="space-y-4">
+                  <Label className="text-base font-semibold block mb-3">App Icon & Theme</Label>
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    {[
+                      { id: 'default', label: 'Default', color: '#09090b', preview: '/icons/icon-default.svg' },
+                      { id: 'red', label: 'Crimson', color: '#7f1d1d', preview: '/icons/icon-red.svg' },
+                      { id: 'blue', label: 'Ocean', color: '#1e3a8a', preview: '/icons/icon-blue.svg' },
+                      { id: 'green', label: 'Pitch', color: '#14532d', preview: '/icons/icon-green.svg' },
+                    ].map(theme => (
+                      <button 
+                        key={theme.id}
+                        onClick={() => handleThemeChange(theme.id, theme.color)}
+                        className={`flex flex-col items-center gap-3 p-4 rounded-xl border transition-all ${appTheme === theme.id ? 'border-pitch-bright bg-secondary/50 shadow-md ring-1 ring-pitch-bright/50' : 'border-border/50 hover:bg-secondary/30'}`}
+                      >
+                        <img src={theme.preview} alt={theme.label} className="w-16 h-16 rounded-2xl shadow-sm" />
+                        <span className="text-xs font-semibold">{theme.label}</span>
+                      </button>
+                    ))}
+                  </div>
+                  <p className="text-xs text-muted-foreground mt-4">
+                    Note: Changing the icon updates the browser theme and shortcut immediately. If you have already installed the app to your home screen, you may need to reinstall it for the new icon to appear fully on some devices (iOS/Android limitation).
+                  </p>
+                </div>
+                
+                <div className="mt-8 pt-6 border-t border-border/30 space-y-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <Label className="text-base font-semibold block mb-1">Push Notifications</Label>
+                      <p className="text-xs text-muted-foreground">Receive real-time alerts for goals and matches.</p>
+                    </div>
+                    <Btn 
+                      variant={pushEnabled ? "outline" : "primary"}
+                      onClick={togglePushNotifications}
+                      className="flex items-center gap-2"
+                    >
+                      {pushEnabled ? <><BellOff size={16} /> Disable</> : <><Bell size={16} /> Enable</>}
+                    </Btn>
+                  </div>
+                </div>
+              </CardContent>
             </Card>
           </MagicCard>
         </TabsContent>

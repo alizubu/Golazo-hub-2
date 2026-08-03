@@ -35,7 +35,7 @@ function PlayerRow({ player, isWinner, isLoser, isTbd }) {
   );
 }
 
-export default function MatchCard({ m, players, onClick }) {
+function MatchCard({ m, players, onClick }) {
   const byId = Object.fromEntries(players.map((p) => [p.id, p]));
   const h = byId[m.homeId];
   const a = byId[m.awayId];
@@ -122,3 +122,5 @@ export default function MatchCard({ m, players, onClick }) {
     </motion.div>
   );
 }
+
+export default React.memo(MatchCard);
