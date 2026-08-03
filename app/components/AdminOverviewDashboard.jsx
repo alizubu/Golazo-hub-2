@@ -601,7 +601,7 @@ export default function AdminOverviewDashboard({ players = [], activeSeason, mat
       <QuickActions setTab={setTab} showToast={showToast} />
 
       <div className="mb-6">
-        <StandingsTable matches={liveMatches} players={players} seasonId={activeSeason.id} />
+        <StandingsTable matches={liveMatches} players={players} seasonId={activeSeason.id} config={activeSeason.config} />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">

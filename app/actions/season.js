@@ -13,7 +13,7 @@ export async function getSeasons() {
 
 
 
-export async function startSeason(name, type, startDate) {
+export async function startSeason(name, type, startDate, config = {}) {
   if ((await cookies()).get('golazo_session')?.value !== 'admin') return { error: 'Unauthorized' };
   if (!name || !name.trim()) return { error: 'Give the season a name' };
   
@@ -21,11 +21,59 @@ export async function startSeason(name, type, startDate) {
   if (active) return { error: 'Finish or close the current season first' };
 
   try {
-    const players = await prisma.player.findMany({ select: { id: true, name: true } });
+    let players = await prisma.player.findMany({ select: { id: true, name: true, elo: true } });
     if (players.length < 2) return { error: 'Need at least 2 players to start a season' };
 
-    const isDouble = type.includes('(Double)');
-    const rounds = generateRoundRobinFixtures(players, isDouble);
+    let isDoubleElim = type === 'Double Elimination';
+    if (isDoubleElim && (players.length < 4 || players.length > 8)) {
+      return { error: 'Double Elimination requires 4 to 8 players' };
+    }
+
+    let rounds = [];
+    let bracketConfig = null;
+    let matchCreates = [];
+
+    if (isDoubleElim) {
+      // Import the dynamic bracket generator
+      const { generateDoubleEliminationBracket } = require('@/lib/brackets');
+      
+      // Randomize players for seeding, or sort by ELO if we preferred that.
+      // User said "Random ok" so we randomize:
+      players = players.sort(() => Math.random() - 0.5);
+      
+      const bracketMatches = generateDoubleEliminationBracket(players);
+      bracketConfig = bracketMatches;
+      
+      // We don't save 'rounds' for DE, just bracket
+      bracketMatches.forEach(m => {
+        matchCreates.push({
+          id: undefined, // Prisma will generate CUID
+          seasonId: '', // Will map after season creation
+          round: m.round,
+          homeId: m.homeId,
+          awayId: m.awayId,
+          status: 'scheduled',
+          label: m.label,
+          liveState: { key: m.key } // We store the bracket key here temporarily so we know which match is which
+        });
+      });
+    } else {
+      const isDouble = type.includes('(Double)');
+      rounds = generateRoundRobinFixtures(players, isDouble);
+      rounds.forEach((roundMatches, index) => {
+         const roundLabel = `Week ${index + 1}`;
+         roundMatches.forEach(m => {
+            matchCreates.push({
+               seasonId: '',
+               round: 'league',
+               homeId: m.homeId,
+               awayId: m.awayId,
+               status: 'scheduled',
+               label: roundLabel
+            });
+         });
+      });
+    }
     
     const season = await prisma.season.create({
       data: { 
@@ -34,26 +82,14 @@ export async function startSeason(name, type, startDate) {
         startDate: startDate ? new Date(startDate) : new Date(),
         status: 'Live',
         isArchived: false,
-        fixtures: rounds
+        fixtures: rounds,
+        bracket: bracketConfig,
+        config: config
       }
     });
 
-    const matchCreates = [];
-    rounds.forEach((roundMatches, index) => {
-       const roundLabel = `Week ${index + 1}`;
-       roundMatches.forEach(m => {
-          matchCreates.push({
-             seasonId: season.id,
-             round: 'league',
-             homeId: m.homeId,
-             awayId: m.awayId,
-             status: 'scheduled',
-             label: roundLabel
-          });
-       });
-    });
-
     if (matchCreates.length > 0) {
+       matchCreates = matchCreates.map(m => ({ ...m, seasonId: season.id }));
        await prisma.match.createMany({
          data: matchCreates
        });

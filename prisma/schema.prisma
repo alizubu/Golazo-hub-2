@@ -57,6 +57,8 @@ model Season {
   status      String    @default("Live") // "Live", "Archived"
   isArchived  Boolean   @default(false)
   fixtures    Json? // Stores the generated schedule arrays
+  config      Json? // Stores custom rules like points, tiebreakers
+  bracket     Json? // Stores knockout bracket structure
   startDate   DateTime?
   createdAt   DateTime  @default(now())
   completedAt DateTime?
@@ -83,11 +85,11 @@ model Match {
 
   round String // "league", "semiA", "semiB", "challenger", "final"
 
-  homeId String
-  home   Player @relation("HomeMatches", fields: [homeId], references: [id])
+  homeId String?
+  home   Player? @relation("HomeMatches", fields: [homeId], references: [id])
 
-  awayId String
-  away   Player @relation("AwayMatches", fields: [awayId], references: [id])
+  awayId String?
+  away   Player? @relation("AwayMatches", fields: [awayId], references: [id])
 
   homeScore Int?
   awayScore Int?

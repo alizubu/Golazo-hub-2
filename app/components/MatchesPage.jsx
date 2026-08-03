@@ -4,6 +4,7 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/app/components/ui/ta
 import MatchCard from './MatchCard';
 import StandingsTable from './StandingsTable';
 import PlayoffBracket from './PlayoffBracket';
+import DoubleElimBracket from './DoubleElimBracket';
 import { Calendar, ListOrdered, Swords } from 'lucide-react';
 import { supabase } from '@/lib/supabaseClient';
 
@@ -91,13 +92,17 @@ export default function MatchesPage({ activeSeason, matches, players, me, onMatc
 
           {view === "table" && (
             <div className="bg-card p-2 sm:p-5 rounded-2xl border border-border shadow-sm">
-              <StandingsTable matches={matches} players={players} seasonId={activeSeason.id} me={me} />
+              <StandingsTable matches={matches} players={players} seasonId={activeSeason.id} me={me} config={activeSeason.config} />
             </div>
           )}
 
           {view === "bracket" && (
             <div className="bg-card p-2 sm:p-5 rounded-2xl border border-border shadow-sm">
-              <PlayoffBracket matches={playoffMatches} players={players} onMatchClick={onMatchClick} />
+              {activeSeason.type === 'Double Elimination' ? (
+                <DoubleElimBracket matches={playoffMatches} players={players} onMatchClick={onMatchClick} />
+              ) : (
+                <PlayoffBracket matches={playoffMatches} players={players} onMatchClick={onMatchClick} />
+              )}
             </div>
           )}
         </motion.div>

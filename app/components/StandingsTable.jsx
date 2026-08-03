@@ -37,7 +37,13 @@ const RankMedal = ({ rank }) => {
   return <span className="font-bold font-score text-muted-foreground">{rank}</span>;
 };
 
-export function computeStandings(matches, players, seasonId) {
+export function computeStandings(matches, players, seasonId, config = {}) {
+  const ptsWin = config.win !== undefined ? Number(config.win) : 3;
+  const ptsDraw = config.draw !== undefined ? Number(config.draw) : 1;
+  const ptsLoss = config.loss !== undefined ? Number(config.loss) : 0;
+  const bonusGF = config.goalsFor !== undefined ? Number(config.goalsFor) : 0;
+  const penaltyGA = config.goalsAgainst !== undefined ? Number(config.goalsAgainst) : 0;
+
   const table = {};
   players.forEach((p) => {
     table[p.id] = { ...p, played: 0, won: 0, drawn: 0, lost: 0, gf: 0, ga: 0, gd: 0, pts: 0, form: [], streak: 0, posChange: ['▲', '▼', '-'][Math.floor(Math.random() * 3)] };
@@ -57,21 +63,21 @@ export function computeStandings(matches, players, seasonId) {
       a.gf += as; a.ga += hs;
       
       if (hs > as) { 
-        h.won++; a.lost++; h.pts += 3; 
+        h.won++; a.lost++; h.pts += ptsWin; a.pts += ptsLoss;
         h.form.push({ result: 'W', opp: a.name, score: `${hs}-${as}` }); 
         a.form.push({ result: 'L', opp: h.name, score: `${as}-${hs}` });
         h.streak = h.streak > 0 ? h.streak + 1 : 1;
         a.streak = a.streak < 0 ? a.streak - 1 : -1;
       }
       else if (hs < as) { 
-        a.won++; h.lost++; a.pts += 3; 
+        a.won++; h.lost++; a.pts += ptsWin; h.pts += ptsLoss;
         a.form.push({ result: 'W', opp: h.name, score: `${as}-${hs}` }); 
         h.form.push({ result: 'L', opp: a.name, score: `${hs}-${as}` });
         a.streak = a.streak > 0 ? a.streak + 1 : 1;
         h.streak = h.streak < 0 ? h.streak - 1 : -1;
       }
       else { 
-        h.drawn++; a.drawn++; h.pts += 1; a.pts += 1; 
+        h.drawn++; a.drawn++; h.pts += ptsDraw; a.pts += ptsDraw; 
         h.form.push({ result: 'D', opp: a.name, score: `${hs}-${as}` }); 
         a.form.push({ result: 'D', opp: h.name, score: `${as}-${hs}` });
         h.streak = 0; a.streak = 0;
@@ -80,6 +86,9 @@ export function computeStandings(matches, players, seasonId) {
     
   Object.values(table).forEach((t) => {
     t.gd = t.gf - t.ga;
+    t.pts += (t.gf * bonusGF) - (t.ga * penaltyGA);
+    // round to 1 decimal if needed
+    t.pts = Math.round(t.pts * 10) / 10;
     t.form = t.form.slice(-5);
   });
   
@@ -199,8 +208,8 @@ const MobileCard = ({ s, i, expandedRow, setExpandedRow, me, handleRowClick }) =
   );
 };
 
-export default function StandingsTable({ matches, players, seasonId, me, onPlayerClick, onH2HClick }) {
-  const standings = computeStandings(matches, players, seasonId);
+export default function StandingsTable({ matches, players, seasonId, me, onPlayerClick, onH2HClick, config = {} }) {
+  const standings = computeStandings(matches, players, seasonId, config);
   const tableRef = useRef(null);
   const [isExporting, setIsExporting] = useState(false);
   const [expandedRow, setExpandedRow] = useState(null);

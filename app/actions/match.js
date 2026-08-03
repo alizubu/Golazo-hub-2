@@ -165,14 +165,104 @@ export async function updateMatchStatus(matchId, data) {
       }
       // ─────────────────────────────────────────────────────────────────────
       
-      // Check and progress playoff bracket if applicable
-      await progressPlayoffBracket(matchId);
+      // ─────────────────────────────────────────────────────────────────────
+      
+      if (match.seasonId) {
+        const season = await prisma.season.findUnique({ where: { id: match.seasonId } });
+        if (season && season.type === 'Double Elimination') {
+          await progressDoubleElimination(matchId);
+        } else {
+          // Check and progress playoff bracket if applicable
+          await progressPlayoffBracket(matchId);
+        }
+      }
     }
 
     broadcastEvent('match_update', match);
     return { match };
   } catch (error) {
     return { error: 'Failed to update match status' };
+  }
+}
+
+export const matchWinnerId = (m) => {
+  if (!m || m.status !== 'completed') return null;
+  if (m.homeScore > m.awayScore) return m.homeId;
+  if (m.awayScore > m.homeScore) return m.awayId;
+  if (m.penaltyWinner) return m.penaltyWinner === 'home' ? m.homeId : m.awayId;
+  return null;
+};
+
+export const matchLoserId = (m) => {
+  const w = matchWinnerId(m);
+  if (!w) return null;
+  return w === m.homeId ? m.awayId : m.homeId;
+};
+
+export async function progressDoubleElimination(matchId) {
+  try {
+    const match = await prisma.match.findUnique({ where: { id: matchId }, include: { season: true } });
+    if (!match || match.status !== 'completed' || match.season?.type !== 'Double Elimination') return;
+
+    const winnerId = matchWinnerId(match);
+    const loserId = matchLoserId(match);
+    if (!winnerId || !loserId) return;
+
+    const bracket = match.season.bracket;
+    if (!bracket) return;
+
+    const matchKey = match.liveState?.key;
+    if (!matchKey) return;
+
+    // If this match was the Grand Final, check if we need to trigger or cancel the reset
+    if (match.round === 'GF') {
+      const gfResetMatch = await prisma.match.findFirst({
+        where: { seasonId: match.seasonId, round: 'GF_RESET' }
+      });
+      if (gfResetMatch) {
+        // In our bracket config, home is from WF (Winners Bracket), away is from LF (Losers Bracket)
+        if (winnerId === match.homeId) {
+          // Winners bracket champion won the GF -> Tournament is over, cancel GF_RESET
+          await prisma.match.delete({ where: { id: gfResetMatch.id } });
+        }
+      }
+    }
+
+    // Find all pending matches in this season
+    const pendingMatches = await prisma.match.findMany({
+      where: { seasonId: match.seasonId, status: 'scheduled' }
+    });
+
+    for (const pending of pendingMatches) {
+      if (!pending.liveState?.key) continue;
+      const bracketNode = bracket.find(b => b.key === pending.liveState.key);
+      if (!bracketNode || !bracketNode.dependsOn) continue;
+
+      let updated = false;
+      let updateData = {};
+
+      if (bracketNode.dependsOn.home?.match === matchKey) {
+        updateData.homeId = bracketNode.dependsOn.home.type === 'winner' ? winnerId : loserId;
+        updated = true;
+      }
+      if (bracketNode.dependsOn.away?.match === matchKey) {
+        updateData.awayId = bracketNode.dependsOn.away.type === 'winner' ? winnerId : loserId;
+        updated = true;
+      }
+
+      if (updated) {
+        await prisma.match.update({
+          where: { id: pending.id },
+          data: updateData
+        });
+        
+        await prisma.notification.create({
+          data: { text: `Bracket updated: A player advanced in the tournament!`, type: 'info' }
+        });
+      }
+    }
+  } catch (error) {
+    console.error('Failed to progress double elimination bracket:', error);
   }
 }
 
@@ -233,19 +323,7 @@ export async function progressPlayoffBracket(matchId) {
     const match = await prisma.match.findUnique({ where: { id: matchId } });
     if (!match || !match.seasonId || match.status !== 'completed') return;
 
-    const matchWinnerId = (m) => {
-      if (!m || m.status !== 'completed') return null;
-      if (m.homeScore > m.awayScore) return m.homeId;
-      if (m.awayScore > m.homeScore) return m.awayId;
-      if (m.penaltyWinner) return m.penaltyWinner === 'home' ? m.homeId : m.awayId;
-      return null;
-    };
 
-    const matchLoserId = (m) => {
-      const w = matchWinnerId(m);
-      if (!w) return null;
-      return w === m.homeId ? m.awayId : m.homeId;
-    };
 
     if (match.round === 'semiA' || match.round === 'semiB') {
       const semis = await prisma.match.findMany({

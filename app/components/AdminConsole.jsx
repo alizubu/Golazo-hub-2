@@ -1485,6 +1485,8 @@ export function AdminSeason({ activeSeason, matches = [], players = [], showToas
   const [name, setName] = useState("");
   const [seasonType, setSeasonType] = useState("League (Single)");
   const [startDate, setStartDate] = useState(() => new Date().toISOString().split('T')[0]);
+  const [customRules, setCustomRules] = useState({ win: 3, draw: 1, loss: 0, goalsFor: 0, goalsAgainst: 0 });
+  const [showAdvanced, setShowAdvanced] = useState(false);
   const [rename, setRename] = useState("");
   const [loading, setLoading] = useState(false);
   // Delete Season — type-to-confirm state
@@ -1494,7 +1496,8 @@ export function AdminSeason({ activeSeason, matches = [], players = [], showToas
   const handleStart = async () => {
     if (!name.trim()) return showToast("Enter a season name");
     setLoading(true);
-    const res = await startSeason(name, seasonType, startDate);
+    // startSeason now accepts 4 args: name, type, startDate, config
+    const res = await startSeason(name, seasonType, startDate, customRules);
     if (res.error) showToast(res.error);
     else { showToast("Season started with fixtures generated!"); setName(""); }
     setLoading(false);
@@ -1543,31 +1546,96 @@ export function AdminSeason({ activeSeason, matches = [], players = [], showToas
   };
 
   if (!activeSeason) {
+    const formats = [
+      { id: 'League (Single)', title: 'League', icon: '🏆', desc: 'Standard Round-Robin' },
+      { id: 'League (Double)', title: 'Double League', icon: '⚔️', desc: 'Home & Away' },
+      { id: 'League + Playoffs (Single)', title: 'League + Playoffs', icon: '🔥', desc: 'Top 4 to Knockouts' },
+      { id: 'Double Elimination', title: 'Double Elim Bracket', icon: '🛡️', desc: 'Upper & Lower Bracket' },
+    ];
+    
     return (
-      <Card className="p-12 flex flex-col items-center justify-center text-center border-dashed border-2">
-        <Trophy size={64} className="text-gold mb-6 opacity-80 drop-shadow-[0_0_15px_rgba(255,215,0,0.5)]" />
-        <h2 className="text-3xl font-bold font-heading mb-3">No Active Season</h2>
-        <p className="text-muted-foreground mb-8 max-w-md text-lg">Create a new season to begin league matches, track standings, and manage playoffs.</p>
+      <Card className="flex flex-col md:flex-row overflow-hidden border-pitch-bright/20 shadow-2xl">
+        <div className="md:w-1/3 bg-gradient-to-br from-pitch-dark to-pitch p-8 flex flex-col justify-center items-center text-center border-b md:border-b-0 md:border-r border-border/50">
+          <div className="relative">
+            <Trophy size={80} className="text-pitch-bright drop-shadow-[0_0_25px_rgba(41,193,121,0.6)]" />
+            <div className="absolute inset-0 bg-pitch-bright/20 blur-2xl rounded-full"></div>
+          </div>
+          <h2 className="text-3xl font-black font-heading mt-6 mb-2 tracking-wide">NO ACTIVE SEASON</h2>
+          <p className="text-muted-foreground">Select a format and kick off a brand new tournament.</p>
+        </div>
         
-        <div className="flex flex-col gap-4 w-full max-w-sm mt-4 text-left">
+        <div className="md:w-2/3 p-8 flex flex-col gap-6 bg-secondary/30">
           <div className="space-y-1.5">
-            <Label className="text-muted-foreground">Season Name</Label>
-            <Input className="w-full bg-secondary border-border" value={name} onChange={e => setName(e.target.value)} placeholder="e.g. Season 4" />
+            <Label className="text-muted-foreground uppercase text-xs font-bold tracking-widest">Season Name</Label>
+            <Input className="w-full bg-background border-border h-12 text-lg focus:border-pitch-bright focus:ring-pitch-bright" value={name} onChange={e => setName(e.target.value)} placeholder="e.g. Summer Cup 2026" />
           </div>
-          <div className="space-y-1.5">
-            <Label className="text-muted-foreground">Season Type</Label>
-            <select className="flex h-10 w-full rounded-md border border-border bg-secondary px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pitch" value={seasonType} onChange={e => setSeasonType(e.target.value)}>
-              <option value="League (Single)">League (Single)</option>
-              <option value="League (Double)">League (Double)</option>
-              <option value="League + Playoffs (Single)">League + Playoffs (Single)</option>
-              <option value="League + Playoffs (Double)">League + Playoffs (Double)</option>
-            </select>
+          
+          <div className="space-y-3">
+            <Label className="text-muted-foreground uppercase text-xs font-bold tracking-widest">Format</Label>
+            <div className="grid grid-cols-2 gap-3">
+              {formats.map(f => (
+                <div 
+                  key={f.id}
+                  onClick={() => setSeasonType(f.id)}
+                  className={`p-3 rounded-lg border-2 cursor-pointer transition-all duration-200 flex flex-col gap-1 ${
+                    seasonType === f.id ? 'border-pitch-bright bg-pitch-bright/10 shadow-[0_0_15px_rgba(41,193,121,0.2)]' : 'border-border bg-background hover:border-pitch-bright/50'
+                  }`}
+                >
+                  <div className="flex items-center gap-2">
+                    <span className="text-xl">{f.icon}</span>
+                    <span className="font-bold text-sm">{f.title}</span>
+                  </div>
+                  <p className="text-xs text-muted-foreground ml-7">{f.desc}</p>
+                </div>
+              ))}
+            </div>
           </div>
-          <div className="space-y-1.5">
-            <Label className="text-muted-foreground">Start Date</Label>
-            <Input type="date" className="w-full bg-secondary border-border" value={startDate} onChange={e => setStartDate(e.target.value)} />
+          
+          <div className="flex items-center gap-4">
+            <div className="space-y-1.5 flex-1">
+              <Label className="text-muted-foreground uppercase text-xs font-bold tracking-widest">Start Date</Label>
+              <Input type="date" className="w-full bg-background border-border" value={startDate} onChange={e => setStartDate(e.target.value)} />
+            </div>
+            <div className="flex-1 flex justify-end mt-4">
+              <button onClick={() => setShowAdvanced(!showAdvanced)} className="text-xs text-pitch-bright hover:underline flex items-center gap-1 font-semibold uppercase tracking-wider">
+                ⚙️ {showAdvanced ? 'Hide' : 'Show'} Advanced Rules
+              </button>
+            </div>
           </div>
-          <ShinyButton onClick={handleStart} className="w-full mt-2" loading={loading}>Create Season & Generate Fixtures</ShinyButton>
+          
+          {showAdvanced && (
+            <div className="p-4 bg-background border border-border rounded-lg space-y-4 animate-in slide-in-from-top-2">
+              <h4 className="text-sm font-bold border-b border-border pb-2">Custom Point System</h4>
+              <div className="grid grid-cols-3 gap-4">
+                <div className="space-y-1">
+                  <Label className="text-xs">Win (Pts)</Label>
+                  <Input type="number" className="h-8" value={customRules.win} onChange={e => setCustomRules({...customRules, win: parseInt(e.target.value) || 0})} />
+                </div>
+                <div className="space-y-1">
+                  <Label className="text-xs">Draw (Pts)</Label>
+                  <Input type="number" className="h-8" value={customRules.draw} onChange={e => setCustomRules({...customRules, draw: parseInt(e.target.value) || 0})} />
+                </div>
+                <div className="space-y-1">
+                  <Label className="text-xs">Loss (Pts)</Label>
+                  <Input type="number" className="h-8" value={customRules.loss} onChange={e => setCustomRules({...customRules, loss: parseInt(e.target.value) || 0})} />
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-1">
+                  <Label className="text-xs">Goals For (Bonus Pts)</Label>
+                  <Input type="number" step="0.1" className="h-8" value={customRules.goalsFor} onChange={e => setCustomRules({...customRules, goalsFor: parseFloat(e.target.value) || 0})} />
+                </div>
+                <div className="space-y-1">
+                  <Label className="text-xs">Goals Against (Penalty Pts)</Label>
+                  <Input type="number" step="0.1" className="h-8" value={customRules.goalsAgainst} onChange={e => setCustomRules({...customRules, goalsAgainst: parseFloat(e.target.value) || 0})} />
+                </div>
+              </div>
+            </div>
+          )}
+          
+          <ShinyButton onClick={handleStart} className="w-full h-14 mt-2 text-lg shadow-[0_0_20px_rgba(41,193,121,0.4)]" loading={loading}>
+            ✨ CREATE & GENERATE FIXTURES
+          </ShinyButton>
         </div>
       </Card>
     );
