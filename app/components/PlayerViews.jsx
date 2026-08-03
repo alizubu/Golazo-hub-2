@@ -504,10 +504,10 @@ export function PlayerDashboard({ me, activeSeason, seasons = [], matches, playe
 
                 const trophyList = Array.from(templateMap.values());
 
-                const unlockedCount = trophyList.filter(tr => {
+                const earnedTrophies = trophyList.filter(tr => {
                   const instances = myTrophies.filter(t => t.title === tr.name || t.id === tr.id);
                   return instances.length > 0 || !tr.locked;
-                }).length;
+                });
 
                 return (
                   <>
@@ -517,41 +517,45 @@ export function PlayerDashboard({ me, activeSeason, seasons = [], matches, playe
                       </h3>
                       <div className="flex items-center gap-2">
                         <Badge variant="gold" className="px-2.5 py-1 font-score text-[10px] sm:text-xs font-bold bg-amber-500/15 text-amber-300 border border-amber-500/30">
-                          {unlockedCount}/{trophyList.length} UNLOCKED
+                          {myTrophies.length} TROPHIES
                         </Badge>
                       </div>
                     </CardHeader>
                     <CardContent className="pt-6">
-                      <motion.div 
-                        className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4 w-full min-w-0" 
-                        variants={{hidden: { opacity: 0 }, show: { opacity: 1, transition: { staggerChildren: 0.06 } }}} 
-                        initial="hidden" 
-                        whileInView="show" 
-                        viewport={{ once: true }}
-                      >
-                        {trophyList.map((tr) => {
-                          const instances = myTrophies.filter(t => t.title === tr.name || t.id === tr.id);
-                          const isUnlocked = instances.length > 0 || !tr.locked;
+                      {earnedTrophies.length === 0 ? (
+                        <EmptyState text="No trophies earned yet." />
+                      ) : (
+                        <motion.div 
+                          className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4 w-full min-w-0" 
+                          variants={{hidden: { opacity: 0 }, show: { opacity: 1, transition: { staggerChildren: 0.06 } }}} 
+                          initial="hidden" 
+                          whileInView="show" 
+                          viewport={{ once: true }}
+                        >
+                          {earnedTrophies.map((tr) => {
+                            const instances = myTrophies.filter(t => t.title === tr.name || t.id === tr.id);
+                            const isUnlocked = instances.length > 0 || !tr.locked;
 
-                          return (
-                            <TrophyCard 
-                              key={tr.id} 
-                              trophy={tr} 
-                              unlocked={isUnlocked} 
-                              count={instances.length} 
-                              instances={instances}
-                              requirement={tr.requirement}
-                              onSelect={() => setSelectedTrophy({
-                                trophy: tr,
-                                unlocked: isUnlocked,
-                                count: instances.length,
-                                instances,
-                                requirement: tr.requirement
-                              })}
-                            />
-                          );
-                        })}
-                      </motion.div>
+                            return (
+                              <TrophyCard 
+                                key={tr.id} 
+                                trophy={tr} 
+                                unlocked={isUnlocked} 
+                                count={instances.length} 
+                                instances={instances}
+                                requirement={tr.requirement}
+                                onSelect={() => setSelectedTrophy({
+                                  trophy: tr,
+                                  unlocked: isUnlocked,
+                                  count: instances.length,
+                                  instances,
+                                  requirement: tr.requirement
+                                })}
+                              />
+                            );
+                          })}
+                        </motion.div>
+                      )}
                     </CardContent>
                   </>
                 );

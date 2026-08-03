@@ -167,6 +167,25 @@ export async function createTrophyTemplate(data) {
   }
 }
 
+export async function updateTrophyTemplate(id, data) {
+  try {
+    const template = await prisma.trophyTemplate.update({
+      where: { id },
+      data: {
+        name: data.name,
+        icon: data.icon,
+        description: data.description,
+      }
+    });
+    revalidatePath('/admin');
+    revalidatePath('/');
+    return { template };
+  } catch (error) {
+    console.error("Failed to update template:", error);
+    return { error: 'Failed to update template.' };
+  }
+}
+
 export async function deleteTrophyTemplate(id) {
   try {
     await prisma.trophyTemplate.delete({

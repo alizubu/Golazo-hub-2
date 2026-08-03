@@ -6,7 +6,7 @@ import { Card, Btn, Input, Label, SectionTitle, EmptyState, MagicCard, FadeIn, S
 import { motion, AnimatePresence } from 'framer-motion';
 import AdminOverviewDashboard from './AdminOverviewDashboard';
 import { generateFixtures, generatePlayoffs, updateMatchStatus, updateMatchScore, adminTriggerBracketProgress } from '@/app/actions/match';
-import { awardTrophy, removeTrophy, updateTrophy, createAnnouncement, deleteAnnouncement, endCelebration, retriggerCelebration, getCelebrations, getTrophyTemplates, createTrophyTemplate, deleteTrophyTemplate, saveTickerConfig } from '@/app/actions/admin';
+import { awardTrophy, removeTrophy, updateTrophy, createAnnouncement, deleteAnnouncement, endCelebration, retriggerCelebration, getCelebrations, getTrophyTemplates, createTrophyTemplate, updateTrophyTemplate, deleteTrophyTemplate, saveTickerConfig } from '@/app/actions/admin';
 import { startSeason, renameSeason, completeSeason } from '@/app/actions/season';
 import { signUpPlayer, adminUpdatePlayer, adminDeletePlayer } from '@/app/actions/player';
 import { supabase } from '@/lib/supabaseClient';
@@ -732,6 +732,7 @@ export function AdminTrophies({ players, trophies = [], seasons, showToast }) {
   const [dbTemplates, setDbTemplates] = useState([]);
   const [newTemplate, setNewTemplate] = useState({ name: '', icon: '🏆', description: '' });
   const [templateSaving, setTemplateSaving] = useState(false);
+  const [editingTemplateId, setEditingTemplateId] = useState(null);
 
   useEffect(() => {
     async function loadTemplates() {
@@ -825,14 +826,31 @@ export function AdminTrophies({ players, trophies = [], seasons, showToast }) {
   const handleSaveTemplate = async () => {
     if (!newTemplate.name.trim()) return showToast('Template name required');
     setTemplateSaving(true);
-    const res = await createTrophyTemplate(newTemplate);
-    if (res.error) { showToast(res.error); }
-    else {
-      setDbTemplates(prev => [...prev, res.template]);
-      showToast(`✅ Template "${newTemplate.name}" saved`);
-      setNewTemplate({ name: '', icon: '🏆', description: '' });
+    
+    if (editingTemplateId) {
+      const res = await updateTrophyTemplate(editingTemplateId, newTemplate);
+      if (res.error) { showToast(res.error); }
+      else {
+        setDbTemplates(prev => prev.map(t => t.id === editingTemplateId ? res.template : t));
+        showToast(`✅ Template "${newTemplate.name}" updated`);
+        setNewTemplate({ name: '', icon: '🏆', description: '' });
+        setEditingTemplateId(null);
+      }
+    } else {
+      const res = await createTrophyTemplate(newTemplate);
+      if (res.error) { showToast(res.error); }
+      else {
+        setDbTemplates(prev => [...prev, res.template]);
+        showToast(`✅ Template "${newTemplate.name}" saved`);
+        setNewTemplate({ name: '', icon: '🏆', description: '' });
+      }
     }
     setTemplateSaving(false);
+  };
+
+  const handleEditTemplate = (t) => {
+    setEditingTemplateId(t.id);
+    setNewTemplate({ name: t.name, icon: t.icon, description: t.description || '' });
   };
 
   const handleDeleteTemplate = async (id, name) => {
@@ -865,18 +883,22 @@ export function AdminTrophies({ players, trophies = [], seasons, showToast }) {
           <Card className="p-6">
             <SectionTitle icon={Trophy}>Award a Trophy</SectionTitle>
             
-            <div className="mb-5">
-              <Label>Quick-fill from template</Label>
-              <div className="flex flex-wrap gap-2 mt-2">
+            <div className="mb-6">
+              <Label className="mb-2 block">Quick-fill from template</Label>
+              <div className="flex overflow-x-auto gap-3 pb-2 snap-x snap-mandatory hide-scrollbar">
                 {allTemplates.map(t => (
-                  <button
+                  <div
                     key={t.id}
                     onClick={() => applyTemplate(t)}
-                    className="flex items-center gap-1.5 px-3 py-1.5 bg-secondary/50 hover:bg-secondary border border-border/50 rounded-full text-xs font-semibold transition-colors"
+                    className="snap-start shrink-0 flex flex-col items-center justify-center p-3 w-[100px] aspect-square rounded-2xl bg-secondary/30 hover:bg-secondary/60 cursor-pointer transition-all border border-border/40 hover:border-border/80"
                   >
-                    <img src={t.image} className="w-4 h-4 object-contain" alt="" />
-                    {t.name}
-                  </button>
+                    {t.image || (t.icon && (t.icon.startsWith('/') || t.icon.startsWith('http'))) ? (
+                      <img src={t.image || t.icon} className="w-8 h-8 object-contain mb-2 drop-shadow-md" alt="" />
+                    ) : (
+                      <span className="text-2xl mb-2">{t.icon || '🏆'}</span>
+                    )}
+                    <span className="text-[10px] font-bold text-center leading-tight">{t.name}</span>
+                  </div>
                 ))}
               </div>
             </div>
@@ -1096,12 +1118,20 @@ export function AdminTrophies({ players, trophies = [], seasons, showToast }) {
               Create new &quot;Core&quot; trophies. These will instantly appear as &quot;locked&quot; silhouettes in every player&apos;s cabinet!
             </p>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6 bg-secondary/20 p-4 rounded-xl border border-border/40">
+              <div className="md:col-span-2">
+                <h4 className="text-sm font-bold text-stadium-primary mb-2">{editingTemplateId ? 'Edit Template' : 'Create New Template'}</h4>
+              </div>
               <div><Label>Template Name</Label><Input value={newTemplate.name} onChange={e => setNewTemplate({...newTemplate, name: e.target.value})} placeholder="e.g. Defender of the Year" /></div>
               <div><Label>Icon</Label><TrophyIconPicker value={newTemplate.icon} onChange={v => setNewTemplate({...newTemplate, icon: v})} /></div>
               <div className="md:col-span-2"><Label>Description (Optional)</Label><Input value={newTemplate.description} onChange={e => setNewTemplate({...newTemplate, description: e.target.value})} placeholder="e.g. Awarded to the best defender" /></div>
-              <div className="md:col-span-2 flex justify-end">
-                <ShinyButton onClick={handleSaveTemplate} disabled={templateSaving} loading={templateSaving}>💾 Create Template</ShinyButton>
+              <div className="md:col-span-2 flex justify-end gap-2">
+                {editingTemplateId && (
+                  <Btn variant="ghost" onClick={() => { setEditingTemplateId(null); setNewTemplate({ name: '', icon: '🏆', description: '' }); }}>Cancel</Btn>
+                )}
+                <ShinyButton onClick={handleSaveTemplate} disabled={templateSaving} loading={templateSaving}>
+                  {editingTemplateId ? '💾 Update Template' : '💾 Create Template'}
+                </ShinyButton>
               </div>
             </div>
 
@@ -1109,10 +1139,11 @@ export function AdminTrophies({ players, trophies = [], seasons, showToast }) {
               {dbTemplates.map((t, i) => (
                 <FadeIn key={t.id} delay={i * 0.05}>
                   <MagicCard className="p-4 flex flex-col justify-between h-full group relative">
-                    <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <div className="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <Btn variant="ghost" className="h-6 w-6 p-0 rounded-md text-stadium-secondary hover:text-white" onClick={() => handleEditTemplate(t)}><Edit2 size={13} /></Btn>
                       <Btn variant="ghost" className="h-6 w-6 p-0 rounded-md text-red-500 hover:bg-red-500/20" onClick={() => handleDeleteTemplate(t.id, t.name)}><Trash2 size={13} /></Btn>
                     </div>
-                    <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-3 pr-12">
                       {t.icon && (t.icon.startsWith('/') || t.icon.startsWith('http')) ? (
                         <img src={t.icon} className="w-8 h-8 object-contain" alt="" />
                       ) : (
@@ -1673,7 +1704,7 @@ export function AdminSeason({ activeSeason, matches = [], players = [], showToas
               if (incompletePlayoffs.length > 0) return showToast("Finish all playoff matches first.");
             }
 
-            if (!confirm("Are you sure you want to end this season? This will automatically calculate standings, assign awards and issue trophies.")) return;
+            if (!confirm("Are you sure you want to end this season? This will automatically calculate standings and archive the season.")) return;
              
             const championId = standings[0]?.id;
             const runnerUpId = standings[1]?.id;
@@ -1681,28 +1712,13 @@ export function AdminSeason({ activeSeason, matches = [], players = [], showToas
             const mvpId = standings[0]?.id; // Default MVP to Champion
              
             const trophies = [];
-            if (championId) trophies.push({ playerId: championId, title: "League Champion", season: activeSeason.name, icon: "🏆", description: `Won the ${activeSeason.name} league.` });
-            if (runnerUpId) trophies.push({ playerId: runnerUpId, title: "Runner-Up", season: activeSeason.name, icon: "🥈", description: `2nd place in ${activeSeason.name}.` });
-             
-            const byGoals = [...standings].sort((a, b) => b.gf - a.gf);
-            const topScorer = byGoals[0];
-            if (topScorer && topScorer.gf > 0) {
-              trophies.push({ playerId: topScorer.id, title: "Golden Boot", season: activeSeason.name, icon: "👟", description: `Top scorer with ${topScorer.gf} goals.` });
-            }
-             
-            const eligibleForGlove = [...standings].filter(s => s.p >= 3);
-            if (eligibleForGlove.length > 0) {
-                const byGlove = eligibleForGlove.sort((a, b) => (a.ga / a.p) - (b.ga / b.p));
-                const topGlove = byGlove[0];
-                trophies.push({ playerId: topGlove.id, title: "Golden Glove", season: activeSeason.name, icon: "🧤", description: `Fewest goals conceded (${topGlove.ga} in ${topGlove.p} games).` });
-            }
 
             const res = await completeSeason(activeSeason.id, {
                 championId, runnerUpId, thirdId, mvpId, championName: standings[0]?.name, trophies
             });
              
             if (res.error) showToast(res.error);
-            else { showToast("Season archived & trophies issued!"); setTab("admin-overview"); }
+            else { showToast("Season archived!"); setTab("admin-overview"); }
         }}>
           <div className="p-3 rounded-full bg-muted-foreground/20 text-muted-foreground">
              <Archive size={24} />
