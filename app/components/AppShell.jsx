@@ -19,7 +19,8 @@ export default function AppShell({
   announcements = [], 
   trophies = [], 
   notifications = [],
-  history = []
+  history = [],
+  activeCelebrations = []
 }) {
   const { showToast } = useAppContext();
   const [tickerConfig, setTickerConfig] = useState(null);
@@ -93,7 +94,7 @@ export default function AppShell({
         />
       </div>
       <div className="max-w-5xl mx-auto px-4 pt-4">
-        <CelebrationBanner />
+        <CelebrationBanner initialCelebrations={activeCelebrations} />
         {currentTab === 'hall-of-fame' ? (
         <HallOfFame trophies={trophies} players={players} />
       ) : session?.type === 'admin' ? (

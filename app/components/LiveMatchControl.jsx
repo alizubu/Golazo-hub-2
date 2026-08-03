@@ -468,6 +468,16 @@ function ImageImport({ onApply }) {
 // ---------------------------------------------------------------------------
 // Stats entry
 // ---------------------------------------------------------------------------
+const StatsRow = ({ f, i, stats, update }) => (
+  <div className={`grid grid-cols-[3.5rem_1fr_3.5rem] sm:grid-cols-[4rem_1fr_4rem] items-center gap-3 px-4 py-3 ${i % 2 === 0 ? "bg-zinc-950" : "bg-transparent"} ${i !== 0 ? "border-t border-zinc-800" : ""}`}>
+    <input type="number" inputMode="numeric" value={stats.home[f.key]} onChange={(e) => update("home", f.key, e.target.value)}
+      className="h-10 rounded-lg text-center text-sm font-bold tabular-nums outline-none bg-zinc-900 border border-zinc-700 text-pitch-bright focus:border-pitch-bright focus:bg-pitch/10 transition-colors" />
+    <span className="text-[11px] sm:text-xs text-center text-zinc-400 uppercase tracking-widest font-bold truncate">{f.label}{f.percent ? " (%)" : ""}</span>
+    <input type="number" inputMode="numeric" value={stats.away[f.key]} onChange={(e) => update("away", f.key, e.target.value)}
+      className="h-10 rounded-lg text-center text-sm font-bold tabular-nums outline-none bg-zinc-900 border border-zinc-700 text-claret focus:border-claret focus:bg-claret-dim/20 transition-colors" />
+  </div>
+);
+
 function StatsEntry({ stats, setStats, onSave, onSkip, busy }) {
   const update = (side, key, val) => {
     const num = val === "" ? "" : Math.max(0, Number(val));
@@ -485,16 +495,6 @@ function StatsEntry({ stats, setStats, onSave, onSkip, busy }) {
 
   const half = Math.ceil(STAT_FIELDS.length / 2);
   const columns = [STAT_FIELDS.slice(0, half), STAT_FIELDS.slice(half)];
-
-  const Row = ({ f, i }) => (
-    <div key={f.key} className={`grid grid-cols-[3.5rem_1fr_3.5rem] sm:grid-cols-[4rem_1fr_4rem] items-center gap-3 px-4 py-3 ${i % 2 === 0 ? "bg-zinc-950" : "bg-transparent"} ${i !== 0 ? "border-t border-zinc-800" : ""}`}>
-      <input type="number" inputMode="numeric" value={stats.home[f.key]} onChange={(e) => update("home", f.key, e.target.value)}
-        className="h-10 rounded-lg text-center text-sm font-bold tabular-nums outline-none bg-zinc-900 border border-zinc-700 text-pitch-bright focus:border-pitch-bright focus:bg-pitch/10 transition-colors" />
-      <span className="text-[11px] sm:text-xs text-center text-zinc-400 uppercase tracking-widest font-bold truncate">{f.label}{f.percent ? " (%)" : ""}</span>
-      <input type="number" inputMode="numeric" value={stats.away[f.key]} onChange={(e) => update("away", f.key, e.target.value)}
-        className="h-10 rounded-lg text-center text-sm font-bold tabular-nums outline-none bg-zinc-900 border border-zinc-700 text-claret focus:border-claret focus:bg-claret-dim/20 transition-colors" />
-    </div>
-  );
 
   const handleSwapStats = () => {
     setStats(prev => {
@@ -519,7 +519,7 @@ function StatsEntry({ stats, setStats, onSave, onSkip, busy }) {
       <div className="grid grid-cols-1 xl:grid-cols-2 gap-x-6 gap-y-0 mb-6">
         {columns.map((col, ci) => (
           <div key={ci} className="rounded-2xl overflow-hidden border border-zinc-800 bg-zinc-950 mb-4 xl:mb-0 shadow-lg shadow-black/20">
-            {col.map((f, i) => <Row key={f.key} f={f} i={i} />)}
+            {col.map((f, i) => <StatsRow key={f.key} f={f} i={i} stats={stats} update={update} />)}
           </div>
         ))}
       </div>

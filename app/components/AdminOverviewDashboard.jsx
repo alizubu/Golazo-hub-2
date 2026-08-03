@@ -7,7 +7,6 @@ import { Card, SectionTitle, EmptyState, MagicCard, FadeIn, Badge, Btn, Avatar, 
 import { supabase } from '@/lib/supabaseClient';
 import { BorderBeam } from './magicui/BorderBeam';
 import { NumberTicker } from './ui/number-ticker';
-import confetti from 'canvas-confetti';
 import { computeStandings } from './StandingsTable';
 import StandingsTable from './StandingsTable';
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from './ui/dropdown-menu';

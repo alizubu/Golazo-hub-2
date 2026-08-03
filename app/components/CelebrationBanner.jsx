@@ -60,9 +60,9 @@ const LoopingConfetti = () => {
   );
 };
 
-export default function CelebrationBanner() {
+export default function CelebrationBanner({ initialCelebrations = [] }) {
   const router = useRouter();
-  const [celebrations, setCelebrations] = useState([]);
+  const [celebrations, setCelebrations] = useState(initialCelebrations);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [dismissed, setDismissed] = useState([]);
   const [now, setNow] = useState(null);
@@ -77,8 +77,6 @@ export default function CelebrationBanner() {
     async function fetchCelebrations() {
       try {
         const res = await fetch('/api/celebrations/active');
-        const stored = sessionStorage.getItem('dismissedCelebrations');
-        if (stored) setDismissed(JSON.parse(stored));
         if (res.ok) {
           const data = await res.json();
           setCelebrations(data.celebrations || []);
@@ -87,6 +85,12 @@ export default function CelebrationBanner() {
         console.error('Failed to load celebrations', e);
       }
     }
+    
+    const stored = sessionStorage.getItem('dismissedCelebrations');
+    if (stored) {
+      setTimeout(() => setDismissed(JSON.parse(stored)), 0);
+    }
+    
     fetchCelebrations();
   }, []);
 
@@ -101,8 +105,15 @@ export default function CelebrationBanner() {
     }
   }, [activeCelebrations.length]);
 
+  const activeCelebrationsIds = activeCelebrations.map(c => c.id).join(',');
+
   useEffect(() => {
     if (activeCelebrations.length > 0) {
+      const played = JSON.parse(sessionStorage.getItem('confettiPlayed') || '[]');
+      const unplayedIds = activeCelebrations.map(c => c.id).filter(id => !played.includes(id));
+      
+      if (unplayedIds.length === 0) return;
+
       const duration = 2500;
       const end = Date.now() + duration;
 
@@ -130,13 +141,14 @@ export default function CelebrationBanner() {
             }
           };
           frame();
+          sessionStorage.setItem('confettiPlayed', JSON.stringify([...played, ...unplayedIds]));
         } catch (e) {
           console.error("Failed to load confetti", e);
         }
       };
       runConfetti();
     }
-  }, [activeCelebrations.length]);
+  }, [activeCelebrationsIds]);
 
   if (activeCelebrations.length === 0) return null;
   const current = activeCelebrations[currentIndex] || activeCelebrations[0];

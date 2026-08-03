@@ -6,7 +6,6 @@ import { Trophy, Lock, Calendar, Award, CheckCircle2, TrendingUp, X } from 'luci
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from './ui/dialog';
 import { Progress } from './ui/progress';
 import { Badge, Btn } from './UI';
-import confetti from 'canvas-confetti';
 
 export default function TrophyDetailModal({
   open,
@@ -23,31 +22,38 @@ export default function TrophyDetailModal({
         window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
       if (!prefersReducedMotion) {
-        // Fire celebratory stadium floodlight gold & turf green confetti
-        const duration = 1.5 * 1000;
-        const animationEnd = Date.now() + duration;
+        const runConfetti = async () => {
+          try {
+            const confetti = (await import('canvas-confetti')).default;
+            const duration = 1.5 * 1000;
+            const animationEnd = Date.now() + duration;
 
-        const frame = () => {
-          confetti({
-            particleCount: 5,
-            angle: 60,
-            spread: 55,
-            origin: { x: 0, y: 0.7 },
-            colors: ['#E8B34C', '#3DDC84', '#F4F6F8', '#D9A93B']
-          });
-          confetti({
-            particleCount: 5,
-            angle: 120,
-            spread: 55,
-            origin: { x: 1, y: 0.7 },
-            colors: ['#E8B34C', '#3DDC84', '#F4F6F8', '#D9A93B']
-          });
+            const frame = () => {
+              confetti({
+                particleCount: 5,
+                angle: 60,
+                spread: 55,
+                origin: { x: 0, y: 0.7 },
+                colors: ['#E8B34C', '#3DDC84', '#F4F6F8', '#D9A93B']
+              });
+              confetti({
+                particleCount: 5,
+                angle: 120,
+                spread: 55,
+                origin: { x: 1, y: 0.7 },
+                colors: ['#E8B34C', '#3DDC84', '#F4F6F8', '#D9A93B']
+              });
 
-          if (Date.now() < animationEnd) {
-            requestAnimationFrame(frame);
+              if (Date.now() < animationEnd) {
+                requestAnimationFrame(frame);
+              }
+            };
+            frame();
+          } catch (e) {
+            console.error("Failed to load confetti", e);
           }
         };
-        frame();
+        runConfetti();
       }
     }
   }, [open, unlocked]);

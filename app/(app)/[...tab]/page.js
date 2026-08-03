@@ -43,14 +43,24 @@ export default async function CatchAllTabRoute({ params }) {
   }
 
   // Fetch all other data in parallel
-  let matches = [], seasons = [], announcements = [], trophies = [], notifications = [], history = [];
+  let matches = [], seasons = [], announcements = [], trophies = [], notifications = [], history = [], activeCelebrations = [];
 
   try {
-    [matches, seasons, announcements, notifications] = await Promise.all([
+    [matches, seasons, announcements, notifications, activeCelebrations] = await Promise.all([
       getMatches(),
       getSeasons(),
       prisma.announcement.findMany({ orderBy: { createdAt: 'desc' } }),
-      prisma.notification.findMany({ orderBy: { createdAt: 'desc' }, take: 50 })
+      prisma.notification.findMany({ orderBy: { createdAt: 'desc' }, take: 50 }),
+      prisma.trophyCelebration.findMany({
+        where: {
+          status: 'active',
+          expiresAt: { gt: new Date() }
+        },
+        include: {
+          trophy: { include: { player: true } }
+        },
+        orderBy: { startedAt: 'desc' }
+      })
     ]);
     
     // Trophies and History might be needed by some tabs
@@ -73,6 +83,7 @@ export default async function CatchAllTabRoute({ params }) {
       trophies={trophies}
       notifications={notifications}
       history={history}
+      activeCelebrations={activeCelebrations}
     />
   );
 }

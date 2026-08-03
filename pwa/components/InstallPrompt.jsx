@@ -9,10 +9,28 @@ export default function InstallPrompt() {
   const [deferredPrompt, setDeferredPrompt] = useState(null);
   const [showPrompt, setShowPrompt] = useState(false);
 
+  const [isIos, setIsIos] = useState(false);
+
   useEffect(() => {
+    // Detect iOS
+    const userAgent = window.navigator.userAgent.toLowerCase();
+    const isIosDevice = /iphone|ipad|ipod/.test(userAgent);
+    const isStandalone = ('standalone' in window.navigator) && (window.navigator.standalone);
+    if (isIosDevice && !isStandalone) {
+      if (!localStorage.getItem('golazo_install_dismissed')) {
+        setTimeout(() => {
+          setIsIos(true);
+          setShowPrompt(true);
+        }, 3000);
+      }
+    }
+
     const handler = (e) => {
       e.preventDefault();
       setDeferredPrompt(e);
+      if (!localStorage.getItem('golazo_install_dismissed')) {
+        setTimeout(() => setShowPrompt(true), 3000);
+      }
     };
 
     window.addEventListener('beforeinstallprompt', handler);
@@ -58,12 +76,14 @@ export default function InstallPrompt() {
                Install App
             </h3>
             <p className="text-sm text-muted-foreground mb-4">
-              Add Golazo Hub to your home screen for full-screen offline access and real-time updates!
+              {isIos ? "To install, tap the Share icon below and select 'Add to Home Screen' for full-screen offline access." : "Add Golazo Hub to your home screen for full-screen offline access and real-time updates!"}
             </p>
             <div className="flex gap-2">
-              <Btn variant="primary" onClick={handleInstall} className="flex-1 py-2 text-sm flex items-center justify-center gap-2 font-bold shadow-md">
-                <Download size={16} /> Add to Home Screen
-              </Btn>
+              {!isIos && (
+                <Btn variant="primary" onClick={handleInstall} className="flex-1 py-2 text-sm flex items-center justify-center gap-2 font-bold shadow-md">
+                  <Download size={16} /> Add to Home Screen
+                </Btn>
+              )}
               <Btn variant="outline" onClick={handleDismiss} className="py-2 px-3 bg-background/50 hover:bg-secondary">
                 <X size={16} />
               </Btn>
