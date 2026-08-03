@@ -7,10 +7,10 @@ export function updateAppTheme(iconName, themeColor) {
   if (themeColor) localStorage.setItem('golazo_theme_color', themeColor);
   
   const iconUrls = {
-    default: '/icons/icon-default.svg',
-    red: '/icons/icon-red.svg',
-    blue: '/icons/icon-blue.svg',
-    green: '/icons/icon-green.svg',
+    default: '/icons/golazohub.png',
+    red: '/icons/golazohub.png',
+    blue: '/icons/golazohub.png',
+    green: '/icons/golazohub.png',
   };
   const newIcon = iconUrls[iconName] || iconUrls.default;
 

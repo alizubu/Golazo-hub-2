@@ -6,8 +6,8 @@ self.addEventListener('push', function (event) {
   
   const options = {
     body: data.body || 'You have a new notification!',
-    icon: '/icons/icon-default.svg',
-    badge: '/icons/icon-default.svg',
+    icon: '/icons/golazohub.png',
+    badge: '/icons/golazohub.png',
     vibrate: [100, 50, 100],
     data: {
       url: data.url || '/'

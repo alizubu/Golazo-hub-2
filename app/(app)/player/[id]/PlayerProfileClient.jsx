@@ -21,18 +21,21 @@ export default function PlayerProfileClient({ targetPlayer, loggedInPlayer, play
   const isMe = loggedInPlayer?.id === targetPlayer.id;
 
   return (
-    <>
-      <div className="flex items-center justify-between mb-2">
-        <PageHeader title={`${targetPlayer.name}'s Profile`} onBack={() => router.back()} />
-        {!isMe && loggedInPlayer && (
-          <Btn 
-            onClick={() => setShowH2H(true)} 
-            className="flex items-center gap-2 bg-claret text-white hover:bg-claret/80 border-none shadow-lg text-xs mr-4 px-3 h-8"
-          >
-            <Swords size={14} /> Head to Head
-          </Btn>
-        )}
-      </div>
+    <div className="max-w-5xl mx-auto px-4 pt-4 pb-10 w-full">
+      <PageHeader 
+        title={`${targetPlayer.name}'s Profile`} 
+        onBack={() => router.back()} 
+        rightAction={
+          !isMe && loggedInPlayer && (
+            <Btn 
+              onClick={() => setShowH2H(true)} 
+              className="flex items-center gap-2 bg-claret text-white hover:bg-claret/80 border-none shadow-lg text-xs px-3 h-8"
+            >
+              <Swords size={14} /> Head to Head
+            </Btn>
+          )
+        }
+      />
 
       <PlayerDashboard
         {...props}
@@ -53,6 +56,6 @@ export default function PlayerProfileClient({ targetPlayer, loggedInPlayer, play
           players={players} 
         />
       )}
-    </>
+    </div>
   );
 }

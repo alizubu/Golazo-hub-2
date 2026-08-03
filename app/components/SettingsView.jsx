@@ -2,7 +2,7 @@
 
 import { PageHeader } from './PageHeader';
 import React, { useState, useRef } from 'react';
-import { Camera, KeyRound, Shield, CheckCircle2, Flame, Eye, EyeOff, Settings, Bell, BellOff } from 'lucide-react';
+import { Camera, KeyRound, Shield, CheckCircle2, Flame, Eye, EyeOff, Settings, Bell, BellOff, LogOut, Loader2 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Label, Btn } from './UI';
 import dynamic from 'next/dynamic';
@@ -16,6 +16,7 @@ import { Textarea } from '@/app/components/ui/textarea';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/app/components/ui/tabs';
 import { Progress } from '@/app/components/ui/progress';
 import { updatePlayerProfile, changePlayerPassword } from '@/app/actions/player';
+import { clearAuthCookie } from '@/app/actions/auth';
 import { updateAppTheme } from '@/pwa/components/AppThemeProvider';
 
 import clubsData from '@/lib/data/clubs.json';
@@ -47,6 +48,7 @@ export default function SettingsView({ me, showToast }) {
   const [coverFailedUrl, setCoverFailedUrl] = useState(null);
   const [appTheme, setAppTheme] = useState('default');
   const [pushEnabled, setPushEnabled] = useState(false);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
 
   React.useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -122,6 +124,12 @@ export default function SettingsView({ me, showToast }) {
     setAppTheme(themeName);
     updateAppTheme(themeName, color);
     showToast(`App icon updated to ${themeName}`);
+  };
+
+  const handleLogout = async () => {
+    setIsLoggingOut(true);
+    await clearAuthCookie();
+    window.location.href = '/login';
   };
 
   // Cover photo upload states
@@ -363,6 +371,21 @@ export default function SettingsView({ me, showToast }) {
               </CardContent>
             </Card>
           </MagicCard>
+
+          <MagicCard gradientColor="rgba(239, 68, 68, 0.1)">
+            <Card className="bg-transparent border-none shadow-none max-w-md">
+              <CardHeader className="pb-4 border-b border-border/30">
+                <CardTitle className="text-lg flex items-center gap-2 text-destructive"><LogOut size={18}/> Sign Out</CardTitle>
+              </CardHeader>
+              <CardContent className="pt-6">
+                <p className="text-sm text-muted-foreground mb-4">Log out of your Golazo Hub account on this device.</p>
+                <Btn variant="outline" className="w-full border-destructive/50 hover:bg-destructive/10 text-destructive bg-background/50 flex items-center justify-center gap-2" onClick={handleLogout} disabled={isLoggingOut}>
+                  {isLoggingOut ? <Loader2 size={16} className="animate-spin" /> : <LogOut size={16} />}
+                  {isLoggingOut ? "Logging out..." : "Log Out"}
+                </Btn>
+              </CardContent>
+            </Card>
+          </MagicCard>
         </TabsContent>
 
         <TabsContent value="preferences" className="space-y-6">
@@ -377,10 +400,10 @@ export default function SettingsView({ me, showToast }) {
                   <Label className="text-base font-semibold block mb-3">App Icon & Theme</Label>
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                     {[
-                      { id: 'default', label: 'Default', color: '#09090b', preview: '/icons/icon-default.svg' },
-                      { id: 'red', label: 'Crimson', color: '#7f1d1d', preview: '/icons/icon-red.svg' },
-                      { id: 'blue', label: 'Ocean', color: '#1e3a8a', preview: '/icons/icon-blue.svg' },
-                      { id: 'green', label: 'Pitch', color: '#14532d', preview: '/icons/icon-green.svg' },
+                      { id: 'default', label: 'Default', color: '#09090b', preview: '/icons/golazohub.png' },
+                      { id: 'red', label: 'Crimson', color: '#7f1d1d', preview: '/icons/golazohub.png' },
+                      { id: 'blue', label: 'Ocean', color: '#1e3a8a', preview: '/icons/golazohub.png' },
+                      { id: 'green', label: 'Pitch', color: '#14532d', preview: '/icons/golazohub.png' },
                     ].map(theme => (
                       <button 
                         key={theme.id}

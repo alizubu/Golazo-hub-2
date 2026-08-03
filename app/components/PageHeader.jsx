@@ -3,7 +3,7 @@ import { ChevronLeft } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Button } from '@/app/components/ui/button';
 
-export function PageHeader({ title, onBack }) {
+export function PageHeader({ title, onBack, rightAction }) {
   if (!onBack) return null; // Defensive check, should always be passed if used
 
   return (
@@ -15,7 +15,8 @@ export function PageHeader({ title, onBack }) {
             <ChevronLeft size={20} />
           </Button>
         </motion.div>
-        {title && <h2 className="text-xl font-bold font-heading">{title}</h2>}
+        {title && <h2 className="text-xl font-bold font-heading flex-1">{title}</h2>}
+        {rightAction && <div>{rightAction}</div>}
       </div>
 
       {/* Mobile view: sticky header bar */}
@@ -26,6 +27,7 @@ export function PageHeader({ title, onBack }) {
           </Button>
         </motion.div>
         {title && <h1 className="text-lg font-bold font-heading truncate flex-1">{title}</h1>}
+        {rightAction && <div>{rightAction}</div>}
       </div>
     </>
   );

@@ -6,7 +6,7 @@ import { createPortal } from 'react-dom';
 import { motion, useScroll, useTransform, AnimatePresence } from 'framer-motion';
 import {
   LogOut, Settings, Menu, Search, Bell, Trophy,
-  Home, ListOrdered, Calendar, Swords, Users, Archive, Megaphone, Star
+  Home, ListOrdered, Calendar, Swords, Users, Archive, Megaphone, Star, Loader2
 } from 'lucide-react';
 import { Badge, Btn, Avatar } from './UI';
 import {
@@ -102,7 +102,10 @@ export default function FloatingNav({ session, me, players = [], notifications =
     return new Date(n.createdAt) > new Date(me.lastReadNotificationAt);
   }).length;
 
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
+
   const handleLogout = async () => {
+    setIsLoggingOut(true);
     await clearAuthCookie();
     window.location.href = '/login';
   };
@@ -187,10 +190,11 @@ export default function FloatingNav({ session, me, players = [], notifications =
                 </Link>
                 <button
                   onClick={handleLogout}
+                  disabled={isLoggingOut}
                   className="flex items-center justify-center w-8 h-8 rounded-full text-muted-foreground hover:text-white hover:bg-white/10 transition-colors border border-border/50 outline-none"
                   title="Log out"
                 >
-                  <LogOut size={15} />
+                  {isLoggingOut ? <Loader2 size={15} className="animate-spin" /> : <LogOut size={15} />}
                 </button>
               </div>
             ) : me ? (
@@ -281,8 +285,8 @@ export default function FloatingNav({ session, me, players = [], notifications =
             </button>
 
             {session?.type === "admin" ? (
-              <button onClick={handleLogout} className="flex items-center justify-center w-8 h-8 rounded-full text-muted-foreground hover:text-white">
-                <LogOut size={16} />
+              <button onClick={handleLogout} disabled={isLoggingOut} className="flex items-center justify-center w-8 h-8 rounded-full text-muted-foreground hover:text-white outline-none">
+                {isLoggingOut ? <Loader2 size={16} className="animate-spin" /> : <LogOut size={16} />}
               </button>
             ) : me ? (
               <Link href="/settings" onClick={(e) => handleNav(e, "/settings")} className="flex items-center justify-center w-8 h-8 rounded-full border border-white/10 overflow-hidden">
@@ -380,7 +384,7 @@ export default function FloatingNav({ session, me, players = [], notifications =
                     <CommandItem
                       key={p.id}
                       value={p.name}
-                      onSelect={() => { router.push('/player/' + p.id); setSearchOpen(false); }}
+                      onSelect={() => { router.push('/player/' + (p.username || p.id)); setSearchOpen(false); }}
                       className="flex items-center gap-2 rounded-lg cursor-pointer py-2"
                     >
                       <Avatar p={p} size={24} />

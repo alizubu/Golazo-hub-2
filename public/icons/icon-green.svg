@@ -1,5 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
-  <rect width="512" height="512" rx="128" fill="#14532d" />
-  <path d="M256 64L64 128v160c0 106 85 208 192 224 107-16 192-118 192-224V128L256 64z" fill="#15803d" stroke="#4ade80" stroke-width="24" stroke-linejoin="round"/>
-  <text x="256" y="340" font-family="system-ui, -apple-system, sans-serif" font-size="200" font-weight="900" fill="#ffffff" text-anchor="middle">G</text>
-</svg>

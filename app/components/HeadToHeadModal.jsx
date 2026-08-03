@@ -5,21 +5,26 @@ import { Avatar, Badge, MagicCard } from './UI';
 import { NumberTicker } from './ui/number-ticker';
 import MatchCard from './MatchCard';
 
-function ComparisonBar({ leftValue, rightValue, middleValue = 0, label, suffix = "", leftColor = "bg-pitch-bright", rightColor = "bg-foreground", middleColor = "bg-slate-600" }) {
+function ComparisonBar({ leftValue, rightValue, middleValue = 0, label, suffix = "", leftColor = "bg-pitch-bright", rightColor = "bg-claret", middleColor = "bg-slate-600" }) {
   const sum = leftValue + rightValue + middleValue || 1;
   const leftPct = (leftValue / sum) * 100;
   const midPct = (middleValue / sum) * 100;
   const rightPct = (rightValue / sum) * 100;
 
+  const leftWins = leftValue > rightValue;
+  const rightWins = rightValue > leftValue;
+
   return (
     <div className="flex flex-col gap-2 w-full px-6 py-4 border-b border-border/30 bg-secondary/10">
       <div className="flex justify-between items-end font-score font-bold">
-        <span className="text-pitch-bright text-2xl flex items-baseline gap-0.5">
+        <span className={`text-2xl flex items-baseline gap-1.5 ${leftColor.replace('bg-', 'text-')}`}>
+          {leftWins && <Trophy size={14} className="text-amber-400 mb-1" />}
           <NumberTicker value={leftValue} />{suffix}
         </span>
         <span className="text-[10px] uppercase font-bold tracking-[0.2em] text-muted-foreground pb-1.5">{label}</span>
-        <span className="text-foreground text-2xl flex items-baseline gap-0.5">
+        <span className={`text-2xl flex items-baseline gap-1.5 ${rightColor.replace('bg-', 'text-')}`}>
           <NumberTicker value={rightValue} />{suffix}
+          {rightWins && <Trophy size={14} className="text-amber-400 mb-1" />}
         </span>
       </div>
       <div className="flex h-2.5 w-full bg-background rounded-full overflow-hidden shadow-inner">
@@ -30,6 +35,32 @@ function ComparisonBar({ leftValue, rightValue, middleValue = 0, label, suffix =
         <motion.div className={rightColor} initial={{ width: 0 }} animate={{ width: `${rightPct}%` }} transition={{ duration: 1, ease: "easeOut" }} />
       </div>
     </div>
+  );
+}
+
+function H2HMatchRow({ m, players, onClick }) {
+  const h = players.find(p => p.id === m.homeId);
+  const a = players.find(p => p.id === m.awayId);
+  return (
+    <MagicCard 
+      onClick={() => onClick(m.id)}
+      className="flex items-center justify-between p-3 sm:p-4 bg-secondary/30 hover:bg-secondary/60 transition-colors cursor-pointer border border-border/30 rounded-xl shadow-sm"
+    >
+      <div className="flex-1 flex items-center gap-3 min-w-0">
+        <Avatar p={h} size={32} />
+        <span className="font-bold text-sm truncate max-w-[80px] sm:max-w-none">{h?.name}</span>
+      </div>
+      <div className="px-4 text-center shrink-0">
+        <div className="font-bold text-lg font-score text-foreground bg-background px-3 py-0.5 rounded-full shadow-inner border border-border/50">
+          {m.homeScore} – {m.awayScore}
+        </div>
+        <div className="text-[9px] text-muted-foreground uppercase tracking-widest font-semibold mt-1">FT</div>
+      </div>
+      <div className="flex-1 flex items-center justify-end gap-3 min-w-0">
+        <span className="font-bold text-sm truncate text-right max-w-[80px] sm:max-w-none">{a?.name}</span>
+        <Avatar p={a} size={32} />
+      </div>
+    </MagicCard>
   );
 }
 
@@ -91,31 +122,37 @@ export default function HeadToHeadModal({ playerA, playerB, allMatches, onClose,
           animate={{ scale: 1, opacity: 1, y: 0 }}
           exit={{ scale: 0.95, opacity: 0, y: 20 }}
           transition={{ type: "spring", damping: 25, stiffness: 300 }}
-          className="w-full max-w-2xl bg-card border border-border/50 rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[85vh]"
+          className="w-full max-w-3xl bg-card border border-border/50 rounded-3xl shadow-[0_20px_60px_-15px_rgba(0,0,0,0.8)] overflow-hidden flex flex-col max-h-[90vh] md:max-h-[85vh]"
           onClick={e => e.stopPropagation()}
         >
           {/* Header */}
           <div className="relative p-6 pb-8 text-center border-b border-border/30 bg-gradient-to-b from-secondary/50 to-card">
-            <button onClick={onClose} className="absolute top-4 right-4 p-2 rounded-full hover:bg-secondary text-muted-foreground transition-colors">
+            <button onClick={onClose} className="absolute top-4 right-4 p-2 rounded-full hover:bg-secondary text-muted-foreground hover:text-foreground transition-colors">
               <X size={20} />
             </button>
             
-            <Badge color="var(--pitch)" className="mb-4 inline-flex">Head to Head</Badge>
+            <div className="text-[10px] uppercase font-bold tracking-[0.2em] text-muted-foreground mb-6">HEAD TO HEAD</div>
             
-            <div className="flex items-center justify-center gap-6 mt-4">
-              <div className="flex flex-col items-center gap-2 flex-1 min-w-0">
-                <Avatar p={playerA} size={80} className="border-4 border-pitch" />
-                <span className="font-heading font-bold text-xl truncate w-full text-center">{playerA.name}</span>
+            <div className="flex items-center justify-center gap-4 sm:gap-8">
+              <div className="flex flex-col items-center gap-4 flex-1 min-w-0">
+                <div className="rounded-full ring-4 ring-pitch-bright ring-offset-4 ring-offset-card shadow-xl">
+                  <Avatar p={playerA} size={84} />
+                </div>
+                <span className="font-heading font-bold text-lg sm:text-xl truncate w-full text-center">{playerA.name}</span>
               </div>
               
-              <div className="flex flex-col items-center justify-center shrink-0 text-muted-foreground">
-                <Swords size={32} className="opacity-50 mb-2" />
-                <span className="font-score text-sm font-bold tracking-widest">{total} MATCHES</span>
+              <div className="flex flex-col items-center justify-center shrink-0">
+                <Badge variant="secondary" className="px-3 py-1 font-score text-xs font-bold border-border/50 bg-secondary/80 flex items-center gap-1.5 shadow-sm text-muted-foreground">
+                  <Swords size={14} className="opacity-70" />
+                  {total} MATCHES
+                </Badge>
               </div>
 
-              <div className="flex flex-col items-center gap-2 flex-1 min-w-0">
-                <Avatar p={playerB} size={80} className="border-4 border-muted" />
-                <span className="font-heading font-bold text-xl truncate w-full text-center">{playerB.name}</span>
+              <div className="flex flex-col items-center gap-4 flex-1 min-w-0">
+                <div className="rounded-full ring-4 ring-claret ring-offset-4 ring-offset-card shadow-xl">
+                  <Avatar p={playerB} size={84} />
+                </div>
+                <span className="font-heading font-bold text-lg sm:text-xl truncate w-full text-center">{playerB.name}</span>
               </div>
             </div>
           </div>
@@ -139,7 +176,7 @@ export default function HeadToHeadModal({ playerA, playerB, allMatches, onClose,
             ) : (
               h2hMatches.map((m, i) => (
                 <motion.div key={m.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }}>
-                  <MatchCard m={m} players={players} onClick={onMatchClick} />
+                  <H2HMatchRow m={m} players={players} onClick={onMatchClick} />
                 </motion.div>
               ))
             )}

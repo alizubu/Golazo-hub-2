@@ -37,6 +37,11 @@ export default function AppShell({
   
   const [currentTab, setCurrentTab] = useState(getCleanTab(initialTab));
 
+  // Sync initialTab with currentTab on server navigation
+  useEffect(() => {
+    setCurrentTab(getCleanTab(initialTab));
+  }, [initialTab, getCleanTab]);
+
   // Load ticker config from DB on mount
   useEffect(() => {
     fetch('/api/admin/ticker-config')

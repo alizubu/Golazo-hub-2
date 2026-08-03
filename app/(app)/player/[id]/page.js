@@ -33,7 +33,7 @@ export default async function PlayerProfileRoute({ params }) {
     console.error('Failed to load profile secondary data:', error);
   }
 
-  const targetPlayer = players.find(p => p.id === id);
+  const targetPlayer = players.find(p => p.id === id || p.username === id);
   if (!targetPlayer) {
     notFound();
   }

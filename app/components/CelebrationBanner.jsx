@@ -235,7 +235,7 @@ export default function CelebrationBanner({ initialCelebrations = [] }) {
                 <motion.button
                   onClick={() => {
                     window.dispatchEvent(new Event('trigger-install-prompt'));
-                    router.push(`/player/${current.trophy.player.id}`);
+                    router.push(`/player/${current.trophy.player.username || current.trophy.player.id}`);
                   }}
                   whileHover={{ scale: 1.02, backgroundColor: 'rgba(255,255,255,0.08)' }}
                   whileTap={{ scale: 0.98 }}

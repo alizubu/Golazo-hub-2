@@ -294,7 +294,7 @@ export default function StandingsTable({ matches, players, seasonId, me, onPlaye
                     exit={{ opacity: 0 }}
                     transition={{ delay: i * 0.03, duration: 0.3 }} 
                     key={s.id} 
-                    onClick={() => handleRowClick(s.id)}
+                    onClick={() => handleRowClick(s.username || s.id)}
                     className={`border-b border-border/30 last:border-0 hover:bg-white/[0.04] transition-colors cursor-pointer group ${rowClasses} ${borderClasses}`}
                   >
                     <td className="p-3 text-center font-medium">

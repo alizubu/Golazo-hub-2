@@ -250,8 +250,6 @@ export function PlayerDashboard({ me, activeSeason, seasons = [], matches, playe
 
   return (
     <div className="flex flex-col gap-6 pb-10">
-      {viewOnly && <PageHeader title={`${me.name}'s Profile`} onBack={() => router.back()} />}
-
       
       {announcements.length > 0 && (
         <FadeIn delay={0.05}>
@@ -747,7 +745,7 @@ function StandingsView({ activeSeason, matches, players, me }) {
                   animate={{ opacity: 1, x: 0 }} 
                   transition={{ delay: i * 0.05 }} 
                   key={s.id}
-                  onClick={() => router.push(`/player/${s.id}`)}
+                  onClick={() => router.push(`/player/${s.username || s.id}`)}
                   className={`border-b border-border/30 last:border-0 hover:bg-secondary/50 transition-colors cursor-pointer ${s.id === me.id ? 'bg-pitch/10 hover:bg-pitch/20' : ''}`}
                 >
                   <td className="p-3 font-medium text-muted-foreground">{i + 1}</td>
@@ -842,7 +840,7 @@ export function RosterView({ players, matches, setTab }) {
           
           return (
             <FadeIn key={p.id} delay={i * 0.05}>
-              <MagicCard onClick={() => router.push(`/player/${p.id}`)} className="p-5 flex items-center gap-4 hover:border-border hover:scale-[1.02] transition-all hover:shadow-lg cursor-pointer group bg-stadium-surface/40 hover:bg-stadium-surface/60">
+              <MagicCard onClick={() => router.push(`/player/${p.username || p.id}`)} className="p-5 flex items-center gap-4 hover:border-border hover:scale-[1.02] transition-all hover:shadow-lg cursor-pointer group bg-stadium-surface/40 hover:bg-stadium-surface/60">
                 <div className="relative shrink-0">
                   <div className="absolute -inset-1 rounded-full bg-gradient-to-br from-gold/50 via-pitch-bright to-claret/50 blur-[2px] opacity-0 group-hover:opacity-100 transition-opacity" />
                   <div className="relative rounded-full bg-card p-0.5 border border-border/50 shadow-md">

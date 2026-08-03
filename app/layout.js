@@ -30,8 +30,8 @@ export const metadata = {
     title: 'Golazo Hub',
   },
   icons: {
-    icon: '/icons/icon-default.svg',
-    apple: '/icons/icon-default.svg',
+    icon: '/icons/golazohub.png',
+    apple: '/icons/golazohub.png',
   },
 };
 
