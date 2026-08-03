@@ -23,6 +23,11 @@ const jakarta = Plus_Jakarta_Sans({
 export const metadata = {
   title: 'Golazo Hub',
   description: 'Matchday central for the crew',
+  manifest: '/manifest.json',
+};
+
+export const viewport = {
+  themeColor: '#09090b',
 };
 
 export default function RootLayout({ children }) {

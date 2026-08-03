@@ -1,0 +1,16 @@
+{
+  "name": "Golazo Hub",
+  "short_name": "Golazo",
+  "description": "Local Football League & Tournament Manager",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#09090b",
+  "theme_color": "#09090b",
+  "icons": [
+    {
+      "src": "/globe.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}

@@ -366,18 +366,12 @@ export function PlayerDashboard({ me, activeSeason, seasons = [], matches, playe
                     >
                       {selectedClub && (
                         <div className="flex items-center gap-1.5 bg-secondary/50 px-2.5 py-1 rounded-md border border-border/50 text-xs font-semibold shadow-sm">
-                          {selectedClub.logo_url ? (
-                            <img src={selectedClub.logo_url} alt={selectedClub.name} className="w-4 h-4 object-contain" />
-                          ) : <Shield size={14} />}
-                          {selectedClub.name}
+                          <span className="text-muted-foreground">Favorite Club:</span> {selectedClub.name}
                         </div>
                       )}
                       {selectedNationalTeam && (
                         <div className="flex items-center gap-1.5 bg-secondary/50 px-2.5 py-1 rounded-md border border-border/50 text-xs font-semibold shadow-sm">
-                          {selectedNationalTeam.flag_url ? (
-                            <img src={selectedNationalTeam.flag_url} alt={selectedNationalTeam.name} className="w-4 h-4 object-contain" />
-                          ) : <Shield size={14} />}
-                          {selectedNationalTeam.name}
+                          <span className="text-muted-foreground">Favorite Team:</span> {selectedNationalTeam.name}
                         </div>
                       )}
                     </motion.div>
@@ -718,6 +712,7 @@ export function PlayerDashboard({ me, activeSeason, seasons = [], matches, playe
 }
 
 function StandingsView({ activeSeason, matches, players, me }) {
+  const router = useRouter();
   if (!activeSeason) return <EmptyState text="No active season yet." />;
   const tMatches = matches.filter((m) => m.seasonId === activeSeason.id);
   const standings = computeStandings(tMatches, players, activeSeason.id);
@@ -751,8 +746,9 @@ function StandingsView({ activeSeason, matches, players, me }) {
                   initial={{ opacity: 0, x: -10 }} 
                   animate={{ opacity: 1, x: 0 }} 
                   transition={{ delay: i * 0.05 }} 
-                  key={s.id} 
-                  className={`border-b border-border/30 last:border-0 hover:bg-secondary/50 transition-colors ${s.id === me.id ? 'bg-pitch/10 hover:bg-pitch/20' : ''}`}
+                  key={s.id}
+                  onClick={() => router.push(`/player/${s.id}`)}
+                  className={`border-b border-border/30 last:border-0 hover:bg-secondary/50 transition-colors cursor-pointer ${s.id === me.id ? 'bg-pitch/10 hover:bg-pitch/20' : ''}`}
                 >
                   <td className="p-3 font-medium text-muted-foreground">{i + 1}</td>
                   <td className="p-3 text-center text-[10px] font-bold">
@@ -846,7 +842,7 @@ export function RosterView({ players, matches, setTab }) {
           
           return (
             <FadeIn key={p.id} delay={i * 0.05}>
-              <MagicCard onClick={() => router.push(`/players/${p.id}`)} className="p-5 flex items-center gap-4 hover:border-border hover:scale-[1.02] transition-all hover:shadow-lg cursor-pointer group bg-stadium-surface/40 hover:bg-stadium-surface/60">
+              <MagicCard onClick={() => router.push(`/player/${p.id}`)} className="p-5 flex items-center gap-4 hover:border-border hover:scale-[1.02] transition-all hover:shadow-lg cursor-pointer group bg-stadium-surface/40 hover:bg-stadium-surface/60">
                 <div className="relative shrink-0">
                   <div className="absolute -inset-1 rounded-full bg-gradient-to-br from-gold/50 via-pitch-bright to-claret/50 blur-[2px] opacity-0 group-hover:opacity-100 transition-opacity" />
                   <div className="relative rounded-full bg-card p-0.5 border border-border/50 shadow-md">

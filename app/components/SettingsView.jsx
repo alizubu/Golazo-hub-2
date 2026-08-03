@@ -226,39 +226,10 @@ export default function SettingsView({ me, showToast }) {
                  <CardTitle className="text-xl flex items-center gap-2"><Shield className="text-sky-500" size={20}/> Football Identity</CardTitle>
                  <p className="text-sm text-muted-foreground mt-1">Select your favorite real-world teams to show them off on your profile.</p>
                </CardHeader>
-               <CardContent className="pt-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+               <CardContent className="pt-6">
                  <div className="space-y-6">
                    <SearchableLogoPicker label="Favorite Club" items={clubs} value={form.favoriteClub} onChange={(val) => setForm({...form, favoriteClub: val})} placeholder="Search Club..." />
                    <SearchableLogoPicker label="Favorite National Team" items={nationalTeams} value={form.flag} onChange={(val) => setForm({...form, flag: val})} placeholder="Search National Team..." />
-                 </div>
-                 
-                 <div className="flex flex-col">
-                    <Label className="mb-3 block text-xs opacity-70">Preview</Label>
-                    <div className="flex-1 flex items-center justify-center gap-4 bg-secondary/20 rounded-xl p-4 border border-border/50 h-full">
-                      {selectedClub ? (
-                        <div className="flex flex-col items-center gap-2 w-24 text-center">
-                          {selectedClub.logo_url && <img src={selectedClub.logo_url} alt={selectedClub.name} className="w-12 h-12 object-contain drop-shadow-md" />}
-                          <span className="text-xs font-bold leading-tight">{selectedClub.name}</span>
-                        </div>
-                      ) : (
-                        <div className="flex flex-col items-center gap-2 w-24 text-center opacity-30">
-                          <div className="w-12 h-12 rounded-full bg-secondary border border-border border-dashed flex items-center justify-center"><Shield size={20}/></div>
-                          <span className="text-xs font-bold">No Club</span>
-                        </div>
-                      )}
-                      <div className="text-xs font-black italic opacity-30 px-2">VS</div>
-                      {selectedNationalTeam ? (
-                        <div className="flex flex-col items-center gap-2 w-24 text-center">
-                          {selectedNationalTeam.flag_url && <img src={selectedNationalTeam.flag_url} alt={selectedNationalTeam.name} className="w-12 h-12 object-contain drop-shadow-md" />}
-                          <span className="text-xs font-bold leading-tight">{selectedNationalTeam.name}</span>
-                        </div>
-                      ) : (
-                        <div className="flex flex-col items-center gap-2 w-24 text-center opacity-30">
-                          <div className="w-12 h-12 rounded-full bg-secondary border border-border border-dashed flex items-center justify-center"><Shield size={20}/></div>
-                          <span className="text-xs font-bold">No Nation</span>
-                        </div>
-                      )}
-                    </div>
                  </div>
                </CardContent>
             </Card>

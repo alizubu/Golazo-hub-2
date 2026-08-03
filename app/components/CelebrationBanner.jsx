@@ -221,7 +221,7 @@ export default function CelebrationBanner() {
               <div className="flex flex-col sm:flex-row items-center gap-5 mt-6">
                 {/* Winner Pill */}
                 <motion.button
-                  onClick={() => router.push(`/players/${current.trophy.player.id}`)}
+                  onClick={() => router.push(`/player/${current.trophy.player.id}`)}
                   whileHover={{ scale: 1.02, backgroundColor: 'rgba(255,255,255,0.08)' }}
                   whileTap={{ scale: 0.98 }}
                   className="flex items-center gap-3 bg-white/5 border border-white/10 rounded-full pr-5 pl-2 py-2 transition-colors duration-300 backdrop-blur-md group"

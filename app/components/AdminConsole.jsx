@@ -401,9 +401,14 @@ function CompletedMatchCard({ m, h, a, players, showToast, isPlayoff = false }) 
                   </DropdownMenuItem>
                 </>
               ) : (
-                 <DropdownMenuItem className="cursor-pointer rounded-lg py-2">
+                <>
+                  <DropdownMenuItem className="cursor-pointer rounded-lg py-2" onSelect={() => router.push(`/matches?matchId=${m.id}`)}>
                     <CheckCircle2 size={14} className="mr-2 text-muted-foreground" /> View Match
-                 </DropdownMenuItem>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem className="cursor-pointer rounded-lg py-2 text-destructive focus:text-destructive" onSelect={(e) => { e.preventDefault(); if (window.confirm('Are you sure you want to undo this match result? This will remove the score and revert it to scheduled.')) handleReset(); }}>
+                    <AlertTriangle size={14} className="mr-2" /> Undo Result
+                  </DropdownMenuItem>
+                </>
               )}
             </DropdownMenuContent>
           </DropdownMenu>
