@@ -80,12 +80,27 @@ module.exports = {
           "text-primary": "#F4F6F8",
           "text-secondary": "#8A93A3",
           "text-muted": "#565F70",
+        },
+        brand: {
+          blue: '#38BDF8',
+          green: '#34D399',
+          gold: '#FBBF24',
+          goldDeep: '#D97706',
         }
       },
       borderRadius: {
         lg: "var(--radius)",
         md: "calc(var(--radius) - 2px)",
         sm: "calc(var(--radius) - 4px)",
+      },
+      boxShadow: {
+        'nav-ambient': '0 20px 60px -15px rgba(56,189,248,0.25)',
+        'fab-glow': '0 0 24px rgba(56,189,248,0.5)',
+        'gold-glow': '0 0 12px rgba(251,191,36,0.4)',
+      },
+      backgroundImage: {
+        'brand-gradient': 'linear-gradient(135deg, #38BDF8 0%, #34D399 100%)',
+        'gold-gradient': 'linear-gradient(135deg, #FCD34D 0%, #D97706 100%)',
       },
       keyframes: {
         "accordion-down": {
