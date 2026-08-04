@@ -1,7 +1,8 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Trophy, Calendar, Users, Radio, Clock, Check, Archive, Plus, Trash2, Settings, Swords, Edit2, ListOrdered, BarChart2, AlertTriangle, ArrowRight, Megaphone, ChevronDown, Package, MoreVertical, History, CheckCircle2, Activity } from 'lucide-react';
+import { Trophy, Calendar, Users, Radio, Clock, Check, Archive, Plus, Trash2, Settings, Swords, Edit2, ListOrdered, BarChart2, AlertTriangle, ArrowRight, Megaphone, ChevronDown, Package, MoreVertical, History, CheckCircle2, Activity, X } from 'lucide-react';
+import { BorderBeam } from './magicui/BorderBeam';
 import { Card, Btn, Input, Label, SectionTitle, EmptyState, MagicCard, FadeIn, ShinyButton, Badge, Avatar, toTitleCase } from './UI';
 import { motion, AnimatePresence } from 'framer-motion';
 import AdminOverviewDashboard from './AdminOverviewDashboard';
@@ -671,7 +672,63 @@ function RevokeDialog({ open, onOpenChange, trophy, players, onConfirm }) {
   );
 }
 
-function EditTrophyDialog({ open, onOpenChange, trophy, players, onSave }) {
+function TrophyTradingCard({ trophy, onEdit, onRevoke, hideActions }) {
+  const isImage = trophy.icon && (trophy.icon.startsWith('/') || trophy.icon.startsWith('http'));
+  return (
+    <motion.div
+      whileHover={{ y: -6 }}
+      className="relative group rounded-2xl border border-white/[0.05] bg-[#12151b] overflow-hidden shadow-xl aspect-[3/4] flex flex-col"
+    >
+      {/* Gloss reflection effect */}
+      <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/[0.03] to-white/[0.1] opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none z-10" />
+      
+      <div className="flex-1 flex flex-col items-center justify-center p-4 relative z-0">
+        <div className="relative mb-4">
+          <div className="absolute -inset-4 bg-amber-500/10 blur-xl rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+          {isImage ? (
+            <img src={trophy.icon} className="w-16 h-16 object-contain drop-shadow-2xl relative z-10 scale-95 group-hover:scale-105 transition-transform duration-500" alt="" />
+          ) : (
+            <span className="text-5xl relative z-10 block group-hover:scale-110 transition-transform duration-500">{trophy.icon || '🏆'}</span>
+          )}
+        </div>
+        
+        <h4 className="font-bold text-base text-center leading-tight bg-clip-text text-transparent bg-gradient-to-b from-white to-white/70 mb-1 line-clamp-2 px-1">{trophy.title}</h4>
+        {trophy.description && (
+          <p className="text-[10px] text-muted-foreground text-center line-clamp-2 px-2 leading-relaxed">
+            {trophy.description}
+          </p>
+        )}
+      </div>
+
+      <div className="p-3 bg-black/40 backdrop-blur-sm border-t border-white/[0.05] flex items-center justify-between relative z-20 mt-auto">
+        <div className="flex flex-col">
+          <span className="text-[9px] uppercase tracking-widest text-muted-foreground font-semibold">Awarded</span>
+          <span className="text-xs font-score text-white/80">{trophy.season}</span>
+        </div>
+        {trophy.player && (
+          <div className="flex items-center gap-1.5 bg-white/5 rounded-full pl-1.5 pr-2.5 py-1 border border-white/10 shadow-sm">
+            <Avatar p={trophy.player} size={16} />
+            <span className="text-[10px] font-bold truncate max-w-[70px]">{trophy.player.name}</span>
+          </div>
+        )}
+      </div>
+
+      {/* Overlay Actions */}
+      {!hideActions && (
+        <div className="absolute inset-0 bg-black/70 backdrop-blur-md opacity-0 group-hover:opacity-100 transition-all duration-300 flex flex-col items-center justify-center gap-3 z-30 pointer-events-none group-hover:pointer-events-auto translate-y-4 group-hover:translate-y-0">
+          <Btn variant="outline" className="w-32 bg-white/10 hover:bg-white/20 border-white/20 text-white rounded-xl gap-2 shadow-lg h-9 text-xs" onClick={(e) => { e.stopPropagation(); onEdit(trophy); }}>
+            <Edit2 size={12} /> Edit Award
+          </Btn>
+          <Btn variant="danger" className="w-32 rounded-xl gap-2 shadow-lg border border-red-500/50 h-9 text-xs" onClick={(e) => { e.stopPropagation(); onRevoke(trophy); }}>
+            <Trash2 size={12} /> Revoke
+          </Btn>
+        </div>
+      )}
+    </motion.div>
+  );
+}
+
+function EditTrophyDrawer({ open, onOpenChange, trophy, players, onSave }) {
   const [form, setForm] = useState({ title: '', season: '', icon: '🏆', description: '' });
   const [prevTrophy, setPrevTrophy] = useState(null);
   
@@ -685,40 +742,68 @@ function EditTrophyDialog({ open, onOpenChange, trophy, players, onSave }) {
   return (
     <AnimatePresence>
       {open && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+        <>
           <motion.div 
             initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-            className="absolute inset-0 bg-black/80 backdrop-blur-sm"
+            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100]"
             onClick={() => onOpenChange(false)}
           />
           <motion.div 
-            initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }}
-            className="relative bg-card border border-border/50 shadow-2xl max-w-md w-full p-6 rounded-2xl z-10 max-h-[90vh] overflow-y-auto"
+            initial={{ x: '100%' }} animate={{ x: 0 }} exit={{ x: '100%' }}
+            transition={{ type: 'spring', damping: 25, stiffness: 200 }}
+            className="fixed top-0 right-0 h-full w-full sm:w-[450px] bg-background/95 backdrop-blur-2xl border-l border-border/50 shadow-2xl z-[101] flex flex-col overflow-hidden"
           >
-            <div className="flex items-center gap-2 text-lg font-bold mb-4">
-              <Edit2 size={18} /> Edit Trophy
-            </div>
-            <div className="space-y-4">
-              {player && (
-                <div className="flex items-center gap-2 p-2 bg-secondary/30 rounded-lg">
-                  <Avatar p={player} size={28} />
-                  <span className="font-semibold text-sm">{player.name}</span>
-                </div>
-              )}
-              <div><Label>Trophy Title</Label><Input value={form.title || ''} onChange={e => setForm({...form, title: e.target.value})} /></div>
-              <div><Label>Season</Label><Input value={form.season || ''} onChange={e => setForm({...form, season: e.target.value})} /></div>
-              <div>
-                <Label>Icon</Label>
-                <TrophyIconPicker value={form.icon} onChange={v => setForm({...form, icon: v})} />
+            <div className="flex items-center justify-between p-6 border-b border-border/50 bg-secondary/30 shrink-0">
+              <div className="flex items-center gap-2 text-lg font-bold">
+                <Edit2 size={18} className="text-amber-400" /> Edit Trophy
               </div>
-              <div><Label>Description</Label><Input value={form.description || ''} onChange={e => setForm({...form, description: e.target.value})} /></div>
+              <Btn variant="ghost" className="h-8 w-8 p-0 rounded-full hover:bg-secondary/80" onClick={() => onOpenChange(false)}>
+                <X size={18} />
+              </Btn>
             </div>
-            <div className="mt-6 flex gap-3 justify-end">
-              <Btn variant="ghost" onClick={() => onOpenChange(false)} className="bg-secondary text-foreground hover:bg-secondary/80">Cancel</Btn>
-              <ShinyButton onClick={() => onSave(form)}>Save Changes</ShinyButton>
+            
+            <div className="flex-1 overflow-y-auto p-6 flex flex-col gap-8">
+              {/* Live Preview */}
+              <div>
+                <Label className="mb-3 block text-muted-foreground text-[10px] uppercase tracking-widest font-semibold text-center">Live Preview</Label>
+                <div className="flex justify-center">
+                  <div className="relative pointer-events-none w-full max-w-[200px] shadow-2xl rounded-2xl">
+                    <BorderBeam size={60} duration={12} delay={9} colorFrom="var(--gold)" colorTo="transparent" className="rounded-2xl z-40" />
+                    <TrophyTradingCard 
+                      trophy={{ ...trophy, ...form, player: player }} 
+                      hideActions={true}
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Form */}
+              <div className="space-y-5 flex-1">
+                {player && (
+                  <div>
+                    <Label className="mb-2 block text-xs">Recipient</Label>
+                    <div className="flex items-center gap-3 p-3 bg-secondary/30 rounded-xl border border-border/50">
+                      <Avatar p={player} size={32} />
+                      <span className="font-semibold text-sm">{player.name}</span>
+                    </div>
+                  </div>
+                )}
+                <div><Label>Trophy Title</Label><Input value={form.title || ''} onChange={e => setForm({...form, title: e.target.value})} className="bg-secondary/20 border-border/50 focus:border-amber-500/50" /></div>
+                <div><Label>Season</Label><Input value={form.season || ''} onChange={e => setForm({...form, season: e.target.value})} className="bg-secondary/20 border-border/50 focus:border-amber-500/50" /></div>
+                <div>
+                  <Label>Icon</Label>
+                  <TrophyIconPicker value={form.icon} onChange={v => setForm({...form, icon: v})} />
+                </div>
+                <div><Label>Description</Label><Input value={form.description || ''} onChange={e => setForm({...form, description: e.target.value})} className="bg-secondary/20 border-border/50 focus:border-amber-500/50" /></div>
+              </div>
+            </div>
+
+            <div className="p-6 border-t border-border/50 bg-secondary/30 flex gap-3 justify-end mt-auto shrink-0">
+              <Btn variant="ghost" onClick={() => onOpenChange(false)} className="bg-secondary text-foreground hover:bg-secondary/80 rounded-xl">Cancel</Btn>
+              <ShinyButton onClick={() => onSave(form)} className="rounded-xl">Save Changes</ShinyButton>
             </div>
           </motion.div>
-        </div>
+        </>
       )}
     </AnimatePresence>
   );
@@ -932,67 +1017,21 @@ export function AdminTrophies({ players, trophies = [], seasons, showToast }) {
             {trophies.length === 0 ? (
               <EmptyState text="No trophies awarded yet." />
             ) : (
-              <div className="overflow-x-auto -mx-2">
-                <table className="w-full text-sm min-w-[700px]">
-                  <thead>
-                    <tr className="text-muted-foreground text-[11px] uppercase tracking-wider border-b border-border/50">
-                      <th className="pb-3 text-left px-2 font-semibold">Trophy</th>
-                      <th className="pb-3 text-left px-2 font-semibold">Player</th>
-                      <th className="pb-3 text-left px-2 font-semibold">Season</th>
-                      <th className="pb-3 text-left px-2 font-semibold">Awarded On</th>
-                      <th className="pb-3 px-2"></th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {trophies.map((t, i) => (
-                      <motion.tr
-                        key={t.id}
-                        initial={{ opacity: 0, y: 6 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: i * 0.02 }}
-                        className="border-b border-border/30 last:border-0 hover:bg-secondary/20 transition-colors"
-                      >
-                        <td className="py-3 px-2">
-                          <div className="flex items-center gap-2">
-                            {t.icon && (t.icon.startsWith('/') || t.icon.startsWith('http')) ? (
-                              <img src={t.icon} className="w-6 h-6 object-contain drop-shadow-sm" alt="" />
-                            ) : (
-                              <span className="text-lg">{t.icon || '🏆'}</span>
-                            )}
-                            <div>
-                              <div className="font-bold text-foreground leading-tight">{t.title}</div>
-                              {t.description && <div className="text-[10px] text-muted-foreground line-clamp-1 max-w-[200px]">{t.description}</div>}
-                            </div>
-                          </div>
-                        </td>
-                        <td className="py-3 px-2">
-                          {t.player && (
-                            <div className="flex items-center gap-2">
-                              <Avatar p={t.player} size={24} />
-                              <span className="font-semibold truncate max-w-[150px] block">{t.player.name}</span>
-                            </div>
-                          )}
-                        </td>
-                        <td className="py-3 px-2 text-muted-foreground font-score text-xs font-semibold">
-                          {t.season}
-                        </td>
-                        <td className="py-3 px-2 text-muted-foreground font-score text-xs">
-                          {new Date(t.createdAt).toLocaleDateString()}
-                        </td>
-                        <td className="py-3 px-2 text-right">
-                          <div className="flex justify-end gap-1">
-                            <Btn variant="ghost" className="h-7 w-7 p-0 rounded-md text-stadium-secondary hover:text-white" onClick={() => setEditTarget(t)}>
-                              <Edit2 size={13} />
-                            </Btn>
-                            <Btn variant="ghost" className="h-7 w-7 p-0 rounded-md text-stadium-secondary hover:text-red-400 hover:bg-red-500/10" onClick={() => setRevokeTarget(t)}>
-                              <Trash2 size={13} />
-                            </Btn>
-                          </div>
-                        </td>
-                      </motion.tr>
-                    ))}
-                  </tbody>
-                </table>
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+                {trophies.map((t, i) => (
+                  <motion.div
+                    key={t.id}
+                    initial={{ opacity: 0, scale: 0.9, y: 10 }}
+                    animate={{ opacity: 1, scale: 1, y: 0 }}
+                    transition={{ delay: i * 0.04, type: 'spring' }}
+                  >
+                    <TrophyTradingCard
+                      trophy={{ ...t, player: t.player || players.find(p => p.id === t.playerId) }}
+                      onEdit={(trophyData) => setEditTarget(trophyData)}
+                      onRevoke={(trophyData) => setRevokeTarget(trophyData)}
+                    />
+                  </motion.div>
+                ))}
               </div>
             )}
           </Card>
@@ -1175,8 +1214,8 @@ export function AdminTrophies({ players, trophies = [], seasons, showToast }) {
         onConfirm={handleRevoke}
       />
 
-      <EditTrophyDialog
-        key={editTarget?.id || 'edit-dialog-new'}
+      <EditTrophyDrawer
+        key={editTarget?.id || 'edit-drawer-new'}
         open={!!editTarget}
         onOpenChange={open => !open && setEditTarget(null)}
         trophy={editTarget}
