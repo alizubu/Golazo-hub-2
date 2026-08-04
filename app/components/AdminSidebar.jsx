@@ -2,10 +2,9 @@
 
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import Link from 'next/link';
 import {
   Home, Users, Trophy, Calendar, Star, Megaphone,
-  Settings, LogOut, X, ChevronRight, Loader2,
+  Settings, LogOut, X, ChevronRight, Loader2, ShieldAlert
 } from 'lucide-react';
 import { clearAuthCookie } from '@/app/actions/auth';
 
@@ -19,136 +18,121 @@ const NAV_ITEMS = [
   { tab: 'hall-of-fame',        label: 'Hall of Fame',   icon: Star },
 ];
 
-// ══════════════════════════════════════════════════════════════
-// NAV ITEM BUTTON — shared between desktop rail and mobile drawer
-// ══════════════════════════════════════════════════════════════
-function NavItem({ item, active, hasLive, onClick, compact }) {
+function NavItem({ item, active, hasLive, onClick, isMobile = false }) {
   const Icon = item.icon;
   return (
     <button
       onClick={() => onClick(item.tab)}
-      title={compact ? item.label : undefined}
-      aria-current={active ? 'page' : undefined}
+      title={!isMobile ? item.label : undefined}
       className={`
-        relative w-full flex items-center outline-none transition-colors duration-150 group
-        ${compact ? 'justify-center px-0 py-3' : 'gap-3 px-4 py-2.5 my-0.5 text-[13px] font-semibold text-left'}
-        ${active ? 'text-white' : 'text-[#565F70] hover:text-[#8A93A3] hover:bg-white/[0.04]'}
+        relative w-full flex items-center outline-none group transition-all duration-300
+        ${isMobile ? 'justify-start gap-4 px-5 py-3.5 my-1' : 'justify-center lg:justify-start lg:gap-3.5 px-0 lg:px-5 py-3 my-1'}
       `}
     >
-      {/* Active: left border glow */}
-      {active && !compact && (
-        <motion.div
-          layoutId="sidebar-active-border"
-          className="absolute left-0 top-1 bottom-1 w-[3px] rounded-r-full"
-          style={{ background: '#29C179', boxShadow: '0 0 10px rgba(41,193,121,0.6)' }}
-          transition={{ type: 'spring', bounce: 0.22, duration: 0.4 }}
-        />
-      )}
-      {/* Active: background pill */}
+      {/* Hover Background */}
+      <div className={`absolute inset-y-0 rounded-xl bg-white/[0.03] opacity-0 group-hover:opacity-100 transition-opacity duration-300 ${isMobile ? 'inset-x-3' : 'inset-x-2 lg:inset-x-3'}`} />
+      
+      {/* Active state backgrounds */}
       {active && (
         <motion.div
-          layoutId="sidebar-active-bg"
-          className="absolute inset-0"
-          style={{ background: 'rgba(31,138,92,0.1)' }}
-          transition={{ type: 'spring', bounce: 0.22, duration: 0.4 }}
+          layoutId={isMobile ? "mobile-sidebar-active-bg" : "desktop-sidebar-active-bg"}
+          className={`absolute inset-y-0 rounded-xl bg-gradient-to-r from-pitch-bright/15 to-transparent border border-pitch-bright/20 ${isMobile ? 'inset-x-3' : 'inset-x-2 lg:inset-x-3'}`}
+          transition={{ type: 'spring', bounce: 0.2, duration: 0.5 }}
+        />
+      )}
+      
+      {/* Active Glow Bar */}
+      {active && (
+        <motion.div
+          layoutId={isMobile ? "mobile-sidebar-active-border" : "desktop-sidebar-active-border"}
+          className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-1/2 bg-pitch-bright rounded-r-full shadow-[0_0_12px_rgba(41,193,121,0.8)]"
+          transition={{ type: 'spring', bounce: 0.2, duration: 0.5 }}
         />
       )}
 
       {/* Icon */}
-      <Icon
-        size={17}
-        className={`relative z-10 flex-shrink-0 transition-colors ${active ? 'text-pitch-bright' : 'text-[#565F70] group-hover:text-[#8A93A3]'}`}
-        style={active ? { filter: 'drop-shadow(0 0 5px rgba(41,193,121,0.45))' } : undefined}
-      />
+      <div className={`relative z-10 flex-shrink-0 transition-all duration-300 ${active ? 'text-pitch-bright scale-110' : 'text-muted-foreground group-hover:text-white group-hover:scale-110'}`}>
+        <Icon
+          size={18}
+          style={active ? { filter: 'drop-shadow(0 0 8px rgba(41,193,121,0.4))' } : undefined}
+        />
+      </div>
 
       {/* Label */}
-      {!compact && (
-        <span className="relative z-10 flex-1 truncate">{item.label}</span>
-      )}
+      <span className={`relative z-10 flex-1 truncate transition-colors duration-300 text-left text-[13px] ${isMobile ? 'block' : 'hidden lg:block'} ${active ? 'text-white font-bold tracking-wide' : 'text-muted-foreground group-hover:text-white font-semibold'}`}>
+        {item.label}
+      </span>
 
       {/* Live indicator dot */}
       {item.liveIndicator && hasLive && (
-        <span className={`relative z-10 flex-shrink-0 w-2 h-2 rounded-full bg-red-500 ${compact ? 'absolute top-2 right-2' : ''}`}>
+        <span className={`relative z-10 flex-shrink-0 w-2 h-2 rounded-full bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.6)] ${!isMobile ? 'absolute lg:static top-2 right-2' : ''}`}>
           <span className="absolute inset-0 rounded-full bg-red-500 animate-ping opacity-75" />
         </span>
       )}
 
       {/* Chevron */}
-      {active && !compact && (
-        <ChevronRight size={12} className="relative z-10 flex-shrink-0 text-pitch-bright/50" />
+      {active && (
+        <ChevronRight size={14} className={`relative z-10 flex-shrink-0 text-pitch-bright/50 ${isMobile ? 'block' : 'hidden lg:block'}`} />
       )}
     </button>
   );
 }
 
-// ══════════════════════════════════════════════════════════════
-// SIDEBAR FOOTER — season chip, admin badge, settings, logout
-// ══════════════════════════════════════════════════════════════
-function SidebarFooter({ activeSeason, onNavigate, onLogout, isLoggingOut, compact }) {
+function SidebarFooter({ activeSeason, onNavigate, onLogout, isLoggingOut, isMobile = false }) {
   return (
-    <div className="border-t border-white/[0.06] pt-2 pb-4 flex-shrink-0"
-      style={{ paddingLeft: compact ? 0 : 8, paddingRight: compact ? 0 : 8 }}>
+    <div className={`border-t border-white/[0.04] flex-shrink-0 relative overflow-hidden ${isMobile ? 'p-4' : 'p-2 lg:p-4'}`}>
+      <div className="absolute inset-0 bg-gradient-to-t from-white/[0.02] to-transparent pointer-events-none" />
+      
       {/* Season chip */}
-      {activeSeason && !compact && (
-        <div className="px-3 py-2.5 rounded-xl mx-1 mb-2"
-          style={{ background: 'rgba(255,255,255,0.025)', border: '1px solid rgba(255,255,255,0.06)' }}>
-          <div className="text-[9px] font-bold uppercase tracking-[0.13em] mb-0.5" style={{ color: '#565F70' }}>
-            Active Season
+      {activeSeason && (
+        <div className={`items-center gap-3 px-4 py-3 rounded-xl bg-white/[0.03] border border-white/5 mb-3 transition-colors hover:bg-white/[0.05] ${isMobile ? 'flex' : 'hidden lg:flex'}`}>
+          <div className="w-1.5 h-1.5 bg-pitch-bright rounded-full animate-pulse shadow-[0_0_8px_rgba(41,193,121,0.6)]" />
+          <div className="flex flex-col min-w-0">
+            <span className="text-[9px] font-bold uppercase tracking-[0.15em] text-muted-foreground">Active Season</span>
+            <span className="text-xs font-bold text-white/90 truncate">{activeSeason.name}</span>
           </div>
-          <div className="text-xs font-bold truncate" style={{ color: '#8A93A3' }}>{activeSeason.name}</div>
         </div>
       )}
-      {/* Admin badge */}
-      {!compact && (
-        <div className="flex items-center px-4 py-1.5 mb-1">
-          <span className="text-[9px] font-black uppercase tracking-[0.18em] px-2.5 py-1 rounded-full border"
-            style={{ color: '#D9A93B', background: 'rgba(217,169,59,0.08)', borderColor: 'rgba(217,169,59,0.26)' }}>
-            ADMIN
-          </span>
-        </div>
-      )}
+
       {/* Settings */}
       <button
         onClick={() => onNavigate('admin/settings')}
-        title={compact ? 'Settings' : undefined}
+        title={!isMobile ? 'Settings' : undefined}
         className={`
-          relative w-full flex items-center gap-3 py-2.5 text-[13px] font-semibold
-          text-[#565F70] hover:text-[#8A93A3] hover:bg-white/[0.04] transition-colors outline-none
-          ${compact ? 'justify-center px-0' : 'px-4'}
+          relative w-full flex items-center py-2.5 text-[13px] font-semibold rounded-lg
+          text-muted-foreground hover:text-white hover:bg-white/[0.04] transition-colors outline-none
+          ${isMobile ? 'justify-start gap-3 px-4' : 'justify-center lg:justify-start lg:gap-3 lg:px-4'}
         `}
       >
-        <Settings size={16} className="flex-shrink-0" />
-        {!compact && <span>Settings</span>}
+        <Settings size={18} className="flex-shrink-0" />
+        <span className={isMobile ? 'block' : 'hidden lg:block'}>Settings</span>
       </button>
+
       {/* Logout */}
       <button
         onClick={onLogout}
         disabled={isLoggingOut}
-        title={compact ? 'Log out' : undefined}
+        title={!isMobile ? 'Log out' : undefined}
         className={`
-          relative w-full flex items-center gap-3 py-2.5 text-[13px] font-semibold
-          text-[#565F70] hover:text-[#B23A48] hover:bg-[#B23A48]/10 transition-colors outline-none disabled:opacity-50
-          ${compact ? 'justify-center px-0' : 'px-4'}
+          relative w-full flex items-center py-2.5 mt-1 text-[13px] font-semibold rounded-lg
+          text-muted-foreground hover:text-red-400 hover:bg-red-400/10 transition-colors outline-none disabled:opacity-50
+          ${isMobile ? 'justify-start gap-3 px-4' : 'justify-center lg:justify-start lg:gap-3 lg:px-4'}
         `}
       >
         {isLoggingOut
-          ? <Loader2 size={16} className="animate-spin flex-shrink-0" />
-          : <LogOut size={16} className="flex-shrink-0" />}
-        {!compact && <span>{isLoggingOut ? 'Logging out…' : 'Log out'}</span>}
+          ? <Loader2 size={18} className="animate-spin flex-shrink-0" />
+          : <LogOut size={18} className="flex-shrink-0" />}
+        <span className={isMobile ? 'block' : 'hidden lg:block'}>{isLoggingOut ? 'Logging out…' : 'Log out'}</span>
       </button>
     </div>
   );
 }
 
-// ══════════════════════════════════════════════════════════════
-// MAIN ADMIN SIDEBAR
-// ══════════════════════════════════════════════════════════════
 export default function AdminSidebar({ currentTab, setTab, activeSeason, matches = [] }) {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const hasLive = matches.some(m => m.status === 'live');
 
-  // Listen for mobile drawer toggle events (fired by AdminTopBar hamburger)
   useEffect(() => {
     const toggle = () => setMobileOpen(p => !p);
     const open   = () => setMobileOpen(true);
@@ -178,26 +162,32 @@ export default function AdminSidebar({ currentTab, setTab, activeSeason, matches
 
   return (
     <>
-      {/* ═══ DESKTOP SIDEBAR (md+) ═══
-          md  → 64px  icon-only rail
-          lg+ → 240px full labels */}
       <aside
         aria-label="Admin navigation"
-        className="hidden md:flex flex-col fixed left-0 top-0 bottom-0 z-[50] bg-[#0C0F16] border-r border-white/[0.06] shadow-2xl overflow-hidden w-16 lg:w-60"
+        className="hidden md:flex flex-col fixed left-0 top-0 bottom-0 z-[50] bg-[#0A0D14] border-r border-white/[0.04] shadow-2xl overflow-hidden w-16 lg:w-[260px] transition-all duration-300"
       >
+        {/* Decorative background glow */}
+        <div className="absolute top-0 left-0 w-full h-64 bg-gradient-to-b from-pitch-bright/5 to-transparent pointer-events-none" />
+
         {/* Logo */}
-        <div className="flex items-center h-16 px-4 lg:px-5 gap-3 border-b border-white/[0.06] flex-shrink-0">
-          <span className="text-xl leading-none flex-shrink-0 select-none">🏆</span>
+        <div className="flex items-center justify-center lg:justify-start h-[72px] px-0 lg:px-6 gap-3 border-b border-white/[0.04] flex-shrink-0 relative">
+          <div className="flex items-center justify-center w-9 h-9 rounded-xl bg-gold/10 border border-gold/20 shadow-[0_0_15px_rgba(217,169,59,0.15)] flex-shrink-0 relative overflow-hidden">
+             <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent" />
+             <Trophy size={18} className="text-[#D9A93B]" />
+          </div>
           <div className="hidden lg:block min-w-0">
-            <div className="font-heading text-[13px] font-black tracking-widest text-white">GOLAZO HUB</div>
-            <div className="text-[9px] font-bold uppercase tracking-[0.15em] mt-0.5" style={{ color: '#D9A93B', opacity: 0.72 }}>
-              Admin Console
+            <div className="font-heading text-sm font-black tracking-widest text-white/95">GOLAZO HUB</div>
+            <div className="flex items-center gap-1.5 mt-0.5">
+              <ShieldAlert size={10} className="text-[#D9A93B]" />
+              <div className="text-[9px] font-bold uppercase tracking-[0.2em]" style={{ color: '#D9A93B', opacity: 0.8 }}>
+                Admin Console
+              </div>
             </div>
           </div>
         </div>
 
         {/* Nav */}
-        <nav className="flex-1 py-2 overflow-y-auto overflow-x-hidden" aria-label="Admin menu">
+        <nav className="flex-1 py-4 overflow-y-auto overflow-x-hidden relative z-10" aria-label="Admin menu">
           {NAV_ITEMS.map((item) => (
             <NavItem
               key={item.tab}
@@ -205,7 +195,7 @@ export default function AdminSidebar({ currentTab, setTab, activeSeason, matches
               active={isActive(item)}
               hasLive={hasLive}
               onClick={navigate}
-              compact={false} // label hidden via `hidden lg:block` on the label span via NavItem
+              isMobile={false}
             />
           ))}
         </nav>
@@ -215,15 +205,14 @@ export default function AdminSidebar({ currentTab, setTab, activeSeason, matches
           onNavigate={navigate}
           onLogout={handleLogout}
           isLoggingOut={isLoggingOut}
-          compact={false}
+          isMobile={false}
         />
       </aside>
 
-      {/* ═══ MOBILE OVERLAY DRAWER (below md) ═══ */}
+      {/* ═══ MOBILE OVERLAY DRAWER ═══ */}
       <AnimatePresence>
         {mobileOpen && (
           <>
-            {/* Backdrop */}
             <motion.div
               key="backdrop"
               initial={{ opacity: 0 }}
@@ -231,75 +220,56 @@ export default function AdminSidebar({ currentTab, setTab, activeSeason, matches
               exit={{ opacity: 0 }}
               transition={{ duration: 0.22 }}
               onClick={() => setMobileOpen(false)}
-              className="md:hidden fixed inset-0 z-[70] bg-black/60 backdrop-blur-sm"
+              className="md:hidden fixed inset-0 z-[70] bg-[#0A0D14]/80 backdrop-blur-md"
               aria-hidden="true"
             />
 
-            {/* Drawer */}
             <motion.aside
               key="drawer"
-              initial={{ x: '-100%' }}
-              animate={{ x: 0 }}
-              exit={{ x: '-100%' }}
-              transition={{ type: 'spring', bounce: 0, duration: 0.3 }}
-              className="md:hidden fixed left-0 top-0 bottom-0 z-[80] w-72 bg-[#0C0F16] border-r border-white/[0.06] shadow-2xl flex flex-col"
+              initial={{ x: '-100%', opacity: 0.5 }}
+              animate={{ x: 0, opacity: 1 }}
+              exit={{ x: '-100%', opacity: 0.5 }}
+              transition={{ type: 'spring', bounce: 0, duration: 0.4 }}
+              className="md:hidden fixed left-0 top-0 bottom-0 z-[80] w-[280px] bg-[#0A0D14] border-r border-white/[0.04] shadow-2xl flex flex-col"
               aria-label="Admin navigation drawer"
             >
-              {/* Close */}
+              <div className="absolute top-0 left-0 w-full h-64 bg-gradient-to-b from-pitch-bright/5 to-transparent pointer-events-none" />
+
               <button
                 onClick={() => setMobileOpen(false)}
-                className="absolute top-3.5 right-3.5 z-10 w-8 h-8 flex items-center justify-center rounded-full bg-white/10 text-white hover:bg-white/20 transition-colors"
+                className="absolute top-4 right-4 z-20 w-8 h-8 flex items-center justify-center rounded-full bg-white/5 border border-white/10 text-white hover:bg-white/10 transition-colors"
                 aria-label="Close navigation"
               >
                 <X size={14} />
               </button>
 
-              {/* Logo */}
-              <div className="flex items-center gap-3 h-16 px-5 border-b border-white/[0.06] flex-shrink-0">
-                <span className="text-xl select-none">🏆</span>
+              <div className="flex items-center gap-3 h-[72px] px-6 border-b border-white/[0.04] flex-shrink-0 relative z-10">
+                <div className="flex items-center justify-center w-9 h-9 rounded-xl bg-gold/10 border border-gold/20 shadow-[0_0_15px_rgba(217,169,59,0.15)] flex-shrink-0 relative overflow-hidden">
+                   <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent" />
+                   <Trophy size={18} className="text-[#D9A93B]" />
+                </div>
                 <div>
-                  <div className="font-heading text-[13px] font-black tracking-widest text-white">GOLAZO HUB</div>
-                  <div className="text-[9px] font-bold uppercase tracking-[0.15em] mt-0.5" style={{ color: '#D9A93B', opacity: 0.72 }}>
-                    Admin Console
+                  <div className="font-heading text-sm font-black tracking-widest text-white/95">GOLAZO HUB</div>
+                  <div className="flex items-center gap-1.5 mt-0.5">
+                    <ShieldAlert size={10} className="text-[#D9A93B]" />
+                    <div className="text-[9px] font-bold uppercase tracking-[0.2em]" style={{ color: '#D9A93B', opacity: 0.8 }}>
+                      Admin Console
+                    </div>
                   </div>
                 </div>
               </div>
 
-              {/* Nav */}
-              <nav className="flex-1 py-2 overflow-y-auto px-2" aria-label="Admin menu">
-                {NAV_ITEMS.map((item) => {
-                  const active = isActive(item);
-                  const Icon = item.icon;
-                  return (
-                    <button
-                      key={item.tab}
-                      onClick={() => navigate(item.tab)}
-                      aria-current={active ? 'page' : undefined}
-                      className={`
-                        relative w-full flex items-center gap-3 px-4 py-3 my-0.5 rounded-xl
-                        text-sm font-semibold text-left outline-none transition-colors duration-150
-                        ${active ? 'text-white bg-pitch/10' : 'text-[#565F70] hover:text-white hover:bg-white/[0.05]'}
-                      `}
-                    >
-                      {active && (
-                        <div
-                          className="absolute left-0 top-2 bottom-2 w-[3px] rounded-r-full"
-                          style={{ background: '#29C179', boxShadow: '0 0 8px rgba(41,193,121,0.5)' }}
-                        />
-                      )}
-                      <Icon
-                        size={17}
-                        className={`flex-shrink-0 ${active ? 'text-pitch-bright' : ''}`}
-                        style={active ? { filter: 'drop-shadow(0 0 4px rgba(41,193,121,0.4))' } : undefined}
-                      />
-                      <span className="flex-1">{item.label}</span>
-                      {item.liveIndicator && hasLive && (
-                        <span className="w-2 h-2 rounded-full bg-red-500 flex-shrink-0 animate-pulse" />
-                      )}
-                      {active && <ChevronRight size={13} className="text-pitch-bright/50 flex-shrink-0" />}
-                    </button>
-                  );
-                })}
+              <nav className="flex-1 py-4 overflow-y-auto px-2 relative z-10" aria-label="Admin menu">
+                {NAV_ITEMS.map((item) => (
+                  <NavItem
+                    key={item.tab}
+                    item={item}
+                    active={isActive(item)}
+                    hasLive={hasLive}
+                    onClick={navigate}
+                    isMobile={true}
+                  />
+                ))}
               </nav>
 
               <SidebarFooter
@@ -307,7 +277,7 @@ export default function AdminSidebar({ currentTab, setTab, activeSeason, matches
                 onNavigate={navigate}
                 onLogout={handleLogout}
                 isLoggingOut={isLoggingOut}
-                compact={false}
+                isMobile={true}
               />
             </motion.aside>
           </>

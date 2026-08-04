@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useRef, useEffect, useCallback } from 'react';
-import { Lock, User, UserPlus, ShieldAlert, Eye, EyeOff, Loader2, X, ChevronRight } from 'lucide-react';
+import { Lock, User, UserPlus, ShieldAlert, Eye, EyeOff, Loader2, X, ChevronRight, Trophy, Mail } from 'lucide-react';
 import { Avatar } from './UI';
 import { signInPlayer, signUpPlayer } from '@/app/actions/player';
 import { setAuthCookie } from '@/app/actions/auth';
@@ -44,7 +44,10 @@ function PitchSVG({ className = '' }) {
       {/* Center circle */}
       <circle cx="250" cy="160" r="52" fill="none" stroke="#29C179" strokeWidth="1" opacity="0.22" />
       {/* Center spot */}
-      <circle cx="250" cy="160" r="3" fill="#29C179" opacity="0.45" />
+      <circle cx="250" cy="160" r="3" fill="#29C179" opacity="0.8">
+        <animate attributeName="opacity" values="0.8; 0.2; 0.8" dur="4s" repeatCount="indefinite" />
+        <animate attributeName="r" values="3; 7; 3" dur="4s" repeatCount="indefinite" />
+      </circle>
       {/* Left penalty area */}
       <rect x="12" y="95" width="80" height="130" fill="none" stroke="#29C179" strokeWidth="1" opacity="0.22" />
       {/* Left 6-yard box */}
@@ -74,11 +77,11 @@ function PitchSVG({ className = '' }) {
 // FLOATING PLAYER CARD — drifting avatar on left panel
 // ══════════════════════════════════════════════════════════════
 const FLOAT_POSITIONS = [
-  { top: '9%',  left: '5%' },
-  { top: '20%', right: '7%' },
-  { top: '50%', left: '3%' },
-  { top: '65%', right: '9%' },
-  { top: '80%', left: '20%' },
+  { top: '15%', right: '12%' },
+  { top: '35%', right: '5%' },
+  { top: '55%', right: '25%' },
+  { top: '75%', right: '10%' },
+  { top: '85%', right: '35%' },
 ];
 
 function FloatingPlayerCard({ player, posStyle, delay }) {
@@ -145,7 +148,7 @@ function HoldToReveal({ onReveal }) {
       onMouseDown={start} onMouseUp={cancel} onMouseLeave={cancel}
       onTouchStart={(e) => { e.preventDefault(); start(); }}
       onTouchEnd={cancel} onTouchCancel={cancel}
-      className="flex items-center gap-2 text-[11px] text-muted-foreground/40 hover:text-muted-foreground/70 transition-colors select-none cursor-pointer group py-2 px-3 rounded-full hover:bg-white/5 font-medium tracking-wide"
+      className="flex items-center gap-2 text-[13px] text-slate-400 hover:text-slate-200 transition-colors select-none cursor-pointer group py-2 px-3 rounded-full hover:bg-white/5 font-medium tracking-wide"
     >
       <div className="relative w-[22px] h-[22px] flex items-center justify-center flex-shrink-0">
         <svg className="absolute inset-0 w-full h-full -rotate-90" viewBox="0 0 22 22">
@@ -169,7 +172,7 @@ function HoldToReveal({ onReveal }) {
 // ══════════════════════════════════════════════════════════════
 // FLOATING LABEL INPUT
 // ══════════════════════════════════════════════════════════════
-function FloatingLabelInput({ label, id, type = 'text', value, onChange, onKeyDown, rightElement, autoComplete, disabled }) {
+function FloatingLabelInput({ label, id, type = 'text', value, onChange, onKeyDown, leftElement, rightElement, autoComplete, disabled }) {
   const [focused, setFocused] = useState(false);
   const floated = focused || (typeof value === 'string' && value.length > 0);
 
@@ -178,7 +181,7 @@ function FloatingLabelInput({ label, id, type = 'text', value, onChange, onKeyDo
       <label
         htmlFor={id}
         style={{
-          position: 'absolute', left: '12px', zIndex: 10, pointerEvents: 'none',
+          position: 'absolute', left: leftElement ? '40px' : '12px', zIndex: 10, pointerEvents: 'none',
           top: floated ? '7px' : '19px',
           fontSize: floated ? '10px' : '13px',
           fontWeight: floated ? '700' : '400',
@@ -191,6 +194,11 @@ function FloatingLabelInput({ label, id, type = 'text', value, onChange, onKeyDo
       >
         {label}
       </label>
+      {leftElement && (
+        <div className={`absolute left-3 top-1/2 -translate-y-1/2 z-10 transition-colors pointer-events-none ${focused ? 'text-pitch-bright' : 'text-muted-foreground'}`}>
+          {leftElement}
+        </div>
+      )}
       <input
         id={id}
         type={type}
@@ -202,11 +210,14 @@ function FloatingLabelInput({ label, id, type = 'text', value, onChange, onKeyDo
         autoComplete={autoComplete}
         disabled={disabled}
         placeholder=" "
-        style={{ paddingRight: rightElement ? '44px' : '12px' }}
+        style={{ 
+          paddingRight: rightElement ? '44px' : '12px',
+          paddingLeft: leftElement ? '40px' : '12px'
+        }}
         className={`
           w-full h-14 px-3 pt-6 pb-2 text-sm text-white rounded-xl border bg-white/5
-          focus:outline-none transition-colors placeholder-transparent disabled:opacity-50
-          ${focused ? 'border-pitch-bright/55 bg-white/[0.07]' : 'border-white/10'}
+          focus:outline-none focus:ring-1 focus:ring-pitch-bright/50 transition-all placeholder-transparent disabled:opacity-50
+          ${focused ? 'border-pitch-bright/60 bg-white/[0.07] shadow-[0_0_15px_rgba(41,193,121,0.12)]' : 'border-white/10'}
         `}
       />
       {rightElement && (
@@ -246,12 +257,14 @@ function SignInForm({ players, onPlayerLogin }) {
           </div>
         )}
         <FloatingLabelInput id="si-email" label="Username or email" value={id}
-          onChange={(e) => setId(e.target.value)} autoComplete="username" disabled={busy} />
+          onChange={(e) => setId(e.target.value)} autoComplete="username" disabled={busy}
+          leftElement={<User size={18} />} />
         <FloatingLabelInput id="si-pwd" label="Password"
           type={showPwd ? 'text' : 'password'} value={pwd}
           onChange={(e) => setPwd(e.target.value)}
           onKeyDown={(e) => e.key === 'Enter' && submit()}
           autoComplete="current-password" disabled={busy}
+          leftElement={<Lock size={18} />}
           rightElement={
             <button type="button" onClick={() => setShowPwd(!showPwd)} className="text-muted-foreground hover:text-white transition-colors">
               {showPwd ? <EyeOff size={15} /> : <Eye size={15} />}
@@ -315,18 +328,23 @@ function SignUpForm({ showToast, onPlayerLogin }) {
     <motion.div animate={err ? { x: [-5, 5, -4, 4, 0] } : {}} transition={{ duration: 0.35 }}>
       <form onSubmit={submit} className="space-y-3">
         <FloatingLabelInput id="su-name" label="Display Name" value={form.name}
-          onChange={(e) => set('name', e.target.value)} autoComplete="name" disabled={busy} />
+          onChange={(e) => set('name', e.target.value)} autoComplete="name" disabled={busy}
+          leftElement={<User size={18} />} />
         <FloatingLabelInput id="su-user" label="@Username" value={form.username}
-          onChange={(e) => set('username', e.target.value)} autoComplete="username" disabled={busy} />
+          onChange={(e) => set('username', e.target.value)} autoComplete="username" disabled={busy}
+          leftElement={<User size={18} />} />
         <FloatingLabelInput id="su-email" label="Email address" type="email" value={form.email}
-          onChange={(e) => set('email', e.target.value)} autoComplete="email" disabled={busy} />
+          onChange={(e) => set('email', e.target.value)} autoComplete="email" disabled={busy}
+          leftElement={<Mail size={18} />} />
         <div className="grid grid-cols-2 gap-3">
           <FloatingLabelInput id="su-pwd" label="Password"
             type={showPwd ? 'text' : 'password'} value={form.password}
-            onChange={(e) => set('password', e.target.value)} autoComplete="new-password" disabled={busy} />
+            onChange={(e) => set('password', e.target.value)} autoComplete="new-password" disabled={busy}
+            leftElement={<Lock size={18} />} />
           <FloatingLabelInput id="su-confirm" label="Confirm"
             type={showPwd ? 'text' : 'password'} value={form.confirm}
             onChange={(e) => set('confirm', e.target.value)}
+            leftElement={<Lock size={18} />}
             rightElement={eyeBtn} autoComplete="new-password" disabled={busy} />
         </div>
         <AnimatePresence>
@@ -391,6 +409,7 @@ function AdminLoginForm({ onAdminLogin, onBack }) {
           onChange={(e) => setPwd(e.target.value)}
           onKeyDown={(e) => e.key === 'Enter' && submit()}
           autoComplete="current-password" disabled={busy}
+          leftElement={<Lock size={18} />}
           rightElement={
             <button type="button" onClick={() => setShowPwd(!showPwd)} className="text-muted-foreground hover:text-white transition-colors">
               {showPwd ? <EyeOff size={15} /> : <Eye size={15} />}
@@ -460,7 +479,6 @@ export default function AuthGate({ players = [], showToast }) {
   const handleAdminLogin = () => { window.location.href = '/admin'; };
 
   const visibleCards = players.slice(0, 5);
-  const tickerPlayers = players.length > 0 ? [...players, ...players] : [];
 
   return (
     <div className="min-h-[100dvh] bg-[#0B0E14] text-foreground overflow-hidden">
@@ -503,7 +521,9 @@ export default function AuthGate({ players = [], showToast }) {
               transition={{ duration: 0.7, ease: 'easeOut' }}
               className="max-w-md"
             >
-              <div className="text-[64px] mb-5 leading-none select-none" aria-hidden="true">🏆</div>
+              <div className="mb-5 flex items-center justify-center w-16 h-16 rounded-2xl bg-gold/10 border border-gold/20 shadow-[0_0_20px_rgba(217,169,59,0.15)]">
+                <Trophy size={32} className="text-gold" />
+              </div>
               <h1
                 className="font-heading font-black tracking-tight text-white leading-none mb-4"
                 style={{ fontSize: 'clamp(2.6rem,5vw,4rem)' }}
@@ -515,7 +535,7 @@ export default function AuthGate({ players = [], showToast }) {
                 </span>
               </h1>
               <p className="text-base text-muted-foreground font-medium leading-relaxed max-w-sm mb-8">
-                Your crew's matchday headquarters. Track seasons, score live goals, and own the pitch.
+                Your crew&apos;s matchday headquarters. Track seasons, score live goals, and own the pitch.
               </p>
 
               {/* Player avatars stack */}
@@ -542,28 +562,12 @@ export default function AuthGate({ players = [], showToast }) {
             </motion.div>
           </div>
 
-          {/* Bottom ticker */}
-          {tickerPlayers.length > 0 && (
-            <div className="relative z-10 border-t border-white/[0.05] overflow-hidden bg-black/20 backdrop-blur-sm">
-              <div
-                className="flex animate-marquee whitespace-nowrap py-2.5"
-                style={{ '--duration': '28s', '--gap': '0px' }}
-              >
-                {tickerPlayers.map((p, idx) => (
-                  <span key={idx} className="inline-flex items-center gap-2 text-[11px] text-muted-foreground/45 px-6 font-medium flex-shrink-0">
-                    <span className="text-pitch-bright opacity-55">⚽</span>
-                    <span>{p.name || p.username}</span>
-                    {p.teamName && <span className="opacity-35">· {p.teamName}</span>}
-                    <span className="opacity-15 ml-4">|</span>
-                  </span>
-                ))}
-              </div>
-            </div>
-          )}
+          {/* Soft gradient seam connecting to right panel */}
+          <div className="absolute top-0 bottom-0 right-0 w-32 bg-gradient-to-l from-[#0D1118] to-transparent pointer-events-none z-20" />
         </div>
 
         {/* ─── RIGHT PANEL: Auth form ─── */}
-        <div className="relative flex flex-col items-center justify-center bg-[#0D1118] border-l border-white/[0.05] px-8 lg:px-10 xl:px-14 py-12 overflow-auto">
+        <div className="relative flex flex-col items-center justify-center bg-[#0D1118] px-8 lg:px-10 xl:px-14 py-12 overflow-auto">
           {/* Top glow */}
           <div className="absolute top-0 left-0 right-0 h-64 bg-[radial-gradient(ellipse_at_50%_0%,rgba(31,138,92,0.08)_0%,transparent_70%)] pointer-events-none" />
 
@@ -621,47 +625,42 @@ export default function AuthGate({ players = [], showToast }) {
       </div>
 
       {/* ╔══════════════════════════════════════════╗
-          ║  MOBILE — Glassmorphism Refinement       ║
+          ║  MOBILE — Stacked Layout                 ║
           ╚══════════════════════════════════════════╝ */}
-      <div className="md:hidden min-h-[100dvh] flex items-center justify-center px-4 py-10 relative overflow-hidden">
-        {/* Pitch background + glow */}
-        <div className="absolute inset-0">
-          <PitchSVG className="opacity-90" />
-          <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_60%_at_30%_20%,rgba(31,138,92,0.18)_0%,transparent_65%)]" />
-          <div className="absolute inset-0 bg-gradient-to-b from-[#0B0E14]/65 via-[#0B0E14]/25 to-[#0B0E14]/80" />
+      <div className="md:hidden flex flex-col min-h-[100dvh] bg-[#0D1118]">
+        {/* Top Header: Pitch Visualization */}
+        <div className="relative w-full h-[35dvh] min-h-[260px] flex flex-col items-center justify-center overflow-hidden shrink-0"
+             style={{ background: 'linear-gradient(135deg,#0B0E14 0%,#0C1A10 50%,#0B0E14 100%)' }}>
+          <PitchSVG className="opacity-60" />
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_60%_at_50%_30%,rgba(31,138,92,0.15)_0%,transparent_70%)]" />
+          <div className="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-t from-[#0D1118] to-transparent z-10" />
+          
+          <motion.div
+            initial={{ opacity: 0, y: 15 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            className="relative z-20 flex flex-col items-center text-center px-4"
+          >
+            <div className="mb-4 flex items-center justify-center w-14 h-14 rounded-2xl bg-gold/10 border border-gold/20 shadow-[0_0_20px_rgba(217,169,59,0.15)]">
+              <Trophy size={28} className="text-gold" />
+            </div>
+            <AnimatedGradientText>
+              <h1 className="font-heading text-3xl font-black text-white tracking-tight">Golazo Hub</h1>
+            </AnimatedGradientText>
+            <p className="text-sm text-muted-foreground/80 mt-2 font-medium max-w-[280px]">
+              Matchday central for the crew
+            </p>
+          </motion.div>
         </div>
 
-        <div className="w-full max-w-sm relative z-10 flex flex-col gap-4">
-          {/* Brand */}
-          <motion.div
-            initial={{ opacity: 0, scale: 0.88 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ type: 'spring', stiffness: 280, damping: 22 }}
-            className="text-center"
-          >
-            <motion.div
-              animate={{ y: [0, -7, 0] }}
-              transition={{ repeat: Infinity, duration: 4, ease: 'easeInOut' }}
-              className="text-5xl mb-3 select-none leading-none"
-              aria-hidden="true"
-            >
-              🏆
-            </motion.div>
-            <AnimatedGradientText>
-              <h1 className="font-heading text-2xl font-black px-2 text-white tracking-tight">Golazo Hub</h1>
-            </AnimatedGradientText>
-            <p className="text-xs text-muted-foreground/55 mt-1.5 font-medium">Matchday central for the crew</p>
-          </motion.div>
+        {/* Bottom Area: Auth Form */}
+        <div className="relative flex-1 flex flex-col items-center px-5 pt-4 pb-10 z-20 bg-[#0D1118]">
+          <div className="w-full max-w-[360px] flex flex-col gap-6">
+            {/* Tab toggle */}
+            {mode !== 'admin' && (
+              <TabToggle mode={mode} setMode={setMode} layoutId="mobile-tab-pill" />
+            )}
 
-          {/* Tab toggle */}
-          {mode !== 'admin' && (
-            <TabToggle mode={mode} setMode={setMode} layoutId="mobile-tab-pill" />
-          )}
-
-          {/* Glassmorphism card */}
-          <div className="relative rounded-2xl overflow-hidden">
-            <div className="absolute inset-0 bg-white/[0.04] backdrop-blur-xl border border-white/10 rounded-2xl" />
-            <BorderBeam size={200} duration={14} colorFrom="#1F8A5C" colorTo="#D9A93B" />
             <AnimatePresence mode="wait">
               <motion.div
                 key={mode}
@@ -669,21 +668,21 @@ export default function AuthGate({ players = [], showToast }) {
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -8 }}
                 transition={{ duration: 0.18 }}
-                className="relative z-10 p-5"
+                className="w-full"
               >
                 {mode === 'signin' && <SignInForm players={players} onPlayerLogin={handlePlayerLogin} />}
                 {mode === 'signup' && <SignUpForm showToast={showToast} onPlayerLogin={handlePlayerLogin} />}
                 {mode === 'admin' && <AdminLoginForm onAdminLogin={handleAdminLogin} onBack={() => setMode('signin')} />}
               </motion.div>
             </AnimatePresence>
-          </div>
 
-          {/* Admin hold-to-reveal */}
-          {mode !== 'admin' && (
-            <div className="flex justify-center">
-              <HoldToReveal onReveal={() => setMode('admin')} />
-            </div>
-          )}
+            {/* Admin hold-to-reveal */}
+            {mode !== 'admin' && (
+              <div className="flex justify-center mt-2">
+                <HoldToReveal onReveal={() => setMode('admin')} />
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </div>

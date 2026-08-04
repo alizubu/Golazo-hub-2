@@ -9,6 +9,7 @@ export const dynamic = 'force-dynamic';
 
 export default async function PlayerProfileRoute({ params }) {
   const { id } = await params;
+  const decodedId = decodeURIComponent(id);
   
   const cookieStore = await cookies();
   const userId = cookieStore.get('golazo_user_id')?.value;
@@ -33,7 +34,7 @@ export default async function PlayerProfileRoute({ params }) {
     console.error('Failed to load profile secondary data:', error);
   }
 
-  const targetPlayer = players.find(p => p.id === id || p.username === id);
+  const targetPlayer = players.find(p => p.id === decodedId || p.username === decodedId);
   if (!targetPlayer) {
     notFound();
   }

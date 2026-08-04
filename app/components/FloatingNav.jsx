@@ -55,9 +55,6 @@ const adminTabs = [
 ];
 
 export default function FloatingNav({ session, me, players = [], notifications = [], matches = [] }) {
-  // Admin sessions use the dedicated AdminSidebar + AdminTopBar instead
-  if (session?.type === 'admin') return null;
-
   const [searchOpen, setSearchOpen] = useState(false);
   const [sheetOpen, setSheetOpen] = useState(false);
   const router = useRouter();
@@ -114,6 +111,9 @@ export default function FloatingNav({ session, me, players = [], notifications =
   };
 
   const hasLiveMatch = matches.some(m => m.status === 'live');
+
+  // Admin sessions use the dedicated AdminSidebar + AdminTopBar instead
+  if (session?.type === 'admin') return null;
 
   return (
     <>
@@ -306,7 +306,7 @@ export default function FloatingNav({ session, me, players = [], notifications =
             backdropFilter: `blur(16px)`,
           }}
         >
-          {items.slice(0, 4).map((it) => {
+          {items.slice(0, 5).map((it) => {
             const Icon = it.icon;
             const active = it.matchRoot ? pathname === it.href : pathname.startsWith(it.href);
             return (
