@@ -38,6 +38,7 @@ export default function AppShell({
   }, [defaultTab]);
   
   const [currentTab, setCurrentTab] = useState(getCleanTab(initialTab));
+  const [isSidebarExpanded, setIsSidebarExpanded] = useState(true);
 
   // Sync initialTab with currentTab on server navigation
   useEffect(() => {
@@ -102,10 +103,12 @@ export default function AppShell({
           setTab={setTab}
           activeSeason={activeSeason}
           matches={matches}
+          isExpanded={isSidebarExpanded}
+          onToggleExpand={() => setIsSidebarExpanded(prev => !prev)}
         />
 
         {/* Main content area — offset by sidebar width */}
-        <div className="flex-1 flex flex-col min-h-screen md:ml-16 lg:ml-60">
+        <div className={`flex-1 flex flex-col min-h-screen transition-all duration-300 ${isSidebarExpanded ? 'md:ml-[260px]' : 'md:ml-16'}`}>
           {/* Sticky top bar with hamburger (mobile), section title, season chip */}
           <AdminTopBar
             currentTab={currentTab}
