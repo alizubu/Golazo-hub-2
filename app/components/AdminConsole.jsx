@@ -816,6 +816,7 @@ export function AdminTrophies({ players, trophies = [], seasons, showToast }) {
   const [revokeTarget, setRevokeTarget] = useState(null);
   const [editTarget, setEditTarget] = useState(null);
   const [isAwarding, setIsAwarding] = useState(false);
+  const [isCelebrating, setIsCelebrating] = useState(false);
   const [isRevoking, setIsRevoking] = useState(false);
   const [celebrations, setCelebrations] = useState([]);
   
@@ -848,12 +849,17 @@ export function AdminTrophies({ players, trophies = [], seasons, showToast }) {
     const res = await awardTrophy(form);
     if (res.error) {
       showToast(res.error);
+      setIsAwarding(false);
     } else {
       const playerName = players.find(p => p.id === form.playerId)?.name || 'Player';
       showToast(`🏆 ${form.title} awarded to ${playerName}`);
-      setForm(blankForm);
+      setIsAwarding(false);
+      setIsCelebrating(true);
+      setTimeout(() => {
+        setIsCelebrating(false);
+        setForm(blankForm);
+      }, 2500);
     }
-    setIsAwarding(false);
   };
 
   const handleRevoke = async () => {
@@ -970,44 +976,94 @@ export function AdminTrophies({ players, trophies = [], seasons, showToast }) {
         </TabsList>
 
         <TabsContent value="award" className="space-y-6">
-          <Card className="p-6">
-            <SectionTitle icon={Trophy}>Award a Trophy</SectionTitle>
-            
-            <div className="mb-6">
-              <Label className="mb-2 block">Quick-fill from template</Label>
-              <div className="flex overflow-x-auto gap-3 pb-2 snap-x snap-mandatory hide-scrollbar">
-                {allTemplates.map(t => (
-                  <div
-                    key={t.id}
-                    onClick={() => applyTemplate(t)}
-                    className="snap-start shrink-0 flex flex-col items-center justify-center p-3 w-[100px] aspect-square rounded-2xl bg-secondary/30 hover:bg-secondary/60 cursor-pointer transition-all border border-border/40 hover:border-border/80"
-                  >
-                    {t.image || (t.icon && (t.icon.startsWith('/') || t.icon.startsWith('http'))) ? (
-                      <img src={t.image || t.icon} className="w-8 h-8 object-contain mb-2 drop-shadow-md" alt="" />
-                    ) : (
-                      <span className="text-2xl mb-2">{t.icon || '🏆'}</span>
-                    )}
-                    <span className="text-[10px] font-bold text-center leading-tight">{t.name}</span>
-                  </div>
-                ))}
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 relative">
+            <Card className="p-6 lg:col-span-7">
+              <SectionTitle icon={Trophy}>Trophy Forge</SectionTitle>
+              
+              <div className="mb-6">
+                <Label className="mb-2 block">Quick-fill from template</Label>
+                <div className="flex overflow-x-auto gap-3 pb-2 snap-x snap-mandatory hide-scrollbar">
+                  {allTemplates.map(t => (
+                    <div
+                      key={t.id}
+                      onClick={() => applyTemplate(t)}
+                      className="snap-start shrink-0 flex flex-col items-center justify-center p-3 w-[100px] aspect-square rounded-2xl bg-secondary/30 hover:bg-secondary/60 cursor-pointer transition-all border border-border/40 hover:border-border/80"
+                    >
+                      {t.image || (t.icon && (t.icon.startsWith('/') || t.icon.startsWith('http'))) ? (
+                        <img src={t.image || t.icon} className="w-8 h-8 object-contain mb-2 drop-shadow-md" alt="" />
+                      ) : (
+                        <span className="text-2xl mb-2">{t.icon || '🏆'}</span>
+                      )}
+                      <span className="text-[10px] font-bold text-center leading-tight">{t.name}</span>
+                    </div>
+                  ))}
+                </div>
               </div>
-            </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-              <div className="md:col-span-2">
-                <Label>Player</Label>
-                <PlayerCombobox players={players} value={form.playerId} onChange={v => setForm({...form, playerId: v})} />
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                <div className="md:col-span-2">
+                  <Label>Player</Label>
+                  <PlayerCombobox players={players} value={form.playerId} onChange={v => setForm({...form, playerId: v})} />
+                </div>
+                <div><Label>Trophy Title</Label><Input value={form.title} onChange={e => setForm({...form, title: e.target.value})} placeholder="e.g. Golden Boot" /></div>
+                <div><Label>Season</Label><Input value={form.season} onChange={e => setForm({...form, season: e.target.value})} placeholder="e.g. Season 1" /></div>
+                <div className="md:col-span-2">
+                  <Label>Icon</Label>
+                  <TrophyIconPicker value={form.icon} onChange={v => setForm({...form, icon: v})} />
+                </div>
+                <div className="md:col-span-2"><Label>Description</Label><Input value={form.description} onChange={e => setForm({...form, description: e.target.value})} placeholder="e.g. Top goalscorer with 25 goals." /></div>
               </div>
-              <div><Label>Trophy Title</Label><Input value={form.title} onChange={e => setForm({...form, title: e.target.value})} placeholder="e.g. Golden Boot" /></div>
-              <div><Label>Season</Label><Input value={form.season} onChange={e => setForm({...form, season: e.target.value})} placeholder="e.g. Season 1" /></div>
-              <div className="md:col-span-2">
-                <Label>Icon</Label>
-                <TrophyIconPicker value={form.icon} onChange={v => setForm({...form, icon: v})} />
+              <ShinyButton className="mt-6 w-full py-6 text-lg" onClick={handleAward} disabled={isAwarding || isCelebrating} loading={isAwarding}>🏆 Award Trophy</ShinyButton>
+            </Card>
+
+            {/* Live Preview */}
+            <div className="lg:col-span-5 hidden sm:flex flex-col items-center justify-start sticky top-24 h-max">
+              <Label className="mb-4 text-muted-foreground text-xs uppercase tracking-widest font-semibold">Live Preview</Label>
+              
+              <div className="relative w-full max-w-[300px]">
+                {/* Ceremony Animation */}
+                <AnimatePresence>
+                  {isCelebrating && (
+                    <>
+                      <motion.div 
+                        initial={{ opacity: 0, scale: 0 }}
+                        animate={{ opacity: 1, scale: 2 }}
+                        exit={{ opacity: 0, scale: 3 }}
+                        transition={{ duration: 1.5, ease: "easeOut" }}
+                        className="absolute inset-0 bg-gold/20 rounded-full blur-3xl z-0 pointer-events-none"
+                      />
+                      <motion.div
+                        initial={{ opacity: 0, scale: 0.5, y: 50 }}
+                        animate={{ opacity: [0, 1, 1, 0], scale: [0.5, 1.2, 1, 1], y: [50, -20, 0, -50] }}
+                        transition={{ duration: 2.5, ease: "easeInOut" }}
+                        className="absolute -inset-10 z-50 flex items-center justify-center pointer-events-none"
+                      >
+                        <span className="text-[120px] filter drop-shadow-[0_0_20px_rgba(251,191,36,0.8)]">🎉</span>
+                      </motion.div>
+                    </>
+                  )}
+                </AnimatePresence>
+
+                <motion.div 
+                  className="relative z-10 w-full"
+                  animate={isCelebrating ? { scale: [1, 1.1, 1], rotate: [0, -2, 2, 0] } : {}}
+                  transition={{ duration: 0.8, ease: "easeInOut" }}
+                >
+                  <BorderBeam size={100} duration={12} delay={9} colorFrom="var(--gold)" colorTo="transparent" className="rounded-2xl z-40 opacity-70 pointer-events-none" />
+                  <TrophyTradingCard 
+                    trophy={{ 
+                      ...form, 
+                      title: form.title || 'New Trophy',
+                      season: form.season || 'Season',
+                      icon: form.icon || '🏆',
+                      player: players.find(p => p.id === form.playerId)
+                    }} 
+                    hideActions={true}
+                  />
+                </motion.div>
               </div>
-              <div className="md:col-span-2"><Label>Description</Label><Input value={form.description} onChange={e => setForm({...form, description: e.target.value})} placeholder="e.g. Top goalscorer with 25 goals." /></div>
             </div>
-            <ShinyButton className="mt-6" onClick={handleAward} disabled={isAwarding} loading={isAwarding}>🏆 Award Trophy</ShinyButton>
-          </Card>
+          </div>
 
           <Card className="p-6">
             <SectionTitle icon={History}>Award History</SectionTitle>
