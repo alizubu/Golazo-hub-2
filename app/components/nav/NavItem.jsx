@@ -8,15 +8,7 @@ export const NavItem = ({ item, active, onClick, hasLive }) => {
   const isGold = item.variant === 'gold';
   const shouldReduceMotion = useReducedMotion();
 
-  // Micro-bounce when becoming active
-  const [bounce, setBounce] = useState(false);
-  useEffect(() => {
-    if (active && !shouldReduceMotion) {
-      setBounce(true);
-      const timer = setTimeout(() => setBounce(false), 250);
-      return () => clearTimeout(timer);
-    }
-  }, [active, shouldReduceMotion]);
+
 
   // Spring configurations
   const pillTransition = shouldReduceMotion ? { duration: 0 } : { type: 'spring', stiffness: 500, damping: 30 };
@@ -29,12 +21,12 @@ export const NavItem = ({ item, active, onClick, hasLive }) => {
       className="relative flex flex-col items-center justify-center w-full h-full gap-1 outline-none group z-10"
       style={{ WebkitTapHighlightColor: 'transparent' }}
     >
-      {/* Background Pill for Active State */}
+      {/* Liquid Drop Indicator */}
       {active && (
         <motion.div
-          layoutId="nav-pill"
-          className={`absolute inset-0 m-1 rounded-2xl pointer-events-none ${
-            isGold ? 'bg-gradient-to-br from-amber-500/20 to-yellow-600/20' : 'bg-gradient-to-br from-sky-500/20 to-emerald-500/20'
+          layoutId="liquid-drop"
+          className={`absolute top-1 left-1/2 -translate-x-1/2 w-1.5 h-1.5 rounded-full pointer-events-none ${
+            isGold ? 'bg-amber-400 shadow-[0_0_8px_rgba(251,191,36,0.8)]' : 'bg-sky-400 shadow-[0_0_10px_rgba(56,189,248,0.8)]'
           }`}
           transition={pillTransition}
         />
@@ -69,7 +61,7 @@ export const NavItem = ({ item, active, onClick, hasLive }) => {
             </svg>
           ) : (
             <motion.div
-              animate={bounce ? { y: [0, -4, 0] } : { y: 0 }}
+              animate={active && !shouldReduceMotion ? { y: [0, -4, 0] } : { y: 0 }}
               transition={{ duration: 0.25 }}
             >
               <Icon

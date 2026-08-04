@@ -23,9 +23,9 @@ export const BottomNav = ({ items, pathname, isActive, handleNav, hasLiveMatch }
       transition={{ duration: 0.4, ease: "easeOut" }}
       className="md:hidden fixed bottom-0 inset-x-0 z-50 px-4 pt-3 pb-[calc(env(safe-area-inset-bottom)+12px)] pointer-events-none"
     >
-      <div className="relative w-full max-w-[500px] mx-auto h-[72px] rounded-[32px] pointer-events-auto shadow-nav-ambient">
+      <div className="relative w-full max-w-[500px] mx-auto h-[90px] pointer-events-auto">
         
-        {/* SVG Notch Background */}
+        {/* SVG Wave Background with drop-shadow */}
         <NavNotchBackground />
 
         {/* FAB (Dashboard) */}
@@ -37,8 +37,8 @@ export const BottomNav = ({ items, pathname, isActive, handleNav, hasLiveMatch }
           />
         )}
 
-        {/* Flex container for the side tabs */}
-        <div className="absolute inset-0 flex items-center justify-between px-2">
+        {/* Flex container for the side tabs - pinned to the bottom 72px */}
+        <div className="absolute inset-x-0 bottom-0 h-[72px] flex items-center justify-between px-2">
           {/* Left Items */}
           <div className="flex items-center justify-evenly w-[40%] h-full">
             {leftItems.map(item => (

@@ -24,40 +24,33 @@ export const NavFab = ({ item, active, onClick }) => {
     <Link
       href={item.href}
       onClick={(e) => onClick(e, item.href)}
-      className="absolute left-1/2 -translate-x-1/2 -top-7 z-20 outline-none group"
+      className="absolute left-1/2 -translate-x-1/2 top-1.5 z-20 outline-none group flex flex-col items-center justify-center w-14 h-14"
       style={{ WebkitTapHighlightColor: 'transparent' }}
     >
       <motion.div
         animate={idleAnimation}
         whileTap={{ scale: tapScale }}
         transition={shouldReduceMotion ? { duration: 0 } : { type: 'spring', stiffness: 400 }}
-        className={`w-16 h-16 rounded-full flex items-center justify-center relative ${
-          active ? 'shadow-fab-glow' : 'shadow-lg'
-        } transition-shadow duration-300`}
+        className="w-full h-full rounded-full flex items-center justify-center relative"
       >
-        {/* Glossy Fill with Top-Left Highlight */}
-        <div className="absolute inset-0 rounded-full bg-gradient-to-br from-white via-white to-sky-50 overflow-hidden">
-          <div className="absolute -inset-1 bg-[radial-gradient(ellipse_at_top_left,rgba(255,255,255,0.8),transparent_50%)] pointer-events-none" />
-        </div>
+        {/* Liquid Drop Indicator */}
+        {active && (
+          <motion.div
+            layoutId="liquid-drop"
+            className="absolute -top-1.5 left-1/2 -translate-x-1/2 w-1.5 h-1.5 rounded-full bg-sky-400 shadow-[0_0_10px_rgba(56,189,248,0.8)] z-30"
+            transition={shouldReduceMotion ? { duration: 0 } : { type: 'spring', stiffness: 500, damping: 30 }}
+          />
+        )}
 
-        {/* Gradient Ring Border (using a pseudo-element style mask approach) */}
-        <div 
-          className="absolute inset-0 rounded-full pointer-events-none"
-          style={{
-            padding: '2px',
-            background: 'linear-gradient(135deg, #38BDF8 0%, #34D399 100%)',
-            WebkitMask: 'linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)',
-            WebkitMaskComposite: 'xor',
-            maskComposite: 'exclude',
-          }}
-        />
+        {/* Soft backdrop glow to make it pop inside the dark glass wave */}
+        <div className={`absolute inset-0 rounded-full transition-opacity duration-500 blur-md ${active ? 'bg-sky-400/30' : 'bg-transparent group-hover:bg-white/10'}`} />
 
-        {/* Icon */}
-        <div className="relative z-10 flex flex-col items-center justify-center pt-0.5">
+        {/* The Icon */}
+        <div className="relative z-10 flex flex-col items-center justify-center">
           <Icon 
-            size={24} 
+            size={28} 
             strokeWidth={active ? 2.5 : 2} 
-            className="text-zinc-900 transition-all duration-300"
+            className={`transition-all duration-300 ${active ? 'text-white' : 'text-zinc-400 group-hover:text-zinc-200'}`}
             fill={active ? "currentColor" : "none"}
           />
         </div>

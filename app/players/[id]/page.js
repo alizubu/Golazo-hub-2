@@ -11,7 +11,11 @@ export default async function PlayerProfilePage({ params }) {
   const { id } = await params;
   
   const players = await getPlayers();
-  const player = players.find(p => p.id === id);
+  const player = players.find(p => 
+    p.id === id || 
+    (p.username && p.username.toLowerCase() === id.toLowerCase())
+  );
+  
   if (!player) {
     notFound();
   }
