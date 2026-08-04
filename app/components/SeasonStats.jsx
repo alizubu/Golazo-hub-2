@@ -31,8 +31,9 @@ export function SeasonStats({ playerId, initialStats, seasons, activeSeason, sel
     return () => { isMounted = false; };
   }, [selectedSeasonId, playerId]);
 
-  const selectedSeason = seasons.find(s => s.id === selectedSeasonId) || activeSeason;
-  const isActive = selectedSeason?.id === activeSeason?.id;
+  const isOverall = selectedSeasonId === 'overall';
+  const selectedSeason = isOverall ? { name: "Overall Career", id: 'overall' } : (seasons.find(s => s.id === selectedSeasonId) || activeSeason);
+  const isActive = !isOverall && selectedSeason?.id === activeSeason?.id;
 
   const { rank, elo, played, winRate, goals, assists } = stats || {};
   const hasData = played > 0;
@@ -63,6 +64,16 @@ export function SeasonStats({ playerId, initialStats, seasons, activeSeason, sel
               </div>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-56 bg-[#12151b] border-white/10 shadow-[0_8px_32px_-8px_rgba(0,0,0,0.8)] rounded-xl z-[60] text-white">
+              <DropdownMenuItem 
+                onClick={() => onSeasonChange('overall')}
+                className="flex items-center justify-between cursor-pointer rounded-lg hover:bg-white/5 py-2 px-3 m-1 focus:bg-white/5 focus:text-white"
+              >
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 rounded-full bg-purple-500" />
+                  <span className={`font-[600] ${isOverall ? 'text-white' : 'text-[#6b7280]'}`}>Overall Career</span>
+                </div>
+                {isOverall && <Check size={14} className="text-white" />}
+              </DropdownMenuItem>
               {seasons.map(s => {
                 const isAct = s.id === activeSeason?.id;
                 const isSel = s.id === selectedSeasonId;

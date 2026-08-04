@@ -36,6 +36,15 @@ export function useActiveRoute() {
   };
 
   const handleNav = (e, href) => {
+    // If we are on a separate Next.js route (like a player profile), 
+    // we must let the Next.js <Link> handle the navigation natively 
+    // to mount the AppShell.
+    if (pathname.startsWith('/player')) {
+      return; 
+    }
+
+    // Otherwise, if we are already inside the AppShell (main tabs),
+    // we do a smooth client-side swap to avoid full layout re-renders.
     e.preventDefault();
     const tabPath = href.replace(/^\/+/, '');
     window.history.pushState(null, '', `/${tabPath}`);

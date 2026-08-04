@@ -16,13 +16,17 @@ export async function GET(request, { params }) {
       return NextResponse.json({ error: 'Player not found' }, { status: 404 });
     }
 
+    const matchQuery = {
+      status: 'completed',
+    };
+    if (seasonId !== 'overall') {
+      matchQuery.seasonId = seasonId;
+      matchQuery.round = 'league';
+    }
+
     const allPlayers = await prisma.player.findMany();
     const seasonMatches = await prisma.match.findMany({
-      where: {
-        seasonId: seasonId,
-        status: 'completed',
-        round: 'league',
-      },
+      where: matchQuery,
       orderBy: { completedAt: 'asc' }
     });
 
