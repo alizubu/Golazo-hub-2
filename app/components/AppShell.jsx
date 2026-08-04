@@ -8,6 +8,8 @@ import HallOfFame from './HallOfFame';
 import { useAppContext } from './AppContextProvider';
 import SportsTicker from './SportsTicker';
 import CelebrationBanner from './CelebrationBanner';
+import AdminSidebar from './AdminSidebar';
+import AdminTopBar from './AdminTopBar';
 
 export default function AppShell({ 
   initialTab, 
@@ -88,6 +90,70 @@ export default function AppShell({
   const adminProps = { players, activeSeason, matches, announcements, notifications, trophies, seasons, history, showToast, setTab };
   const playerProps = { me, players, activeSeason, matches, announcements, notifications, trophies, seasons, history, setTab, tab: currentTab };
 
+  // ══════════════════════════════════════════════════════════════
+  // ADMIN SESSION — Command Center layout with persistent sidebar
+  // ══════════════════════════════════════════════════════════════
+  if (session?.type === 'admin') {
+    return (
+      <div className="flex min-h-screen bg-background">
+        {/* Persistent sidebar — handles desktop rail/full + mobile drawer */}
+        <AdminSidebar
+          currentTab={currentTab}
+          setTab={setTab}
+          activeSeason={activeSeason}
+          matches={matches}
+        />
+
+        {/* Main content area — offset by sidebar width */}
+        <div className="flex-1 flex flex-col min-h-screen md:ml-16 lg:ml-60">
+          {/* Sticky top bar with hamburger (mobile), section title, season chip */}
+          <AdminTopBar
+            currentTab={currentTab}
+            activeSeason={activeSeason}
+          />
+
+          {/* Content wrapper */}
+          <div className="flex-1 overflow-auto">
+            {/* SportsTicker still visible for admin */}
+            <div className="w-full">
+              <SportsTicker
+                matches={matches}
+                announcements={announcements}
+                players={players}
+                tickerConfig={tickerConfig}
+              />
+            </div>
+
+            <div className="max-w-6xl mx-auto px-4 md:px-6 pt-4 pb-8">
+              <CelebrationBanner initialCelebrations={activeCelebrations} />
+
+              {currentTab === 'hall-of-fame' ? (
+                <HallOfFame trophies={trophies} players={players} />
+              ) : currentTab === 'admin/players' ? (
+                <div className="pt-2"><AdminPlayers {...adminProps} /></div>
+              ) : currentTab === 'admin/season' ? (
+                <div className="pt-2"><AdminSeason {...adminProps} /></div>
+              ) : currentTab === 'admin/matches' ? (
+                <div className="pt-2"><AdminMatches {...adminProps} /></div>
+              ) : currentTab === 'admin/trophies' ? (
+                <div className="pt-2"><AdminTrophies {...adminProps} /></div>
+              ) : currentTab === 'admin/announcements' ? (
+                <div className="pt-2"><AdminAnnouncements {...adminProps} onTickerConfigSaved={setTickerConfig} /></div>
+              ) : currentTab === 'admin/settings' ? (
+                <div className="pt-2"><AdminSettings {...adminProps} /></div>
+              ) : (
+                <AdminOverviewDashboard {...adminProps} />
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // ══════════════════════════════════════════════════════════════
+  // PLAYER SESSION — unchanged existing layout
+  // ══════════════════════════════════════════════════════════════
   return (
     <>
       <div className="w-full">
@@ -102,16 +168,6 @@ export default function AppShell({
         <CelebrationBanner initialCelebrations={activeCelebrations} />
         {currentTab === 'hall-of-fame' ? (
         <HallOfFame trophies={trophies} players={players} />
-      ) : session?.type === 'admin' ? (
-        <>
-          {currentTab === 'admin/players' ? <div className="pt-4"><AdminPlayers {...adminProps} /></div> :
-           currentTab === 'admin/season' ? <div className="pt-4"><AdminSeason {...adminProps} /></div> :
-           currentTab === 'admin/matches' ? <div className="pt-4"><AdminMatches {...adminProps} /></div> :
-           currentTab === 'admin/trophies' ? <div className="pt-4"><AdminTrophies {...adminProps} /></div> :
-           currentTab === 'admin/announcements' ? <div className="pt-4"><AdminAnnouncements {...adminProps} onTickerConfigSaved={setTickerConfig} /></div> :
-           currentTab === 'admin/settings' ? <div className="pt-4"><AdminSettings {...adminProps} /></div> :
-           <AdminOverviewDashboard {...adminProps} />}
-        </>
       ) : (
         <PlayerViews {...playerProps} />
       )}

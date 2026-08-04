@@ -50,9 +50,11 @@ export default async function AppLayout({ children }) {
     }
   }
 
+  const isAdmin = session?.type === 'admin';
+
   return (
     <AppProvider initialMatches={matches}>
-      <div className="min-h-screen bg-background text-foreground pb-20">
+      <div className={`min-h-screen bg-background text-foreground ${isAdmin ? '' : 'pb-20'}`}>
         <FloatingNav 
           session={session} 
           me={me} 

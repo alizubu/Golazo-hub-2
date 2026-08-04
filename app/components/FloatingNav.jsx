@@ -55,6 +55,9 @@ const adminTabs = [
 ];
 
 export default function FloatingNav({ session, me, players = [], notifications = [], matches = [] }) {
+  // Admin sessions use the dedicated AdminSidebar + AdminTopBar instead
+  if (session?.type === 'admin') return null;
+
   const [searchOpen, setSearchOpen] = useState(false);
   const [sheetOpen, setSheetOpen] = useState(false);
   const router = useRouter();

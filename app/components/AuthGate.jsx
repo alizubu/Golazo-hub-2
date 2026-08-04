@@ -1,116 +1,224 @@
 'use client';
 
-import React, { useState } from 'react';
-import { Lock, User, UserPlus, ShieldAlert, Mail, Eye, EyeOff, Loader2 } from 'lucide-react';
-import { Card, Input, Label, FadeIn } from './UI';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
+import { Lock, User, UserPlus, ShieldAlert, Eye, EyeOff, Loader2, X, ChevronRight } from 'lucide-react';
+import { Avatar } from './UI';
 import { signInPlayer, signUpPlayer } from '@/app/actions/player';
 import { setAuthCookie } from '@/app/actions/auth';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Meteors } from './magicui/Meteors';
+import { BorderBeam } from './magicui/BorderBeam';
 import { AnimatedGradientText } from './magicui/AnimatedGradientText';
 import { ShimmerButton } from './magicui/ShimmerButton';
-import { BorderBeam } from './magicui/BorderBeam';
 
-import { useRouter } from 'next/navigation';
+// ══════════════════════════════════════════════════════════════
+// PITCH SVG — top-down animated football pitch
+// ══════════════════════════════════════════════════════════════
+function PitchSVG({ className = '' }) {
+  return (
+    <svg
+      viewBox="0 0 500 320"
+      className={`absolute inset-0 w-full h-full ${className}`}
+      preserveAspectRatio="xMidYMid slice"
+      aria-hidden="true"
+    >
+      <defs>
+        <filter id="pitch-glow" x="-20%" y="-20%" width="140%" height="140%">
+          <feGaussianBlur stdDeviation="2.5" result="blur" />
+          <feMerge>
+            <feMergeNode in="blur" />
+            <feMergeNode in="SourceGraphic" />
+          </feMerge>
+        </filter>
+        <linearGradient id="turf-base" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor="#1F8A5C" stopOpacity="0.14" />
+          <stop offset="50%" stopColor="#0B1E12" stopOpacity="0.07" />
+          <stop offset="100%" stopColor="#1F8A5C" stopOpacity="0.11" />
+        </linearGradient>
+      </defs>
+      {/* Turf fill */}
+      <rect width="500" height="320" fill="url(#turf-base)" />
+      {/* Outer boundary */}
+      <rect x="12" y="12" width="476" height="296" fill="none" stroke="#29C179" strokeWidth="1.5" opacity="0.28" filter="url(#pitch-glow)" />
+      {/* Center line */}
+      <line x1="250" y1="12" x2="250" y2="308" stroke="#29C179" strokeWidth="1" opacity="0.22" />
+      {/* Center circle */}
+      <circle cx="250" cy="160" r="52" fill="none" stroke="#29C179" strokeWidth="1" opacity="0.22" />
+      {/* Center spot */}
+      <circle cx="250" cy="160" r="3" fill="#29C179" opacity="0.45" />
+      {/* Left penalty area */}
+      <rect x="12" y="95" width="80" height="130" fill="none" stroke="#29C179" strokeWidth="1" opacity="0.22" />
+      {/* Left 6-yard box */}
+      <rect x="12" y="123" width="28" height="74" fill="none" stroke="#29C179" strokeWidth="1" opacity="0.18" />
+      {/* Left penalty spot */}
+      <circle cx="75" cy="160" r="2.5" fill="#29C179" opacity="0.38" />
+      {/* Left penalty arc */}
+      <path d="M92,118 A52,52 0 0,1 92,202" fill="none" stroke="#29C179" strokeWidth="1" opacity="0.18" />
+      {/* Right penalty area */}
+      <rect x="408" y="95" width="80" height="130" fill="none" stroke="#29C179" strokeWidth="1" opacity="0.22" />
+      {/* Right 6-yard box */}
+      <rect x="460" y="123" width="28" height="74" fill="none" stroke="#29C179" strokeWidth="1" opacity="0.18" />
+      {/* Right penalty spot */}
+      <circle cx="425" cy="160" r="2.5" fill="#29C179" opacity="0.38" />
+      {/* Right penalty arc */}
+      <path d="M408,118 A52,52 0 0,0 408,202" fill="none" stroke="#29C179" strokeWidth="1" opacity="0.18" />
+      {/* Corner arcs */}
+      <path d="M12,24 A12,12 0 0,1 24,12" fill="none" stroke="#29C179" strokeWidth="1" opacity="0.18" />
+      <path d="M476,12 A12,12 0 0,1 488,24" fill="none" stroke="#29C179" strokeWidth="1" opacity="0.18" />
+      <path d="M12,296 A12,12 0 0,0 24,308" fill="none" stroke="#29C179" strokeWidth="1" opacity="0.18" />
+      <path d="M476,308 A12,12 0 0,0 488,296" fill="none" stroke="#29C179" strokeWidth="1" opacity="0.18" />
+    </svg>
+  );
+}
 
-export default function AuthGate({ players, showToast }) {
-  const [mode, setMode] = useState('signin'); // signin | signup | admin
-  const router = useRouter();
+// ══════════════════════════════════════════════════════════════
+// FLOATING PLAYER CARD — drifting avatar on left panel
+// ══════════════════════════════════════════════════════════════
+const FLOAT_POSITIONS = [
+  { top: '9%',  left: '5%' },
+  { top: '20%', right: '7%' },
+  { top: '50%', left: '3%' },
+  { top: '65%', right: '9%' },
+  { top: '80%', left: '20%' },
+];
 
-  const handlePlayerLogin = (player) => {
-    window.location.href = '/dashboard';
-  };
+function FloatingPlayerCard({ player, posStyle, delay }) {
+  return (
+    <motion.div
+      initial={{ opacity: 0, scale: 0.8, y: 20 }}
+      animate={{ opacity: 1, scale: 1, y: 0 }}
+      transition={{ delay, duration: 0.65, type: 'spring', bounce: 0.3 }}
+      style={posStyle}
+      className="absolute flex items-center gap-2.5 bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl px-3 py-2.5 shadow-xl select-none pointer-events-none"
+    >
+      <motion.div
+        animate={{ y: [0, -6, 0] }}
+        transition={{ repeat: Infinity, duration: 3.5 + delay, ease: 'easeInOut', delay: delay * 0.5 }}
+      >
+        <Avatar p={player} size={30} />
+      </motion.div>
+      <div className="min-w-0">
+        <div className="text-white text-xs font-bold leading-tight truncate max-w-[84px]">
+          {(player.name || player.username || '?').split(' ')[0]}
+        </div>
+        {player.teamName && (
+          <div className="text-white/40 text-[10px] truncate max-w-[84px] mt-0.5">{player.teamName}</div>
+        )}
+      </div>
+    </motion.div>
+  );
+}
 
-  const handleAdminLogin = () => {
-    window.location.href = '/admin';
-  };
+// ══════════════════════════════════════════════════════════════
+// HOLD-TO-REVEAL — 3-second press to expose admin panel
+// ══════════════════════════════════════════════════════════════
+function HoldToReveal({ onReveal }) {
+  const [progress, setProgress] = useState(0);
+  const [holding, setHolding] = useState(false);
+  const rafRef = useRef(null);
+  const startRef = useRef(null);
+  const HOLD_MS = 3000;
+  const R = 9;
+  const CIRC = 2 * Math.PI * R;
+
+  const start = useCallback(() => {
+    startRef.current = Date.now();
+    setHolding(true);
+    const tick = () => {
+      const p = Math.min((Date.now() - startRef.current) / HOLD_MS, 1);
+      setProgress(p);
+      if (p >= 1) { setHolding(false); setProgress(0); onReveal(); }
+      else { rafRef.current = requestAnimationFrame(tick); }
+    };
+    rafRef.current = requestAnimationFrame(tick);
+  }, [onReveal]);
+
+  const cancel = useCallback(() => {
+    if (rafRef.current) cancelAnimationFrame(rafRef.current);
+    setHolding(false);
+    setProgress(0);
+  }, []);
+
+  useEffect(() => () => { if (rafRef.current) cancelAnimationFrame(rafRef.current); }, []);
 
   return (
-    <div className="min-h-[100dvh] flex items-center justify-center px-4 md:px-6 py-8 bg-stadium-base text-foreground relative overflow-hidden">
-      {/* Background */}
-      <div className="absolute inset-0 bg-stadium-base z-0">
-        <Meteors number={15} className="opacity-40 hidden md:block" />
-        <Meteors number={8} className="opacity-30 md:hidden" />
-        <div className="absolute inset-0 bg-[url('/grid.svg')] bg-center [mask-image:linear-gradient(180deg,white,rgba(255,255,255,0))] opacity-5 pointer-events-none" />
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-stadium-base pointer-events-none opacity-80" />
+    <button
+      onMouseDown={start} onMouseUp={cancel} onMouseLeave={cancel}
+      onTouchStart={(e) => { e.preventDefault(); start(); }}
+      onTouchEnd={cancel} onTouchCancel={cancel}
+      className="flex items-center gap-2 text-[11px] text-muted-foreground/40 hover:text-muted-foreground/70 transition-colors select-none cursor-pointer group py-2 px-3 rounded-full hover:bg-white/5 font-medium tracking-wide"
+    >
+      <div className="relative w-[22px] h-[22px] flex items-center justify-center flex-shrink-0">
+        <svg className="absolute inset-0 w-full h-full -rotate-90" viewBox="0 0 22 22">
+          <circle cx="11" cy="11" r={R} fill="none" stroke="currentColor" strokeWidth="1.5" opacity="0.2" />
+          {progress > 0 && (
+            <circle cx="11" cy="11" r={R} fill="none" stroke="#D9A93B" strokeWidth="1.5"
+              strokeLinecap="round"
+              strokeDasharray={CIRC}
+              strokeDashoffset={CIRC * (1 - progress)}
+              style={{ transition: 'none' }}
+            />
+          )}
+        </svg>
+        <Lock size={8} className="relative z-10 opacity-60 group-hover:opacity-90 transition-opacity" />
       </div>
-      
-      <div className="w-full max-w-[380px] z-10 relative flex flex-col pt-8 pb-12">
-        <FadeIn delay={0.1} className="text-center mb-8">
-          <motion.div 
-            initial={{ scale: 0, y: 10 }}
-            animate={{ scale: 1, y: [0, -6, 0] }}
-            transition={{ 
-              scale: { type: "spring", stiffness: 260, damping: 20 },
-              y: { repeat: Infinity, duration: 4, ease: "easeInOut", delay: 0.5 }
-            }}
-            className="text-5xl mb-4"
-          >
-            🏆
-          </motion.div>
-          <AnimatedGradientText className="mb-2">
-            <h1 className="font-heading text-3xl font-bold tracking-tight px-2 text-white">Golazo Hub</h1>
-          </AnimatedGradientText>
-          <p className="text-sm text-muted-foreground mt-2 font-medium">Matchday central for the crew</p>
-        </FadeIn>
+      {holding ? `Keep holding… ${Math.ceil((1 - progress) * 3)}s` : 'Admin access'}
+    </button>
+  );
+}
 
-        {mode !== 'admin' && (
-          <FadeIn delay={0.2} className="relative z-20">
-            <div className="flex p-1 bg-card/60 backdrop-blur-md rounded-2xl mb-6 relative border border-border/50 shadow-inner">
-              <button 
-                onClick={() => setMode('signin')} 
-                className={`relative flex-1 py-2.5 rounded-xl text-sm font-semibold transition-colors z-10 ${mode === 'signin' ? 'text-white' : 'text-muted-foreground hover:text-foreground'}`}
-              >
-                Sign in
-                {mode === 'signin' && (
-                  <motion.div layoutId="auth-tab-pill" className="absolute inset-0 bg-pitch rounded-xl -z-10 shadow-md" transition={{ type: "spring", bounce: 0.2, duration: 0.6 }} />
-                )}
-              </button>
-              <button 
-                onClick={() => setMode('signup')} 
-                className={`relative flex-1 py-2.5 rounded-xl text-sm font-semibold transition-colors z-10 ${mode === 'signup' ? 'text-white' : 'text-muted-foreground hover:text-foreground'}`}
-              >
-                Sign up
-                {mode === 'signup' && (
-                  <motion.div layoutId="auth-tab-pill" className="absolute inset-0 bg-pitch rounded-xl -z-10 shadow-md" transition={{ type: "spring", bounce: 0.2, duration: 0.6 }} />
-                )}
-              </button>
-            </div>
-          </FadeIn>
-        )}
+// ══════════════════════════════════════════════════════════════
+// FLOATING LABEL INPUT
+// ══════════════════════════════════════════════════════════════
+function FloatingLabelInput({ label, id, type = 'text', value, onChange, onKeyDown, rightElement, autoComplete, disabled }) {
+  const [focused, setFocused] = useState(false);
+  const floated = focused || (typeof value === 'string' && value.length > 0);
 
-        <FadeIn delay={0.3} className="relative z-20 w-full">
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={mode}
-              initial={{ opacity: 0, y: 10, scale: 0.98 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: -10, scale: 0.98 }}
-              transition={{ duration: 0.2 }}
-            >
-              {mode === 'signin' && <SignInForm players={players} onPlayerLogin={handlePlayerLogin} />}
-              {mode === 'signup' && <SignUpForm showToast={showToast} onPlayerLogin={handlePlayerLogin} />}
-              {mode === 'admin' && <AdminLoginForm onAdminLogin={handleAdminLogin} onBack={() => setMode('signin')} />}
-            </motion.div>
-          </AnimatePresence>
-        </FadeIn>
-
-        {mode !== 'admin' && (
-          <FadeIn delay={0.4} className="relative z-20">
-            <motion.button 
-              whileHover={{ x: 2 }}
-              onClick={() => setMode('admin')} 
-              className="w-full text-center text-xs mt-6 flex items-center justify-center gap-1.5 text-muted-foreground hover:text-foreground hover:underline transition-all min-h-[44px]"
-            >
-              <Lock size={12} /> Admin login instead
-            </motion.button>
-          </FadeIn>
-        )}
-      </div>
+  return (
+    <div className="relative">
+      <label
+        htmlFor={id}
+        style={{
+          position: 'absolute', left: '12px', zIndex: 10, pointerEvents: 'none',
+          top: floated ? '7px' : '19px',
+          fontSize: floated ? '10px' : '13px',
+          fontWeight: floated ? '700' : '400',
+          letterSpacing: floated ? '0.07em' : '0',
+          textTransform: floated ? 'uppercase' : 'none',
+          color: focused ? '#29C179' : 'rgba(138,147,163,0.75)',
+          transition: 'all 0.15s ease',
+          lineHeight: 1,
+        }}
+      >
+        {label}
+      </label>
+      <input
+        id={id}
+        type={type}
+        value={value}
+        onChange={onChange}
+        onKeyDown={onKeyDown}
+        onFocus={() => setFocused(true)}
+        onBlur={() => setFocused(false)}
+        autoComplete={autoComplete}
+        disabled={disabled}
+        placeholder=" "
+        style={{ paddingRight: rightElement ? '44px' : '12px' }}
+        className={`
+          w-full h-14 px-3 pt-6 pb-2 text-sm text-white rounded-xl border bg-white/5
+          focus:outline-none transition-colors placeholder-transparent disabled:opacity-50
+          ${focused ? 'border-pitch-bright/55 bg-white/[0.07]' : 'border-white/10'}
+        `}
+      />
+      {rightElement && (
+        <div className="absolute right-3 top-1/2 -translate-y-1/2 z-10">{rightElement}</div>
+      )}
     </div>
   );
 }
 
+// ══════════════════════════════════════════════════════════════
+// SIGN IN FORM
+// ══════════════════════════════════════════════════════════════
 function SignInForm({ players, onPlayerLogin }) {
   const [id, setId] = useState('');
   const [pwd, setPwd] = useState('');
@@ -121,201 +229,134 @@ function SignInForm({ players, onPlayerLogin }) {
   const submit = async (e) => {
     if (e) e.preventDefault();
     if (busy) return;
-    if (!id || !pwd) return setErr('Please enter both username and password.');
-    setErr('');
-    setBusy(true);
+    if (!id || !pwd) return setErr('Please enter both fields.');
+    setErr(''); setBusy(true);
     const res = await signInPlayer({ id, password: pwd });
-    if (res.error) {
-      setBusy(false);
-      return setErr(res.error);
-    }
+    if (res.error) { setBusy(false); return setErr(res.error); }
     await setAuthCookie('player', res.player.id);
     onPlayerLogin(res.player);
   };
 
   return (
-    <motion.div animate={err ? { x: [-5, 5, -5, 5, 0] } : {}} transition={{ duration: 0.4 }}>
-      <Card className="relative overflow-hidden p-6 bg-card border border-border shadow-2xl rounded-2xl">
-        <BorderBeam size={150} duration={12} delay={2} colorFrom="#1F8A5C" colorTo="#3DDC84" />
-        
+    <motion.div animate={err ? { x: [-5, 5, -4, 4, 0] } : {}} transition={{ duration: 0.35 }}>
+      <form onSubmit={submit} className="space-y-4">
         {players.length === 0 && (
-          <div className="text-xs mb-5 text-muted-foreground p-3 bg-secondary/50 rounded-lg border border-border/50 text-center">
-            No accounts yet — create the first one via Sign up.
+          <div className="text-xs text-muted-foreground/60 p-3 bg-white/5 rounded-xl border border-white/8 text-center">
+            No accounts yet — be the first to sign up!
           </div>
         )}
-        
-        <form onSubmit={submit} className="space-y-4">
-          <div className="space-y-1.5">
-            <Label className="text-muted-foreground font-semibold text-xs uppercase tracking-wider">Username or email</Label>
-            <div className="relative">
-              <Mail className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" size={16} />
-              <Input 
-                value={id} 
-                onChange={(e) => setId(e.target.value)} 
-                placeholder="you@example.com" 
-                className="pl-9 h-11 bg-secondary/30 focus-visible:ring-pitch-bright border-border/50" 
-              />
-            </div>
-          </div>
-          <div className="space-y-1.5">
-            <Label className="text-muted-foreground font-semibold text-xs uppercase tracking-wider">Password</Label>
-            <div className="relative">
-              <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" size={16} />
-              <Input 
-                type={showPwd ? "text" : "password"} 
-                value={pwd} 
-                onChange={(e) => setPwd(e.target.value)} 
-                placeholder="••••••" 
-                onKeyDown={(e) => e.key === 'Enter' && submit()} 
-                className="pl-9 pr-10 h-11 bg-secondary/30 focus-visible:ring-pitch-bright border-border/50" 
-              />
-              <button 
-                type="button"
-                onClick={() => setShowPwd(!showPwd)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
-              >
-                {showPwd ? <EyeOff size={16} /> : <Eye size={16} />}
-              </button>
-            </div>
-            {err && (
-              <motion.div initial={{ opacity: 0, y: -5 }} animate={{ opacity: 1, y: 0 }} className="text-xs mt-2 text-red-400 font-medium pt-1">
-                {err}
-              </motion.div>
-            )}
-          </div>
-        
-        <div className="mt-7">
-          <ShimmerButton 
-            type="submit"
-            className="w-full font-bold shadow-lg h-12 disabled:opacity-50 disabled:cursor-not-allowed" 
-            disabled={busy}
-            shimmerColor="#ffffff80"
-            background="#1F8A5C"
-          >
-            {busy ? (
-              <span className="flex items-center gap-2"><Loader2 size={16} className="animate-spin" /> Signing in...</span>
-            ) : (
-              <span className="flex items-center gap-2"><User size={16} /> Sign In</span>
-            )}
+        <FloatingLabelInput id="si-email" label="Username or email" value={id}
+          onChange={(e) => setId(e.target.value)} autoComplete="username" disabled={busy} />
+        <FloatingLabelInput id="si-pwd" label="Password"
+          type={showPwd ? 'text' : 'password'} value={pwd}
+          onChange={(e) => setPwd(e.target.value)}
+          onKeyDown={(e) => e.key === 'Enter' && submit()}
+          autoComplete="current-password" disabled={busy}
+          rightElement={
+            <button type="button" onClick={() => setShowPwd(!showPwd)} className="text-muted-foreground hover:text-white transition-colors">
+              {showPwd ? <EyeOff size={15} /> : <Eye size={15} />}
+            </button>
+          }
+        />
+        <AnimatePresence>
+          {err && (
+            <motion.p initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
+              className="text-xs text-red-400 font-medium px-1">
+              {err}
+            </motion.p>
+          )}
+        </AnimatePresence>
+        <div className="pt-1">
+          <ShimmerButton type="submit" disabled={busy}
+            className="w-full h-12 font-bold shadow-lg shadow-pitch/25 disabled:opacity-60"
+            shimmerColor="#ffffff40" background="#1F8A5C">
+            {busy
+              ? <span className="flex items-center gap-2"><Loader2 size={15} className="animate-spin" /> Signing in…</span>
+              : <span className="flex items-center gap-2"><User size={15} /> Sign In</span>}
           </ShimmerButton>
         </div>
-        </form>
-      </Card>
+      </form>
     </motion.div>
   );
 }
 
+// ══════════════════════════════════════════════════════════════
+// SIGN UP FORM
+// ══════════════════════════════════════════════════════════════
 function SignUpForm({ showToast, onPlayerLogin }) {
   const [form, setForm] = useState({ username: '', email: '', password: '', confirm: '', name: '' });
   const [err, setErr] = useState('');
   const [busy, setBusy] = useState(false);
   const [showPwd, setShowPwd] = useState(false);
-  
-  const set = (k, v) => setForm((f) => ({ ...f, [k]: v }));
+
+  const set = (k, v) => setForm(f => ({ ...f, [k]: v }));
 
   const submit = async (e) => {
     if (e) e.preventDefault();
     if (busy) return;
     setErr('');
-    if (!form.username || !form.password || !form.email || !form.name) return setErr('All fields are required.');
+    if (!form.name || !form.username || !form.email || !form.password) return setErr('All fields are required.');
     if (form.password !== form.confirm) return setErr("Passwords don't match.");
     setBusy(true);
     const res = await signUpPlayer(form);
-    if (res.error) {
-      setBusy(false);
-      return setErr(res.error);
-    }
+    if (res.error) { setBusy(false); return setErr(res.error); }
     await setAuthCookie('player', res.player.id);
-    showToast(`Welcome to the league, ${res.player.name}! Set up your avatar and team in Profile.`);
+    showToast?.(`Welcome to the league, ${res.player.name}! Set up your avatar in Profile.`);
     onPlayerLogin(res.player);
   };
 
-  return (
-    <motion.div animate={err ? { x: [-5, 5, -5, 5, 0] } : {}} transition={{ duration: 0.4 }}>
-      <Card className="relative overflow-hidden p-6 bg-card border border-border shadow-2xl rounded-2xl">
-        <BorderBeam size={150} duration={12} delay={2} colorFrom="#1F8A5C" colorTo="#3DDC84" />
-        
-        <form onSubmit={submit} className="space-y-4">
-          <div className="space-y-1.5">
-            <Label className="text-muted-foreground font-semibold text-xs uppercase tracking-wider">Display Name</Label>
-            <div className="relative">
-              <User className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" size={16} />
-              <Input value={form.name} onChange={(e) => set('name', e.target.value)} placeholder="How others see you" className="pl-9 h-11 bg-secondary/30 focus-visible:ring-pitch-bright border-border/50" />
-            </div>
-          </div>
-          
-          <div className="space-y-1.5">
-            <Label className="text-muted-foreground font-semibold text-xs uppercase tracking-wider">Username</Label>
-            <div className="relative">
-              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground font-score text-sm">@</span>
-              <Input value={form.username} onChange={(e) => set('username', e.target.value)} placeholder="shadow_striker" className="pl-9 h-11 bg-secondary/30 focus-visible:ring-pitch-bright border-border/50" />
-            </div>
-          </div>
-          
-          <div className="space-y-1.5">
-            <Label className="text-muted-foreground font-semibold text-xs uppercase tracking-wider">Email</Label>
-            <div className="relative">
-              <Mail className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" size={16} />
-              <Input type="email" value={form.email} onChange={(e) => set('email', e.target.value)} placeholder="you@example.com" className="pl-9 h-11 bg-secondary/30 focus-visible:ring-pitch-bright border-border/50" />
-            </div>
-          </div>
-          
-          <div className="grid grid-cols-2 gap-3">
-            <div className="space-y-1.5">
-              <Label className="text-muted-foreground font-semibold text-[10px] uppercase tracking-wider">Password</Label>
-              <div className="relative">
-                <Lock className="absolute left-2.5 top-1/2 -translate-y-1/2 text-muted-foreground" size={14} />
-                <Input type={showPwd ? "text" : "password"} value={form.password} onChange={(e) => set('password', e.target.value)} placeholder="••••••" className="pl-7 pr-7 h-11 bg-secondary/30 focus-visible:ring-pitch-bright border-border/50 text-sm" />
-              </div>
-            </div>
-            <div className="space-y-1.5">
-              <Label className="text-muted-foreground font-semibold text-[10px] uppercase tracking-wider">Confirm</Label>
-              <div className="relative">
-                <Lock className="absolute left-2.5 top-1/2 -translate-y-1/2 text-muted-foreground" size={14} />
-                <Input type={showPwd ? "text" : "password"} value={form.confirm} onChange={(e) => set('confirm', e.target.value)} placeholder="••••••" className="pl-7 h-11 bg-secondary/30 focus-visible:ring-pitch-bright border-border/50 text-sm" />
-                <button 
-                  type="button"
-                  onClick={() => setShowPwd(!showPwd)}
-                  className="absolute right-2.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
-                >
-                  {showPwd ? <EyeOff size={14} /> : <Eye size={14} />}
-                </button>
-              </div>
-            </div>
-          </div>
-        
+  const eyeBtn = (
+    <button type="button" onClick={() => setShowPwd(!showPwd)} className="text-muted-foreground hover:text-white transition-colors">
+      {showPwd ? <EyeOff size={15} /> : <Eye size={15} />}
+    </button>
+  );
 
-        {err && (
-          <motion.div initial={{ opacity: 0, y: -5 }} animate={{ opacity: 1, y: 0 }} className="text-xs mt-3 text-red-400 font-medium">
-            {err}
-          </motion.div>
-        )}
-        
-        <div className="text-[10px] mt-4 text-muted-foreground text-center">
-          You can pick your avatar, flag, and crest in Profile.
+  return (
+    <motion.div animate={err ? { x: [-5, 5, -4, 4, 0] } : {}} transition={{ duration: 0.35 }}>
+      <form onSubmit={submit} className="space-y-3">
+        <FloatingLabelInput id="su-name" label="Display Name" value={form.name}
+          onChange={(e) => set('name', e.target.value)} autoComplete="name" disabled={busy} />
+        <FloatingLabelInput id="su-user" label="@Username" value={form.username}
+          onChange={(e) => set('username', e.target.value)} autoComplete="username" disabled={busy} />
+        <FloatingLabelInput id="su-email" label="Email address" type="email" value={form.email}
+          onChange={(e) => set('email', e.target.value)} autoComplete="email" disabled={busy} />
+        <div className="grid grid-cols-2 gap-3">
+          <FloatingLabelInput id="su-pwd" label="Password"
+            type={showPwd ? 'text' : 'password'} value={form.password}
+            onChange={(e) => set('password', e.target.value)} autoComplete="new-password" disabled={busy} />
+          <FloatingLabelInput id="su-confirm" label="Confirm"
+            type={showPwd ? 'text' : 'password'} value={form.confirm}
+            onChange={(e) => set('confirm', e.target.value)}
+            rightElement={eyeBtn} autoComplete="new-password" disabled={busy} />
         </div>
-        
-        <div className="mt-4">
-          <ShimmerButton 
-            type="submit"
-            className="w-full font-bold shadow-lg h-12 disabled:opacity-50 disabled:cursor-not-allowed" 
-            disabled={busy}
-            shimmerColor="#ffffff80"
-            background="#1F8A5C"
-          >
-            {busy ? (
-              <span className="flex items-center gap-2"><Loader2 size={16} className="animate-spin" /> Creating...</span>
-            ) : (
-              <span className="flex items-center gap-2"><UserPlus size={16} /> Create Account</span>
-            )}
+        <AnimatePresence>
+          {err && (
+            <motion.p initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
+              className="text-xs text-red-400 font-medium px-1">
+              {err}
+            </motion.p>
+          )}
+        </AnimatePresence>
+        <p className="text-[10px] text-muted-foreground/50 text-center px-2">
+          Avatar, flag & club crest can be set after sign-up in your Profile.
+        </p>
+        <div className="pt-1">
+          <ShimmerButton type="submit" disabled={busy}
+            className="w-full h-12 font-bold shadow-lg disabled:opacity-60"
+            shimmerColor="#ffffff40" background="#1F8A5C">
+            {busy
+              ? <span className="flex items-center gap-2"><Loader2 size={15} className="animate-spin" /> Creating account…</span>
+              : <span className="flex items-center gap-2"><UserPlus size={15} /> Create Account</span>}
           </ShimmerButton>
         </div>
-        </form>
-      </Card>
+      </form>
     </motion.div>
   );
 }
 
+// ══════════════════════════════════════════════════════════════
+// ADMIN LOGIN FORM
+// ══════════════════════════════════════════════════════════════
 function AdminLoginForm({ onAdminLogin, onBack }) {
   const [pwd, setPwd] = useState('');
   const [err, setErr] = useState('');
@@ -325,86 +366,326 @@ function AdminLoginForm({ onAdminLogin, onBack }) {
   const submit = async (e) => {
     if (e) e.preventDefault();
     if (busy) return;
-    if (!pwd) return setErr('Please enter the master password.');
-    setErr('');
-    setBusy(true);
+    if (!pwd) return setErr('Enter the master password.');
+    setErr(''); setBusy(true);
     const res = await fetch('/api/admin', { method: 'POST', body: JSON.stringify({ password: pwd }) });
-    if (res.ok) {
-      await setAuthCookie('admin');
-      onAdminLogin();
-    } else {
-      setBusy(false);
-      setErr("Incorrect password.");
-    }
+    if (res.ok) { await setAuthCookie('admin'); onAdminLogin(); }
+    else { setBusy(false); setErr('Incorrect password.'); }
   };
 
   return (
-    <motion.div animate={err ? { x: [-5, 5, -5, 5, 0] } : {}} transition={{ duration: 0.4 }}>
-      <Card className="relative overflow-hidden p-6 bg-gradient-to-br from-card to-secondary/30 border border-gold/30 shadow-2xl rounded-2xl">
-        <BorderBeam size={150} duration={12} delay={2} colorFrom="#D9A93B" colorTo="#E8B34C" />
-        
-        <div className="flex flex-col items-center mb-6">
-          <div className="w-12 h-12 rounded-full bg-gold/10 flex items-center justify-center mb-3 relative">
-            <span className="absolute inset-0 rounded-full animate-ping bg-gold/20" />
-            <ShieldAlert size={24} className="text-gold relative z-10" />
-          </div>
-          <h2 className="text-lg font-bold tracking-tight text-white">Admin Console</h2>
-          <p className="text-xs text-muted-foreground mt-1 text-center font-medium">Restricted access — authorized administrators only</p>
+    <motion.div animate={err ? { x: [-5, 5, -4, 4, 0] } : {}} transition={{ duration: 0.35 }}>
+      {/* Admin badge header */}
+      <div className="flex flex-col items-center mb-6">
+        <div className="relative w-14 h-14 rounded-2xl flex items-center justify-center mb-3"
+          style={{ background: 'rgba(217,169,59,0.1)', border: '1px solid rgba(217,169,59,0.22)' }}>
+          <span className="absolute inset-0 rounded-2xl animate-ping" style={{ background: 'rgba(217,169,59,0.08)', animationDuration: '2s' }} />
+          <ShieldAlert size={24} className="text-gold relative z-10" />
         </div>
-        
-        <form onSubmit={submit}>
-        <div className="space-y-1.5">
-          <Label className="text-muted-foreground font-semibold text-xs uppercase tracking-wider">Admin Password</Label>
-          <div className="relative">
-            <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" size={16} />
-            <Input 
-              type={showPwd ? "text" : "password"} 
-              value={pwd} 
-              onChange={(e) => setPwd(e.target.value)} 
-              placeholder="Enter master password" 
-              onKeyDown={(e) => e.key === 'Enter' && submit()} 
-              className="pl-9 pr-10 h-11 bg-background/50 focus-visible:ring-gold border-gold/20" 
-            />
-            <button 
-              type="button"
-              onClick={() => setShowPwd(!showPwd)}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
-            >
-              {showPwd ? <EyeOff size={16} /> : <Eye size={16} />}
+        <h3 className="text-[15px] font-bold text-white tracking-tight">Admin Console</h3>
+        <p className="text-xs text-muted-foreground/55 mt-0.5 text-center">Restricted — authorized administrators only</p>
+      </div>
+      <form onSubmit={submit} className="space-y-4">
+        <FloatingLabelInput id="admin-pwd" label="Master Password"
+          type={showPwd ? 'text' : 'password'} value={pwd}
+          onChange={(e) => setPwd(e.target.value)}
+          onKeyDown={(e) => e.key === 'Enter' && submit()}
+          autoComplete="current-password" disabled={busy}
+          rightElement={
+            <button type="button" onClick={() => setShowPwd(!showPwd)} className="text-muted-foreground hover:text-white transition-colors">
+              {showPwd ? <EyeOff size={15} /> : <Eye size={15} />}
             </button>
-          </div>
+          }
+        />
+        <AnimatePresence>
           {err && (
-            <motion.div initial={{ opacity: 0, y: -5 }} animate={{ opacity: 1, y: 0 }} className="text-xs mt-2 text-red-400 font-medium pt-1 text-center">
+            <motion.p initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
+              className="text-xs text-red-400 font-medium px-1 text-center">
               {err}
+            </motion.p>
+          )}
+        </AnimatePresence>
+        <ShimmerButton type="submit" disabled={busy}
+          className="w-full h-12 font-bold shadow-lg disabled:opacity-60"
+          shimmerColor="#ffffff40" background="#D9A93B">
+          {busy
+            ? <span className="flex items-center gap-2 text-black"><Loader2 size={15} className="animate-spin" /> Verifying…</span>
+            : <span className="flex items-center gap-2 text-black"><Lock size={15} /> Enter Console</span>}
+        </ShimmerButton>
+      </form>
+      <motion.button
+        whileHover={{ x: -2 }}
+        onClick={onBack}
+        className="w-full text-center text-xs mt-5 text-muted-foreground/45 hover:text-muted-foreground transition-colors py-2"
+      >
+        ← Back to player sign in
+      </motion.button>
+    </motion.div>
+  );
+}
+
+// ══════════════════════════════════════════════════════════════
+// SHARED TAB TOGGLE
+// ══════════════════════════════════════════════════════════════
+function TabToggle({ mode, setMode, layoutId }) {
+  return (
+    <div className="flex p-1 bg-white/5 rounded-xl border border-white/[0.08]">
+      {['signin', 'signup'].map((key) => (
+        <button
+          key={key}
+          onClick={() => setMode(key)}
+          className={`relative flex-1 py-2.5 rounded-lg text-sm font-bold transition-colors z-10 ${mode === key ? 'text-white' : 'text-muted-foreground hover:text-white/70'}`}
+        >
+          {key === 'signin' ? 'Sign In' : 'Sign Up'}
+          {mode === key && (
+            <motion.div
+              layoutId={layoutId}
+              className="absolute inset-0 bg-pitch rounded-lg -z-10"
+              transition={{ type: 'spring', bounce: 0.18, duration: 0.5 }}
+            />
+          )}
+        </button>
+      ))}
+    </div>
+  );
+}
+
+// ══════════════════════════════════════════════════════════════
+// MAIN AUTHGATE COMPONENT
+// ══════════════════════════════════════════════════════════════
+export default function AuthGate({ players = [], showToast }) {
+  const [mode, setMode] = useState('signin'); // 'signin' | 'signup' | 'admin'
+
+  const handlePlayerLogin = () => { window.location.href = '/dashboard'; };
+  const handleAdminLogin = () => { window.location.href = '/admin'; };
+
+  const visibleCards = players.slice(0, 5);
+  const tickerPlayers = players.length > 0 ? [...players, ...players] : [];
+
+  return (
+    <div className="min-h-[100dvh] bg-[#0B0E14] text-foreground overflow-hidden">
+
+      {/* ╔══════════════════════════════════════════╗
+          ║  DESKTOP — Split-Screen Stadium Layout   ║
+          ╚══════════════════════════════════════════╝ */}
+      <div className="hidden md:grid grid-cols-[3fr_2fr] xl:grid-cols-[7fr_5fr] min-h-[100dvh]">
+
+        {/* ─── LEFT PANEL: Cinematic pitch ─── */}
+        <div
+          className="relative flex flex-col overflow-hidden"
+          style={{ background: 'linear-gradient(135deg,#0B0E14 0%,#0C1A10 40%,#0B1512 65%,#0B0E14 100%)' }}
+        >
+          {/* Pitch SVG */}
+          <PitchSVG />
+
+          {/* Radial glow layers */}
+          <div className="absolute inset-0 pointer-events-none">
+            <div className="absolute inset-0 bg-[radial-gradient(ellipse_65%_55%_at_50%_50%,rgba(31,138,92,0.18)_0%,transparent_70%)]" />
+            <div className="absolute bottom-0 left-0 right-0 h-36 bg-gradient-to-t from-[#0B0E14] to-transparent" />
+            <div className="absolute top-0 left-0 right-0 h-24 bg-gradient-to-b from-[#0B0E14]/50 to-transparent" />
+          </div>
+
+          {/* Floating player cards */}
+          {visibleCards.map((p, i) => (
+            <FloatingPlayerCard
+              key={p.id}
+              player={p}
+              delay={0.35 + i * 0.15}
+              posStyle={FLOAT_POSITIONS[i]}
+            />
+          ))}
+
+          {/* Brand + description */}
+          <div className="relative z-10 flex-1 flex flex-col items-start justify-center px-10 xl:px-16 py-12">
+            <motion.div
+              initial={{ opacity: 0, y: 28 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.7, ease: 'easeOut' }}
+              className="max-w-md"
+            >
+              <div className="text-[64px] mb-5 leading-none select-none" aria-hidden="true">🏆</div>
+              <h1
+                className="font-heading font-black tracking-tight text-white leading-none mb-4"
+                style={{ fontSize: 'clamp(2.6rem,5vw,4rem)' }}
+              >
+                GOLAZO
+                <br />
+                <span style={{ color: '#29C179', textShadow: '0 0 45px rgba(41,193,121,0.45)' }}>
+                  HUB
+                </span>
+              </h1>
+              <p className="text-base text-muted-foreground font-medium leading-relaxed max-w-sm mb-8">
+                Your crew's matchday headquarters. Track seasons, score live goals, and own the pitch.
+              </p>
+
+              {/* Player avatars stack */}
+              {players.length > 0 && (
+                <motion.div
+                  initial={{ opacity: 0, y: 14 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.5, duration: 0.5 }}
+                  className="flex items-center gap-3"
+                >
+                  <div className="flex -space-x-2.5">
+                    {players.slice(0, 5).map((p, i) => (
+                      <div key={p.id} style={{ zIndex: 5 - i, position: 'relative' }}>
+                        <Avatar p={p} size={34} ring="rgba(41,193,121,0.35)" />
+                      </div>
+                    ))}
+                  </div>
+                  <p className="text-sm text-muted-foreground">
+                    <span className="text-pitch-bright font-bold">{players.length}</span>{' '}
+                    player{players.length !== 1 ? 's' : ''} in the league
+                  </p>
+                </motion.div>
+              )}
             </motion.div>
+          </div>
+
+          {/* Bottom ticker */}
+          {tickerPlayers.length > 0 && (
+            <div className="relative z-10 border-t border-white/[0.05] overflow-hidden bg-black/20 backdrop-blur-sm">
+              <div
+                className="flex animate-marquee whitespace-nowrap py-2.5"
+                style={{ '--duration': '28s', '--gap': '0px' }}
+              >
+                {tickerPlayers.map((p, idx) => (
+                  <span key={idx} className="inline-flex items-center gap-2 text-[11px] text-muted-foreground/45 px-6 font-medium flex-shrink-0">
+                    <span className="text-pitch-bright opacity-55">⚽</span>
+                    <span>{p.name || p.username}</span>
+                    {p.teamName && <span className="opacity-35">· {p.teamName}</span>}
+                    <span className="opacity-15 ml-4">|</span>
+                  </span>
+                ))}
+              </div>
+            </div>
           )}
         </div>
-        
-        <div className="mt-7">
-          <ShimmerButton 
-            type="submit"
-            className="w-full font-bold shadow-lg h-12 disabled:opacity-50 disabled:cursor-not-allowed" 
-            disabled={busy}
-            shimmerColor="#ffffff80"
-            background="#D9A93B"
-          >
-            {busy ? (
-              <span className="flex items-center gap-2 text-black"><Loader2 size={16} className="animate-spin" /> Verifying...</span>
-            ) : (
-              <span className="flex items-center gap-2 text-black"><Lock size={16} /> Enter Console</span>
+
+        {/* ─── RIGHT PANEL: Auth form ─── */}
+        <div className="relative flex flex-col items-center justify-center bg-[#0D1118] border-l border-white/[0.05] px-8 lg:px-10 xl:px-14 py-12 overflow-auto">
+          {/* Top glow */}
+          <div className="absolute top-0 left-0 right-0 h-64 bg-[radial-gradient(ellipse_at_50%_0%,rgba(31,138,92,0.08)_0%,transparent_70%)] pointer-events-none" />
+
+          <div className="w-full max-w-[340px] relative z-10">
+            {/* Logo */}
+            <motion.div
+              initial={{ opacity: 0, y: -14 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+              className="text-center mb-8"
+            >
+              <AnimatedGradientText>
+                <span className="font-heading text-xl font-black tracking-wide text-white">Golazo Hub</span>
+              </AnimatedGradientText>
+              <p className="text-xs text-muted-foreground/55 mt-1.5 font-medium">
+                {mode === 'admin' ? 'Admin console access' : 'Welcome back, player'}
+              </p>
+            </motion.div>
+
+            {/* Tab toggle */}
+            <AnimatePresence>
+              {mode !== 'admin' && (
+                <motion.div
+                  initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+                  className="mb-5"
+                >
+                  <TabToggle mode={mode} setMode={setMode} layoutId="desktop-tab-pill" />
+                </motion.div>
+              )}
+            </AnimatePresence>
+
+            {/* Form area (no card wrapper on desktop — clean panel) */}
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={mode}
+                initial={{ opacity: 0, y: 10, scale: 0.99 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={{ opacity: 0, y: -8, scale: 0.99 }}
+                transition={{ duration: 0.18 }}
+              >
+                {mode === 'signin' && <SignInForm players={players} onPlayerLogin={handlePlayerLogin} />}
+                {mode === 'signup' && <SignUpForm showToast={showToast} onPlayerLogin={handlePlayerLogin} />}
+                {mode === 'admin' && <AdminLoginForm onAdminLogin={handleAdminLogin} onBack={() => setMode('signin')} />}
+              </motion.div>
+            </AnimatePresence>
+
+            {/* Admin hold-to-reveal */}
+            {mode !== 'admin' && (
+              <div className="mt-6 flex justify-center">
+                <HoldToReveal onReveal={() => setMode('admin')} />
+              </div>
             )}
-          </ShimmerButton>
+          </div>
         </div>
-        </form>
-        
-        <motion.button 
-          whileHover={{ x: -2 }}
-          onClick={onBack} 
-          className="w-full text-center text-xs mt-6 text-muted-foreground hover:text-foreground hover:underline transition-colors min-h-[44px]"
-        >
-          ← Back to player sign in
-        </motion.button>
-      </Card>
-    </motion.div>
+      </div>
+
+      {/* ╔══════════════════════════════════════════╗
+          ║  MOBILE — Glassmorphism Refinement       ║
+          ╚══════════════════════════════════════════╝ */}
+      <div className="md:hidden min-h-[100dvh] flex items-center justify-center px-4 py-10 relative overflow-hidden">
+        {/* Pitch background + glow */}
+        <div className="absolute inset-0">
+          <PitchSVG className="opacity-90" />
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_60%_at_30%_20%,rgba(31,138,92,0.18)_0%,transparent_65%)]" />
+          <div className="absolute inset-0 bg-gradient-to-b from-[#0B0E14]/65 via-[#0B0E14]/25 to-[#0B0E14]/80" />
+        </div>
+
+        <div className="w-full max-w-sm relative z-10 flex flex-col gap-4">
+          {/* Brand */}
+          <motion.div
+            initial={{ opacity: 0, scale: 0.88 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ type: 'spring', stiffness: 280, damping: 22 }}
+            className="text-center"
+          >
+            <motion.div
+              animate={{ y: [0, -7, 0] }}
+              transition={{ repeat: Infinity, duration: 4, ease: 'easeInOut' }}
+              className="text-5xl mb-3 select-none leading-none"
+              aria-hidden="true"
+            >
+              🏆
+            </motion.div>
+            <AnimatedGradientText>
+              <h1 className="font-heading text-2xl font-black px-2 text-white tracking-tight">Golazo Hub</h1>
+            </AnimatedGradientText>
+            <p className="text-xs text-muted-foreground/55 mt-1.5 font-medium">Matchday central for the crew</p>
+          </motion.div>
+
+          {/* Tab toggle */}
+          {mode !== 'admin' && (
+            <TabToggle mode={mode} setMode={setMode} layoutId="mobile-tab-pill" />
+          )}
+
+          {/* Glassmorphism card */}
+          <div className="relative rounded-2xl overflow-hidden">
+            <div className="absolute inset-0 bg-white/[0.04] backdrop-blur-xl border border-white/10 rounded-2xl" />
+            <BorderBeam size={200} duration={14} colorFrom="#1F8A5C" colorTo="#D9A93B" />
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={mode}
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -8 }}
+                transition={{ duration: 0.18 }}
+                className="relative z-10 p-5"
+              >
+                {mode === 'signin' && <SignInForm players={players} onPlayerLogin={handlePlayerLogin} />}
+                {mode === 'signup' && <SignUpForm showToast={showToast} onPlayerLogin={handlePlayerLogin} />}
+                {mode === 'admin' && <AdminLoginForm onAdminLogin={handleAdminLogin} onBack={() => setMode('signin')} />}
+              </motion.div>
+            </AnimatePresence>
+          </div>
+
+          {/* Admin hold-to-reveal */}
+          {mode !== 'admin' && (
+            <div className="flex justify-center">
+              <HoldToReveal onReveal={() => setMode('admin')} />
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
   );
 }
