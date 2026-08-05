@@ -17,4 +17,6 @@ export const adminTabs = [
   { id: 'dashboard', label: 'Dashboard', href: '/admin', icon: Home, matchRoot: true }, // FAB
   { id: 'tournament', label: 'Tournament', href: '/admin/season', icon: Trophy },
   { id: 'announcements', label: 'Announcements', href: '/admin/announcements', icon: Megaphone },
+  { id: 'history', label: 'History', href: '/admin/history', icon: HistoryIcon },
+  { id: 'notifications', label: 'Notifications', href: '/admin/notifications', icon: Bell },
 ];

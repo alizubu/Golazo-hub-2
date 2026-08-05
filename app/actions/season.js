@@ -4,6 +4,7 @@ import prisma from '@/lib/db';
 import { revalidatePath } from 'next/cache';
 import { generateRoundRobinFixtures } from '@/lib/fixtures';
 import { cookies } from 'next/headers';
+import { sendAutoNotification } from '@/lib/notifications';
 
 export async function getSeasons() {
   return await prisma.season.findMany({
@@ -95,9 +96,7 @@ export async function startSeason(name, type, startDate, config = {}) {
        });
     }
     
-    await prisma.notification.create({
-      data: { text: `New season kicked off: "${season.name}"`, type: 'info' }
-    });
+    await sendAutoNotification(`New season kicked off: "${season.name}"`, 'info');
     
     revalidatePath('/');
     revalidatePath('/admin');
@@ -160,9 +159,7 @@ export async function completeSeason(id, data) {
       });
     }
 
-    await prisma.notification.create({
-      data: { text: `Season completed! Champion: ${data.championName || 'Unknown'}`, type: 'info' }
-    });
+    await sendAutoNotification(`Season completed! Champion: ${data.championName || 'Unknown'}`, 'info');
     
     revalidatePath('/');
     revalidatePath('/admin');
@@ -261,9 +258,7 @@ export async function adminForceEndTournament(seasonId) {
     
     if (champion) {
       const champ = await prisma.player.findUnique({ where: { id: champion } });
-      await prisma.notification.create({
-        data: { text: `Tournament force ended. Champion: ${champ?.name || 'Unknown'}`, type: 'info' }
-      });
+      await sendAutoNotification(`Tournament force ended. Champion: ${champ?.name || 'Unknown'}`, 'info');
     }
 
     revalidatePath('/');
@@ -330,5 +325,26 @@ export async function adminDeleteSeason(seasonId) {
     return { success: true };
   } catch (error) {
     return { error: 'Failed to delete season' };
+  }
+}
+
+export async function updateSeasonAwards(seasonId, data) {
+  if ((await cookies()).get('golazo_session')?.value !== 'admin') return { error: 'Unauthorized' };
+  try {
+    const season = await prisma.season.update({
+      where: { id: seasonId },
+      data: {
+        championId: data.championId || null,
+        runnerUpId: data.runnerUpId || null,
+        thirdId: data.thirdId || null,
+        mvpId: data.mvpId || null
+      }
+    });
+    revalidatePath('/');
+    revalidatePath('/admin');
+    return { success: true, season };
+  } catch (error) {
+    console.error(error);
+    return { error: 'Failed to update season awards' };
   }
 }

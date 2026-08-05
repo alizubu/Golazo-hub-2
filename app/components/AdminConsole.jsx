@@ -7,8 +7,8 @@ import { Card, Btn, Input, Label, SectionTitle, EmptyState, MagicCard, FadeIn, S
 import { motion, AnimatePresence } from 'framer-motion';
 import AdminOverviewDashboard from './AdminOverviewDashboard';
 import { generateFixtures, generatePlayoffs, updateMatchStatus, updateMatchScore, adminTriggerBracketProgress } from '@/app/actions/match';
-import { awardTrophy, removeTrophy, updateTrophy, createAnnouncement, deleteAnnouncement, endCelebration, retriggerCelebration, getCelebrations, getTrophyTemplates, createTrophyTemplate, updateTrophyTemplate, deleteTrophyTemplate, saveTickerConfig } from '@/app/actions/admin';
-import { startSeason, renameSeason, completeSeason } from '@/app/actions/season';
+import { awardTrophy, removeTrophy, updateTrophy, createAnnouncement, deleteAnnouncement, endCelebration, retriggerCelebration, getCelebrations, saveTickerConfig, getSystemSettings, updateSystemSettings, createCustomNotification, deleteCustomNotification, clearAllNotifications } from '@/app/actions/admin';
+import { startSeason, renameSeason, completeSeason, updateSeasonAwards } from '@/app/actions/season';
 import { signUpPlayer, adminUpdatePlayer, adminDeletePlayer } from '@/app/actions/player';
 import { supabase } from '@/lib/supabaseClient';
 import PlayoffBracket from './PlayoffBracket';
@@ -76,12 +76,17 @@ export default function AdminConsole(props) {
   if (tab === "admin-settings") return <ErrorBoundary><AdminSettings {...props} /></ErrorBoundary>;
   if (tab === "admin-trophies") return <ErrorBoundary><AdminTrophies {...props} /></ErrorBoundary>;
   if (tab === "admin-announcements") return <ErrorBoundary><AdminAnnouncements {...props} /></ErrorBoundary>;
+  if (tab === "admin-history") return <ErrorBoundary><AdminHistory {...props} /></ErrorBoundary>;
+  if (tab === "admin-notifications") return <ErrorBoundary><AdminNotifications {...props} /></ErrorBoundary>;
   return <EmptyState text="Admin feature in progress..." />;
 }
 
+import AdminHistory from './AdminHistory';
+import AdminNotifications from './AdminNotifications';
 import ErrorBoundary from './ErrorBoundary';
 import dynamic from 'next/dynamic';
 import RichTextEditor from './RichTextEditor';
+import SportsTicker from './SportsTicker';
 
 function AdminOverview(props) {
   return (
@@ -819,29 +824,19 @@ export function AdminTrophies({ players, trophies = [], seasons, showToast }) {
   const [isCelebrating, setIsCelebrating] = useState(false);
   const [isRevoking, setIsRevoking] = useState(false);
   const [celebrations, setCelebrations] = useState([]);
-  
-  const [dbTemplates, setDbTemplates] = useState([]);
-  const [newTemplate, setNewTemplate] = useState({ name: '', icon: '🏆', description: '' });
-  const [templateSaving, setTemplateSaving] = useState(false);
-  const [editingTemplateId, setEditingTemplateId] = useState(null);
+  const [now, setNow] = useState(new Date());
 
   useEffect(() => {
-    async function loadTemplates() {
-      const templates = await getTrophyTemplates();
-      setDbTemplates(templates);
-    }
     async function loadCelebrations() {
       const res = await getCelebrations();
       if (res.celebrations) setCelebrations(res.celebrations);
     }
-    loadTemplates();
     loadCelebrations();
+    
+    // Live timer
+    const interval = setInterval(() => setNow(new Date()), 1000);
+    return () => clearInterval(interval);
   }, [trophies]);
-
-  const allTemplates = [
-    ...TROPHY_TEMPLATES,
-    ...dbTemplates.map(t => ({ ...t, defaultDesc: t.description || '' })),
-  ];
 
   const handleAward = async () => {
     if (!form.playerId || !form.title || !form.season) return showToast('Player, Title, and Season are required.');
@@ -858,28 +853,23 @@ export function AdminTrophies({ players, trophies = [], seasons, showToast }) {
       setTimeout(() => {
         setIsCelebrating(false);
         setForm(blankForm);
-      }, 2500);
+      }, 3500);
     }
   };
 
   const handleRevoke = async () => {
     if (!revokeTarget) return;
     setIsRevoking(true);
-    const target = revokeTarget;
-
     try {
-      const data = await removeTrophy(target.id);
-
-      if (data.error) {
-        showToast(`❌ Failed to revoke trophy: ${data.error}`);
-      } else {
-        const playerName = players.find(p => p.id === target.playerId)?.name || 'Player';
-        showToast(`🗑️ ${target.title} revoked from ${playerName}`);
+      const data = await removeTrophy(revokeTarget.id);
+      if (data.error) showToast(`❌ Failed to revoke trophy: ${data.error}`);
+      else {
+        showToast(`🗑️ Trophy revoked`);
         setRevokeTarget(null);
         router.refresh();
       }
     } catch (err) {
-      showToast(`❌ Error revoking trophy: ${err.message}`);
+      showToast(`❌ Error: ${err.message}`);
     } finally {
       setIsRevoking(false);
       setRevokeTarget(null);
@@ -890,20 +880,8 @@ export function AdminTrophies({ players, trophies = [], seasons, showToast }) {
     const res = await endCelebration(id);
     if (res.error) showToast(res.error);
     else {
-      showToast("Celebration ended early.");
+      showToast("Broadcast terminated.");
       setCelebrations(prev => prev.map(c => c.id === id ? { ...c, status: 'ended_early' } : c));
-    }
-  };
-
-  const [endCelebrationTarget, setEndCelebrationTarget] = useState(null);
-
-  const handleRetrigger = async (trophyId) => {
-    const res = await retriggerCelebration(trophyId);
-    if (res.error) showToast(res.error);
-    else {
-      showToast("Celebration re-triggered!");
-      const fresh = await getCelebrations();
-      if (fresh.celebrations) setCelebrations(fresh.celebrations);
     }
   };
 
@@ -915,47 +893,8 @@ export function AdminTrophies({ players, trophies = [], seasons, showToast }) {
     setEditTarget(null);
   };
 
-  const applyTemplate = (template) => {
-    setForm(prev => ({ ...prev, title: template.name, icon: template.icon || template.image, description: template.defaultDesc || template.description || '' }));
-  };
-
-  const handleSaveTemplate = async () => {
-    if (!newTemplate.name.trim()) return showToast('Template name required');
-    setTemplateSaving(true);
-    
-    if (editingTemplateId) {
-      const res = await updateTrophyTemplate(editingTemplateId, newTemplate);
-      if (res.error) { showToast(res.error); }
-      else {
-        setDbTemplates(prev => prev.map(t => t.id === editingTemplateId ? res.template : t));
-        showToast(`✅ Template "${newTemplate.name}" updated`);
-        setNewTemplate({ name: '', icon: '🏆', description: '' });
-        setEditingTemplateId(null);
-      }
-    } else {
-      const res = await createTrophyTemplate(newTemplate);
-      if (res.error) { showToast(res.error); }
-      else {
-        setDbTemplates(prev => [...prev, res.template]);
-        showToast(`✅ Template "${newTemplate.name}" saved`);
-        setNewTemplate({ name: '', icon: '🏆', description: '' });
-      }
-    }
-    setTemplateSaving(false);
-  };
-
-  const handleEditTemplate = (t) => {
-    setEditingTemplateId(t.id);
-    setNewTemplate({ name: t.name, icon: t.icon, description: t.description || '' });
-  };
-
-  const handleDeleteTemplate = async (id, name) => {
-    const res = await deleteTrophyTemplate(id);
-    if (res.error) showToast(res.error);
-    else {
-      setDbTemplates(prev => prev.filter(t => t.id !== id));
-      showToast(`🗑️ Template "${name}" deleted`);
-    }
+  const applyTemplate = (award) => {
+    setForm(prev => ({ ...prev, title: award.name, icon: award.icon, description: award.defaultDesc || award.description }));
   };
 
   return (
@@ -963,112 +902,145 @@ export function AdminTrophies({ players, trophies = [], seasons, showToast }) {
       <Tabs defaultValue="award" className="w-full">
         <TabsList className="mb-6 bg-secondary/50 rounded-xl p-1">
           <TabsTrigger value="award" className="rounded-lg data-[state=active]:bg-card data-[state=active]:text-foreground">
-            <Plus size={14} className="mr-1.5" /> Award
+            <Plus size={14} className="mr-1.5" /> Trophy Forge
           </TabsTrigger>
-
-          <TabsTrigger value="templates" className="rounded-lg data-[state=active]:bg-card data-[state=active]:text-foreground">
-            <Package size={14} className="mr-1.5" /> Templates
+          <TabsTrigger value="history" className="rounded-lg data-[state=active]:bg-card data-[state=active]:text-foreground">
+            <History size={14} className="mr-1.5" /> Award History
           </TabsTrigger>
-
           <TabsTrigger value="celebrations" className="rounded-lg data-[state=active]:bg-card data-[state=active]:text-foreground">
-            <Megaphone size={14} className="mr-1.5" /> Celebrations
+            <Megaphone size={14} className="mr-1.5" /> Live Celebrations
           </TabsTrigger>
         </TabsList>
 
         <TabsContent value="award" className="space-y-6">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 relative">
-            <Card className="p-6 lg:col-span-7">
-              <SectionTitle icon={Trophy}>Trophy Forge</SectionTitle>
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 relative bg-zinc-950 p-6 rounded-3xl border border-white/5 shadow-2xl">
+            {/* Form Section */}
+            <div className="lg:col-span-7 flex flex-col gap-6">
+              <div className="flex items-center gap-3 mb-2">
+                <div className="w-10 h-10 rounded-full bg-amber-500/20 flex items-center justify-center border border-amber-500/30">
+                  <Trophy size={20} className="text-amber-500" />
+                </div>
+                <div>
+                  <h2 className="text-xl font-black uppercase tracking-wider text-white">Mint Trophy</h2>
+                  <p className="text-xs text-zinc-400 font-medium">Create and issue permanent awards to players.</p>
+                </div>
+              </div>
               
-              <div className="mb-6">
-                <Label className="mb-2 block">Quick-fill from template</Label>
-                <div className="flex overflow-x-auto gap-3 pb-2 snap-x snap-mandatory hide-scrollbar">
-                  {allTemplates.map(t => (
-                    <div
-                      key={t.id}
-                      onClick={() => applyTemplate(t)}
-                      className="snap-start shrink-0 flex flex-col items-center justify-center p-3 w-[100px] aspect-square rounded-2xl bg-secondary/30 hover:bg-secondary/60 cursor-pointer transition-all border border-border/40 hover:border-border/80"
+              <div>
+                <Label className="mb-3 block text-zinc-400 text-xs font-bold uppercase tracking-widest">Iconic Awards</Label>
+                <div className="flex flex-wrap gap-3">
+                  {TROPHY_TEMPLATES.map(a => (
+                    <button
+                      key={a.id}
+                      onClick={() => applyTemplate(a)}
+                      className="flex items-center gap-2 px-3 py-2 rounded-lg bg-white/5 border border-white/10 hover:border-amber-500/50 hover:bg-amber-500/10 transition-all group"
                     >
-                      {t.image || (t.icon && (t.icon.startsWith('/') || t.icon.startsWith('http'))) ? (
-                        <img src={t.image || t.icon} className="w-8 h-8 object-contain mb-2 drop-shadow-md" alt="" />
-                      ) : (
-                        <span className="text-2xl mb-2">{t.icon || '🏆'}</span>
-                      )}
-                      <span className="text-[10px] font-bold text-center leading-tight">{t.name}</span>
-                    </div>
+                      <span className="w-6 h-6 flex items-center justify-center group-hover:scale-110 transition-transform">
+                        {a.icon && (a.icon.startsWith('/') || a.icon.startsWith('http')) ? (
+                          <img src={a.icon} alt={a.name} className="w-full h-full object-contain" />
+                        ) : (
+                          <span className="text-xl">{a.icon}</span>
+                        )}
+                      </span>
+                      <span className="text-xs font-bold text-zinc-300 group-hover:text-amber-400">{a.name}</span>
+                    </button>
                   ))}
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mt-2">
                 <div className="md:col-span-2">
-                  <Label>Player</Label>
+                  <Label className="text-zinc-400 text-xs uppercase tracking-wider mb-2 block">Recipient</Label>
                   <PlayerCombobox players={players} value={form.playerId} onChange={v => setForm({...form, playerId: v})} />
                 </div>
-                <div><Label>Trophy Title</Label><Input value={form.title} onChange={e => setForm({...form, title: e.target.value})} placeholder="e.g. Golden Boot" /></div>
-                <div><Label>Season</Label><Input value={form.season} onChange={e => setForm({...form, season: e.target.value})} placeholder="e.g. Season 1" /></div>
+                <div>
+                  <Label className="text-zinc-400 text-xs uppercase tracking-wider mb-2 block">Title</Label>
+                  <Input value={form.title} onChange={e => setForm({...form, title: e.target.value})} className="bg-black/50 border-white/10 text-white font-bold" placeholder="e.g. Golden Boot" />
+                </div>
+                <div>
+                  <Label className="text-zinc-400 text-xs uppercase tracking-wider mb-2 block">Season</Label>
+                  <Input value={form.season} onChange={e => setForm({...form, season: e.target.value})} className="bg-black/50 border-white/10 text-white font-bold" placeholder="e.g. Season 1" />
+                </div>
                 <div className="md:col-span-2">
-                  <Label>Icon</Label>
+                  <Label className="text-zinc-400 text-xs uppercase tracking-wider mb-2 block">Icon Emoji / URL</Label>
                   <TrophyIconPicker value={form.icon} onChange={v => setForm({...form, icon: v})} />
                 </div>
-                <div className="md:col-span-2"><Label>Description</Label><Input value={form.description} onChange={e => setForm({...form, description: e.target.value})} placeholder="e.g. Top goalscorer with 25 goals." /></div>
+                <div className="md:col-span-2">
+                  <Label className="text-zinc-400 text-xs uppercase tracking-wider mb-2 block">Description</Label>
+                  <Input value={form.description} onChange={e => setForm({...form, description: e.target.value})} className="bg-black/50 border-white/10 text-white" placeholder="e.g. Top goalscorer with 25 goals." />
+                </div>
               </div>
-              <ShinyButton className="mt-6 w-full py-6 text-lg" onClick={handleAward} disabled={isAwarding || isCelebrating} loading={isAwarding}>🏆 Award Trophy</ShinyButton>
-            </Card>
 
-            {/* Live Preview */}
-            <div className="lg:col-span-5 hidden sm:flex flex-col items-center justify-start sticky top-24 h-max">
-              <Label className="mb-4 text-muted-foreground text-xs uppercase tracking-widest font-semibold">Live Preview</Label>
+              <button
+                onClick={handleAward}
+                disabled={isAwarding || isCelebrating}
+                className={`mt-4 w-full py-5 rounded-xl font-black uppercase tracking-widest text-lg transition-all ${
+                  isAwarding || isCelebrating ? 'bg-zinc-800 text-zinc-500 cursor-not-allowed' : 'bg-gradient-to-r from-amber-500 to-amber-600 text-black hover:shadow-[0_0_30px_rgba(245,158,11,0.5)] hover:scale-[1.02]'
+                }`}
+              >
+                {isAwarding ? 'Minting...' : isCelebrating ? 'Success!' : '🏆 Award Trophy'}
+              </button>
+            </div>
+
+            {/* Live Preview Section */}
+            <div className="lg:col-span-5 hidden sm:flex flex-col items-center justify-center sticky top-24 h-max min-h-[400px]">
+              <div className="absolute inset-0 bg-gradient-to-b from-amber-500/5 to-transparent rounded-2xl pointer-events-none" />
               
-              <div className="relative w-full max-w-[300px]">
-                {/* Ceremony Animation */}
-                <AnimatePresence>
-                  {isCelebrating && (
-                    <>
-                      <motion.div 
-                        initial={{ opacity: 0, scale: 0 }}
-                        animate={{ opacity: 1, scale: 2 }}
-                        exit={{ opacity: 0, scale: 3 }}
-                        transition={{ duration: 1.5, ease: "easeOut" }}
-                        className="absolute inset-0 bg-gold/20 rounded-full blur-3xl z-0 pointer-events-none"
-                      />
-                      <motion.div
-                        initial={{ opacity: 0, scale: 0.5, y: 50 }}
-                        animate={{ opacity: [0, 1, 1, 0], scale: [0.5, 1.2, 1, 1], y: [50, -20, 0, -50] }}
-                        transition={{ duration: 2.5, ease: "easeInOut" }}
-                        className="absolute -inset-10 z-50 flex items-center justify-center pointer-events-none"
-                      >
-                        <span className="text-[120px] filter drop-shadow-[0_0_20px_rgba(251,191,36,0.8)]">🎉</span>
-                      </motion.div>
-                    </>
-                  )}
-                </AnimatePresence>
+              <AnimatePresence>
+                {isCelebrating && (
+                  <>
+                    <motion.div 
+                      initial={{ opacity: 0, scale: 0.5 }}
+                      animate={{ opacity: 1, scale: 2 }}
+                      exit={{ opacity: 0, scale: 3 }}
+                      transition={{ duration: 1, ease: "easeOut" }}
+                      className="absolute inset-0 bg-amber-500/30 rounded-full blur-[100px] z-0 pointer-events-none"
+                    />
+                    <motion.div
+                      initial={{ opacity: 0, y: 50, scale: 0.5 }}
+                      animate={{ opacity: [0, 1, 1, 0], y: [50, -50, -100, -150], scale: [0.5, 1.5, 1.5, 1] }}
+                      transition={{ duration: 3, ease: "easeOut" }}
+                      className="absolute inset-0 z-50 flex items-center justify-center pointer-events-none"
+                    >
+                      <div className="text-[150px] filter drop-shadow-[0_0_30px_rgba(245,158,11,0.8)]">🏆</div>
+                    </motion.div>
+                  </>
+                )}
+              </AnimatePresence>
 
-                <motion.div 
-                  className="relative z-10 w-full"
-                  animate={isCelebrating ? { scale: [1, 1.1, 1], rotate: [0, -2, 2, 0] } : {}}
-                  transition={{ duration: 0.8, ease: "easeInOut" }}
-                >
-                  <BorderBeam size={100} duration={12} delay={9} colorFrom="var(--gold)" colorTo="transparent" className="rounded-2xl z-40 opacity-70 pointer-events-none" />
-                  <TrophyTradingCard 
-                    trophy={{ 
-                      ...form, 
-                      title: form.title || 'New Trophy',
-                      season: form.season || 'Season',
-                      icon: form.icon || '🏆',
-                      player: players.find(p => p.id === form.playerId)
-                    }} 
-                    hideActions={true}
-                  />
-                </motion.div>
-              </div>
+              <motion.div 
+                className="relative z-10 w-full max-w-[320px] perspective-1000"
+                animate={isCelebrating ? { 
+                  scale: [1, 1.15, 1], 
+                  rotateY: [0, 15, -15, 0],
+                  rotateX: [0, 10, -10, 0]
+                } : {
+                  rotateY: [-5, 5, -5],
+                  rotateX: [2, -2, 2]
+                }}
+                transition={isCelebrating ? { duration: 1.5, ease: "easeInOut" } : { duration: 6, repeat: Infinity, ease: "easeInOut" }}
+              >
+                <BorderBeam size={150} duration={8} delay={0} colorFrom="#f59e0b" colorTo="transparent" className="rounded-2xl z-40 opacity-70 pointer-events-none" />
+                <TrophyTradingCard 
+                  trophy={{ 
+                    ...form, 
+                    title: form.title || 'Legendary Award',
+                    season: form.season || 'Season X',
+                    icon: form.icon || '🏆',
+                    player: players.find(p => p.id === form.playerId) || { name: 'Player Name', avatar: '' }
+                  }} 
+                  hideActions={true}
+                />
+              </motion.div>
             </div>
           </div>
+        </TabsContent>
 
+        <TabsContent value="history" className="space-y-6">
           <Card className="p-6">
-            <SectionTitle icon={History}>Award History</SectionTitle>
+            <SectionTitle icon={History}>Award Vault</SectionTitle>
             <p className="text-sm text-muted-foreground mb-6">
-              View and manage all trophies awarded across the platform.
+              Browse all permanent trophies awarded to players.
             </p>
             {trophies.length === 0 ? (
               <EmptyState text="No trophies awarded yet." />
@@ -1093,171 +1065,97 @@ export function AdminTrophies({ players, trophies = [], seasons, showToast }) {
           </Card>
         </TabsContent>
 
-
         <TabsContent value="celebrations" className="space-y-6">
-          <Card className="p-6">
-            <SectionTitle icon={Megaphone}>Trophy Celebrations</SectionTitle>
-            <p className="text-sm text-muted-foreground mb-6">
-              Manage 24-hour celebration banners that appear on all player dashboards when a trophy is awarded.
+          <Card className="p-6 overflow-hidden bg-zinc-950 border-red-500/20 shadow-[0_4px_30px_rgba(0,0,0,0.5)]">
+            <div className="flex items-center justify-between mb-6 pb-4 border-b border-white/10">
+              <SectionTitle icon={Megaphone}>Live Broadcasts</SectionTitle>
+              <div className="flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold bg-red-500/10 text-red-400 border border-red-500/30 shadow-[0_0_10px_rgba(239,68,68,0.2)]">
+                <div className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse" />
+                ON AIR
+              </div>
+            </div>
+            
+            <p className="text-sm text-zinc-400 mb-6">
+              Manage active 24-hour celebration banners appearing on player dashboards.
             </p>
+
             {celebrations.length === 0 ? (
-              <EmptyState text="No celebrations yet." />
+              <div className="flex flex-col items-center justify-center py-12 border border-dashed border-white/10 rounded-2xl bg-white/5">
+                <span className="text-4xl mb-3 opacity-50">📡</span>
+                <p className="text-zinc-500 font-medium">No active broadcasts.</p>
+              </div>
             ) : (
-              <div className="overflow-x-auto -mx-2">
-                <table className="w-full text-sm min-w-[600px]">
-                  <thead>
-                    <tr className="text-muted-foreground text-[11px] uppercase tracking-wider border-b border-border/50">
-                      <th className="pb-3 text-left px-2 font-semibold">Status</th>
-                      <th className="pb-3 text-left px-2 font-semibold">Trophy</th>
-                      <th className="pb-3 text-left px-2 font-semibold">Player</th>
-                      <th className="pb-3 text-left px-2 font-semibold">Started At</th>
-                      <th className="pb-3 text-left px-2 font-semibold">Expires At</th>
-                      <th className="pb-3 px-2"></th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {celebrations.map((c, i) => {
-                      const isActive = c.status === 'active' && new Date(c.expiresAt) > new Date();
-                      return (
-                        <motion.tr
-                          key={c.id}
-                          initial={{ opacity: 0, y: 6 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          transition={{ delay: i * 0.03 }}
-                          className="border-b border-border/30 last:border-0 hover:bg-secondary/20 transition-colors"
-                        >
-                          <td className="py-3 px-2">
-                            {isActive ? (
-                              <Badge color="var(--pitch)" pulse>ACTIVE</Badge>
-                            ) : (
-                              <Badge variant="outline" className="text-muted-foreground border-border/50">{c.status === 'ended_early' ? 'ENDED EARLY' : 'EXPIRED'}</Badge>
-                            )}
-                          </td>
-                          <td className="py-3 px-2">
-                            <div className="flex items-center gap-2">
-                              {c.trophy.icon && (c.trophy.icon.startsWith('/') || c.trophy.icon.startsWith('http')) ? (
-                                <img src={c.trophy.icon} className="w-5 h-5 object-contain" alt="" />
-                              ) : (
-                                <span>{c.trophy.icon || '🏆'}</span>
-                              )}
-                              <span className="font-semibold">{c.trophy.title}</span>
-                            </div>
-                          </td>
-                          <td className="py-3 px-2">
-                            <div className="flex items-center gap-2">
-                              <Avatar p={c.trophy.player} size={20} />
-                              <span className="font-medium">{c.trophy.player.name}</span>
-                            </div>
-                          </td>
-                          <td className="py-3 px-2 font-score text-muted-foreground text-xs whitespace-nowrap">
-                            {new Date(c.startedAt).toLocaleString(undefined, { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' })}
-                          </td>
-                          <td className="py-3 px-2 font-score text-muted-foreground text-xs whitespace-nowrap">
-                            {new Date(c.expiresAt).toLocaleString(undefined, { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' })}
-                          </td>
-                          <td className="py-3 px-2 text-right">
-                            {isActive && (
-                              <Btn
-                                variant="danger"
-                                className="py-1 px-2 text-[10px] h-6 rounded-md"
-                                onClick={() => setEndCelebrationTarget(c.id)}
-                              >
-                                End Now
-                              </Btn>
-                            )}
-                          </td>
-                        </motion.tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {celebrations.map((c, i) => {
+                  const expiry = new Date(c.expiresAt);
+                  const isActive = c.status === 'active' && expiry > now;
+                  const msLeft = Math.max(0, expiry - now);
+                  const hLeft = Math.floor(msLeft / (1000 * 60 * 60));
+                  const mLeft = Math.floor((msLeft % (1000 * 60 * 60)) / (1000 * 60));
+                  const sLeft = Math.floor((msLeft % (1000 * 60)) / 1000);
+
+                  return (
+                    <motion.div
+                      key={c.id}
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: i * 0.05 }}
+                      className={`relative p-5 rounded-2xl border transition-all ${
+                        isActive ? 'bg-black border-red-500/40 shadow-[0_0_20px_rgba(239,68,68,0.15)]' : 'bg-white/5 border-white/10 opacity-60'
+                      }`}
+                    >
+                      {isActive && (
+                        <div className="absolute top-0 right-0 px-3 py-1 bg-red-500 text-white text-[9px] font-black tracking-widest rounded-bl-xl rounded-tr-xl">
+                          LIVE
+                        </div>
+                      )}
+                      
+                      <div className="flex items-center gap-3 mb-4">
+                        <div className="w-12 h-12 rounded-xl bg-white/5 flex items-center justify-center text-2xl border border-white/10">
+                          {c.trophy.icon && (c.trophy.icon.startsWith('/') || c.trophy.icon.startsWith('http')) ? (
+                            <img src={c.trophy.icon} className="w-8 h-8 object-contain" alt="" />
+                          ) : (
+                            <span>{c.trophy.icon || '🏆'}</span>
+                          )}
+                        </div>
+                        <div>
+                          <h4 className="font-bold text-white text-sm leading-tight">{c.trophy.title}</h4>
+                          <div className="flex items-center gap-1.5 mt-1">
+                            <Avatar p={c.trophy.player} size={14} />
+                            <span className="text-xs text-zinc-400 font-medium">{c.trophy.player.name}</span>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center justify-between mt-6 pt-4 border-t border-white/10">
+                        {isActive ? (
+                          <div className="flex flex-col">
+                            <span className="text-[9px] font-bold text-zinc-500 uppercase tracking-wider mb-1">Time Remaining</span>
+                            <span className="font-mono text-red-400 font-bold text-sm tracking-wider">
+                              {String(hLeft).padStart(2,'0')}:{String(mLeft).padStart(2,'0')}:{String(sLeft).padStart(2,'0')}
+                            </span>
+                          </div>
+                        ) : (
+                          <span className="text-xs font-bold text-zinc-500 uppercase tracking-widest">
+                            {c.status === 'ended_early' ? 'KILLED' : 'EXPIRED'}
+                          </span>
+                        )}
+
+                        {isActive && (
+                          <button
+                            onClick={() => handleEndCelebration(c.id)}
+                            className="px-3 py-1.5 bg-red-950 hover:bg-red-900 border border-red-800 text-red-400 rounded-lg text-[10px] font-black uppercase tracking-widest transition-colors flex items-center gap-1"
+                          >
+                            <span className="w-1.5 h-1.5 bg-red-500 rounded-full" />
+                            Kill Switch
+                          </button>
+                        )}
+                      </div>
+                    </motion.div>
+                  );
+                })}
               </div>
             )}
-          </Card>
-
-          {/* Plain confirmation modal — no portal/animation state machines */}
-          {endCelebrationTarget && (
-            <div
-              className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm"
-              onClick={() => setEndCelebrationTarget(null)}
-            >
-              <div
-                className="bg-card border border-border/60 rounded-2xl shadow-2xl p-6 w-full max-w-sm mx-4"
-                onClick={e => e.stopPropagation()}
-              >
-                <h3 className="text-base font-bold text-foreground mb-2">End this celebration early?</h3>
-                <p className="text-sm text-muted-foreground mb-6">
-                  It will stop showing on all dashboards immediately. The player keeps the trophy in their permanent Trophy Cabinet.
-                </p>
-                <div className="flex gap-3 justify-end">
-                  <button
-                    onClick={() => setEndCelebrationTarget(null)}
-                    className="px-4 py-2 rounded-lg text-sm font-medium border border-border hover:bg-secondary transition-colors"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    onClick={async () => {
-                      await handleEndCelebration(endCelebrationTarget);
-                      setEndCelebrationTarget(null);
-                    }}
-                    className="px-4 py-2 rounded-lg text-sm font-bold bg-destructive text-destructive-foreground hover:bg-destructive/90 transition-colors"
-                  >
-                    End Now
-                  </button>
-                </div>
-              </div>
-            </div>
-          )}
-        </TabsContent>
-
-        <TabsContent value="templates" className="space-y-6">
-          <Card className="p-6">
-            <SectionTitle icon={Package}>Manage Templates</SectionTitle>
-            <p className="text-sm text-muted-foreground mb-6">
-              Create new &quot;Core&quot; trophies. These will instantly appear as &quot;locked&quot; silhouettes in every player&apos;s cabinet!
-            </p>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6 bg-secondary/20 p-4 rounded-xl border border-border/40">
-              <div className="md:col-span-2">
-                <h4 className="text-sm font-bold text-stadium-primary mb-2">{editingTemplateId ? 'Edit Template' : 'Create New Template'}</h4>
-              </div>
-              <div><Label>Template Name</Label><Input value={newTemplate.name} onChange={e => setNewTemplate({...newTemplate, name: e.target.value})} placeholder="e.g. Defender of the Year" /></div>
-              <div><Label>Icon</Label><TrophyIconPicker value={newTemplate.icon} onChange={v => setNewTemplate({...newTemplate, icon: v})} /></div>
-              <div className="md:col-span-2"><Label>Description (Optional)</Label><Input value={newTemplate.description} onChange={e => setNewTemplate({...newTemplate, description: e.target.value})} placeholder="e.g. Awarded to the best defender" /></div>
-              <div className="md:col-span-2 flex justify-end gap-2">
-                {editingTemplateId && (
-                  <Btn variant="ghost" onClick={() => { setEditingTemplateId(null); setNewTemplate({ name: '', icon: '🏆', description: '' }); }}>Cancel</Btn>
-                )}
-                <ShinyButton onClick={handleSaveTemplate} disabled={templateSaving} loading={templateSaving}>
-                  {editingTemplateId ? '💾 Update Template' : '💾 Create Template'}
-                </ShinyButton>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-              {dbTemplates.map((t, i) => (
-                <FadeIn key={t.id} delay={i * 0.05}>
-                  <MagicCard className="p-4 flex flex-col justify-between h-full group relative">
-                    <div className="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                      <Btn variant="ghost" className="h-6 w-6 p-0 rounded-md text-stadium-secondary hover:text-white" onClick={() => handleEditTemplate(t)}><Edit2 size={13} /></Btn>
-                      <Btn variant="ghost" className="h-6 w-6 p-0 rounded-md text-red-500 hover:bg-red-500/20" onClick={() => handleDeleteTemplate(t.id, t.name)}><Trash2 size={13} /></Btn>
-                    </div>
-                    <div className="flex items-center gap-3 pr-12">
-                      {t.icon && (t.icon.startsWith('/') || t.icon.startsWith('http')) ? (
-                        <img src={t.icon} className="w-8 h-8 object-contain" alt="" />
-                      ) : (
-                        <span className="text-2xl">{t.icon || '🏆'}</span>
-                      )}
-                      <div>
-                        <div className="font-bold text-sm leading-tight">{t.name}</div>
-                        {t.description && <div className="text-[10px] text-muted-foreground mt-1 line-clamp-2">{t.description}</div>}
-                      </div>
-                    </div>
-                  </MagicCard>
-                </FadeIn>
-              ))}
-            </div>
           </Card>
         </TabsContent>
       </Tabs>
@@ -1282,29 +1180,44 @@ export function AdminTrophies({ players, trophies = [], seasons, showToast }) {
   );
 }
 
-const SourceBtn = ({ value, label, currentSource, onChange }) => (
+const SegmentBtn = ({ value, label, icon, current, onChange }) => (
   <button
     onClick={() => onChange(value)}
-    className={`px-3 py-1.5 rounded-lg text-xs font-semibold border transition-colors ${
-      currentSource === value
-        ? 'bg-pitch text-white border-pitch'
-        : 'bg-secondary/40 text-muted-foreground border-border/50 hover:bg-secondary'
+    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-semibold transition-all ${
+      current === value
+        ? 'bg-amber-500 text-black shadow-sm scale-95'
+        : 'text-zinc-400 hover:text-white hover:bg-white/5'
     }`}
   >
+    <span>{icon}</span>
     {label}
   </button>
 );
 
-const SpeedBtn = ({ value, label, currentSpeed, onChange }) => (
+const SpeedBtn = ({ value, icon, current, onChange }) => (
   <button
     onClick={() => onChange(value)}
-    className={`px-3 py-1.5 rounded-lg text-xs font-semibold border transition-colors ${
-      currentSpeed === value
-        ? 'bg-pitch text-white border-pitch'
-        : 'bg-secondary/40 text-muted-foreground border-border/50 hover:bg-secondary'
+    className={`flex flex-col items-center gap-1 px-4 py-2 rounded-lg text-lg transition-colors border ${
+      current === value
+        ? 'bg-amber-500/10 text-amber-500 border-amber-500/50'
+        : 'bg-white/5 text-zinc-500 border-transparent hover:bg-white/10'
+    }`}
+    title={value}
+  >
+    {icon}
+  </button>
+);
+
+const ThemeBtn = ({ theme, current, onChange }) => (
+  <button
+    onClick={() => onChange(theme)}
+    className={`px-3 py-1 rounded text-[10px] font-black uppercase tracking-wider transition-all border ${
+      current === theme 
+        ? 'bg-amber-500 text-black border-amber-500 shadow-[0_0_8px_rgba(245,158,11,0.5)]' 
+        : 'bg-zinc-900 text-zinc-500 border-zinc-700 hover:text-zinc-300 hover:border-zinc-500'
     }`}
   >
-    {label}
+    {theme}
   </button>
 );
 
@@ -1415,155 +1328,143 @@ export function AdminAnnouncements({ announcements, matches = [], players = [], 
       </div>
 
       {/* ── Match Ticker Control Panel ─────────────────────────────────────── */}
-      <Card className="p-6">
-        <div className="flex items-center justify-between mb-5">
-          <SectionTitle icon={Activity}>Match Ticker Settings</SectionTitle>
+      <Card className="p-6 overflow-hidden bg-zinc-950 border-amber-500/20 shadow-[0_4px_30px_rgba(0,0,0,0.5)]">
+        <div className="flex items-center justify-between mb-6 pb-4 border-b border-white/10">
+          <SectionTitle icon={Activity}>Broadcast Control Room</SectionTitle>
           {!tickerLoading && (
-            <div className={`flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold border ${
+            <div className={`flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold border transition-colors ${
               tickerDraft.enabled
-                ? 'bg-pitch/10 text-pitch-bright border-pitch/20'
-                : 'bg-secondary text-muted-foreground border-border/40'
+                ? 'bg-red-500/10 text-red-400 border-red-500/30 shadow-[0_0_10px_rgba(239,68,68,0.2)]'
+                : 'bg-zinc-900 text-zinc-500 border-zinc-800'
             }`}>
-              <div className={`w-1.5 h-1.5 rounded-full ${tickerDraft.enabled ? 'bg-pitch-bright animate-pulse' : 'bg-muted-foreground'}`} />
-              {tickerDraft.enabled ? 'Ticker ON' : 'Ticker OFF'}
+              <div className={`w-1.5 h-1.5 rounded-full ${tickerDraft.enabled ? 'bg-red-500 animate-pulse' : 'bg-zinc-600'}`} />
+              {tickerDraft.enabled ? 'TICKER LIVE' : 'OFF AIR'}
             </div>
           )}
         </div>
 
         {tickerLoading ? (
-          <div className="flex items-center gap-2 text-muted-foreground text-sm py-4">
-            <div className="w-4 h-4 rounded-full border-2 border-t-transparent border-muted-foreground animate-spin" />
-            Loading config…
+          <div className="flex items-center gap-2 text-muted-foreground text-sm py-8 justify-center">
+            <div className="w-5 h-5 rounded-full border-2 border-t-transparent border-amber-500 animate-spin" />
+            Initializing broadcast systems…
           </div>
         ) : (
-          <div className="space-y-5">
-            {/* Enable / Disable */}
-            <div className="p-3 rounded-xl bg-secondary/30 border border-border/40">
-              <Toggle
-                checked={tickerDraft.enabled}
-                onChange={v => setTickerDraft(d => ({ ...d, enabled: v }))}
-                label="Enable ticker site-wide"
-              />
-            </div>
-
-            {/* Content source */}
-            <div>
-              <Label className="mb-2 block">Content Source</Label>
-              <div className="flex flex-wrap gap-2">
-                <SourceBtn value="live" label="Live Only" currentSource={tickerDraft.source} onChange={v => setTickerDraft(d => ({ ...d, source: v }))} />
-                <SourceBtn value="live_recent" label="Live + Recent (last 5)" currentSource={tickerDraft.source} onChange={v => setTickerDraft(d => ({ ...d, source: v }))} />
-                <SourceBtn value="live_today" label="Live + Today" currentSource={tickerDraft.source} onChange={v => setTickerDraft(d => ({ ...d, source: v }))} />
-                <SourceBtn value="custom" label="Custom Selection" currentSource={tickerDraft.source} onChange={v => setTickerDraft(d => ({ ...d, source: v }))} />
-              </div>
-            </div>
-
-            {/* Custom match picker */}
-            {tickerDraft.source === 'custom' && (
-              <FadeIn>
-                <div>
-                  <Label className="mb-2 block">Select Matches</Label>
-                  <div className="flex flex-col gap-1.5 max-h-48 overflow-y-auto p-2 rounded-xl border border-border/40 bg-secondary/20">
-                    {matches.map(m => {
-                      const h = players.find(p => p.id === m.homeId);
-                      const a = players.find(p => p.id === m.awayId);
-                      const checked = tickerDraft.customMatchIds?.includes(m.id);
-                      return (
-                        <label key={m.id} className="flex items-center gap-3 p-2 rounded-lg hover:bg-secondary/60 cursor-pointer transition-colors">
-                          <input
-                            type="checkbox"
-                            checked={checked}
-                            onChange={() => setTickerDraft(d => ({
-                              ...d,
-                              customMatchIds: checked
-                                ? d.customMatchIds.filter(id => id !== m.id)
-                                : [...(d.customMatchIds || []), m.id]
-                            }))}
-                            className="rounded"
-                          />
-                          <span className="text-sm font-medium">{h?.name || '?'} <span className="text-muted-foreground">vs</span> {a?.name || '?'}</span>
-                          <span className={`ml-auto text-[10px] font-bold uppercase px-1.5 py-0.5 rounded ${
-                            m.status === 'live' ? 'bg-red-500/20 text-red-400' :
-                            m.status === 'completed' ? 'bg-pitch/20 text-pitch-bright' :
-                            'bg-secondary text-muted-foreground'
-                          }`}>{m.status}</span>
-                        </label>
-                      );
-                    })}
-                    {matches.length === 0 && <p className="text-sm text-muted-foreground p-2">No matches found.</p>}
-                  </div>
-                </div>
-              </FadeIn>
-            )}
-
-            {/* Display settings */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div>
-                <Label className="mb-2 block">Scroll Speed</Label>
+          <div className="flex flex-col gap-8">
+            
+            {/* Sticky Live Preview */}
+            <div className="sticky top-0 z-50 bg-zinc-950/80 backdrop-blur-xl p-4 rounded-xl border border-white/10 shadow-2xl">
+              <div className="flex items-center justify-between mb-3">
+                <Label className="text-amber-500 font-bold uppercase tracking-widest text-[10px]">On-Air Preview</Label>
                 <div className="flex gap-2">
-                  <SpeedBtn value="slow" label="Slow" currentSpeed={tickerDraft.scrollSpeed} onChange={v => setTickerDraft(d => ({ ...d, scrollSpeed: v }))} />
-                  <SpeedBtn value="normal" label="Normal" currentSpeed={tickerDraft.scrollSpeed} onChange={v => setTickerDraft(d => ({ ...d, scrollSpeed: v }))} />
-                  <SpeedBtn value="fast" label="Fast" currentSpeed={tickerDraft.scrollSpeed} onChange={v => setTickerDraft(d => ({ ...d, scrollSpeed: v }))} />
+                  <ThemeBtn theme="classic" current={tickerDraft.theme} onChange={v => setTickerDraft(d => ({ ...d, theme: v }))} />
+                  <ThemeBtn theme="neon" current={tickerDraft.theme} onChange={v => setTickerDraft(d => ({ ...d, theme: v }))} />
+                  <ThemeBtn theme="cyber" current={tickerDraft.theme} onChange={v => setTickerDraft(d => ({ ...d, theme: v }))} />
                 </div>
               </div>
-              <div className="p-3 rounded-xl bg-secondary/20 border border-border/30 space-y-0.5">
-                <Toggle
-                  checked={tickerDraft.showAvatars}
-                  onChange={v => setTickerDraft(d => ({ ...d, showAvatars: v }))}
-                  label="Show player avatars"
-                />
-                <Toggle
-                  checked={tickerDraft.pauseOnHover}
-                  onChange={v => setTickerDraft(d => ({ ...d, pauseOnHover: v }))}
-                  label="Pause on hover"
+              <div className="rounded-lg overflow-hidden ring-1 ring-white/10">
+                <SportsTicker 
+                  matches={matches} 
+                  announcements={announcements} 
+                  players={players} 
+                  tickerConfig={tickerDraft} 
+                  previewMode={true} 
                 />
               </div>
             </div>
 
-            {/* Live preview */}
-            <div>
-              <Label className="mb-2 block">Live Preview</Label>
-              <div className="w-full rounded-xl overflow-hidden border border-border/40 bg-black/40 backdrop-blur-md h-10 flex items-center relative select-none">
-                <div className="absolute left-0 top-0 bottom-0 w-10 bg-gradient-to-r from-black/60 to-transparent z-10 pointer-events-none" />
-                <div className="absolute right-0 top-0 bottom-0 w-10 bg-gradient-to-l from-black/60 to-transparent z-10 pointer-events-none" />
-                {tickerDraft.enabled ? (
-                  <div
-                    className="flex whitespace-nowrap w-max"
-                    style={{ animation: `marquee ${previewDuration} linear infinite`, '--gap': '2rem' }}
-                  >
-                    {[...previewMatches, ...previewMatches].map((m, i) => {
-                      const h = players.find(p => p.id === m.homeId);
-                      const a = players.find(p => p.id === m.awayId);
-                      const isLive = m.status === 'live';
-                      if (!h || !a) return null;
-                      return (
-                        <div key={`prev-${m.id}-${i}`} className="flex items-center gap-2 mr-10 shrink-0">
-                          <div className={`flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider ${
-                            isLive ? 'bg-red-500/15 text-red-400 border border-red-500/20' : 'text-zinc-500'
-                          }`}>
-                            {isLive ? <><span className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse" />LIVE</> : 'FT'}
-                          </div>
-                          <div className="flex items-center gap-1.5 text-xs font-semibold text-foreground/80">
-                            {tickerDraft.showAvatars && <Avatar p={h} size={14} />}
-                            <span>{h.name}</span>
-                            <span className={`px-1.5 py-0.5 rounded-full text-[10px] font-black ${
-                              isLive ? 'bg-red-500/15 text-red-400' : 'bg-pitch/15 text-pitch-bright'
-                            }`}>{m.homeScore ?? 0}-{m.awayScore ?? 0}</span>
-                            <span>{a.name}</span>
-                            {tickerDraft.showAvatars && <Avatar p={a} size={14} />}
-                          </div>
-                        </div>
-                      );
-                    })}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+              {/* Left Column: Content */}
+              <div className="flex flex-col gap-6">
+                
+                <div className="p-4 rounded-xl bg-white/5 border border-white/5 hover:border-white/10 transition-colors">
+                  <Toggle
+                    checked={tickerDraft.enabled}
+                    onChange={v => setTickerDraft(d => ({ ...d, enabled: v }))}
+                    label="Enable site-wide broadcast"
+                  />
+                </div>
+
+                <div>
+                  <Label className="mb-3 block text-zinc-400">Content Feed Source</Label>
+                  <div className="flex p-1 bg-zinc-900 rounded-lg w-fit border border-white/5">
+                    <SegmentBtn icon="📺" value="live" label="Live Only" current={tickerDraft.source} onChange={v => setTickerDraft(d => ({ ...d, source: v }))} />
+                    <SegmentBtn icon="🕒" value="live_recent" label="Recent" current={tickerDraft.source} onChange={v => setTickerDraft(d => ({ ...d, source: v }))} />
+                    <SegmentBtn icon="📅" value="live_today" label="Today" current={tickerDraft.source} onChange={v => setTickerDraft(d => ({ ...d, source: v }))} />
+                    <SegmentBtn icon="⚙️" value="custom" label="Custom" current={tickerDraft.source} onChange={v => setTickerDraft(d => ({ ...d, source: v }))} />
                   </div>
-                ) : (
-                  <p className="text-xs text-muted-foreground px-4">Ticker is disabled</p>
+                </div>
+
+                {tickerDraft.source === 'custom' && (
+                  <FadeIn>
+                    <div>
+                      <div className="flex items-center justify-between mb-2">
+                        <Label className="text-zinc-400">Select Matches</Label>
+                        <span className="text-xs text-zinc-500">{tickerDraft.customMatchIds?.length || 0} selected</span>
+                      </div>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-64 overflow-y-auto p-2 rounded-xl bg-black/50 border border-white/5 custom-scrollbar">
+                        {matches.map(m => {
+                          const h = players.find(p => p.id === m.homeId);
+                          const a = players.find(p => p.id === m.awayId);
+                          const checked = tickerDraft.customMatchIds?.includes(m.id);
+                          const isLive = m.status === 'live';
+                          return (
+                            <label key={m.id} className={`flex items-center p-2 rounded-lg cursor-pointer transition-all border ${checked ? 'bg-amber-500/10 border-amber-500/50' : 'bg-white/5 border-transparent hover:bg-white/10'}`}>
+                              <input
+                                type="checkbox"
+                                checked={checked}
+                                onChange={() => setTickerDraft(d => ({
+                                  ...d,
+                                  customMatchIds: checked ? d.customMatchIds.filter(id => id !== m.id) : [...(d.customMatchIds || []), m.id]
+                                }))}
+                                className="hidden"
+                              />
+                              <div className={`w-4 h-4 rounded border flex items-center justify-center mr-3 ${checked ? 'bg-amber-500 border-amber-500' : 'border-zinc-600'}`}>
+                                {checked && <CheckCircle2 size={12} className="text-black" />}
+                              </div>
+                              <div className="flex flex-col">
+                                <span className="text-[11px] font-bold text-zinc-300">{h?.name} vs {a?.name}</span>
+                                <span className={`text-[9px] font-bold uppercase ${isLive ? 'text-red-400' : 'text-zinc-500'}`}>{m.status}</span>
+                              </div>
+                            </label>
+                          );
+                        })}
+                        {matches.length === 0 && <p className="text-sm text-zinc-500 p-2 col-span-2">No matches found.</p>}
+                      </div>
+                    </div>
+                  </FadeIn>
                 )}
               </div>
-              <p className="text-[10px] text-muted-foreground mt-1.5">Preview uses current matches — save to apply to all users.</p>
+
+              {/* Right Column: Visuals */}
+              <div className="flex flex-col gap-6">
+                
+                <div>
+                  <Label className="mb-3 block text-zinc-400">Scroll Speed</Label>
+                  <div className="flex gap-2">
+                    <SpeedBtn value="slow" icon="🐢" current={tickerDraft.scrollSpeed} onChange={v => setTickerDraft(d => ({ ...d, scrollSpeed: v }))} />
+                    <SpeedBtn value="normal" icon="🚶" current={tickerDraft.scrollSpeed} onChange={v => setTickerDraft(d => ({ ...d, scrollSpeed: v }))} />
+                    <SpeedBtn value="fast" icon="⚡" current={tickerDraft.scrollSpeed} onChange={v => setTickerDraft(d => ({ ...d, scrollSpeed: v }))} />
+                  </div>
+                </div>
+
+                <div className="p-4 rounded-xl bg-white/5 border border-white/5 space-y-4">
+                  <Toggle
+                    checked={tickerDraft.showAvatars}
+                    onChange={v => setTickerDraft(d => ({ ...d, showAvatars: v }))}
+                    label="Show player avatars"
+                  />
+                  <Toggle
+                    checked={tickerDraft.pauseOnHover}
+                    onChange={v => setTickerDraft(d => ({ ...d, pauseOnHover: v }))}
+                    label="Pause on hover"
+                  />
+                </div>
+
+              </div>
             </div>
 
             {/* Save */}
-            <div className="flex justify-end pt-2">
+            <div className="flex justify-end pt-4 border-t border-white/10">
               <ShinyButton onClick={handleSaveTicker} loading={tickerSaving} disabled={tickerSaving}>
                 💾 Save Ticker Settings
               </ShinyButton>
@@ -1571,6 +1472,7 @@ export function AdminAnnouncements({ announcements, matches = [], players = [], 
           </div>
         )}
       </Card>
+
     </div>
   );
 }

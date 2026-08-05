@@ -137,68 +137,6 @@ export async function retriggerCelebration(trophyId) {
   }
 }
 
-export async function getTrophyTemplates() {
-  try {
-    const templates = await prisma.trophyTemplate.findMany({
-      orderBy: { createdAt: 'asc' }
-    });
-    return templates;
-  } catch (error) {
-    console.error("Failed to fetch templates:", error);
-    return [];
-  }
-}
-
-export async function createTrophyTemplate(data) {
-  try {
-    const template = await prisma.trophyTemplate.create({
-      data: {
-        name: data.name,
-        icon: data.icon,
-        description: data.description,
-      }
-    });
-    revalidatePath('/admin');
-    revalidatePath('/');
-    return { template };
-  } catch (error) {
-    console.error("Failed to create template:", error);
-    return { error: 'Failed to create template.' };
-  }
-}
-
-export async function updateTrophyTemplate(id, data) {
-  try {
-    const template = await prisma.trophyTemplate.update({
-      where: { id },
-      data: {
-        name: data.name,
-        icon: data.icon,
-        description: data.description,
-      }
-    });
-    revalidatePath('/admin');
-    revalidatePath('/');
-    return { template };
-  } catch (error) {
-    console.error("Failed to update template:", error);
-    return { error: 'Failed to update template.' };
-  }
-}
-
-export async function deleteTrophyTemplate(id) {
-  try {
-    await prisma.trophyTemplate.delete({
-      where: { id }
-    });
-    revalidatePath('/admin');
-    revalidatePath('/');
-    return { success: true };
-  } catch (error) {
-    console.error("Failed to delete template:", error);
-    return { error: 'Failed to delete template.' };
-  }
-}
 
 export async function getTickerConfig() {
   try {
@@ -212,7 +150,7 @@ export async function getTickerConfig() {
     return { config };
   } catch (error) {
     console.error("Failed to get ticker config:", error);
-    return { config: { enabled: true, source: 'live_recent', customMatchIds: [], scrollSpeed: 'normal', showAvatars: true, pauseOnHover: true } };
+    return { config: { enabled: true, source: 'live_recent', customMatchIds: [], scrollSpeed: 'normal', showAvatars: true, pauseOnHover: true, theme: 'classic' } };
   }
 }
 
@@ -230,6 +168,7 @@ export async function saveTickerConfig(data) {
           scrollSpeed: data.scrollSpeed,
           showAvatars: data.showAvatars,
           pauseOnHover: data.pauseOnHover,
+          theme: data.theme,
         }
       });
     } else {
@@ -240,5 +179,63 @@ export async function saveTickerConfig(data) {
   } catch (error) {
     console.error("Failed to save ticker config:", error);
     return { error: 'Failed to save ticker config.' };
+  }
+}
+
+export async function getSystemSettings() {
+  try {
+    let settings = await prisma.systemSettings.findUnique({ where: { id: 'global' } });
+    if (!settings) {
+      settings = await prisma.systemSettings.create({ data: { id: 'global' } });
+    }
+    return { settings };
+  } catch (error) {
+    return { error: 'Failed to fetch system settings' };
+  }
+}
+
+export async function updateSystemSettings(data) {
+  try {
+    const settings = await prisma.systemSettings.upsert({
+      where: { id: 'global' },
+      update: { autoNotificationsEnabled: data.autoNotificationsEnabled },
+      create: { id: 'global', autoNotificationsEnabled: data.autoNotificationsEnabled }
+    });
+    revalidatePath('/');
+    return { settings };
+  } catch (error) {
+    return { error: 'Failed to update system settings' };
+  }
+}
+
+export async function createCustomNotification(text, type = 'info') {
+  try {
+    const notification = await prisma.notification.create({
+      data: { text, type }
+    });
+    revalidatePath('/');
+    return { notification };
+  } catch (error) {
+    return { error: 'Failed to create notification' };
+  }
+}
+
+export async function deleteCustomNotification(id) {
+  try {
+    await prisma.notification.delete({ where: { id } });
+    revalidatePath('/');
+    return { success: true };
+  } catch (error) {
+    return { error: 'Failed to delete notification' };
+  }
+}
+
+export async function clearAllNotifications() {
+  try {
+    await prisma.notification.deleteMany({});
+    revalidatePath('/');
+    return { success: true };
+  } catch (error) {
+    return { error: 'Failed to clear notifications' };
   }
 }

@@ -144,13 +144,6 @@ model TrophyCelebration {
   status        String   @default("active") // "active", "ended_early"
 }
 
-model TrophyTemplate {
-  id          String   @id @default(cuid())
-  name        String   @unique
-  icon        String?
-  description String?
-  createdAt   DateTime @default(now())
-}
 
 model TickerConfig {
   id             String   @id @default(cuid())
@@ -160,6 +153,7 @@ model TickerConfig {
   scrollSpeed    String   @default("normal") // "slow" | "normal" | "fast"
   showAvatars    Boolean  @default(true)
   pauseOnHover   Boolean  @default(true)
+  theme          String   @default("classic")
   updatedAt      DateTime @updatedAt
 }
 
@@ -171,4 +165,10 @@ model PushSubscription {
   p256dh    String
   auth      String
   createdAt DateTime @default(now())
+}
+
+model SystemSettings {
+  id                       String   @id @default("global")
+  autoNotificationsEnabled Boolean  @default(true)
+  updatedAt                DateTime @updatedAt
 }

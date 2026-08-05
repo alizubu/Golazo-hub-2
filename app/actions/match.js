@@ -4,6 +4,7 @@ import prisma from '@/lib/db';
 import { broadcastEvent } from '@/lib/broadcast';
 import { revalidatePath } from 'next/cache';
 import { cookies } from 'next/headers';
+import { sendAutoNotification } from '@/lib/notifications';
 
 export async function getMatches(seasonId) {
   return await prisma.match.findMany({
@@ -42,12 +43,10 @@ export async function generateFixtures(seasonId, playerIds, doubleRound) {
       }))
     });
 
-    await prisma.notification.create({
-      data: {
-        text: `${legs.length} league fixtures generated`,
-        type: 'fixtures'
-      }
-    });
+    await sendAutoNotification(
+      `${legs.length} league fixtures generated`,
+      'fixtures'
+    );
 
     revalidatePath('/');
     revalidatePath('/admin');
@@ -80,12 +79,10 @@ export async function updateMatchStatus(matchId, data) {
       const away = await prisma.player.findUnique({ where: { id: match.awayId }});
       
       const pens = match.penaltyWinner ? ` (${match.penaltyHome}-${match.penaltyAway} pens)` : '';
-      await prisma.notification.create({
-        data: {
-          text: `Result: ${home?.name} ${match.homeScore}-${match.awayScore} ${away?.name}${pens}`,
-          type: 'result'
-        }
-      });
+      await sendAutoNotification(
+        `Result: ${home?.name} ${match.homeScore}-${match.awayScore} ${away?.name}${pens}`,
+        'result'
+      );
 
       // ── Auto-playoff trigger ──────────────────────────────────────────────
       // When a league match completes, check if ALL league matches for this
@@ -152,12 +149,10 @@ export async function updateMatchStatus(matchId, data) {
                   ]
                 });
 
-                await prisma.notification.create({
-                  data: {
-                    text: `🏆 Playoff bracket auto-generated for "${season.name}"! Top 4 seeded.`,
-                    type: 'info'
-                  }
-                });
+                await sendAutoNotification(
+                  `🏆 Playoff bracket auto-generated for "${season.name}"! Top 4 seeded.`,
+                  'info'
+                );
               }
             }
           }
@@ -256,9 +251,7 @@ export async function progressDoubleElimination(matchId) {
           data: updateData
         });
         
-        await prisma.notification.create({
-          data: { text: `Bracket updated: A player advanced in the tournament!`, type: 'info' }
-        });
+        await sendAutoNotification(`Bracket updated: A player advanced in the tournament!`, 'info');
       }
     }
   } catch (error) {
@@ -360,9 +353,7 @@ export async function progressPlayoffBracket(matchId) {
               },
               include: { home: true, away: true }
             });
-            await prisma.notification.create({
-              data: { text: `Challenger match auto-created: ${challenger.home.name} vs ${challenger.away.name}`, type: 'info' }
-            });
+            await sendAutoNotification(`Challenger match auto-created: ${challenger.home.name} vs ${challenger.away.name}`, 'info');
             broadcastEvent('match_update', challenger);
           }
         }
@@ -391,9 +382,7 @@ export async function progressPlayoffBracket(matchId) {
             },
             include: { home: true, away: true }
           });
-          await prisma.notification.create({
-            data: { text: `Grand Final auto-created: ${finalMatch.home.name} vs ${finalMatch.away.name}`, type: 'info' }
-          });
+          await sendAutoNotification(`Grand Final auto-created: ${finalMatch.home.name} vs ${finalMatch.away.name}`, 'info');
           broadcastEvent('match_update', finalMatch);
         }
       }
