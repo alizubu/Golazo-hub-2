@@ -542,58 +542,87 @@ export function PlayerDashboard({ me, activeSeason, seasons = [], matches, playe
         ))}
 
         {/* Remaining Dashboard Widgets */}
-        <FadeIn delay={0.35} className="col-span-12 md:col-span-7 h-full">
-          <MagicCard className="h-full p-5 bg-card/50 backdrop-blur overflow-hidden flex flex-col">
-            <SectionTitle icon={ListOrdered}>League Standings</SectionTitle>
-            <div className="overflow-x-auto mt-2 flex-1">
-              <table className="w-full text-sm text-left">
+          <MagicCard className="p-4 sm:p-6 flex flex-col h-full bg-card/50 backdrop-blur min-h-[300px]">
+            <div className="flex items-center justify-between mb-4">
+              <SectionTitle icon={ListOrdered}>Current Standings</SectionTitle>
+              <Btn variant="ghost" className="text-xs p-1 h-auto" onClick={() => setTab('matches')}>Full Table <ArrowRight size={14} className="ml-1"/></Btn>
+            </div>
+            
+            <div className="flex-1 overflow-x-auto rounded-xl border border-border/40">
+              {/* Desktop Table View */}
+              <table className="w-full text-left text-sm hidden md:table">
                 <thead>
-                  <tr className="text-muted-foreground text-[10px] uppercase tracking-wider border-b border-border/50">
-                    <th className="pb-2 font-semibold w-8">#</th>
-                    <th className="pb-2 font-semibold">Player</th>
-                    <th className="pb-2 text-center font-semibold">P</th>
-                    <th className="pb-2 text-center font-semibold">W</th>
-                    <th className="pb-2 text-center font-semibold">L</th>
-                    <th className="pb-2 text-center font-semibold">GD</th>
-                    <th className="pb-2 text-center font-semibold text-pitch-bright">Pts</th>
-                    <th className="pb-2 text-center font-semibold w-24">Form</th>
+                  <tr className="border-b border-border/40 text-muted-foreground text-[10px] uppercase tracking-widest bg-secondary/30">
+                    <th className="py-2 px-2 text-center w-8">#</th>
+                    <th className="py-2 px-2">Player</th>
+                    <th className="py-2 px-2 text-center">P</th>
+                    <th className="py-2 px-2 text-center">GD</th>
+                    <th className="py-2 px-2 text-center text-primary">PTS</th>
+                    <th className="py-2 px-2 text-center">Form</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {standings.slice(0, 5).map((s, i) => {
-                    const isTop4 = i < 4;
-                    const rowBorderClass = isTop4 ? 'border-l-4 border-l-emerald-500' : 'border-l-4 border-l-transparent';
-                    
+                  {standings.map((s, i) => {
                     return (
-                      <tr key={s.id} className={`border-b border-border/30 last:border-0 ${s.id === me.id ? 'bg-white/5' : ''} ${rowBorderClass}`}>
-                        <td className="py-2.5 font-bold font-score text-center">
-                          {i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : <span className="text-muted-foreground">{i + 1}</span>}
-                        </td>
-                        <td className="py-2.5"><PlayerChip p={s} size={20} /></td>
-                        <td className="py-2.5 text-center text-muted-foreground">{s.played}</td>
-                        <td className="py-2.5 text-center text-muted-foreground">{s.won}</td>
-                        <td className="py-2.5 text-center text-muted-foreground">{s.lost}</td>
-                        <td className="py-2.5 text-center text-muted-foreground">{s.gd > 0 ? `+${s.gd}` : s.gd}</td>
-                        <td className="py-2.5 text-center font-bold text-pitch-bright">{s.pts}</td>
-                        <td className="py-2.5 text-center">
-                          <div className="flex items-center justify-center gap-1">
-                            {s.form.slice(-3).map((resObj, idx) => {
-                              const res = typeof resObj === 'object' && resObj !== null ? resObj.result : resObj;
-                              return (
-                                <span key={idx} className={`w-3 h-3 rounded-full flex items-center justify-center text-[7px] font-bold text-white
-                                  ${res === 'W' ? 'bg-emerald-500' : res === 'D' ? 'bg-slate-400' : 'bg-red-500'}
-                                `}>
-                                  {res}
-                                </span>
-                              );
-                            })}
-                          </div>
-                        </td>
-                      </tr>
+                        <tr key={s.id} className="border-b border-border/20 last:border-0 hover:bg-secondary/40">
+                          <td className="py-3 px-2 text-center text-muted-foreground">{i + 1}</td>
+                          <td className="py-3 px-2 font-bold">{s.name}</td>
+                          <td className="py-3 px-2 text-center text-muted-foreground font-score">{s.played}</td>
+                          <td className="py-3 px-2 text-center text-muted-foreground font-score">{s.gd > 0 ? `+${s.gd}` : s.gd}</td>
+                          <td className="py-3 px-2 text-center font-bold text-pitch-bright font-score text-base">{s.pts}</td>
+                          <td className="py-3 px-2 text-center">
+                            <div className="flex justify-center gap-1">
+                              {s.form.slice(-3).map((resObj, idx) => {
+                                const res = typeof resObj === 'object' && resObj !== null ? resObj.result : resObj;
+                                return (
+                                  <span key={idx} className={`w-3 h-3 rounded-full flex items-center justify-center text-[7px] font-bold text-white
+                                    ${res === 'W' ? 'bg-emerald-500' : res === 'D' ? 'bg-slate-400' : 'bg-red-500'}
+                                  `}>
+                                    {res}
+                                  </span>
+                                );
+                              })}
+                            </div>
+                          </td>
+                        </tr>
                     );
                   })}
                 </tbody>
               </table>
+
+              {/* Mobile View */}
+              <div className="flex flex-col md:hidden divide-y divide-border/20">
+                {standings.map((s, i) => {
+                  const isMe = me && s.id === me.id;
+                  return (
+                    <div key={s.id} className={`flex items-center justify-between p-3 ${isMe ? 'bg-pitch/10' : ''}`}>
+                      <div className="flex items-center gap-3">
+                        <div className="w-5 text-center text-xs font-bold text-muted-foreground">{i + 1}</div>
+                        <Avatar p={players.find(p => p.id === s.id)} size={32} className="border border-border/50" />
+                        <div className="flex flex-col">
+                          <span className="font-bold text-sm leading-tight">{s.name}</span>
+                          <span className="text-[10px] text-muted-foreground font-score uppercase tracking-widest mt-0.5">P:{s.played} GD:{s.gd > 0 ? `+${s.gd}` : s.gd}</span>
+                        </div>
+                      </div>
+                      <div className="flex flex-col items-end gap-1.5">
+                        <span className="font-bold text-pitch-bright text-lg font-score leading-none">{s.pts}</span>
+                        <div className="flex gap-0.5">
+                          {s.form.slice(-3).map((resObj, idx) => {
+                            const res = typeof resObj === 'object' && resObj !== null ? resObj.result : resObj;
+                            return (
+                              <span key={idx} className={`w-2.5 h-2.5 rounded-sm flex items-center justify-center text-[6px] font-bold text-white
+                                ${res === 'W' ? 'bg-emerald-500' : res === 'D' ? 'bg-slate-400' : 'bg-red-500'}
+                              `}>
+                                {res}
+                              </span>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
             </div>
           </MagicCard>
         </FadeIn>
