@@ -4,7 +4,6 @@ import React, { useEffect, useState } from 'react';
 import { Trophy } from 'lucide-react';
 import { Avatar, MagicCard, FadeIn } from './UI';
 import { motion, AnimatePresence } from 'framer-motion';
-import { getTrophyTemplates } from '@/app/actions/admin';
 
 // ---------------------------------------------------------------------------
 // Ambient smoke layer — slow morphing radial gradients
@@ -201,15 +200,6 @@ function TrophyCategoryCard({ group, players, index }) {
 // Main component
 // ---------------------------------------------------------------------------
 export default function HallOfFame({ trophies = [], players = [] }) {
-  const [templates, setTemplates] = useState([]);
-
-  useEffect(() => {
-    async function load() {
-      const res = await getTrophyTemplates();
-      setTemplates(res);
-    }
-    load();
-  }, []);
 
   // Group trophies by title
   const groupedTrophies = {};

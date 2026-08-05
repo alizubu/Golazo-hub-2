@@ -19,7 +19,6 @@ import StatChip from './StatChip';
 import { SeasonStats } from './SeasonStats';
 import { BorderBeam } from './magicui/BorderBeam';
 import { markNotificationsRead } from '@/app/actions/player';
-import { getTrophyTemplates } from '@/app/actions/admin';
 import { Skeleton } from '@/app/components/ui/skeleton';
 import { HoverCard, HoverCardContent, HoverCardTrigger } from '@/app/components/ui/hover-card';
 import { computeStandings } from './StandingsTable';
@@ -155,15 +154,6 @@ export function PlayerDashboard({ me, activeSeason, seasons = [], matches, playe
   const [statsLoaded, setStatsLoaded] = React.useState(false);
   const [failedCoverUrl, setFailedCoverUrl] = React.useState(null);
   const [selectedTrophy, setSelectedTrophy] = React.useState(null);
-  const [trophyTemplates, setTrophyTemplates] = React.useState([]);
-
-  React.useEffect(() => {
-    async function loadTemplates() {
-      const templates = await getTrophyTemplates();
-      setTrophyTemplates(templates);
-    }
-    loadTemplates();
-  }, []);
 
   React.useEffect(() => {
     const timer = setTimeout(() => setStatsLoaded(true), 800);
@@ -469,18 +459,6 @@ export function PlayerDashboard({ me, activeSeason, seasons = [], matches, playe
                     requirement: t.requirement
                   });
                 });
-                
-                // 1. Add all DB templates as locked
-                trophyTemplates.forEach(t => {
-                  templateMap.set(t.name, {
-                    id: t.id,
-                    name: t.name,
-                    image: t.icon,
-                    locked: true,
-                    requirement: t.description || 'Locked'
-                  });
-                });
-
                 // 2. Add any unique trophies awarded to ANY player (so users see what's out there)
                 trophies.forEach(t => {
                   if (!templateMap.has(t.title)) {
