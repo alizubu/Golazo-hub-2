@@ -1293,7 +1293,7 @@ export function AdminAnnouncements({ announcements, matches = [], players = [], 
 
   return (
     <div className="flex flex-col gap-6">
-      <Card className="p-6">
+      <Card className="p-4 sm:p-6">
         <SectionTitle icon={Megaphone}>Post Announcement</SectionTitle>
         <div className="grid gap-4 mt-4">
           <div><Label>Title</Label><Input value={form.title} onChange={e => setForm({...form, title: e.target.value})} placeholder="e.g. Season Start!" /></div>
@@ -1307,7 +1307,7 @@ export function AdminAnnouncements({ announcements, matches = [], players = [], 
             </div>
           </div>
         </div>
-        <ShinyButton className="mt-6" onClick={handlePost} loading={loading}>Publish</ShinyButton>
+        <ShinyButton className="mt-6 w-full sm:w-auto" onClick={handlePost} loading={loading}>Publish</ShinyButton>
       </Card>
 
       <div className="flex flex-col gap-4">
@@ -1321,15 +1321,15 @@ export function AdminAnnouncements({ announcements, matches = [], players = [], 
                   dangerouslySetInnerHTML={{ __html: a.content }}
                 />
               </div>
-              <Btn variant="danger" className="shrink-0" onClick={() => handleRemove(a.id)} loading={loading}>Delete</Btn>
+              <Btn variant="danger" className="shrink-0 w-full md:w-auto mt-2 md:mt-0" onClick={() => handleRemove(a.id)} loading={loading}>Delete</Btn>
             </MagicCard>
           </FadeIn>
         ))}
       </div>
 
       {/* ── Match Ticker Control Panel ─────────────────────────────────────── */}
-      <Card className="p-6 overflow-hidden bg-zinc-950 border-amber-500/20 shadow-[0_4px_30px_rgba(0,0,0,0.5)]">
-        <div className="flex items-center justify-between mb-6 pb-4 border-b border-white/10">
+      <Card className="p-4 sm:p-6 overflow-hidden bg-card border-pitch-bright/20 shadow-2xl">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-6 pb-4 border-b border-border/50">
           <SectionTitle icon={Activity}>Broadcast Control Room</SectionTitle>
           {!tickerLoading && (
             <div className={`flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold border transition-colors ${
@@ -1345,7 +1345,7 @@ export function AdminAnnouncements({ announcements, matches = [], players = [], 
 
         {tickerLoading ? (
           <div className="flex items-center gap-2 text-muted-foreground text-sm py-8 justify-center">
-            <div className="w-5 h-5 rounded-full border-2 border-t-transparent border-amber-500 animate-spin" />
+            <div className="w-5 h-5 rounded-full border-2 border-t-transparent border-pitch-bright animate-spin" />
             Initializing broadcast systems…
           </div>
         ) : (
@@ -1354,7 +1354,7 @@ export function AdminAnnouncements({ announcements, matches = [], players = [], 
             {/* Sticky Live Preview */}
             <div className="relative lg:sticky lg:top-0 z-50 bg-zinc-950/80 backdrop-blur-xl p-4 rounded-xl border border-white/10 shadow-2xl">
               <div className="flex items-center justify-between mb-3">
-                <Label className="text-amber-500 font-bold uppercase tracking-widest text-[10px]">On-Air Preview</Label>
+                <Label className="text-pitch-bright font-bold uppercase tracking-widest text-[10px]">On-Air Preview</Label>
                 <div className="flex flex-wrap gap-2 mt-2 sm:mt-0">
                   <ThemeBtn theme="classic" current={tickerDraft.theme} onChange={v => setTickerDraft(d => ({ ...d, theme: v }))} />
                   <ThemeBtn theme="neon" current={tickerDraft.theme} onChange={v => setTickerDraft(d => ({ ...d, theme: v }))} />
@@ -1408,7 +1408,7 @@ export function AdminAnnouncements({ announcements, matches = [], players = [], 
                           const checked = tickerDraft.customMatchIds?.includes(m.id);
                           const isLive = m.status === 'live';
                           return (
-                            <label key={m.id} className={`flex items-center p-2 rounded-lg cursor-pointer transition-all border ${checked ? 'bg-amber-500/10 border-amber-500/50' : 'bg-white/5 border-transparent hover:bg-white/10'}`}>
+                            <label key={m.id} className={`flex items-center p-2 rounded-lg cursor-pointer transition-all border ${checked ? 'bg-pitch-bright/10 border-pitch-bright/50' : 'bg-white/5 border-transparent hover:bg-white/10'}`}>
                               <input
                                 type="checkbox"
                                 checked={checked}
@@ -1418,7 +1418,7 @@ export function AdminAnnouncements({ announcements, matches = [], players = [], 
                                 }))}
                                 className="hidden"
                               />
-                              <div className={`w-4 h-4 rounded border flex items-center justify-center mr-3 ${checked ? 'bg-amber-500 border-amber-500' : 'border-zinc-600'}`}>
+                              <div className={`w-4 h-4 rounded border flex items-center justify-center mr-3 ${checked ? 'bg-pitch-bright border-pitch-bright' : 'border-zinc-600'}`}>
                                 {checked && <CheckCircle2 size={12} className="text-black" />}
                               </div>
                               <div className="flex flex-col">
@@ -1465,7 +1465,7 @@ export function AdminAnnouncements({ announcements, matches = [], players = [], 
 
             {/* Save */}
             <div className="flex justify-end pt-4 border-t border-white/10">
-              <ShinyButton onClick={handleSaveTicker} loading={tickerSaving} disabled={tickerSaving}>
+              <ShinyButton className="w-full sm:w-auto" onClick={handleSaveTicker} loading={tickerSaving} disabled={tickerSaving}>
                 💾 Save Ticker Settings
               </ShinyButton>
             </div>
