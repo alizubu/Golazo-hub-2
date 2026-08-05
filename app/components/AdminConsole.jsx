@@ -171,8 +171,8 @@ export function AdminPlayers({ players, showToast }) {
                 <div className="font-bold font-heading truncate text-lg">{p.name} {p.flag}</div>
                 <div className="text-xs text-muted-foreground truncate">{p.teamLogo} {p.teamName} · @{p.username}</div>
               </div>
-              <Btn variant="ghost" className="p-2" onClick={() => startEdit(p)} disabled={loading}>Edit</Btn>
-              <Btn variant="danger" className="p-2" onClick={() => remove(p.id)} loading={loading}>Del</Btn>
+              <Btn variant="ghost" className="px-3 py-2 text-sm" onClick={() => startEdit(p)} disabled={loading}>Edit</Btn>
+              <Btn variant="danger" className="px-3 py-2 text-sm" onClick={() => remove(p.id)} loading={loading}>Del</Btn>
             </MagicCard>
           </FadeIn>
         ))}
@@ -278,8 +278,8 @@ function AdminMatchControl({ m, players, showToast, setTab, isPlayoff = false })
     return (
       <MagicCard className="group p-3 sm:p-4 bg-secondary/30 relative overflow-hidden">
         <div className="flex items-center gap-2">
-          <div className="grid grid-cols-3 gap-2 items-center w-full pr-8">
-            <div className="flex items-center justify-end gap-2 sm:gap-3">
+          <div className="flex flex-col sm:grid sm:grid-cols-3 gap-3 sm:gap-2 items-center w-full">
+            <div className="flex w-full items-center justify-between sm:justify-end gap-2 sm:gap-3">
               <span className="text-foreground text-sm font-semibold truncate max-w-[100px] sm:max-w-none text-right" title={h?.name}>
                 {toTitleCase(h?.name)}
               </span>
@@ -294,7 +294,7 @@ function AdminMatchControl({ m, players, showToast, setTab, isPlayoff = false })
               </ShinyButton>
             </div>
 
-            <div className="flex items-center justify-start gap-2 sm:gap-3">
+            <div className="flex w-full items-center justify-between sm:justify-start gap-2 sm:gap-3">
               <Avatar p={a} size={40} className="w-8 h-8 sm:w-10 sm:h-10 shrink-0" />
               {aFlagUrl && <img src={aFlagUrl} alt={a?.flag} className="w-4 h-3 sm:w-5 sm:h-3.5 object-cover rounded-[2px] shadow-sm shrink-0" />}
               <span className="text-foreground text-sm font-semibold truncate max-w-[100px] sm:max-w-none text-left" title={a?.name}>
@@ -363,8 +363,8 @@ function CompletedMatchCard({ m, h, a, players, showToast, isPlayoff = false }) 
   return (
     <MagicCard className="group p-3 sm:p-4 bg-secondary/30 hover:bg-secondary/40 transition-all duration-300 relative overflow-hidden">
       <div className="flex items-center gap-2">
-        <div className="grid grid-cols-3 gap-2 items-center w-full pr-8">
-          <div className="flex items-center justify-end gap-2 sm:gap-3">
+        <div className="flex flex-col sm:grid sm:grid-cols-3 gap-3 sm:gap-2 items-center w-full sm:pr-8 pr-2">
+          <div className="flex w-full items-center justify-between sm:justify-end gap-2 sm:gap-3">
             <span className="text-foreground text-sm font-semibold truncate max-w-[100px] sm:max-w-none text-right" title={h?.name}>
               {toTitleCase(h?.name)}
             </span>
@@ -380,7 +380,7 @@ function CompletedMatchCard({ m, h, a, players, showToast, isPlayoff = false }) 
             </div>
           </div>
 
-          <div className="flex items-center justify-start gap-2 sm:gap-3">
+          <div className="flex w-full items-center justify-between sm:justify-start gap-2 sm:gap-3">
             <Avatar p={a} size={40} className="w-8 h-8 sm:w-10 sm:h-10 shrink-0" />
             {aFlagUrl && <img src={aFlagUrl} alt={a?.flag} className="w-4 h-3 sm:w-5 sm:h-3.5 object-cover rounded-[2px] shadow-sm shrink-0" />}
             <span className="text-foreground text-sm font-semibold truncate max-w-[100px] sm:max-w-none text-left" title={a?.name}>
@@ -553,7 +553,7 @@ function PlayerCombobox({ players, value, onChange }) {
           <ChevronDown size={16} className="text-muted-foreground shrink-0 ml-2" />
         </button>
       </PopoverTrigger>
-      <PopoverContent className="w-[320px] p-0 bg-card border-border/50 shadow-2xl rounded-xl" align="start">
+      <PopoverContent className="w-[calc(100vw-2rem)] sm:w-[320px] p-0 bg-card border-border/50 shadow-2xl rounded-xl" align="start">
         <Command className="bg-transparent">
           <CommandInput placeholder="Search players..." className="h-10 border-b border-border/30 rounded-none" />
           <CommandList className="max-h-56 p-1">
@@ -1569,7 +1569,7 @@ export function AdminSeason({ activeSeason, matches = [], players = [], showToas
           
           <div className="space-y-3">
             <Label className="text-muted-foreground uppercase text-xs font-bold tracking-widest">Format</Label>
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 xs:grid-cols-2 gap-3">
               {formats.map(f => (
                 <div 
                   key={f.id}

@@ -74,11 +74,11 @@ function HeroSeasonSummary({ activeSeason, players, matches, setTab }) {
 
           <div className="h-full w-px bg-border/50 hidden sm:block" />
 
-          <div className="flex flex-col gap-2">
-            <Btn variant="primary" onClick={() => setTab && setTab('admin-matches')} className="text-xs uppercase font-bold tracking-wider py-2 shadow-lg shadow-pitch/20 cursor-pointer">
+          <div className="flex flex-col gap-2 w-full sm:w-auto">
+            <Btn variant="primary" onClick={() => setTab && setTab('admin-matches')} className="w-full justify-center text-xs uppercase font-bold tracking-wider py-2 shadow-lg shadow-pitch/20 cursor-pointer">
               Manage Matches <ArrowRight size={14} className="ml-1" />
             </Btn>
-            <Btn variant="outline" onClick={() => setTab && setTab('admin-season')} className="text-xs uppercase font-bold tracking-wider py-1.5 cursor-pointer">
+            <Btn variant="outline" onClick={() => setTab && setTab('admin-season')} className="w-full justify-center text-xs uppercase font-bold tracking-wider py-1.5 cursor-pointer">
               Season Settings
             </Btn>
           </div>
