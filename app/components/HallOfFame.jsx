@@ -133,8 +133,8 @@ function WinnerRow({ award, players }) {
     >
       <div className="flex items-center gap-3">
         <Avatar p={player} size={34} ring="rgba(251,191,36,0.35)" />
-        <div>
-          <div className="font-bold text-sm leading-tight text-foreground">{player?.name || 'Unknown'}</div>
+        <div className="min-w-0">
+          <div className="font-bold text-sm leading-tight text-foreground truncate">{player?.name || 'Unknown'}</div>
           {award.description && (
             <div className="text-[10px] text-muted-foreground line-clamp-1 max-w-[160px] mt-0.5">{award.description}</div>
           )}

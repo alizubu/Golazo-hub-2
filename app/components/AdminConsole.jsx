@@ -900,7 +900,7 @@ export function AdminTrophies({ players, trophies = [], seasons, showToast }) {
   return (
     <div className="flex flex-col gap-6">
       <Tabs defaultValue="award" className="w-full">
-        <TabsList className="mb-6 bg-secondary/50 rounded-xl p-1">
+        <TabsList className="mb-6 bg-secondary/50 rounded-xl p-1 flex flex-wrap overflow-x-auto hide-scrollbar">
           <TabsTrigger value="award" className="rounded-lg data-[state=active]:bg-card data-[state=active]:text-foreground">
             <Plus size={14} className="mr-1.5" /> Trophy Forge
           </TabsTrigger>
@@ -983,7 +983,7 @@ export function AdminTrophies({ players, trophies = [], seasons, showToast }) {
             </div>
 
             {/* Live Preview Section */}
-            <div className="lg:col-span-5 hidden sm:flex flex-col items-center justify-center sticky top-24 h-max min-h-[400px]">
+            <div className="lg:col-span-5 flex flex-col items-center justify-center sticky lg:top-24 h-max min-h-[300px] sm:min-h-[400px]">
               <div className="absolute inset-0 bg-gradient-to-b from-amber-500/5 to-transparent rounded-2xl pointer-events-none" />
               
               <AnimatePresence>
@@ -1045,7 +1045,7 @@ export function AdminTrophies({ players, trophies = [], seasons, showToast }) {
             {trophies.length === 0 ? (
               <EmptyState text="No trophies awarded yet." />
             ) : (
-              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+              <div className="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
                 {trophies.map((t, i) => (
                   <motion.div
                     key={t.id}
@@ -1127,7 +1127,7 @@ export function AdminTrophies({ players, trophies = [], seasons, showToast }) {
                         </div>
                       </div>
 
-                      <div className="flex items-center justify-between mt-6 pt-4 border-t border-white/10">
+                      <div className="flex flex-col xs:flex-row items-start xs:items-center justify-between gap-3 mt-6 pt-4 border-t border-white/10">
                         {isActive ? (
                           <div className="flex flex-col">
                             <span className="text-[9px] font-bold text-zinc-500 uppercase tracking-wider mb-1">Time Remaining</span>
@@ -1299,7 +1299,7 @@ export function AdminAnnouncements({ announcements, matches = [], players = [], 
           <div><Label>Title</Label><Input value={form.title} onChange={e => setForm({...form, title: e.target.value})} placeholder="e.g. Season Start!" /></div>
           <div>
             <Label>Message</Label>
-            <div className="mt-2">
+            <div className="mt-2 max-w-full overflow-hidden">
               <RichTextEditor 
                 value={form.content} 
                 onChange={val => setForm({...form, content: val})} 
@@ -1352,10 +1352,10 @@ export function AdminAnnouncements({ announcements, matches = [], players = [], 
           <div className="flex flex-col gap-8">
             
             {/* Sticky Live Preview */}
-            <div className="sticky top-0 z-50 bg-zinc-950/80 backdrop-blur-xl p-4 rounded-xl border border-white/10 shadow-2xl">
+            <div className="relative lg:sticky lg:top-0 z-50 bg-zinc-950/80 backdrop-blur-xl p-4 rounded-xl border border-white/10 shadow-2xl">
               <div className="flex items-center justify-between mb-3">
                 <Label className="text-amber-500 font-bold uppercase tracking-widest text-[10px]">On-Air Preview</Label>
-                <div className="flex gap-2">
+                <div className="flex flex-wrap gap-2 mt-2 sm:mt-0">
                   <ThemeBtn theme="classic" current={tickerDraft.theme} onChange={v => setTickerDraft(d => ({ ...d, theme: v }))} />
                   <ThemeBtn theme="neon" current={tickerDraft.theme} onChange={v => setTickerDraft(d => ({ ...d, theme: v }))} />
                   <ThemeBtn theme="cyber" current={tickerDraft.theme} onChange={v => setTickerDraft(d => ({ ...d, theme: v }))} />
@@ -1386,7 +1386,7 @@ export function AdminAnnouncements({ announcements, matches = [], players = [], 
 
                 <div>
                   <Label className="mb-3 block text-zinc-400">Content Feed Source</Label>
-                  <div className="flex p-1 bg-zinc-900 rounded-lg w-fit border border-white/5">
+                  <div className="flex flex-wrap p-1 bg-zinc-900 rounded-lg w-fit border border-white/5">
                     <SegmentBtn icon="📺" value="live" label="Live Only" current={tickerDraft.source} onChange={v => setTickerDraft(d => ({ ...d, source: v }))} />
                     <SegmentBtn icon="🕒" value="live_recent" label="Recent" current={tickerDraft.source} onChange={v => setTickerDraft(d => ({ ...d, source: v }))} />
                     <SegmentBtn icon="📅" value="live_today" label="Today" current={tickerDraft.source} onChange={v => setTickerDraft(d => ({ ...d, source: v }))} />
@@ -1440,7 +1440,7 @@ export function AdminAnnouncements({ announcements, matches = [], players = [], 
                 
                 <div>
                   <Label className="mb-3 block text-zinc-400">Scroll Speed</Label>
-                  <div className="flex gap-2">
+                  <div className="flex flex-wrap gap-2">
                     <SpeedBtn value="slow" icon="🐢" current={tickerDraft.scrollSpeed} onChange={v => setTickerDraft(d => ({ ...d, scrollSpeed: v }))} />
                     <SpeedBtn value="normal" icon="🚶" current={tickerDraft.scrollSpeed} onChange={v => setTickerDraft(d => ({ ...d, scrollSpeed: v }))} />
                     <SpeedBtn value="fast" icon="⚡" current={tickerDraft.scrollSpeed} onChange={v => setTickerDraft(d => ({ ...d, scrollSpeed: v }))} />
