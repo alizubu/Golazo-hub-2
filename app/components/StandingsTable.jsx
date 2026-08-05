@@ -38,11 +38,12 @@ const RankMedal = ({ rank }) => {
 };
 
 export function computeStandings(matches, players, seasonId, config = {}) {
-  const ptsWin = config.win !== undefined ? Number(config.win) : 3;
-  const ptsDraw = config.draw !== undefined ? Number(config.draw) : 1;
-  const ptsLoss = config.loss !== undefined ? Number(config.loss) : 0;
-  const bonusGF = config.goalsFor !== undefined ? Number(config.goalsFor) : 0;
-  const penaltyGA = config.goalsAgainst !== undefined ? Number(config.goalsAgainst) : 0;
+  const safeConfig = config || {};
+  const ptsWin = safeConfig.win !== undefined ? Number(safeConfig.win) : 3;
+  const ptsDraw = safeConfig.draw !== undefined ? Number(safeConfig.draw) : 1;
+  const ptsLoss = safeConfig.loss !== undefined ? Number(safeConfig.loss) : 0;
+  const bonusGF = safeConfig.goalsFor !== undefined ? Number(safeConfig.goalsFor) : 0;
+  const penaltyGA = safeConfig.goalsAgainst !== undefined ? Number(safeConfig.goalsAgainst) : 0;
 
   const table = {};
   players.forEach((p) => {

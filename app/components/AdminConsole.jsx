@@ -6,7 +6,7 @@ import { BorderBeam } from './magicui/BorderBeam';
 import { Card, Btn, Input, Label, SectionTitle, EmptyState, MagicCard, FadeIn, ShinyButton, Badge, Avatar, toTitleCase } from './UI';
 import PlayerTag from './PlayerTag';
 import { motion, AnimatePresence } from 'framer-motion';
-import AdminOverviewDashboard from './AdminOverviewDashboard';
+
 import { generateFixtures, generatePlayoffs, updateMatchStatus, updateMatchScore, adminTriggerBracketProgress } from '@/app/actions/match';
 import { awardTrophy, removeTrophy, updateTrophy, createAnnouncement, deleteAnnouncement, endCelebration, retriggerCelebration, getCelebrations, getSystemSettings, updateSystemSettings, createCustomNotification, deleteCustomNotification, clearAllNotifications } from '@/app/actions/admin';
 
@@ -69,17 +69,11 @@ const TROPHY_TEMPLATES = [
 ];
 import AdminHistory from './AdminHistory';
 import AdminNotifications from './AdminNotifications';
-import ErrorBoundary from './ErrorBoundary';
+
 import dynamic from 'next/dynamic';
 import RichTextEditor from './RichTextEditor';
 
-function AdminOverview(props) {
-  return (
-    <ErrorBoundary>
-      <AdminOverviewDashboard {...props} />
-    </ErrorBoundary>
-  );
-}
+
 
 export function AdminPlayers({ players, showToast }) {
   const [editing, setEditing] = useState(null);
