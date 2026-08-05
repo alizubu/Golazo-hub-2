@@ -129,84 +129,6 @@ const FormDots = ({ form }) => {
   );
 };
 
-const MobileCard = ({ s, i, expandedRow, setExpandedRow, me, handleRowClick }) => {
-  const isExpanded = expandedRow === s.id;
-  const isMe = me && s.id === me.id;
-  const isFirst = i === 0;
-  const flagUrl = getPlayerFlag(s);
-  
-  return (
-    <motion.div 
-      layout
-      initial={{ opacity: 0, y: 10 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: i * 0.05 }}
-      onClick={() => setExpandedRow(isExpanded ? null : s.id)}
-      className={`relative overflow-hidden rounded-xl border p-4 shadow-md transition-colors
-        ${isMe ? 'bg-pitch/10 border-pitch/30' : 'bg-card border-border/40'}
-        ${isFirst ? 'border-l-4 border-l-yellow-500' : ''}
-        ${isMe && !isFirst ? 'border-l-4 border-l-pitch' : ''}
-      `}
-    >
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <div className="w-8 flex justify-center">
-            <RankMedal rank={i + 1} />
-          </div>
-          <div className="relative" onClick={(e) => {
-              e.stopPropagation();
-              handleRowClick(s.id);
-            }}>
-            <Avatar p={s} size={40} />
-            {flagUrl && (
-              <div className="absolute -bottom-1 -right-1 w-[20px] h-[14px] bg-[#12151b] rounded-sm overflow-hidden shadow-sm">
-                <img src={flagUrl} alt="flag" className="w-full h-full object-cover" />
-              </div>
-            )}
-          </div>
-          <div>
-            <div className="font-bold text-foreground text-sm cursor-pointer hover:underline" onClick={(e) => {
-              e.stopPropagation();
-              handleRowClick(s.id);
-            }}>
-              {s.name}
-            </div>
-            <div className="text-xs text-muted-foreground font-score uppercase">PTS: <span className="font-bold text-pitch-bright text-sm">{s.pts}</span></div>
-          </div>
-        </div>
-        <div className="flex flex-col items-end gap-2">
-          <FormDots form={s.form} />
-          {isExpanded ? <ChevronUp size={16} className="text-muted-foreground" /> : <ChevronDown size={16} className="text-muted-foreground" />}
-        </div>
-      </div>
-
-      <AnimatePresence>
-        {isExpanded && (
-          <motion.div
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: 'auto', opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
-            className="overflow-hidden"
-          >
-            <div className="pt-4 mt-4 border-t border-border/30 grid grid-cols-4 gap-2 text-center">
-              <div className="flex flex-col"><span className="text-[10px] text-muted-foreground uppercase tracking-wider">P</span><span className="font-score font-bold">{s.played}</span></div>
-              <div className="flex flex-col"><span className="text-[10px] text-muted-foreground uppercase tracking-wider">W</span><span className="font-score font-bold">{s.won}</span></div>
-              <div className="flex flex-col"><span className="text-[10px] text-muted-foreground uppercase tracking-wider">D</span><span className="font-score font-bold">{s.drawn}</span></div>
-              <div className="flex flex-col"><span className="text-[10px] text-muted-foreground uppercase tracking-wider">L</span><span className="font-score font-bold">{s.lost}</span></div>
-              <div className="flex flex-col"><span className="text-[10px] text-muted-foreground uppercase tracking-wider">GF</span><span className="font-score font-bold">{s.gf}</span></div>
-              <div className="flex flex-col"><span className="text-[10px] text-muted-foreground uppercase tracking-wider">GA</span><span className="font-score font-bold">{s.ga}</span></div>
-              <div className="flex flex-col col-span-2"><span className="text-[10px] text-muted-foreground uppercase tracking-wider">GD</span>
-                <span className={`font-score font-bold ${s.gd > 0 ? 'text-emerald-500' : s.gd < 0 ? 'text-red-500' : 'text-muted-foreground'}`}>
-                  {s.gd > 0 ? `+${s.gd}` : s.gd}
-                </span>
-              </div>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </motion.div>
-  );
-};
 
 export default function StandingsTable({ matches, players, seasonId, me, onPlayerClick, onH2HClick, config = {} }) {
   const standings = computeStandings(matches, players, seasonId, config);
@@ -255,13 +177,8 @@ export default function StandingsTable({ matches, players, seasonId, me, onPlaye
         </button>
       </div>
 
-      {/* Mobile Stacked View */}
-      <div className="flex flex-col gap-3 md:hidden">
-        {standings.map((s, i) => <MobileCard key={s.id} s={s} i={i} expandedRow={expandedRow} setExpandedRow={setExpandedRow} me={me} handleRowClick={handleRowClick} />)}
-      </div>
-
-      {/* Desktop Table View */}
-      <div ref={tableRef} className="hidden md:block overflow-x-auto rounded-xl border border-border/40 bg-card shadow-[0_8px_30px_rgb(0,0,0,0.12)]">
+      {/* Table View (Scrollable on Mobile) */}
+      <div ref={tableRef} className="overflow-x-auto rounded-xl border border-border/40 bg-card shadow-[0_8px_30px_rgb(0,0,0,0.12)]">
         <table className="w-full text-left border-collapse text-sm">
           <thead>
             <tr className="border-b-2 border-border/50 bg-secondary/80 font-heading uppercase tracking-widest text-[10px] text-muted-foreground">
@@ -271,8 +188,8 @@ export default function StandingsTable({ matches, players, seasonId, me, onPlaye
               <th className="p-3 text-center">W</th>
               <th className="p-3 text-center">D</th>
               <th className="p-3 text-center">L</th>
-              <th className="p-3 text-center hidden lg:table-cell">GF</th>
-              <th className="p-3 text-center hidden lg:table-cell">GA</th>
+              <th className="p-3 text-center">GF</th>
+              <th className="p-3 text-center">GA</th>
               <th className="p-3 text-center">GD</th>
               <th className="p-3 text-center font-bold text-white">PTS</th>
               <th className="p-3 text-center w-40">Form</th>
@@ -326,8 +243,8 @@ export default function StandingsTable({ matches, players, seasonId, me, onPlaye
                     <td className="p-3 text-center font-score text-muted-foreground font-semibold text-[13px]">{s.won}</td>
                     <td className="p-3 text-center font-score text-muted-foreground font-semibold text-[13px]">{s.drawn}</td>
                     <td className="p-3 text-center font-score text-muted-foreground font-semibold text-[13px]">{s.lost}</td>
-                    <td className="p-3 text-center font-score text-muted-foreground font-semibold text-[13px] hidden lg:table-cell">{s.gf}</td>
-                    <td className="p-3 text-center font-score text-muted-foreground font-semibold text-[13px] hidden lg:table-cell">{s.ga}</td>
+                    <td className="p-3 text-center font-score text-muted-foreground font-semibold text-[13px]">{s.gf}</td>
+                    <td className="p-3 text-center font-score text-muted-foreground font-semibold text-[13px]">{s.ga}</td>
                     <td className={`p-3 text-center font-score font-bold text-[13px] ${s.gd > 0 ? 'text-emerald-500' : s.gd < 0 ? 'text-red-500' : 'text-muted-foreground'}`}>
                       {s.gd > 0 ? `+${s.gd}` : s.gd}
                     </td>

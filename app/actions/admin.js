@@ -144,21 +144,28 @@ export async function saveTickerConfig(data) {
   try {
     const existing = await prisma.tickerConfig.findFirst();
     let config;
+    const payload = {
+      enabled: data.enabled,
+      source: data.source,
+      customMatchIds: data.customMatchIds || [],
+      speed: data.speed ?? 50,
+      size: data.size || 'normal',
+      separator: data.separator || 'dot',
+      showAvatars: data.showAvatars,
+      pauseOnHover: data.pauseOnHover,
+      theme: data.theme,
+      breakingNews: data.breakingNews || '',
+      showStats: data.showStats ?? false,
+      showHighlights: data.showHighlights ?? false,
+      showStreaks: data.showStreaks ?? false,
+    };
     if (existing) {
       config = await prisma.tickerConfig.update({
         where: { id: existing.id },
-        data: {
-          enabled: data.enabled,
-          source: data.source,
-          customMatchIds: data.customMatchIds || [],
-          scrollSpeed: data.scrollSpeed,
-          showAvatars: data.showAvatars,
-          pauseOnHover: data.pauseOnHover,
-          theme: data.theme,
-        }
+        data: payload,
       });
     } else {
-      config = await prisma.tickerConfig.create({ data });
+      config = await prisma.tickerConfig.create({ data: payload });
     }
     revalidatePath('/');
     return { config };
@@ -167,6 +174,7 @@ export async function saveTickerConfig(data) {
     return { error: 'Failed to save ticker config.' };
   }
 }
+
 
 export async function getSystemSettings() {
   try {

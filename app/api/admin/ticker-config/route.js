@@ -16,10 +16,18 @@ export async function GET() {
         enabled: true,
         source: 'live_recent',
         customMatchIds: [],
-        scrollSpeed: 'normal',
+        speed: 50,
+        size: 'normal',
+        separator: 'dot',
         showAvatars: true,
         pauseOnHover: true,
+        theme: 'classic',
+        breakingNews: '',
+        showStats: false,
+        showHighlights: false,
+        showStreaks: false,
       }
     });
   }
 }
+

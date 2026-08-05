@@ -11,6 +11,7 @@ import CelebrationBanner from './CelebrationBanner';
 import AdminSidebar from './AdminSidebar';
 import AdminTopBar from './AdminTopBar';
 import PlayerProfileDrawer from './PlayerProfileDrawer';
+import AdminBroadcast from './AdminBroadcast';
 
 export default function AppShell({ 
   initialTab, 
@@ -143,6 +144,8 @@ export default function AppShell({
                 <div className="pt-2"><AdminTrophies {...adminProps} /></div>
               ) : currentTab === 'admin/announcements' ? (
                 <div className="pt-2"><AdminAnnouncements {...adminProps} onTickerConfigSaved={setTickerConfig} /></div>
+              ) : currentTab === 'admin/broadcast' ? (
+                <div className="pt-2"><AdminBroadcast {...adminProps} onTickerConfigSaved={setTickerConfig} /></div>
               ) : currentTab === 'admin/settings' ? (
                 <div className="pt-2"><AdminSettings {...adminProps} /></div>
               ) : (

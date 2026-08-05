@@ -150,12 +150,19 @@ model TickerConfig {
   enabled        Boolean  @default(true)
   source         String   @default("live_recent") // "live" | "live_recent" | "live_today" | "custom"
   customMatchIds String[]
-  scrollSpeed    String   @default("normal") // "slow" | "normal" | "fast"
+  speed          Int      @default(50)            // 1-100 slider
+  size           String   @default("normal")      // "compact" | "normal" | "large"
+  separator      String   @default("dot")         // "dot" | "ball" | "pipe" | "diamond" | "slash" | "none"
   showAvatars    Boolean  @default(true)
   pauseOnHover   Boolean  @default(true)
   theme          String   @default("classic")
+  breakingNews   String   @default("")            // Custom breaking news text
+  showStats      Boolean  @default(false)         // Stats Ticker Mode
+  showHighlights Boolean  @default(false)         // Highlight Reel after FT
+  showStreaks    Boolean  @default(false)          // Player streak alerts
   updatedAt      DateTime @updatedAt
 }
+
 
 model PushSubscription {
   id        String   @id @default(cuid())

@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-  Home, Users, Trophy, Calendar, Star, Megaphone,
+  Home, Users, Trophy, Calendar, Star, Megaphone, Radio,
   Settings, LogOut, X, ChevronRight, ChevronLeft, Loader2, ShieldAlert
 } from 'lucide-react';
 import { clearAuthCookie } from '@/app/actions/auth';
@@ -15,8 +15,10 @@ const NAV_ITEMS = [
   { tab: 'admin/matches',       label: 'Matches',        icon: Calendar,  liveIndicator: true },
   { tab: 'admin/trophies',      label: 'Trophies',       icon: Star },
   { tab: 'admin/announcements', label: 'Announcements',  icon: Megaphone },
+  { tab: 'admin/broadcast',     label: 'Broadcast',      icon: Radio },
   { tab: 'hall-of-fame',        label: 'Hall of Fame',   icon: Star },
 ];
+
 
 function NavItem({ item, active, hasLive, onClick, isMobile = false, isExpanded = true }) {
   const Icon = item.icon;
