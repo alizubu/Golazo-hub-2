@@ -138,21 +138,7 @@ export async function retriggerCelebration(trophyId) {
 }
 
 
-export async function getTickerConfig() {
-  try {
-    let config = await prisma.tickerConfig.findFirst();
-    if (!config) {
-      // Create default config on first access
-      config = await prisma.tickerConfig.create({
-        data: {}
-      });
-    }
-    return { config };
-  } catch (error) {
-    console.error("Failed to get ticker config:", error);
-    return { config: { enabled: true, source: 'live_recent', customMatchIds: [], scrollSpeed: 'normal', showAvatars: true, pauseOnHover: true, theme: 'classic' } };
-  }
-}
+
 
 export async function saveTickerConfig(data) {
   try {

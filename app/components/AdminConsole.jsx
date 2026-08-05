@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { Trophy, Calendar, Users, Radio, Clock, Check, Archive, Plus, Trash2, Settings, Swords, Edit2, ListOrdered, BarChart2, AlertTriangle, ArrowRight, Megaphone, ChevronDown, Package, MoreVertical, History, CheckCircle2, Activity, X } from 'lucide-react';
 import { BorderBeam } from './magicui/BorderBeam';
 import { Card, Btn, Input, Label, SectionTitle, EmptyState, MagicCard, FadeIn, ShinyButton, Badge, Avatar, toTitleCase } from './UI';
+import PlayerTag from './PlayerTag';
 import { motion, AnimatePresence } from 'framer-motion';
 import AdminOverviewDashboard from './AdminOverviewDashboard';
 import { generateFixtures, generatePlayoffs, updateMatchStatus, updateMatchScore, adminTriggerBracketProgress } from '@/app/actions/match';
@@ -65,22 +66,6 @@ const TROPHY_TEMPLATES = [
   { id: 'la-liga', name: 'La Liga Champion', image: '/assets/trophies/La-Liga-trophy.png', icon: '/assets/trophies/La-Liga-trophy.png', defaultDesc: 'La Liga season champion.' },
   { id: 'premier-league', name: 'Premier League Champion', image: '/assets/trophies/Premier-League.png', icon: '/assets/trophies/Premier-League.png', defaultDesc: 'Premier League season champion.' },
 ];
-
-export default function AdminConsole(props) {
-  const { tab } = props;
-  if (tab === "admin") return <ErrorBoundary><AdminOverview {...props} /></ErrorBoundary>;
-  if (tab === "admin-players") return <ErrorBoundary><AdminPlayers {...props} /></ErrorBoundary>;
-  if (tab === "admin-season") return <ErrorBoundary><AdminSeason {...props} /></ErrorBoundary>;
-  if (tab === "admin-matches") return <ErrorBoundary><AdminMatches {...props} /></ErrorBoundary>;
-  if (tab === "admin-playoffs") return <ErrorBoundary><AdminPlayoffs {...props} /></ErrorBoundary>;
-  if (tab === "admin-settings") return <ErrorBoundary><AdminSettings {...props} /></ErrorBoundary>;
-  if (tab === "admin-trophies") return <ErrorBoundary><AdminTrophies {...props} /></ErrorBoundary>;
-  if (tab === "admin-announcements") return <ErrorBoundary><AdminAnnouncements {...props} /></ErrorBoundary>;
-  if (tab === "admin-history") return <ErrorBoundary><AdminHistory {...props} /></ErrorBoundary>;
-  if (tab === "admin-notifications") return <ErrorBoundary><AdminNotifications {...props} /></ErrorBoundary>;
-  return <EmptyState text="Admin feature in progress..." />;
-}
-
 import AdminHistory from './AdminHistory';
 import AdminNotifications from './AdminNotifications';
 import ErrorBoundary from './ErrorBoundary';
@@ -166,9 +151,10 @@ export function AdminPlayers({ players, showToast }) {
         {players.map((p, i) => (
           <FadeIn key={p.id} delay={i * 0.05}>
             <MagicCard className="p-4 flex items-center gap-4">
-              <Avatar p={p} size={48} />
-              <div className="flex-1 min-w-0">
-                <div className="font-bold font-heading truncate text-lg">{p.name} {p.flag}</div>
+              <div className="flex-1 min-w-0 flex flex-col justify-center">
+                <div className="font-bold font-heading truncate text-lg">
+                  <PlayerTag player={p} size={48} className="!p-0 !m-0 hover:bg-transparent hover:scale-[1.02]" />
+                </div>
                 <div className="text-xs text-muted-foreground truncate">{p.teamLogo} {p.teamName} · @{p.username}</div>
               </div>
               <Btn variant="ghost" className="px-3 py-2 text-sm" onClick={() => startEdit(p)} disabled={loading}>Edit</Btn>
@@ -424,103 +410,6 @@ function CompletedMatchCard({ m, h, a, players, showToast, isPlayoff = false }) 
     </MagicCard>
   );
 }
-
-export function AdminPlayoffs({ activeSeason, matches, players, showToast, setTab }) {
-  if (!activeSeason) return <EmptyState text="Start a season first." />;
-
-  const playoffMatches = matches.filter(
-    m => m.seasonId === activeSeason.id && m.round !== 'league' && m.round !== 'friendly'
-  );
-
-  const leagueMatches = matches.filter(m => m.seasonId === activeSeason.id && m.round === 'league');
-  const leagueCompleted = leagueMatches.length > 0 && leagueMatches.every(m => m.status === 'completed');
-  const leagueProgress = leagueMatches.length > 0
-    ? Math.round((leagueMatches.filter(m => m.status === 'completed').length / leagueMatches.length) * 100)
-    : 0;
-
-  const hasBracket = playoffMatches.length > 0;
-
-  if (!hasBracket) {
-    return (
-      <Card className="p-8 flex flex-col items-center justify-center text-center border-dashed border-2 gap-4">
-        <div className="p-4 rounded-full bg-secondary/50">
-          <Swords size={40} className="text-muted-foreground opacity-50" />
-        </div>
-        <h2 className="text-2xl font-bold font-heading">Playoff Bracket Not Yet Generated</h2>
-        {leagueCompleted ? (
-          <p className="text-muted-foreground max-w-md">
-            All league matches are complete. The bracket will auto-generate momentarily — if it doesn&apos;t appear within a few seconds, reload the page.
-          </p>
-        ) : (
-          <>
-            <p className="text-muted-foreground max-w-md">
-              The playoff bracket auto-generates the moment the final league match is completed.
-              No manual action required.
-            </p>
-            <div className="w-full max-w-xs">
-              <div className="flex justify-between text-xs text-muted-foreground mb-1.5">
-                <span>League Progress</span>
-                <span className="font-score font-bold">{leagueProgress}%</span>
-              </div>
-              <div className="w-full h-2 bg-secondary rounded-full overflow-hidden">
-                <div
-                  className="h-full bg-gradient-to-r from-pitch to-pitch-bright transition-all duration-700"
-                  style={{ width: `${leagueProgress}%` }}
-                />
-              </div>
-              <p className="text-xs text-muted-foreground mt-2">
-                {leagueMatches.filter(m => m.status === 'completed').length} / {leagueMatches.length} league matches played
-              </p>
-            </div>
-          </>
-        )}
-      </Card>
-    );
-  }
-
-  return (
-    <div className="flex flex-col gap-6">
-      <div className="flex items-center justify-between">
-        <SectionTitle icon={Swords}>Playoff Bracket</SectionTitle>
-        <Badge color="#29C179">
-          <Check size={10} className="mr-1" strokeWidth={3} /> Auto-Generated
-        </Badge>
-      </div>
-
-      <PlayoffBracket
-        matches={playoffMatches}
-        players={players}
-        onMatchClick={null}
-      />
-
-      <div className="flex flex-col gap-4 mt-4">
-        <div className="flex items-center justify-between border-b border-border/50 pb-2 mb-2">
-          <div className="flex items-center gap-3">
-            <h3 className="text-sm font-bold uppercase tracking-wider text-muted-foreground">Playoff Match Controls</h3>
-            <Badge color="#475569">{playoffMatches.length} Matches</Badge>
-          </div>
-          <Btn 
-            variant="ghost" 
-            className="text-xs h-7 py-1 px-3 border border-border" 
-            onClick={async () => {
-              const res = await adminTriggerBracketProgress(activeSeason.id);
-              if (res.error) showToast(res.error);
-              else showToast("Bracket synchronized!");
-            }}
-          >
-            Sync Bracket
-          </Btn>
-        </div>
-        {playoffMatches.map((m, i) => (
-          <FadeIn key={m.id} delay={i * 0.05}>
-            <AdminMatchControl m={m} players={players} showToast={showToast} setTab={setTab} isPlayoff={true} />
-          </FadeIn>
-        ))}
-      </div>
-    </div>
-  );
-}
-
 export function AdminSettings({ showToast }) {
   return (
     <Card className="p-6">

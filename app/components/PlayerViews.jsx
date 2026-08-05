@@ -784,7 +784,7 @@ function MatchesView({ activeSeason, matches, players, onMatchClick }) {
 
 
 
-export function RosterView({ players, matches, setTab }) {
+function RosterView({ players, matches, setTab }) {
   const router = useRouter();
   const matchWinnerId = (m) => {
     if (!m || m.status !== "completed") return null;
@@ -870,7 +870,7 @@ export function RosterView({ players, matches, setTab }) {
   );
 }
 
-export function HistoryView({ history, players, setTab }) {
+function HistoryView({ history, players, setTab }) {
   if (!history || history.length === 0) return <FadeIn delay={0.1}><Card className="p-6"><EmptyState text="No completed seasons yet." /></Card></FadeIn>;
   
   return (
@@ -922,7 +922,7 @@ export function HistoryView({ history, players, setTab }) {
   );
 }
 
-export function NotificationsView({ notifications, me }) {
+function NotificationsView({ notifications, me }) {
   const [localReadAt, setLocalReadAt] = React.useState(me?.lastReadNotificationAt);
 
   const handleMarkRead = async () => {

@@ -10,6 +10,7 @@ import SportsTicker from './SportsTicker';
 import CelebrationBanner from './CelebrationBanner';
 import AdminSidebar from './AdminSidebar';
 import AdminTopBar from './AdminTopBar';
+import PlayerProfileDrawer from './PlayerProfileDrawer';
 
 export default function AppShell({ 
   initialTab, 
@@ -150,6 +151,7 @@ export default function AppShell({
             </div>
           </div>
         </div>
+        <PlayerProfileDrawer session={session} players={players} matches={matches} seasons={seasons} announcements={announcements} trophies={trophies} notifications={notifications} />
       </div>
     );
   }
@@ -175,6 +177,7 @@ export default function AppShell({
         <PlayerViews {...playerProps} />
       )}
       </div>
+      <PlayerProfileDrawer session={session} players={players} matches={matches} seasons={seasons} announcements={announcements} trophies={trophies} notifications={notifications} />
     </>
   );
 }

@@ -9,6 +9,7 @@ const AppContext = createContext();
 export function AppProvider({ children, initialMatches = [] }) {
   const [matches, setMatches] = useState(initialMatches);
   const [toast, setToast] = useState(null);
+  const [selectedProfileId, setSelectedProfileId] = useState(null);
 
   const [prevInitial, setPrevInitial] = useState(initialMatches);
   if (initialMatches !== prevInitial) {
@@ -34,8 +35,11 @@ export function AppProvider({ children, initialMatches = [] }) {
     setTimeout(() => setToast(null), 2600);
   };
 
+  const openProfile = (id) => setSelectedProfileId(id);
+  const closeProfile = () => setSelectedProfileId(null);
+
   return (
-    <AppContext.Provider value={{ matches, showToast }}>
+    <AppContext.Provider value={{ matches, showToast, selectedProfileId, openProfile, closeProfile }}>
       {children}
       {/* Toast Render */}
       <AnimatePresence>

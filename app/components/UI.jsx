@@ -125,12 +125,10 @@ export const Avatar = ({ p, size = 40, ring, glow, className = "" }) => {
   );
 };
 
+import PlayerTag from './PlayerTag';
+
 export const PlayerChip = ({ p, size = 8 }) => (
-  <div className="flex items-center gap-2 min-w-0">
-    <Avatar p={p} size={Math.max(24, size)} />
-    <span className="font-semibold truncate">{p?.name || "TBD"}</span>
-    <span className="opacity-60 text-xs">{p?.teamLogo}</span>
-  </div>
+  <PlayerTag player={p} size={Math.max(24, size)} className="min-w-0" />
 );
 
 export const SectionTitle = ({ icon: Icon, children, right }) => (

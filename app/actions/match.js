@@ -194,7 +194,7 @@ const matchLoserId = (m) => {
   return w === m.homeId ? m.awayId : m.homeId;
 };
 
-export async function progressDoubleElimination(matchId) {
+async function progressDoubleElimination(matchId) {
   try {
     const match = await prisma.match.findUnique({ where: { id: matchId }, include: { season: true } });
     if (!match || match.status !== 'completed' || match.season?.type !== 'Double Elimination') return;
