@@ -214,7 +214,7 @@ export default function AdminBroadcast({ matches = [], players = [], announcemen
         <Card className="p-4 sm:p-5 bg-zinc-950/80 border-white/10 shadow-2xl">
           <div className="flex items-center justify-between mb-3">
             <Label className="text-pitch-bright font-bold uppercase tracking-widest text-[10px]">On-Air Preview</Label>
-            <Badge className="bg-zinc-900 text-zinc-500 border-zinc-800 text-[9px]">{draft.theme.toUpperCase()}</Badge>
+            <Badge className="bg-zinc-900 text-zinc-500 border-zinc-800 text-[9px]">{draft.theme?.toUpperCase() || 'CLASSIC'}</Badge>
           </div>
           <div className="rounded-lg overflow-hidden ring-1 ring-white/10">
             <SportsTicker
@@ -329,9 +329,13 @@ export default function AdminBroadcast({ matches = [], players = [], announcemen
                         <div className={`w-4 h-4 rounded border flex items-center justify-center mr-3 ${checked ? 'bg-pitch-bright border-pitch-bright' : 'border-zinc-600'}`}>
                           {checked && <CheckCircle2 size={12} className="text-black" />}
                         </div>
-                        <div className="flex flex-col">
-                          <span className="text-[11px] font-bold text-zinc-300">{h?.name} vs {a?.name}</span>
-                          <span className={`text-[9px] font-bold uppercase ${isLive ? 'text-red-400' : 'text-zinc-500'}`}>{m.status}</span>
+                        <div className="flex-1 min-w-0 flex items-center justify-between text-xs font-semibold">
+                          <div className="flex items-center gap-2 truncate">
+                            <span className="truncate">{h?.name || 'Unknown'}</span>
+                            <span className="text-zinc-500 shrink-0">vs</span>
+                            <span className="truncate">{a?.name || 'Unknown'}</span>
+                          </div>
+                          {isLive && <span className="text-[9px] text-red-400 uppercase ml-2">Live</span>}
                         </div>
                       </label>
                     );
