@@ -126,9 +126,9 @@ function AdminMetrics({ matches, activeSeason, notifications = [], setTab }) {
   return (
     <Card className="p-4 md:p-6 overflow-hidden border-border/50 shadow-lg">
       <SectionTitle icon={Activity}>System Overview</SectionTitle>
-      <div className="flex overflow-x-auto snap-x snap-mandatory gap-3 mt-4 pb-4 -mx-4 px-4 md:mx-0 md:px-0 md:pb-0 md:grid md:grid-cols-2 lg:grid-cols-4 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4 mt-4">
         {metrics.map((m, i) => (
-          <FadeIn key={m.label} delay={i * 0.05} className="min-w-[160px] md:min-w-0 shrink-0 snap-center">
+          <FadeIn key={m.label} delay={i * 0.05} className="h-full">
             <div 
               onClick={() => m.tab && setTab && setTab(m.tab)}
               className={`p-5 flex flex-col justify-between bg-secondary/20 border border-border/50 rounded-xl hover:bg-secondary/40 transition-all h-full ${m.tab ? 'cursor-pointer hover:border-white/20' : ''}`}
@@ -170,10 +170,10 @@ function QuickActions({ setTab, showToast }) {
   return (
     <Card className="p-4 md:p-6 overflow-hidden border-border/50 shadow-lg">
       <SectionTitle icon={Zap}>Quick Actions</SectionTitle>
-      <div className="flex overflow-x-auto snap-x snap-mandatory gap-3 mt-4 pb-4 -mx-4 px-4 md:mx-0 md:px-0 md:pb-0 md:grid md:grid-cols-2 lg:grid-cols-3 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+      <div className="flex flex-col md:grid md:grid-cols-2 lg:grid-cols-3 gap-3 mt-4">
         {actions.map((act, i) => (
-          <FadeIn key={act.label} delay={i * 0.05} className="min-w-[200px] md:min-w-0 shrink-0 snap-center h-full">
-            <button onClick={act.onClick} className="w-full h-full flex items-center justify-start gap-4 p-4 bg-secondary/20 border border-border/60 rounded-xl hover:bg-secondary/40 hover:border-white/20 transition-all group cursor-pointer shadow-sm relative">
+          <FadeIn key={act.label} delay={i * 0.05} className="h-full">
+            <button onClick={act.onClick} className="w-full h-full flex items-center justify-start gap-4 p-4 md:p-4 bg-secondary/20 border border-border/60 rounded-xl hover:bg-secondary/40 hover:border-white/20 transition-all group cursor-pointer shadow-sm relative">
               <div className={`w-10 h-10 rounded-lg flex items-center justify-center shrink-0 ${act.bg} group-hover:scale-105 transition-transform`}>
                 <act.icon size={18} />
               </div>
@@ -442,10 +442,10 @@ function TopPlayersHorizontal({ matches, players, activeSeason }) {
   return (
     <Card className="p-6">
       <SectionTitle icon={Flame}>Top Players</SectionTitle>
-      <div className="flex sm:grid sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mt-6 overflow-x-auto pb-4 hide-scrollbar snap-x snap-mandatory -mx-6 px-6 sm:mx-0 sm:px-0">
+      <div className="flex flex-col sm:grid sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mt-6">
         {categories.map((cat, i) => (
-          <FadeIn key={cat.label} delay={i * 0.1} className="min-w-[240px] sm:min-w-0 shrink-0 snap-center h-full">
-            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4 p-3.5 sm:p-4 bg-secondary/30 rounded-xl border border-border/50 h-full group hover:bg-secondary/50 transition-colors">
+          <FadeIn key={cat.label} delay={i * 0.1} className="h-full">
+            <div className="flex items-center gap-3 sm:gap-4 p-3.5 sm:p-4 bg-secondary/30 rounded-xl border border-border/50 h-full group hover:bg-secondary/50 transition-colors">
               <Avatar p={cat.player} size={42} className="ring-1 ring-border" />
               <div className="min-w-0 flex-1 w-full">
                 <div className="text-[9px] text-muted-foreground uppercase tracking-widest font-bold mb-0.5 flex items-center gap-1">
