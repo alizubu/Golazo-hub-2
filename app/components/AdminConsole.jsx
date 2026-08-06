@@ -69,6 +69,7 @@ const TROPHY_TEMPLATES = [
 ];
 import AdminHistory from './AdminHistory';
 import AdminNotifications from './AdminNotifications';
+import { MobileStandingsList } from './AdminOverviewDashboard';
 
 import dynamic from 'next/dynamic';
 import RichTextEditor from './RichTextEditor';
@@ -141,19 +142,35 @@ export function AdminPlayers({ players, showToast }) {
           </Card>
         </FadeIn>
       )}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="flex flex-col md:grid md:grid-cols-2 gap-0 md:gap-4 md:bg-transparent md:border-none md:divide-none bg-secondary/20 border border-border/50 rounded-2xl overflow-hidden divide-y divide-border/40">
         {players.map((p, i) => (
-          <FadeIn key={p.id} delay={i * 0.05}>
-            <MagicCard className="p-4 flex items-center gap-4">
+          <FadeIn key={p.id} delay={i * 0.05} className="h-full">
+            <div className="p-3.5 sm:p-4 md:p-5 md:bg-secondary/20 md:border md:border-border/50 md:rounded-xl flex items-center gap-3 md:gap-4 transition-colors active:bg-secondary/40 md:hover:bg-secondary/40 h-full group">
+              <Avatar p={p} size={44} className="shrink-0 ring-1 ring-border/50 shadow-sm" />
               <div className="flex-1 min-w-0 flex flex-col justify-center">
-                <div className="font-bold font-heading truncate text-lg">
-                  <PlayerTag player={p} size={48} className="!p-0 !m-0 hover:bg-transparent hover:scale-[1.02]" />
+                <div className="font-bold text-[15px] text-white truncate leading-snug">{toTitleCase(p.name)}</div>
+                <div className="text-[11px] text-muted-foreground truncate leading-relaxed">
+                  {p.teamName ? `${p.teamLogo || ''} ${p.teamName} · ` : ''}@{p.username}
                 </div>
-                <div className="text-xs text-muted-foreground truncate">{p.teamLogo} {p.teamName} · @{p.username}</div>
               </div>
-              <Btn variant="ghost" className="px-3 py-2 text-sm" onClick={() => startEdit(p)} disabled={loading}>Edit</Btn>
-              <Btn variant="danger" className="px-3 py-2 text-sm" onClick={() => remove(p.id)} loading={loading}>Del</Btn>
-            </MagicCard>
+              
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <button className="p-2 -mr-2 text-muted-foreground hover:text-white md:opacity-0 group-hover:opacity-100 hover:bg-white/10 rounded-full transition-all active:bg-white/20 active:scale-95 outline-none">
+                    <MoreVertical size={18} />
+                  </button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-44 bg-card border-border/50 shadow-2xl rounded-xl z-50">
+                  <DropdownMenuItem className="cursor-pointer py-2.5 rounded-lg" onSelect={() => startEdit(p)} disabled={loading}>
+                    <Edit2 size={15} className="mr-2.5 text-muted-foreground" /> Edit Profile
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator className="bg-border/30 my-1" />
+                  <DropdownMenuItem className="cursor-pointer py-2.5 rounded-lg text-destructive focus:text-destructive focus:bg-destructive/10" onSelect={() => remove(p.id)} disabled={loading}>
+                    <Trash2 size={15} className="mr-2.5" /> Remove Player
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
           </FadeIn>
         ))}
       </div>
@@ -258,26 +275,26 @@ function AdminMatchControl({ m, players, showToast, setTab, isPlayoff = false })
     return (
       <MagicCard className="group p-3 sm:p-4 bg-secondary/30 relative overflow-hidden">
         <div className="flex items-center gap-2">
-          <div className="flex flex-col sm:grid sm:grid-cols-3 gap-3 sm:gap-2 items-center w-full">
-            <div className="flex w-full items-center justify-between sm:justify-end gap-2 sm:gap-3">
-              <span className="text-foreground text-sm font-semibold truncate max-w-[100px] sm:max-w-none text-right" title={h?.name}>
+          <div className="grid grid-cols-[1fr_auto_1fr] sm:grid-cols-3 gap-2 items-center w-full">
+            <div className="flex w-full items-center justify-end gap-1.5 sm:gap-3">
+              <span className="text-foreground text-[11px] sm:text-sm font-semibold truncate text-right" title={h?.name}>
                 {toTitleCase(h?.name)}
               </span>
-              {hFlagUrl && <img src={hFlagUrl} alt={h?.flag} className="w-4 h-3 sm:w-5 sm:h-3.5 object-cover rounded-[2px] shadow-sm shrink-0" />}
-              <Avatar p={h} size={40} className="w-8 h-8 sm:w-10 sm:h-10 shrink-0" />
+              {hFlagUrl && <img src={hFlagUrl} alt={h?.flag} className="w-3.5 h-2.5 sm:w-5 sm:h-3.5 object-cover rounded-[2px] shadow-sm shrink-0" />}
+              <Avatar p={h} size={40} className="w-6 h-6 sm:w-10 sm:h-10 shrink-0 hidden xs:block" />
             </div>
 
-            <div className="flex flex-col items-center justify-center">
-              <span className="text-xs text-muted-foreground font-score uppercase tracking-widest font-bold mb-1">vs</span>
-              <ShinyButton onClick={startMatch} loading={loading} className="px-3 py-1 text-xs">
-                <Radio size={12} className="mr-1.5"/> Start
+            <div className="flex flex-col items-center justify-center px-2">
+              <span className="text-[9px] sm:text-xs text-muted-foreground font-score uppercase tracking-widest font-bold mb-1">vs</span>
+              <ShinyButton onClick={startMatch} loading={loading} className="px-2 py-0.5 sm:px-3 sm:py-1 text-[9px] sm:text-xs min-w-max">
+                <Radio size={10} className="mr-1 sm:mr-1.5 sm:w-3 sm:h-3"/> Start
               </ShinyButton>
             </div>
 
-            <div className="flex w-full items-center justify-between sm:justify-start gap-2 sm:gap-3">
-              <Avatar p={a} size={40} className="w-8 h-8 sm:w-10 sm:h-10 shrink-0" />
-              {aFlagUrl && <img src={aFlagUrl} alt={a?.flag} className="w-4 h-3 sm:w-5 sm:h-3.5 object-cover rounded-[2px] shadow-sm shrink-0" />}
-              <span className="text-foreground text-sm font-semibold truncate max-w-[100px] sm:max-w-none text-left" title={a?.name}>
+            <div className="flex w-full items-center justify-start gap-1.5 sm:gap-3">
+              <Avatar p={a} size={40} className="w-6 h-6 sm:w-10 sm:h-10 shrink-0 hidden xs:block" />
+              {aFlagUrl && <img src={aFlagUrl} alt={a?.flag} className="w-3.5 h-2.5 sm:w-5 sm:h-3.5 object-cover rounded-[2px] shadow-sm shrink-0" />}
+              <span className="text-foreground text-[11px] sm:text-sm font-semibold truncate text-left" title={a?.name}>
                 {toTitleCase(a?.name)}
               </span>
             </div>
@@ -343,27 +360,27 @@ function CompletedMatchCard({ m, h, a, players, showToast, isPlayoff = false }) 
   return (
     <MagicCard className="group p-3 sm:p-4 bg-secondary/30 hover:bg-secondary/40 transition-all duration-300 relative overflow-hidden">
       <div className="flex items-center gap-2">
-        <div className="flex flex-col sm:grid sm:grid-cols-3 gap-3 sm:gap-2 items-center w-full sm:pr-8 pr-2">
-          <div className="flex w-full items-center justify-between sm:justify-end gap-2 sm:gap-3">
-            <span className="text-foreground text-sm font-semibold truncate max-w-[100px] sm:max-w-none text-right" title={h?.name}>
+        <div className="grid grid-cols-[1fr_auto_1fr] sm:grid-cols-3 gap-2 items-center w-full sm:pr-8 pr-6">
+          <div className="flex w-full items-center justify-end gap-1.5 sm:gap-3">
+            <span className="text-foreground text-[11px] sm:text-sm font-semibold truncate text-right" title={h?.name}>
               {toTitleCase(h?.name)}
             </span>
-            {hFlagUrl && <img src={hFlagUrl} alt={h?.flag} className="w-4 h-3 sm:w-5 sm:h-3.5 object-cover rounded-[2px] shadow-sm shrink-0" />}
-            <Avatar p={h} size={40} className="w-8 h-8 sm:w-10 sm:h-10 shrink-0" />
+            {hFlagUrl && <img src={hFlagUrl} alt={h?.flag} className="w-3.5 h-2.5 sm:w-5 sm:h-3.5 object-cover rounded-[2px] shadow-sm shrink-0" />}
+            <Avatar p={h} size={40} className="w-6 h-6 sm:w-10 sm:h-10 shrink-0 hidden xs:block" />
           </div>
 
-          <div className="flex items-center justify-center">
-            <div className={`w-20 sm:w-24 h-9 bg-black/40 border ${m.status === 'live' ? 'border-red-500/50' : 'border-border/50'} rounded-lg flex items-center justify-center gap-2`}>
-              <span className={`font-score text-base ${hWon ? 'text-pitch-bright font-black drop-shadow-md' : 'text-muted-foreground font-semibold'}`}>{hScore}</span>
-              <span className="text-muted-foreground/30 font-score text-sm">-</span>
-              <span className={`font-score text-base ${aWon ? 'text-pitch-bright font-black drop-shadow-md' : 'text-muted-foreground font-semibold'}`}>{aScore}</span>
+          <div className="flex items-center justify-center px-1 sm:px-2">
+            <div className={`w-16 sm:w-24 h-7 sm:h-9 bg-black/40 border ${m.status === 'live' ? 'border-red-500/50' : 'border-border/50'} rounded-md sm:rounded-lg flex items-center justify-center gap-1 sm:gap-2`}>
+              <span className={`font-score text-sm sm:text-base ${hWon ? 'text-pitch-bright font-black drop-shadow-md' : 'text-muted-foreground font-semibold'}`}>{hScore}</span>
+              <span className="text-muted-foreground/30 font-score text-xs sm:text-sm">-</span>
+              <span className={`font-score text-sm sm:text-base ${aWon ? 'text-pitch-bright font-black drop-shadow-md' : 'text-muted-foreground font-semibold'}`}>{aScore}</span>
             </div>
           </div>
 
-          <div className="flex w-full items-center justify-between sm:justify-start gap-2 sm:gap-3">
-            <Avatar p={a} size={40} className="w-8 h-8 sm:w-10 sm:h-10 shrink-0" />
-            {aFlagUrl && <img src={aFlagUrl} alt={a?.flag} className="w-4 h-3 sm:w-5 sm:h-3.5 object-cover rounded-[2px] shadow-sm shrink-0" />}
-            <span className="text-foreground text-sm font-semibold truncate max-w-[100px] sm:max-w-none text-left" title={a?.name}>
+          <div className="flex w-full items-center justify-start gap-1.5 sm:gap-3">
+            <Avatar p={a} size={40} className="w-6 h-6 sm:w-10 sm:h-10 shrink-0 hidden xs:block" />
+            {aFlagUrl && <img src={aFlagUrl} alt={a?.flag} className="w-3.5 h-2.5 sm:w-5 sm:h-3.5 object-cover rounded-[2px] shadow-sm shrink-0" />}
+            <span className="text-foreground text-[11px] sm:text-sm font-semibold truncate text-left" title={a?.name}>
               {toTitleCase(a?.name)}
             </span>
           </div>
@@ -928,7 +945,7 @@ export function AdminTrophies({ players, trophies = [], seasons, showToast }) {
             {trophies.length === 0 ? (
               <EmptyState text="No trophies awarded yet." />
             ) : (
-              <div className="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-4">
                 {trophies.map((t, i) => (
                   <motion.div
                     key={t.id}
@@ -1550,39 +1567,8 @@ export function AdminSeason({ activeSeason, matches = [], players = [], showToas
                </table>
                
                {/* Mobile Card View */}
-               <div className="flex flex-col gap-3 md:hidden">
-                 {standings.map((row, idx) => (
-                   <div key={row.id} className={`flex flex-col gap-2 p-3 rounded-xl border border-border/30 bg-secondary/20 relative ${idx === 3 ? 'border-b-2 border-b-success/50' : ''}`}>
-                     <div className="flex items-center justify-between">
-                       <div className="flex items-center gap-3">
-                         <span className="text-xl shrink-0 text-center w-6">
-                           {idx === 0 ? "🥇" : idx === 1 ? "🥈" : idx === 2 ? "🥉" : <span className="text-sm font-bold text-muted-foreground">{idx + 1}</span>}
-                         </span>
-                         <span className="font-bold text-base truncate max-w-[150px]">{row.name} {row.flag}</span>
-                       </div>
-                       <div className="flex items-center gap-2">
-                         <span className="text-[10px] font-bold uppercase text-muted-foreground">Pts</span>
-                         <span className="text-xl font-score font-black text-primary">{row.pts}</span>
-                       </div>
-                     </div>
-                     <div className="flex items-center justify-between px-2 pt-2 border-t border-border/20 mt-1">
-                       <div className="flex items-center gap-4 text-xs font-score text-muted-foreground">
-                         <span title="Played">P: {row.p}</span>
-                         <span title="Wins">W: {row.w}</span>
-                         <span title="Draws">D: {row.d}</span>
-                         <span title="Losses">L: {row.l}</span>
-                       </div>
-                       <div className="text-xs font-score font-bold">
-                         GD: <span className={row.gd > 0 ? "text-green-500" : row.gd < 0 ? "text-red-500" : ""}>{row.gd > 0 ? `+${row.gd}` : row.gd}</span>
-                       </div>
-                     </div>
-                   </div>
-                 ))}
-                 {standings.length === 0 && (
-                   <div className="py-8 text-center text-sm text-muted-foreground border border-dashed border-border/40 rounded-xl">
-                     No matches played yet
-                   </div>
-                 )}
+               <div className="block md:hidden mt-4">
+                 <MobileStandingsList matches={matches} players={players} activeSeason={activeSeason} />
                </div>
              </div>
            </Card>

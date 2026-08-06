@@ -594,7 +594,7 @@ function MiniCalendar({ matches, players, activeSeason }) {
 }
 
 // Mobile-first Standings Cards
-function MobileStandingsList({ matches, players, activeSeason }) {
+export function MobileStandingsList({ matches, players, activeSeason }) {
   const [expandedId, setExpandedId] = useState(null);
   
   if (!activeSeason) return null;
