@@ -619,8 +619,6 @@ function Published({ state, stats, resultType, shootoutWinner, onClose }) {
 let scoreTimeoutId = null;
 
 export default function LiveMatchControl({ matches, players, activeSeason, showToast }) {
-  if (!activeSeason) return null;
-
   const [phase, setPhase] = useState("live");
   const [etHalf, setEtHalf] = useState(1);
   const [kicks, setKicks] = useState([]);
@@ -683,6 +681,9 @@ export default function LiveMatchControl({ matches, players, activeSeason, showT
       }));
     }
   }
+
+  // Guard: must be AFTER all hooks to satisfy React Rules of Hooks
+  if (!activeSeason) return null;
 
   const startNextMatch = async () => {
     if (!nextMatch) return;
