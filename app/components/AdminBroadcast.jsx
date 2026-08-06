@@ -5,7 +5,8 @@ import { Activity, CheckCircle2, Megaphone, Radio, Zap, TrendingUp, Flame, Eye, 
 import { Card, Label, SectionTitle, FadeIn, ShinyButton, Badge } from './UI';
 import { motion } from 'framer-motion';
 import { saveTickerConfig } from '@/app/actions/admin';
-import SportsTicker, { THEMES, SEPARATORS } from './SportsTicker';
+import SportsTicker from './SportsTicker';
+import { THEMES, SEPARATORS } from './SportsTickerBadges';
 
 // ── Toggle Switch ────────────────────────────────────────────────────────────
 function Toggle({ checked, onChange, label, desc }) {
@@ -48,29 +49,26 @@ function SegmentBtn({ value, label, icon, current, onChange }) {
 function ThemeCard({ theme, isSelected, onSelect }) {
   return (
     <motion.button
-      whileHover={{ scale: 1.03 }}
-      whileTap={{ scale: 0.97 }}
+      whileHover={{ scale: 1.02 }}
+      whileTap={{ scale: 0.98 }}
       onClick={() => onSelect(theme.id)}
-      className={`relative flex flex-col items-center gap-2 p-4 rounded-xl border transition-all text-center overflow-hidden ${
+      className={`relative flex items-center gap-3 p-3 rounded-lg border transition-all text-left overflow-hidden ${
         isSelected
-          ? 'bg-amber-500/10 border-amber-500/50 shadow-[0_0_20px_rgba(245,158,11,0.2)]'
-          : 'bg-white/[0.03] border-white/[0.06] hover:bg-white/[0.06] hover:border-white/10'
+          ? 'bg-amber-500/15 border-amber-500/50 shadow-[0_0_15px_rgba(245,158,11,0.2)] ring-1 ring-amber-500/50'
+          : 'bg-white/[0.02] border-white/10 hover:bg-white/[0.05] hover:border-white/20'
       }`}
     >
-      {isSelected && (
-        <div className="absolute top-2 right-2">
-          <CheckCircle2 size={14} className="text-amber-400" />
+      <div className={`flex items-center justify-center w-8 h-8 rounded-full shrink-0 ${isSelected ? 'bg-amber-500/20' : 'bg-white/5'}`}>
+        <span className="text-lg">{theme.emoji}</span>
+      </div>
+      <div className="flex flex-col flex-1">
+        <div className="flex items-center justify-between">
+          <span className={`text-[11px] font-bold uppercase tracking-wider ${isSelected ? 'text-amber-300' : 'text-zinc-300'}`}>
+            {theme.name}
+          </span>
+          {isSelected && <CheckCircle2 size={12} className="text-amber-400" />}
         </div>
-      )}
-      <span className="text-2xl">{theme.emoji}</span>
-      <span className={`text-xs font-bold uppercase tracking-wider ${isSelected ? 'text-amber-300' : 'text-zinc-400'}`}>{theme.name}</span>
-      <span className="text-[10px] text-zinc-500 leading-tight">{theme.desc}</span>
-      {/* Shiny badge preview */}
-      <div className={`mt-1 ticker-badge-shine inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[8px] font-bold uppercase tracking-wider ${
-        isSelected ? 'bg-amber-500/20 text-amber-300 border border-amber-500/30' : 'bg-white/5 text-zinc-500 border border-white/5'
-      }`}>
-        <span className="relative flex h-1 w-1"><span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-current opacity-75" /><span className="relative inline-flex rounded-full h-1 w-1 bg-current" /></span>
-        LIVE
+        <span className="text-[9px] text-zinc-500 leading-tight line-clamp-1">{theme.desc}</span>
       </div>
     </motion.button>
   );
