@@ -34,33 +34,47 @@ function HeroSeasonSummary({ activeSeason, players, matches, setTab }) {
   const hasFixtures = totalMatches > 0;
 
   return (
-    <div className="relative rounded-2xl overflow-hidden bg-card border border-border shadow-2xl p-6 md:p-8">
-      <div className="absolute inset-0 bg-gradient-to-br from-pitch/20 via-background to-background pointer-events-none" />
-      <div className="absolute -right-16 -top-16 opacity-10 pointer-events-none">
+    <div className="relative rounded-2xl overflow-hidden bg-card border border-border shadow-lg md:shadow-2xl flex flex-col md:block">
+      {/* Background Gradients */}
+      <div className="absolute inset-0 bg-gradient-to-br from-pitch/10 via-background to-background pointer-events-none" />
+      <div className="hidden md:block absolute -right-16 -top-16 opacity-10 pointer-events-none">
         <Trophy size={300} />
       </div>
 
-      <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
-        <div className="space-y-2 max-w-xl">
-          <div className="flex items-center gap-2">
-            <span className="text-xs font-bold uppercase tracking-widest text-pitch-bright bg-pitch/10 px-2.5 py-1 rounded-full border border-pitch/20">Active Tournament</span>
-            {isCompleted ? (
-              <Badge color="var(--success)">Completed</Badge>
-            ) : hasFixtures ? (
-              <Badge color="var(--pitch)" pulse>In Progress</Badge>
-            ) : (
-              <Badge color="var(--gold)">Draft</Badge>
-            )}
+      {/* Main Content Area */}
+      <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4 md:gap-6 p-4 md:p-8 pb-8 md:pb-8">
+        <div className="space-y-1 md:space-y-2 max-w-xl flex-1">
+          <div className="flex items-center justify-between md:justify-start gap-2 mb-2 md:mb-0">
+            <div className="flex items-center gap-2">
+              <span className="text-[10px] md:text-xs font-bold uppercase tracking-widest text-pitch-bright bg-pitch/10 px-2 py-0.5 md:px-2.5 md:py-1 rounded-full border border-pitch/20">Active Season</span>
+              {isCompleted ? (
+                <Badge color="var(--success)">Completed</Badge>
+              ) : hasFixtures ? (
+                <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-pitch/10 border border-pitch/30 text-[10px] font-bold text-pitch-bright uppercase tracking-wider shadow-[0_0_10px_rgba(20,184,166,0.15)]">
+                  <div className="w-1.5 h-1.5 rounded-full bg-pitch animate-pulse" />
+                  Live
+                </div>
+              ) : (
+                <Badge color="var(--gold)">Draft</Badge>
+              )}
+            </div>
+            
+            {/* Mobile Progress Pill */}
+            <div className="md:hidden flex items-center gap-1.5 bg-background/50 px-2.5 py-1 rounded-full border border-border/50 backdrop-blur-md">
+              <span className="text-[10px] font-score font-bold">{progress}%</span>
+            </div>
           </div>
-          <h1 className="text-3xl md:text-5xl font-heading font-black tracking-tight text-foreground">
+          
+          <h1 className="text-xl md:text-5xl font-heading font-black tracking-tight text-foreground leading-none">
             {activeSeason.name}
           </h1>
-          <p className="text-sm text-muted-foreground line-clamp-2">
+          <p className="text-xs md:text-sm text-muted-foreground line-clamp-1 md:line-clamp-2">
             {activeSeason.type || "Standard Tournament"}{(activeSeason.startDate || activeSeason.createdAt) ? ` • Started ${new Date(activeSeason.startDate || activeSeason.createdAt).toLocaleDateString()}` : ''}
           </p>
         </div>
 
-        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 bg-secondary/30 p-4 rounded-xl border border-border/50 backdrop-blur-sm">
+        {/* Desktop Detailed Stats Box */}
+        <div className="hidden md:flex flex-col sm:flex-row items-stretch sm:items-center gap-4 bg-secondary/30 p-4 rounded-xl border border-border/50 backdrop-blur-sm">
           <div className="flex flex-col justify-center px-2">
             <span className="text-[10px] uppercase font-bold text-muted-foreground tracking-wider mb-1">League Progress</span>
             <div className="flex items-center gap-3">
@@ -84,6 +98,11 @@ function HeroSeasonSummary({ activeSeason, players, matches, setTab }) {
           </div>
         </div>
       </div>
+
+      {/* Edge-to-edge Mobile Progress Bar */}
+      <div className="md:hidden h-1 w-full bg-border/30 absolute bottom-0 left-0">
+        <div className="h-full bg-gradient-to-r from-pitch to-pitch-bright transition-all duration-500 shadow-[0_0_10px_rgba(20,184,166,0.3)]" style={{ width: `${progress}%` }} />
+      </div>
     </div>
   );
 }
@@ -105,11 +124,11 @@ function AdminMetrics({ matches, activeSeason, notifications = [], setTab }) {
   ];
 
   return (
-    <Card className="p-6">
+    <Card className="p-4 md:p-6 overflow-hidden border-border/50 shadow-lg">
       <SectionTitle icon={Activity}>System Overview</SectionTitle>
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-4">
+      <div className="flex overflow-x-auto snap-x snap-mandatory gap-3 mt-4 pb-4 -mx-4 px-4 md:mx-0 md:px-0 md:pb-0 md:grid md:grid-cols-2 lg:grid-cols-4 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
         {metrics.map((m, i) => (
-          <FadeIn key={m.label} delay={i * 0.05}>
+          <FadeIn key={m.label} delay={i * 0.05} className="min-w-[160px] md:min-w-0 shrink-0 snap-center">
             <div 
               onClick={() => m.tab && setTab && setTab(m.tab)}
               className={`p-5 flex flex-col justify-between bg-secondary/20 border border-border/50 rounded-xl hover:bg-secondary/40 transition-all h-full ${m.tab ? 'cursor-pointer hover:border-white/20' : ''}`}
@@ -149,11 +168,11 @@ function QuickActions({ setTab, showToast }) {
   ];
 
   return (
-    <Card className="p-6">
+    <Card className="p-4 md:p-6 overflow-hidden border-border/50 shadow-lg">
       <SectionTitle icon={Zap}>Quick Actions</SectionTitle>
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 mt-4">
+      <div className="flex overflow-x-auto snap-x snap-mandatory gap-3 mt-4 pb-4 -mx-4 px-4 md:mx-0 md:px-0 md:pb-0 md:grid md:grid-cols-2 lg:grid-cols-3 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
         {actions.map((act, i) => (
-          <FadeIn key={act.label} delay={i * 0.05} className="h-full">
+          <FadeIn key={act.label} delay={i * 0.05} className="min-w-[200px] md:min-w-0 shrink-0 snap-center h-full">
             <button onClick={act.onClick} className="w-full h-full flex items-center justify-start gap-4 p-4 bg-secondary/20 border border-border/60 rounded-xl hover:bg-secondary/40 hover:border-white/20 transition-all group cursor-pointer shadow-sm relative">
               <div className={`w-10 h-10 rounded-lg flex items-center justify-center shrink-0 ${act.bg} group-hover:scale-105 transition-transform`}>
                 <act.icon size={18} />
@@ -176,19 +195,56 @@ function LeagueSnapshot({ matches, players, activeSeason, setTab }) {
   const standings = computeStandings(matches, players, activeSeason.id).slice(0, 3);
 
   return (
-    <Card className="p-6 h-full flex flex-col">
+    <Card className="p-4 md:p-6 h-full flex flex-col border-border/50 shadow-lg">
       <SectionTitle icon={ListOrdered}>League Snapshot</SectionTitle>
-      <div className="flex-1 flex flex-col justify-center gap-4 py-4">
-        {standings.map((s, i) => (
-          <div key={s.id} className="flex items-center justify-between p-3 rounded-lg bg-secondary/30 border border-border/30">
-            <div className="flex items-center gap-3 min-w-0 flex-1">
-              <span className="text-xl shrink-0">{i === 0 ? '🥇' : i === 1 ? '🥈' : '🥉'}</span>
-              <span className="font-bold text-sm truncate" title={s.name}>{formatName(s.name)}</span>
-            </div>
-            <div className="text-pitch-bright font-bold font-score text-sm shrink-0 ml-2">{s.pts} pts</div>
+      <div className="flex-1 flex flex-col justify-center gap-4 py-8">
+        {standings.length > 0 ? (
+          <div className="flex items-end justify-center gap-2 sm:gap-4 h-32 mt-4">
+            {/* 2nd Place */}
+            {standings[1] && (
+              <div className="flex flex-col items-center flex-1">
+                <Avatar p={standings[1]} size={36} className="mb-2 ring-2 ring-zinc-300 shadow-[0_0_15px_rgba(212,212,216,0.3)]" />
+                <span className="font-bold text-xs truncate max-w-full px-1" title={standings[1].name}>{formatName(standings[1].name)}</span>
+                <span className="text-[10px] text-zinc-400 font-score">{standings[1].pts} pts</span>
+                <div className="w-full h-16 bg-zinc-300/10 border-t-2 border-zinc-300/30 rounded-t-lg mt-2 flex items-center justify-center relative overflow-hidden">
+                  <div className="absolute inset-0 bg-gradient-to-t from-transparent to-zinc-300/10 pointer-events-none" />
+                  <span className="text-2xl font-black text-zinc-400/50">2</span>
+                </div>
+              </div>
+            )}
+            
+            {/* 1st Place */}
+            {standings[0] && (
+              <div className="flex flex-col items-center flex-1 -mt-6">
+                <div className="relative">
+                  <div className="absolute -top-4 -right-2 text-2xl animate-bounce drop-shadow-md z-10">👑</div>
+                  <Avatar p={standings[0]} size={48} className="mb-2 ring-2 ring-amber-400 shadow-[0_0_20px_rgba(251,191,36,0.4)] relative z-0" />
+                </div>
+                <span className="font-bold text-sm truncate max-w-full px-1 text-amber-400" title={standings[0].name}>{formatName(standings[0].name)}</span>
+                <span className="text-xs text-amber-500/80 font-bold font-score">{standings[0].pts} pts</span>
+                <div className="w-full h-24 bg-amber-400/10 border-t-2 border-amber-400/30 rounded-t-lg mt-2 flex flex-col items-center justify-start pt-2 relative overflow-hidden shadow-[0_-10px_30px_rgba(251,191,36,0.1)]">
+                  <div className="absolute inset-0 bg-gradient-to-t from-transparent to-amber-400/20 pointer-events-none" />
+                  <span className="text-3xl font-black text-amber-500/50">1</span>
+                </div>
+              </div>
+            )}
+
+            {/* 3rd Place */}
+            {standings[2] && (
+              <div className="flex flex-col items-center flex-1">
+                <Avatar p={standings[2]} size={36} className="mb-2 ring-2 ring-orange-400/70 shadow-[0_0_15px_rgba(251,146,60,0.3)]" />
+                <span className="font-bold text-xs truncate max-w-full px-1" title={standings[2].name}>{formatName(standings[2].name)}</span>
+                <span className="text-[10px] text-orange-400/70 font-score">{standings[2].pts} pts</span>
+                <div className="w-full h-12 bg-orange-400/10 border-t-2 border-orange-400/20 rounded-t-lg mt-2 flex items-center justify-center relative overflow-hidden">
+                  <div className="absolute inset-0 bg-gradient-to-t from-transparent to-orange-400/10 pointer-events-none" />
+                  <span className="text-2xl font-black text-orange-500/40">3</span>
+                </div>
+              </div>
+            )}
           </div>
-        ))}
-        {standings.length === 0 && <EmptyState text="No matches played." />}
+        ) : (
+          <EmptyState text="No matches played." />
+        )}
       </div>
       <div className="mt-auto border-t border-border/50 pt-4 flex justify-end">
         <button onClick={() => setTab && setTab('admin-season')} className="text-xs font-bold text-pitch-bright hover:text-white flex items-center transition-colors cursor-pointer">
@@ -199,102 +255,84 @@ function LeagueSnapshot({ matches, players, activeSeason, setTab }) {
   );
 }
 
-// 6. Upcoming Matches Mini
-function UpcomingMatchesMini({ matches, players, activeSeason, setTab }) {
+// 6. Match Center (Segmented Control)
+function MatchCenter({ matches, players, activeSeason, showToast, setTab }) {
+  const [view, setView] = useState('recent'); // 'recent' or 'upcoming'
   if (!activeSeason) return null;
-  const tMatches = matches.filter(m => m.seasonId === activeSeason.id && m.status === 'scheduled');
-  const upcoming = tMatches.slice(0, 3);
+
+  const tMatches = matches.filter(m => m.seasonId === activeSeason.id);
+  const completed = tMatches.filter(m => m.status === 'completed').slice(-4).reverse();
+  const upcoming = tMatches.filter(m => m.status === 'scheduled').slice(0, 4);
+  const displayMatches = view === 'recent' ? completed : upcoming;
 
   return (
-    <Card className="p-6 h-full flex flex-col">
-      <SectionTitle icon={Calendar}>Upcoming Matches</SectionTitle>
-      <div className="flex-1 flex flex-col justify-center gap-3 py-4">
-        {upcoming.length > 0 ? (
-          upcoming.map((m) => {
-            const h = players.find(p => p.id === m.homeId);
-            const a = players.find(p => p.id === m.awayId);
-            return (
-              <div key={m.id} onClick={() => setTab && setTab('admin-matches')} className="flex flex-col p-3 rounded-lg bg-secondary/20 border border-border/30 gap-1.5 hover:bg-secondary/40 transition-colors cursor-pointer">
-                <div className="flex justify-between items-center text-sm gap-2">
-                  <span className="font-bold truncate flex-1" title={h?.name}>{formatName(h?.name)}</span>
-                  <span className="text-[10px] font-score text-muted-foreground px-2 py-0.5 bg-background rounded-full shrink-0 border border-border/50">VS</span>
-                  <span className="font-bold truncate flex-1 text-right" title={a?.name}>{formatName(a?.name)}</span>
-                </div>
-              </div>
-            );
-          })
-        ) : (
-          <EmptyState text="No upcoming fixtures." />
-        )}
+    <Card className="p-4 md:p-6 h-full flex flex-col border-border/50 shadow-lg">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
+        <SectionTitle icon={Swords}>Match Center</SectionTitle>
+        <div className="flex p-1 bg-secondary/40 rounded-lg border border-border/50 w-full sm:w-auto">
+          <button 
+            onClick={() => setView('recent')} 
+            className={`flex-1 sm:px-4 py-1.5 text-xs font-bold rounded-md transition-all ${view === 'recent' ? 'bg-background shadow-sm text-foreground' : 'text-muted-foreground hover:text-foreground'}`}
+          >
+            Recent
+          </button>
+          <button 
+            onClick={() => setView('upcoming')} 
+            className={`flex-1 sm:px-4 py-1.5 text-xs font-bold rounded-md transition-all ${view === 'upcoming' ? 'bg-background shadow-sm text-foreground' : 'text-muted-foreground hover:text-foreground'}`}
+          >
+            Upcoming
+          </button>
+        </div>
       </div>
-    </Card>
-  );
-}
 
-// 7. Recent Results
-function RecentResults({ matches, players, activeSeason, showToast }) {
-  if (!activeSeason) return null;
-  const completed = matches
-    .filter(m => m.seasonId === activeSeason.id && m.status === 'completed')
-    .slice(-4)
-    .reverse();
-
-  return (
-    <Card className="p-6 h-full flex flex-col">
-      <SectionTitle icon={History}>Recent Match Results</SectionTitle>
-
-
-
-      <div className="flex-1 flex flex-col justify-center gap-4 py-4">
-        {completed.length > 0 ? (
-          completed.map((m) => {
+      <div className="flex-1 flex flex-col gap-3 justify-center">
+        {displayMatches.length > 0 ? (
+          displayMatches.map((m) => {
             const h = players.find(p => p.id === m.homeId);
             const a = players.find(p => p.id === m.awayId);
-            const timeStr = m.completedAt ? new Date(m.completedAt).toLocaleDateString() : "Recent";
+            const isCompleted = m.status === 'completed';
             const hScore = m.homeScore || 0;
             const aScore = m.awayScore || 0;
-            const hWon = hScore > aScore;
-            const aWon = aScore > hScore;
+            const hWon = isCompleted && hScore > aScore;
+            const aWon = isCompleted && aScore > hScore;
+            
             return (
-              <div key={m.id} className="group relative flex items-center justify-between py-2 sm:py-2.5 border-b border-border/20 last:border-0 hover:bg-secondary/40 px-2 -mx-2 rounded-lg transition-colors">
+              <div key={m.id} onClick={() => setTab && setTab('admin-matches')} className="group relative flex items-center justify-between py-2.5 sm:py-3 border border-border/30 bg-secondary/10 hover:bg-secondary/40 px-3 rounded-xl transition-colors cursor-pointer">
                 <div className="grid grid-cols-[1fr_auto_1fr] gap-2 sm:gap-4 w-full items-center">
                   <div className={`flex items-center justify-end gap-2 min-w-0 ${hWon ? 'text-pitch-bright font-black' : 'text-muted-foreground'}`} title={h?.name}>
                     <span className="font-bold text-sm truncate">{formatName(h?.name)}</span>
-                    <Avatar p={h} size={20} className="shrink-0" />
+                    <Avatar p={h} size={24} className="shrink-0" />
                   </div>
-                  <div className="font-score text-xs sm:text-sm bg-secondary/80 px-2 sm:px-3 py-1 rounded-lg font-black border border-border/50 shrink-0 flex items-center justify-center gap-1.5 min-w-[60px]">
-                    <span className={hWon ? 'text-pitch-bright text-sm' : ''}>{hScore}</span>
-                    <span className="text-muted-foreground/50">-</span>
-                    <span className={aWon ? 'text-pitch-bright text-sm' : ''}>{aScore}</span>
-                  </div>
+                  
+                  {isCompleted ? (
+                    <div className="font-score text-xs sm:text-sm bg-background px-2 sm:px-3 py-1 rounded-lg font-black border border-border/50 shrink-0 flex items-center justify-center gap-1.5 min-w-[60px] shadow-sm">
+                      <span className={hWon ? 'text-pitch-bright text-sm' : ''}>{hScore}</span>
+                      <span className="text-muted-foreground/50">-</span>
+                      <span className={aWon ? 'text-pitch-bright text-sm' : ''}>{aScore}</span>
+                    </div>
+                  ) : (
+                    <div className="font-score text-[10px] sm:text-xs bg-background text-muted-foreground px-2 py-1 rounded-full font-bold border border-border/50 shrink-0 flex items-center justify-center min-w-[50px]">
+                      {m.scheduledAt ? new Date(m.scheduledAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : "VS"}
+                    </div>
+                  )}
+
                   <div className={`flex items-center justify-start gap-2 min-w-0 ${aWon ? 'text-pitch-bright font-black' : 'text-muted-foreground'}`} title={a?.name}>
-                    <Avatar p={a} size={20} className="shrink-0" />
+                    <Avatar p={a} size={24} className="shrink-0" />
                     <span className="font-bold text-sm truncate">{formatName(a?.name)}</span>
                   </div>
-                </div>
-
-                <div className="absolute right-0 opacity-100 sm:opacity-0 group-hover:opacity-100 transition-opacity flex items-center bg-card/80 backdrop-blur-sm rounded-md shadow-sm border border-border/50">
-                   <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                         <button className="p-1.5 hover:bg-secondary rounded text-muted-foreground transition-colors"><MoreVertical size={16}/></button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end" className="w-40 border-border bg-popover shadow-xl rounded-xl">
-                         <DropdownMenuItem className="cursor-pointer hover:bg-secondary/80 focus:bg-secondary/80 rounded-lg text-sm">
-                            <CheckCircle2 size={14} className="mr-2 text-muted-foreground" /> View Match
-                         </DropdownMenuItem>
-                      </DropdownMenuContent>
-                   </DropdownMenu>
                 </div>
               </div>
             );
           })
         ) : (
-          <EmptyState text="No completed matches yet." />
+          <EmptyState text={`No ${view} matches found.`} />
         )}
       </div>
     </Card>
   );
 }
+
+
 
 // 8. Notification Feed
 function NotificationCenter({ notifications = [], announcements = [], matches = [] }) {
@@ -598,7 +636,7 @@ export default function AdminOverviewDashboard({ players = [], activeSeason, mat
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <LeagueSnapshot matches={liveMatches} players={players} activeSeason={activeSeason} setTab={setTab} />
-        <RecentResults matches={liveMatches} players={players} activeSeason={activeSeason} showToast={showToast} />
+        <MatchCenter matches={liveMatches} players={players} activeSeason={activeSeason} showToast={showToast} setTab={setTab} />
       </div>
 
       <TopPlayersHorizontal matches={liveMatches} players={players} activeSeason={activeSeason} />
