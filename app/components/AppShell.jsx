@@ -40,12 +40,14 @@ export default function AppShell({
   }, [defaultTab]);
   
   const [currentTab, setCurrentTab] = useState(getCleanTab(initialTab));
+  const [prevInitialTab, setPrevInitialTab] = useState(initialTab);
   const [isSidebarExpanded, setIsSidebarExpanded] = useState(true);
 
-  // Sync initialTab with currentTab on server navigation
-  useEffect(() => {
+  // Sync initialTab with currentTab on server navigation without causing cascading renders
+  if (initialTab !== prevInitialTab) {
+    setPrevInitialTab(initialTab);
     setCurrentTab(getCleanTab(initialTab));
-  }, [initialTab, getCleanTab]);
+  }
 
   // Load ticker config from DB on mount
   useEffect(() => {
@@ -110,7 +112,7 @@ export default function AppShell({
         />
 
         {/* Main content area — offset by sidebar width */}
-        <div className={`flex-1 flex flex-col min-h-screen transition-all duration-300 ${isSidebarExpanded ? 'md:ml-[260px]' : 'md:ml-16'}`}>
+        <div className={`flex-1 flex flex-col min-h-screen min-w-0 transition-all duration-300 ${isSidebarExpanded ? 'md:ml-[260px]' : 'md:ml-16'}`}>
           {/* Sticky top bar with hamburger (mobile), section title, season chip */}
           <AdminTopBar
             currentTab={currentTab}
@@ -118,7 +120,7 @@ export default function AppShell({
           />
 
           {/* Content wrapper */}
-          <div className="flex-1 overflow-auto">
+          <div className="flex-1 overflow-x-hidden overflow-y-auto w-full">
             {/* SportsTicker still visible for admin */}
             <div className="w-full">
               <SportsTicker
@@ -129,7 +131,7 @@ export default function AppShell({
               />
             </div>
 
-            <div className="max-w-6xl mx-auto px-4 md:px-6 pt-4 pb-8">
+            <div className="max-w-6xl mx-auto px-4 md:px-6 pt-4 pb-8 w-full min-w-0">
               <CelebrationBanner initialCelebrations={activeCelebrations} />
 
               {currentTab === 'hall-of-fame' ? (
