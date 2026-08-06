@@ -442,9 +442,9 @@ function TopPlayersHorizontal({ matches, players, activeSeason }) {
   return (
     <Card className="p-6">
       <SectionTitle icon={Flame}>Top Players</SectionTitle>
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mt-6">
+      <div className="flex sm:grid sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mt-6 overflow-x-auto pb-4 hide-scrollbar snap-x snap-mandatory -mx-6 px-6 sm:mx-0 sm:px-0">
         {categories.map((cat, i) => (
-          <FadeIn key={cat.label} delay={i * 0.1}>
+          <FadeIn key={cat.label} delay={i * 0.1} className="min-w-[240px] sm:min-w-0 shrink-0 snap-center h-full">
             <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4 p-3.5 sm:p-4 bg-secondary/30 rounded-xl border border-border/50 h-full group hover:bg-secondary/50 transition-colors">
               <Avatar p={cat.player} size={42} className="ring-1 ring-border" />
               <div className="min-w-0 flex-1 w-full">
@@ -531,22 +531,27 @@ function DashboardTimeline({ activeSeason, matches }) {
       <SectionTitle icon={Activity}>Season Timeline</SectionTitle>
       <div className="mt-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6 sm:gap-2 relative w-full">
         {/* Horizontal line for Desktop */}
-        <div className="hidden sm:block absolute top-3 left-[12%] right-[12%] h-0.5 bg-border/60 z-0" />
+        <div className="hidden sm:block absolute top-3 left-[12%] right-[12%] h-0.5 bg-border/60 z-0">
+          <div className="h-full bg-pitch transition-all duration-1000 shadow-[0_0_10px_rgba(41,193,121,0.5)]" style={{ width: `${(steps.filter(s => s.active).length - 1) / (steps.length - 1) * 100}%` }} />
+        </div>
+        
         {/* Vertical line for Mobile */}
-        <div className="sm:hidden absolute top-3 bottom-3 left-3 w-0.5 bg-border/60 z-0" />
+        <div className="sm:hidden absolute top-3 bottom-3 left-3 w-0.5 bg-border/60 z-0">
+          <div className="w-full bg-pitch transition-all duration-1000 shadow-[0_0_10px_rgba(41,193,121,0.5)]" style={{ height: `${(steps.filter(s => s.active).length - 1) / (steps.length - 1) * 100}%` }} />
+        </div>
 
         {steps.map((s, i) => (
-          <div key={i} className="flex sm:flex-col items-center sm:items-center gap-3 sm:gap-2 flex-1 relative z-10 w-full sm:w-auto">
-            <div className={`w-6 h-6 shrink-0 rounded-full flex items-center justify-center border-2 transition-all ${
-              s.active ? 'bg-pitch border-pitch text-background shadow-lg shadow-pitch/20 ring-4 ring-pitch/20' : 'bg-secondary border-border/80 text-muted-foreground'
+          <div key={i} className="flex sm:flex-col items-start sm:items-center gap-4 sm:gap-2 flex-1 relative z-10 w-full sm:w-auto">
+            <div className={`w-6 h-6 mt-0.5 sm:mt-0 shrink-0 rounded-full flex items-center justify-center border-2 transition-all ${
+              s.active ? 'bg-pitch border-pitch text-background shadow-lg shadow-pitch/30 ring-4 ring-pitch/20' : 'bg-background border-border/80 text-muted-foreground'
             }`}>
-              <span className="text-[10px] font-bold">{i + 1}</span>
+              {s.active ? <CheckCircle2 size={12} className="text-background" /> : <span className="text-[10px] font-bold">{i + 1}</span>}
             </div>
             <div className="flex flex-col sm:items-center text-left sm:text-center min-w-0 flex-1 sm:w-full sm:px-1">
-              <span className={`text-xs font-bold font-heading leading-tight break-words ${s.active ? 'text-foreground' : 'text-muted-foreground'}`}>
+              <span className={`text-sm sm:text-xs font-bold font-heading leading-tight break-words ${s.active ? 'text-white' : 'text-muted-foreground'}`}>
                 {s.label}
               </span>
-              <span className="hidden md:block text-[10px] text-muted-foreground mt-0.5 leading-tight">
+              <span className="text-[11px] sm:text-[10px] text-muted-foreground mt-1 sm:mt-0.5 leading-tight">
                 {s.desc}
               </span>
             </div>
@@ -585,6 +590,87 @@ function MiniCalendar({ matches, players, activeSeason }) {
         )}
       </div>
     </Card>
+  );
+}
+
+// Mobile-first Standings Cards
+function MobileStandingsList({ matches, players, activeSeason }) {
+  const [expandedId, setExpandedId] = useState(null);
+  
+  if (!activeSeason) return null;
+  const standings = computeStandings(matches, players, activeSeason.id, activeSeason.config);
+  
+  if (standings.length === 0) return null;
+
+  return (
+    <div className="flex flex-col gap-3">
+      <SectionTitle icon={ListOrdered}>League Standings</SectionTitle>
+      <div className="flex flex-col gap-2.5 mt-2">
+        {standings.map((s, i) => {
+          const isExpanded = expandedId === s.id;
+          const isTop3 = i < 3;
+          let borderClasses = "border-border/30";
+          if (i === 0) borderClasses = "border-amber-400/50 shadow-[0_0_15px_rgba(251,191,36,0.1)]";
+          else if (i === 1) borderClasses = "border-zinc-300/50";
+          else if (i === 2) borderClasses = "border-orange-400/50";
+
+          return (
+            <motion.div 
+              key={s.id}
+              layout
+              initial={{ borderRadius: 16 }}
+              className={`bg-secondary/20 border rounded-2xl overflow-hidden transition-all cursor-pointer ${borderClasses} ${isExpanded ? 'bg-secondary/40' : ''}`}
+              onClick={() => setExpandedId(isExpanded ? null : s.id)}
+            >
+              <div className="flex items-center gap-4 p-4">
+                <div className="w-6 text-center font-black text-muted-foreground font-score text-sm">{i + 1}</div>
+                <Avatar p={s} size={40} className={isTop3 ? 'ring-2 ring-white/10' : ''} />
+                <div className="flex-1 min-w-0">
+                  <div className="font-bold text-white text-[15px] truncate">{formatName(s.name)}</div>
+                  <div className="text-[11px] text-muted-foreground uppercase font-bold tracking-wider mt-0.5">Played: {s.played}</div>
+                </div>
+                <div className="flex flex-col items-end justify-center">
+                  <div className="text-xl font-black font-score text-pitch-bright">{s.pts}</div>
+                  <div className="text-[9px] text-muted-foreground uppercase tracking-widest font-bold">PTS</div>
+                </div>
+              </div>
+
+              <AnimatePresence>
+                {isExpanded && (
+                  <motion.div
+                    initial={{ height: 0, opacity: 0 }}
+                    animate={{ height: 'auto', opacity: 1 }}
+                    exit={{ height: 0, opacity: 0 }}
+                    className="overflow-hidden bg-black/20 border-t border-white/5"
+                  >
+                    <div className="p-4 grid grid-cols-4 gap-4 text-center">
+                      <div className="flex flex-col">
+                        <span className="text-lg font-bold font-score text-white">{s.won}-{s.drawn}-{s.lost}</span>
+                        <span className="text-[9px] text-muted-foreground uppercase tracking-widest font-bold mt-1">W-D-L</span>
+                      </div>
+                      <div className="flex flex-col">
+                        <span className="text-lg font-bold font-score text-white">{s.gf}</span>
+                        <span className="text-[9px] text-muted-foreground uppercase tracking-widest font-bold mt-1">GF</span>
+                      </div>
+                      <div className="flex flex-col">
+                        <span className="text-lg font-bold font-score text-white">{s.ga}</span>
+                        <span className="text-[9px] text-muted-foreground uppercase tracking-widest font-bold mt-1">GA</span>
+                      </div>
+                      <div className="flex flex-col">
+                        <span className={`text-lg font-bold font-score ${s.gd > 0 ? 'text-emerald-400' : s.gd < 0 ? 'text-red-400' : 'text-white'}`}>
+                          {s.gd > 0 ? `+${s.gd}` : s.gd}
+                        </span>
+                        <span className="text-[9px] text-muted-foreground uppercase tracking-widest font-bold mt-1">GD</span>
+                      </div>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </motion.div>
+          );
+        })}
+      </div>
+    </div>
   );
 }
 
@@ -631,7 +717,12 @@ export default function AdminOverviewDashboard({ players = [], activeSeason, mat
       <QuickActions setTab={setTab} showToast={showToast} />
 
       <div className="mb-6 w-full min-w-0">
-        <StandingsTable matches={liveMatches} players={players} seasonId={activeSeason.id} config={activeSeason.config} />
+        <div className="hidden md:block">
+          <StandingsTable matches={liveMatches} players={players} seasonId={activeSeason.id} config={activeSeason.config} />
+        </div>
+        <div className="block md:hidden">
+          <MobileStandingsList matches={liveMatches} players={players} activeSeason={activeSeason} />
+        </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">

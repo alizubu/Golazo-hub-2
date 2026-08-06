@@ -202,10 +202,10 @@ function StepperRow({ label, count, accent, onInc, onDec, isMuted }) {
         <span className={`w-1 h-1 rounded-full ${a.dot} animate-pulse`} />
         <span className="text-[10px] sm:text-[11px] font-bold uppercase tracking-widest text-zinc-300">{label}</span>
       </div>
-      <div className="flex items-center justify-center gap-2 px-1">
-        <button onClick={onDec} className="w-11 h-11 min-w-[44px] rounded-full flex items-center justify-center bg-zinc-900/80 hover:bg-zinc-800 border border-zinc-700/50 text-zinc-400 transition-all active:scale-90 shadow-sm backdrop-blur-sm"><Minus size={18} /></button>
-        <div className={`w-12 text-center font-black tabular-nums text-4xl tracking-tighter drop-shadow-sm ${a.text}`}>{count}</div>
-        <button onClick={onInc} className={`w-11 h-11 min-w-[44px] rounded-full flex items-center justify-center border transition-all active:scale-90 shadow-sm backdrop-blur-sm ${a.btn}`}><Plus size={18} /></button>
+      <div className="flex items-center justify-center gap-1.5 px-1">
+        <button onClick={onDec} className="w-10 h-10 sm:w-11 sm:h-11 shrink-0 rounded-full flex items-center justify-center bg-zinc-900/80 hover:bg-zinc-800 border border-zinc-700/50 text-zinc-400 transition-all active:scale-90 shadow-sm backdrop-blur-sm"><Minus size={16} className="sm:w-[18px] sm:h-[18px]" /></button>
+        <div className={`flex-1 text-center font-black tabular-nums text-3xl sm:text-4xl tracking-tighter drop-shadow-sm ${a.text}`}>{count}</div>
+        <button onClick={onInc} className={`w-10 h-10 sm:w-11 sm:h-11 shrink-0 rounded-full flex items-center justify-center border transition-all active:scale-90 shadow-sm backdrop-blur-sm ${a.btn}`}><Plus size={16} className="sm:w-[18px] sm:h-[18px]" /></button>
       </div>
     </div>
   );
@@ -226,7 +226,7 @@ function LiveControl({ state, setState, onFinish, onTogglePause }) {
   const bump = (side, field, delta) => setState((s) => ({ ...s, [side]: { ...s[side], [field]: Math.max(0, s[side][field] + delta) } }));
   return (
     <div className="px-4 sm:px-6 pb-6">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 mb-6 max-w-3xl mx-auto">
+      <div className="grid grid-cols-2 gap-3 sm:gap-6 mb-6 max-w-3xl mx-auto">
         <TeamStatCard accent="pitch" side="home" data={home} bump={bump} phase="live" />
         <TeamStatCard accent="rose" side="away" data={away} bump={bump} phase="live" />
       </div>
@@ -258,7 +258,7 @@ function ExtraTime({ state, setState, etHalf, setEtHalf, onDone }) {
         <Timer size={16} className="text-amber-400 animate-pulse" />
         <span className="text-sm font-bold text-amber-400 tracking-wide uppercase">Extra Time — {etHalf === 1 ? "1st Half (15')" : "2nd Half (15')"}</span>
       </div>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-8 mb-8 max-w-4xl mx-auto">
+      <div className="grid grid-cols-2 gap-3 sm:gap-8 mb-8 max-w-4xl mx-auto">
         <TeamStatCard accent="pitch" side="home" data={home} bump={bump} phase="extra_time" />
         <TeamStatCard accent="rose" side="away" data={away} bump={bump} phase="extra_time" />
       </div>

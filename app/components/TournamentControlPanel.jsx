@@ -124,7 +124,8 @@ export default function TournamentControlPanel({ season, showToast }) {
       <div className="flex items-center justify-between">
         <SectionTitle icon={AlertTriangle} className="text-red-400">Tournament Controls</SectionTitle>
       </div>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      {/* Desktop Grid View */}
+      <div className="hidden md:grid grid-cols-2 lg:grid-cols-3 gap-4">
         {controls.map((ctrl, i) => (
           <FadeIn key={ctrl.id} delay={i * 0.1}>
             <MagicCard className={`p-4 flex flex-col justify-between h-full border transition-colors ${ctrl.id === 'rename-season' ? 'border-border hover:border-slate-500/30' : 'border-red-500/10 hover:border-red-500/30'}`}>
@@ -154,6 +155,25 @@ export default function TournamentControlPanel({ season, showToast }) {
               )}
             </MagicCard>
           </FadeIn>
+        ))}
+      </div>
+
+      {/* Mobile iOS-style Action List */}
+      <div className="md:hidden flex flex-col bg-secondary/20 border border-border/50 rounded-2xl overflow-hidden divide-y divide-border/40">
+        {controls.map((ctrl, i) => (
+          <button 
+            key={ctrl.id}
+            onClick={() => ctrl.id === 'rename-season' ? ctrl.action() : setActiveDialog(ctrl.id)}
+            className="flex items-center gap-4 p-4 text-left active:bg-white/5 transition-colors group"
+          >
+            <div className={`p-2.5 rounded-xl shrink-0 transition-colors ${ctrl.bg} group-active:scale-95`}>
+              <ctrl.icon className={ctrl.color} size={18} />
+            </div>
+            <div className="flex-1 min-w-0 pr-4">
+              <h3 className="font-bold text-[15px] text-white leading-tight mb-0.5">{ctrl.label}</h3>
+              <p className="text-[11px] text-muted-foreground leading-snug line-clamp-2">{ctrl.desc}</p>
+            </div>
+          </button>
         ))}
       </div>
       

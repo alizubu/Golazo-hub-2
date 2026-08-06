@@ -4,8 +4,8 @@ import React from 'react';
 import { Menu } from 'lucide-react';
 
 const SECTION_LABELS = {
-  'admin':                'Overview',
-  '':                     'Overview',
+  'admin':                'Dashboard',
+  '':                     'Dashboard',
   'admin/players':        'Players',
   'admin/season':         'Tournament',
   'admin/matches':        'Matches',

@@ -9,7 +9,7 @@ import {
 import { clearAuthCookie } from '@/app/actions/auth';
 
 const NAV_ITEMS = [
-  { tab: 'admin',               label: 'Overview',       icon: Home,      matchExact: true },
+  { tab: 'admin',               label: 'Dashboard',       icon: Home,      matchExact: true },
   { tab: 'admin/players',       label: 'Players',        icon: Users },
   { tab: 'admin/season',        label: 'Tournament',     icon: Trophy },
   { tab: 'admin/matches',       label: 'Matches',        icon: Calendar,  liveIndicator: true },
