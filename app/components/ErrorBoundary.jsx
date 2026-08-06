@@ -40,9 +40,14 @@ export default class ErrorBoundary extends React.Component {
               <RefreshCw size={14} className="mr-2" /> Reload Page
             </Btn>
           </div>
-          {process.env.NODE_ENV === 'development' && this.state.error && (
-            <div className="mt-6 p-4 bg-black/50 rounded-lg text-left text-xs font-mono text-red-400 overflow-auto w-full max-w-full">
-              {this.state.error.toString()}
+          {this.state.error && (
+            <div className="mt-6 p-4 bg-black/60 rounded-lg text-left text-xs font-mono text-red-400 overflow-auto w-full max-w-full border border-red-500/20">
+              <div className="font-bold text-red-300 mb-1">{this.state.error.toString()}</div>
+              {this.state.error.stack && (
+                <pre className="text-[11px] text-muted-foreground whitespace-pre-wrap mt-2 font-mono">
+                  {this.state.error.stack}
+                </pre>
+              )}
             </div>
           )}
         </Card>

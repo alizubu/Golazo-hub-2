@@ -552,28 +552,20 @@ function MiniCalendar({ matches, players, activeSeason }) {
 
 // Main Component
 export default function AdminOverviewDashboard({ players = [], activeSeason, matches = [], announcements = [], notifications = [], trophies = [], seasons = [], history = [], showToast, setTab }) {
-  const [liveMatches, setLiveMatches] = useState(matches);
-  const [prevMatchesProp, setPrevMatchesProp] = useState(matches);
+  const [realtimeOverrides, setRealtimeOverrides] = useState({});
 
-  if (matches !== prevMatchesProp) {
-    setPrevMatchesProp(matches);
-    setLiveMatches(matches);
-  }
+  const liveMatches = React.useMemo(() => {
+    if (!matches) return [];
+    return matches.map(m => realtimeOverrides[m.id] ? { ...m, ...realtimeOverrides[m.id] } : m);
+  }, [matches, realtimeOverrides]);
 
   useEffect(() => {
     const channel = supabase.channel('league-events')
       .on('broadcast', { event: 'match_update' }, (payload) => {
         const matchData = payload.payload;
-        setLiveMatches(prev => {
-          const idx = prev.findIndex(m => m.id === matchData.id);
-          if (idx >= 0) {
-            const next = [...prev];
-            next[idx] = matchData;
-            return next;
-          } else {
-            return [...prev, matchData];
-          }
-        });
+        if (matchData?.id) {
+          setRealtimeOverrides(prev => ({ ...prev, [matchData.id]: matchData }));
+        }
       })
       .subscribe();
 

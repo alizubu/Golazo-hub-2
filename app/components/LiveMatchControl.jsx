@@ -641,11 +641,9 @@ export default function LiveMatchControl({ matches, players, activeSeason, showT
   
   const nextMatch = matches.find(m => m.status === 'scheduled' && m.seasonId === activeSeason?.id);
 
-  // 2. Sync server catch-up for match data during render
   const currentLiveMatchHash = `${liveMatch?.id}-${liveMatch?.homeScore}-${liveMatch?.awayScore}-${liveMatch?.liveState?.paused}`;
-  const [prevLiveMatchHash, setPrevLiveMatchHash] = useState(currentLiveMatchHash);
 
-  const byId = Object.fromEntries(players.map((p) => [p.id, p]));
+  const byId = Object.fromEntries((players || []).map((p) => [p.id, p]));
   const initMatch = optLiveMatch || serverLiveMatch;
   const hInit = initMatch ? byId[initMatch.homeId] : null;
   const aInit = initMatch ? byId[initMatch.awayId] : null;
@@ -658,21 +656,24 @@ export default function LiveMatchControl({ matches, players, activeSeason, showT
 
   const [isMutatingScore, setIsMutatingScore] = useState(false);
 
-  // 1. Sync server catch-up for Start Match during render (React recommended pattern)
+  // Sync server catch-up & match data without cascading useEffect renders
+  const [prevLiveMatchHash, setPrevLiveMatchHash] = useState(currentLiveMatchHash);
   const [prevServerMatchId, setPrevServerMatchId] = useState(serverLiveMatch?.id);
+
+  // 1. Reset optimistic match when server catches up
   if (serverLiveMatch?.id !== prevServerMatchId) {
     setPrevServerMatchId(serverLiveMatch?.id);
     if (serverLiveMatch && optLiveMatch && serverLiveMatch.id === optLiveMatch.id) {
-       setOptLiveMatch(null);
+      setOptLiveMatch(null);
     }
   }
 
+  // 2. Adjust local match control state when live match data updates from server/broadcast
   if (currentLiveMatchHash !== prevLiveMatchHash) {
     setPrevLiveMatchHash(currentLiveMatchHash);
     if (liveMatch && !isMutatingScore && !isPostMatch) {
       const h = byId[liveMatch.homeId];
       const a = byId[liveMatch.awayId];
-      
       setState(prev => ({
         ...prev,
         home: { ...prev.home, name: h?.name || "Home", avatarImage: h?.avatarImage || null, avatar: h?.avatar || null, goals: liveMatch.homeScore || 0 },
