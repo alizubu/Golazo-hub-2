@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useCallback } from 'react';
 import { Megaphone, CheckCircle2, Zap, TrendingUp, Flame, Trophy } from 'lucide-react';
 import { Avatar } from './UI';
 import MatchStatsModal from './MatchStatsModal';
@@ -178,9 +178,101 @@ export default function SportsTicker({ matches = [], announcements = [], players
   const ts = getThemeStyles(theme);
   const sz = SIZE_CLASSES[sizeKey] || SIZE_CLASSES.normal;
 
-  if (!cfg.enabled && !previewMode) return null;
+  const getPlayer = useCallback(id => players.find(p => p.id === id), [players]);
 
-  const getPlayer = id => players.find(p => p.id === id);
+  // ── Stats Ticker Items ────────────────────────────────────────────────────
+  const statsItems = useMemo(() => {
+    if (!cfg.showStats) return [];
+    const completed = matches.filter(m => m.status === 'completed');
+    if (completed.length === 0) return [];
+
+    const playerStats = {};
+    players.forEach(p => { playerStats[p.id] = { name: p.name, goals: 0, wins: 0, played: 0, pts: 0 }; });
+    completed.forEach(m => {
+      const hs = Number(m.homeScore) || 0;
+      const as = Number(m.awayScore) || 0;
+      if (playerStats[m.homeId]) {
+        playerStats[m.homeId].goals += hs;
+        playerStats[m.homeId].played++;
+        playerStats[m.homeId].pts += hs > as ? 3 : hs === as ? 1 : 0;
+        if (hs > as) playerStats[m.homeId].wins++;
+      }
+      if (playerStats[m.awayId]) {
+        playerStats[m.awayId].goals += as;
+        playerStats[m.awayId].played++;
+        playerStats[m.awayId].pts += as > hs ? 3 : hs === as ? 1 : 0;
+        if (as > hs) playerStats[m.awayId].wins++;
+      }
+    });
+
+    const sorted = Object.values(playerStats).filter(s => s.played > 0);
+    const result = [];
+    const topScorer = [...sorted].sort((a, b) => b.goals - a.goals)[0];
+    const leader = [...sorted].sort((a, b) => b.pts - a.pts)[0];
+    if (topScorer) result.push(`⚽ Top Scorer: ${topScorer.name} (${topScorer.goals} goals)`);
+    if (leader) result.push(`🏆 Leader: ${leader.name} (${leader.pts} pts)`);
+    result.push(`📊 ${completed.length} matches played`);
+    return result;
+  }, [cfg.showStats, matches, players]);
+
+  // ── Highlight Reel Items ──────────────────────────────────────────────────
+  const highlightItems = useMemo(() => {
+    if (!cfg.showHighlights) return [];
+    const completed = matches.filter(m => m.status === 'completed').sort((a, b) => new Date(b.completedAt) - new Date(a.completedAt));
+    if (completed.length === 0) return [];
+    const result = [];
+    // Biggest win from recent matches
+    const recent = completed.slice(0, 10);
+    let biggestMargin = 0;
+    let biggestMatch = null;
+    recent.forEach(m => {
+      const diff = Math.abs((Number(m.homeScore) || 0) - (Number(m.awayScore) || 0));
+      if (diff > biggestMargin) { biggestMargin = diff; biggestMatch = m; }
+    });
+    if (biggestMatch && biggestMargin > 0) {
+      const h = getPlayer(biggestMatch.homeId);
+      const a = getPlayer(biggestMatch.awayId);
+      if (h && a) result.push(`💥 Biggest win: ${h.name} ${biggestMatch.homeScore}-${biggestMatch.awayScore} ${a.name}`);
+    }
+    // Total goals recently
+    const totalGoals = recent.reduce((sum, m) => sum + (Number(m.homeScore) || 0) + (Number(m.awayScore) || 0), 0);
+    if (totalGoals > 0) result.push(`⚡ ${totalGoals} goals in the last ${recent.length} matches`);
+    return result;
+  }, [cfg.showHighlights, matches, getPlayer]);
+
+  // ── Player Streak Alerts ──────────────────────────────────────────────────
+  const streakItems = useMemo(() => {
+    if (!cfg.showStreaks) return [];
+    const completed = matches.filter(m => m.status === 'completed').sort((a, b) => new Date(b.completedAt) - new Date(a.completedAt));
+    if (completed.length < 3) return [];
+    const result = [];
+
+    players.forEach(p => {
+      const myMatches = completed.filter(m => m.homeId === p.id || m.awayId === p.id);
+      if (myMatches.length < 3) return;
+      let streak = 0;
+      let streakType = null;
+      for (const m of myMatches) {
+        const isHome = m.homeId === p.id;
+        const myScore = isHome ? Number(m.homeScore) : Number(m.awayScore);
+        const oppScore = isHome ? Number(m.awayScore) : Number(m.homeScore);
+        const res = myScore > oppScore ? 'W' : myScore < oppScore ? 'L' : null;
+        if (!res) break;
+        if (!streakType) streakType = res;
+        if (res === streakType) streak++;
+        else break;
+      }
+      if (streak >= 3) {
+        const emoji = streakType === 'W' ? '🔥' : '💀';
+        const label = streakType === 'W' ? 'win' : 'loss';
+        result.push({ text: `${emoji} ${p.name} is on a ${streak}-game ${label} streak!`, type: streakType === 'W' ? 'win' : 'loss' });
+      }
+    });
+
+    return result.slice(0, 3);
+  }, [cfg.showStreaks, matches, players]);
+
+  if (!cfg.enabled && !previewMode) return null;
   const duration = speedToDuration(cfg.speed);
 
   // ── Build match lists ─────────────────────────────────────────────────────
@@ -267,40 +359,6 @@ export default function SportsTicker({ matches = [], announcements = [], players
   });
 
   // ── Stats Ticker Items ────────────────────────────────────────────────────
-  const statsItems = useMemo(() => {
-    if (!cfg.showStats) return [];
-    const completed = matches.filter(m => m.status === 'completed');
-    if (completed.length === 0) return [];
-
-    const playerStats = {};
-    players.forEach(p => { playerStats[p.id] = { name: p.name, goals: 0, wins: 0, played: 0, pts: 0 }; });
-    completed.forEach(m => {
-      const hs = Number(m.homeScore) || 0;
-      const as = Number(m.awayScore) || 0;
-      if (playerStats[m.homeId]) {
-        playerStats[m.homeId].goals += hs;
-        playerStats[m.homeId].played++;
-        playerStats[m.homeId].pts += hs > as ? 3 : hs === as ? 1 : 0;
-        if (hs > as) playerStats[m.homeId].wins++;
-      }
-      if (playerStats[m.awayId]) {
-        playerStats[m.awayId].goals += as;
-        playerStats[m.awayId].played++;
-        playerStats[m.awayId].pts += as > hs ? 3 : hs === as ? 1 : 0;
-        if (as > hs) playerStats[m.awayId].wins++;
-      }
-    });
-
-    const sorted = Object.values(playerStats).filter(s => s.played > 0);
-    const result = [];
-    const topScorer = [...sorted].sort((a, b) => b.goals - a.goals)[0];
-    const leader = [...sorted].sort((a, b) => b.pts - a.pts)[0];
-    if (topScorer) result.push(`⚽ Top Scorer: ${topScorer.name} (${topScorer.goals} goals)`);
-    if (leader) result.push(`🏆 Leader: ${leader.name} (${leader.pts} pts)`);
-    result.push(`📊 ${completed.length} matches played`);
-    return result;
-  }, [cfg.showStats, matches, players]);
-
   statsItems.forEach((text, i) => {
     items.push(
       <div key={`stat-${i}`} className={`flex items-center shrink-0 ${sz.gap} ${sz.text} font-semibold`}>
@@ -311,30 +369,6 @@ export default function SportsTicker({ matches = [], announcements = [], players
   });
 
   // ── Highlight Reel Items ──────────────────────────────────────────────────
-  const highlightItems = useMemo(() => {
-    if (!cfg.showHighlights) return [];
-    const completed = matches.filter(m => m.status === 'completed').sort((a, b) => new Date(b.completedAt) - new Date(a.completedAt));
-    if (completed.length === 0) return [];
-    const result = [];
-    // Biggest win from recent matches
-    const recent = completed.slice(0, 10);
-    let biggestMargin = 0;
-    let biggestMatch = null;
-    recent.forEach(m => {
-      const diff = Math.abs((Number(m.homeScore) || 0) - (Number(m.awayScore) || 0));
-      if (diff > biggestMargin) { biggestMargin = diff; biggestMatch = m; }
-    });
-    if (biggestMatch && biggestMargin > 0) {
-      const h = getPlayer(biggestMatch.homeId);
-      const a = getPlayer(biggestMatch.awayId);
-      if (h && a) result.push(`💥 Biggest win: ${h.name} ${biggestMatch.homeScore}-${biggestMatch.awayScore} ${a.name}`);
-    }
-    // Total goals recently
-    const totalGoals = recent.reduce((sum, m) => sum + (Number(m.homeScore) || 0) + (Number(m.awayScore) || 0), 0);
-    if (totalGoals > 0) result.push(`⚡ ${totalGoals} goals in the last ${recent.length} matches`);
-    return result;
-  }, [cfg.showHighlights, matches, players]);
-
   highlightItems.forEach((text, i) => {
     items.push(
       <div key={`hl-${i}`} className={`flex items-center shrink-0 ${sz.gap} ${sz.text} font-semibold`}>
@@ -345,36 +379,6 @@ export default function SportsTicker({ matches = [], announcements = [], players
   });
 
   // ── Player Streak Alerts ──────────────────────────────────────────────────
-  const streakItems = useMemo(() => {
-    if (!cfg.showStreaks) return [];
-    const completed = matches.filter(m => m.status === 'completed').sort((a, b) => new Date(b.completedAt) - new Date(a.completedAt));
-    if (completed.length < 3) return [];
-    const result = [];
-
-    players.forEach(p => {
-      const myMatches = completed.filter(m => m.homeId === p.id || m.awayId === p.id);
-      if (myMatches.length < 3) return;
-      let streak = 0;
-      let streakType = null;
-      for (const m of myMatches) {
-        const isHome = m.homeId === p.id;
-        const myScore = isHome ? Number(m.homeScore) : Number(m.awayScore);
-        const oppScore = isHome ? Number(m.awayScore) : Number(m.homeScore);
-        const res = myScore > oppScore ? 'W' : myScore < oppScore ? 'L' : null;
-        if (!res) break;
-        if (!streakType) streakType = res;
-        if (res === streakType) streak++;
-        else break;
-      }
-      if (streak >= 3) {
-        const emoji = streakType === 'W' ? '🔥' : '💀';
-        const label = streakType === 'W' ? 'win' : 'loss';
-        result.push({ text: `${emoji} ${p.name} is on a ${streak}-game ${label} streak!`, type: streakType === 'W' ? 'win' : 'loss' });
-      }
-    });
-
-    return result.slice(0, 3);
-  }, [cfg.showStreaks, matches, players]);
 
   streakItems.forEach((item, i) => {
     items.push(
