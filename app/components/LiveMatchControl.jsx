@@ -620,6 +620,7 @@ let scoreTimeoutId = null;
 
 export default function LiveMatchControl({ matches, players, activeSeason, showToast }) {
   const [phase, setPhase] = useState("live");
+  const [showDrawDecision, setShowDrawDecision] = useState(false);
   const [etHalf, setEtHalf] = useState(1);
   const [kicks, setKicks] = useState([]);
   const [shootoutWinner, setShootoutWinner] = useState(null);
@@ -691,6 +692,7 @@ export default function LiveMatchControl({ matches, players, activeSeason, showT
     
     // Reset control state
     setPhase("live");
+    setShowDrawDecision(false);
     setEtHalf(1);
     setKicks([]);
     setShootoutWinner(null);
@@ -708,12 +710,20 @@ export default function LiveMatchControl({ matches, players, activeSeason, showT
       paused: false,
     });
     
-    setOptLiveMatch({
+    const optLiveMatchData = {
       ...nextMatch,
       status: 'live',
       homeScore: 0,
       awayScore: 0,
       liveState: { phase: 'first', paused: false, clock: 0 }
+    };
+
+    setOptLiveMatch(optLiveMatchData);
+
+    supabase.channel('league-events').send({
+      type: 'broadcast',
+      event: 'match_update',
+      payload: optLiveMatchData
     });
 
     const res = await updateMatchStatus(nextMatch.id, { 
@@ -777,10 +787,22 @@ export default function LiveMatchControl({ matches, players, activeSeason, showT
 
   const isLevel = () => state.home.goals === state.away.goals;
 
-  const handleFinishFullTime = () => {
-    if (!isLevel()) { setResultType("normal_time"); setPhase("stats"); setFinishedDataCache({ match: liveMatch }); return; }
+  const handleChooseDraw = () => {
+    setShowDrawDecision(false);
+    setResultType("normal_time");
+    setPhase("stats");
+    setFinishedDataCache({ match: liveMatch });
+  };
+  
+  const handleChooseExtraTime = () => {
+    setShowDrawDecision(false);
     setEtHalf(1);
     setPhase("extra_time");
+  };
+
+  const handleFinishFullTime = () => {
+    if (!isLevel()) { setResultType("normal_time"); setPhase("stats"); setFinishedDataCache({ match: liveMatch }); return; }
+    setShowDrawDecision(true);
   };
   
   const handleEndExtraTime = () => {
@@ -875,7 +897,19 @@ export default function LiveMatchControl({ matches, players, activeSeason, showT
         <StepIndicator phase={phase} />
       </div>
 
-      <main className="pt-6 sm:pt-8">
+      <main className="pt-6 sm:pt-8 relative min-h-[300px]">
+        {showDrawDecision && (
+          <div className="absolute inset-0 z-50 flex items-center justify-center p-4 bg-zinc-950/95 backdrop-blur-sm rounded-b-2xl">
+            <div className="bg-zinc-900 border border-zinc-700 rounded-xl p-6 w-full max-w-sm flex flex-col items-center text-center shadow-2xl">
+              <h2 className="text-xl font-bold text-zinc-50 mb-2">Match is Level!</h2>
+              <p className="text-sm text-zinc-400 mb-6">How would you like to resolve this match?</p>
+              <div className="flex flex-col gap-3 w-full">
+                <button onClick={handleChooseDraw} className="h-12 w-full rounded-xl flex items-center justify-center gap-2 font-bold bg-zinc-800 hover:bg-zinc-700 text-zinc-50 border border-zinc-700 transition-colors">Finish as Draw</button>
+                <button onClick={handleChooseExtraTime} className="h-12 w-full rounded-xl flex items-center justify-center gap-2 font-bold bg-amber-950/40 hover:bg-amber-900/60 text-amber-400 border border-amber-800/50 transition-colors">Go to Extra Time</button>
+              </div>
+            </div>
+          </div>
+        )}
         {phase === "live" && <LiveControl state={state} setState={handleSetState} onTogglePause={handleTogglePause} onFinish={handleFinishFullTime} />}
         {phase === "extra_time" && <ExtraTime state={state} setState={handleSetState} etHalf={etHalf} setEtHalf={setEtHalf} onDone={handleEndExtraTime} />}
         {phase === "shootout" && <Shootout home={state.home} away={state.away} kicks={kicks} setKicks={setKicks} onDecided={handleShootoutDecided} />}

@@ -207,8 +207,8 @@ export default function AdminBroadcast({ matches = [], players = [], announcemen
         </div>
       </div>
 
-      {/* ── On-Air Preview ──────────────────────────────────────────────────── */}
-      <FadeIn>
+      {/* ── On-Air Preview (Sticky) ─────────────────────────────────────────── */}
+      <div className="sticky top-4 z-50">
         <Card className="p-4 sm:p-5 bg-zinc-950/80 border-white/10 shadow-2xl">
           <div className="flex items-center justify-between mb-3">
             <Label className="text-pitch-bright font-bold uppercase tracking-widest text-[10px]">On-Air Preview</Label>
@@ -224,7 +224,7 @@ export default function AdminBroadcast({ matches = [], players = [], announcemen
             />
           </div>
         </Card>
-      </FadeIn>
+      </div>
 
       {/* ── Master Controls ─────────────────────────────────────────────────── */}
       <FadeIn delay={0.05}>

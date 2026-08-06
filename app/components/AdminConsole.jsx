@@ -212,9 +212,25 @@ function AdminMatchControl({ m, players, showToast, setTab, isPlayoff = false })
 
   const update = async (data) => {
     setLoading(true);
+    
+    // Optimistically broadcast to all clients immediately
+    const optMatch = { ...m, ...data };
+    supabase.channel('league-events').send({
+      type: 'broadcast',
+      event: 'match_update',
+      payload: optMatch
+    });
+
     const res = await updateMatchStatus(m.id, data);
-    if (res.error) showToast(res.error);
-    else if (res.match) {
+    if (res.error) {
+      showToast(res.error);
+      // Revert broadcast on error
+      supabase.channel('league-events').send({
+        type: 'broadcast',
+        event: 'match_update',
+        payload: m
+      });
+    } else if (res.match) {
       supabase.channel('league-events').send({
         type: 'broadcast',
         event: 'match_update',

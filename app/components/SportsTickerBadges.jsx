@@ -1,23 +1,286 @@
 import React from 'react';
-import { CheckCircle2, Zap, TrendingUp, Flame, Trophy } from 'lucide-react';
+import { CheckCircle2, Zap, TrendingUp, Flame, Trophy, Megaphone } from 'lucide-react';
 
-// ── Theme Definitions ────────────────────────────────────────────────────────
-export const THEMES = [
-  { id: 'classic',   name: 'Classic',   emoji: '📺', desc: 'Clean & professional' },
-  { id: 'neon',      name: 'Neon',      emoji: '💚', desc: 'Glowing cyberpunk' },
-  { id: 'cyber',     name: 'Cyber',     emoji: '🤖', desc: 'Monospace hacker' },
-  { id: 'stadium',   name: 'Stadium',   emoji: '🏟️', desc: 'Warm LED board' },
-  { id: 'retro',     name: 'Retro',     emoji: '👾', desc: 'Pixelated 8-bit' },
-  { id: 'glass',     name: 'Glass',     emoji: '🪟', desc: 'Frosted transparency' },
-  { id: 'fire',      name: 'Fire',      emoji: '🔥', desc: 'Red-orange ember' },
-  { id: 'arctic',    name: 'Arctic',    emoji: '❄️', desc: 'Icy blue frost' },
-  { id: 'royal',     name: 'Royal',     emoji: '👑', desc: 'Purple-gold luxury' },
-  { id: 'matrix',    name: 'Matrix',    emoji: '💊', desc: 'Green rain code' },
-  { id: 'sunset',    name: 'Sunset',    emoji: '🌅', desc: 'Coral-orange warmth' },
-  { id: 'midnight',  name: 'Midnight',  emoji: '🌙', desc: 'Deep navy starlight' },
-  { id: 'champion',  name: 'Champion',  emoji: '🏆', desc: 'Gold metallic shine' },
-  { id: 'dormammuh', name: 'Dormammuh', emoji: '🌌', desc: 'Cosmic dark energy' },
+/* ---------------------------------------------------------
+   DATA: 40 THEMES FROM SHOWCASE
+--------------------------------------------------------- */
+const showcaseThemes = [
+  { name: "Glass Frost", emoji: '🪟', desc: 'Frosted transparency', speed: 32, radius: 14,
+    wrap: { background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.14)", backdropFilter: "blur(14px)" },
+    chip: { background: "rgba(255,255,255,0.07)", border: "1px solid rgba(255,255,255,0.12)" },
+    team: "#EAF2FF", score: "#7CE7FF", font: "'Space Grotesk', sans-serif",
+    tab: { background: "rgba(255,255,255,0.12)", color: "#EAF2FF" }, page: "dark" },
+
+  { name: "Neon Pitch", emoji: '💚', desc: 'Glowing cyberpunk', speed: 26, radius: 10,
+    wrap: { background: "linear-gradient(180deg,#052e16,#031a0d)", border: "1px solid #1f5c33" },
+    chip: { background: "rgba(0,0,0,0.25)", border: "1px solid #2f7d4d", boxShadow: "0 0 14px rgba(163,255,120,0.18)" },
+    team: "#D7FFDD", score: "#A3FF78", font: "'JetBrains Mono', monospace",
+    tab: { background: "#0d3b1f", color: "#A3FF78" }, page: "dark" },
+
+  { name: "Chrome Ticker", emoji: '💿', desc: 'Sleek silver metal', speed: 24, radius: 6,
+    wrap: { background: "linear-gradient(180deg,#e9edf1,#c3c9d1)", border: "1px solid #9aa2ad" },
+    chip: { background: "linear-gradient(180deg,#ffffff,#d4d9df)", border: "1px solid #a9b0ba" },
+    team: "#1b1f24", score: "#0a0c0f", font: "'Space Grotesk', sans-serif",
+    tab: { background: "#1b1f24", color: "#e9edf1" }, page: "light" },
+
+  { name: "Gold Premier", emoji: '🏆', desc: 'Gold metallic shine', speed: 30, radius: 12,
+    wrap: { background: "#0a0a0a", border: "1px solid #3a2c0f" },
+    chip: { background: "#141414", border: "1px solid #6b5320" },
+    team: "#F4E4B8", score: "#F5C542", font: "'Bebas Neue', sans-serif",
+    tab: { background: "linear-gradient(90deg,#8a6a1e,#F5C542)", color: "#141414" }, page: "dark" },
+
+  { name: "Minimal Mono", emoji: '📓', desc: 'Clean black & white', speed: 34, radius: 0,
+    wrap: { background: "#ffffff", borderTop: "2px solid #111", borderBottom: "2px solid #111" },
+    chip: { background: "transparent", borderRight: "1px solid #d8d8d8" },
+    team: "#111111", score: "#111111", font: "'Space Grotesk', sans-serif",
+    tab: { background: "#111111", color: "#ffffff" }, page: "light" },
+
+  { name: "Holographic Foil", emoji: '✨', desc: 'Shimmering pastel holo', speed: 22, radius: 16,
+    wrap: { border: "1px solid rgba(255,255,255,0.25)" }, extraClass: "holo-bg",
+    chip: { background: "rgba(0,0,0,0.18)", border: "1px solid rgba(255,255,255,0.3)" },
+    team: "#0a0a0a", score: "#0a0a0a", font: "'Space Grotesk', sans-serif",
+    tab: { background: "rgba(0,0,0,0.7)", color: "#fff" }, page: "light" },
+
+  { name: "Retro LED", emoji: '👾', desc: 'Classic stadium board', speed: 20, radius: 4,
+    wrap: { background: "#0a0704", border: "1px solid #2a2015" },
+    chip: { background: "#120d08", border: "1px solid #3a2c17" },
+    team: "#FFB000", score: "#FF7A00", font: "'JetBrains Mono', monospace",
+    tab: { background: "#1a1108", color: "#FFB000" }, page: "dark", mono: true },
+
+  { name: "Carbon Fiber", emoji: '🏁', desc: 'Racing inspired texture', speed: 28, radius: 10,
+    wrap: { backgroundColor: "#0d0d0d",
+      backgroundImage: "repeating-linear-gradient(45deg, rgba(255,255,255,0.04) 0 2px, transparent 2px 6px)",
+      border: "1px solid #d1252c33" },
+    chip: { background: "rgba(209,37,44,0.08)", border: "1px solid #d1252c55" },
+    team: "#f2f2f2", score: "#ff4655", font: "'Bebas Neue', sans-serif",
+    tab: { background: "#d1252c", color: "#0d0d0d" }, page: "dark" },
+
+  { name: "Stadium Lights", emoji: '🏟️', desc: 'Warm LED glow', speed: 30, radius: 12,
+    wrap: { background: "radial-gradient(120% 140% at 10% 0%, #1c2b52 0%, #060a16 60%)", border: "1px solid #26345c" },
+    chip: { background: "rgba(255,255,255,0.05)", border: "1px solid #2c3c68" },
+    team: "#EAF0FF", score: "#FFE49C", font: "'Space Grotesk', sans-serif",
+    tab: { background: "#EAF0FF", color: "#0b1024" }, page: "dark" },
+
+  { name: "Paper Ticket", emoji: '🎟️', desc: 'Vintage match ticket', speed: 33, radius: 2,
+    wrap: { background: "#F6F1E4", border: "1px dashed #2c2a24" },
+    chip: { background: "#FBF8EE", border: "1px dashed #b8b09a" },
+    team: "#2c2a24", score: "#7a1f1f", font: "'JetBrains Mono', monospace",
+    tab: { background: "#2c2a24", color: "#F6F1E4" }, page: "light" },
+
+  { name: "Cyberpunk Duotone", emoji: '🤖', desc: 'Neon pink & cyan', speed: 21, radius: 8,
+    wrap: { background: "linear-gradient(90deg,#1a0022,#001f24)", border: "1px solid #ff2bd6" },
+    chip: { background: "rgba(255,255,255,0.04)", border: "1px solid #29e0ff88" },
+    team: "#ff6bf0", score: "#29E0FF", font: "'Space Grotesk', sans-serif",
+    tab: { background: "#ff2bd6", color: "#160018" }, page: "dark" },
+
+  { name: "Sunset Gradient", emoji: '🌅', desc: 'Coral-orange warmth', speed: 27, radius: 18,
+    wrap: { background: "linear-gradient(90deg,#3b0a5c,#c0356b,#ff8a4c)" },
+    chip: { background: "rgba(0,0,0,0.18)", border: "1px solid rgba(255,255,255,0.25)" },
+    team: "#fff", score: "#FFE9B8", font: "'Bebas Neue', sans-serif",
+    tab: { background: "rgba(0,0,0,0.35)", color: "#fff" }, page: "dark" },
+
+  { name: "Ice Rink", emoji: '❄️', desc: 'Icy blue frost', speed: 31, radius: 14,
+    wrap: { background: "linear-gradient(180deg,#eaf6ff,#cfeaff)", border: "1px solid #a9d6ef" },
+    chip: { background: "rgba(255,255,255,0.6)", border: "1px solid #bfe1f4" },
+    team: "#0c3a52", score: "#0f7ea8", font: "'Space Grotesk', sans-serif",
+    tab: { background: "#0f7ea8", color: "#eaf6ff" }, page: "light" },
+
+  { name: "Velvet VIP", emoji: '🎭', desc: 'Purple-gold luxury', speed: 29, radius: 16,
+    wrap: { background: "linear-gradient(180deg,#2a0e3d,#160522)", border: "1px solid #7a4fae" },
+    chip: { background: "rgba(255,255,255,0.05)", border: "1px solid #a97cf0aa" },
+    team: "#f1e6ff", score: "#F5C542", font: "'Bebas Neue', sans-serif",
+    tab: { background: "linear-gradient(90deg,#7a4fae,#F5C542)", color: "#160522" }, page: "dark" },
+
+  { name: "Denim Casual", emoji: '👖', desc: 'Blue jeans texture', speed: 25, radius: 999,
+    wrap: { background: "linear-gradient(180deg,#2c5aa0,#1c3b6b)", border: "2px dashed rgba(255,255,255,0.35)" },
+    chip: { background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.25)" },
+    team: "#eaf1ff", score: "#ffd166", font: "'Space Grotesk', sans-serif",
+    tab: { background: "#eaf1ff", color: "#1c3b6b" }, page: "dark" },
+
+  { name: "Solar Flare", emoji: '☀️', desc: 'Intense heat glow', speed: 23, radius: 12,
+    wrap: { background: "radial-gradient(120% 160% at 0% 100%, #ff6a00 0%, #7a0c0c 55%, #200404 100%)" },
+    chip: { background: "rgba(0,0,0,0.25)", border: "1px solid rgba(255,180,120,0.4)" },
+    team: "#FFE9D6", score: "#FFB35C", font: "'Bebas Neue', sans-serif",
+    tab: { background: "#FFB35C", color: "#200404" }, page: "dark" },
+
+  { name: "Midnight Grid", emoji: '🌙', desc: 'Deep navy starlight', speed: 30, radius: 10,
+    wrap: { backgroundColor: "#0a0e1a",
+      backgroundImage: "repeating-linear-gradient(90deg, rgba(255,255,255,0.05) 0 1px, transparent 1px 28px)",
+      border: "1px solid #1c2740" },
+    chip: { background: "rgba(255,255,255,0.04)", border: "1px solid #263354" },
+    team: "#eef2ff", score: "#9db4ff", font: "'JetBrains Mono', monospace",
+    tab: { background: "#9db4ff", color: "#0a0e1a" }, page: "dark" },
+
+  { name: "Emerald Foil", emoji: '🧩', desc: 'Green metallic reflection', speed: 22, radius: 14,
+    wrap: { border: "1px solid rgba(255,255,255,0.2)" }, extraClass: "foil-bg",
+    chip: { background: "rgba(0,0,0,0.2)", border: "1px solid rgba(255,255,255,0.28)" },
+    team: "#f0fff6", score: "#eaffef", font: "'Space Grotesk', sans-serif",
+    tab: { background: "rgba(0,0,0,0.4)", color: "#f0fff6" }, page: "dark" },
+
+  { name: "Blueprint Tech", emoji: '📐', desc: 'Drafting schematic', speed: 34, radius: 2,
+    wrap: { backgroundColor: "#0c2340",
+      backgroundImage: "repeating-linear-gradient(0deg, rgba(255,255,255,0.06) 0 1px, transparent 1px 22px), repeating-linear-gradient(90deg, rgba(255,255,255,0.06) 0 1px, transparent 1px 22px)",
+      border: "1px solid #2f5488" },
+    chip: { background: "rgba(255,255,255,0.05)", border: "1px solid #3f6aa8" },
+    team: "#DCEBFF", score: "#8FC1FF", font: "'JetBrains Mono', monospace",
+    tab: { background: "#DCEBFF", color: "#0c2340" }, page: "dark" },
+
+  { name: "Aurora Wave", emoji: '🌌', desc: 'Cosmic dark energy', speed: 24, radius: 16,
+    wrap: { border: "1px solid rgba(255,255,255,0.2)" }, extraClass: "aurora-bg",
+    chip: { background: "rgba(0,0,0,0.22)", border: "1px solid rgba(255,255,255,0.3)" },
+    team: "#fff", score: "#E8FFF6", font: "'Bebas Neue', sans-serif",
+    tab: { background: "rgba(0,0,0,0.4)", color: "#fff" }, page: "dark" },
+
+  /* ATELIER COLLECTION */
+  { name: "Vantablack Onyx", emoji: '🕳️', desc: 'Absorbing darkness', speed: 36, radius: 14, glow: "rgba(255,255,255,0.08)",
+    wrap: { background: "#050505", border: "1px solid rgba(255,255,255,0.08)" },
+    chip: { background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.09)" },
+    team: "#E8E8E8", score: "#F5F5F5", font: "'Space Grotesk', sans-serif",
+    tab: { background: "rgba(255,255,255,0.92)", color: "#050505" }, page: "dark" },
+
+  { name: "Liquid Mercury", emoji: '💧', desc: 'Flowing silver metal', speed: 20, radius: 12, glow: "rgba(200,200,210,0.35)",
+    wrap: { border: "1px solid rgba(255,255,255,0.35)" }, extraClass: "mercury-bg",
+    chip: { background: "rgba(0,0,0,0.15)", border: "1px solid rgba(255,255,255,0.4)" },
+    team: "#141414", score: "#0a0a0a", font: "'Space Grotesk', sans-serif",
+    tab: { background: "#141414", color: "#f2f2f2" }, page: "light" },
+
+  { name: "Kintsugi Gold Seam", emoji: '🏺', desc: 'Repaired with gold', speed: 30, radius: 10, glow: "rgba(212,175,55,0.3)",
+    wrap: { background: "#1b1714",
+      backgroundImage: "linear-gradient(115deg, transparent 0%, transparent 40%, rgba(212,175,55,0.65) 49%, #F5E6B8 50%, rgba(212,175,55,0.65) 51%, transparent 60%, transparent 100%)",
+      border: "1px solid #3a2f1f" },
+    chip: { background: "rgba(0,0,0,0.3)", border: "1px solid #5c4a26" },
+    team: "#EFE3C5", score: "#F5D889", font: "'Bebas Neue', sans-serif",
+    tab: { background: "linear-gradient(90deg,#8a6a1e,#F5D889)", color: "#1b1714" }, page: "dark" },
+
+  { name: "Marble Quarry", emoji: '🏛️', desc: 'Classic stone texture', speed: 33, radius: 8, glow: "rgba(0,0,0,0.12)",
+    wrap: { backgroundColor: "#f4f3f0",
+      backgroundImage: "radial-gradient(circle at 20% 30%, rgba(120,120,120,0.18) 0%, transparent 40%), radial-gradient(circle at 75% 65%, rgba(90,90,90,0.14) 0%, transparent 38%), linear-gradient(120deg, transparent 44%, rgba(150,150,150,0.3) 46%, transparent 49%)",
+      border: "1px solid #d8d5cc" },
+    chip: { background: "rgba(255,255,255,0.55)", border: "1px solid #cfcabf" },
+    team: "#2b2b2b", score: "#8a6a1e", font: "'Space Grotesk', sans-serif",
+    tab: { background: "#2b2b2b", color: "#f4f3f0" }, page: "light" },
+
+  { name: "Art Deco Gatsby", emoji: '🍸', desc: '1920s luxury gold', speed: 27, radius: 4, glow: "rgba(212,175,55,0.35)",
+    wrap: { background: "#0b3d2e", border: "2px solid #D4AF37", boxShadow: "inset 0 0 0 4px rgba(212,175,55,0.15)" },
+    chip: { background: "rgba(212,175,55,0.08)", border: "1px solid rgba(212,175,55,0.5)" },
+    team: "#EFE3C5", score: "#D4AF37", font: "'Bebas Neue', sans-serif",
+    tab: { background: "#D4AF37", color: "#0b3d2e" }, page: "dark" },
+
+  { name: "Brutalist Concrete", emoji: '🏗️', desc: 'Raw concrete block', speed: 26, radius: 0, glow: "rgba(0,0,0,0.25)", mono: true,
+    wrap: { backgroundColor: "#8f8f8a",
+      backgroundImage: "repeating-radial-gradient(circle at 3px 3px, rgba(0,0,0,0.08) 0, rgba(0,0,0,0.08) 1px, transparent 1px, transparent 7px)",
+      border: "3px solid #141414" },
+    chip: { background: "rgba(0,0,0,0.08)", border: "2px solid #141414" },
+    team: "#141414", score: "#141414", font: "'JetBrains Mono', monospace",
+    tab: { background: "#141414", color: "#f2f2ee" }, page: "light" },
+
+  { name: "Silk Ribbon", emoji: '🎀', desc: 'Flowing luxury fabric', speed: 24, radius: 16, glow: "rgba(122,16,48,0.35)",
+    wrap: { border: "1px solid rgba(255,220,180,0.25)" }, extraClass: "silk-bg",
+    chip: { background: "rgba(0,0,0,0.2)", border: "1px solid rgba(255,220,180,0.3)" },
+    team: "#F3E3C3", score: "#FFD9A0", font: "'Bebas Neue', sans-serif",
+    tab: { background: "#F3E3C3", color: "#3b0a1a" }, page: "dark" },
+
+  { name: "Obsidian Glass", emoji: '🔪', desc: 'Sharp dark reflection', speed: 31, radius: 14, glow: "rgba(79,209,255,0.25)",
+    wrap: { background: "#07080a", border: "1px solid rgba(255,255,255,0.06)",
+      boxShadow: "inset 0 1px 0 rgba(255,255,255,0.08), inset 0 -30px 50px rgba(30,110,180,0.12)" },
+    chip: { background: "rgba(255,255,255,0.03)", border: "1px solid rgba(120,180,255,0.2)" },
+    team: "#DBE7FF", score: "#4FD1FF", font: "'Space Grotesk', sans-serif",
+    tab: { background: "#4FD1FF", color: "#07080a" }, page: "dark" },
+
+  { name: "Perfume Editorial", emoji: '🧴', desc: 'High fashion tones', speed: 35, radius: 999, glow: "rgba(176,141,87,0.25)",
+    wrap: { background: "#F3E7E4", border: "1px solid #D9BFA8" },
+    chip: { background: "rgba(255,255,255,0.5)", border: "1px solid #E3CDB8" },
+    team: "#5C4632", score: "#B08D57", font: "'Space Grotesk', sans-serif",
+    tab: { background: "#5C4632", color: "#F3E7E4" }, page: "light" },
+
+  { name: "Vinyl Record Sleeve", emoji: '📀', desc: 'Grooved black vinyl', speed: 22, radius: 999, glow: "rgba(255,122,26,0.3)",
+    wrap: { backgroundColor: "#0c0c0c",
+      backgroundImage: "repeating-radial-gradient(circle at 50% 50%, rgba(255,255,255,0.035) 0, rgba(255,255,255,0.035) 1px, transparent 2px, transparent 6px)",
+      border: "1px solid #2a2a2a" },
+    chip: { background: "rgba(255,122,26,0.08)", border: "1px solid rgba(255,122,26,0.35)" },
+    team: "#f2f2f2", score: "#FF7A1A", font: "'Bebas Neue', sans-serif",
+    tab: { background: "#FF7A1A", color: "#0c0c0c" }, page: "dark" },
+
+  { name: "Circuit PCB", emoji: '⚡', desc: 'Electronic green board', speed: 29, radius: 6, glow: "rgba(232,196,104,0.25)", mono: true,
+    wrap: { backgroundColor: "#08210f",
+      backgroundImage: "repeating-linear-gradient(90deg, rgba(232,196,104,0.1) 0 2px, transparent 2px 26px), repeating-linear-gradient(0deg, rgba(232,196,104,0.06) 0 1px, transparent 1px 26px)",
+      border: "1px solid #1e4a2c" },
+    chip: { background: "rgba(0,0,0,0.3)", border: "1px solid #3a6b46" },
+    team: "#BFFFD1", score: "#E8C468", font: "'JetBrains Mono', monospace",
+    tab: { background: "#E8C468", color: "#08210f" }, page: "dark" },
+
+  { name: "Watch Chronograph", emoji: '⌚', desc: 'Precision dial ticks', speed: 28, radius: 999, glow: "rgba(230,57,70,0.25)",
+    wrap: { backgroundColor: "#0d1b2a",
+      backgroundImage: "repeating-conic-gradient(from 0deg, rgba(255,255,255,0.07) 0deg 1deg, transparent 1deg 6deg)",
+      border: "1px solid #223447" },
+    chip: { background: "rgba(255,255,255,0.04)", border: "1px solid #33506b" },
+    team: "#C9D6E3", score: "#E63946", font: "'Space Grotesk', sans-serif",
+    tab: { background: "#C9D6E3", color: "#0d1b2a" }, page: "dark" },
+
+  { name: "Stained Glass Cathedral", emoji: '⛪', desc: 'Colorful light panes', speed: 25, radius: 2, glow: "rgba(120,60,180,0.3)",
+    wrap: { background: "linear-gradient(100deg,#1b1030 0%,#3a1c5e 16%,#0f3d5c 32%,#0a5c4a 48%,#5c3d0a 64%,#5c0f24 80%,#1b1030 100%)",
+      border: "2px solid #0a0a0a" },
+    chip: { background: "rgba(0,0,0,0.3)", border: "2px solid rgba(0,0,0,0.5)" },
+    team: "#F5EFE0", score: "#FFD9A0", font: "'Bebas Neue', sans-serif",
+    tab: { background: "#0a0a0a", color: "#F5EFE0" }, page: "dark" },
+
+  { name: "Cathode CRT", emoji: '📺', desc: 'Scanlines & phosphor', speed: 21, radius: 2, glow: "rgba(57,255,106,0.3)", mono: true,
+    wrap: { backgroundColor: "#020402",
+      backgroundImage: "repeating-linear-gradient(0deg, rgba(0,255,140,0.07) 0 1px, transparent 1px 3px)",
+      border: "1px solid #0a3d1f" },
+    chip: { background: "rgba(0,255,140,0.05)", border: "1px solid rgba(0,255,140,0.25)" },
+    team: "#39FF6A", score: "#B6FFCB", font: "'JetBrains Mono', monospace",
+    tab: { background: "#39FF6A", color: "#020402" }, page: "dark" },
+
+  { name: "Origami Paper Fold", emoji: '🕊️', desc: 'Creased geometry', speed: 32, radius: 6, glow: "rgba(0,0,0,0.1)",
+    wrap: { background: "linear-gradient(135deg,#f2ede2,#e4dcc8)",
+      backgroundImage: "linear-gradient(60deg, transparent 40%, rgba(0,0,0,0.05) 41%, transparent 42%)",
+      border: "1px solid #d6cdb4" },
+    chip: { background: "rgba(255,255,255,0.5)", border: "1px solid #ddd3ba" },
+    team: "#4a3f2c", score: "#8a6a1e", font: "'Space Grotesk', sans-serif",
+    tab: { background: "#4a3f2c", color: "#f2ede2" }, page: "light" },
+
+  { name: "Satellite HUD", emoji: '🛰️', desc: 'Data projection grid', speed: 23, radius: 2, glow: "rgba(127,232,255,0.3)", mono: true,
+    wrap: { backgroundColor: "#050b12",
+      backgroundImage: "repeating-linear-gradient(0deg, rgba(127,232,255,0.07) 0 1px, transparent 1px 24px), repeating-linear-gradient(90deg, rgba(127,232,255,0.07) 0 1px, transparent 1px 24px)",
+      border: "1px solid #123044" },
+    chip: { background: "rgba(127,232,255,0.05)", border: "1px solid rgba(127,232,255,0.3)" },
+    team: "#CFEFFF", score: "#7FE8FF", font: "'JetBrains Mono', monospace",
+    tab: { background: "#7FE8FF", color: "#050b12" }, page: "dark" },
+
+  { name: "Champagne Editorial", emoji: '🍾', desc: 'Effervescent luxury', speed: 34, radius: 2, glow: "rgba(0,0,0,0.1)",
+    wrap: { background: "linear-gradient(180deg,#FBF6EC,#F1E4C8)", borderBottom: "2px solid #111" },
+    chip: { background: "rgba(255,255,255,0.6)", border: "1px solid #e6d8b0" },
+    team: "#2b2410", score: "#8a6a1e", font: "'Space Grotesk', sans-serif",
+    tab: { background: "#111", color: "#FBF6EC" }, page: "light" },
+
+  { name: "Bioluminescence", emoji: '🦠', desc: 'Deep ocean glow', speed: 30, radius: 16, glow: "rgba(53,232,208,0.3)",
+    wrap: { background: "radial-gradient(120% 140% at 80% 100%, #0a3d4a 0%, #021018 60%)",
+      backgroundImage: "radial-gradient(4px 4px at 15% 40%, rgba(53,232,208,0.5), transparent), radial-gradient(3px 3px at 60% 25%, rgba(53,232,208,0.4), transparent), radial-gradient(3px 3px at 85% 70%, rgba(53,232,208,0.4), transparent)",
+      border: "1px solid #0e4a56" },
+    chip: { background: "rgba(53,232,208,0.06)", border: "1px solid rgba(53,232,208,0.3)" },
+    team: "#BFFFF6", score: "#35E8D0", font: "'Space Grotesk', sans-serif",
+    tab: { background: "#35E8D0", color: "#021018" }, page: "dark" },
+
+  { name: "Terrazzo Stone", emoji: '🪨', desc: 'Speckled tile surface', speed: 33, radius: 18, glow: "rgba(0,0,0,0.08)",
+    wrap: { backgroundColor: "#F5EDE4",
+      backgroundImage: "radial-gradient(6px 6px at 10% 30%, #F2A6A6 0, transparent 60%), radial-gradient(5px 5px at 25% 70%, #9BD8C2 0, transparent 60%), radial-gradient(4px 4px at 45% 20%, #2C3E66 0, transparent 60%), radial-gradient(6px 6px at 60% 60%, #E8C468 0, transparent 60%), radial-gradient(5px 5px at 80% 35%, #F2A6A6 0, transparent 60%), radial-gradient(4px 4px at 92% 75%, #9BD8C2 0, transparent 60%)",
+      border: "1px solid #e0d5c4" },
+    chip: { background: "rgba(255,255,255,0.55)", border: "1px solid #e6dbc9" },
+    team: "#2C3E66", score: "#C4272E", font: "'Space Grotesk', sans-serif",
+    tab: { background: "#2C3E66", color: "#F5EDE4" }, page: "light" },
+
+  { name: "Aurora Silk", emoji: '🎆', desc: 'Flowing cosmic fabric', speed: 26, radius: 20, glow: "rgba(180,150,220,0.35)",
+    wrap: { border: "1px solid rgba(255,255,255,0.3)" }, extraClass: "auroraSilk-bg",
+    chip: { background: "rgba(255,255,255,0.25)", border: "1px solid rgba(255,255,255,0.4)" },
+    team: "#3b1f4d", score: "#5b2a86", font: "'Bebas Neue', sans-serif",
+    tab: { background: "#3b1f4d", color: "#f5eefc" }, page: "dark" },
 ];
+
+export const THEMES = showcaseThemes.map(t => ({
+  ...t,
+  id: t.name.toLowerCase().replace(/\s+/g, '-'),
+}));
 
 // ── Separator characters ─────────────────────────────────────────────────────
 export const SEPARATORS = {
@@ -29,7 +292,7 @@ export const SEPARATORS = {
   none:    '',
 };
 
-// ── Speed → CSS duration (1% = 120s, 100% = 8s) ─────────────────────────────
+// ── Speed → CSS duration ─────────────────────────────────────────────────────
 export function speedToDuration(speed) {
   const s = Math.max(1, Math.min(100, speed || 50));
   return `${Math.round(120 - (s / 100) * 112)}s`;
@@ -37,69 +300,49 @@ export function speedToDuration(speed) {
 
 // ── Size → classes ───────────────────────────────────────────────────────────
 export const SIZE_CLASSES = {
-  compact: { container: 'h-8',  text: 'text-[10px]', badge: 'text-[8px] px-1.5 py-0', avatar: 14, gap: 'gap-1.5 mr-6' },
-  normal:  { container: 'h-10', text: 'text-sm',      badge: 'text-[9px] px-2 py-0.5', avatar: 18, gap: 'gap-2 mr-10' },
-  large:   { container: 'h-12', text: 'text-base',    badge: 'text-[10px] px-2.5 py-1', avatar: 22, gap: 'gap-2.5 mr-12' },
+  compact: { container: 'h-[44px]', text: 'text-[11px]', badge: 'text-[9px] px-2 py-0.5', avatar: 18, gap: 'gap-1.5 mr-6', paddingY: 'py-0.5' },
+  normal:  { container: 'h-[56px]', text: 'text-[13px]', badge: 'text-[10px] px-2.5 py-1', avatar: 24, gap: 'gap-2.5 mr-10', paddingY: 'py-1' },
+  large:   { container: 'h-[72px]', text: 'text-base', badge: 'text-[11px] px-3 py-1.5', avatar: 30, gap: 'gap-3 mr-12', paddingY: 'py-1.5' },
 };
 
-// ── Theme-specific styles ────────────────────────────────────────────────────
-export function getThemeStyles(theme) {
-  const styles = {
-    classic:  { bg: 'bg-black/40 backdrop-blur-md border-b border-white/5',                                     gradient: 'from-[#0a0c10]', liveBadge: 'bg-red-500/10 text-red-400 border border-red-500/20', ftBadge: 'text-zinc-500', nameCls: 'text-foreground', liveScoreBg: 'rgba(239,68,68,0.15)', liveScoreColor: '#f87171', liveScoreBorder: 'rgba(239,68,68,0.25)', ftScoreBg: 'rgba(41,193,121,0.12)', ftScoreColor: '#29C179', ftScoreBorder: 'rgba(41,193,121,0.2)', announceBadge: 'bg-blue-500/10 text-blue-400 border border-blue-500/20' },
-    neon:     { bg: 'bg-black border-b border-green-500/20',                                                      gradient: 'from-black', liveBadge: 'bg-red-600 text-white shadow-[0_0_12px_rgba(239,68,68,0.8)]', ftBadge: 'text-blue-400 drop-shadow-[0_0_5px_rgba(96,165,250,0.8)]', nameCls: 'text-white', liveScoreBg: 'transparent', liveScoreColor: '#f87171', liveScoreBorder: '#ef4444', ftScoreBg: 'transparent', ftScoreColor: '#60a5fa', ftScoreBorder: '#60a5fa', announceBadge: 'bg-blue-600 text-white shadow-[0_0_12px_rgba(37,99,235,0.8)]' },
-    cyber:    { bg: 'bg-zinc-950 border-b-2 border-yellow-500/50',                                                gradient: 'from-zinc-950', liveBadge: 'bg-yellow-400 text-black font-mono', ftBadge: 'bg-zinc-800 text-zinc-400 font-mono border border-zinc-700/50', nameCls: 'text-zinc-300 font-mono', liveScoreBg: 'rgb(24,24,27)', liveScoreColor: '#fbbf24', liveScoreBorder: 'rgba(113,113,122,0.5)', ftScoreBg: 'rgb(24,24,27)', ftScoreColor: '#d4d4d8', ftScoreBorder: 'rgba(113,113,122,0.5)', announceBadge: 'bg-cyan-500 text-black font-mono' },
-    stadium:  { bg: 'bg-gradient-to-r from-amber-950/90 to-orange-950/80 border-b border-amber-500/30',           gradient: 'from-amber-950', liveBadge: 'bg-red-600 text-white border border-red-500/50', ftBadge: 'text-amber-400/70', nameCls: 'text-amber-100', liveScoreBg: 'rgba(239,68,68,0.2)', liveScoreColor: '#fca5a5', liveScoreBorder: 'rgba(239,68,68,0.3)', ftScoreBg: 'rgba(245,158,11,0.15)', ftScoreColor: '#fbbf24', ftScoreBorder: 'rgba(245,158,11,0.3)', announceBadge: 'bg-amber-500/20 text-amber-300 border border-amber-500/30' },
-    retro:    { bg: 'bg-[#1a1a2e] border-b-2 border-[#e94560]/40',                                               gradient: 'from-[#1a1a2e]', liveBadge: 'bg-[#e94560] text-white font-mono tracking-widest', ftBadge: 'text-[#0f3460] bg-[#16213e] font-mono', nameCls: 'text-[#eaeaea] font-mono', liveScoreBg: '#533483', liveScoreColor: '#e94560', liveScoreBorder: '#e94560', ftScoreBg: '#16213e', ftScoreColor: '#0f3460', ftScoreBorder: '#0f3460', announceBadge: 'bg-[#533483] text-white font-mono' },
-    glass:    { bg: 'bg-white/5 backdrop-blur-xl border-b border-white/10',                                       gradient: 'from-white/5', liveBadge: 'bg-red-500/20 text-red-300 backdrop-blur-sm border border-red-400/20', ftBadge: 'text-white/50 backdrop-blur-sm', nameCls: 'text-white/90', liveScoreBg: 'rgba(255,255,255,0.08)', liveScoreColor: '#fca5a5', liveScoreBorder: 'rgba(255,255,255,0.15)', ftScoreBg: 'rgba(255,255,255,0.06)', ftScoreColor: 'rgba(255,255,255,0.7)', ftScoreBorder: 'rgba(255,255,255,0.1)', announceBadge: 'bg-white/10 text-white/80 backdrop-blur-sm border border-white/10' },
-    fire:     { bg: 'bg-gradient-to-r from-red-950/90 to-orange-950/80 border-b border-red-500/30',               gradient: 'from-red-950', liveBadge: 'bg-gradient-to-r from-red-500 to-orange-500 text-white', ftBadge: 'text-orange-400/70', nameCls: 'text-orange-100', liveScoreBg: 'rgba(239,68,68,0.25)', liveScoreColor: '#fbbf24', liveScoreBorder: 'rgba(249,115,22,0.4)', ftScoreBg: 'rgba(249,115,22,0.15)', ftScoreColor: '#fb923c', ftScoreBorder: 'rgba(249,115,22,0.3)', announceBadge: 'bg-orange-500/20 text-orange-300 border border-orange-500/30' },
-    arctic:   { bg: 'bg-gradient-to-r from-sky-950/90 to-cyan-950/80 border-b border-cyan-400/20',                gradient: 'from-sky-950', liveBadge: 'bg-cyan-400/20 text-cyan-200 border border-cyan-400/30', ftBadge: 'text-sky-400/60', nameCls: 'text-sky-100', liveScoreBg: 'rgba(34,211,238,0.1)', liveScoreColor: '#67e8f9', liveScoreBorder: 'rgba(34,211,238,0.3)', ftScoreBg: 'rgba(56,189,248,0.1)', ftScoreColor: '#38bdf8', ftScoreBorder: 'rgba(56,189,248,0.2)', announceBadge: 'bg-sky-500/15 text-sky-300 border border-sky-400/25' },
-    royal:    { bg: 'bg-gradient-to-r from-purple-950/90 to-violet-950/80 border-b border-amber-400/30',          gradient: 'from-purple-950', liveBadge: 'bg-gradient-to-r from-purple-500 to-amber-500 text-white', ftBadge: 'text-amber-400/70', nameCls: 'text-purple-100', liveScoreBg: 'rgba(168,85,247,0.2)', liveScoreColor: '#d8b4fe', liveScoreBorder: 'rgba(168,85,247,0.4)', ftScoreBg: 'rgba(245,158,11,0.12)', ftScoreColor: '#fbbf24', ftScoreBorder: 'rgba(245,158,11,0.25)', announceBadge: 'bg-purple-500/15 text-purple-300 border border-purple-400/25' },
-    matrix:   { bg: 'bg-black border-b border-green-500/30',                                                      gradient: 'from-black', liveBadge: 'bg-green-500 text-black font-mono', ftBadge: 'text-green-600 font-mono', nameCls: 'text-green-400 font-mono', liveScoreBg: 'rgba(34,197,94,0.15)', liveScoreColor: '#4ade80', liveScoreBorder: 'rgba(34,197,94,0.4)', ftScoreBg: 'rgba(34,197,94,0.08)', ftScoreColor: '#22c55e', ftScoreBorder: 'rgba(34,197,94,0.2)', announceBadge: 'bg-green-500/15 text-green-400 font-mono border border-green-500/25' },
-    sunset:   { bg: 'bg-gradient-to-r from-rose-950/90 to-amber-950/80 border-b border-rose-400/25',              gradient: 'from-rose-950', liveBadge: 'bg-gradient-to-r from-rose-500 to-amber-400 text-white', ftBadge: 'text-rose-400/60', nameCls: 'text-rose-100', liveScoreBg: 'rgba(244,63,94,0.15)', liveScoreColor: '#fb7185', liveScoreBorder: 'rgba(244,63,94,0.3)', ftScoreBg: 'rgba(251,146,60,0.12)', ftScoreColor: '#fb923c', ftScoreBorder: 'rgba(251,146,60,0.25)', announceBadge: 'bg-rose-500/15 text-rose-300 border border-rose-400/25' },
-    midnight: { bg: 'bg-gradient-to-r from-slate-950 to-indigo-950 border-b border-indigo-400/15',                gradient: 'from-slate-950', liveBadge: 'bg-indigo-500/20 text-indigo-200 border border-indigo-400/30', ftBadge: 'text-indigo-400/50', nameCls: 'text-indigo-100', liveScoreBg: 'rgba(99,102,241,0.12)', liveScoreColor: '#a5b4fc', liveScoreBorder: 'rgba(99,102,241,0.3)', ftScoreBg: 'rgba(99,102,241,0.08)', ftScoreColor: '#818cf8', ftScoreBorder: 'rgba(99,102,241,0.2)', announceBadge: 'bg-indigo-500/15 text-indigo-300 border border-indigo-400/20' },
-    champion: { bg: 'bg-gradient-to-r from-[#0a0a0a] to-[#1a1500] border-b-2 border-amber-400/40',               gradient: 'from-[#0a0a0a]', liveBadge: 'bg-gradient-to-r from-amber-400 to-yellow-300 text-black', ftBadge: 'text-amber-400/60', nameCls: 'text-amber-50', liveScoreBg: 'rgba(245,158,11,0.2)', liveScoreColor: '#fbbf24', liveScoreBorder: 'rgba(245,158,11,0.4)', ftScoreBg: 'rgba(245,158,11,0.1)', ftScoreColor: '#f59e0b', ftScoreBorder: 'rgba(245,158,11,0.25)', announceBadge: 'bg-amber-500/15 text-amber-300 border border-amber-400/30' },
-    dormammuh:{ bg: 'bg-gradient-to-r from-purple-950 via-fuchsia-950 to-red-950 border-b-2 border-fuchsia-500/40', gradient: 'from-purple-950', liveBadge: 'bg-gradient-to-r from-purple-600 via-fuchsia-500 to-red-500 text-white shadow-[0_0_12px_rgba(217,70,239,0.6)] font-bold', ftBadge: 'text-fuchsia-400 drop-shadow-[0_0_5px_rgba(232,121,249,0.5)]', nameCls: 'text-white font-bold', liveScoreBg: 'rgba(217,70,239,0.25)', liveScoreColor: '#fff', liveScoreBorder: 'rgba(217,70,239,0.6)', ftScoreBg: 'rgba(217,70,239,0.1)', ftScoreColor: '#f0abfc', ftScoreBorder: 'rgba(217,70,239,0.3)', announceBadge: 'bg-gradient-to-r from-fuchsia-600 to-red-600 text-white shadow-[0_0_8px_rgba(225,29,72,0.6)]' },
-  };
-  return styles[theme] || styles.classic;
+export function getThemeStyles(themeId) {
+  return THEMES.find(t => t.id === themeId) || THEMES[0];
 }
 
-// ── Sub-components ───────────────────────────────────────────────────────────
-export function LiveBadge({ theme, sizeKey }) {
-  const ts = getThemeStyles(theme);
-  const sz = SIZE_CLASSES[sizeKey] || SIZE_CLASSES.normal;
-  const isMono = ['cyber', 'matrix', 'retro'].includes(theme);
+/* ---------------------------------------------------------
+   Shiny Badges (for Smart Content & Highlights)
+--------------------------------------------------------- */
+export const BADGE_STYLES = {
+  breaking: { background: "linear-gradient(135deg,#5c000d,#ff0a33 50%,#5c000d)", color: "#fff" },
+  highlight: { background: "linear-gradient(135deg,#8a6a1e,#F5C542 50%,#8a6a1e)", color: "#241a03" },
+  stats: { background: "linear-gradient(135deg,#0b3d24,#39ff9c 50%,#0b3d24)", color: "#052a16" },
+  streakHot: { background: "linear-gradient(135deg,#7a1f00,#ff6200 50%,#7a1f00)", color: "#ffe6cc" },
+  streakCold: { background: "linear-gradient(135deg,#0b1a3d,#3988ff 50%,#0b1a3d)", color: "#cce0ff" }
+};
+
+export function ShinyBadge({ label, style, icon: Icon }) {
   return (
-    <div className={`ticker-badge-shine flex items-center gap-1 rounded-full font-bold uppercase tracking-wider shrink-0 ${sz.badge} ${ts.liveBadge}`}>
-      {!isMono && (
-        <span className="relative flex h-1.5 w-1.5 shrink-0">
-          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-current opacity-75" />
-          <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-current" />
-        </span>
-      )}
-      {isMono ? '[LIVE]' : 'LIVE'}
-    </div>
+    <span
+      className="shiny relative inline-flex items-center gap-1.5 overflow-hidden rounded-full px-3 py-1.5 text-[11px] font-extrabold tracking-wide shadow-lg shrink-0"
+      style={style}
+    >
+      {Icon && <Icon size={12} />}
+      {label}
+    </span>
   );
 }
 
-export function FTBadge({ theme, sizeKey }) {
-  const ts = getThemeStyles(theme);
-  const sz = SIZE_CLASSES[sizeKey] || SIZE_CLASSES.normal;
-  const isMono = ['cyber', 'matrix', 'retro'].includes(theme);
-  return (
-    <div className={`flex items-center gap-1 font-bold uppercase tracking-wider shrink-0 ${sz.badge} ${isMono ? '' : 'rounded-full'} ${ts.ftBadge}`}>
-      {isMono ? '[FT]' : <><CheckCircle2 size={10} /> FT</>}
-    </div>
-  );
-}
+// ── Shared UI Badges ─────────────────────────────────────────────────────────
 
-export function ScoreBadge({ home, away, isLive, theme }) {
-  const ts = getThemeStyles(theme);
-  const style = isLive
-    ? { background: ts.liveScoreBg, color: ts.liveScoreColor, border: `1px solid ${ts.liveScoreBorder}` }
-    : { background: ts.ftScoreBg, color: ts.ftScoreColor, border: `1px solid ${ts.ftScoreBorder}` };
+export function StatusTag({ status, time, theme }) {
+  const live = status === "LIVE";
   return (
-    <span className="inline-flex items-center gap-1 px-2 py-0.5 text-[11px] font-black font-score tabular-nums shrink-0 rounded-full" style={style}>
-      {home ?? 0} <span className="opacity-50 font-normal">-</span> {away ?? 0}
+    <span
+      className="flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-bold tracking-wide shrink-0 mx-1"
+      style={{ background: theme.tab.background, color: theme.tab.color }}
+    >
+      {live && <span className="pulse-dot" style={{ background: theme.tab.color }} />}
+      {status === "LIVE" ? time : status}
     </span>
   );
 }
@@ -107,55 +350,24 @@ export function ScoreBadge({ home, away, isLive, theme }) {
 export function SeparatorItem({ separator, theme }) {
   const char = SEPARATORS[separator];
   if (!char) return null;
-  const ts = getThemeStyles(theme);
   return (
-    <span className={`shrink-0 opacity-30 font-bold mx-1 ${ts.nameCls}`}>{char}</span>
+    <span className="shrink-0 opacity-40 font-bold mx-2" style={{ color: theme.team }}>{char}</span>
   );
 }
 
-// ── Breaking News Badge ──────────────────────────────────────────────────────
 export function BreakingBadge({ sizeKey }) {
-  const sz = SIZE_CLASSES[sizeKey] || SIZE_CLASSES.normal;
-  return (
-    <div className={`ticker-badge-shine flex items-center gap-1 rounded-full font-bold uppercase tracking-wider shrink-0 bg-red-600 text-white ${sz.badge}`}>
-      <span className="relative flex h-1.5 w-1.5 shrink-0">
-        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75" />
-        <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-white" />
-      </span>
-      BREAKING
-    </div>
-  );
+  return <ShinyBadge label="BREAKING" style={BADGE_STYLES.breaking} />;
 }
 
-// ── Stats Badge ──────────────────────────────────────────────────────────────
-export function StatsBadge({ theme, sizeKey }) {
-  const ts = getThemeStyles(theme);
-  const sz = SIZE_CLASSES[sizeKey] || SIZE_CLASSES.normal;
-  return (
-    <div className={`ticker-badge-shine flex items-center gap-1 rounded-full font-bold uppercase tracking-wider shrink-0 ${sz.badge} ${ts.announceBadge}`}>
-      <TrendingUp size={10} /> STATS
-    </div>
-  );
+export function StatsBadge({ sizeKey }) {
+  return <ShinyBadge label="STATS" icon={TrendingUp} style={BADGE_STYLES.stats} />;
 }
 
-// ── Streak Badge ─────────────────────────────────────────────────────────────
 export function StreakBadge({ type, sizeKey }) {
-  const sz = SIZE_CLASSES[sizeKey] || SIZE_CLASSES.normal;
   const isHot = type === 'win';
-  return (
-    <div className={`ticker-badge-shine flex items-center gap-1 rounded-full font-bold uppercase tracking-wider shrink-0 ${sz.badge} ${isHot ? 'bg-orange-500/20 text-orange-300 border border-orange-500/30' : 'bg-blue-500/15 text-blue-300 border border-blue-500/25'}`}>
-      {isHot ? <Flame size={10} /> : <Zap size={10} />} {isHot ? 'STREAK' : 'ALERT'}
-    </div>
-  );
+  return <ShinyBadge label={isHot ? "STREAK" : "ALERT"} icon={isHot ? Flame : Zap} style={isHot ? BADGE_STYLES.streakHot : BADGE_STYLES.streakCold} />;
 }
 
-// ── Highlight Badge ──────────────────────────────────────────────────────────
-export function HighlightBadge({ theme, sizeKey }) {
-  const ts = getThemeStyles(theme);
-  const sz = SIZE_CLASSES[sizeKey] || SIZE_CLASSES.normal;
-  return (
-    <div className={`ticker-badge-shine flex items-center gap-1 rounded-full font-bold uppercase tracking-wider shrink-0 ${sz.badge} ${ts.announceBadge}`}>
-      <Trophy size={10} /> HIGHLIGHT
-    </div>
-  );
+export function HighlightBadge({ sizeKey }) {
+  return <ShinyBadge label="HIGHLIGHT" icon={Trophy} style={BADGE_STYLES.highlight} />;
 }

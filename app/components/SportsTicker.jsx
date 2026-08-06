@@ -1,24 +1,44 @@
 'use client';
 
-import React, { useState, useMemo, useCallback } from 'react';
+import React, { useState, useMemo, useCallback, useEffect } from 'react';
 import { Megaphone } from 'lucide-react';
 import { Avatar } from './UI';
 import MatchStatsModal from './MatchStatsModal';
 import {
-  THEMES,
-  SEPARATORS,
-  SIZE_CLASSES,
   getThemeStyles,
   speedToDuration,
-  LiveBadge,
-  FTBadge,
-  ScoreBadge,
+  StatusTag,
   SeparatorItem,
   BreakingBadge,
   StatsBadge,
   StreakBadge,
-  HighlightBadge
+  HighlightBadge,
+  ShinyBadge,
+  BADGE_STYLES
 } from './SportsTickerBadges';
+
+// ── Match Chip Component ───────────────────────────────────────────────────
+function MatchChip({ match, home, away, theme, isLive, onClick, showAvatars, previewMode }) {
+  return (
+    <button
+      onClick={onClick}
+      className={`flex items-center gap-2.5 px-4 py-2 mx-1.5 shrink-0 transition-opacity ${previewMode ? 'cursor-default pointer-events-none' : 'cursor-pointer hover:opacity-90'}`}
+      style={{ ...theme.chip, borderRadius: theme.radius, fontFamily: theme.font }}
+    >
+      {showAvatars && <Avatar p={home} size={22} />}
+      <span className="text-[12px] font-bold tracking-wide" style={{ color: theme.team }}>{home.name}</span>
+      <span
+        className="text-[15px] font-extrabold tabular-nums px-1"
+        style={{ color: theme.score, fontFamily: theme.mono ? "'JetBrains Mono', monospace" : theme.font }}
+      >
+        {match.homeScore ?? 0}–{match.awayScore ?? 0}
+      </span>
+      <span className="text-[12px] font-bold tracking-wide" style={{ color: theme.team }}>{away.name}</span>
+      {showAvatars && <Avatar p={away} size={22} />}
+      <StatusTag status={isLive ? "LIVE" : "FT"} time={isLive ? (match.liveState?.clock ? `${Math.floor(match.liveState.clock / 60)}'` : "LIVE") : "FT"} theme={theme} />
+    </button>
+  );
+}
 
 // ── Main Component ───────────────────────────────────────────────────────────
 export default function SportsTicker({ matches = [], announcements = [], players = [], tickerConfig, previewMode = false, standings = [] }) {
@@ -26,80 +46,83 @@ export default function SportsTicker({ matches = [], announcements = [], players
 
   const cfg = tickerConfig ?? {
     enabled: true, source: 'live_recent', speed: 50,
-    showAvatars: true, pauseOnHover: true, theme: 'classic',
+    showAvatars: true, pauseOnHover: true, theme: 'glass-frost',
     size: 'normal', separator: 'dot', breakingNews: '',
     showStats: false, showHighlights: false, showStreaks: false,
   };
 
-  const theme = cfg.theme || 'classic';
-  const sizeKey = cfg.size || 'normal';
-  const ts = getThemeStyles(theme);
-  const sz = SIZE_CLASSES[sizeKey] || SIZE_CLASSES.normal;
+  const theme = getThemeStyles(cfg.theme);
 
   const playerMap = useMemo(() => new Map(players.map(p => [p.id, p])), [players]);
   const getPlayer = useCallback(id => playerMap.get(id), [playerMap]);
 
-  // ── Stats Ticker Items ────────────────────────────────────────────────────
+  // ── Enhanced Smart Content: Stats ─────────────────────────────────────────
   const statsItems = useMemo(() => {
     if (!cfg.showStats) return [];
     const completed = matches.filter(m => m.status === 'completed');
     if (completed.length === 0) return [];
 
     const playerStats = {};
-    players.forEach(p => { playerStats[p.id] = { name: p.name, goals: 0, wins: 0, played: 0, pts: 0 }; });
+    players.forEach(p => { playerStats[p.id] = { name: p.name, goals: 0, wins: 0, played: 0, pts: 0, cleanSheets: 0 }; });
     completed.forEach(m => {
       const hs = Number(m.homeScore) || 0;
       const as = Number(m.awayScore) || 0;
       if (playerStats[m.homeId]) {
         playerStats[m.homeId].goals += hs;
         playerStats[m.homeId].played++;
+        if (as === 0) playerStats[m.homeId].cleanSheets++;
         playerStats[m.homeId].pts += hs > as ? 3 : hs === as ? 1 : 0;
-        if (hs > as) playerStats[m.homeId].wins++;
       }
       if (playerStats[m.awayId]) {
         playerStats[m.awayId].goals += as;
         playerStats[m.awayId].played++;
+        if (hs === 0) playerStats[m.awayId].cleanSheets++;
         playerStats[m.awayId].pts += as > hs ? 3 : hs === as ? 1 : 0;
-        if (as > hs) playerStats[m.awayId].wins++;
       }
     });
 
     const sorted = Object.values(playerStats).filter(s => s.played > 0);
     const result = [];
     const topScorer = [...sorted].sort((a, b) => b.goals - a.goals)[0];
-    const leader = [...sorted].sort((a, b) => b.pts - a.pts)[0];
-    if (topScorer) result.push(`⚽ Top Scorer: ${topScorer.name} (${topScorer.goals} goals)`);
-    if (leader) result.push(`🏆 Leader: ${leader.name} (${leader.pts} pts)`);
-    result.push(`📊 ${completed.length} matches played`);
+    const topCleanSheet = [...sorted].sort((a, b) => b.cleanSheets - a.cleanSheets)[0];
+    
+    if (topScorer && topScorer.goals > 0) result.push(`GOLDEN BOOT RACE: ${topScorer.name} leads with ${topScorer.goals} Goals!`);
+    if (topCleanSheet && topCleanSheet.cleanSheets > 0) result.push(`BRICK WALL: ${topCleanSheet.name} has ${topCleanSheet.cleanSheets} Clean Sheets.`);
+    result.push(`LEAGUE UPDATE: ${completed.length} Matches Officially Completed.`);
+    
     return result;
   }, [cfg.showStats, matches, players]);
 
-  // ── Highlight Reel Items ──────────────────────────────────────────────────
+  // ── Enhanced Smart Content: Highlights ────────────────────────────────────
   const highlightItems = useMemo(() => {
     if (!cfg.showHighlights) return [];
     const completed = matches.filter(m => m.status === 'completed').sort((a, b) => new Date(b.completedAt) - new Date(a.completedAt));
     if (completed.length === 0) return [];
     const result = [];
-    // Biggest win from recent matches
+    
     const recent = completed.slice(0, 10);
     let biggestMargin = 0;
     let biggestMatch = null;
+    let totalGoals = 0;
+    
     recent.forEach(m => {
-      const diff = Math.abs((Number(m.homeScore) || 0) - (Number(m.awayScore) || 0));
+      const hs = Number(m.homeScore) || 0;
+      const as = Number(m.awayScore) || 0;
+      totalGoals += (hs + as);
+      const diff = Math.abs(hs - as);
       if (diff > biggestMargin) { biggestMargin = diff; biggestMatch = m; }
     });
+
     if (biggestMatch && biggestMargin > 0) {
       const h = getPlayer(biggestMatch.homeId);
       const a = getPlayer(biggestMatch.awayId);
-      if (h && a) result.push(`💥 Biggest win: ${h.name} ${biggestMatch.homeScore}-${biggestMatch.awayScore} ${a.name}`);
+      if (h && a) result.push(`ABSOLUTE ROUT: ${h.name} destroys ${a.name} ${biggestMatch.homeScore}-${biggestMatch.awayScore}!`);
     }
-    // Total goals recently
-    const totalGoals = recent.reduce((sum, m) => sum + (Number(m.homeScore) || 0) + (Number(m.awayScore) || 0), 0);
-    if (totalGoals > 0) result.push(`⚡ ${totalGoals} goals in the last ${recent.length} matches`);
+    if (totalGoals > 0) result.push(`GOAL FEST: ${totalGoals} goals scored in the last ${recent.length} games!`);
     return result;
   }, [cfg.showHighlights, matches, getPlayer]);
 
-  // ── Player Streak Alerts ──────────────────────────────────────────────────
+  // ── Enhanced Smart Content: Streaks ───────────────────────────────────────
   const streakItems = useMemo(() => {
     if (!cfg.showStreaks) return [];
     const completed = matches.filter(m => m.status === 'completed').sort((a, b) => new Date(b.completedAt) - new Date(a.completedAt));
@@ -122,14 +145,27 @@ export default function SportsTicker({ matches = [], announcements = [], players
         else break;
       }
       if (streak >= 3) {
-        const emoji = streakType === 'W' ? '🔥' : '💀';
-        const label = streakType === 'W' ? 'win' : 'loss';
-        result.push({ text: `${emoji} ${p.name} is on a ${streak}-game ${label} streak!`, type: streakType === 'W' ? 'win' : 'loss' });
+        if (streakType === 'W') {
+          result.push({ text: `UNSTOPPABLE! ${p.name} is on a ${streak}-Game WINNING Streak!`, type: 'win' });
+        } else {
+          result.push({ text: `IN CRISIS! ${p.name} suffers ${streak} consecutive losses.`, type: 'loss' });
+        }
       }
     });
 
     return result.slice(0, 3);
   }, [cfg.showStreaks, matches, players]);
+
+  useEffect(() => {
+    // Inject fonts needed for the themes if they don't exist
+    if (!document.getElementById('ticker-fonts')) {
+      const link = document.createElement("link");
+      link.id = "ticker-fonts";
+      link.rel = "stylesheet";
+      link.href = "https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600;700&display=swap";
+      document.head.appendChild(link);
+    }
+  }, []);
 
   if (!cfg.enabled && !previewMode) return null;
   const duration = speedToDuration(cfg.speed);
@@ -150,15 +186,14 @@ export default function SportsTicker({ matches = [], announcements = [], players
     recentCompleted = matches.filter(m => cfg.customMatchIds.includes(m.id));
   }
 
-  const recentAnnouncements = announcements.slice(0, 3);
   const items = [];
 
   // ── Breaking News ─────────────────────────────────────────────────────────
   if (cfg.breakingNews && cfg.breakingNews.trim()) {
     items.push(
-      <div key="breaking" className={`flex items-center shrink-0 ${sz.gap} ${sz.text} font-semibold`}>
-        <BreakingBadge sizeKey={sizeKey} />
-        <span className="text-red-200 font-bold">{cfg.breakingNews}</span>
+      <div key="breaking" className="flex items-center shrink-0 gap-3 font-semibold mx-4">
+        <BreakingBadge />
+        <span style={{ color: theme.team, fontFamily: theme.font }} className="font-bold tracking-wide text-sm">{cfg.breakingNews}</span>
       </div>
     );
   }
@@ -169,18 +204,14 @@ export default function SportsTicker({ matches = [], announcements = [], players
     const away = getPlayer(m.awayId);
     if (!home || !away) return;
     items.push(
-      <button
-        key={`live-${m.id}`}
+      <MatchChip 
+        key={`live-${m.id}`} 
+        match={m} home={home} away={away} 
+        theme={theme} isLive={true} 
         onClick={() => !previewMode && setSelectedMatchId(m.id)}
-        className={`flex items-center shrink-0 transition-opacity ${previewMode ? 'cursor-default pointer-events-none' : 'cursor-pointer hover:opacity-90'} ${sz.gap} ${sz.text} font-semibold ${ts.nameCls}`}
-      >
-        <LiveBadge theme={theme} sizeKey={sizeKey} />
-        {cfg.showAvatars && <Avatar p={home} size={sz.avatar} />}
-        <span>{home.name}</span>
-        <ScoreBadge home={m.homeScore} away={m.awayScore} isLive={true} theme={theme} />
-        <span>{away.name}</span>
-        {cfg.showAvatars && <Avatar p={away} size={sz.avatar} />}
-      </button>
+        showAvatars={cfg.showAvatars}
+        previewMode={previewMode}
+      />
     );
   });
 
@@ -190,29 +221,23 @@ export default function SportsTicker({ matches = [], announcements = [], players
     const away = getPlayer(m.awayId);
     if (!home || !away) return;
     items.push(
-      <button
-        key={`ft-${m.id}`}
+      <MatchChip 
+        key={`ft-${m.id}`} 
+        match={m} home={home} away={away} 
+        theme={theme} isLive={false} 
         onClick={() => !previewMode && setSelectedMatchId(m.id)}
-        className={`flex items-center shrink-0 transition-opacity ${previewMode ? 'cursor-default pointer-events-none' : 'cursor-pointer hover:opacity-90'} ${sz.gap} ${sz.text} font-semibold ${ts.nameCls} opacity-75`}
-      >
-        <FTBadge theme={theme} sizeKey={sizeKey} />
-        {cfg.showAvatars && <Avatar p={home} size={sz.avatar} />}
-        <span>{home.name}</span>
-        <ScoreBadge home={m.homeScore} away={m.awayScore} isLive={false} theme={theme} />
-        <span>{away.name}</span>
-        {cfg.showAvatars && <Avatar p={away} size={sz.avatar} />}
-      </button>
+        showAvatars={cfg.showAvatars}
+        previewMode={previewMode}
+      />
     );
   });
 
   // ── Announcements ─────────────────────────────────────────────────────────
-  recentAnnouncements.forEach(a => {
+  announcements.slice(0, 3).forEach(a => {
     items.push(
-      <div key={`ann-${a.id}`} className={`flex items-center shrink-0 ${sz.gap} ${sz.text} font-semibold`}>
-        <div className={`flex items-center gap-1 rounded-full font-bold uppercase tracking-wider shrink-0 ${sz.badge} ${ts.announceBadge}`}>
-          <Megaphone size={10} /> UPDATE
-        </div>
-        <span className={ts.nameCls}>{a.title}</span>
+      <div key={`ann-${a.id}`} className="flex items-center shrink-0 gap-3 font-semibold mx-4">
+        <ShinyBadge label="UPDATE" icon={Megaphone} style={{ background: "rgba(255,255,255,0.15)", color: "#fff", backdropFilter: "blur(4px)", border: "1px solid rgba(255,255,255,0.3)" }} />
+        <span style={{ color: theme.team, fontFamily: theme.font }} className="text-sm font-bold tracking-wide">{a.title}</span>
       </div>
     );
   });
@@ -220,9 +245,9 @@ export default function SportsTicker({ matches = [], announcements = [], players
   // ── Stats Ticker Items ────────────────────────────────────────────────────
   statsItems.forEach((text, i) => {
     items.push(
-      <div key={`stat-${i}`} className={`flex items-center shrink-0 ${sz.gap} ${sz.text} font-semibold`}>
-        <StatsBadge theme={theme} sizeKey={sizeKey} />
-        <span className={ts.nameCls}>{text}</span>
+      <div key={`stat-${i}`} className="flex items-center shrink-0 gap-3 font-semibold mx-4">
+        <StatsBadge />
+        <span style={{ color: theme.team, fontFamily: theme.font }} className="text-sm font-bold tracking-wide">{text}</span>
       </div>
     );
   });
@@ -230,20 +255,19 @@ export default function SportsTicker({ matches = [], announcements = [], players
   // ── Highlight Reel Items ──────────────────────────────────────────────────
   highlightItems.forEach((text, i) => {
     items.push(
-      <div key={`hl-${i}`} className={`flex items-center shrink-0 ${sz.gap} ${sz.text} font-semibold`}>
-        <HighlightBadge theme={theme} sizeKey={sizeKey} />
-        <span className={ts.nameCls}>{text}</span>
+      <div key={`hl-${i}`} className="flex items-center shrink-0 gap-3 font-semibold mx-4">
+        <HighlightBadge />
+        <span style={{ color: theme.team, fontFamily: theme.font }} className="text-sm font-bold tracking-wide">{text}</span>
       </div>
     );
   });
 
   // ── Player Streak Alerts ──────────────────────────────────────────────────
-
   streakItems.forEach((item, i) => {
     items.push(
-      <div key={`streak-${i}`} className={`flex items-center shrink-0 ${sz.gap} ${sz.text} font-semibold`}>
-        <StreakBadge type={item.type} sizeKey={sizeKey} />
-        <span className={ts.nameCls}>{item.text}</span>
+      <div key={`streak-${i}`} className="flex items-center shrink-0 gap-3 font-semibold mx-4">
+        <StreakBadge type={item.type} />
+        <span style={{ color: theme.team, fontFamily: theme.font }} className="text-sm font-bold tracking-wide">{item.text}</span>
       </div>
     );
   });
@@ -251,7 +275,7 @@ export default function SportsTicker({ matches = [], announcements = [], players
   // ── Empty state ───────────────────────────────────────────────────────────
   if (items.length === 0 && !previewMode) {
     return (
-      <div className={`w-full overflow-hidden flex items-center ${sz.container} select-none z-40 relative ${ts.bg}`} aria-live="polite">
+      <div className={`w-full overflow-hidden flex items-center h-16 select-none z-40 relative`} style={theme.wrap} aria-live="polite">
         <div className="w-1/3 h-4 bg-white/10 rounded-full ml-4 animate-pulse" />
       </div>
     );
@@ -271,53 +295,45 @@ export default function SportsTicker({ matches = [], announcements = [], players
 
   const pauseClass = (cfg.pauseOnHover && !previewMode) ? 'hover:[animation-play-state:paused] active:[animation-play-state:paused]' : '';
 
-  let containerClass = `w-full overflow-hidden flex items-center ${sz.container} select-none z-40 relative `;
-  containerClass += ts.bg;
-  if (previewMode) containerClass += ' rounded-lg border-x border-t';
-
   return (
     <>
       <style dangerouslySetInnerHTML={{__html: `
-        @keyframes custom-marquee {
-          from { transform: translateX(0); }
-          to { transform: translateX(-50%); }
+        @keyframes custom-marquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+        .animate-custom-marquee { animation: custom-marquee var(--duration, 55s) linear infinite; }
+        @media (prefers-reduced-motion: reduce) { .animate-custom-marquee { animation: none !important; } }
+        
+        .pulse-dot { width: 6px; height: 6px; border-radius: 999px; display: inline-block; animation: pulse 1.2s ease-in-out infinite; }
+        @keyframes pulse { 0%,100% { opacity: 1; transform: scale(1);} 50% { opacity: .35; transform: scale(0.7);} }
+
+        .shiny { position: relative; }
+        .shiny::after {
+          content: ''; position: absolute; top: 0; left: -150%; width: 55%; height: 100%;
+          background: linear-gradient(120deg, transparent, rgba(255,255,255,0.75), transparent);
+          transform: skewX(-20deg); animation: shine 2.6s ease-in-out infinite;
         }
-        .animate-custom-marquee {
-          animation: custom-marquee var(--duration, 55s) linear infinite;
-        }
-        @media (prefers-reduced-motion: reduce) {
-          .animate-custom-marquee {
-            animation: none !important;
-          }
-        }
-        @keyframes ticker-badge-shine {
-          0% { background-position: -200% center; }
-          100% { background-position: 200% center; }
-        }
-        .ticker-badge-shine {
-          position: relative;
-          overflow: hidden;
-        }
-        .ticker-badge-shine::after {
-          content: '';
-          position: absolute;
-          top: 0; left: -100%; width: 50%; height: 100%;
-          background: linear-gradient(90deg, transparent, rgba(255,255,255,0.25), transparent);
-          animation: ticker-shine-sweep 3s ease-in-out infinite;
-        }
-        @keyframes ticker-shine-sweep {
-          0% { left: -100%; }
-          50% { left: 150%; }
-          100% { left: 150%; }
-        }
+        @keyframes shine { 0% { left: -150%; } 55%,100% { left: 150%; } }
+        
+        .holo-bg { background: linear-gradient(120deg,#ff9be0,#9bd9ff,#c9ff9b,#ffe39b,#ff9be0); background-size: 300% 300%; animation: holoshift 8s ease infinite; }
+        .foil-bg { background: linear-gradient(120deg,#0a3d24,#39ff9c,#0a3d24,#0a5c34); background-size: 300% 300%; animation: holoshift 7s ease infinite; }
+        .aurora-bg { background: linear-gradient(120deg,#0b1f3a,#1fc2c2,#5b2a86,#0b1f3a); background-size: 300% 300%; animation: holoshift 9s ease infinite; }
+        .auroraSilk-bg { background: linear-gradient(120deg,#3b1f4d,#f14fc4,#5b2a86,#3b1f4d); background-size: 300% 300%; animation: holoshift 9s ease infinite; }
+        .mercury-bg { background: linear-gradient(120deg,#e0e0e0,#ffffff,#a0a0a5,#e0e0e0); background-size: 300% 300%; animation: holoshift 4s ease infinite; }
+        .silk-bg { background: linear-gradient(120deg,#7a1030,#b31942,#7a1030); background-size: 200% 200%; animation: holoshift 10s ease infinite; }
+        @keyframes holoshift { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
       `}} />
-      <div className={containerClass} aria-live="polite" role="marquee">
-        <div className={`absolute left-0 top-0 bottom-0 w-8 sm:w-16 bg-gradient-to-r ${ts.gradient} to-transparent z-10 pointer-events-none`} />
-        <div className={`absolute right-0 top-0 bottom-0 w-8 sm:w-16 bg-gradient-to-l ${ts.gradient} to-transparent z-10 pointer-events-none`} />
+      <div 
+        className={`w-full overflow-hidden flex items-center select-none z-40 relative py-1 ${theme.extraClass || ''} ${previewMode ? 'rounded-lg border-x border-t' : ''}`} 
+        style={{ ...theme.wrap, borderRadius: previewMode ? '8px 8px 0 0' : theme.wrap.borderRadius }} 
+        aria-live="polite" 
+        role="marquee"
+      >
+        {/* Gradients on edges for smooth scrolling fade out. Hard to pick colors dynamically, so a dark fade is safe */}
+        <div className={`absolute left-0 top-0 bottom-0 w-8 sm:w-16 bg-gradient-to-r ${theme.page === 'light' ? 'from-white/70' : 'from-black/70'} to-transparent z-10 pointer-events-none`} />
+        <div className={`absolute right-0 top-0 bottom-0 w-8 sm:w-16 bg-gradient-to-l ${theme.page === 'light' ? 'from-white/70' : 'from-black/70'} to-transparent z-10 pointer-events-none`} />
         
         {/* Pause Overlay for Preview */}
         {previewMode && cfg.pauseOnHover && (
-          <div className="absolute inset-0 z-20 flex items-center justify-center bg-black/50 opacity-0 hover:opacity-100 transition-opacity pointer-events-auto cursor-help backdrop-blur-[1px]">
+          <div className="absolute inset-0 z-20 flex items-center justify-center bg-black/50 opacity-0 hover:opacity-100 transition-opacity pointer-events-auto cursor-help backdrop-blur-[1px]" style={{ borderRadius: theme.wrap.borderRadius }}>
             <span className="text-xs font-bold text-white uppercase tracking-widest flex items-center gap-2">
               <span className="w-2 h-4 border-l-2 border-r-2 border-white block" /> Pause on Hover Active
             </span>
