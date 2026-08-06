@@ -619,6 +619,8 @@ function Published({ state, stats, resultType, shootoutWinner, onClose }) {
 let scoreTimeoutId = null;
 
 export default function LiveMatchControl({ matches, players, activeSeason, showToast }) {
+  if (!activeSeason) return null;
+
   const [phase, setPhase] = useState("live");
   const [etHalf, setEtHalf] = useState(1);
   const [kicks, setKicks] = useState([]);

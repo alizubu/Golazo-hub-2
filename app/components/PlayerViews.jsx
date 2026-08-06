@@ -542,6 +542,7 @@ export function PlayerDashboard({ me, activeSeason, seasons = [], matches, playe
         ))}
 
         {/* Remaining Dashboard Widgets */}
+        <FadeIn delay={0.35} className="col-span-12 md:col-span-7 h-full">
           <MagicCard className="p-4 sm:p-6 flex flex-col h-full bg-card/50 backdrop-blur min-h-[300px]">
             <div className="flex items-center justify-between mb-4">
               <SectionTitle icon={ListOrdered}>Current Standings</SectionTitle>
