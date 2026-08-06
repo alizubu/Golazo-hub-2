@@ -1510,7 +1510,8 @@ export function AdminSeason({ activeSeason, matches = [], players = [], showToas
              </div>
              
              <div className="overflow-x-auto">
-               <table className="w-full text-sm text-left">
+               {/* Desktop Table View */}
+               <table className="w-full text-sm text-left hidden md:table">
                  <thead className="text-[11px] uppercase tracking-wider bg-secondary/50 text-muted-foreground">
                    <tr>
                      <th className="px-4 py-3 rounded-tl-lg w-10 text-center">Rank</th>
@@ -1547,6 +1548,42 @@ export function AdminSeason({ activeSeason, matches = [], players = [], showToas
                    )}
                  </tbody>
                </table>
+               
+               {/* Mobile Card View */}
+               <div className="flex flex-col gap-3 md:hidden">
+                 {standings.map((row, idx) => (
+                   <div key={row.id} className={`flex flex-col gap-2 p-3 rounded-xl border border-border/30 bg-secondary/20 relative ${idx === 3 ? 'border-b-2 border-b-success/50' : ''}`}>
+                     <div className="flex items-center justify-between">
+                       <div className="flex items-center gap-3">
+                         <span className="text-xl shrink-0 text-center w-6">
+                           {idx === 0 ? "🥇" : idx === 1 ? "🥈" : idx === 2 ? "🥉" : <span className="text-sm font-bold text-muted-foreground">{idx + 1}</span>}
+                         </span>
+                         <span className="font-bold text-base truncate max-w-[150px]">{row.name} {row.flag}</span>
+                       </div>
+                       <div className="flex items-center gap-2">
+                         <span className="text-[10px] font-bold uppercase text-muted-foreground">Pts</span>
+                         <span className="text-xl font-score font-black text-primary">{row.pts}</span>
+                       </div>
+                     </div>
+                     <div className="flex items-center justify-between px-2 pt-2 border-t border-border/20 mt-1">
+                       <div className="flex items-center gap-4 text-xs font-score text-muted-foreground">
+                         <span title="Played">P: {row.p}</span>
+                         <span title="Wins">W: {row.w}</span>
+                         <span title="Draws">D: {row.d}</span>
+                         <span title="Losses">L: {row.l}</span>
+                       </div>
+                       <div className="text-xs font-score font-bold">
+                         GD: <span className={row.gd > 0 ? "text-green-500" : row.gd < 0 ? "text-red-500" : ""}>{row.gd > 0 ? `+${row.gd}` : row.gd}</span>
+                       </div>
+                     </div>
+                   </div>
+                 ))}
+                 {standings.length === 0 && (
+                   <div className="py-8 text-center text-sm text-muted-foreground border border-dashed border-border/40 rounded-xl">
+                     No matches played yet
+                   </div>
+                 )}
+               </div>
              </div>
            </Card>
 

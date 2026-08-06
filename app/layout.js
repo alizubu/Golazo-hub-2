@@ -37,6 +37,9 @@ export const metadata = {
 
 export const viewport = {
   themeColor: '#09090b',
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 1,
 };
 
 import AppThemeProvider from '@/pwa/components/AppThemeProvider';

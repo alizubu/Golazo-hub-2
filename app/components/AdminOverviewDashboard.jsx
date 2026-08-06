@@ -107,7 +107,7 @@ function AdminMetrics({ matches, activeSeason, notifications = [], setTab }) {
   return (
     <Card className="p-6">
       <SectionTitle icon={Activity}>System Overview</SectionTitle>
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mt-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-4">
         {metrics.map((m, i) => (
           <FadeIn key={m.label} delay={i * 0.05}>
             <div 
@@ -404,7 +404,7 @@ function TopPlayersHorizontal({ matches, players, activeSeason }) {
   return (
     <Card className="p-6">
       <SectionTitle icon={Flame}>Top Players</SectionTitle>
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mt-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mt-6">
         {categories.map((cat, i) => (
           <FadeIn key={cat.label} delay={i * 0.1}>
             <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4 p-3.5 sm:p-4 bg-secondary/30 rounded-xl border border-border/50 h-full group hover:bg-secondary/50 transition-colors">

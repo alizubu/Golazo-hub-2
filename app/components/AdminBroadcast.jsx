@@ -430,8 +430,8 @@ export default function AdminBroadcast({ matches = [], players = [], announcemen
       </FadeIn>
 
       {/* ── Save Button ─────────────────────────────────────────────────────── */}
-      <div className="flex justify-end pt-2 pb-4">
-        <ShinyButton className="w-full sm:w-auto" onClick={handleSave} loading={saving} disabled={saving}>
+      <div className="sticky bottom-0 -mx-4 md:mx-0 p-4 md:p-0 md:pt-2 md:pb-4 bg-background/90 backdrop-blur-md md:bg-transparent border-t border-border/50 md:border-t-0 z-40 flex justify-end mt-4">
+        <ShinyButton className="w-full sm:w-auto shadow-lg md:shadow-none" onClick={handleSave} loading={saving} disabled={saving}>
           💾 Save Broadcast Settings
         </ShinyButton>
       </div>
