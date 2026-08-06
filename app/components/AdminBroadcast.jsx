@@ -185,7 +185,7 @@ export default function AdminBroadcast({ matches = [], players = [], announcemen
   }
 
   return (
-    <div className="flex flex-col gap-6">
+    <div className="space-y-6">
       {/* ── Header ──────────────────────────────────────────────────────────── */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
         <div className="flex items-center gap-3">
@@ -208,7 +208,7 @@ export default function AdminBroadcast({ matches = [], players = [], announcemen
       </div>
 
       {/* ── On-Air Preview (Sticky) ─────────────────────────────────────────── */}
-      <div className="sticky top-4 z-50">
+      <div className="sticky top-0 sm:top-4 z-50 -mx-4 px-4 sm:mx-0 sm:px-0">
         <Card className="p-4 sm:p-5 bg-zinc-950/80 border-white/10 shadow-2xl">
           <div className="flex items-center justify-between mb-3">
             <Label className="text-pitch-bright font-bold uppercase tracking-widest text-[10px]">On-Air Preview</Label>

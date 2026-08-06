@@ -100,7 +100,7 @@ export default function AppShell({
   // ══════════════════════════════════════════════════════════════
   if (session?.type === 'admin') {
     return (
-      <div className="flex min-h-screen bg-background">
+      <div className="flex h-[100dvh] bg-background">
         {/* Persistent sidebar — handles desktop rail/full + mobile drawer */}
         <AdminSidebar
           currentTab={currentTab}
@@ -112,7 +112,7 @@ export default function AppShell({
         />
 
         {/* Main content area — offset by sidebar width */}
-        <div className={`flex-1 flex flex-col min-h-screen min-w-0 transition-all duration-300 ${isSidebarExpanded ? 'md:ml-[260px]' : 'md:ml-16'}`}>
+        <div className={`flex-1 flex flex-col h-[100dvh] min-w-0 transition-all duration-300 ${isSidebarExpanded ? 'md:ml-[260px]' : 'md:ml-16'}`}>
           {/* Sticky top bar with hamburger (mobile), section title, season chip */}
           <AdminTopBar
             currentTab={currentTab}
