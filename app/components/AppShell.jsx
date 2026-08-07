@@ -27,7 +27,8 @@ export default function AppShell({
   activeCelebrations = [],
   managerPermissions = null
 }) {
-  const { showToast } = useAppContext();
+  const { showToast, matches: contextMatches } = useAppContext();
+  const currentMatches = contextMatches && contextMatches.length > 0 ? contextMatches : matches;
   const [tickerConfig, setTickerConfig] = useState(null);
   
   // Resolve default tab based on session
@@ -93,8 +94,8 @@ export default function AppShell({
   };
 
   const activeSeason = seasons?.find((t) => !t.isArchived) || null;
-  const adminProps = { players, activeSeason, matches, announcements, notifications, trophies, seasons, history, showToast, setTab, session, managerPermissions };
-  const playerProps = { me, players, activeSeason, matches, announcements, notifications, trophies, seasons, history, setTab, tab: currentTab };
+  const adminProps = { players, activeSeason, matches: currentMatches, announcements, notifications, trophies, seasons, history, showToast, setTab, session, managerPermissions };
+  const playerProps = { me, players, activeSeason, matches: currentMatches, announcements, notifications, trophies, seasons, history, setTab, tab: currentTab };
 
   // ══════════════════════════════════════════════════════════════
   // ADMIN SESSION — Command Center layout with persistent sidebar
