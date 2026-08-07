@@ -5,7 +5,6 @@ import FloatingNav from '@/app/components/FloatingNav';
 import ErrorBoundary from '@/app/components/ErrorBoundary';
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
-import PullToRefresh from '@/pwa/components/PullToRefresh';
 import PageTransition from '@/pwa/components/PageTransition';
 
 import { AppProvider } from '@/app/components/AppContextProvider';
@@ -65,11 +64,9 @@ export default async function AppLayout({ children }) {
           matches={matches} 
         />
         <ErrorBoundary>
-          <PullToRefresh>
-            <PageTransition>
-              {children}
-            </PageTransition>
-          </PullToRefresh>
+          <PageTransition>
+            {children}
+          </PageTransition>
         </ErrorBoundary>
       </div>
     </AppProvider>
