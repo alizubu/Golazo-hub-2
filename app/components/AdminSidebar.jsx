@@ -56,7 +56,7 @@ function NavItem({ item, active, hasLive, onClick, isMobile = false, isExpanded 
       )}
 
       {/* Icon */}
-      <div className={`relative z-10 flex-shrink-0 transition-all duration-300 ${active ? 'text-pitch-bright scale-110' : 'text-muted-foreground group-hover:text-white group-hover:scale-110'}`}>
+      <div className={`relative z-10 flex-shrink-0 transition-all duration-300 ${active ? 'text-pitch-bright scale-110' : 'text-muted-foreground group-hover:text-foreground group-hover:scale-110'}`}>
         <Icon
           size={18}
           style={active ? { filter: 'drop-shadow(0 0 8px rgba(41,193,121,0.4))' } : undefined}
@@ -64,7 +64,7 @@ function NavItem({ item, active, hasLive, onClick, isMobile = false, isExpanded 
       </div>
 
       {/* Label */}
-      <span className={`relative z-10 flex-1 truncate transition-all duration-300 text-left text-[13px] ${showText ? 'block opacity-100' : 'hidden opacity-0'} ${active ? 'text-white font-bold tracking-wide' : 'text-muted-foreground group-hover:text-white font-semibold'}`}>
+      <span className={`relative z-10 flex-1 truncate transition-all duration-300 text-left text-[13px] ${showText ? 'block opacity-100' : 'hidden opacity-0'} ${active ? 'text-foreground font-bold tracking-wide' : 'text-muted-foreground group-hover:text-foreground font-semibold'}`}>
         {item.label}
       </span>
 
@@ -92,11 +92,11 @@ function SidebarFooter({ activeSeason, onNavigate, onLogout, isLoggingOut, isMob
       
       {/* Season chip */}
       {activeSeason && (
-        <div className={`items-center gap-3 px-4 py-3 rounded-xl bg-white/[0.03] border border-white/5 mb-3 transition-colors hover:bg-white/[0.05] ${showText ? 'flex' : 'hidden'}`}>
+        <div className={`items-center gap-3 px-4 py-3 rounded-xl bg-white/[0.03] border border-border/50 mb-3 transition-colors hover:bg-white/[0.05] ${showText ? 'flex' : 'hidden'}`}>
           <div className="w-1.5 h-1.5 bg-pitch-bright rounded-full animate-pulse shadow-[0_0_8px_rgba(41,193,121,0.6)]" />
           <div className="flex flex-col min-w-0">
             <span className="text-[9px] font-bold uppercase tracking-[0.15em] text-muted-foreground">Active Season</span>
-            <span className="text-xs font-bold text-white/90 truncate">{activeSeason.name}</span>
+            <span className="text-xs font-bold text-foreground/90 truncate">{activeSeason.name}</span>
           </div>
         </div>
       )}
@@ -107,7 +107,7 @@ function SidebarFooter({ activeSeason, onNavigate, onLogout, isLoggingOut, isMob
         title={!showText ? 'Settings' : undefined}
         className={`
           relative w-full flex items-center py-2.5 text-[13px] font-semibold rounded-lg
-          text-muted-foreground hover:text-white hover:bg-white/[0.04] transition-colors outline-none
+          text-muted-foreground hover:text-foreground hover:bg-white/[0.04] transition-colors outline-none
           ${showText ? 'justify-start gap-3 px-4' : 'justify-center px-0'}
         `}
       >
@@ -190,7 +190,7 @@ export default function AdminSidebar({ currentTab, setTab, activeSeason, matches
         {onToggleExpand && (
           <button
             onClick={onToggleExpand}
-            className="absolute -right-3.5 top-[18px] z-50 w-7 h-7 flex items-center justify-center bg-[#151921] border border-white/10 text-muted-foreground hover:text-white rounded-full shadow-lg transition-transform hover:scale-105"
+            className="absolute -right-3.5 top-[18px] z-50 w-7 h-7 flex items-center justify-center bg-[#151921] border border-border text-muted-foreground hover:text-foreground rounded-full shadow-lg transition-transform hover:scale-105"
             aria-label={isExpanded ? "Collapse sidebar" : "Expand sidebar"}
           >
             {isExpanded ? <ChevronLeft size={14} /> : <ChevronRight size={14} />}
@@ -209,7 +209,7 @@ export default function AdminSidebar({ currentTab, setTab, activeSeason, matches
              <Trophy size={16} className="text-[#D9A93B]" />
           </div>
           <div className={`min-w-0 transition-opacity duration-200 ${isExpanded ? 'opacity-100 block' : 'opacity-0 hidden'}`}>
-            <div className="font-heading text-sm font-black tracking-widest text-white/95 truncate">GOLAZO HUB</div>
+            <div className="font-heading text-sm font-black tracking-widest text-foreground/95 truncate">GOLAZO HUB</div>
             <div className="flex items-center gap-1.5 mt-0.5">
               <ShieldAlert size={10} className="text-[#D9A93B]" />
               <div className="text-[9px] font-bold uppercase tracking-[0.2em] truncate" style={{ color: '#D9A93B', opacity: 0.8 }}>
@@ -272,7 +272,7 @@ export default function AdminSidebar({ currentTab, setTab, activeSeason, matches
 
               <button
                 onClick={() => setMobileOpen(false)}
-                className="absolute top-4 right-4 z-20 w-8 h-8 flex items-center justify-center rounded-full bg-white/5 border border-white/10 text-white hover:bg-white/10 transition-colors"
+                className="absolute top-4 right-4 z-20 w-8 h-8 flex items-center justify-center rounded-full bg-white/5 border border-border text-foreground hover:bg-white/10 transition-colors"
                 aria-label="Close navigation"
               >
                 <X size={14} />
@@ -284,7 +284,7 @@ export default function AdminSidebar({ currentTab, setTab, activeSeason, matches
                    <Trophy size={16} className="text-[#D9A93B]" />
                 </div>
                 <div>
-                  <div className="font-heading text-sm font-black tracking-widest text-white/95">GOLAZO HUB</div>
+                  <div className="font-heading text-sm font-black tracking-widest text-foreground/95">GOLAZO HUB</div>
                   <div className="flex items-center gap-1.5 mt-0.5">
                     <ShieldAlert size={10} className="text-[#D9A93B]" />
                     <div className="text-[9px] font-bold uppercase tracking-[0.2em]" style={{ color: '#D9A93B', opacity: 0.8 }}>

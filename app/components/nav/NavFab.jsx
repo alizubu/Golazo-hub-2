@@ -50,7 +50,7 @@ export const NavFab = ({ item, active, onClick }) => {
           <Icon 
             size={28} 
             strokeWidth={active ? 2.5 : 2} 
-            className={`transition-all duration-300 ${active ? 'text-white' : 'text-zinc-400 group-hover:text-zinc-200'}`}
+            className={`transition-all duration-300 ${active ? 'text-foreground' : 'text-zinc-400 group-hover:text-zinc-200'}`}
             fill={active ? "currentColor" : "none"}
           />
         </div>

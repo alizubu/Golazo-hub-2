@@ -148,7 +148,7 @@ export function AdminPlayers({ players, showToast }) {
             <div className="p-3.5 sm:p-4 md:p-5 md:bg-secondary/20 md:border md:border-border/50 md:rounded-xl flex items-center gap-3 md:gap-4 transition-colors active:bg-secondary/40 md:hover:bg-secondary/40 h-full group">
               <Avatar p={p} size={44} className="shrink-0 ring-1 ring-border/50 shadow-sm" />
               <div className="flex-1 min-w-0 flex flex-col justify-center">
-                <div className="font-bold text-[15px] text-white truncate leading-snug">{toTitleCase(p.name)}</div>
+                <div className="font-bold text-[15px] text-foreground truncate leading-snug">{toTitleCase(p.name)}</div>
                 <div className="text-[11px] text-muted-foreground truncate leading-relaxed">
                   {p.teamName ? `${p.teamLogo || ''} ${p.teamName} · ` : ''}@{p.username}
                 </div>
@@ -156,7 +156,7 @@ export function AdminPlayers({ players, showToast }) {
               
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <button className="p-2 -mr-2 text-muted-foreground hover:text-white md:opacity-0 group-hover:opacity-100 hover:bg-white/10 rounded-full transition-all active:bg-white/20 active:scale-95 outline-none">
+                  <button className="p-2 -mr-2 text-muted-foreground hover:text-foreground md:opacity-0 group-hover:opacity-100 hover:bg-white/10 rounded-full transition-all active:bg-white/20 active:scale-95 outline-none">
                     <MoreVertical size={18} />
                   </button>
                 </DropdownMenuTrigger>
@@ -433,7 +433,7 @@ function CompletedMatchCard({ m, h, a, players, showToast, isPlayoff = false }) 
             </div>
 
             <div className="flex items-center justify-center px-1 sm:px-2">
-              <div className={`w-16 sm:w-24 h-7 sm:h-9 bg-black/40 border ${m.status === 'live' ? 'border-red-500/50' : 'border-border/50'} rounded-md sm:rounded-lg flex items-center justify-center gap-1 sm:gap-2`}>
+              <div className={`w-16 sm:w-24 h-7 sm:h-9 bg-card/40 border ${m.status === 'live' ? 'border-red-500/50' : 'border-border/50'} rounded-md sm:rounded-lg flex items-center justify-center gap-1 sm:gap-2`}>
                 <span className={`font-score text-sm sm:text-base ${hWon ? 'text-pitch-bright font-black drop-shadow-md' : 'text-muted-foreground font-semibold'}`}>{hScore}</span>
                 <span className="text-muted-foreground/30 font-score text-xs sm:text-sm">-</span>
                 <span className={`font-score text-sm sm:text-base ${aWon ? 'text-pitch-bright font-black drop-shadow-md' : 'text-muted-foreground font-semibold'}`}>{aScore}</span>
@@ -505,7 +505,7 @@ function CompletedMatchCard({ m, h, a, players, showToast, isPlayoff = false }) 
                 const valA = statsForm[def.key]?.a ?? 0;
                 const valB = statsForm[def.key]?.b ?? 0;
                 return (
-                  <div key={def.key} className="flex flex-col border-b border-white/5 pb-2">
+                  <div key={def.key} className="flex flex-col border-b border-border/50 pb-2">
                     <div className="text-center text-[10px] tracking-[0.2em] text-muted-foreground font-bold uppercase mb-2">
                       {def.label}
                     </div>
@@ -612,13 +612,13 @@ function TrophyIconPicker({ value, onChange }) {
       <div className="flex gap-2">
         <button
           onClick={() => setMode('png')}
-          className={`px-3 py-1 rounded-full text-xs font-semibold transition-colors ${mode === 'png' ? 'bg-pitch text-white' : 'bg-secondary text-muted-foreground hover:text-foreground'}`}
+          className={`px-3 py-1 rounded-full text-xs font-semibold transition-colors ${mode === 'png' ? 'bg-pitch text-foreground' : 'bg-secondary text-muted-foreground hover:text-foreground'}`}
         >
           Trophy PNGs
         </button>
         <button
           onClick={() => setMode('custom')}
-          className={`px-3 py-1 rounded-full text-xs font-semibold transition-colors ${mode === 'custom' ? 'bg-pitch text-white' : 'bg-secondary text-muted-foreground hover:text-foreground'}`}
+          className={`px-3 py-1 rounded-full text-xs font-semibold transition-colors ${mode === 'custom' ? 'bg-pitch text-foreground' : 'bg-secondary text-muted-foreground hover:text-foreground'}`}
         >
           Custom Emoji/URL
         </button>
@@ -640,7 +640,7 @@ function TrophyIconPicker({ value, onChange }) {
               <span className="text-[9px] text-muted-foreground mt-1 text-center leading-tight">{t.name}</span>
               {value === t.icon && (
                 <div className="absolute -top-1.5 -right-1.5 w-4 h-4 bg-pitch-bright rounded-full flex items-center justify-center">
-                  <Check size={9} className="text-white" strokeWidth={3} />
+                  <Check size={9} className="text-foreground" strokeWidth={3} />
                 </div>
               )}
             </button>
@@ -726,13 +726,13 @@ function TrophyTradingCard({ trophy, onEdit, onRevoke, hideActions }) {
         )}
       </div>
 
-      <div className="p-3 bg-black/40 backdrop-blur-sm border-t border-white/[0.05] flex items-center justify-between relative z-20 mt-auto">
+      <div className="p-3 bg-card/40 backdrop-blur-sm border-t border-white/[0.05] flex items-center justify-between relative z-20 mt-auto">
         <div className="flex flex-col">
           <span className="text-[9px] uppercase tracking-widest text-muted-foreground font-semibold">Awarded</span>
-          <span className="text-xs font-score text-white/80">{trophy.season}</span>
+          <span className="text-xs font-score text-foreground/80">{trophy.season}</span>
         </div>
         {trophy.player && (
-          <div className="flex items-center gap-1.5 bg-white/5 rounded-full pl-1.5 pr-2.5 py-1 border border-white/10 shadow-sm">
+          <div className="flex items-center gap-1.5 bg-white/5 rounded-full pl-1.5 pr-2.5 py-1 border border-border shadow-sm">
             <Avatar p={trophy.player} size={16} />
             <span className="text-[10px] font-bold truncate max-w-[70px]">{trophy.player.name}</span>
           </div>
@@ -742,7 +742,7 @@ function TrophyTradingCard({ trophy, onEdit, onRevoke, hideActions }) {
       {/* Overlay Actions */}
       {!hideActions && (
         <div className="absolute inset-0 bg-black/70 backdrop-blur-md opacity-0 group-hover:opacity-100 transition-all duration-300 flex flex-col items-center justify-center gap-3 z-30 pointer-events-none group-hover:pointer-events-auto translate-y-4 group-hover:translate-y-0">
-          <Btn variant="outline" className="w-32 bg-white/10 hover:bg-white/20 border-white/20 text-white rounded-xl gap-2 shadow-lg h-9 text-xs" onClick={(e) => { e.stopPropagation(); onEdit(trophy); }}>
+          <Btn variant="outline" className="w-32 bg-white/10 hover:bg-white/20 border-white/20 text-foreground rounded-xl gap-2 shadow-lg h-9 text-xs" onClick={(e) => { e.stopPropagation(); onEdit(trophy); }}>
             <Edit2 size={12} /> Edit Award
           </Btn>
           <Btn variant="danger" className="w-32 rounded-xl gap-2 shadow-lg border border-red-500/50 h-9 text-xs" onClick={(e) => { e.stopPropagation(); onRevoke(trophy); }}>
@@ -934,7 +934,7 @@ export function AdminTrophies({ players, trophies = [], seasons, showToast }) {
         </TabsList>
 
         <TabsContent value="award" className="space-y-6">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 relative bg-zinc-950 p-6 rounded-3xl border border-white/5 shadow-2xl">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 relative bg-background p-6 rounded-3xl border border-border/50 shadow-2xl">
             {/* Form Section */}
             <div className="lg:col-span-7 flex flex-col gap-6">
               <div className="flex items-center gap-3 mb-2">
@@ -942,7 +942,7 @@ export function AdminTrophies({ players, trophies = [], seasons, showToast }) {
                   <Trophy size={20} className="text-amber-500" />
                 </div>
                 <div>
-                  <h2 className="text-xl font-black uppercase tracking-wider text-white">Mint Trophy</h2>
+                  <h2 className="text-xl font-black uppercase tracking-wider text-foreground">Mint Trophy</h2>
                   <p className="text-xs text-zinc-400 font-medium">Create and issue permanent awards to players.</p>
                 </div>
               </div>
@@ -954,7 +954,7 @@ export function AdminTrophies({ players, trophies = [], seasons, showToast }) {
                     <button
                       key={a.id}
                       onClick={() => applyTemplate(a)}
-                      className="flex items-center gap-2 px-3 py-2 rounded-lg bg-white/5 border border-white/10 hover:border-amber-500/50 hover:bg-amber-500/10 transition-all group"
+                      className="flex items-center gap-2 px-3 py-2 rounded-lg bg-white/5 border border-border hover:border-amber-500/50 hover:bg-amber-500/10 transition-all group"
                     >
                       <span className="w-6 h-6 flex items-center justify-center group-hover:scale-110 transition-transform">
                         {a.icon && (a.icon.startsWith('/') || a.icon.startsWith('http')) ? (
@@ -976,11 +976,11 @@ export function AdminTrophies({ players, trophies = [], seasons, showToast }) {
                 </div>
                 <div>
                   <Label className="text-zinc-400 text-xs uppercase tracking-wider mb-2 block">Title</Label>
-                  <Input value={form.title} onChange={e => setForm({...form, title: e.target.value})} className="bg-black/50 border-white/10 text-white font-bold" placeholder="e.g. Golden Boot" />
+                  <Input value={form.title} onChange={e => setForm({...form, title: e.target.value})} className="bg-black/50 border-border text-foreground font-bold" placeholder="e.g. Golden Boot" />
                 </div>
                 <div>
                   <Label className="text-zinc-400 text-xs uppercase tracking-wider mb-2 block">Season</Label>
-                  <Input value={form.season} onChange={e => setForm({...form, season: e.target.value})} className="bg-black/50 border-white/10 text-white font-bold" placeholder="e.g. Season 1" />
+                  <Input value={form.season} onChange={e => setForm({...form, season: e.target.value})} className="bg-black/50 border-border text-foreground font-bold" placeholder="e.g. Season 1" />
                 </div>
                 <div className="md:col-span-2">
                   <Label className="text-zinc-400 text-xs uppercase tracking-wider mb-2 block">Icon Emoji / URL</Label>
@@ -988,7 +988,7 @@ export function AdminTrophies({ players, trophies = [], seasons, showToast }) {
                 </div>
                 <div className="md:col-span-2">
                   <Label className="text-zinc-400 text-xs uppercase tracking-wider mb-2 block">Description</Label>
-                  <Input value={form.description} onChange={e => setForm({...form, description: e.target.value})} className="bg-black/50 border-white/10 text-white" placeholder="e.g. Top goalscorer with 25 goals." />
+                  <Input value={form.description} onChange={e => setForm({...form, description: e.target.value})} className="bg-black/50 border-border text-foreground" placeholder="e.g. Top goalscorer with 25 goals." />
                 </div>
               </div>
 
@@ -1087,8 +1087,8 @@ export function AdminTrophies({ players, trophies = [], seasons, showToast }) {
         </TabsContent>
 
         <TabsContent value="celebrations" className="space-y-6">
-          <Card className="p-6 overflow-hidden bg-zinc-950 border-red-500/20 shadow-[0_4px_30px_rgba(0,0,0,0.5)]">
-            <div className="flex items-center justify-between mb-6 pb-4 border-b border-white/10">
+          <Card className="p-6 overflow-hidden bg-background border-red-500/20 shadow-[0_4px_30px_rgba(0,0,0,0.5)]">
+            <div className="flex items-center justify-between mb-6 pb-4 border-b border-border">
               <SectionTitle icon={Megaphone}>Live Broadcasts</SectionTitle>
               <div className="flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold bg-red-500/10 text-red-400 border border-red-500/30 shadow-[0_0_10px_rgba(239,68,68,0.2)]">
                 <div className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse" />
@@ -1101,7 +1101,7 @@ export function AdminTrophies({ players, trophies = [], seasons, showToast }) {
             </p>
 
             {celebrations.length === 0 ? (
-              <div className="flex flex-col items-center justify-center py-12 border border-dashed border-white/10 rounded-2xl bg-white/5">
+              <div className="flex flex-col items-center justify-center py-12 border border-dashed border-border rounded-2xl bg-white/5">
                 <span className="text-4xl mb-3 opacity-50">📡</span>
                 <p className="text-zinc-500 font-medium">No active broadcasts.</p>
               </div>
@@ -1122,17 +1122,17 @@ export function AdminTrophies({ players, trophies = [], seasons, showToast }) {
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: i * 0.05 }}
                       className={`relative p-5 rounded-2xl border transition-all ${
-                        isActive ? 'bg-black border-red-500/40 shadow-[0_0_20px_rgba(239,68,68,0.15)]' : 'bg-white/5 border-white/10 opacity-60'
+                        isActive ? 'bg-black border-red-500/40 shadow-[0_0_20px_rgba(239,68,68,0.15)]' : 'bg-white/5 border-border opacity-60'
                       }`}
                     >
                       {isActive && (
-                        <div className="absolute top-0 right-0 px-3 py-1 bg-red-500 text-white text-[9px] font-black tracking-widest rounded-bl-xl rounded-tr-xl">
+                        <div className="absolute top-0 right-0 px-3 py-1 bg-red-500 text-foreground text-[9px] font-black tracking-widest rounded-bl-xl rounded-tr-xl">
                           LIVE
                         </div>
                       )}
                       
                       <div className="flex items-center gap-3 mb-4">
-                        <div className="w-12 h-12 rounded-xl bg-white/5 flex items-center justify-center text-2xl border border-white/10">
+                        <div className="w-12 h-12 rounded-xl bg-white/5 flex items-center justify-center text-2xl border border-border">
                           {c.trophy.icon && (c.trophy.icon.startsWith('/') || c.trophy.icon.startsWith('http')) ? (
                             <img src={c.trophy.icon} className="w-8 h-8 object-contain" alt="" />
                           ) : (
@@ -1140,7 +1140,7 @@ export function AdminTrophies({ players, trophies = [], seasons, showToast }) {
                           )}
                         </div>
                         <div>
-                          <h4 className="font-bold text-white text-sm leading-tight">{c.trophy.title}</h4>
+                          <h4 className="font-bold text-foreground text-sm leading-tight">{c.trophy.title}</h4>
                           <div className="flex items-center gap-1.5 mt-1">
                             <Avatar p={c.trophy.player} size={14} />
                             <span className="text-xs text-zinc-400 font-medium">{c.trophy.player.name}</span>
@@ -1148,7 +1148,7 @@ export function AdminTrophies({ players, trophies = [], seasons, showToast }) {
                         </div>
                       </div>
 
-                      <div className="flex flex-col xs:flex-row items-start xs:items-center justify-between gap-3 mt-6 pt-4 border-t border-white/10">
+                      <div className="flex flex-col xs:flex-row items-start xs:items-center justify-between gap-3 mt-6 pt-4 border-t border-border">
                         {isActive ? (
                           <div className="flex flex-col">
                             <span className="text-[9px] font-bold text-zinc-500 uppercase tracking-wider mb-1">Time Remaining</span>
@@ -1207,7 +1207,7 @@ const SegmentBtn = ({ value, label, icon, current, onChange }) => (
     className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-semibold transition-all ${
       current === value
         ? 'bg-amber-500 text-black shadow-sm scale-95'
-        : 'text-zinc-400 hover:text-white hover:bg-white/5'
+        : 'text-zinc-400 hover:text-foreground hover:bg-white/5'
     }`}
   >
     <span>{icon}</span>

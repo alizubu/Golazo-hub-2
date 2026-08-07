@@ -576,7 +576,7 @@ export function PlayerDashboard({ me, activeSeason, seasons = [], matches, playe
                               {s.form.slice(-3).map((resObj, idx) => {
                                 const res = typeof resObj === 'object' && resObj !== null ? resObj.result : resObj;
                                 return (
-                                  <span key={idx} className={`w-3 h-3 rounded-full flex items-center justify-center text-[7px] font-bold text-white
+                                  <span key={idx} className={`w-3 h-3 rounded-full flex items-center justify-center text-[7px] font-bold text-foreground
                                     ${res === 'W' ? 'bg-emerald-500' : res === 'D' ? 'bg-slate-400' : 'bg-red-500'}
                                   `}>
                                     {res}
@@ -611,7 +611,7 @@ export function PlayerDashboard({ me, activeSeason, seasons = [], matches, playe
                           {s.form.slice(-3).map((resObj, idx) => {
                             const res = typeof resObj === 'object' && resObj !== null ? resObj.result : resObj;
                             return (
-                              <span key={idx} className={`w-2.5 h-2.5 rounded-sm flex items-center justify-center text-[6px] font-bold text-white
+                              <span key={idx} className={`w-2.5 h-2.5 rounded-sm flex items-center justify-center text-[6px] font-bold text-foreground
                                 ${res === 'W' ? 'bg-emerald-500' : res === 'D' ? 'bg-slate-400' : 'bg-red-500'}
                               `}>
                                 {res}
@@ -855,13 +855,13 @@ function RosterView({ players, matches, setTab }) {
                   </div>
                   
                   <div className="flex gap-1.5 mt-3 text-[10px] font-score tracking-wider">
-                    <span className="flex items-center justify-center font-bold text-white bg-green-500/20 text-green-400 px-2 py-0.5 rounded-sm border border-green-500/20">
+                    <span className="flex items-center justify-center font-bold text-foreground bg-green-500/20 text-green-400 px-2 py-0.5 rounded-sm border border-green-500/20">
                       {wins}W
                     </span>
-                    <span className="flex items-center justify-center font-bold text-white bg-slate-500/20 text-slate-400 px-2 py-0.5 rounded-sm border border-slate-500/20">
+                    <span className="flex items-center justify-center font-bold text-foreground bg-slate-500/20 text-slate-400 px-2 py-0.5 rounded-sm border border-slate-500/20">
                       {draws}D
                     </span>
-                    <span className="flex items-center justify-center font-bold text-white bg-red-500/20 text-red-400 px-2 py-0.5 rounded-sm border border-red-500/20">
+                    <span className="flex items-center justify-center font-bold text-foreground bg-red-500/20 text-red-400 px-2 py-0.5 rounded-sm border border-red-500/20">
                       {losses}L
                     </span>
                     {golds > 0 && (

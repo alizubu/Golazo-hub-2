@@ -42,13 +42,13 @@ export function SeasonStats({ playerId, initialStats, seasons, activeSeason, sel
     <FadeIn delay={0.2} className="col-span-12">
       <div className="relative overflow-hidden group w-full bg-[#0a0c10] border border-white/[0.08] rounded-[20px]">
         <div className="pb-3 pt-5 px-5 sm:px-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4 relative">
-          <div className="text-xl sm:text-2xl font-bold flex items-center gap-2.5 text-white">
-            <Activity className="text-white/70" size={24}/> Season Stats
+          <div className="text-xl sm:text-2xl font-bold flex items-center gap-2.5 text-foreground">
+            <Activity className="text-foreground/70" size={24}/> Season Stats
           </div>
           
           <DropdownMenu>
             <DropdownMenuTrigger className="outline-none focus-visible:ring-2 focus-visible:ring-white/20 rounded-full">
-              <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#12151b] border border-white/10 hover:bg-[#1a1e27] hover:border-white/20 transition-colors cursor-pointer text-sm font-[600] text-white shadow-sm w-fit h-[36px]">
+              <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#12151b] border border-border hover:bg-[#1a1e27] hover:border-white/20 transition-colors cursor-pointer text-sm font-[600] text-foreground shadow-sm w-fit h-[36px]">
                 <Calendar size={14} className="text-[#6b7280]" />
                 <span>{selectedSeason?.name || "Select Season"}</span>
                 
@@ -63,16 +63,16 @@ export function SeasonStats({ playerId, initialStats, seasons, activeSeason, sel
                 )}
               </div>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-56 bg-[#12151b] border-white/10 shadow-[0_8px_32px_-8px_rgba(0,0,0,0.8)] rounded-xl z-[60] text-white">
+            <DropdownMenuContent align="end" className="w-56 bg-[#12151b] border-border shadow-[0_8px_32px_-8px_rgba(0,0,0,0.8)] rounded-xl z-[60] text-foreground">
               <DropdownMenuItem 
                 onClick={() => onSeasonChange('overall')}
-                className="flex items-center justify-between cursor-pointer rounded-lg hover:bg-white/5 py-2 px-3 m-1 focus:bg-white/5 focus:text-white"
+                className="flex items-center justify-between cursor-pointer rounded-lg hover:bg-white/5 py-2 px-3 m-1 focus:bg-white/5 focus:text-foreground"
               >
                 <div className="flex items-center gap-2">
                   <div className="w-2 h-2 rounded-full bg-purple-500" />
-                  <span className={`font-[600] ${isOverall ? 'text-white' : 'text-[#6b7280]'}`}>Overall Career</span>
+                  <span className={`font-[600] ${isOverall ? 'text-foreground' : 'text-[#6b7280]'}`}>Overall Career</span>
                 </div>
-                {isOverall && <Check size={14} className="text-white" />}
+                {isOverall && <Check size={14} className="text-foreground" />}
               </DropdownMenuItem>
               {seasons.map(s => {
                 const isAct = s.id === activeSeason?.id;
@@ -81,7 +81,7 @@ export function SeasonStats({ playerId, initialStats, seasons, activeSeason, sel
                   <DropdownMenuItem 
                     key={s.id} 
                     onClick={() => onSeasonChange(s.id)}
-                    className="flex items-center justify-between cursor-pointer rounded-lg hover:bg-white/5 py-2 px-3 m-1 focus:bg-white/5 focus:text-white"
+                    className="flex items-center justify-between cursor-pointer rounded-lg hover:bg-white/5 py-2 px-3 m-1 focus:bg-white/5 focus:text-foreground"
                   >
                     <div className="flex items-center gap-2">
                       {isAct ? (
@@ -89,9 +89,9 @@ export function SeasonStats({ playerId, initialStats, seasons, activeSeason, sel
                       ) : (
                         <div className="w-2 h-2 rounded-full bg-[#4b5563]" />
                       )}
-                      <span className={`font-[600] ${isSel ? 'text-white' : 'text-[#6b7280]'}`}>{s.name}</span>
+                      <span className={`font-[600] ${isSel ? 'text-foreground' : 'text-[#6b7280]'}`}>{s.name}</span>
                     </div>
-                    {isSel && <Check size={14} className="text-white" />}
+                    {isSel && <Check size={14} className="text-foreground" />}
                   </DropdownMenuItem>
                 );
               })}

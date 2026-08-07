@@ -171,7 +171,7 @@ export default function TournamentControlPanel({ season, showToast, session, man
               <ctrl.icon className={ctrl.color} size={18} />
             </div>
             <div className="flex-1 min-w-0 pr-4">
-              <h3 className="font-bold text-[15px] text-white leading-tight mb-0.5">{ctrl.label}</h3>
+              <h3 className="font-bold text-[15px] text-foreground leading-tight mb-0.5">{ctrl.label}</h3>
               <p className="text-[11px] text-muted-foreground leading-snug line-clamp-2">{ctrl.desc}</p>
             </div>
           </button>

@@ -378,7 +378,7 @@ export default function SportsTicker({ matches = [], announcements = [], players
         {/* Pause Overlay for Preview */}
         {previewMode && cfg.pauseOnHover && (
           <div className="absolute inset-0 z-20 flex items-center justify-center bg-black/50 opacity-0 hover:opacity-100 transition-opacity pointer-events-auto cursor-help backdrop-blur-[1px]" style={{ borderRadius: theme.wrap.borderRadius }}>
-            <span className="text-xs font-bold text-white uppercase tracking-widest flex items-center gap-2">
+            <span className="text-xs font-bold text-foreground uppercase tracking-widest flex items-center gap-2">
               <span className="w-2 h-4 border-l-2 border-r-2 border-white block" /> Pause on Hover Active
             </span>
           </div>
@@ -394,7 +394,7 @@ export default function SportsTicker({ matches = [], announcements = [], players
         {/* Replay Stinger Overlay */}
         {stingerActive && (
           <div className="absolute inset-0 z-50 overflow-hidden pointer-events-none" style={{ borderRadius: previewMode ? '8px 8px 0 0' : theme.wrap.borderRadius }}>
-            <div className="absolute top-0 left-[-100%] w-full h-full bg-zinc-950 skew-x-[-20deg] animate-stinger flex items-center justify-center shadow-[0_0_30px_black] border-x border-amber-500/50">
+            <div className="absolute top-0 left-[-100%] w-full h-full bg-background skew-x-[-20deg] animate-stinger flex items-center justify-center shadow-[0_0_30px_black] border-x border-amber-500/50">
               <span className="text-amber-400 font-black italic tracking-widest text-lg sm:text-2xl drop-shadow-[0_0_10px_rgba(245,158,11,0.8)]" style={{ transform: 'skewX(20deg)' }}>HIGHLIGHT REEL</span>
             </div>
           </div>
@@ -410,7 +410,7 @@ export default function SportsTicker({ matches = [], announcements = [], players
              </div>
              <div className="flex flex-col pr-4 sm:pr-8">
                 <span className="text-[10px] sm:text-xs font-bold text-amber-500 uppercase tracking-widest leading-tight">Highlight Reel</span>
-                <span className="text-lg sm:text-2xl font-black text-white leading-none mt-0.5">{getPlayer(cfg.epicMoment.playerId).name}</span>
+                <span className="text-lg sm:text-2xl font-black text-foreground leading-none mt-0.5">{getPlayer(cfg.epicMoment.playerId).name}</span>
                 {cfg.epicMoment.text && (
                   <span className="text-xs sm:text-sm font-bold text-zinc-300 mt-1 uppercase tracking-wide">{cfg.epicMoment.text}</span>
                 )}

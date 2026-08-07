@@ -222,7 +222,7 @@ export default function CelebrationBanner({ initialCelebrations = [] }) {
                 <span className="text-zinc-400 text-[10px] font-bold uppercase tracking-[0.25em]">League Announcement</span>
               </div>
               
-              <h2 className="text-3xl sm:text-[2.75rem] leading-tight font-black tracking-tight text-white mb-2 font-heading">
+              <h2 className="text-3xl sm:text-[2.75rem] leading-tight font-black tracking-tight text-foreground mb-2 font-heading">
                 {current.trophy.season}{' '}
                 <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-200 via-amber-400 to-amber-500 drop-shadow-sm">
                   {current.trophy.title}
@@ -239,7 +239,7 @@ export default function CelebrationBanner({ initialCelebrations = [] }) {
                   }}
                   whileHover={{ scale: 1.02, backgroundColor: 'rgba(255,255,255,0.08)' }}
                   whileTap={{ scale: 0.98 }}
-                  className="flex items-center gap-3 bg-white/5 border border-white/10 rounded-full pr-5 pl-2 py-2 transition-colors duration-300 backdrop-blur-md group"
+                  className="flex items-center gap-3 bg-white/5 border border-border rounded-full pr-5 pl-2 py-2 transition-colors duration-300 backdrop-blur-md group"
                 >
                   {current.trophy.player.avatarImage ? (
                     <img 
@@ -248,11 +248,11 @@ export default function CelebrationBanner({ initialCelebrations = [] }) {
                       alt="" 
                     />
                   ) : (
-                    <div className="w-8 h-8 rounded-full bg-zinc-800 flex items-center justify-center text-xs font-bold text-white border border-white/20">
+                    <div className="w-8 h-8 rounded-full bg-zinc-800 flex items-center justify-center text-xs font-bold text-foreground border border-white/20">
                       {current.trophy.player.name.substring(0,2).toUpperCase()}
                     </div>
                   )}
-                  <span className="font-bold text-sm text-zinc-200 group-hover:text-white transition-colors">
+                  <span className="font-bold text-sm text-zinc-200 group-hover:text-foreground transition-colors">
                     {current.trophy.player.name}
                   </span>
                   <ChevronRight className="w-4 h-4 text-zinc-500 group-hover:text-amber-400 group-hover:translate-x-1 transition-all" />
@@ -270,7 +270,7 @@ export default function CelebrationBanner({ initialCelebrations = [] }) {
             {/* Right: Close Button */}
             <button 
               onClick={handleDismiss} 
-              className="absolute top-4 right-4 sm:relative sm:top-0 sm:right-0 sm:self-start w-8 h-8 flex items-center justify-center rounded-full bg-white/5 hover:bg-white/20 text-zinc-400 hover:text-white transition-colors border border-transparent hover:border-white/10"
+              className="absolute top-4 right-4 sm:relative sm:top-0 sm:right-0 sm:self-start w-8 h-8 flex items-center justify-center rounded-full bg-white/5 hover:bg-white/20 text-zinc-400 hover:text-foreground transition-colors border border-transparent hover:border-border"
               aria-label="Dismiss"
             >
               <X size={16} />

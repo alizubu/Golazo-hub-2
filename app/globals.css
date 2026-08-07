@@ -4,6 +4,50 @@
 
 @layer base {
   :root {
+    --background: 210 40% 98%;
+    --foreground: 222.2 84% 4.9%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 222.2 84% 4.9%;
+ 
+    --popover: 0 0% 100%;
+    --popover-foreground: 222.2 84% 4.9%;
+ 
+    --primary: 154 62% 33%; /* pitch */
+    --primary-foreground: 210 40% 98%;
+ 
+    --secondary: 210 40% 96.1%;
+    --secondary-foreground: 222.2 47.4% 11.2%;
+ 
+    --muted: 210 40% 96.1%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+ 
+    --accent: 44 68% 54%; /* gold */
+    --accent-foreground: 222.2 47.4% 11.2%;
+ 
+    --destructive: 353 50% 46%; /* claret */
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 154 62% 33%;
+ 
+    --radius: 0.5rem;
+
+    /* Stadium Daytime identity tokens */
+    --bg-base: #F8FAFC;
+    --bg-surface: #FFFFFF;
+    --bg-surface-raised: #F1F5F9;
+    --border-subtle: #E2E8F0;
+    --turf: #22C55E;
+    --floodlight-gold: #F59E0B;
+    --pitch-blue: #3B82F6;
+    --text-primary: #0F172A;
+    --text-secondary: #475569;
+    --text-muted: #94A3B8;
+  }
+
+  .dark {
     --background: 215 30% 6%;
     --foreground: 210 20% 98%;
 
@@ -31,8 +75,6 @@
     --border: 215 25% 20%;
     --input: 215 25% 20%;
     --ring: 154 62% 33%;
- 
-    --radius: 0.5rem;
 
     /* Stadium at night identity tokens */
     --bg-base: #0B0E14;

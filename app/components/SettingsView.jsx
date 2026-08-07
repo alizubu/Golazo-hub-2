@@ -267,7 +267,7 @@ export default function SettingsView({ me, showToast }) {
                           {coverUploading ? (
                             <div className="w-3/4 flex flex-col items-center gap-2">
                               <Progress value={coverProgress} className="h-2 w-full bg-secondary" />
-                              <span className="text-[10px] text-white font-bold">{coverProgress}%</span>
+                              <span className="text-[10px] text-foreground font-bold">{coverProgress}%</span>
                             </div>
                           ) : (
                             <Btn variant="secondary" onClick={() => fileInputRef.current?.click()} className="flex items-center gap-2 font-semibold">

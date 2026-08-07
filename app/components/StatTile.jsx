@@ -39,7 +39,7 @@ export function StatTile({
 
   const numValue = typeof value === 'string' ? parseFloat(value.replace(/[^0-9.-]/g, '')) : (value || 0);
   
-  let numberColorClass = 'text-white';
+  let numberColorClass = 'text-foreground';
   if (isHero) {
     numberColorClass = 'text-amber-400';
   } else if (isPercentage && !isEmpty) {
@@ -49,7 +49,7 @@ export function StatTile({
   const numberStyles = `text-2xl md:text-3xl lg:text-4xl font-bold font-score tabular-nums tracking-normal ${numberColorClass}`;
   const contentOpacity = isEmpty ? 'opacity-65' : 'opacity-100';
   const iconBadgeBg = isHero && !isEmpty ? 'bg-amber-500/10' : (isEmpty ? 'bg-white/[0.02]' : 'bg-white/[0.04]');
-  const iconColor = isHero && !isEmpty ? 'text-amber-400' : 'text-white/70';
+  const iconColor = isHero && !isEmpty ? 'text-amber-400' : 'text-foreground/70';
 
   const renderValue = () => {
     if (!loaded) return <Skeleton className="h-8 w-20 rounded-md bg-white/10" />;

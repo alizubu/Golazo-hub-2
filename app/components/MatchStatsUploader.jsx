@@ -48,7 +48,7 @@ export default function MatchStatsUploader() {
 
   return (
     <div className="p-6 max-w-4xl mx-auto bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-100 dark:border-gray-700">
-      <h2 className="text-2xl font-bold text-gray-800 dark:text-white mb-6">Extract Match Stats</h2>
+      <h2 className="text-2xl font-bold text-gray-800 dark:text-foreground mb-6">Extract Match Stats</h2>
       
       <div className="mb-8">
         <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-300" htmlFor="file_input">Upload Screenshot</label>

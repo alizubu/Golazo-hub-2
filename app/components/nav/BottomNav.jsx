@@ -22,7 +22,7 @@ export const BottomNav = ({ items, pathname, isActive, handleNav, hasLiveMatch }
       className="md:hidden fixed bottom-0 inset-x-0 z-50 px-4 pb-[calc(env(safe-area-inset-bottom)+16px)] pointer-events-none flex justify-center"
     >
       {/* Floating Dark Glassmorphic Capsule */}
-      <div className="relative w-full max-w-[420px] h-[72px] bg-zinc-950/85 backdrop-blur-xl border border-white/10 rounded-[2rem] shadow-2xl pointer-events-auto flex items-center px-2">
+      <div className="relative w-full max-w-[420px] h-[72px] bg-background/85 backdrop-blur-xl border border-border rounded-[2rem] shadow-2xl pointer-events-auto flex items-center px-2">
         
         {/* Luminous top border reflection */}
         <div className="absolute inset-x-8 top-0 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent" />

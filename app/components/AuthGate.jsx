@@ -91,7 +91,7 @@ function FloatingPlayerCard({ player, posStyle, delay }) {
       animate={{ opacity: 1, scale: 1, y: 0 }}
       transition={{ delay, duration: 0.65, type: 'spring', bounce: 0.3 }}
       style={posStyle}
-      className="absolute flex items-center gap-2.5 bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl px-3 py-2.5 shadow-xl select-none pointer-events-none"
+      className="absolute flex items-center gap-2.5 bg-white/5 backdrop-blur-md border border-border rounded-2xl px-3 py-2.5 shadow-xl select-none pointer-events-none"
     >
       <motion.div
         animate={{ y: [0, -6, 0] }}
@@ -100,11 +100,11 @@ function FloatingPlayerCard({ player, posStyle, delay }) {
         <Avatar p={player} size={30} />
       </motion.div>
       <div className="min-w-0">
-        <div className="text-white text-xs font-bold leading-tight truncate max-w-[84px]">
+        <div className="text-foreground text-xs font-bold leading-tight truncate max-w-[84px]">
           {(player.name || player.username || '?').split(' ')[0]}
         </div>
         {player.teamName && (
-          <div className="text-white/40 text-[10px] truncate max-w-[84px] mt-0.5">{player.teamName}</div>
+          <div className="text-foreground/40 text-[10px] truncate max-w-[84px] mt-0.5">{player.teamName}</div>
         )}
       </div>
     </motion.div>
@@ -215,9 +215,9 @@ function FloatingLabelInput({ label, id, type = 'text', value, onChange, onKeyDo
           paddingLeft: leftElement ? '40px' : '12px'
         }}
         className={`
-          w-full h-14 px-3 pt-6 pb-2 text-sm text-white rounded-xl border bg-white/5
+          w-full h-14 px-3 pt-6 pb-2 text-sm text-foreground rounded-xl border bg-white/5
           focus:outline-none focus:ring-1 focus:ring-pitch-bright/50 transition-all placeholder-transparent disabled:opacity-50
-          ${focused ? 'border-pitch-bright/60 bg-white/[0.07] shadow-[0_0_15px_rgba(41,193,121,0.12)]' : 'border-white/10'}
+          ${focused ? 'border-pitch-bright/60 bg-white/[0.07] shadow-[0_0_15px_rgba(41,193,121,0.12)]' : 'border-border'}
         `}
       />
       {rightElement && (
@@ -266,7 +266,7 @@ function SignInForm({ players, onPlayerLogin }) {
           autoComplete="current-password" disabled={busy}
           leftElement={<Lock size={18} />}
           rightElement={
-            <button type="button" onClick={() => setShowPwd(!showPwd)} className="text-muted-foreground hover:text-white transition-colors">
+            <button type="button" onClick={() => setShowPwd(!showPwd)} className="text-muted-foreground hover:text-foreground transition-colors">
               {showPwd ? <EyeOff size={15} /> : <Eye size={15} />}
             </button>
           }
@@ -319,7 +319,7 @@ function SignUpForm({ showToast, onPlayerLogin }) {
   };
 
   const eyeBtn = (
-    <button type="button" onClick={() => setShowPwd(!showPwd)} className="text-muted-foreground hover:text-white transition-colors">
+    <button type="button" onClick={() => setShowPwd(!showPwd)} className="text-muted-foreground hover:text-foreground transition-colors">
       {showPwd ? <EyeOff size={15} /> : <Eye size={15} />}
     </button>
   );
@@ -405,7 +405,7 @@ function AdminLoginForm({ onAdminLogin, onBack }) {
           <span className="absolute inset-0 rounded-2xl animate-ping" style={{ background: 'rgba(217,169,59,0.08)', animationDuration: '2s' }} />
           <ShieldAlert size={24} className="text-gold relative z-10" />
         </div>
-        <h3 className="text-[15px] font-bold text-white tracking-tight">Admin Console</h3>
+        <h3 className="text-[15px] font-bold text-foreground tracking-tight">Admin Console</h3>
         <p className="text-xs text-muted-foreground/55 mt-0.5 text-center">Restricted — authorized personnel only</p>
       </div>
       <form onSubmit={submit} className="space-y-4">
@@ -423,7 +423,7 @@ function AdminLoginForm({ onAdminLogin, onBack }) {
           autoComplete="current-password" disabled={busy}
           leftElement={<Lock size={18} />}
           rightElement={
-            <button type="button" onClick={() => setShowPwd(!showPwd)} className="text-muted-foreground hover:text-white transition-colors">
+            <button type="button" onClick={() => setShowPwd(!showPwd)} className="text-muted-foreground hover:text-foreground transition-colors">
               {showPwd ? <EyeOff size={15} /> : <Eye size={15} />}
             </button>
           }
@@ -465,7 +465,7 @@ function TabToggle({ mode, setMode, layoutId }) {
         <button
           key={key}
           onClick={() => setMode(key)}
-          className={`relative flex-1 py-2.5 rounded-lg text-sm font-bold transition-colors z-10 ${mode === key ? 'text-white' : 'text-muted-foreground hover:text-white/70'}`}
+          className={`relative flex-1 py-2.5 rounded-lg text-sm font-bold transition-colors z-10 ${mode === key ? 'text-foreground' : 'text-muted-foreground hover:text-foreground/70'}`}
         >
           {key === 'signin' ? 'Sign In' : 'Sign Up'}
           {mode === key && (
@@ -537,7 +537,7 @@ export default function AuthGate({ players = [], showToast }) {
                 <Trophy size={32} className="text-gold" />
               </div>
               <h1
-                className="font-heading font-black tracking-tight text-white leading-none mb-4"
+                className="font-heading font-black tracking-tight text-foreground leading-none mb-4"
                 style={{ fontSize: 'clamp(2.6rem,5vw,4rem)' }}
               >
                 GOLAZO
@@ -592,7 +592,7 @@ export default function AuthGate({ players = [], showToast }) {
               className="text-center mb-8"
             >
               <AnimatedGradientText>
-                <span className="font-heading text-xl font-black tracking-wide text-white">Golazo Hub</span>
+                <span className="font-heading text-xl font-black tracking-wide text-foreground">Golazo Hub</span>
               </AnimatedGradientText>
               <p className="text-xs text-muted-foreground/55 mt-1.5 font-medium">
                 {mode === 'admin' ? 'Admin console access' : 'Welcome back, player'}
@@ -657,7 +657,7 @@ export default function AuthGate({ players = [], showToast }) {
               <Trophy size={28} className="text-gold" />
             </div>
             <AnimatedGradientText>
-              <h1 className="font-heading text-3xl font-black text-white tracking-tight">Golazo Hub</h1>
+              <h1 className="font-heading text-3xl font-black text-foreground tracking-tight">Golazo Hub</h1>
             </AnimatedGradientText>
             <p className="text-sm text-muted-foreground/80 mt-2 font-medium max-w-[280px]">
               Matchday central for the crew

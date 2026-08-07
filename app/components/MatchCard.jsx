@@ -161,7 +161,7 @@ function MatchCard({ m, players, onClick }) {
               className="flex items-center gap-1.5 bg-red-600/90 backdrop-blur-sm px-2 py-0.5 rounded-full shadow-[0_0_8px_rgba(220,38,38,0.8)]"
             >
               <div className="w-1.5 h-1.5 rounded-full bg-white" />
-              <span className="text-[9px] text-white font-bold tracking-widest">LIVE</span>
+              <span className="text-[9px] text-foreground font-bold tracking-widest">LIVE</span>
             </motion.div>
           )}
           {!isCompleted && !isLive && !isTbd && (
@@ -178,11 +178,11 @@ function MatchCard({ m, players, onClick }) {
         <div className="flex items-center justify-center gap-6 py-1 relative">
           {isCompleted || isLive ? (
              <div className="flex items-center gap-4">
-               <motion.span key={`h-${m.homeScore}`} initial={{ scale: 1.2 }} animate={{ scale: 1 }} className={`text-2xl font-bold font-score ${homeWon ? 'text-green-400' : isLive ? 'text-white' : 'text-white/70'}`}>
+               <motion.span key={`h-${m.homeScore}`} initial={{ scale: 1.2 }} animate={{ scale: 1 }} className={`text-2xl font-bold font-score ${homeWon ? 'text-green-400' : isLive ? 'text-foreground' : 'text-foreground/70'}`}>
                  {m.homeScore ?? 0}
                </motion.span>
                <span className="text-muted-foreground/40 font-medium text-sm">—</span>
-               <motion.span key={`a-${m.awayScore}`} initial={{ scale: 1.2 }} animate={{ scale: 1 }} className={`text-2xl font-bold font-score ${awayWon ? 'text-green-400' : isLive ? 'text-white' : 'text-white/70'}`}>
+               <motion.span key={`a-${m.awayScore}`} initial={{ scale: 1.2 }} animate={{ scale: 1 }} className={`text-2xl font-bold font-score ${awayWon ? 'text-green-400' : isLive ? 'text-foreground' : 'text-foreground/70'}`}>
                  {m.awayScore ?? 0}
                </motion.span>
              </div>
@@ -223,7 +223,7 @@ function MatchCard({ m, players, onClick }) {
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="text-[9px] uppercase tracking-wider text-amber-500/80 font-bold">Man of the Match</div>
-                    <div className="text-sm font-bold text-white truncate">
+                    <div className="text-sm font-bold text-foreground truncate">
                       {m.stats.motm === 'home' ? h?.name : a?.name}
                     </div>
                   </div>

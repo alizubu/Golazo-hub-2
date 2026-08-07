@@ -83,8 +83,8 @@ function MatchPredictionWidget({ match }) {
   const dPct = total === 0 ? 0 : Math.round((dV / total) * 100);
 
   return (
-    <div className="mt-2 border border-white/10 rounded-xl bg-secondary/10 p-5 overflow-hidden relative shadow-inner">
-      <div className="text-center font-heading font-bold text-sm mb-4 text-white">Who will win?</div>
+    <div className="mt-2 border border-border rounded-xl bg-secondary/10 p-5 overflow-hidden relative shadow-inner">
+      <div className="text-center font-heading font-bold text-sm mb-4 text-foreground">Who will win?</div>
       
       {!voted ? (
         <div className="flex gap-2 w-full">
@@ -191,7 +191,7 @@ export default function MatchStatsModal({ matchId, onClose }) {
         >
           {/* Header Actions */}
           <div className="absolute top-3 right-3 z-10 flex gap-2">
-            <button onClick={onClose} className="w-8 h-8 flex items-center justify-center rounded-full bg-black/40 text-white hover:bg-black/60 transition-colors">
+            <button onClick={onClose} className="w-8 h-8 flex items-center justify-center rounded-full bg-card/40 text-foreground hover:bg-black/60 transition-colors">
               <X size={18} />
             </button>
           </div>
@@ -225,13 +225,13 @@ export default function MatchStatsModal({ matchId, onClose }) {
                     {match.stats?.homeRating && (
                       <motion.div 
                         initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ delay: 0.5, type: 'spring' }}
-                        className="absolute -bottom-1 -left-1 px-1.5 py-0.5 rounded-full bg-pitch text-white text-[10px] font-bold border-2 border-[#0f1117]"
+                        className="absolute -bottom-1 -left-1 px-1.5 py-0.5 rounded-full bg-pitch text-foreground text-[10px] font-bold border-2 border-[#0f1117]"
                       >
                         {match.stats.homeRating}
                       </motion.div>
                     )}
                   </div>
-                  <div className="text-sm font-bold text-white font-heading text-center truncate w-24">{match.home.name}</div>
+                  <div className="text-sm font-bold text-foreground font-heading text-center truncate w-24">{match.home.name}</div>
                 </div>
 
                 {/* Score */}
@@ -249,7 +249,7 @@ export default function MatchStatsModal({ matchId, onClose }) {
                       className="flex flex-col items-center"
                       animate={flash ? { scale: [1, 1.2, 1], color: ['#fff', '#29C179', '#fff'] } : {}}
                     >
-                      <div className={`text-4xl font-bold font-score leading-none ${match.homeScore > match.awayScore ? 'text-pitch-bright' : 'text-white'}`}>
+                      <div className={`text-4xl font-bold font-score leading-none ${match.homeScore > match.awayScore ? 'text-pitch-bright' : 'text-foreground'}`}>
                         {match.homeScore ?? 0}
                       </div>
                       <div className="w-4 h-px bg-white/20 my-1" />
@@ -270,13 +270,13 @@ export default function MatchStatsModal({ matchId, onClose }) {
                     {match.stats?.awayRating && (
                       <motion.div 
                         initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ delay: 0.6, type: 'spring' }}
-                        className="absolute -bottom-1 -right-1 px-1.5 py-0.5 rounded-full bg-claret text-white text-[10px] font-bold border-2 border-[#0f1117]"
+                        className="absolute -bottom-1 -right-1 px-1.5 py-0.5 rounded-full bg-claret text-foreground text-[10px] font-bold border-2 border-[#0f1117]"
                       >
                         {match.stats.awayRating}
                       </motion.div>
                     )}
                   </div>
-                  <div className="text-sm font-bold text-white font-heading text-center truncate w-24">{match.away.name}</div>
+                  <div className="text-sm font-bold text-foreground font-heading text-center truncate w-24">{match.away.name}</div>
                 </div>
               </div>
 
@@ -292,7 +292,7 @@ export default function MatchStatsModal({ matchId, onClose }) {
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="text-[9px] uppercase tracking-wider text-gold font-semibold">Man of the Match</div>
-                    <div className="text-sm font-bold text-white truncate">
+                    <div className="text-sm font-bold text-foreground truncate">
                       {match.stats.motmId === match.homeId ? match.home.name : match.away.name}
                     </div>
                   </div>

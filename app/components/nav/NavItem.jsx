@@ -68,7 +68,7 @@ export const NavItem = ({ item, active, onClick, hasLive }) => {
                 size={24}
                 strokeWidth={active ? 2 : 1.75}
                 className={`transition-colors duration-200 ${
-                  active ? 'text-white' : 'text-zinc-500 group-hover:text-zinc-400'
+                  active ? 'text-foreground' : 'text-zinc-500 group-hover:text-zinc-400'
                 }`}
               />
             </motion.div>
@@ -83,7 +83,7 @@ export const NavItem = ({ item, active, onClick, hasLive }) => {
         <span
           className={`text-[11px] font-medium tracking-tight transition-colors duration-200 ${
             active 
-              ? (isGold ? 'text-amber-400' : 'text-white') 
+              ? (isGold ? 'text-amber-400' : 'text-foreground') 
               : 'text-zinc-500 group-hover:text-zinc-400'
           }`}
         >

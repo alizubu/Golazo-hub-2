@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { Menu } from 'lucide-react';
+import ThemeToggle from './ThemeToggle';
 
 const SECTION_LABELS = {
   'admin':                'Dashboard',
@@ -25,58 +26,47 @@ export default function AdminTopBar({ currentTab, activeSeason }) {
 
   return (
     <div
-      className="sticky top-0 z-40 flex items-center justify-between h-14 px-4 md:px-6 flex-shrink-0 border-b border-white/[0.06]"
-      style={{ background: 'rgba(11,14,20,0.88)', backdropFilter: 'blur(18px)' }}
+      className="sticky top-0 z-40 flex items-center justify-between h-14 px-4 md:px-6 flex-shrink-0 border-b border-border/40 bg-background/90 backdrop-blur-md"
     >
       {/* Left: hamburger (mobile) + section title */}
       <div className="flex items-center gap-3">
         <button
           onClick={openSidebar}
-          className="md:hidden flex items-center justify-center w-8 h-8 rounded-lg bg-white/[0.06] text-[#565F70] hover:text-white hover:bg-white/10 transition-colors outline-none"
+          className="md:hidden flex items-center justify-center w-8 h-8 rounded-lg bg-secondary text-muted-foreground hover:text-foreground hover:bg-secondary/80 transition-colors outline-none"
           aria-label="Toggle navigation"
         >
           <Menu size={16} />
         </button>
         <div>
-          <h2 className="font-heading text-sm font-black tracking-wide text-white leading-none">
+          <h2 className="font-heading text-sm font-black tracking-wide text-foreground leading-none">
             {label}
           </h2>
           {activeSeason && (
-            <p className="text-[10px] mt-0.5 font-medium hidden sm:block" style={{ color: '#565F70' }}>
+            <p className="text-[10px] mt-0.5 font-medium hidden sm:block text-muted-foreground">
               {activeSeason.name}
             </p>
           )}
         </div>
       </div>
 
-      {/* Right: season chip + admin badge */}
-      <div className="flex items-center gap-2">
+      {/* Right: season chip + admin badge + theme toggle */}
+      <div className="flex items-center gap-3">
         {activeSeason && (
           <span
-            className="hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-full border text-[10px] font-bold uppercase tracking-wider"
-            style={{
-              color: '#29C179',
-              background: 'rgba(31,138,92,0.1)',
-              borderColor: 'rgba(41,193,121,0.2)',
-            }}
+            className="hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-full border border-pitch-bright/20 bg-pitch-bright/10 text-pitch-bright text-[10px] font-bold uppercase tracking-wider"
           >
             <span
-              className="w-1.5 h-1.5 rounded-full flex-shrink-0"
-              style={{ background: '#29C179', boxShadow: '0 0 6px rgba(41,193,121,0.8)' }}
+              className="w-1.5 h-1.5 rounded-full flex-shrink-0 bg-pitch-bright shadow-[0_0_6px_rgba(41,193,121,0.8)]"
             />
             {activeSeason.type || 'Season'} Active
           </span>
         )}
         <span
-          className="flex items-center px-2.5 py-0.5 rounded-full border text-[10px] font-black tracking-[0.14em] uppercase"
-          style={{
-            color: '#D9A93B',
-            background: 'rgba(217,169,59,0.08)',
-            borderColor: 'rgba(217,169,59,0.28)',
-          }}
+          className="flex items-center px-2.5 py-0.5 rounded-full border border-gold/30 bg-gold/10 text-gold text-[10px] font-black tracking-[0.14em] uppercase"
         >
           ADMIN
         </span>
+        <ThemeToggle />
       </div>
     </div>
   );

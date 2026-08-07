@@ -184,7 +184,7 @@ function StepperRow({ label, count, accent, onInc, onDec, isMuted }) {
   
   if (isMuted) {
     return (
-      <div className={`flex flex-col gap-1.5 rounded-xl bg-zinc-950/50 border border-zinc-800/50 p-2 transition-all duration-300 opacity-60 hover:opacity-100`}>
+      <div className={`flex flex-col gap-1.5 rounded-xl bg-background/50 border border-zinc-800/50 p-2 transition-all duration-300 opacity-60 hover:opacity-100`}>
         <div className="flex items-center justify-center gap-1.5">
           <span className="text-[9px] font-bold uppercase tracking-widest text-zinc-500">{label}</span>
         </div>
@@ -344,14 +344,14 @@ function Shootout({ home, away, kicks, setKicks, onDecided }) {
         {!decided && <span className={`text-xs font-semibold ${kicker === "home" ? "text-pitch-bright" : "text-claret"}`}>{kicker === "home" ? home.name : away.name} to kick</span>}
       </div>
       <div className="grid grid-cols-2 gap-4 mb-6">
-        <div className="rounded-xl p-3 bg-zinc-950 border border-zinc-800">
+        <div className="rounded-xl p-3 bg-background border border-zinc-800">
           <div className="flex items-center justify-between mb-2">
             <span className="text-xs font-bold text-zinc-50 truncate">{home.name}</span>
             <span className="text-lg font-extrabold tabular-nums text-pitch-bright">{homeScore}</span>
           </div>
           <KickTrack list={homeKicks} />
         </div>
-        <div className="rounded-xl p-3 bg-zinc-950 border border-zinc-800">
+        <div className="rounded-xl p-3 bg-background border border-zinc-800">
           <div className="flex items-center justify-between mb-2">
             <span className="text-xs font-bold text-zinc-50 truncate">{away.name}</span>
             <span className="text-lg font-extrabold tabular-nums text-claret">{awayScore}</span>
@@ -465,7 +465,7 @@ function ImageImport({ onApply }) {
 // Stats entry
 // ---------------------------------------------------------------------------
 const StatsRow = ({ f, i, stats, update }) => (
-  <div className={`grid grid-cols-[3.5rem_1fr_3.5rem] sm:grid-cols-[4rem_1fr_4rem] items-center gap-3 px-4 py-3 ${i % 2 === 0 ? "bg-zinc-950" : "bg-transparent"} ${i !== 0 ? "border-t border-zinc-800" : ""}`}>
+  <div className={`grid grid-cols-[3.5rem_1fr_3.5rem] sm:grid-cols-[4rem_1fr_4rem] items-center gap-3 px-4 py-3 ${i % 2 === 0 ? "bg-background" : "bg-transparent"} ${i !== 0 ? "border-t border-zinc-800" : ""}`}>
     <input type="number" inputMode="numeric" value={stats.home[f.key]} onChange={(e) => update("home", f.key, e.target.value)}
       className="h-10 rounded-lg text-center text-sm font-bold tabular-nums outline-none bg-zinc-900 border border-zinc-700 text-pitch-bright focus:border-pitch-bright focus:bg-pitch/10 transition-colors" />
     <span className="text-[11px] sm:text-xs text-center text-zinc-400 uppercase tracking-widest font-bold truncate">{f.label}{f.percent ? " (%)" : ""}</span>
@@ -517,7 +517,7 @@ function StatsEntry({ stats, setStats, onSave, onSkip, busy }) {
 
       <div className="grid grid-cols-1 xl:grid-cols-2 gap-x-6 gap-y-0 mb-6">
         {columns.map((col, ci) => (
-          <div key={ci} className="rounded-2xl overflow-hidden border border-zinc-800 bg-zinc-950 mb-4 xl:mb-0 shadow-lg shadow-black/20">
+          <div key={ci} className="rounded-2xl overflow-hidden border border-zinc-800 bg-background mb-4 xl:mb-0 shadow-lg shadow-black/20">
             {col.map((f, i) => <StatsRow key={f.key} f={f} i={i} stats={stats} update={update} />)}
           </div>
         ))}
@@ -593,7 +593,7 @@ function Published({ state, stats, resultType, shootoutWinner, onClose }) {
       {hasStats && (
         <div className="grid transition-[grid-template-rows] duration-300 ease-out" style={{ gridTemplateRows: expanded ? "1fr" : "0fr" }}>
           <div className="overflow-hidden">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-x-6 rounded-xl p-4 mt-2 bg-zinc-950 border border-zinc-800">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-x-6 rounded-xl p-4 mt-2 bg-background border border-zinc-800">
               {columns.map((col, ci) => (
                 <div key={ci}>
                   {col.map((f) => <StatRow key={f.key} label={f.label} percent={f.percent} value={[Number(stats.home[f.key]) || 0, Number(stats.away[f.key]) || 0]} />)}
@@ -918,13 +918,13 @@ export default function LiveMatchControl({ matches, players, activeSeason, showT
       
       <ScoreRow home={state.home.name} away={state.away.name} homeScore={state.home.goals} awayScore={state.away.goals} homeObj={state.home} awayObj={state.away} paused={state.paused} isLive={phase === "live" || phase === "extra_time"} />
       
-      <div className="border-b border-zinc-800/50 bg-zinc-950/30">
+      <div className="border-b border-zinc-800/50 bg-background/30">
         <StepIndicator phase={phase} />
       </div>
 
       <main className="pt-6 sm:pt-8 relative min-h-[300px]">
         {showDrawDecision && (
-          <div className="absolute inset-0 z-50 flex items-center justify-center p-4 bg-zinc-950/95 backdrop-blur-sm rounded-b-2xl">
+          <div className="absolute inset-0 z-50 flex items-center justify-center p-4 bg-background/95 backdrop-blur-sm rounded-b-2xl">
             <div className="bg-zinc-900 border border-zinc-700 rounded-xl p-6 w-full max-w-sm flex flex-col items-center text-center shadow-2xl">
               <h2 className="text-xl font-bold text-zinc-50 mb-2">Match is Level!</h2>
               <p className="text-sm text-zinc-400 mb-6">How would you like to resolve this match?</p>

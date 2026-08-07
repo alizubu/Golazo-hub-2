@@ -36,7 +36,7 @@ function SegmentBtn({ value, label, icon, current, onChange }) {
       className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-semibold transition-all ${
         current === value
           ? 'bg-amber-500 text-black shadow-sm scale-95'
-          : 'text-zinc-400 hover:text-white hover:bg-white/5'
+          : 'text-zinc-400 hover:text-foreground hover:bg-white/5'
       }`}
     >
       <span>{icon}</span>
@@ -55,7 +55,7 @@ function ThemeCard({ theme, isSelected, onSelect }) {
       className={`relative flex items-center gap-3 p-3 rounded-lg border transition-all text-left overflow-hidden ${
         isSelected
           ? 'bg-amber-500/15 border-amber-500/50 shadow-[0_0_15px_rgba(245,158,11,0.2)] ring-1 ring-amber-500/50'
-          : 'bg-white/[0.02] border-white/10 hover:bg-white/[0.05] hover:border-white/20'
+          : 'bg-white/[0.02] border-border hover:bg-white/[0.05] hover:border-white/20'
       }`}
     >
       <div className={`flex items-center justify-center w-8 h-8 rounded-full shrink-0 ${isSelected ? 'bg-amber-500/20' : 'bg-white/5'}`}>
@@ -212,7 +212,7 @@ export default function AdminBroadcast({ matches = [], players = [], announcemen
 
       {/* ── On-Air Preview (Sticky) ─────────────────────────────────────────── */}
       <div className="sticky top-0 sm:top-4 z-50 -mx-4 px-4 sm:mx-0 sm:px-0">
-        <Card className="p-4 sm:p-5 bg-zinc-950/80 border-white/10 shadow-2xl">
+        <Card className="p-4 sm:p-5 bg-background/80 border-border shadow-2xl">
           <div className="flex items-center justify-between mb-3">
             <Label className="text-pitch-bright font-bold uppercase tracking-widest text-[10px]">On-Air Preview</Label>
             <Badge className="bg-zinc-900 text-zinc-500 border-zinc-800 text-[9px]">{draft.theme?.toUpperCase() || 'CLASSIC'}</Badge>
@@ -234,7 +234,7 @@ export default function AdminBroadcast({ matches = [], players = [], announcemen
         <Card className="p-4 sm:p-6">
           <SectionTitle icon={Activity}>Master Controls</SectionTitle>
           <div className="mt-4 flex flex-col gap-5">
-            <div className="p-4 rounded-xl bg-white/5 border border-white/5">
+            <div className="p-4 rounded-xl bg-white/5 border border-border/50">
               <Toggle
                 checked={draft.enabled}
                 onChange={v => update('enabled', v)}
@@ -298,7 +298,7 @@ export default function AdminBroadcast({ matches = [], players = [], announcemen
         <Card className="p-4 sm:p-6">
           <SectionTitle icon={Eye}>Content Feed Source</SectionTitle>
           <div className="mt-4">
-            <div className="flex flex-wrap p-1 bg-zinc-900 rounded-lg w-fit border border-white/5">
+            <div className="flex flex-wrap p-1 bg-zinc-900 rounded-lg w-fit border border-border/50">
               <SegmentBtn icon="📺" value="live" label="Live Only" current={draft.source} onChange={v => update('source', v)} />
               <SegmentBtn icon="🕒" value="live_recent" label="Recent" current={draft.source} onChange={v => update('source', v)} />
               <SegmentBtn icon="📅" value="live_today" label="Today" current={draft.source} onChange={v => update('source', v)} />
@@ -313,7 +313,7 @@ export default function AdminBroadcast({ matches = [], players = [], announcemen
                   <Label className="text-zinc-400">Select Matches</Label>
                   <span className="text-xs text-zinc-500">{draft.customMatchIds?.length || 0} selected</span>
                 </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-64 overflow-y-auto p-2 rounded-xl bg-black/50 border border-white/5 custom-scrollbar">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-64 overflow-y-auto p-2 rounded-xl bg-black/50 border border-border/50 custom-scrollbar">
                   {matches.map(m => {
                     const h = players.find(p => p.id === m.homeId);
                     const a = players.find(p => p.id === m.awayId);
@@ -380,7 +380,7 @@ export default function AdminBroadcast({ matches = [], players = [], announcemen
             </div>
 
             {/* Toggles */}
-            <div className="p-4 rounded-xl bg-white/5 border border-white/5 space-y-2">
+            <div className="p-4 rounded-xl bg-white/5 border border-border/50 space-y-2">
               <Toggle
                 checked={draft.showAvatars}
                 onChange={v => update('showAvatars', v)}
@@ -404,7 +404,7 @@ export default function AdminBroadcast({ matches = [], players = [], announcemen
           <SectionTitle icon={Zap}>Smart Content</SectionTitle>
           <p className="text-xs text-muted-foreground mt-1 mb-4">Auto-generated ticker items based on match data. These update in real-time.</p>
           <div className="flex flex-col gap-3">
-            <div className="p-4 rounded-xl bg-white/5 border border-white/5">
+            <div className="p-4 rounded-xl bg-white/5 border border-border/50">
               <Toggle
                 checked={draft.showStats}
                 onChange={v => update('showStats', v)}
@@ -412,7 +412,7 @@ export default function AdminBroadcast({ matches = [], players = [], announcemen
                 desc="Show top scorer, league leader, and match count"
               />
             </div>
-            <div className="p-4 rounded-xl bg-white/5 border border-white/5">
+            <div className="p-4 rounded-xl bg-white/5 border border-border/50">
               <Toggle
                 checked={draft.showHighlights}
                 onChange={v => update('showHighlights', v)}
@@ -420,7 +420,7 @@ export default function AdminBroadcast({ matches = [], players = [], announcemen
                 desc="Biggest win margin, total goals from recent matches"
               />
             </div>
-            <div className="p-4 rounded-xl bg-white/5 border border-white/5">
+            <div className="p-4 rounded-xl bg-white/5 border border-border/50">
               <Toggle
                 checked={draft.showStreaks}
                 onChange={v => update('showStreaks', v)}
@@ -440,7 +440,7 @@ export default function AdminBroadcast({ matches = [], players = [], announcemen
           
           <div className="flex flex-col gap-5">
             {/* Showtime Goals */}
-            <div className="p-4 rounded-xl bg-black/40 border border-amber-500/10 shadow-inner">
+            <div className="p-4 rounded-xl bg-card/40 border border-amber-500/10 shadow-inner">
               <Toggle
                 checked={draft.highlightReelGoals}
                 onChange={v => update('highlightReelGoals', v)}
@@ -450,9 +450,9 @@ export default function AdminBroadcast({ matches = [], players = [], announcemen
             </div>
 
             {/* Momentum */}
-            <div className="p-4 rounded-xl bg-black/40 border border-amber-500/10 shadow-inner">
+            <div className="p-4 rounded-xl bg-card/40 border border-amber-500/10 shadow-inner">
               <Label className="mb-3 block text-zinc-300">Match Momentum Glow</Label>
-              <div className="flex gap-2 p-1 bg-zinc-900 rounded-lg w-fit border border-white/5 flex-wrap">
+              <div className="flex gap-2 p-1 bg-zinc-900 rounded-lg w-fit border border-border/50 flex-wrap">
                 <SegmentBtn icon="⏸️" value="none" label="None" current={draft.momentumTeam} onChange={v => update('momentumTeam', v)} />
                 <SegmentBtn icon="🏠" value="home" label="Home Team" current={draft.momentumTeam} onChange={v => update('momentumTeam', v)} />
                 <SegmentBtn icon="✈️" value="away" label="Away Team" current={draft.momentumTeam} onChange={v => update('momentumTeam', v)} />
@@ -461,7 +461,7 @@ export default function AdminBroadcast({ matches = [], players = [], announcemen
             </div>
 
             {/* Epic Moment */}
-            <div className="p-4 rounded-xl bg-black/40 border border-amber-500/10 shadow-inner">
+            <div className="p-4 rounded-xl bg-card/40 border border-amber-500/10 shadow-inner">
               <Label className="mb-3 block text-zinc-300">Epic Moment Lower Third</Label>
               <div className="flex flex-col sm:flex-row gap-3 mb-3">
                 <select 
@@ -492,7 +492,7 @@ export default function AdminBroadcast({ matches = [], players = [], announcemen
             </div>
 
             {/* Replay Stinger */}
-            <div className="p-4 rounded-xl bg-black/40 border border-amber-500/10 shadow-inner flex items-center justify-between">
+            <div className="p-4 rounded-xl bg-card/40 border border-amber-500/10 shadow-inner flex items-center justify-between">
               <div>
                 <Label className="block text-zinc-300 mb-0.5">Instant Replay Stinger</Label>
                 <p className="text-[11px] text-zinc-500">Plays a 2-second slicing animation over the ticker.</p>
@@ -506,7 +506,7 @@ export default function AdminBroadcast({ matches = [], players = [], announcemen
             </div>
             
             {/* Custom Highlights */}
-            <div className="p-4 rounded-xl bg-black/40 border border-amber-500/10 shadow-inner">
+            <div className="p-4 rounded-xl bg-card/40 border border-amber-500/10 shadow-inner">
               <Label className="mb-3 block text-zinc-300">Custom Marquee Highlights</Label>
               <div className="flex gap-2 mb-3">
                 <input 

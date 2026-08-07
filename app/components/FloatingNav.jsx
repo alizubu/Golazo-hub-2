@@ -84,12 +84,12 @@ export default function FloatingNav({ session, me, players = [], notifications =
 
       {/* Command Search Dialog */}
       <Dialog open={searchOpen} onOpenChange={setSearchOpen}>
-        <DialogContent className="p-0 gap-0 w-screen h-screen sm:h-auto max-w-full sm:max-w-lg sm:rounded-xl bg-zinc-950 border-zinc-800 sm:shadow-2xl overflow-hidden m-0 sm:border-solid z-[99999]">
+        <DialogContent className="p-0 gap-0 w-screen h-screen sm:h-auto max-w-full sm:max-w-lg sm:rounded-xl bg-background border-zinc-800 sm:shadow-2xl overflow-hidden m-0 sm:border-solid z-[99999]">
           <DialogHeader className="sr-only">
             <DialogTitle>Search</DialogTitle>
           </DialogHeader>
           <Command className="bg-transparent">
-            <CommandInput placeholder="Search players, tabs..." className="h-12 text-sm border-b border-zinc-800 rounded-none text-white" />
+            <CommandInput placeholder="Search players, tabs..." className="h-12 text-sm border-b border-zinc-800 rounded-none text-foreground" />
             <CommandList className="max-h-80 p-2">
               <CommandEmpty className="py-6 text-center text-sm text-zinc-500">
                 No results found.
@@ -102,7 +102,7 @@ export default function FloatingNav({ session, me, players = [], notifications =
                       key={it.id}
                       value={it.label}
                       onSelect={() => { router.push(it.href); setSearchOpen(false); }}
-                      className="flex items-center gap-2 rounded-lg cursor-pointer py-2 text-zinc-300 hover:text-white"
+                      className="flex items-center gap-2 rounded-lg cursor-pointer py-2 text-zinc-300 hover:text-foreground"
                     >
                       <Icon size={15} className="text-zinc-500" />
                       <span>{it.label}</span>
@@ -117,7 +117,7 @@ export default function FloatingNav({ session, me, players = [], notifications =
                       key={p.id}
                       value={p.name}
                       onSelect={() => { router.push('/player/' + (p.username || p.id)); setSearchOpen(false); }}
-                      className="flex items-center gap-2 rounded-lg cursor-pointer py-2 text-zinc-300 hover:text-white"
+                      className="flex items-center gap-2 rounded-lg cursor-pointer py-2 text-zinc-300 hover:text-foreground"
                     >
                       <Avatar p={p} size={24} />
                       <span className="font-semibold">{p.name}</span>

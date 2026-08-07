@@ -256,7 +256,7 @@ function LeagueSnapshot({ matches, players, activeSeason, setTab }) {
         )}
       </div>
       <div className="mt-auto border-t border-border/50 pt-4 flex justify-end">
-        <button onClick={() => setTab && setTab('admin-season')} className="text-xs font-bold text-pitch-bright hover:text-white flex items-center transition-colors cursor-pointer">
+        <button onClick={() => setTab && setTab('admin-season')} className="text-xs font-bold text-pitch-bright hover:text-foreground flex items-center transition-colors cursor-pointer">
           View Full Standings <ArrowRight size={12} className="ml-1" />
         </button>
       </div>
@@ -557,7 +557,7 @@ function DashboardTimeline({ activeSeason, matches }) {
               {s.active ? <CheckCircle2 size={12} className="text-background" /> : <span className="text-[10px] font-bold">{i + 1}</span>}
             </div>
             <div className="flex flex-col sm:items-center text-left sm:text-center min-w-0 flex-1 sm:w-full sm:px-1">
-              <span className={`text-sm sm:text-xs font-bold font-heading leading-tight break-words ${s.active ? 'text-white' : 'text-muted-foreground'}`}>
+              <span className={`text-sm sm:text-xs font-bold font-heading leading-tight break-words ${s.active ? 'text-foreground' : 'text-muted-foreground'}`}>
                 {s.label}
               </span>
               <span className="text-[11px] sm:text-[10px] text-muted-foreground mt-1 sm:mt-0.5 leading-tight">
@@ -635,7 +635,7 @@ export function MobileStandingsList({ matches, players, activeSeason }) {
                 <div className="w-6 text-center font-black text-muted-foreground font-score text-sm">{i + 1}</div>
                 <Avatar p={s} size={40} className={isTop3 ? 'ring-2 ring-white/10' : ''} />
                 <div className="flex-1 min-w-0">
-                  <div className="font-bold text-white text-[15px] truncate">{formatName(s.name)}</div>
+                  <div className="font-bold text-foreground text-[15px] truncate">{formatName(s.name)}</div>
                   <div className="text-[11px] text-muted-foreground uppercase font-bold tracking-wider mt-0.5">Played: {s.played}</div>
                 </div>
                 <div className="flex flex-col items-end justify-center">
@@ -650,23 +650,23 @@ export function MobileStandingsList({ matches, players, activeSeason }) {
                     initial={{ height: 0, opacity: 0 }}
                     animate={{ height: 'auto', opacity: 1 }}
                     exit={{ height: 0, opacity: 0 }}
-                    className="overflow-hidden bg-black/20 border-t border-white/5"
+                    className="overflow-hidden bg-black/20 border-t border-border/50"
                   >
                     <div className="p-4 grid grid-cols-4 gap-4 text-center">
                       <div className="flex flex-col">
-                        <span className="text-lg font-bold font-score text-white">{s.won}-{s.drawn}-{s.lost}</span>
+                        <span className="text-lg font-bold font-score text-foreground">{s.won}-{s.drawn}-{s.lost}</span>
                         <span className="text-[9px] text-muted-foreground uppercase tracking-widest font-bold mt-1">W-D-L</span>
                       </div>
                       <div className="flex flex-col">
-                        <span className="text-lg font-bold font-score text-white">{s.gf}</span>
+                        <span className="text-lg font-bold font-score text-foreground">{s.gf}</span>
                         <span className="text-[9px] text-muted-foreground uppercase tracking-widest font-bold mt-1">GF</span>
                       </div>
                       <div className="flex flex-col">
-                        <span className="text-lg font-bold font-score text-white">{s.ga}</span>
+                        <span className="text-lg font-bold font-score text-foreground">{s.ga}</span>
                         <span className="text-[9px] text-muted-foreground uppercase tracking-widest font-bold mt-1">GA</span>
                       </div>
                       <div className="flex flex-col">
-                        <span className={`text-lg font-bold font-score ${s.gd > 0 ? 'text-emerald-400' : s.gd < 0 ? 'text-red-400' : 'text-white'}`}>
+                        <span className={`text-lg font-bold font-score ${s.gd > 0 ? 'text-emerald-400' : s.gd < 0 ? 'text-red-400' : 'text-foreground'}`}>
                           {s.gd > 0 ? `+${s.gd}` : s.gd}
                         </span>
                         <span className="text-[9px] text-muted-foreground uppercase tracking-widest font-bold mt-1">GD</span>

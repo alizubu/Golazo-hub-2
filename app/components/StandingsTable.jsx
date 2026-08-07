@@ -105,7 +105,7 @@ const FormDots = ({ form }) => {
           <HoverCard key={idx} openDelay={100} closeDelay={100}>
             <HoverCardTrigger asChild>
               <div 
-                className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold text-white shadow-inner cursor-pointer
+                className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold text-foreground shadow-inner cursor-pointer
                   ${res.result === 'W' ? 'bg-gradient-to-br from-emerald-400 to-emerald-600' : res.result === 'D' ? 'bg-gradient-to-br from-slate-400 to-slate-600' : 'bg-gradient-to-br from-red-400 to-red-600'}
                   ${isLast ? 'ring-2 ring-white/20 ring-offset-1 ring-offset-[#12151b] drop-shadow-[0_0_6px_rgba(255,255,255,0.2)] scale-110 z-10' : ''}
                 `}
@@ -113,12 +113,12 @@ const FormDots = ({ form }) => {
                 {res.result}
               </div>
             </HoverCardTrigger>
-            <HoverCardContent align="center" sideOffset={6} className="w-auto p-2.5 text-xs bg-[#12151b] border-white/10 shadow-[0_8px_32px_-8px_rgba(0,0,0,0.8)] z-[100] rounded-lg">
+            <HoverCardContent align="center" sideOffset={6} className="w-auto p-2.5 text-xs bg-[#12151b] border-border shadow-[0_8px_32px_-8px_rgba(0,0,0,0.8)] z-[100] rounded-lg">
               <div className="flex flex-col gap-1 text-center font-score">
-                <span className="font-bold text-white text-[13px]">
+                <span className="font-bold text-foreground text-[13px]">
                   {res.result === 'W' ? 'Won' : res.result === 'D' ? 'Drew' : 'Lost'} {res.score}
                 </span>
-                <span className="text-white/60 text-[11px] font-medium tracking-wide uppercase">vs {res.opp}</span>
+                <span className="text-foreground/60 text-[11px] font-medium tracking-wide uppercase">vs {res.opp}</span>
               </div>
             </HoverCardContent>
           </HoverCard>
@@ -192,7 +192,7 @@ export default function StandingsTable({ matches, players, seasonId, me, onPlaye
               <th className="p-3 text-center">GF</th>
               <th className="p-3 text-center">GA</th>
               <th className="p-3 text-center">GD</th>
-              <th className="p-3 text-center font-bold text-white">PTS</th>
+              <th className="p-3 text-center font-bold text-foreground">PTS</th>
               <th className="p-3 text-center w-40">Form</th>
             </tr>
           </thead>
@@ -237,7 +237,7 @@ export default function StandingsTable({ matches, players, seasonId, me, onPlaye
                             </div>
                           )}
                         </div>
-                        <span className="font-bold text-white font-heading text-[13px] group-hover:underline">{s.name}</span>
+                        <span className="font-bold text-foreground font-heading text-[13px] group-hover:underline">{s.name}</span>
                       </div>
                     </td>
                     <td className="p-3 text-center font-score text-muted-foreground font-semibold text-[13px]">{s.played}</td>

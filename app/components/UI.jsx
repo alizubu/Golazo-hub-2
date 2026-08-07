@@ -28,13 +28,13 @@ export const Card = ({ children, className = "", ...rest }) => (
 export const Btn = React.forwardRef(({ children, variant = "primary", className = "", disabled, loading, icon: Icon, ...rest }, ref) => {
   let variantClasses = "";
   switch(variant) {
-    case 'primary': variantClasses = "bg-pitch hover:bg-pitch-bright text-white shadow-md shadow-pitch/20"; break;
+    case 'primary': variantClasses = "bg-pitch hover:bg-pitch-bright text-foreground shadow-md shadow-pitch/20"; break;
     case 'gold': variantClasses = "bg-gold hover:bg-gold-dim text-black shadow-md shadow-gold/20"; break;
-    case 'claret': variantClasses = "bg-claret hover:bg-claret-dim text-white shadow-md shadow-claret/20"; break;
+    case 'claret': variantClasses = "bg-claret hover:bg-claret-dim text-foreground shadow-md shadow-claret/20"; break;
     case 'ghost': variantClasses = "bg-transparent border border-border/60 text-foreground hover:bg-secondary/80 hover:border-border"; break;
-    case 'danger': variantClasses = "bg-transparent border border-destructive/60 text-destructive hover:bg-destructive hover:text-white"; break;
+    case 'danger': variantClasses = "bg-transparent border border-destructive/60 text-destructive hover:bg-destructive hover:text-foreground"; break;
     case 'outline': variantClasses = "bg-transparent border border-border text-foreground hover:bg-secondary/60"; break;
-    default: variantClasses = "bg-pitch hover:bg-pitch-bright text-white"; break;
+    default: variantClasses = "bg-pitch hover:bg-pitch-bright text-foreground"; break;
   }
 
   return (
@@ -178,14 +178,14 @@ export const ShinyButton = ({ children, onClick, className = "", disabled, loadi
     onClick={onClick}
     disabled={disabled || loading}
     className={cn(
-      "relative overflow-hidden rounded-xl bg-pitch px-6 py-3 font-semibold text-white shadow-lg transition-colors hover:bg-pitch-bright cursor-pointer select-none",
+      "relative overflow-hidden rounded-xl bg-pitch px-6 py-3 font-semibold text-foreground shadow-lg transition-colors hover:bg-pitch-bright cursor-pointer select-none",
       disabled || loading ? "opacity-50 cursor-not-allowed" : "",
       className
     )}
     {...rest}
   >
     <span className="relative z-10 flex items-center justify-center gap-2">
-      {loading && <Loader2 className="animate-spin text-white shrink-0" size={18} />}
+      {loading && <Loader2 className="animate-spin text-foreground shrink-0" size={18} />}
       {children}
     </span>
     <div className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/20 to-transparent animate-[shimmer_1.5s_infinite] pointer-events-none" />
