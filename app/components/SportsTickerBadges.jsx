@@ -1,5 +1,5 @@
 import React from 'react';
-import { CheckCircle2, Zap, TrendingUp, Flame, Trophy, Megaphone, Rocket, Shield, Target, Clock, Crown, Gem, Compass } from 'lucide-react';
+import { CheckCircle2, Zap, TrendingUp, Flame, Trophy, Megaphone } from 'lucide-react';
 
 /* ---------------------------------------------------------
    DATA: 40 THEMES FROM SHOWCASE
@@ -310,152 +310,6 @@ export function getThemeStyles(themeId) {
 }
 
 /* ---------------------------------------------------------
-   10 EFOOTBALL MOBILE HIGHLIGHT REEL BADGES
---------------------------------------------------------- */
-export const EFOOTBALL_HIGHLIGHT_BADGES = [
-  {
-    id: 'rocket-screamer',
-    name: 'Rocket Screamer',
-    shortLabel: 'ROCKET SCREAMER',
-    emoji: '🚀',
-    icon: Rocket,
-    desc: 'Goal scored from 25+ yards out outside the box',
-    style: {
-      background: 'linear-gradient(135deg, #4c1d95, #8b5cf6 50%, #06b6d4)',
-      color: '#ffffff',
-      border: '1px solid rgba(167, 139, 250, 0.6)',
-      boxShadow: '0 0 12px rgba(139, 92, 246, 0.4)'
-    }
-  },
-  {
-    id: 'blitz-comeback',
-    name: 'Blitz Comeback',
-    shortLabel: 'BLITZ COMEBACK',
-    emoji: '⚡',
-    icon: Zap,
-    desc: '2+ goals in under 5 mins or clutch stoppage time equalizer/winner',
-    style: {
-      background: 'linear-gradient(135deg, #78350f, #f59e0b 50%, #ef4444)',
-      color: '#ffffff',
-      border: '1px solid rgba(251, 191, 36, 0.6)',
-      boxShadow: '0 0 12px rgba(245, 158, 11, 0.5)'
-    }
-  },
-  {
-    id: 'ankle-breaker',
-    name: 'Ankle Breaker',
-    shortLabel: 'ANKLE BREAKER',
-    emoji: '💎',
-    icon: Gem,
-    desc: 'Solo goal with 3+ successful dribbles past defenders',
-    style: {
-      background: 'linear-gradient(135deg, #0f172a, #38bdf8 50%, #818cf8)',
-      color: '#ffffff',
-      border: '1px solid rgba(56, 189, 248, 0.6)',
-      boxShadow: '0 0 12px rgba(56, 189, 248, 0.4)'
-    }
-  },
-  {
-    id: 'mastermind-assist',
-    name: 'Mastermind Assist',
-    shortLabel: 'MASTERMIND ASSIST',
-    emoji: '🎩',
-    icon: Compass,
-    desc: 'Pinpoint lofted through-ball or backheel assist',
-    style: {
-      background: 'linear-gradient(135deg, #713f12, #eab308 50%, #ca8a04)',
-      color: '#1a1003',
-      border: '1px solid rgba(253, 224, 71, 0.7)',
-      boxShadow: '0 0 12px rgba(234, 179, 8, 0.4)'
-    }
-  },
-  {
-    id: 'brick-wall',
-    name: 'Brick Wall',
-    shortLabel: 'BRICK WALL',
-    emoji: '🧱',
-    icon: Shield,
-    desc: 'GK makes 3 consecutive saves or penalty save heroics',
-    style: {
-      background: 'linear-gradient(135deg, #064e3b, #10b981 50%, #059669)',
-      color: '#ffffff',
-      border: '1px solid rgba(52, 211, 153, 0.6)',
-      boxShadow: '0 0 12px rgba(16, 185, 129, 0.4)'
-    }
-  },
-  {
-    id: 'hat-trick-hero',
-    name: 'Hat-Trick Hero',
-    shortLabel: 'HAT-TRICK HERO',
-    emoji: '🔥',
-    icon: Flame,
-    desc: 'Player scores 3+ goals in a single match',
-    style: {
-      background: 'linear-gradient(135deg, #7f1d1d, #dc2626 50%, #f97316)',
-      color: '#ffffff',
-      border: '1px solid rgba(248, 113, 113, 0.7)',
-      boxShadow: '0 0 14px rgba(220, 38, 38, 0.5)'
-    }
-  },
-  {
-    id: 'precision-maestro',
-    name: 'Precision Maestro',
-    shortLabel: 'PRECISION MAESTRO',
-    emoji: '🎯',
-    icon: Target,
-    desc: 'Direct free-kick goal or top-corner finesse curler',
-    style: {
-      background: 'linear-gradient(135deg, #1e1b4b, #6366f1 50%, #ec4899)',
-      color: '#ffffff',
-      border: '1px solid rgba(165, 180, 252, 0.6)',
-      boxShadow: '0 0 12px rgba(99, 102, 241, 0.4)'
-    }
-  },
-  {
-    id: 'clutch-stunner',
-    name: 'Clutch Stunner',
-    shortLabel: 'CLUTCH STUNNER',
-    emoji: '⏱️',
-    icon: Clock,
-    desc: '90+ stoppage time match-altering goal',
-    style: {
-      background: 'linear-gradient(135deg, #450a0a, #e11d48 50%, #f43f5e)',
-      color: '#ffffff',
-      border: '1px solid rgba(251, 113, 133, 0.7)',
-      boxShadow: '0 0 14px rgba(225, 29, 72, 0.5)'
-    }
-  },
-  {
-    id: 'bullet-header',
-    name: 'Bullet Header',
-    shortLabel: 'BULLET HEADER',
-    emoji: '💥',
-    icon: Zap,
-    desc: 'Power header goal off a corner or deep cross',
-    style: {
-      background: 'linear-gradient(135deg, #312e81, #4f46e5 50%, #0284c7)',
-      color: '#ffffff',
-      border: '1px solid rgba(129, 140, 248, 0.6)',
-      boxShadow: '0 0 12px rgba(79, 70, 229, 0.4)'
-    }
-  },
-  {
-    id: 'epic-card',
-    name: 'Epic Card Showcase',
-    shortLabel: 'EPIC BIG TIME',
-    emoji: '👑',
-    icon: Crown,
-    desc: 'MOTM performance with 9.0+ rating or 3+ goal contributions',
-    style: {
-      background: 'linear-gradient(135deg, #451a03, #d97706 50%, #f59e0b)',
-      color: '#ffffff',
-      border: '1px solid rgba(252, 211, 77, 0.8)',
-      boxShadow: '0 0 16px rgba(245, 158, 11, 0.6)'
-    }
-  }
-];
-
-/* ---------------------------------------------------------
    Shiny Badges (for Smart Content & Highlights)
 --------------------------------------------------------- */
 export const BADGE_STYLES = {
@@ -466,29 +320,15 @@ export const BADGE_STYLES = {
   streakCold: { background: "linear-gradient(135deg,#0b1a3d,#3988ff 50%,#0b1a3d)", color: "#cce0ff" }
 };
 
-export function ShinyBadge({ label, style, icon: Icon, onClick }) {
+export function ShinyBadge({ label, style, icon: Icon }) {
   return (
     <span
-      onClick={onClick}
-      className={`shiny relative inline-flex items-center gap-1.5 overflow-hidden rounded-full px-3 py-1.5 text-[11px] font-extrabold tracking-wide shadow-lg shrink-0 ${onClick ? 'cursor-pointer hover:scale-105 active:scale-95 transition-transform' : ''}`}
+      className="shiny relative inline-flex items-center gap-1.5 overflow-hidden rounded-full px-3 py-1.5 text-[11px] font-extrabold tracking-wide shadow-lg shrink-0"
       style={style}
     >
       {Icon && <Icon size={12} />}
       {label}
     </span>
-  );
-}
-
-export function EFootballBadge({ badgeId, onClick }) {
-  const badgeDef = EFOOTBALL_HIGHLIGHT_BADGES.find(b => b.id === badgeId) || EFOOTBALL_HIGHLIGHT_BADGES[0];
-  const Icon = badgeDef.icon;
-  return (
-    <ShinyBadge
-      label={`${badgeDef.emoji} ${badgeDef.shortLabel}`}
-      icon={Icon}
-      style={badgeDef.style}
-      onClick={onClick ? () => onClick(badgeDef) : undefined}
-    />
   );
 }
 
@@ -528,6 +368,6 @@ export function StreakBadge({ type, sizeKey }) {
   return <ShinyBadge label={isHot ? "STREAK" : "ALERT"} icon={isHot ? Flame : Zap} style={isHot ? BADGE_STYLES.streakHot : BADGE_STYLES.streakCold} />;
 }
 
-export function HighlightBadge({ sizeKey, onClick }) {
-  return <ShinyBadge label="HIGHLIGHT" icon={Trophy} style={BADGE_STYLES.highlight} onClick={onClick} />;
+export function HighlightBadge({ sizeKey }) {
+  return <ShinyBadge label="HIGHLIGHT" icon={Trophy} style={BADGE_STYLES.highlight} />;
 }

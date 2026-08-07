@@ -14,11 +14,8 @@ import {
   StreakBadge,
   HighlightBadge,
   ShinyBadge,
-  EFootballBadge,
-  EFOOTBALL_HIGHLIGHT_BADGES,
   BADGE_STYLES
 } from './SportsTickerBadges';
-import EFootballCardModal from './eFootballCardModal';
 
 // ── Match Chip Component ───────────────────────────────────────────────────
 function MatchChip({ match, home, away, theme, isLive, onClick, showAvatars, previewMode }) {
@@ -46,7 +43,6 @@ function MatchChip({ match, home, away, theme, isLive, onClick, showAvatars, pre
 // ── Main Component ───────────────────────────────────────────────────────────
 export default function SportsTicker({ matches = [], announcements = [], players = [], tickerConfig, previewMode = false, standings = [] }) {
   const [selectedMatchId, setSelectedMatchId] = useState(null);
-  const [activeCardBadge, setActiveCardBadge] = useState(null);
 
   const cfg = tickerConfig ?? {
     enabled: true, source: 'live_recent', speed: 50,
@@ -90,9 +86,9 @@ export default function SportsTicker({ matches = [], announcements = [], players
     const topScorer = [...sorted].sort((a, b) => b.goals - a.goals)[0];
     const topCleanSheet = [...sorted].sort((a, b) => b.cleanSheets - a.cleanSheets)[0];
     
-    if (topScorer && topScorer.goals > 0) result.push({ text: `GOLDEN BOOT RACE: ${topScorer.name} leads with ${topScorer.goals} Goals!`, badgeId: 'epic-card' });
-    if (topCleanSheet && topCleanSheet.cleanSheets > 0) result.push({ text: `BRICK WALL HERO: ${topCleanSheet.name} has ${topCleanSheet.cleanSheets} Clean Sheets.`, badgeId: 'brick-wall' });
-    result.push({ text: `LEAGUE UPDATE: ${completed.length} Matches Officially Completed.`, badgeId: 'blitz-comeback' });
+    if (topScorer && topScorer.goals > 0) result.push(`GOLDEN BOOT RACE: ${topScorer.name} leads with ${topScorer.goals} Goals!`);
+    if (topCleanSheet && topCleanSheet.cleanSheets > 0) result.push(`BRICK WALL: ${topCleanSheet.name} has ${topCleanSheet.cleanSheets} Clean Sheets.`);
+    result.push(`LEAGUE UPDATE: ${completed.length} Matches Officially Completed.`);
     
     return result;
   }, [cfg.showStats, matches, players]);
@@ -120,9 +116,9 @@ export default function SportsTicker({ matches = [], announcements = [], players
     if (biggestMatch && biggestMargin > 0) {
       const h = getPlayer(biggestMatch.homeId);
       const a = getPlayer(biggestMatch.awayId);
-      if (h && a) result.push({ text: `ABSOLUTE ROUT: ${h.name} destroys ${a.name} ${biggestMatch.homeScore}-${biggestMatch.awayScore}!`, badgeId: 'rocket-screamer', player: h, match: biggestMatch });
+      if (h && a) result.push(`ABSOLUTE ROUT: ${h.name} destroys ${a.name} ${biggestMatch.homeScore}-${biggestMatch.awayScore}!`);
     }
-    if (totalGoals > 0) result.push({ text: `GOAL FEST: ${totalGoals} goals scored in the last ${recent.length} games!`, badgeId: 'hat-trick-hero' });
+    if (totalGoals > 0) result.push(`GOAL FEST: ${totalGoals} goals scored in the last ${recent.length} games!`);
     return result;
   }, [cfg.showHighlights, matches, getPlayer]);
 
@@ -150,9 +146,9 @@ export default function SportsTicker({ matches = [], announcements = [], players
       }
       if (streak >= 3) {
         if (streakType === 'W') {
-          result.push({ text: `UNSTOPPABLE! ${p.name} is on a ${streak}-Game WINNING Streak!`, type: 'win', badgeId: 'blitz-comeback', player: p });
+          result.push({ text: `UNSTOPPABLE! ${p.name} is on a ${streak}-Game WINNING Streak!`, type: 'win' });
         } else {
-          result.push({ text: `IN CRISIS! ${p.name} suffers ${streak} consecutive losses.`, type: 'loss', badgeId: 'clutch-stunner', player: p });
+          result.push({ text: `IN CRISIS! ${p.name} suffers ${streak} consecutive losses.`, type: 'loss' });
         }
       }
     });
@@ -247,21 +243,21 @@ export default function SportsTicker({ matches = [], announcements = [], players
   });
 
   // ── Stats Ticker Items ────────────────────────────────────────────────────
-  statsItems.forEach((st, i) => {
+  statsItems.forEach((text, i) => {
     items.push(
       <div key={`stat-${i}`} className="flex items-center shrink-0 gap-3 font-semibold mx-4">
-        <EFootballBadge badgeId={st.badgeId} onClick={(b) => setActiveCardBadge({ badge: b })} />
-        <span style={{ color: theme.team, fontFamily: theme.font }} className="text-sm font-bold tracking-wide">{st.text}</span>
+        <StatsBadge />
+        <span style={{ color: theme.team, fontFamily: theme.font }} className="text-sm font-bold tracking-wide">{text}</span>
       </div>
     );
   });
 
   // ── Highlight Reel Items ──────────────────────────────────────────────────
-  highlightItems.forEach((hl, i) => {
+  highlightItems.forEach((text, i) => {
     items.push(
       <div key={`hl-${i}`} className="flex items-center shrink-0 gap-3 font-semibold mx-4">
-        <EFootballBadge badgeId={hl.badgeId} onClick={(b) => setActiveCardBadge({ badge: b, player: hl.player, match: hl.match })} />
-        <span style={{ color: theme.team, fontFamily: theme.font }} className="text-sm font-bold tracking-wide">{hl.text}</span>
+        <HighlightBadge />
+        <span style={{ color: theme.team, fontFamily: theme.font }} className="text-sm font-bold tracking-wide">{text}</span>
       </div>
     );
   });
@@ -270,7 +266,7 @@ export default function SportsTicker({ matches = [], announcements = [], players
   streakItems.forEach((item, i) => {
     items.push(
       <div key={`streak-${i}`} className="flex items-center shrink-0 gap-3 font-semibold mx-4">
-        <EFootballBadge badgeId={item.badgeId} onClick={(b) => setActiveCardBadge({ badge: b, player: item.player })} />
+        <StreakBadge type={item.type} />
         <span style={{ color: theme.team, fontFamily: theme.font }} className="text-sm font-bold tracking-wide">{item.text}</span>
       </div>
     );
@@ -331,7 +327,7 @@ export default function SportsTicker({ matches = [], announcements = [], players
         aria-live="polite" 
         role="marquee"
       >
-        {/* Gradients on edges for smooth scrolling fade out */}
+        {/* Gradients on edges for smooth scrolling fade out. Hard to pick colors dynamically, so a dark fade is safe */}
         <div className={`absolute left-0 top-0 bottom-0 w-8 sm:w-16 bg-gradient-to-r ${theme.page === 'light' ? 'from-white/70' : 'from-black/70'} to-transparent z-10 pointer-events-none`} />
         <div className={`absolute right-0 top-0 bottom-0 w-8 sm:w-16 bg-gradient-to-l ${theme.page === 'light' ? 'from-white/70' : 'from-black/70'} to-transparent z-10 pointer-events-none`} />
         
@@ -356,18 +352,6 @@ export default function SportsTicker({ matches = [], announcements = [], players
         <MatchStatsModal
           matchId={selectedMatchId}
           onClose={() => setSelectedMatchId(null)}
-        />
-      )}
-
-      {activeCardBadge && !previewMode && (
-        <EFootballCardModal
-          open={!!activeCardBadge}
-          onClose={() => setActiveCardBadge(null)}
-          badge={activeCardBadge.badge}
-          player={activeCardBadge.player}
-          match={activeCardBadge.match}
-          homeTeam={activeCardBadge.match ? getPlayer(activeCardBadge.match.homeId) : null}
-          awayTeam={activeCardBadge.match ? getPlayer(activeCardBadge.match.awayId) : null}
         />
       )}
     </>

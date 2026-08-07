@@ -1,13 +1,12 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Activity, CheckCircle2, Megaphone, Radio, Zap, TrendingUp, Flame, Eye, Type, Minus, Maximize2, Minimize2, Sparkles } from 'lucide-react';
+import { Activity, CheckCircle2, Megaphone, Radio, Zap, TrendingUp, Flame, Eye, Type, Minus, Maximize2, Minimize2 } from 'lucide-react';
 import { Card, Label, SectionTitle, FadeIn, ShinyButton, Badge } from './UI';
 import { motion } from 'framer-motion';
 import { saveTickerConfig } from '@/app/actions/admin';
 import SportsTicker from './SportsTicker';
-import { THEMES, SEPARATORS, EFOOTBALL_HIGHLIGHT_BADGES } from './SportsTickerBadges';
-import EFootballCardModal from './eFootballCardModal';
+import { THEMES, SEPARATORS } from './SportsTickerBadges';
 
 // ── Toggle Switch ────────────────────────────────────────────────────────────
 function Toggle({ checked, onChange, label, desc }) {
@@ -150,7 +149,6 @@ export default function AdminBroadcast({ matches = [], players = [], announcemen
   const [draft, setDraft] = useState(DEFAULT_TICKER);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [activePreviewBadge, setActivePreviewBadge] = useState(null);
 
   useEffect(() => {
     fetch('/api/admin/ticker-config')
@@ -397,43 +395,39 @@ export default function AdminBroadcast({ matches = [], players = [], announcemen
         </Card>
       </FadeIn>
 
-      {/* ── 10 eFootball Mobile Highlight Reel Badges Showcase ───────────────────── */}
-      <FadeIn delay={0.35}>
-        <Card className="p-4 sm:p-6 border-amber-500/20 bg-amber-500/5">
-          <div className="flex items-center justify-between mb-2">
-            <SectionTitle icon={Sparkles} className="text-amber-400">10 eFootball Mobile Highlight Reel Badges</SectionTitle>
-            <Badge className="bg-amber-500/20 text-amber-300 border-amber-500/40 text-[9px] uppercase tracking-wider font-bold">Interactive Showcase</Badge>
-          </div>
-          <p className="text-xs text-muted-foreground mb-4">Click any badge to launch the eFootball 3D Card Reveal modal preview.</p>
-          
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
-            {EFOOTBALL_HIGHLIGHT_BADGES.map(b => (
-              <button
-                key={b.id}
-                onClick={() => setActivePreviewBadge(b)}
-                className="flex flex-col items-center justify-center p-3 rounded-xl border border-white/10 bg-black/40 hover:bg-white/10 hover:border-amber-500/50 transition-all text-center group cursor-pointer"
-              >
-                <span className="text-2xl mb-1.5 group-hover:scale-110 transition-transform">{b.emoji}</span>
-                <span className="text-xs font-bold text-white leading-tight mb-1">{b.name}</span>
-                <span className="text-[9px] text-zinc-400 line-clamp-2 leading-tight">{b.desc}</span>
-              </button>
-            ))}
+      {/* ── Smart Content ───────────────────────────────────────────────────── */}
+      <FadeIn delay={0.3}>
+        <Card className="p-4 sm:p-6 border-pitch-bright/10">
+          <SectionTitle icon={Zap}>Smart Content</SectionTitle>
+          <p className="text-xs text-muted-foreground mt-1 mb-4">Auto-generated ticker items based on match data. These update in real-time.</p>
+          <div className="flex flex-col gap-3">
+            <div className="p-4 rounded-xl bg-white/5 border border-white/5">
+              <Toggle
+                checked={draft.showStats}
+                onChange={v => update('showStats', v)}
+                label="📊 Stats Ticker Mode"
+                desc="Show top scorer, league leader, and match count"
+              />
+            </div>
+            <div className="p-4 rounded-xl bg-white/5 border border-white/5">
+              <Toggle
+                checked={draft.showHighlights}
+                onChange={v => update('showHighlights', v)}
+                label="⚡ Highlight Reel"
+                desc="Biggest win margin, total goals from recent matches"
+              />
+            </div>
+            <div className="p-4 rounded-xl bg-white/5 border border-white/5">
+              <Toggle
+                checked={draft.showStreaks}
+                onChange={v => update('showStreaks', v)}
+                label="🔥 Player Streak Alerts"
+                desc="Auto-detect 3+ game win/loss streaks and alert viewers"
+              />
+            </div>
           </div>
         </Card>
       </FadeIn>
-
-      {/* Modal preview */}
-      {activePreviewBadge && (
-        <EFootballCardModal
-          open={!!activePreviewBadge}
-          onClose={() => setActivePreviewBadge(null)}
-          badge={activePreviewBadge}
-          player={players[0] || { name: 'Erling Haaland', username: 'haaland9', teamName: 'Man City XI' }}
-          match={matches[0] || { homeScore: 3, awayScore: 1 }}
-          homeTeam={players[0] || { name: 'Home XI' }}
-          awayTeam={players[1] || { name: 'Away XI' }}
-        />
-      )}
 
       {/* ── Save Button ─────────────────────────────────────────────────────── */}
       <div className="sticky bottom-0 -mx-4 md:mx-0 p-4 md:p-0 md:pt-2 md:pb-4 bg-background/90 backdrop-blur-md md:bg-transparent border-t border-border/50 md:border-t-0 z-40 flex justify-end mt-4">

@@ -108,19 +108,6 @@ function ScoreRow({ home, away, homeScore, awayScore, homeObj, awayObj, paused, 
             <span className="text-sm sm:text-base font-bold text-zinc-50 text-center leading-tight bg-transparent selection:bg-claret/30">{away}</span>
           </div>
         </div>
-
-        {/* eFootball Dynamic Momentum HUD Bar */}
-        <div className="w-full max-w-xs mt-4 flex flex-col gap-1 px-2">
-          <div className="flex justify-between items-center text-[9px] font-extrabold uppercase tracking-widest">
-            <span className="text-pitch-bright">PRESS 58%</span>
-            <span className="text-zinc-500 font-mono text-[8px] flex items-center gap-1">⚡ eFootball Momentum</span>
-            <span className="text-rose-400">PRESS 42%</span>
-          </div>
-          <div className="w-full h-2 rounded-full bg-zinc-950 border border-white/10 overflow-hidden flex shadow-inner">
-            <div className="h-full bg-gradient-to-r from-emerald-500 to-pitch-bright transition-all duration-500" style={{ width: '58%' }} />
-            <div className="h-full bg-gradient-to-r from-rose-500 to-claret transition-all duration-500" style={{ width: '42%' }} />
-          </div>
-        </div>
       </div>
     </div>
   );
