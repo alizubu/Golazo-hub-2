@@ -47,15 +47,16 @@ export async function extractMatchStats(formData) {
       }
     `;
 
-    // Using the Interactions API as requested
+    // Using the Interactions API as requested (v2.x schema)
     const interaction = await ai.interactions.create({
       model: "gemini-2.5-flash",
       input: [
         {
-          role: "user",
-          parts: [
-            { text: promptText },
+          type: "user_input",
+          content: [
+            { type: "text", text: promptText },
             {
+              type: "image",
               inlineData: {
                 data: base64Image,
                 mimeType: mimeType
