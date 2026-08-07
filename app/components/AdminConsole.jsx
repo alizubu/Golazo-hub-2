@@ -418,7 +418,10 @@ function CompletedMatchCard({ m, h, a, players, showToast, isPlayoff = false }) 
 
   return (
     <div className="flex flex-col mb-4">
-      <MagicCard className={`group p-3 sm:p-4 transition-all duration-300 relative overflow-hidden ${isEditingStats ? 'bg-secondary/60 shadow-lg border-green-500/30 rounded-b-none border-b-0 z-10' : 'bg-secondary/30 hover:bg-secondary/40 rounded-xl border border-border/30'}`}>
+      <MagicCard 
+        onClick={() => setIsEditingStats(!isEditingStats)}
+        className={`group p-3 sm:p-4 transition-all duration-300 relative overflow-hidden cursor-pointer ${isEditingStats ? 'bg-secondary/60 shadow-lg border-green-500/30 rounded-b-none border-b-0 z-10' : 'bg-secondary/30 hover:bg-secondary/40 rounded-xl border border-border/30'}`}
+      >
         <div className="flex items-center gap-2">
           <div className="grid grid-cols-[1fr_auto_1fr] sm:grid-cols-3 gap-2 items-center w-full sm:pr-8 pr-6">
             <div className="flex w-full items-center justify-end gap-1.5 sm:gap-3">
@@ -449,7 +452,10 @@ function CompletedMatchCard({ m, h, a, players, showToast, isPlayoff = false }) 
           <div className="absolute right-3 sm:right-4 flex justify-end">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <button className="opacity-100 sm:opacity-0 group-hover:opacity-100 transition-opacity p-1.5 rounded-lg hover:bg-secondary text-muted-foreground">
+                <button 
+                  onClick={(e) => e.stopPropagation()} 
+                  className="opacity-100 sm:opacity-0 group-hover:opacity-100 transition-opacity p-1.5 rounded-lg hover:bg-secondary text-muted-foreground"
+                >
                   <MoreVertical size={16} />
                 </button>
               </DropdownMenuTrigger>
