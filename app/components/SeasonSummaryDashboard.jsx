@@ -122,7 +122,7 @@ const cardVariants = {
 function AwardCard({ icon: Icon, label, playerName, value, player, accentFrom, accentTo, delay = 0 }) {
   return (
     <motion.div variants={cardVariants} className="relative group">
-      <div className={`relative overflow-hidden rounded-2xl border border-white/[0.06] bg-[#0d1017] p-4 sm:p-5 transition-all duration-300 hover:border-white/[0.12] hover:shadow-lg`}>
+      <div className={`relative overflow-hidden rounded-2xl border border-border/50 dark:border-white/[0.06] bg-card dark:bg-[#0d1017] p-4 sm:p-5 transition-all duration-300 hover:border-border/50 dark:border-white/[0.12] hover:shadow-lg`}>
         {/* Gradient glow */}
         <div
           className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"
@@ -149,7 +149,7 @@ function AwardCard({ icon: Icon, label, playerName, value, player, accentFrom, a
               <span className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">{label}</span>
             </div>
             {playerName && (
-              <div className="text-sm font-bold text-zinc-100 truncate">{playerName}</div>
+              <div className="text-sm font-bold text-foreground dark:text-zinc-100 truncate">{playerName}</div>
             )}
             <div className="text-lg sm:text-xl font-black mt-0.5" style={{ color: accentFrom }}>
               {value}
@@ -163,11 +163,11 @@ function AwardCard({ icon: Icon, label, playerName, value, player, accentFrom, a
 
 function GlobalStatPill({ icon: Icon, label, value, color }) {
   return (
-    <motion.div variants={cardVariants} className="flex items-center gap-2.5 px-4 py-2.5 rounded-xl bg-[#0d1017] border border-white/[0.06]">
+    <motion.div variants={cardVariants} className="flex items-center gap-2.5 px-4 py-2.5 rounded-xl bg-card dark:bg-[#0d1017] border border-border/50 dark:border-white/[0.06]">
       <Icon size={16} style={{ color }} className="shrink-0" />
       <div className="flex flex-col">
         <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">{label}</span>
-        <span className="text-base font-black text-zinc-100">{value}</span>
+        <span className="text-base font-black text-foreground dark:text-zinc-100">{value}</span>
       </div>
     </motion.div>
   );
@@ -202,7 +202,7 @@ export default function SeasonSummaryDashboard({ season, matches, players, compa
       {/* Season Header with Champion */}
       {(champion || runnerUp) && (
         <motion.div variants={cardVariants} className="mb-5">
-          <div className="relative overflow-hidden rounded-2xl border border-white/[0.06] bg-[#0d1017] p-5 sm:p-6">
+          <div className="relative overflow-hidden rounded-2xl border border-border/50 dark:border-white/[0.06] bg-card dark:bg-[#0d1017] p-5 sm:p-6">
             {/* Gold shimmer bg for champion */}
             <div className="absolute inset-0 pointer-events-none" style={{
               background: 'radial-gradient(ellipse at 30% 0%, rgba(232,179,76,0.08), transparent 60%), radial-gradient(ellipse at 70% 100%, rgba(192,192,192,0.04), transparent 60%)'
@@ -221,7 +221,7 @@ export default function SeasonSummaryDashboard({ season, matches, players, compa
                   </div>
                   <div className="text-center">
                     <div className="text-xs font-bold uppercase tracking-wider text-yellow-500/80">Champion</div>
-                    <div className="text-sm font-bold text-zinc-100">{champion.name}</div>
+                    <div className="text-sm font-bold text-foreground dark:text-zinc-100">{champion.name}</div>
                   </div>
                 </div>
               )}

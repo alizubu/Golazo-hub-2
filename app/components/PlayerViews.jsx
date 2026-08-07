@@ -915,7 +915,7 @@ function HistoryView({ history, players, matches, setTab }) {
                   <div className="text-sm font-bold font-heading tracking-wide">{champ?.name || "—"}</div>
                   <div className="text-[10px] uppercase tracking-widest text-muted-foreground mt-1">Champion</div>
                 </div>
-                <div className="p-4 rounded-xl bg-zinc-400/10 border border-zinc-400/20">
+                <div className="p-4 rounded-xl bg-secondary dark:bg-zinc-400/10 border border-border dark:border-zinc-400/20">
                   <Trophy size={24} className="mx-auto mb-2 text-muted-foreground" />
                   <div className="text-sm font-bold font-heading tracking-wide">{runner?.name || "—"}</div>
                   <div className="text-[10px] uppercase tracking-widest text-muted-foreground mt-1">Runner-up</div>
@@ -933,7 +933,7 @@ function HistoryView({ history, players, matches, setTab }) {
               )}
 
               {/* Season Summary Dashboard */}
-              <div className="mt-5 pt-5 border-t border-white/[0.06]">
+              <div className="mt-5 pt-5 border-t border-border/50 dark:border-white/[0.06]">
                 <SeasonSummaryDashboard season={t} matches={seasonMatches} players={players} compact />
               </div>
             </MagicCard>

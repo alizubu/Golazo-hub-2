@@ -252,7 +252,7 @@ export default function CelebrationBanner({ initialCelebrations = [] }) {
                       {current.trophy.player.name.substring(0,2).toUpperCase()}
                     </div>
                   )}
-                  <span className="font-bold text-sm text-zinc-200 group-hover:text-foreground transition-colors">
+                  <span className="font-bold text-sm text-foreground dark:text-zinc-200 group-hover:text-foreground transition-colors">
                     {current.trophy.player.name}
                   </span>
                   <ChevronRight className="w-4 h-4 text-muted-foreground group-hover:text-amber-400 group-hover:translate-x-1 transition-all" />

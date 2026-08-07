@@ -258,7 +258,7 @@ export default function AdminBroadcast({ matches = [], players = [], announcemen
                   onChange={e => update('speed', Number(e.target.value))}
                   className="w-full h-2 bg-secondary dark:bg-zinc-800 rounded-full appearance-none cursor-pointer accent-amber-500 [&::-webkit-slider-thumb]:w-5 [&::-webkit-slider-thumb]:h-5 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-amber-400 [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:shadow-[0_0_10px_rgba(245,158,11,0.5)] [&::-webkit-slider-thumb]:border-2 [&::-webkit-slider-thumb]:border-amber-300 [&::-webkit-slider-thumb]:cursor-pointer"
                 />
-                <div className="flex justify-between mt-2 text-[9px] text-zinc-600 font-bold uppercase tracking-widest">
+                <div className="flex justify-between mt-2 text-[9px] text-muted-foreground font-bold uppercase tracking-widest">
                   <span>🐢 Slow</span>
                   <span>⚡ Fast</span>
                 </div>
@@ -279,7 +279,7 @@ export default function AdminBroadcast({ matches = [], players = [], announcemen
               value={draft.breakingNews}
               onChange={e => update('breakingNews', e.target.value)}
               placeholder="e.g. Ali Zubu breaks the all-time goal record!"
-              className="w-full px-4 py-3 rounded-xl bg-red-500/5 border border-red-500/20 text-foreground placeholder:text-zinc-600 focus:outline-none focus:border-red-500/40 focus:ring-1 focus:ring-red-500/20 text-sm"
+              className="w-full px-4 py-3 rounded-xl bg-red-500/5 border border-red-500/20 text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-red-500/40 focus:ring-1 focus:ring-red-500/20 text-sm"
             />
             {draft.breakingNews && (
               <button
@@ -547,7 +547,7 @@ export default function AdminBroadcast({ matches = [], players = [], announcemen
                   </div>
                 ))}
                 {(!draft.customHighlights || draft.customHighlights.length === 0) && (
-                  <p className="text-[11px] text-zinc-600 text-center py-2">No custom highlights added.</p>
+                  <p className="text-[11px] text-muted-foreground text-center py-2">No custom highlights added.</p>
                 )}
               </div>
             </div>

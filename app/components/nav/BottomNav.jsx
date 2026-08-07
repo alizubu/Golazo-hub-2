@@ -54,7 +54,7 @@ export const BottomNav = ({ items, pathname, isActive, handleNav, hasLiveMatch }
                 </>
               )}
               
-              <fabItem.icon size={28} className="text-zinc-950 drop-shadow-sm transition-transform group-active:scale-90" strokeWidth={2.5} />
+              <fabItem.icon size={28} className="text-foreground dark:text-zinc-950 drop-shadow-sm transition-transform group-active:scale-90" strokeWidth={2.5} />
             </Link>
           )}
         </div>
@@ -102,7 +102,7 @@ const NavItem = ({ item, isActive, handleNav, shouldReduceMotion, hasLiveMatch }
             <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-rose-500 rounded-full border-2 border-zinc-950 animate-pulse" />
           )}
         </div>
-        <span className={`text-[10px] font-bold tracking-wide transition-colors duration-300 ${active ? colorClass : 'text-zinc-600 group-hover:text-muted-foreground'}`}>
+        <span className={`text-[10px] font-bold tracking-wide transition-colors duration-300 ${active ? colorClass : 'text-muted-foreground group-hover:text-muted-foreground'}`}>
           {item.label}
         </span>
       </motion.div>

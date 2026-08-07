@@ -50,7 +50,7 @@ function CardHeader({ title, status, tone }) {
         <div className="w-9 h-9 rounded-lg flex items-center justify-center bg-pitch/20 text-pitch-bright">
           <Play size={15} className="fill-pitch-bright" />
         </div>
-        <h1 className="text-base sm:text-[17px] font-bold text-zinc-50">{title}</h1>
+        <h1 className="text-base sm:text-[17px] font-bold text-foreground dark:text-zinc-50">{title}</h1>
       </div>
       <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-bold tracking-wider border ${tones[tone]}`}>
         <span className="relative flex h-2 w-2">
@@ -86,27 +86,27 @@ function ScoreRow({ home, away, homeScore, awayScore, homeObj, awayObj, paused, 
         <div className="flex items-center justify-center gap-4 sm:gap-8 w-full max-w-lg mx-auto">
           {/* Home */}
           <div className="flex flex-col items-center gap-2 sm:gap-3 flex-1">
-            <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-full flex items-center justify-center font-black text-lg sm:text-2xl bg-secondary dark:bg-zinc-900 text-zinc-50 border-[3px] border-pitch shadow-[0_0_20px_rgba(41,193,121,0.4)] overflow-hidden">
+            <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-full flex items-center justify-center font-black text-lg sm:text-2xl bg-secondary dark:bg-zinc-900 text-foreground dark:text-zinc-50 border-[3px] border-pitch shadow-[0_0_20px_rgba(41,193,121,0.4)] overflow-hidden">
               <Avatar p={homeObj} size={64} className="w-full h-full" />
             </div>
-            <span className="text-sm sm:text-base font-bold text-zinc-50 text-center leading-tight bg-transparent selection:bg-pitch/30">{home}</span>
+            <span className="text-sm sm:text-base font-bold text-foreground dark:text-zinc-50 text-center leading-tight bg-transparent selection:bg-pitch/30">{home}</span>
           </div>
           
           {/* Score */}
           <div className="flex flex-col items-center justify-center min-w-[120px] sm:min-w-[160px]">
-            <div className="flex items-center justify-center w-full text-5xl sm:text-7xl font-black font-score tabular-nums tracking-tighter text-zinc-50 drop-shadow-[0_0_10px_rgba(255,255,255,0.1)]">
+            <div className="flex items-center justify-center w-full text-5xl sm:text-7xl font-black font-score tabular-nums tracking-tighter text-foreground dark:text-zinc-50 drop-shadow-[0_0_10px_rgba(255,255,255,0.1)]">
               <div className="flex-1 flex justify-end pr-3 sm:pr-5"><ScoreNumber score={homeScore} colorClass="text-pitch-bright" /></div>
-              <span className="text-zinc-800 font-medium pb-1 sm:pb-3 text-4xl sm:text-6xl flex-none">-</span>
+              <span className="text-foreground dark:text-zinc-800 font-medium pb-1 sm:pb-3 text-4xl sm:text-6xl flex-none">-</span>
               <div className="flex-1 flex justify-start pl-3 sm:pl-5"><ScoreNumber score={awayScore} colorClass="text-claret" /></div>
             </div>
           </div>
           
           {/* Away */}
           <div className="flex flex-col items-center gap-2 sm:gap-3 flex-1">
-            <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-full flex items-center justify-center font-black text-lg sm:text-2xl bg-secondary dark:bg-zinc-900 text-zinc-50 border-[3px] border-claret shadow-[0_0_20px_rgba(178,58,72,0.4)] overflow-hidden">
+            <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-full flex items-center justify-center font-black text-lg sm:text-2xl bg-secondary dark:bg-zinc-900 text-foreground dark:text-zinc-50 border-[3px] border-claret shadow-[0_0_20px_rgba(178,58,72,0.4)] overflow-hidden">
               <Avatar p={awayObj} size={64} className="w-full h-full" />
             </div>
-            <span className="text-sm sm:text-base font-bold text-zinc-50 text-center leading-tight bg-transparent selection:bg-claret/30">{away}</span>
+            <span className="text-sm sm:text-base font-bold text-foreground dark:text-zinc-50 text-center leading-tight bg-transparent selection:bg-claret/30">{away}</span>
           </div>
         </div>
       </div>
@@ -128,7 +128,7 @@ function StepIndicator({ phase }) {
     <div className="w-full max-w-2xl mx-auto px-4 py-3 sm:py-4">
       <div className="flex sm:hidden flex-col items-center justify-center gap-1 mb-2">
         <span className="text-[10px] font-bold text-pitch-bright uppercase tracking-widest">Phase {currentIdx + 1} of {steps.length}</span>
-        <span className="text-xs font-black text-zinc-50">{steps.find(s => s.key === phase)?.label}</span>
+        <span className="text-xs font-black text-foreground dark:text-zinc-50">{steps.find(s => s.key === phase)?.label}</span>
       </div>
       <div className="hidden sm:flex items-center justify-between w-full relative">
         {steps.map((s, i) => {
@@ -139,9 +139,9 @@ function StepIndicator({ phase }) {
             <React.Fragment key={s.key}>
               <div className="flex flex-col items-center gap-1 relative z-10 w-12">
                 <div className={`w-3 h-3 rounded-full border-[1.5px] transition-all duration-300 flex items-center justify-center ${active ? "bg-pitch border-pitch-bright shadow-[0_0_10px_rgba(41,193,121,0.6)] scale-110" : done ? "bg-pitch-bright border-pitch-bright" : "bg-secondary dark:bg-zinc-900 border-border dark:border-zinc-700"}`}>
-                   {done && <Check size={8} className="text-zinc-950 font-bold" />}
+                   {done && <Check size={8} className="text-foreground dark:text-zinc-950 font-bold" />}
                 </div>
-                <span className={`text-[9px] sm:text-[10px] tracking-wider uppercase text-center absolute top-5 transition-colors whitespace-nowrap ${active ? "text-zinc-50 font-bold" : done ? "text-muted-foreground font-medium" : "text-zinc-600 font-medium"}`}>{s.label}</span>
+                <span className={`text-[9px] sm:text-[10px] tracking-wider uppercase text-center absolute top-5 transition-colors whitespace-nowrap ${active ? "text-foreground dark:text-zinc-50 font-bold" : done ? "text-muted-foreground font-medium" : "text-muted-foreground font-medium"}`}>{s.label}</span>
               </div>
               {i < steps.length - 1 && (
                 <div className="flex-1 h-px mx-1 bg-secondary dark:bg-zinc-800 relative rounded-full overflow-hidden">
@@ -190,7 +190,7 @@ function StepperRow({ label, count, accent, onInc, onDec, isMuted }) {
         </div>
         <div className="flex items-center justify-center gap-2 px-1">
           <button onClick={onDec} className="w-10 h-10 min-w-[40px] rounded-full flex items-center justify-center bg-secondary dark:bg-zinc-900 border border-border dark:border-zinc-800 text-muted-foreground transition-all active:scale-90"><Minus size={14} /></button>
-          <div className="w-10 text-center font-black tabular-nums text-2xl text-zinc-600">{count}</div>
+          <div className="w-10 text-center font-black tabular-nums text-2xl text-muted-foreground">{count}</div>
           <button onClick={onInc} className="w-10 h-10 min-w-[40px] rounded-full flex items-center justify-center bg-secondary dark:bg-zinc-900 border border-border dark:border-zinc-800 text-muted-foreground transition-all active:scale-90"><Plus size={14} /></button>
         </div>
       </div>
@@ -235,7 +235,7 @@ function LiveControl({ state, setState, onFinish, onTogglePause, onUndoStart }) 
       <div className="flex flex-col sm:flex-row gap-3 justify-center max-w-xl mx-auto items-center">
         {canUndo && (
           <button onClick={onUndoStart}
-            className="h-10 sm:h-11 w-full sm:w-auto px-4 rounded-xl flex items-center justify-center gap-2 font-bold text-sm transition-colors active:scale-95 shadow-md bg-secondary dark:bg-zinc-800 hover:bg-zinc-700 text-muted-foreground hover:text-zinc-50 border border-border dark:border-zinc-700">
+            className="h-10 sm:h-11 w-full sm:w-auto px-4 rounded-xl flex items-center justify-center gap-2 font-bold text-sm transition-colors active:scale-95 shadow-md bg-secondary dark:bg-zinc-800 hover:bg-zinc-700 text-muted-foreground hover:text-foreground dark:text-zinc-50 border border-border dark:border-zinc-700">
             <RotateCcw size={16} />Undo Start
           </button>
         )}
@@ -243,7 +243,7 @@ function LiveControl({ state, setState, onFinish, onTogglePause, onUndoStart }) 
           className={`h-10 sm:h-11 w-full sm:w-48 rounded-xl flex items-center justify-center gap-2 font-bold text-sm transition-colors active:scale-95 shadow-md ${
             paused 
             ? "bg-pitch-bright/10 hover:bg-pitch-bright/20 text-pitch-bright border border-pitch-bright/30" 
-            : "bg-secondary dark:bg-zinc-800 hover:bg-zinc-700 text-zinc-50 border border-border dark:border-zinc-700"
+            : "bg-secondary dark:bg-zinc-800 hover:bg-zinc-700 text-foreground dark:text-zinc-50 border border-border dark:border-zinc-700"
           }`}>
           {paused ? <Play size={16} className="fill-pitch-bright" /> : <Pause size={16} className="fill-zinc-50" />}
           {paused ? "Resume Match" : "Pause Match"}
@@ -340,20 +340,20 @@ function Shootout({ home, away, kicks, setKicks, onDecided }) {
   return (
     <div className="px-5 sm:px-6 pb-6">
       <div className="flex items-center justify-between mb-4">
-        <span className="text-xs font-semibold text-zinc-50">{inSuddenDeath ? "Sudden death" : `Round ${round} of 5`}</span>
+        <span className="text-xs font-semibold text-foreground dark:text-zinc-50">{inSuddenDeath ? "Sudden death" : `Round ${round} of 5`}</span>
         {!decided && <span className={`text-xs font-semibold ${kicker === "home" ? "text-pitch-bright" : "text-claret"}`}>{kicker === "home" ? home.name : away.name} to kick</span>}
       </div>
       <div className="grid grid-cols-2 gap-4 mb-6">
         <div className="rounded-xl p-3 bg-background border border-border dark:border-zinc-800">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-xs font-bold text-zinc-50 truncate">{home.name}</span>
+            <span className="text-xs font-bold text-foreground dark:text-zinc-50 truncate">{home.name}</span>
             <span className="text-lg font-extrabold tabular-nums text-pitch-bright">{homeScore}</span>
           </div>
           <KickTrack list={homeKicks} />
         </div>
         <div className="rounded-xl p-3 bg-background border border-border dark:border-zinc-800">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-xs font-bold text-zinc-50 truncate">{away.name}</span>
+            <span className="text-xs font-bold text-foreground dark:text-zinc-50 truncate">{away.name}</span>
             <span className="text-lg font-extrabold tabular-nums text-claret">{awayScore}</span>
           </div>
           <KickTrack list={awayKicks} />
@@ -366,7 +366,7 @@ function Shootout({ home, away, kicks, setKicks, onDecided }) {
         </div>
       ) : (
         <div className="text-center">
-          <p className="text-sm mb-4 text-zinc-50">
+          <p className="text-sm mb-4 text-foreground dark:text-zinc-50">
             <span className={`font-bold ${decided === "home" ? "text-pitch-bright" : "text-claret"}`}>{decided === "home" ? home.name : away.name}</span> win the shootout {decided === "home" ? homeScore : awayScore}–{decided === "home" ? awayScore : homeScore}.
           </p>
           <button onClick={() => onDecided(decided)} className="w-full h-12 rounded-xl flex items-center justify-center gap-2 font-semibold text-sm bg-pitch-bright hover:bg-emerald-400 text-stadium-base transition-colors active:scale-[0.98]">Continue <SkipForward size={15} /></button>
@@ -549,9 +549,9 @@ function StatRow({ label, value, percent }) {
   return (
     <div className="mb-4 last:mb-0">
       <div className="flex items-center justify-between mb-1.5">
-        {percent ? <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-pitch/20 text-pitch-bright">{h}%</span> : <span className={`text-sm font-bold tabular-nums ${homeWins ? "text-zinc-50" : "text-muted-foreground"}`}>{h}</span>}
+        {percent ? <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-pitch/20 text-pitch-bright">{h}%</span> : <span className={`text-sm font-bold tabular-nums ${homeWins ? "text-foreground dark:text-zinc-50" : "text-muted-foreground"}`}>{h}</span>}
         <span className="text-[13px] font-medium text-muted-foreground">{label}</span>
-        {percent ? <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-claret-dim/20 text-claret">{a}%</span> : <span className={`text-sm font-bold tabular-nums ${awayWins ? "text-zinc-50" : "text-muted-foreground"}`}>{a}</span>}
+        {percent ? <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-claret-dim/20 text-claret">{a}%</span> : <span className={`text-sm font-bold tabular-nums ${awayWins ? "text-foreground dark:text-zinc-50" : "text-muted-foreground"}`}>{a}</span>}
       </div>
       <div className="h-1.5 w-full rounded-full overflow-hidden flex bg-secondary dark:bg-zinc-800">
         {total === 0 ? <div className="w-full h-full bg-secondary dark:bg-zinc-800" /> : (
@@ -926,10 +926,10 @@ export default function LiveMatchControl({ matches, players, activeSeason, showT
         {showDrawDecision && (
           <div className="absolute inset-0 z-50 flex items-center justify-center p-4 bg-background/95 backdrop-blur-sm rounded-b-2xl">
             <div className="bg-secondary dark:bg-zinc-900 border border-border dark:border-zinc-700 rounded-xl p-6 w-full max-w-sm flex flex-col items-center text-center shadow-2xl">
-              <h2 className="text-xl font-bold text-zinc-50 mb-2">Match is Level!</h2>
+              <h2 className="text-xl font-bold text-foreground dark:text-zinc-50 mb-2">Match is Level!</h2>
               <p className="text-sm text-muted-foreground mb-6">How would you like to resolve this match?</p>
               <div className="flex flex-col gap-3 w-full">
-                <button onClick={handleChooseDraw} className="h-12 w-full rounded-xl flex items-center justify-center gap-2 font-bold bg-secondary dark:bg-zinc-800 hover:bg-zinc-700 text-zinc-50 border border-border dark:border-zinc-700 transition-colors">Finish as Draw</button>
+                <button onClick={handleChooseDraw} className="h-12 w-full rounded-xl flex items-center justify-center gap-2 font-bold bg-secondary dark:bg-zinc-800 hover:bg-zinc-700 text-foreground dark:text-zinc-50 border border-border dark:border-zinc-700 transition-colors">Finish as Draw</button>
                 <button onClick={handleChooseExtraTime} className="h-12 w-full rounded-xl flex items-center justify-center gap-2 font-bold bg-amber-950/40 hover:bg-amber-900/60 text-amber-400 border border-amber-800/50 transition-colors">Go to Extra Time</button>
               </div>
             </div>
