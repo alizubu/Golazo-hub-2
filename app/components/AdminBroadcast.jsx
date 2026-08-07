@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Activity, CheckCircle2, Megaphone, Radio, Zap, TrendingUp, Flame, Eye, Type, Minus, Maximize2, Minimize2 } from 'lucide-react';
+import { Activity, CheckCircle2, Megaphone, Radio, Zap, TrendingUp, Flame, Eye, Type, Minus, Maximize2, Minimize2, X, Plus } from 'lucide-react';
 import { Card, Label, SectionTitle, FadeIn, ShinyButton, Badge } from './UI';
 import { motion } from 'framer-motion';
 import { saveTickerConfig } from '@/app/actions/admin';
@@ -144,11 +144,14 @@ export default function AdminBroadcast({ matches = [], players = [], announcemen
     showAvatars: true, pauseOnHover: true, theme: 'classic',
     size: 'normal', separator: 'dot', breakingNews: '',
     showStats: false, showHighlights: false, showStreaks: false,
+    highlightReelGoals: false, momentumTeam: 'none', customHighlights: [],
+    epicMoment: { active: false, playerId: '', text: '' }, replayTrigger: null
   };
 
   const [draft, setDraft] = useState(DEFAULT_TICKER);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [newCustomHighlight, setNewCustomHighlight] = useState('');
 
   useEffect(() => {
     fetch('/api/admin/ticker-config')
@@ -425,6 +428,130 @@ export default function AdminBroadcast({ matches = [], players = [], announcemen
                 desc="Auto-detect 3+ game win/loss streaks and alert viewers"
               />
             </div>
+          </div>
+        </Card>
+      </FadeIn>
+
+      {/* ── Highlight Reel & Broadcast Effects ──────────────────────────────── */}
+      <FadeIn delay={0.35}>
+        <Card className="p-4 sm:p-6 border-amber-500/20 bg-gradient-to-br from-zinc-950 to-amber-950/10">
+          <SectionTitle icon={Flame} className="text-amber-500">Highlight Reel Controls</SectionTitle>
+          <p className="text-xs text-amber-500/70 mt-1 mb-4">eFootball style broadcast effects for maximum hype.</p>
+          
+          <div className="flex flex-col gap-5">
+            {/* Showtime Goals */}
+            <div className="p-4 rounded-xl bg-black/40 border border-amber-500/10 shadow-inner">
+              <Toggle
+                checked={draft.highlightReelGoals}
+                onChange={v => update('highlightReelGoals', v)}
+                label="🌟 Showtime Goals"
+                desc="Live matches will pulse with glowing borders and sweeping light animations."
+              />
+            </div>
+
+            {/* Momentum */}
+            <div className="p-4 rounded-xl bg-black/40 border border-amber-500/10 shadow-inner">
+              <Label className="mb-3 block text-zinc-300">Match Momentum Glow</Label>
+              <div className="flex gap-2 p-1 bg-zinc-900 rounded-lg w-fit border border-white/5 flex-wrap">
+                <SegmentBtn icon="⏸️" value="none" label="None" current={draft.momentumTeam} onChange={v => update('momentumTeam', v)} />
+                <SegmentBtn icon="🏠" value="home" label="Home Team" current={draft.momentumTeam} onChange={v => update('momentumTeam', v)} />
+                <SegmentBtn icon="✈️" value="away" label="Away Team" current={draft.momentumTeam} onChange={v => update('momentumTeam', v)} />
+              </div>
+              <p className="text-[11px] text-zinc-500 mt-2">Applies a cosmic aurora background to the dominating team in live matches.</p>
+            </div>
+
+            {/* Epic Moment */}
+            <div className="p-4 rounded-xl bg-black/40 border border-amber-500/10 shadow-inner">
+              <Label className="mb-3 block text-zinc-300">Epic Moment Lower Third</Label>
+              <div className="flex flex-col sm:flex-row gap-3 mb-3">
+                <select 
+                  className="px-3 py-2 rounded-lg bg-zinc-900 border border-zinc-700 text-sm text-zinc-300 focus:outline-none focus:border-amber-500/50 flex-1"
+                  value={draft.epicMoment?.playerId || ''}
+                  onChange={e => update('epicMoment', { ...draft.epicMoment, playerId: e.target.value })}
+                >
+                  <option value="">Select Player...</option>
+                  {players.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
+                </select>
+                <input 
+                  type="text" 
+                  placeholder="e.g. 99 FINISHING" 
+                  className="px-3 py-2 rounded-lg bg-zinc-900 border border-zinc-700 text-sm text-zinc-300 focus:outline-none focus:border-amber-500/50 flex-1"
+                  value={draft.epicMoment?.text || ''}
+                  onChange={e => update('epicMoment', { ...draft.epicMoment, text: e.target.value })}
+                />
+              </div>
+              <div className="flex items-center justify-between border-t border-zinc-800/50 pt-3">
+                <span className="text-[11px] text-zinc-500">Triggers a sliding frosted-glass graphic.</span>
+                <button 
+                  onClick={() => update('epicMoment', { ...draft.epicMoment, active: !draft.epicMoment?.active })}
+                  className={`px-4 py-1.5 rounded-full text-xs font-bold transition-all shadow-md ${draft.epicMoment?.active ? 'bg-amber-500 text-black hover:bg-amber-400' : 'bg-zinc-800 text-zinc-300 hover:bg-zinc-700 border border-zinc-700'}`}
+                >
+                  {draft.epicMoment?.active ? 'Hide Graphic' : 'Show Graphic'}
+                </button>
+              </div>
+            </div>
+
+            {/* Replay Stinger */}
+            <div className="p-4 rounded-xl bg-black/40 border border-amber-500/10 shadow-inner flex items-center justify-between">
+              <div>
+                <Label className="block text-zinc-300 mb-0.5">Instant Replay Stinger</Label>
+                <p className="text-[11px] text-zinc-500">Plays a 2-second slicing animation over the ticker.</p>
+              </div>
+              <button 
+                onClick={() => update('replayTrigger', Date.now())}
+                className="px-4 py-2 rounded-lg bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 hover:bg-indigo-500/30 font-bold text-xs transition-colors flex items-center gap-2"
+              >
+                <Zap size={14} /> Fire Transition
+              </button>
+            </div>
+            
+            {/* Custom Highlights */}
+            <div className="p-4 rounded-xl bg-black/40 border border-amber-500/10 shadow-inner">
+              <Label className="mb-3 block text-zinc-300">Custom Marquee Highlights</Label>
+              <div className="flex gap-2 mb-3">
+                <input 
+                  type="text" 
+                  placeholder="e.g. MESSI COMPLETES HATTRICK!" 
+                  className="flex-1 px-3 py-2 rounded-lg bg-zinc-900 border border-zinc-700 text-sm text-zinc-300 focus:outline-none focus:border-amber-500/50"
+                  value={newCustomHighlight}
+                  onChange={e => setNewCustomHighlight(e.target.value)}
+                  onKeyDown={e => {
+                    if (e.key === 'Enter' && newCustomHighlight.trim()) {
+                      update('customHighlights', [...(draft.customHighlights || []), newCustomHighlight.trim()]);
+                      setNewCustomHighlight('');
+                    }
+                  }}
+                />
+                <button 
+                  onClick={() => {
+                    if (newCustomHighlight.trim()) {
+                      update('customHighlights', [...(draft.customHighlights || []), newCustomHighlight.trim()]);
+                      setNewCustomHighlight('');
+                    }
+                  }}
+                  className="px-3 py-2 rounded-lg bg-zinc-800 text-zinc-300 hover:bg-zinc-700 border border-zinc-700 transition-colors"
+                >
+                  <Plus size={16} />
+                </button>
+              </div>
+              <div className="space-y-2">
+                {(draft.customHighlights || []).map((msg, idx) => (
+                  <div key={idx} className="flex items-center justify-between p-2 rounded-md bg-amber-500/5 border border-amber-500/10">
+                    <span className="text-xs font-bold text-amber-400 bg-clip-text text-transparent bg-gradient-to-r from-amber-200 to-amber-500 truncate">{msg}</span>
+                    <button 
+                      onClick={() => update('customHighlights', draft.customHighlights.filter((_, i) => i !== idx))}
+                      className="text-zinc-500 hover:text-red-400 p-1"
+                    >
+                      <X size={14} />
+                    </button>
+                  </div>
+                ))}
+                {(!draft.customHighlights || draft.customHighlights.length === 0) && (
+                  <p className="text-[11px] text-zinc-600 text-center py-2">No custom highlights added.</p>
+                )}
+              </div>
+            </div>
+
           </div>
         </Card>
       </FadeIn>

@@ -382,53 +382,96 @@ function ImageImport({ onApply }) {
     setLoading(true);
     setError(null);
     try {
-      const base64 = await new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = (event) => resolve(event.target.result);
-        reader.onerror = (err) => reject(err);
-        reader.readAsDataURL(file);
-      });
-
-      // Run Tesseract entirely on the client
-      const Tesseract = (await import('tesseract.js')).default || await import('tesseract.js');
-      const { data: { text } } = await Tesseract.recognize(base64, 'eng');
-      
-      const stats = { home: {}, away: {} };
-      const lines = text.split('\n').map(l => l.trim().toLowerCase()).filter(Boolean);
-
-      const mappings = {
-        'possession': 'possession',
-        'shots on target': 'shotsOnTarget',
-        'shots': 'shots',
-        'fouls': 'fouls',
-        'offsides': 'offsides',
-        'corner kicks': 'corners',
-        'corners': 'corners',
-        'free kicks': 'freeKicks',
-        'successful passes': 'successfulPasses',
-        'passes': 'passes',
-        'crosses': 'crosses',
-        'interceptions': 'interceptions',
-        'tackles': 'tackles',
-        'saves': 'saves',
-        'expected goals': 'expectedGoals' // In case it exists in some future schema, though ignored for now
-      };
-
-      for (const line of lines) {
-        for (const [key, jsonKey] of Object.entries(mappings)) {
-          if (line.includes(key)) {
-            const match = line.match(/^(\d+)%?\s+.*\s+(\d+)%?$/);
-            if (match) {
-              stats.home[jsonKey] = parseInt(match[1], 10);
-              stats.away[jsonKey] = parseInt(match[2], 10);
-            } else {
-              const numbers = line.match(/\b(\d+)\b/g);
-              if (numbers && numbers.length >= 2) {
-                stats.home[jsonKey] = parseInt(numbers[0], 10);
-                stats.away[jsonKey] = parseInt(numbers[numbers.length - 1], 10);
+      // 1. Preprocess image using Canvas to enhance text contrast (black text on white bg)
+      const processedBase64 = await new Promise((resolve, reject) => {
+        const img = new Image();
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          canvas.width = img.width;
+          canvas.height = img.height;
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0);
+          
+          try {
+            const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            const data = imageData.data;
+            for (let i = 0; i < data.length; i += 4) {
+              const r = data[i], g = data[i+1], b = data[i+2];
+              // Convert to grayscale
+              const lum = 0.299 * r + 0.587 * g + 0.114 * b;
+              // Threshold: eFootball has dark backgrounds and bright text. 
+              // Convert bright text to black, dark bg to white.
+              if (lum > 140) {
+                data[i] = 0; data[i+1] = 0; data[i+2] = 0;
+              } else {
+                data[i] = 255; data[i+1] = 255; data[i+2] = 255;
               }
             }
-            break; 
+            ctx.putImageData(imageData, 0, 0);
+            resolve(canvas.toDataURL('image/png'));
+          } catch(e) {
+            // Fallback to original if canvas tainted or error
+            resolve(img.src);
+          }
+        };
+        img.onerror = reject;
+        img.src = URL.createObjectURL(file);
+      });
+
+      // 2. Run Tesseract entirely on the client with the preprocessed image
+      const Tesseract = (await import('tesseract.js')).default || await import('tesseract.js');
+      // Use bounding boxes to reconstruct rows
+      const { data } = await Tesseract.recognize(processedBase64, 'eng');
+      
+      const stats = { home: {}, away: {} };
+      
+      // Group words by Y coordinate to form rows
+      const rows = [];
+      const Y_TOLERANCE = 15; // pixels
+      const words = data.words || [];
+      
+      words.forEach(word => {
+        const y = word.bbox.y0;
+        let foundRow = rows.find(r => Math.abs(r.y - y) < Y_TOLERANCE);
+        if (!foundRow) {
+          foundRow = { y, words: [] };
+          rows.push(foundRow);
+        }
+        foundRow.words.push(word);
+      });
+      
+      // Sort rows top-to-bottom, words left-to-right
+      rows.sort((a, b) => a.y - b.y);
+      rows.forEach(r => r.words.sort((a, b) => a.bbox.x0 - b.bbox.x0));
+      
+      const lines = rows.map(r => r.words.map(w => w.text).join(' ').toLowerCase());
+
+      const mappings = [
+        { keys: ['posses'], jsonKey: 'possession' },
+        { keys: ['target'], jsonKey: 'shotsOnTarget' },
+        { keys: ['success'], jsonKey: 'successfulPasses' },
+        { keys: ['corner'], jsonKey: 'corners' },
+        { keys: ['free'], jsonKey: 'freeKicks' },
+        { keys: ['shot'], jsonKey: 'shots' }, // will not match 'shots on target' if placed after
+        { keys: ['foul'], jsonKey: 'fouls' },
+        { keys: ['offside'], jsonKey: 'offsides' },
+        { keys: ['passes'], jsonKey: 'passes' }, // will not match 'successful passes' if placed after
+        { keys: ['cross'], jsonKey: 'crosses' },
+        { keys: ['intercep'], jsonKey: 'interceptions' },
+        { keys: ['tackle'], jsonKey: 'tackles' },
+        { keys: ['save'], jsonKey: 'saves' }
+      ];
+
+      for (const line of lines) {
+        for (const mapping of mappings) {
+          if (mapping.keys.some(k => line.includes(k))) {
+            // Extract all numbers from the reconstructed line
+            const numbers = line.match(/\b(\d+)\b/g);
+            if (numbers && numbers.length >= 2) {
+              stats.home[mapping.jsonKey] = parseInt(numbers[0], 10);
+              stats.away[mapping.jsonKey] = parseInt(numbers[numbers.length - 1], 10);
+            }
+            break; // Stop matching other stats for this line
           }
         }
       }

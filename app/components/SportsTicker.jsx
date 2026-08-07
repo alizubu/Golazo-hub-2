@@ -18,24 +18,43 @@ import {
 } from './SportsTickerBadges';
 
 // ── Match Chip Component ───────────────────────────────────────────────────
-function MatchChip({ match, home, away, theme, isLive, onClick, showAvatars, previewMode }) {
+function MatchChip({ match, home, away, theme, isLive, onClick, showAvatars, previewMode, momentumTeam, showtimeGoals }) {
+  const isHomeMomentum = isLive && momentumTeam === 'home';
+  const isAwayMomentum = isLive && momentumTeam === 'away';
+
   return (
     <button
       onClick={onClick}
-      className={`flex items-center gap-2.5 px-4 py-2 mx-1.5 shrink-0 transition-opacity ${previewMode ? 'cursor-default pointer-events-none' : 'cursor-pointer hover:opacity-90'}`}
+      className={`relative flex items-center gap-2.5 px-4 py-2 mx-1.5 shrink-0 transition-all overflow-hidden ${previewMode ? 'cursor-default pointer-events-none' : 'cursor-pointer hover:opacity-90'}`}
       style={{ ...theme.chip, borderRadius: theme.radius, fontFamily: theme.font }}
     >
-      {showAvatars && <Avatar p={home} size={22} />}
-      <span className="text-[12px] font-bold tracking-wide" style={{ color: theme.team }}>{home.name}</span>
-      <span
-        className="text-[15px] font-extrabold tabular-nums px-1"
-        style={{ color: theme.score, fontFamily: theme.mono ? "'JetBrains Mono', monospace" : theme.font }}
-      >
-        {match.homeScore ?? 0}–{match.awayScore ?? 0}
-      </span>
-      <span className="text-[12px] font-bold tracking-wide" style={{ color: theme.team }}>{away.name}</span>
-      {showAvatars && <Avatar p={away} size={22} />}
-      <StatusTag status={isLive ? "LIVE" : "FT"} time={isLive ? (match.liveState?.clock ? `${Math.floor(match.liveState.clock / 60)}'` : "LIVE") : "FT"} theme={theme} />
+      {/* Momentum Backgrounds */}
+      {isHomeMomentum && <div className="absolute inset-y-0 left-0 w-1/2 aurora-bg opacity-50 z-0 pointer-events-none" style={{ maskImage: 'linear-gradient(to right, black, transparent)' }} />}
+      {isAwayMomentum && <div className="absolute inset-y-0 right-0 w-1/2 aurora-bg opacity-50 z-0 pointer-events-none" style={{ maskImage: 'linear-gradient(to left, black, transparent)' }} />}
+
+      {/* Showtime Goals Light Sweep */}
+      {showtimeGoals && isLive && <div className="absolute inset-0 pointer-events-none shiny z-10" />}
+
+      <div className="relative z-10 flex items-center gap-2.5">
+        {showAvatars && <Avatar p={home} size={22} />}
+        <span className="text-[12px] font-bold tracking-wide" style={{ color: theme.team }}>{home.name}</span>
+        
+        <div className="flex flex-col items-center">
+          {showtimeGoals && isLive && <span className="text-[8px] font-black text-amber-400 bg-amber-950/80 px-1 rounded uppercase tracking-widest leading-none mb-0.5 shadow-[0_0_5px_rgba(245,158,11,0.5)]">Highlight Reel</span>}
+          <span
+            className="text-[15px] font-extrabold tabular-nums px-1"
+            style={{ color: showtimeGoals && isLive ? '#fcd34d' : theme.score, fontFamily: theme.mono ? "'JetBrains Mono', monospace" : theme.font, textShadow: showtimeGoals && isLive ? '0 0 10px rgba(245,158,11,0.5)' : 'none' }}
+          >
+            {match.homeScore ?? 0}–{match.awayScore ?? 0}
+          </span>
+        </div>
+
+        <span className="text-[12px] font-bold tracking-wide" style={{ color: theme.team }}>{away.name}</span>
+        {showAvatars && <Avatar p={away} size={22} />}
+      </div>
+      <div className="relative z-10 ml-1">
+        <StatusTag status={isLive ? "LIVE" : "FT"} time={isLive ? (match.liveState?.clock ? `${Math.floor(match.liveState.clock / 60)}'` : "LIVE") : "FT"} theme={theme} />
+      </div>
     </button>
   );
 }
@@ -55,6 +74,20 @@ export default function SportsTicker({ matches = [], announcements = [], players
 
   const playerMap = useMemo(() => new Map(players.map(p => [p.id, p])), [players]);
   const getPlayer = useCallback(id => playerMap.get(id), [playerMap]);
+
+  const [stingerActive, setStingerActive] = useState(false);
+  
+  useEffect(() => {
+    if (cfg.replayTrigger) {
+      // Delay state update to the next tick to avoid cascading render warnings
+      const t1 = setTimeout(() => setStingerActive(true), 0);
+      const t2 = setTimeout(() => setStingerActive(false), 2000);
+      return () => {
+        clearTimeout(t1);
+        clearTimeout(t2);
+      };
+    }
+  }, [cfg.replayTrigger]);
 
   // ── Enhanced Smart Content: Stats ─────────────────────────────────────────
   const statsItems = useMemo(() => {
@@ -211,6 +244,8 @@ export default function SportsTicker({ matches = [], announcements = [], players
         onClick={() => !previewMode && setSelectedMatchId(m.id)}
         showAvatars={cfg.showAvatars}
         previewMode={previewMode}
+        momentumTeam={cfg.momentumTeam}
+        showtimeGoals={cfg.highlightReelGoals}
       />
     );
   });
@@ -252,12 +287,15 @@ export default function SportsTicker({ matches = [], announcements = [], players
     );
   });
 
-  // ── Highlight Reel Items ──────────────────────────────────────────────────
-  highlightItems.forEach((text, i) => {
+  // ── Highlight Reel Items (Auto + Custom) ──────────────────────────────────
+  const allHighlights = [...highlightItems, ...(cfg.customHighlights || [])];
+  allHighlights.forEach((text, i) => {
     items.push(
-      <div key={`hl-${i}`} className="flex items-center shrink-0 gap-3 font-semibold mx-4">
-        <HighlightBadge />
-        <span style={{ color: theme.team, fontFamily: theme.font }} className="text-sm font-bold tracking-wide">{text}</span>
+      <div key={`hl-${i}`} className="flex items-center shrink-0 gap-3 font-semibold mx-4 relative overflow-visible">
+        <span className="w-2 h-2 rounded-full bg-amber-400 shadow-[0_0_10px_rgba(245,158,11,0.8)] animate-pulse" />
+        <span className="text-sm font-black tracking-wide uppercase bg-clip-text text-transparent bg-gradient-to-r from-amber-200 via-amber-400 to-amber-200 drop-shadow-[0_2px_2px_rgba(0,0,0,0.5)]" style={{ fontFamily: theme.font }}>
+          {text}
+        </span>
       </div>
     );
   });
@@ -320,6 +358,12 @@ export default function SportsTicker({ matches = [], announcements = [], players
         .mercury-bg { background: linear-gradient(120deg,#e0e0e0,#ffffff,#a0a0a5,#e0e0e0); background-size: 300% 300%; animation: holoshift 4s ease infinite; }
         .silk-bg { background: linear-gradient(120deg,#7a1030,#b31942,#7a1030); background-size: 200% 200%; animation: holoshift 10s ease infinite; }
         @keyframes holoshift { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
+        
+        @keyframes stinger-sweep { 0% { left: -150%; } 50% { left: 0%; } 100% { left: 150%; } }
+        .animate-stinger { animation: stinger-sweep 1.5s cubic-bezier(0.8, 0, 0.2, 1) forwards; }
+        
+        @keyframes slide-in-left { 0% { transform: translateX(-150%); opacity: 0; } 100% { transform: translateX(0); opacity: 1; } }
+        .animate-slide-in-left { animation: slide-in-left 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
       `}} />
       <div 
         className={`w-full overflow-hidden flex items-center select-none z-40 relative py-1 ${theme.extraClass || ''} ${previewMode ? 'rounded-lg border-x border-t' : ''}`} 
@@ -346,7 +390,34 @@ export default function SportsTicker({ matches = [], announcements = [], players
         >
           {separatedItems}{separatedItems}
         </div>
+        
+        {/* Replay Stinger Overlay */}
+        {stingerActive && (
+          <div className="absolute inset-0 z-50 overflow-hidden pointer-events-none" style={{ borderRadius: previewMode ? '8px 8px 0 0' : theme.wrap.borderRadius }}>
+            <div className="absolute top-0 left-[-100%] w-full h-full bg-zinc-950 skew-x-[-20deg] animate-stinger flex items-center justify-center shadow-[0_0_30px_black] border-x border-amber-500/50">
+              <span className="text-amber-400 font-black italic tracking-widest text-lg sm:text-2xl drop-shadow-[0_0_10px_rgba(245,158,11,0.8)]" style={{ transform: 'skewX(20deg)' }}>HIGHLIGHT REEL</span>
+            </div>
+          </div>
+        )}
       </div>
+
+      {/* Epic Moment Overlay (Bottom Left) */}
+      {!previewMode && cfg.epicMoment?.active && cfg.epicMoment?.playerId && getPlayer(cfg.epicMoment.playerId) && (
+        <div className="fixed bottom-20 left-4 sm:left-10 z-[100] pointer-events-none">
+           <div className="flex items-center gap-4 bg-black/70 backdrop-blur-xl border border-amber-500/30 p-3 rounded-2xl shadow-[0_0_30px_rgba(0,0,0,0.8)] animate-slide-in-left">
+             <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-xl bg-gradient-to-br from-amber-400 to-amber-700 p-0.5 shadow-[0_0_15px_rgba(245,158,11,0.5)]">
+                <Avatar p={getPlayer(cfg.epicMoment.playerId)} size={64} className="w-full h-full rounded-lg object-cover bg-zinc-900" />
+             </div>
+             <div className="flex flex-col pr-4 sm:pr-8">
+                <span className="text-[10px] sm:text-xs font-bold text-amber-500 uppercase tracking-widest leading-tight">Highlight Reel</span>
+                <span className="text-lg sm:text-2xl font-black text-white leading-none mt-0.5">{getPlayer(cfg.epicMoment.playerId).name}</span>
+                {cfg.epicMoment.text && (
+                  <span className="text-xs sm:text-sm font-bold text-zinc-300 mt-1 uppercase tracking-wide">{cfg.epicMoment.text}</span>
+                )}
+             </div>
+           </div>
+        </div>
+      )}
 
       {selectedMatchId && !previewMode && (
         <MatchStatsModal
