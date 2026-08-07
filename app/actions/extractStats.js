@@ -48,23 +48,40 @@ export async function extractMatchStats(formData) {
     `;
 
     // Using the standard generateContent API for robust multimodal support
-    const response = await ai.models.generateContent({
-      model: "gemini-2.0-flash",
-      contents: [
-        {
-          inlineData: {
-            data: base64Image,
-            mimeType: mimeType
+    // Wrapped in a retry loop to handle 429 Free Tier rate limits
+    let responseText = "";
+    let retries = 3;
+    
+    for (let i = 0; i < retries; i++) {
+      try {
+        const response = await ai.models.generateContent({
+          model: "gemini-2.5-flash",
+          contents: [
+            {
+              inlineData: {
+                data: base64Image,
+                mimeType: mimeType
+              }
+            },
+            promptText
+          ],
+          config: {
+            responseMimeType: "application/json"
           }
-        },
-        promptText
-      ],
-      config: {
-        responseMimeType: "application/json"
+        });
+        
+        responseText = response.text || "";
+        break; // Success, exit retry loop
+      } catch (err) {
+        // If it's a rate limit error and we have retries left
+        if (err?.status === 429 && i < retries - 1) {
+          console.warn(`Rate limited (429). Retrying in 10 seconds... (Attempt ${i + 1} of ${retries})`);
+          await new Promise(resolve => setTimeout(resolve, 10000));
+        } else {
+          throw err; // Throw if out of retries or it's a different error (like 400 or 404)
+        }
       }
-    });
-
-    const responseText = response.text || "";
+    }
     
     // Parse the JSON safely (in case it still wrapped it in markdown)
     let cleanJson = responseText.trim();
