@@ -51,18 +51,11 @@ export async function extractMatchStats(formData) {
     const interaction = await ai.interactions.create({
       model: "gemini-2.5-flash",
       input: [
+        { type: "text", text: promptText },
         {
-          type: "user_input",
-          content: [
-            { type: "text", text: promptText },
-            {
-              type: "image",
-              inlineData: {
-                data: base64Image,
-                mimeType: mimeType
-              }
-            }
-          ]
+          type: "image",
+          data: base64Image,
+          mime_type: mimeType
         }
       ]
     });
