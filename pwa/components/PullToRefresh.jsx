@@ -16,9 +16,12 @@ export default function PullToRefresh({ children }) {
 
   useEffect(() => {
     const handleTouchStart = (e) => {
-      if (window.scrollY === 0) {
+      // Check for <= 0 to account for iOS bounce (negative scrollY)
+      if (window.scrollY <= 0) {
         startY.current = e.touches[0].clientY;
         setIsPulling(true);
+      } else {
+        setIsPulling(false);
       }
     };
 
@@ -27,7 +30,7 @@ export default function PullToRefresh({ children }) {
       const y = e.touches[0].clientY;
       const pullDistance = y - startY.current;
       
-      if (pullDistance > 0 && window.scrollY === 0) {
+      if (pullDistance > 0 && window.scrollY <= 0) {
         // Prevent default scrolling when pulling at the top
         if (e.cancelable) e.preventDefault();
         const progress = Math.min(pullDistance / THRESHOLD, 1.2);
@@ -73,7 +76,7 @@ export default function PullToRefresh({ children }) {
   }, [isPulling, pullProgress, controls, router]);
 
   return (
-    <div ref={containerRef} className="relative w-full min-h-screen">
+    <div ref={containerRef} className="relative w-full min-h-screen" style={{ touchAction: 'pan-y' }}>
       <div className="absolute top-0 left-0 right-0 h-16 flex items-center justify-center -z-10 pointer-events-none">
         <motion.div
           animate={{ rotate: pullProgress > 0.8 ? 360 : 0 }}
