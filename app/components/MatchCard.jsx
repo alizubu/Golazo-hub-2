@@ -38,12 +38,12 @@ function StatBar({ label, valueA, valueB, colorA, colorB, format = 'number', ind
     >
       <div className="flex items-center justify-between mb-1.5">
         <div className="w-10 text-left text-sm font-bold font-score" style={{ color: colorA }}>{displayA}</div>
-        <div className="text-center text-[10px] sm:text-[11px] tracking-[0.1em] text-zinc-400 uppercase font-bold px-2 truncate">
+        <div className="text-center text-[10px] sm:text-[11px] tracking-[0.1em] text-muted-foreground uppercase font-bold px-2 truncate">
           {label}
         </div>
         <div className="w-10 text-right text-sm font-bold font-score" style={{ color: colorB }}>{displayB}</div>
       </div>
-      <div className="flex w-full h-2 bg-zinc-900 rounded-full overflow-hidden shadow-inner ring-1 ring-white/5">
+      <div className="flex w-full h-2 bg-secondary dark:bg-zinc-900 rounded-full overflow-hidden shadow-inner ring-1 ring-border/50 dark:ring-white/5">
         <motion.div 
           className="h-full rounded-r-full shadow-[inset_0_1px_0_rgba(255,255,255,0.15)]" 
           style={{ backgroundColor: colorA }}
@@ -144,7 +144,7 @@ function MatchCard({ m, players, onClick }) {
       )}
       
       {/* Inner Content Wrapper */}
-      <div className={`relative z-10 flex flex-col gap-2 p-3 sm:p-4 m-[1px] rounded-[15px] ${isLive ? 'bg-[#0f1117]/95 backdrop-blur-sm' : 'bg-background/50'} ${isExpanded ? 'rounded-b-none border-b border-border/30' : ''}`}>
+      <div className={`relative z-10 flex flex-col gap-2 p-3 sm:p-4 m-[1px] rounded-[15px] ${isLive ? 'bg-background/95 dark:bg-[#0f1117]/95 backdrop-blur-sm' : 'bg-background/50'} ${isExpanded ? 'rounded-b-none border-b border-border/30' : ''}`}>
         
         {/* Status Badge (Top Right) */}
         <div className="absolute top-3 right-3 flex items-center justify-end z-20 pointer-events-none">

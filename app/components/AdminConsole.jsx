@@ -498,7 +498,7 @@ function CompletedMatchCard({ m, h, a, players, showToast, isPlayoff = false }) 
             animate={{ height: "auto", opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
             transition={{ duration: 0.3 }}
-            className="overflow-hidden bg-[#0a0c10] border border-green-500/30 border-t-0 rounded-b-xl shadow-inner relative z-0"
+            className="overflow-hidden bg-secondary dark:bg-card border border-green-500/30 border-t-0 rounded-b-xl shadow-inner relative z-0"
           >
             <div className="p-4 sm:p-6 grid grid-cols-1 lg:grid-cols-2 gap-x-12 gap-y-6">
               {statDefinitions.map(def => {

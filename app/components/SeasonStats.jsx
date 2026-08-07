@@ -40,7 +40,7 @@ export function SeasonStats({ playerId, initialStats, seasons, activeSeason, sel
 
   return (
     <FadeIn delay={0.2} className="col-span-12">
-      <div className="relative overflow-hidden group w-full bg-[#0a0c10] border border-white/[0.08] rounded-[20px]">
+      <div className="relative overflow-hidden group w-full bg-secondary dark:bg-card border border-border/50 dark:border-white/[0.08] rounded-[20px]">
         <div className="pb-3 pt-5 px-5 sm:px-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4 relative">
           <div className="text-xl sm:text-2xl font-bold flex items-center gap-2.5 text-foreground">
             <Activity className="text-foreground/70" size={24}/> Season Stats
@@ -48,7 +48,7 @@ export function SeasonStats({ playerId, initialStats, seasons, activeSeason, sel
           
           <DropdownMenu>
             <DropdownMenuTrigger className="outline-none focus-visible:ring-2 focus-visible:ring-white/20 rounded-full">
-              <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#12151b] border border-border hover:bg-[#1a1e27] hover:border-white/20 transition-colors cursor-pointer text-sm font-[600] text-foreground shadow-sm w-fit h-[36px]">
+              <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-background dark:bg-[#12151b] border border-border hover:bg-secondary dark:hover:bg-[#1a1e27] hover:border-border dark:hover:border-white/20 transition-colors cursor-pointer text-sm font-[600] text-foreground shadow-sm w-fit h-[36px]">
                 <Calendar size={14} className="text-[#6b7280]" />
                 <span>{selectedSeason?.name || "Select Season"}</span>
                 
