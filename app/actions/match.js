@@ -57,11 +57,24 @@ export async function generateFixtures(seasonId, playerIds, doubleRound) {
   }
 }
 
+function computeRating(playerStats, score) {
+  let r = 6.0;
+  r += score * 1.0;
+  r += (playerStats.accuratePasses || 0) * 0.02;
+  r += (playerStats.possession || 0) * 0.02;
+  r += (playerStats.shotsOnTarget || 0) * 0.2;
+  r += (playerStats.interceptions || 0) * 0.1;
+  r += (playerStats.tackles || 0) * 0.1;
+  r += (playerStats.saves || 0) * 0.3;
+  r -= (playerStats.fouls || 0) * 0.1;
+  return Math.min(10.0, Math.max(3.0, r)).toFixed(1);
+}
+
 export async function updateMatchStatus(matchId, data) {
   const auth = await checkSessionPermission('canManageMatches');
   if (!auth.authorized) return { error: auth.error };
   try {
-    const match = await prisma.match.update({
+    let updatePayload = {
       where: { id: matchId },
       data: {
         status: data.status,
@@ -71,11 +84,41 @@ export async function updateMatchStatus(matchId, data) {
         wentToExtra: data.wentToExtra,
         homeScore: data.homeScore,
         awayScore: data.awayScore,
-        penaltyHome: data.penaltyResult?.home,
-        penaltyAway: data.penaltyResult?.away,
-        penaltyWinner: data.penaltyResult?.winner,
+        penaltyHome: data.penaltyResult?.home ?? data.penaltyHome,
+        penaltyAway: data.penaltyResult?.away ?? data.penaltyAway,
+        penaltyWinner: data.penaltyResult?.winner ?? data.penaltyWinner,
       }
-    });
+    };
+
+    if (data.stats) {
+      const stats = data.stats;
+      const homeScore = data.homeScore ?? 0;
+      const awayScore = data.awayScore ?? 0;
+      
+      const homeStats = {};
+      const awayStats = {};
+      Object.keys(stats).forEach(key => {
+        if (key !== 'ratings' && key !== 'motm' && stats[key]) {
+          homeStats[key] = stats[key].a;
+          awayStats[key] = stats[key].b;
+        }
+      });
+
+      const homeRating = computeRating(homeStats, homeScore);
+      const awayRating = computeRating(awayStats, awayScore);
+      let motm = null;
+      if (parseFloat(homeRating) > parseFloat(awayRating)) motm = 'home';
+      else if (parseFloat(awayRating) > parseFloat(homeRating)) motm = 'away';
+      else motm = 'none';
+
+      updatePayload.data.stats = {
+        ...stats,
+        ratings: { a: homeRating, b: awayRating },
+        motm
+      };
+    }
+
+    const match = await prisma.match.update(updatePayload);
     
     if (data.status === 'completed') {
       const home = await prisma.player.findUnique({ where: { id: match.homeId }});

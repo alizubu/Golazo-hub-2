@@ -350,8 +350,26 @@ function AdminMatchControl({ m, players, showToast, setTab, isPlayoff = false })
   );
 }
 
+const statDefinitions = [
+  { key: 'possession', label: 'BALL POSSESSION', format: 'percent' },
+  { key: 'shots', label: 'TOTAL SHOTS', format: 'number' },
+  { key: 'shotsOnTarget', label: 'SHOTS ON TARGET', format: 'number' },
+  { key: 'fouls', label: 'FOULS', format: 'number' },
+  { key: 'offsides', label: 'OFFSIDES', format: 'number' },
+  { key: 'corners', label: 'CORNER KICKS', format: 'number' },
+  { key: 'freeKicks', label: 'FREE KICKS', format: 'number' },
+  { key: 'passes', label: 'PASSES', format: 'number' },
+  { key: 'successfulPasses', label: 'SUCCESSFUL PASSES', format: 'number' },
+  { key: 'crosses', label: 'CROSSES', format: 'number' },
+  { key: 'interceptions', label: 'INTERCEPTIONS', format: 'number' },
+  { key: 'tackles', label: 'TACKLES', format: 'number' },
+  { key: 'saves', label: 'SAVES', format: 'number' },
+];
+
 function CompletedMatchCard({ m, h, a, players, showToast, isPlayoff = false }) {
   const [saving, setSaving] = useState(false);
+  const [isEditingStats, setIsEditingStats] = useState(false);
+  const [statsForm, setStatsForm] = useState(m.stats || {});
 
   const hScore = m.homeScore || 0;
   const aScore = m.awayScore || 0;
@@ -363,8 +381,6 @@ function CompletedMatchCard({ m, h, a, players, showToast, isPlayoff = false }) 
 
   const router = useRouter();
 
-
-
   const handleReset = async () => {
     setSaving(true);
     const res = await updateMatchStatus(m.id, { status: 'scheduled', homeScore: 0, awayScore: 0 });
@@ -373,68 +389,151 @@ function CompletedMatchCard({ m, h, a, players, showToast, isPlayoff = false }) 
     setSaving(false);
   };
 
-  return (
-    <MagicCard className="group p-3 sm:p-4 bg-secondary/30 hover:bg-secondary/40 transition-all duration-300 relative overflow-hidden">
-      <div className="flex items-center gap-2">
-        <div className="grid grid-cols-[1fr_auto_1fr] sm:grid-cols-3 gap-2 items-center w-full sm:pr-8 pr-6">
-          <div className="flex w-full items-center justify-end gap-1.5 sm:gap-3">
-            <span className="text-foreground text-[11px] sm:text-sm font-semibold truncate text-right" title={h?.name}>
-              {toTitleCase(h?.name)}
-            </span>
-            {hFlagUrl && <img src={hFlagUrl} alt={h?.flag} className="w-3.5 h-2.5 sm:w-5 sm:h-3.5 object-cover rounded-[2px] shadow-sm shrink-0" />}
-            <Avatar p={h} size={40} className="w-6 h-6 sm:w-10 sm:h-10 shrink-0 hidden xs:block" />
-          </div>
+  const handleStatChange = (key, team, value) => {
+    setStatsForm(prev => ({
+      ...prev,
+      [key]: {
+        ...(prev[key] || { a: 0, b: 0 }),
+        [team]: value === '' ? 0 : Number(value)
+      }
+    }));
+  };
 
-          <div className="flex items-center justify-center px-1 sm:px-2">
-            <div className={`w-16 sm:w-24 h-7 sm:h-9 bg-black/40 border ${m.status === 'live' ? 'border-red-500/50' : 'border-border/50'} rounded-md sm:rounded-lg flex items-center justify-center gap-1 sm:gap-2`}>
-              <span className={`font-score text-sm sm:text-base ${hWon ? 'text-pitch-bright font-black drop-shadow-md' : 'text-muted-foreground font-semibold'}`}>{hScore}</span>
-              <span className="text-muted-foreground/30 font-score text-xs sm:text-sm">-</span>
-              <span className={`font-score text-sm sm:text-base ${aWon ? 'text-pitch-bright font-black drop-shadow-md' : 'text-muted-foreground font-semibold'}`}>{aScore}</span>
+  const saveStats = async () => {
+    setSaving(true);
+    const res = await updateMatchStatus(m.id, { 
+      status: m.status,
+      homeScore: m.homeScore,
+      awayScore: m.awayScore,
+      liveState: m.liveState,
+      stats: statsForm 
+    });
+    if (res.error) showToast(res.error);
+    else {
+      showToast('✅ Stats updated (ratings recalculated)');
+      setIsEditingStats(false);
+    }
+    setSaving(false);
+  };
+
+  return (
+    <div className="flex flex-col mb-4">
+      <MagicCard className={`group p-3 sm:p-4 transition-all duration-300 relative overflow-hidden ${isEditingStats ? 'bg-secondary/60 shadow-lg border-green-500/30 rounded-b-none border-b-0 z-10' : 'bg-secondary/30 hover:bg-secondary/40 rounded-xl border border-border/30'}`}>
+        <div className="flex items-center gap-2">
+          <div className="grid grid-cols-[1fr_auto_1fr] sm:grid-cols-3 gap-2 items-center w-full sm:pr-8 pr-6">
+            <div className="flex w-full items-center justify-end gap-1.5 sm:gap-3">
+              <span className="text-foreground text-[11px] sm:text-sm font-semibold truncate text-right" title={h?.name}>
+                {toTitleCase(h?.name)}
+              </span>
+              {hFlagUrl && <img src={hFlagUrl} alt={h?.flag} className="w-3.5 h-2.5 sm:w-5 sm:h-3.5 object-cover rounded-[2px] shadow-sm shrink-0" />}
+              <Avatar p={h} size={40} className="w-6 h-6 sm:w-10 sm:h-10 shrink-0 hidden xs:block" />
+            </div>
+
+            <div className="flex items-center justify-center px-1 sm:px-2">
+              <div className={`w-16 sm:w-24 h-7 sm:h-9 bg-black/40 border ${m.status === 'live' ? 'border-red-500/50' : 'border-border/50'} rounded-md sm:rounded-lg flex items-center justify-center gap-1 sm:gap-2`}>
+                <span className={`font-score text-sm sm:text-base ${hWon ? 'text-pitch-bright font-black drop-shadow-md' : 'text-muted-foreground font-semibold'}`}>{hScore}</span>
+                <span className="text-muted-foreground/30 font-score text-xs sm:text-sm">-</span>
+                <span className={`font-score text-sm sm:text-base ${aWon ? 'text-pitch-bright font-black drop-shadow-md' : 'text-muted-foreground font-semibold'}`}>{aScore}</span>
+              </div>
+            </div>
+
+            <div className="flex w-full items-center justify-start gap-1.5 sm:gap-3">
+              <Avatar p={a} size={40} className="w-6 h-6 sm:w-10 sm:h-10 shrink-0 hidden xs:block" />
+              {aFlagUrl && <img src={aFlagUrl} alt={a?.flag} className="w-3.5 h-2.5 sm:w-5 sm:h-3.5 object-cover rounded-[2px] shadow-sm shrink-0" />}
+              <span className="text-foreground text-[11px] sm:text-sm font-semibold truncate text-left" title={a?.name}>
+                {toTitleCase(a?.name)}
+              </span>
             </div>
           </div>
 
-          <div className="flex w-full items-center justify-start gap-1.5 sm:gap-3">
-            <Avatar p={a} size={40} className="w-6 h-6 sm:w-10 sm:h-10 shrink-0 hidden xs:block" />
-            {aFlagUrl && <img src={aFlagUrl} alt={a?.flag} className="w-3.5 h-2.5 sm:w-5 sm:h-3.5 object-cover rounded-[2px] shadow-sm shrink-0" />}
-            <span className="text-foreground text-[11px] sm:text-sm font-semibold truncate text-left" title={a?.name}>
-              {toTitleCase(a?.name)}
-            </span>
+          <div className="absolute right-3 sm:right-4 flex justify-end">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button className="opacity-100 sm:opacity-0 group-hover:opacity-100 transition-opacity p-1.5 rounded-lg hover:bg-secondary text-muted-foreground">
+                  <MoreVertical size={16} />
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="bg-card border-border/50 shadow-2xl rounded-xl w-40">
+                {isPlayoff ? (
+                  <>
+                    <DropdownMenuItem className="cursor-pointer rounded-lg py-2" onSelect={() => setIsEditingStats(!isEditingStats)}>
+                      <BarChart2 size={14} className="mr-2 text-green-400" /> {isEditingStats ? 'Close Stats' : 'Edit Stats'}
+                    </DropdownMenuItem>
+                    <DropdownMenuItem className="cursor-pointer rounded-lg py-2" onSelect={(e) => { e.preventDefault(); handleReset(); }}>
+                      <Clock size={14} className="mr-2" /> Postpone
+                    </DropdownMenuItem>
+                    <DropdownMenuItem className="cursor-pointer rounded-lg py-2 text-destructive focus:text-destructive" onSelect={(e) => { e.preventDefault(); if (window.confirm('Reset this playoff result?')) handleReset(); }}>
+                      <AlertTriangle size={14} className="mr-2" /> Reset Result
+                    </DropdownMenuItem>
+                  </>
+                ) : (
+                  <>
+                    <DropdownMenuItem className="cursor-pointer rounded-lg py-2" onSelect={() => router.push(`/matches?matchId=${m.id}`)}>
+                      <CheckCircle2 size={14} className="mr-2 text-muted-foreground" /> View Match
+                    </DropdownMenuItem>
+                    <DropdownMenuItem className="cursor-pointer rounded-lg py-2" onSelect={() => setIsEditingStats(!isEditingStats)}>
+                      <BarChart2 size={14} className="mr-2 text-green-400" /> {isEditingStats ? 'Close Stats' : 'Edit Stats'}
+                    </DropdownMenuItem>
+                    <DropdownMenuItem className="cursor-pointer rounded-lg py-2 text-destructive focus:text-destructive" onSelect={(e) => { e.preventDefault(); if (window.confirm('Are you sure you want to undo this match result? This will remove the score and revert it to scheduled.')) handleReset(); }}>
+                      <AlertTriangle size={14} className="mr-2" /> Undo Result
+                    </DropdownMenuItem>
+                  </>
+                )}
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         </div>
-
-        <div className="absolute right-3 sm:right-4 flex justify-end">
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <button className="opacity-100 sm:opacity-0 group-hover:opacity-100 transition-opacity p-1.5 rounded-lg hover:bg-secondary text-muted-foreground">
-                <MoreVertical size={16} />
-              </button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="bg-card border-border/50 shadow-2xl rounded-xl w-40">
-              {isPlayoff ? (
-                <>
-                  <DropdownMenuItem className="cursor-pointer rounded-lg py-2" onSelect={(e) => { e.preventDefault(); handleReset(); }}>
-                    <Clock size={14} className="mr-2" /> Postpone
-                  </DropdownMenuItem>
-                  <DropdownMenuItem className="cursor-pointer rounded-lg py-2 text-destructive focus:text-destructive" onSelect={(e) => { e.preventDefault(); if (window.confirm('Reset this playoff result?')) handleReset(); }}>
-                    <AlertTriangle size={14} className="mr-2" /> Reset Result
-                  </DropdownMenuItem>
-                </>
-              ) : (
-                <>
-                  <DropdownMenuItem className="cursor-pointer rounded-lg py-2" onSelect={() => router.push(`/matches?matchId=${m.id}`)}>
-                    <CheckCircle2 size={14} className="mr-2 text-muted-foreground" /> View Match
-                  </DropdownMenuItem>
-                  <DropdownMenuItem className="cursor-pointer rounded-lg py-2 text-destructive focus:text-destructive" onSelect={(e) => { e.preventDefault(); if (window.confirm('Are you sure you want to undo this match result? This will remove the score and revert it to scheduled.')) handleReset(); }}>
-                    <AlertTriangle size={14} className="mr-2" /> Undo Result
-                  </DropdownMenuItem>
-                </>
-              )}
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
-      </div>
-
-    </MagicCard>
+      </MagicCard>
+      
+      <AnimatePresence>
+        {isEditingStats && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: "auto", opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.3 }}
+            className="overflow-hidden bg-[#0a0c10] border border-green-500/30 border-t-0 rounded-b-xl shadow-inner relative z-0"
+          >
+            <div className="p-4 sm:p-6 grid grid-cols-1 lg:grid-cols-2 gap-x-12 gap-y-6">
+              {statDefinitions.map(def => {
+                const valA = statsForm[def.key]?.a ?? 0;
+                const valB = statsForm[def.key]?.b ?? 0;
+                return (
+                  <div key={def.key} className="flex flex-col border-b border-white/5 pb-2">
+                    <div className="text-center text-[10px] tracking-[0.2em] text-muted-foreground font-bold uppercase mb-2">
+                      {def.label}
+                    </div>
+                    <div className="flex items-center justify-between gap-4">
+                      <Input 
+                        type="number" 
+                        value={valA} 
+                        onChange={e => handleStatChange(def.key, 'a', e.target.value)}
+                        className="w-20 text-center font-score h-8"
+                        style={{ borderColor: '#29C179' }}
+                      />
+                      <span className="text-muted-foreground/30 text-xs">VS</span>
+                      <Input 
+                        type="number" 
+                        value={valB} 
+                        onChange={e => handleStatChange(def.key, 'b', e.target.value)}
+                        className="w-20 text-center font-score h-8"
+                        style={{ borderColor: '#B23A48' }}
+                      />
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+            <div className="p-4 bg-secondary/30 flex justify-end gap-3 border-t border-border/30">
+              <Btn variant="ghost" onClick={() => setIsEditingStats(false)} disabled={saving}>Cancel</Btn>
+              <ShinyButton onClick={saveStats} loading={saving} className="px-6 bg-green-500 hover:bg-green-400 text-black">
+                <Check size={16} className="mr-2" /> Save Stats
+              </ShinyButton>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
   );
 }
 export function AdminSettings({ showToast }) {
