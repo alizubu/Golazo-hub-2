@@ -679,7 +679,7 @@ export function PlayerDashboard({ me, activeSeason, seasons = [], matches, playe
                 const myScore = isHome ? m.homeScore : m.awayScore;
                 const oppScore = isHome ? m.awayScore : m.homeScore;
                 return (
-                  <div key={m.id} className="flex items-center gap-3 p-3 rounded-xl bg-secondary/30 border border-border/30">
+                  <div key={m.id} onClick={() => onMatchClick(m.id)} className="flex items-center gap-3 p-3 rounded-xl bg-secondary/30 border border-border/30 cursor-pointer hover:bg-secondary/50 transition-colors">
                     <div className={`shrink-0 w-6 h-6 rounded-md flex items-center justify-center text-xs font-bold text-white ${res === 'W' ? 'bg-green-500' : res === 'L' ? 'bg-red-500' : 'bg-yellow-500'}`}>
                       {res === 'W' ? '✅' : res === 'L' ? '❌' : '➖'}
                     </div>
