@@ -485,11 +485,53 @@ function ImageImport({ onApply }) {
       for (const line of lines) {
         for (const mapping of mappings) {
           if (mapping.keys.some(k => line.includes(k))) {
-            // Extract all numbers from the reconstructed line
-            const numbers = line.match(/\b(\d+)\b/g);
-            if (numbers && numbers.length >= 2) {
-              stats.home[mapping.jsonKey] = parseInt(numbers[0], 10);
-              stats.away[mapping.jsonKey] = parseInt(numbers[numbers.length - 1], 10);
+            // Find the original row to access word coordinates
+            const originalRow = rows.find(r => {
+               const rowText = r.words.map(w => w.text).join(' ').toLowerCase();
+               // Apply same corrections to find the match
+               const correctedRowText = rowText
+                 .replace(/\bo\b/g, '0').replace(/\bl\b/g, '1')
+                 .replace(/°/g, '0').replace(/\[\]/g, '0').replace(/\[1\]/g, '1')
+                 .replace(/\bq\b/g, '0').replace(/\?/g, '7')
+                 .replace(/\ban\b/g, '48').replace(/\bs\b/g, '5');
+               return mapping.keys.some(k => correctedRowText.includes(k));
+            });
+
+            if (originalRow) {
+               // Map words to corrected text and keep their X coordinate
+               const correctedWords = originalRow.words.map(w => {
+                 let text = w.text.toLowerCase();
+                 text = text.replace(/\bo\b/g, '0').replace(/\bl\b/g, '1');
+                 text = text.replace(/°/g, '0').replace(/\[\]/g, '0').replace(/\[1\]/g, '1');
+                 text = text.replace(/\bq\b/g, '0').replace(/\?/g, '7');
+                 text = text.replace(/\ban\b/g, '48').replace(/\bs\b/g, '5');
+                 return { text, x: w.bbox.x0 };
+               });
+
+               // Filter only words that contain digits
+               const numberWords = correctedWords.filter(w => /\d/.test(w.text));
+
+               if (numberWords.length >= 2) {
+                 stats.home[mapping.jsonKey] = parseInt(numberWords[0].text.match(/\d+/)[0], 10);
+                 stats.away[mapping.jsonKey] = parseInt(numberWords[numberWords.length - 1].text.match(/\d+/)[0], 10);
+               } else if (numberWords.length === 1) {
+                 // Fallback: If only one number is found, assign based on screen position
+                 const isHome = numberWords[0].x < (canvas.width / 2);
+                 if (isHome) {
+                   stats.home[mapping.jsonKey] = parseInt(numberWords[0].text.match(/\d+/)[0], 10);
+                 } else {
+                   stats.away[mapping.jsonKey] = parseInt(numberWords[0].text.match(/\d+/)[0], 10);
+                 }
+               }
+
+               // Auto-fill possession if only one side was detected
+               if (mapping.jsonKey === 'possession') {
+                 if (stats.home.possession > 0 && !stats.away.possession) {
+                   stats.away.possession = 100 - stats.home.possession;
+                 } else if (stats.away.possession > 0 && !stats.home.possession) {
+                   stats.home.possession = 100 - stats.away.possession;
+                 }
+               }
             }
             break; // Stop matching other stats for this line
           }
