@@ -393,15 +393,15 @@ function ImageImport({ onApply }) {
       const processedBase64 = await new Promise((resolve, reject) => {
         const img = new Image();
         img.onload = () => {
-          // Scale 2x for better OCR accuracy on low-res screenshots
-          const scale = 2;
+          // Only scale 2x if the image is small (e.g., width < 1200) to prevent mobile browser memory crash
+          const scale = img.width < 1200 ? 2 : 1;
           const canvas = document.createElement('canvas');
           canvas.width = img.width * scale;
           canvas.height = img.height * scale;
           const ctx = canvas.getContext('2d');
           
-          // Draw the upscaled image
-          ctx.drawImage(img, 0, 0, img.width * scale, img.height * scale);
+          // Draw the upscaled (or normal) image
+          ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
           
           try {
             const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
@@ -490,9 +490,9 @@ function ImageImport({ onApply }) {
                const rowText = r.words.map(w => w.text).join(' ').toLowerCase();
                // Apply same corrections to find the match
                const correctedRowText = rowText
-                 .replace(/\bo\b/g, '0').replace(/\bl\b/g, '1')
+                 .replace(/\bo\b/g, '0').replace(/\bl\b/g, '1').replace(/\bi\b/g, '1')
                  .replace(/°/g, '0').replace(/\[\]/g, '0').replace(/\[1\]/g, '1')
-                 .replace(/\bq\b/g, '0').replace(/\?/g, '7')
+                 .replace(/\bq\b/g, '0').replace(/\?/g, '7').replace(/\bc\b/g, '0').replace(/\be\b/g, '0')
                  .replace(/\ban\b/g, '48').replace(/\bs\b/g, '5');
                return mapping.keys.some(k => correctedRowText.includes(k));
             });
@@ -501,9 +501,9 @@ function ImageImport({ onApply }) {
                // Map words to corrected text and keep their X coordinate
                const correctedWords = originalRow.words.map(w => {
                  let text = w.text.toLowerCase();
-                 text = text.replace(/\bo\b/g, '0').replace(/\bl\b/g, '1');
+                 text = text.replace(/\bo\b/g, '0').replace(/\bl\b/g, '1').replace(/\bi\b/g, '1');
                  text = text.replace(/°/g, '0').replace(/\[\]/g, '0').replace(/\[1\]/g, '1');
-                 text = text.replace(/\bq\b/g, '0').replace(/\?/g, '7');
+                 text = text.replace(/\bq\b/g, '0').replace(/\?/g, '7').replace(/\bc\b/g, '0').replace(/\be\b/g, '0');
                  text = text.replace(/\ban\b/g, '48').replace(/\bs\b/g, '5');
                  return { text, x: w.bbox.x0 };
                });
