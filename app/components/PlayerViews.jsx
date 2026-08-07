@@ -11,7 +11,7 @@ import { useRouter } from 'next/navigation';
 import SettingsView from './SettingsView';
 import MatchesPage from './MatchesPage';
 import MatchCard from './MatchCard';
-import MatchStatsModal from './MatchStatsModal';
+
 import TrophyDetailModal from './TrophyDetailModal';
 import HeadToHeadModal from './HeadToHeadModal';
 
@@ -55,7 +55,6 @@ export default function PlayerViews(props) {
       {tab === "notifications" && <NotificationsView {...newProps} />}
       {tab === "settings" && <SettingsView {...newProps} />}
       
-      {selectedMatchId && <MatchStatsModal matchId={selectedMatchId} onClose={handleCloseModal} />}
       {h2hTarget && <HeadToHeadModal playerA={me} playerB={h2hTarget} allMatches={matches} onClose={() => setH2hTargetId(null)} onMatchClick={handleMatchClick} players={players} />}
     </>
   );
@@ -673,23 +672,8 @@ export function PlayerDashboard({ me, activeSeason, seasons = [], matches, playe
             <SectionTitle icon={Clock}>Last Five Matches</SectionTitle>
             <div className="flex flex-col gap-2 flex-1 justify-center">
               {recent.length > 0 ? recent.map((m, i) => {
-                const res = getMatchResult(m);
-                const opp = getOpponent(m);
-                const isHome = m.homeId === me.id;
-                const myScore = isHome ? m.homeScore : m.awayScore;
-                const oppScore = isHome ? m.awayScore : m.homeScore;
                 return (
-                  <div key={m.id} onClick={() => onMatchClick(m.id)} className="flex items-center gap-3 p-3 rounded-xl bg-secondary/30 border border-border/30 cursor-pointer hover:bg-secondary/50 transition-colors">
-                    <div className={`shrink-0 w-6 h-6 rounded-md flex items-center justify-center text-xs font-bold text-white ${res === 'W' ? 'bg-green-500' : res === 'L' ? 'bg-red-500' : 'bg-yellow-500'}`}>
-                      {res === 'W' ? '✅' : res === 'L' ? '❌' : '➖'}
-                    </div>
-                    <div className="text-sm font-semibold flex-1 flex items-center gap-1">
-                      {res === 'W' ? 'Won' : res === 'L' ? 'Lost' : 'Draw'} 
-                      <span className="font-score text-muted-foreground ml-1">{myScore}–{oppScore}</span> 
-                      <span className="text-muted-foreground mx-1">vs</span> 
-                      <span className="truncate max-w-[100px]">{opp?.name}</span>
-                    </div>
-                  </div>
+                  <MatchCard key={m.id} m={m} players={players} />
                 );
               }) : (
                 <EmptyState text="No completed matches yet." />
