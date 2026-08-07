@@ -3,8 +3,8 @@
 import prisma from '@/lib/db';
 import { revalidatePath } from 'next/cache';
 import { generateRoundRobinFixtures } from '@/lib/fixtures';
-import { cookies } from 'next/headers';
 import { sendAutoNotification } from '@/lib/notifications';
+import { checkSessionPermission } from '@/lib/permissions';
 
 export async function getSeasons() {
   return await prisma.season.findMany({
@@ -15,7 +15,8 @@ export async function getSeasons() {
 
 
 export async function startSeason(name, type, startDate, config = {}) {
-  if ((await cookies()).get('golazo_session')?.value !== 'admin') return { error: 'Unauthorized' };
+  const auth = await checkSessionPermission('canManageSeason');
+  if (!auth.authorized) return { error: auth.error };
   if (!name || !name.trim()) return { error: 'Give the season a name' };
   
   const active = await prisma.season.findFirst({ where: { status: 'Live' } });
@@ -112,7 +113,8 @@ export async function startSeason(name, type, startDate, config = {}) {
 
 
 export async function renameSeason(id, newName) {
-  if ((await cookies()).get('golazo_session')?.value !== 'admin') return { error: 'Unauthorized' };
+  const auth = await checkSessionPermission('canManageSeason');
+  if (!auth.authorized) return { error: auth.error };
   if (!newName || !newName.trim()) return { error: 'Name cannot be empty' };
   
   try {
@@ -131,7 +133,8 @@ export async function renameSeason(id, newName) {
 
 
 export async function completeSeason(id, data) {
-  if ((await cookies()).get('golazo_session')?.value !== 'admin') return { error: 'Unauthorized' };
+  const auth = await checkSessionPermission('canManageSeason');
+  if (!auth.authorized) return { error: auth.error };
   try {
     await prisma.season.update({
       where: { id },
@@ -171,7 +174,8 @@ export async function completeSeason(id, data) {
 }
 
 export async function adminResetStandings(seasonId) {
-  if ((await cookies()).get('golazo_session')?.value !== 'admin') return { error: 'Unauthorized' };
+  const auth = await checkSessionPermission('canManageSeason');
+  if (!auth.authorized) return { error: auth.error };
   try {
     await prisma.match.updateMany({
       where: { seasonId },
@@ -193,7 +197,8 @@ export async function adminResetStandings(seasonId) {
 }
 
 export async function adminRestartSeason(seasonId) {
-  if ((await cookies()).get('golazo_session')?.value !== 'admin') return { error: 'Unauthorized' };
+  const auth = await checkSessionPermission('canManageSeason');
+  if (!auth.authorized) return { error: auth.error };
   try {
     await prisma.match.deleteMany({
       where: { seasonId, round: { not: 'league' } }
@@ -218,7 +223,8 @@ export async function adminRestartSeason(seasonId) {
 }
 
 export async function adminForceEndTournament(seasonId) {
-  if ((await cookies()).get('golazo_session')?.value !== 'admin') return { error: 'Unauthorized' };
+  const auth = await checkSessionPermission('canManageSeason');
+  if (!auth.authorized) return { error: auth.error };
   try {
     const allLeagueMatches = await prisma.match.findMany({
       where: { seasonId, status: 'completed' }
@@ -271,7 +277,8 @@ export async function adminForceEndTournament(seasonId) {
 }
 
 export async function adminResetFixtures(seasonId) {
-  if ((await cookies()).get('golazo_session')?.value !== 'admin') return { error: 'Unauthorized' };
+  const auth = await checkSessionPermission('canManageSeason');
+  if (!auth.authorized) return { error: auth.error };
   try {
     const season = await prisma.season.findUnique({ where: { id: seasonId } });
     if (!season) return { error: 'Season not found' };
@@ -317,7 +324,8 @@ export async function adminResetFixtures(seasonId) {
 }
 
 export async function adminDeleteSeason(seasonId) {
-  if ((await cookies()).get('golazo_session')?.value !== 'admin') return { error: 'Unauthorized' };
+  const auth = await checkSessionPermission('canManageSeason');
+  if (!auth.authorized) return { error: auth.error };
   try {
     await prisma.season.delete({ where: { id: seasonId } });
     revalidatePath('/');
@@ -329,7 +337,8 @@ export async function adminDeleteSeason(seasonId) {
 }
 
 export async function updateSeasonAwards(seasonId, data) {
-  if ((await cookies()).get('golazo_session')?.value !== 'admin') return { error: 'Unauthorized' };
+  const auth = await checkSessionPermission('canManageSeason');
+  if (!auth.authorized) return { error: auth.error };
   try {
     const season = await prisma.season.update({
       where: { id: seasonId },

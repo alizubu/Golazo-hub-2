@@ -10,7 +10,7 @@ export default async function LoginPage() {
   const session = cookieStore.get('golazo_session')?.value;
   
   // If already logged in, redirect to dashboard or admin
-  if (session === 'admin') {
+  if (session === 'admin' || session === 'manager') {
     redirect('/admin');
   } else if (session === 'player') {
     redirect('/dashboard');

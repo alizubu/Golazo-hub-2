@@ -376,6 +376,7 @@ function SignUpForm({ showToast, onPlayerLogin }) {
 // ADMIN LOGIN FORM
 // ══════════════════════════════════════════════════════════════
 function AdminLoginForm({ onAdminLogin, onBack }) {
+  const [username, setUsername] = useState('');
   const [pwd, setPwd] = useState('');
   const [err, setErr] = useState('');
   const [busy, setBusy] = useState(false);
@@ -384,11 +385,15 @@ function AdminLoginForm({ onAdminLogin, onBack }) {
   const submit = async (e) => {
     if (e) e.preventDefault();
     if (busy) return;
-    if (!pwd) return setErr('Enter the master password.');
+    if (!username || !pwd) return setErr('Enter both username and password.');
     setErr(''); setBusy(true);
-    const res = await fetch('/api/admin', { method: 'POST', body: JSON.stringify({ password: pwd }) });
-    if (res.ok) { await setAuthCookie('admin'); onAdminLogin(); }
-    else { setBusy(false); setErr('Incorrect password.'); }
+    const res = await fetch('/api/admin', { method: 'POST', body: JSON.stringify({ username, password: pwd }) });
+    if (res.ok) { 
+      const data = await res.json();
+      await setAuthCookie(data.role || 'admin'); 
+      onAdminLogin(); 
+    }
+    else { setBusy(false); setErr('Incorrect credentials.'); }
   };
 
   return (
@@ -401,9 +406,16 @@ function AdminLoginForm({ onAdminLogin, onBack }) {
           <ShieldAlert size={24} className="text-gold relative z-10" />
         </div>
         <h3 className="text-[15px] font-bold text-white tracking-tight">Admin Console</h3>
-        <p className="text-xs text-muted-foreground/55 mt-0.5 text-center">Restricted — authorized administrators only</p>
+        <p className="text-xs text-muted-foreground/55 mt-0.5 text-center">Restricted — authorized personnel only</p>
       </div>
       <form onSubmit={submit} className="space-y-4">
+        <FloatingLabelInput id="admin-user" label="Username"
+          type="text" value={username}
+          onChange={(e) => setUsername(e.target.value)}
+          onKeyDown={(e) => e.key === 'Enter' && submit()}
+          autoComplete="username" disabled={busy}
+          leftElement={<User size={18} />}
+        />
         <FloatingLabelInput id="admin-pwd" label="Master Password"
           type={showPwd ? 'text' : 'password'} value={pwd}
           onChange={(e) => setPwd(e.target.value)}

@@ -38,7 +38,9 @@ export default async function AppLayout({ children }) {
   let me = null;
 
   if (sessionCookie === 'admin') {
-    session = { type: 'admin' };
+    session = { type: 'admin', role: 'admin' };
+  } else if (sessionCookie === 'manager') {
+    session = { type: 'admin', role: 'manager' };
   } else if (sessionCookie === 'player') {
     const userId = cookieStore.get('golazo_user_id')?.value;
     const player = players.find(p => p.id === userId);

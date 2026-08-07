@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import PlayerViews from './PlayerViews';
 import AdminOverviewDashboard from './AdminOverviewDashboard';
-import { AdminSeason, AdminPlayers, AdminMatches, AdminTrophies, AdminAnnouncements, AdminSettings } from './AdminConsole';
+import { AdminSeason, AdminPlayers, AdminMatches, AdminTrophies, AdminAnnouncements, AdminSettings, AdminRoles } from './AdminConsole';
 import HallOfFame from './HallOfFame';
 import { useAppContext } from './AppContextProvider';
 import SportsTicker from './SportsTicker';
@@ -24,7 +24,8 @@ export default function AppShell({
   trophies = [], 
   notifications = [],
   history = [],
-  activeCelebrations = []
+  activeCelebrations = [],
+  managerPermissions = null
 }) {
   const { showToast } = useAppContext();
   const [tickerConfig, setTickerConfig] = useState(null);
@@ -92,7 +93,7 @@ export default function AppShell({
   };
 
   const activeSeason = seasons?.find((t) => !t.isArchived) || null;
-  const adminProps = { players, activeSeason, matches, announcements, notifications, trophies, seasons, history, showToast, setTab };
+  const adminProps = { players, activeSeason, matches, announcements, notifications, trophies, seasons, history, showToast, setTab, session, managerPermissions };
   const playerProps = { me, players, activeSeason, matches, announcements, notifications, trophies, seasons, history, setTab, tab: currentTab };
 
   // ══════════════════════════════════════════════════════════════
@@ -109,6 +110,8 @@ export default function AppShell({
           matches={matches}
           isExpanded={isSidebarExpanded}
           onToggleExpand={() => setIsSidebarExpanded(prev => !prev)}
+          session={session}
+          managerPermissions={managerPermissions}
         />
 
         {/* Main content area — offset by sidebar width */}
@@ -137,17 +140,47 @@ export default function AppShell({
               {currentTab === 'hall-of-fame' ? (
                 <HallOfFame trophies={trophies} players={players} />
               ) : currentTab === 'admin/players' ? (
-                <div className="pt-2"><AdminPlayers {...adminProps} /></div>
+                (session?.role === 'admin' || managerPermissions?.canManagePlayers) ? (
+                  <div className="pt-2"><AdminPlayers {...adminProps} /></div>
+                ) : (
+                  <div className="p-8 text-center text-muted-foreground">Access Denied: You do not have permission to manage players.</div>
+                )
               ) : currentTab === 'admin/season' ? (
-                <div className="pt-2"><AdminSeason {...adminProps} /></div>
+                (session?.role === 'admin' || managerPermissions?.canManageSeason) ? (
+                  <div className="pt-2"><AdminSeason {...adminProps} /></div>
+                ) : (
+                  <div className="p-8 text-center text-muted-foreground">Access Denied: You do not have permission to manage tournaments.</div>
+                )
               ) : currentTab === 'admin/matches' ? (
-                <div className="pt-2"><AdminMatches {...adminProps} /></div>
+                (session?.role === 'admin' || managerPermissions?.canManageMatches) ? (
+                  <div className="pt-2"><AdminMatches {...adminProps} /></div>
+                ) : (
+                  <div className="p-8 text-center text-muted-foreground">Access Denied: You do not have permission to manage matches.</div>
+                )
               ) : currentTab === 'admin/trophies' ? (
-                <div className="pt-2"><AdminTrophies {...adminProps} /></div>
+                (session?.role === 'admin' || managerPermissions?.canManageSeason) ? (
+                  <div className="pt-2"><AdminTrophies {...adminProps} /></div>
+                ) : (
+                  <div className="p-8 text-center text-muted-foreground">Access Denied: You do not have permission to manage trophies.</div>
+                )
               ) : currentTab === 'admin/announcements' ? (
-                <div className="pt-2"><AdminAnnouncements {...adminProps} onTickerConfigSaved={setTickerConfig} /></div>
+                (session?.role === 'admin' || managerPermissions?.canEditBroadcast) ? (
+                  <div className="pt-2"><AdminAnnouncements {...adminProps} onTickerConfigSaved={setTickerConfig} /></div>
+                ) : (
+                  <div className="p-8 text-center text-muted-foreground">Access Denied: You do not have permission to manage announcements.</div>
+                )
               ) : currentTab === 'admin/broadcast' ? (
-                <div className="pt-2"><AdminBroadcast {...adminProps} onTickerConfigSaved={setTickerConfig} /></div>
+                (session?.role === 'admin' || managerPermissions?.canEditBroadcast) ? (
+                  <div className="pt-2"><AdminBroadcast {...adminProps} onTickerConfigSaved={setTickerConfig} /></div>
+                ) : (
+                  <div className="p-8 text-center text-muted-foreground">Access Denied: You do not have permission to edit broadcast settings.</div>
+                )
+              ) : currentTab === 'admin/roles' ? (
+                session?.role === 'admin' ? (
+                  <div className="pt-2"><AdminRoles {...adminProps} /></div>
+                ) : (
+                  <div className="p-8 text-center text-red-400 font-bold">Access Denied: Only Master Admin can manage role permissions.</div>
+                )
               ) : currentTab === 'admin/settings' ? (
                 <div className="pt-2"><AdminSettings {...adminProps} /></div>
               ) : (

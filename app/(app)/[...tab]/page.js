@@ -32,7 +32,9 @@ export default async function CatchAllTabRoute({ params }) {
   }
 
   if (sessionCookie === 'admin') {
-    session = { type: 'admin' };
+    session = { type: 'admin', role: 'admin' };
+  } else if (sessionCookie === 'manager') {
+    session = { type: 'admin', role: 'manager' };
   } else if (sessionCookie === 'player') {
     const userId = cookieStore.get('golazo_user_id')?.value;
     const player = players.find(p => p.id === userId);
@@ -43,10 +45,10 @@ export default async function CatchAllTabRoute({ params }) {
   }
 
   // Fetch all other data in parallel
-  let matches = [], seasons = [], announcements = [], trophies = [], notifications = [], history = [], activeCelebrations = [];
+  let matches = [], seasons = [], announcements = [], trophies = [], notifications = [], history = [], activeCelebrations = [], managerPermissions = null;
 
   try {
-    [matches, seasons, announcements, notifications, activeCelebrations] = await Promise.all([
+    [matches, seasons, announcements, notifications, activeCelebrations, managerPermissions] = await Promise.all([
       getMatches(),
       getSeasons(),
       prisma.announcement.findMany({ orderBy: { createdAt: 'desc' } }),
@@ -60,9 +62,19 @@ export default async function CatchAllTabRoute({ params }) {
           trophy: { include: { player: true } }
         },
         orderBy: { startedAt: 'desc' }
-      })
+      }),
+      prisma.managerPermissions.findUnique({ where: { id: 'global' } })
     ]);
     
+    if (!managerPermissions) {
+      managerPermissions = {
+        canManageMatches: true,
+        canManagePlayers: false,
+        canManageSeason: false,
+        canEditBroadcast: false,
+      };
+    }
+
     // Trophies and History might be needed by some tabs
     trophies = await prisma.trophy.findMany({ include: { player: true }, orderBy: { createdAt: 'desc' } });
     history = await prisma.season.findMany({ where: { isArchived: true }, include: { champion: true, runnerUp: true, matches: true }, orderBy: { completedAt: 'desc' } });
@@ -84,6 +96,7 @@ export default async function CatchAllTabRoute({ params }) {
       notifications={notifications}
       history={history}
       activeCelebrations={activeCelebrations}
+      managerPermissions={managerPermissions}
     />
   );
 }

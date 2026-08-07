@@ -1137,14 +1137,17 @@ const ThemeBtn = ({ theme, current, onChange }) => (
   </button>
 );
 
-const Toggle = ({ checked, onChange, label }) => (
+const Toggle = ({ checked, onChange, label, desc }) => (
   <label className="flex items-center justify-between gap-4 cursor-pointer py-2">
-    <span className="text-sm text-foreground/80">{label}</span>
+    <div className="flex flex-col">
+      <span className="text-sm text-foreground/80 font-medium">{label}</span>
+      {desc && <span className="text-[11px] text-muted-foreground mt-0.5">{desc}</span>}
+    </div>
     <button
       role="switch"
       aria-checked={checked}
       onClick={() => onChange(!checked)}
-      className={`relative w-10 h-5 rounded-full transition-colors ${checked ? 'bg-pitch' : 'bg-secondary border border-border'}`}
+      className={`relative w-10 h-5 rounded-full transition-colors shrink-0 ${checked ? 'bg-pitch' : 'bg-secondary border border-border'}`}
     >
       <div className={`absolute top-0.5 left-0.5 w-4 h-4 rounded-full bg-white shadow transition-transform ${checked ? 'translate-x-5' : 'translate-x-0'}`} />
     </button>
@@ -1740,6 +1743,99 @@ export function AdminSeason({ activeSeason, matches = [], players = [], showToas
       </Card>
 
 
+    </div>
+  );
+}
+
+// ══════════════════════════════════════════════════════════════
+// ADMIN ROLES
+// ══════════════════════════════════════════════════════════════
+
+export function AdminRoles({ showToast }) {
+  const [permissions, setPermissions] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    fetch('/api/admin/roles')
+      .then(res => res.json())
+      .then(data => {
+        if (data.permissions) setPermissions(data.permissions);
+        setLoading(false);
+      })
+      .catch(() => setLoading(false));
+  }, []);
+
+  const handleSave = async () => {
+    setSaving(true);
+    try {
+      const res = await fetch('/api/admin/roles', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(permissions)
+      });
+      if (res.ok) showToast("✅ Manager roles updated!");
+      else showToast("❌ Failed to update roles.");
+    } catch (e) {
+      showToast("❌ Server error.");
+    }
+    setSaving(false);
+  };
+
+  const update = (key, val) => setPermissions(p => ({ ...p, [key]: val }));
+
+  if (loading) return <div className="p-8 text-center text-muted-foreground">Loading permissions...</div>;
+  if (!permissions) return <div className="p-8 text-center text-red-500">Failed to load permissions.</div>;
+
+  return (
+    <div className="flex flex-col gap-6">
+      <Card className="p-6">
+        <SectionTitle icon={Users}>Manager Permissions</SectionTitle>
+        <p className="text-sm text-muted-foreground mt-2 mb-6">
+          Toggle which sections the secondary Manager can access and modify.
+        </p>
+
+        <div className="flex flex-col gap-4">
+          <div className="p-4 rounded-xl bg-secondary/30 border border-border/50">
+            <Toggle 
+              checked={permissions.canManageMatches} 
+              onChange={v => update('canManageMatches', v)} 
+              label="Manage Matches" 
+              desc="Allow the manager to access the Matches tab to start matches and update scores." 
+            />
+          </div>
+          <div className="p-4 rounded-xl bg-secondary/30 border border-border/50">
+            <Toggle 
+              checked={permissions.canManagePlayers} 
+              onChange={v => update('canManagePlayers', v)} 
+              label="Manage Players" 
+              desc="Allow the manager to add, edit, or delete player profiles." 
+            />
+          </div>
+          <div className="p-4 rounded-xl bg-secondary/30 border border-border/50">
+            <Toggle 
+              checked={permissions.canManageSeason} 
+              onChange={v => update('canManageSeason', v)} 
+              label="Manage Season" 
+              desc="Allow the manager to start, end, or configure tournaments." 
+            />
+          </div>
+          <div className="p-4 rounded-xl bg-secondary/30 border border-border/50">
+            <Toggle 
+              checked={permissions.canEditBroadcast} 
+              onChange={v => update('canEditBroadcast', v)} 
+              label="Edit Broadcast" 
+              desc="Allow the manager to change the live ticker themes and alerts." 
+            />
+          </div>
+        </div>
+
+        <div className="flex justify-end mt-6">
+          <ShinyButton onClick={handleSave} disabled={saving} loading={saving}>
+            Save Permissions
+          </ShinyButton>
+        </div>
+      </Card>
     </div>
   );
 }

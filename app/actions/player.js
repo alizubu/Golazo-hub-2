@@ -2,6 +2,7 @@
 
 import prisma from '@/lib/db';
 import crypto from 'crypto';
+import { checkSessionPermission } from '@/lib/permissions';
 
 function sha256(str) {
   return crypto.createHash('sha256').update(str).digest('hex');
@@ -135,6 +136,8 @@ export async function changePlayerPassword(id, password) {
 }
 
 export async function adminDeletePlayer(id) {
+  const auth = await checkSessionPermission('canManagePlayers');
+  if (!auth.authorized) return { error: auth.error };
   try {
     await prisma.player.delete({ where: { id } });
     return { success: true };
@@ -144,6 +147,8 @@ export async function adminDeletePlayer(id) {
 }
 
 export async function adminUpdatePlayer(id, data) {
+  const auth = await checkSessionPermission('canManagePlayers');
+  if (!auth.authorized) return { error: auth.error };
   try {
     const updateData = {
       name: data.name,

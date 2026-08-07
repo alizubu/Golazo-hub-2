@@ -16,6 +16,7 @@ const NAV_ITEMS = [
   { tab: 'admin/trophies',      label: 'Trophies',       icon: Star },
   { tab: 'admin/announcements', label: 'Announcements',  icon: Megaphone },
   { tab: 'admin/broadcast',     label: 'Broadcast',      icon: Radio },
+  { tab: 'admin/roles',         label: 'Role Manage',    icon: ShieldAlert },
   { tab: 'hall-of-fame',        label: 'Hall of Fame',   icon: Star },
 ];
 
@@ -134,7 +135,7 @@ function SidebarFooter({ activeSeason, onNavigate, onLogout, isLoggingOut, isMob
   );
 }
 
-export default function AdminSidebar({ currentTab, setTab, activeSeason, matches = [], isExpanded = true, onToggleExpand }) {
+export default function AdminSidebar({ currentTab, setTab, activeSeason, matches = [], isExpanded = true, onToggleExpand, session, managerPermissions }) {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const hasLive = matches.some(m => m.status === 'live');
@@ -165,6 +166,18 @@ export default function AdminSidebar({ currentTab, setTab, activeSeason, matches
     if (item.matchExact) return currentTab === item.tab || currentTab === '' || currentTab === 'admin';
     return currentTab === item.tab || currentTab.startsWith(item.tab + '/');
   };
+
+  const navItems = NAV_ITEMS.filter(item => {
+    if (session?.role === 'admin') return true;
+    if (item.tab === 'admin/roles') return false;
+    if (item.tab === 'admin/players') return !!managerPermissions?.canManagePlayers;
+    if (item.tab === 'admin/season') return !!managerPermissions?.canManageSeason;
+    if (item.tab === 'admin/matches') return !!managerPermissions?.canManageMatches;
+    if (item.tab === 'admin/trophies') return !!managerPermissions?.canManageSeason;
+    if (item.tab === 'admin/announcements') return !!managerPermissions?.canEditBroadcast;
+    if (item.tab === 'admin/broadcast') return !!managerPermissions?.canEditBroadcast;
+    return true;
+  });
 
   return (
     <>
@@ -208,7 +221,7 @@ export default function AdminSidebar({ currentTab, setTab, activeSeason, matches
 
         {/* Nav */}
         <nav className="flex-1 py-4 overflow-y-auto overflow-x-hidden relative z-10" aria-label="Admin menu">
-          {NAV_ITEMS.map((item) => (
+          {navItems.map((item) => (
             <NavItem
               key={item.tab}
               item={item}
@@ -282,7 +295,7 @@ export default function AdminSidebar({ currentTab, setTab, activeSeason, matches
               </div>
 
               <nav className="flex-1 py-4 overflow-y-auto px-2 relative z-10" aria-label="Admin menu">
-                {NAV_ITEMS.map((item) => (
+                {navItems.map((item) => (
                   <NavItem
                     key={item.tab}
                     item={item}

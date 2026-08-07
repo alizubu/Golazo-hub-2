@@ -11,6 +11,8 @@ const SECTION_LABELS = {
   'admin/matches':        'Matches',
   'admin/trophies':       'Trophies',
   'admin/announcements':  'Announcements',
+  'admin/broadcast':      'Broadcast',
+  'admin/roles':          'Role Manage',
   'admin/settings':       'Settings',
   'hall-of-fame':         'Hall of Fame',
 };

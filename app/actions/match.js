@@ -3,8 +3,8 @@
 import prisma from '@/lib/db';
 import { broadcastEvent } from '@/lib/broadcast';
 import { revalidatePath } from 'next/cache';
-import { cookies } from 'next/headers';
 import { sendAutoNotification } from '@/lib/notifications';
+import { checkSessionPermission } from '@/lib/permissions';
 
 export async function getMatches(seasonId) {
   return await prisma.match.findMany({
@@ -18,7 +18,8 @@ export async function getMatches(seasonId) {
 }
 
 export async function generateFixtures(seasonId, playerIds, doubleRound) {
-  if ((await cookies()).get('golazo_session')?.value !== 'admin') return { error: 'Unauthorized' };
+  const auth = await checkSessionPermission('canManageMatches');
+  if (!auth.authorized) return { error: auth.error };
   if (playerIds.length < 2) return { error: 'Need at least 2 players' };
 
   const legs = [];
@@ -57,6 +58,8 @@ export async function generateFixtures(seasonId, playerIds, doubleRound) {
 }
 
 export async function updateMatchStatus(matchId, data) {
+  const auth = await checkSessionPermission('canManageMatches');
+  if (!auth.authorized) return { error: auth.error };
   try {
     const match = await prisma.match.update({
       where: { id: matchId },
@@ -260,6 +263,8 @@ async function progressDoubleElimination(matchId) {
 }
 
 export async function updateMatchScore(matchId, homeScore, awayScore) {
+  const auth = await checkSessionPermission('canManageMatches');
+  if (!auth.authorized) return { error: auth.error };
   try {
     const match = await prisma.match.update({
       where: { id: matchId },
@@ -275,7 +280,8 @@ export async function updateMatchScore(matchId, homeScore, awayScore) {
 
 
 export async function generatePlayoffs(seasonId, top4PlayerIds) {
-  if ((await cookies()).get('golazo_session')?.value !== 'admin') return { error: 'Unauthorized' };
+  const auth = await checkSessionPermission('canManageMatches');
+  if (!auth.authorized) return { error: auth.error };
   if (top4PlayerIds.length < 4) return { error: 'Need 4 players for playoffs' };
   
   try {
@@ -393,7 +399,8 @@ export async function progressPlayoffBracket(matchId) {
 }
 
 export async function adminTriggerBracketProgress(seasonId) {
-  if ((await cookies()).get('golazo_session')?.value !== 'admin') return { error: 'Unauthorized' };
+  const auth = await checkSessionPermission('canManageMatches');
+  if (!auth.authorized) return { error: auth.error };
   try {
     // Find any completed semi matches that haven't triggered the challenger
     const matches = await prisma.match.findMany({

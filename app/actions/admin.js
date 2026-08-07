@@ -2,8 +2,11 @@
 
 import prisma from '@/lib/db';
 import { revalidatePath } from 'next/cache';
+import { checkSessionPermission } from '@/lib/permissions';
 
 export async function createAnnouncement(data) {
+  const auth = await checkSessionPermission('canEditBroadcast');
+  if (!auth.authorized) return { error: auth.error };
   try {
     const announcement = await prisma.announcement.create({
       data: {
@@ -18,6 +21,8 @@ export async function createAnnouncement(data) {
 }
 
 export async function deleteAnnouncement(id) {
+  const auth = await checkSessionPermission('canEditBroadcast');
+  if (!auth.authorized) return { error: auth.error };
   try {
     await prisma.announcement.delete({ where: { id } });
     return { success: true };
@@ -28,6 +33,8 @@ export async function deleteAnnouncement(id) {
 
 
 export async function awardTrophy(data) {
+  const auth = await checkSessionPermission('canManageSeason');
+  if (!auth.authorized) return { error: auth.error };
   try {
     const trophy = await prisma.trophy.create({
       data: {
@@ -57,6 +64,8 @@ export async function awardTrophy(data) {
 }
 
 export async function updateTrophy(id, data) {
+  const auth = await checkSessionPermission('canManageSeason');
+  if (!auth.authorized) return { error: auth.error };
   try {
     const trophy = await prisma.trophy.update({
       where: { id },
@@ -76,6 +85,8 @@ export async function updateTrophy(id, data) {
 }
 
 export async function removeTrophy(id) {
+  const auth = await checkSessionPermission('canManageSeason');
+  if (!auth.authorized) return { error: auth.error };
   try {
     await prisma.trophy.delete({ where: { id } });
     revalidatePath('/admin');
@@ -141,6 +152,8 @@ export async function retriggerCelebration(trophyId) {
 
 
 export async function saveTickerConfig(data) {
+  const auth = await checkSessionPermission('canEditBroadcast');
+  if (!auth.authorized) return { error: auth.error };
   try {
     const existing = await prisma.tickerConfig.findFirst();
     let config;

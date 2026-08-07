@@ -20,7 +20,7 @@ import {
   adminDeleteSeason
 } from '@/app/actions/season';
 
-export default function TournamentControlPanel({ season, showToast }) {
+export default function TournamentControlPanel({ season, showToast, session, managerPermissions }) {
   const [loading, setLoading] = useState(false);
   const [renameOpen, setRenameOpen] = useState(false);
   const [newName, setNewName] = useState(season?.name || '');
@@ -35,6 +35,7 @@ export default function TournamentControlPanel({ season, showToast }) {
   }, []);
 
   if (!season) return null;
+  if (session?.role === 'manager' && !managerPermissions?.canManageSeason) return null;
 
   const handleRename = async () => {
     if (!newName.trim()) return showToast("Enter a name");

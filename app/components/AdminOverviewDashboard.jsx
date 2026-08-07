@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Trophy, Calendar, Users, Radio, Activity, ArrowRight, Shield, Flame, Swords, Target, Goal, TrendingUp, History, ListOrdered, Zap, PlusCircle, CheckCircle2, Megaphone, Clock, AlertTriangle, ChevronRight, BarChart2, Star, CalendarDays, PlayCircle, Edit2, Bell, MoreVertical } from 'lucide-react';
+import { Trophy, Calendar, Users, Radio, Activity, ArrowRight, Shield, Flame, Swords, Target, Goal, TrendingUp, History, ListOrdered, Zap, PlusCircle, CheckCircle2, Megaphone, Clock, AlertTriangle, ChevronRight, BarChart2, Star, CalendarDays, PlayCircle, Edit2, Bell, MoreVertical, ShieldAlert } from 'lucide-react';
 import { Card, SectionTitle, EmptyState, MagicCard, FadeIn, Badge, Btn, Avatar, toTitleCase } from './UI';
 import { supabase } from '@/lib/supabaseClient';
 import { BorderBeam } from './magicui/BorderBeam';
@@ -157,15 +157,23 @@ function AdminMetrics({ matches, activeSeason, notifications = [], setTab }) {
   );
 }
 
-function QuickActions({ setTab, showToast }) {
-  const actions = [
-    { label: "Start Match", category: "Match Logistics", icon: PlayCircle, bg: "bg-green-500/10 text-green-500", onClick: () => setTab ? setTab("admin-matches") : showToast?.("Go to Matches tab") },
-    { label: "Generate Fixtures", category: "Match Logistics", icon: CalendarDays, bg: "bg-blue-500/10 text-blue-500", onClick: () => setTab ? setTab("admin-season") : showToast?.("Go to Season tab") },
-    { label: "Edit Season", category: "Match Logistics", icon: Edit2, bg: "bg-orange-500/10 text-orange-500", onClick: () => setTab ? setTab("admin-season") : showToast?.("Go to Season tab") },
-    { label: "Create Announcement", category: "Content & Trophies", icon: Megaphone, bg: "bg-purple-500/10 text-purple-500", onClick: () => setTab ? setTab("admin-announcements") : showToast?.("Go to Announcements tab") },
-    { label: "Manage Trophies", category: "Content & Trophies", icon: Trophy, bg: "bg-gold/10 text-gold", onClick: () => setTab ? setTab("admin-trophies") : showToast?.("Go to Trophies tab") },
-    { label: "Manage Players", category: "Player Management", icon: Users, bg: "bg-pink-500/10 text-pink-500", onClick: () => setTab ? setTab("admin-players") : showToast?.("Go to Players tab") }
+function QuickActions({ setTab, showToast, session, managerPermissions }) {
+  const allActions = [
+    { label: "Start Match", category: "Match Logistics", icon: PlayCircle, bg: "bg-green-500/10 text-green-500", onClick: () => setTab ? setTab("admin-matches") : showToast?.("Go to Matches tab"), perm: 'canManageMatches' },
+    { label: "Generate Fixtures", category: "Match Logistics", icon: CalendarDays, bg: "bg-blue-500/10 text-blue-500", onClick: () => setTab ? setTab("admin-season") : showToast?.("Go to Season tab"), perm: 'canManageSeason' },
+    { label: "Edit Season", category: "Match Logistics", icon: Edit2, bg: "bg-orange-500/10 text-orange-500", onClick: () => setTab ? setTab("admin-season") : showToast?.("Go to Season tab"), perm: 'canManageSeason' },
+    { label: "Create Announcement", category: "Content & Trophies", icon: Megaphone, bg: "bg-purple-500/10 text-purple-500", onClick: () => setTab ? setTab("admin-announcements") : showToast?.("Go to Announcements tab"), perm: 'canEditBroadcast' },
+    { label: "Manage Trophies", category: "Content & Trophies", icon: Trophy, bg: "bg-gold/10 text-gold", onClick: () => setTab ? setTab("admin-trophies") : showToast?.("Go to Trophies tab"), perm: 'canManageSeason' },
+    { label: "Manage Players", category: "Player Management", icon: Users, bg: "bg-pink-500/10 text-pink-500", onClick: () => setTab ? setTab("admin-players") : showToast?.("Go to Players tab"), perm: 'canManagePlayers' },
+    { label: "Role Manage", category: "Access Control", icon: ShieldAlert, bg: "bg-amber-500/10 text-amber-500", onClick: () => setTab ? setTab("admin-roles") : showToast?.("Go to Role Manage tab"), adminOnly: true }
   ];
+
+  const actions = allActions.filter(act => {
+    if (session?.role === 'admin') return true;
+    if (act.adminOnly) return false;
+    if (act.perm && managerPermissions) return !!managerPermissions[act.perm];
+    return true;
+  });
 
   return (
     <Card className="p-4 md:p-6 overflow-hidden border-border/50 shadow-lg">
@@ -675,7 +683,7 @@ export function MobileStandingsList({ matches, players, activeSeason }) {
 }
 
 // Main Component
-export default function AdminOverviewDashboard({ players = [], activeSeason, matches = [], announcements = [], notifications = [], trophies = [], seasons = [], history = [], showToast, setTab }) {
+export default function AdminOverviewDashboard({ players = [], activeSeason, matches = [], announcements = [], notifications = [], trophies = [], seasons = [], history = [], showToast, setTab, session, managerPermissions }) {
   const [realtimeOverrides, setRealtimeOverrides] = useState({});
 
   const liveMatches = React.useMemo(() => {
@@ -714,7 +722,7 @@ export default function AdminOverviewDashboard({ players = [], activeSeason, mat
       <HeroSeasonSummary activeSeason={activeSeason} players={players} matches={liveMatches} setTab={setTab} />
       <LiveMatchControl matches={liveMatches} players={players} activeSeason={activeSeason} showToast={showToast} />
       <AdminMetrics matches={liveMatches} activeSeason={activeSeason} notifications={notifications} setTab={setTab} />
-      <QuickActions setTab={setTab} showToast={showToast} />
+      <QuickActions setTab={setTab} showToast={showToast} session={session} managerPermissions={managerPermissions} />
 
       <div className="mb-6 w-full min-w-0">
         <div className="hidden md:block">
@@ -737,7 +745,7 @@ export default function AdminOverviewDashboard({ players = [], activeSeason, mat
         <DashboardTimeline activeSeason={activeSeason} matches={liveMatches} />
       </div>
 
-      <TournamentControlPanel season={activeSeason} showToast={showToast} />
+      <TournamentControlPanel season={activeSeason} showToast={showToast} session={session} managerPermissions={managerPermissions} />
     </div>
   );
 }

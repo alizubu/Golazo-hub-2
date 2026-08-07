@@ -7,7 +7,7 @@ export default async function Home() {
   const cookieStore = await cookies();
   const sessionCookie = cookieStore.get('golazo_session')?.value;
   
-  if (sessionCookie === 'admin') {
+  if (sessionCookie === 'admin' || sessionCookie === 'manager') {
     redirect('/admin');
   } else if (sessionCookie === 'player') {
     redirect('/dashboard');

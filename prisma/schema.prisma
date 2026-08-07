@@ -179,3 +179,12 @@ model SystemSettings {
   autoNotificationsEnabled Boolean  @default(true)
   updatedAt                DateTime @updatedAt
 }
+
+model ManagerPermissions {
+  id               String   @id @default("global")
+  canManageMatches Boolean  @default(true)
+  canManagePlayers Boolean  @default(false)
+  canManageSeason  Boolean  @default(false)
+  canEditBroadcast Boolean  @default(false)
+  updatedAt        DateTime @updatedAt
+}
