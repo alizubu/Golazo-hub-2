@@ -393,23 +393,15 @@ function ImageImport({ onApply }) {
       const processedBase64 = await new Promise((resolve, reject) => {
         const img = new Image();
         img.onload = () => {
-          let cropX = 0, cropY = 0, cropWidth = img.width, cropHeight = img.height;
-          // If it's a full landscape screenshot (aspect ratio > 1.4), crop out the sides to avoid team logos
-          // and focus on the central stats table.
-          if (img.width / img.height > 1.4) {
-            cropX = img.width * 0.15;
-            cropWidth = img.width * 0.70;
-            cropY = img.height * 0.10;
-            cropHeight = img.height * 0.90;
-          }
-
+          // Scale 2x for better OCR accuracy on low-res screenshots
+          const scale = 2;
           const canvas = document.createElement('canvas');
-          canvas.width = cropWidth;
-          canvas.height = cropHeight;
+          canvas.width = img.width * scale;
+          canvas.height = img.height * scale;
           const ctx = canvas.getContext('2d');
           
-          // Draw the cropped portion
-          ctx.drawImage(img, cropX, cropY, cropWidth, cropHeight, 0, 0, cropWidth, cropHeight);
+          // Draw the upscaled image
+          ctx.drawImage(img, 0, 0, img.width * scale, img.height * scale);
           
           try {
             const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
@@ -419,8 +411,8 @@ function ImageImport({ onApply }) {
               // Convert to grayscale
               const lum = 0.299 * r + 0.587 * g + 0.114 * b;
               // Threshold: eFootball has dark backgrounds and bright text. 
-              // Convert bright text to black, dark bg to white.
-              if (lum > 140) {
+              // Lowered threshold to 110 to preserve anti-aliased text from small images
+              if (lum > 110) {
                 data[i] = 0; data[i+1] = 0; data[i+2] = 0;
               } else {
                 data[i] = 255; data[i+1] = 255; data[i+2] = 255;
@@ -467,8 +459,10 @@ function ImageImport({ onApply }) {
       
       const lines = rows.map(r => {
         let text = r.words.map(w => w.text).join(' ').toLowerCase();
-        // Fix common OCR number mistakes (e.g., 'o' instead of '0', 'l' instead of '1')
+        // Extended OCR number fixes for Tesseract hallucinations on noisy images
         text = text.replace(/\bo\b/g, '0').replace(/\bl\b/g, '1');
+        text = text.replace(/°/g, '0').replace(/\[\]/g, '0').replace(/\[1\]/g, '1');
+        text = text.replace(/\bq\b/g, '0').replace(/\?/g, '7');
         return text;
       });
 
