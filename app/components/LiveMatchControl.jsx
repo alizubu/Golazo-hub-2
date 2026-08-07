@@ -7,6 +7,7 @@ import { updateMatchStatus, updateMatchScore } from '@/app/actions/match';
 import { supabase } from '@/lib/supabaseClient';
 import { Btn, MagicCard, Avatar } from './UI';
 import { MatchStatsPreview } from './AdminConsole';
+import { extractMatchStats } from '../actions/extractStats';
 import { motion, AnimatePresence } from 'framer-motion';
 
 
@@ -389,156 +390,40 @@ function ImageImport({ onApply }) {
     setLoading(true);
     setError(null);
     try {
-      // 1. Preprocess image using Canvas to enhance text contrast (black text on white bg)
-      const processedBase64 = await new Promise((resolve, reject) => {
-        const img = new Image();
-        img.onload = () => {
-          // Only scale 2x if the image is small (e.g., width < 1200) to prevent mobile browser memory crash
-          const scale = img.width < 1200 ? 2 : 1;
-          const canvas = document.createElement('canvas');
-          canvas.width = img.width * scale;
-          canvas.height = img.height * scale;
-          const ctx = canvas.getContext('2d');
-          
-          // Draw the upscaled (or normal) image
-          ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-          
-          try {
-            const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-            const data = imageData.data;
-            for (let i = 0; i < data.length; i += 4) {
-              const r = data[i], g = data[i+1], b = data[i+2];
-              // Convert to grayscale
-              const lum = 0.299 * r + 0.587 * g + 0.114 * b;
-              // Threshold: eFootball has dark backgrounds and bright text. 
-              // Lowered threshold to 110 to preserve anti-aliased text from small images
-              if (lum > 110) {
-                data[i] = 0; data[i+1] = 0; data[i+2] = 0;
-              } else {
-                data[i] = 255; data[i+1] = 255; data[i+2] = 255;
-              }
-            }
-            ctx.putImageData(imageData, 0, 0);
-            resolve(canvas.toDataURL('image/png'));
-          } catch(e) {
-            // Fallback to original if canvas tainted or error
-            resolve(img.src);
-          }
+      const formData = new FormData();
+      formData.append('image', file);
+
+      const response = await extractMatchStats(formData);
+
+      if (response.success) {
+        const mappings = {
+          possession: 'possession',
+          shots: 'shots',
+          shots_on_target: 'shotsOnTarget',
+          fouls: 'fouls',
+          offsides: 'offsides',
+          corner_kicks: 'corners',
+          free_kicks: 'freeKicks',
+          passes: 'passes',
+          successful_passes: 'successfulPasses',
+          crosses: 'crosses',
+          interceptions: 'interceptions',
+          tackles: 'tackles',
+          saves: 'saves'
         };
-        img.onerror = reject;
-        img.src = URL.createObjectURL(file);
-      });
 
-      // 2. Run Tesseract entirely on the client with the preprocessed image
-      const Tesseract = (await import('tesseract.js')).default || await import('tesseract.js');
-      // Use bounding boxes to reconstruct rows
-      const { data } = await Tesseract.recognize(processedBase64, 'eng');
-      
-      const stats = { home: {}, away: {} };
-      
-      // Group words by Y coordinate to form rows using dynamic tolerance
-      const rows = [];
-      const words = data.words || [];
-      
-      words.forEach(word => {
-        const y = word.bbox.y0;
-        const height = word.bbox.y1 - word.bbox.y0;
-        const tolerance = Math.max(8, height * 0.6); // Dynamic tolerance based on font size
-        
-        let foundRow = rows.find(r => Math.abs(r.y - y) < tolerance);
-        if (!foundRow) {
-          foundRow = { y, words: [] };
-          rows.push(foundRow);
-        }
-        foundRow.words.push(word);
-      });
-      
-      // Sort rows top-to-bottom, words left-to-right
-      rows.sort((a, b) => a.y - b.y);
-      rows.forEach(r => r.words.sort((a, b) => a.bbox.x0 - b.bbox.x0));
-      
-      const lines = rows.map(r => {
-        let text = r.words.map(w => w.text).join(' ').toLowerCase();
-        // Extended OCR number fixes for Tesseract hallucinations on noisy images
-        text = text.replace(/\bo\b/g, '0').replace(/\bl\b/g, '1');
-        text = text.replace(/°/g, '0').replace(/\[\]/g, '0').replace(/\[1\]/g, '1');
-        text = text.replace(/\bq\b/g, '0').replace(/\?/g, '7');
-        return text;
-      });
-
-      const mappings = [
-        { keys: ['posses'], jsonKey: 'possession' },
-        { keys: ['target'], jsonKey: 'shotsOnTarget' },
-        { keys: ['success'], jsonKey: 'successfulPasses' },
-        { keys: ['corner'], jsonKey: 'corners' },
-        { keys: ['free'], jsonKey: 'freeKicks' },
-        { keys: ['shot'], jsonKey: 'shots' }, // will not match 'shots on target' if placed after
-        { keys: ['foul'], jsonKey: 'fouls' },
-        { keys: ['offside'], jsonKey: 'offsides' },
-        { keys: ['passes'], jsonKey: 'passes' }, // will not match 'successful passes' if placed after
-        { keys: ['cross'], jsonKey: 'crosses' },
-        { keys: ['intercep'], jsonKey: 'interceptions' },
-        { keys: ['tackle'], jsonKey: 'tackles' },
-        { keys: ['save'], jsonKey: 'saves' }
-      ];
-
-      for (const line of lines) {
-        for (const mapping of mappings) {
-          if (mapping.keys.some(k => line.includes(k))) {
-            // Find the original row to access word coordinates
-            const originalRow = rows.find(r => {
-               const rowText = r.words.map(w => w.text).join(' ').toLowerCase();
-               // Apply same corrections to find the match
-               const correctedRowText = rowText
-                 .replace(/\bo\b/g, '0').replace(/\bl\b/g, '1').replace(/\bi\b/g, '1')
-                 .replace(/°/g, '0').replace(/\[\]/g, '0').replace(/\[1\]/g, '1')
-                 .replace(/\bq\b/g, '0').replace(/\?/g, '7').replace(/\bc\b/g, '0').replace(/\be\b/g, '0')
-                 .replace(/\ban\b/g, '48').replace(/\bs\b/g, '5');
-               return mapping.keys.some(k => correctedRowText.includes(k));
-            });
-
-            if (originalRow) {
-               // Map words to corrected text and keep their X coordinate
-               const correctedWords = originalRow.words.map(w => {
-                 let text = w.text.toLowerCase();
-                 text = text.replace(/\bo\b/g, '0').replace(/\bl\b/g, '1').replace(/\bi\b/g, '1');
-                 text = text.replace(/°/g, '0').replace(/\[\]/g, '0').replace(/\[1\]/g, '1');
-                 text = text.replace(/\bq\b/g, '0').replace(/\?/g, '7').replace(/\bc\b/g, '0').replace(/\be\b/g, '0');
-                 text = text.replace(/\ban\b/g, '48').replace(/\bs\b/g, '5');
-                 return { text, x: w.bbox.x0 };
-               });
-
-               // Filter only words that contain digits
-               const numberWords = correctedWords.filter(w => /\d/.test(w.text));
-
-               if (numberWords.length >= 2) {
-                 stats.home[mapping.jsonKey] = parseInt(numberWords[0].text.match(/\d+/)[0], 10);
-                 stats.away[mapping.jsonKey] = parseInt(numberWords[numberWords.length - 1].text.match(/\d+/)[0], 10);
-               } else if (numberWords.length === 1) {
-                 // Fallback: If only one number is found, assign based on screen position
-                 const isHome = numberWords[0].x < (canvas.width / 2);
-                 if (isHome) {
-                   stats.home[mapping.jsonKey] = parseInt(numberWords[0].text.match(/\d+/)[0], 10);
-                 } else {
-                   stats.away[mapping.jsonKey] = parseInt(numberWords[0].text.match(/\d+/)[0], 10);
-                 }
-               }
-
-               // Auto-fill possession if only one side was detected
-               if (mapping.jsonKey === 'possession') {
-                 if (stats.home.possession > 0 && !stats.away.possession) {
-                   stats.away.possession = 100 - stats.home.possession;
-                 } else if (stats.away.possession > 0 && !stats.home.possession) {
-                   stats.home.possession = 100 - stats.away.possession;
-                 }
-               }
-            }
-            break; // Stop matching other stats for this line
+        const mappedStats = { home: {}, away: {} };
+        for (const side of ['home', 'away']) {
+          for (const [geminiKey, localKey] of Object.entries(mappings)) {
+            const val = response.data[side][geminiKey];
+            mappedStats[side][localKey] = (val && val !== "-") ? parseInt(val, 10) : "";
           }
         }
+        
+        onApply(mappedStats);
+      } else {
+        setError(response.error);
       }
-
-      onApply(stats);
     } catch (err) {
       console.error(err);
       setError(err.message);
@@ -554,7 +439,7 @@ function ImageImport({ onApply }) {
         <>
           <Loader2 size={24} className="text-pitch-bright animate-spin mb-3" />
           <p className="text-sm font-bold text-zinc-300">Analyzing image...</p>
-          <p className="text-xs text-zinc-500 mt-1 font-medium">Extracting stats via Tesseract OCR (this takes a few seconds)</p>
+          <p className="text-xs text-zinc-500 mt-1 font-medium">Extracting stats with AI (this takes a few seconds)</p>
         </>
       ) : (
         <>
