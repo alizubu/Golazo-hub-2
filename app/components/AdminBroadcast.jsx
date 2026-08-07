@@ -36,7 +36,7 @@ function SegmentBtn({ value, label, icon, current, onChange }) {
       className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-semibold transition-all ${
         current === value
           ? 'bg-amber-500 text-black shadow-sm scale-95'
-          : 'text-zinc-400 hover:text-foreground hover:bg-white/5'
+          : 'text-muted-foreground hover:text-foreground hover:bg-white/5'
       }`}
     >
       <span>{icon}</span>
@@ -55,7 +55,7 @@ function ThemeCard({ theme, isSelected, onSelect }) {
       className={`relative flex items-center gap-3 p-3 rounded-lg border transition-all text-left overflow-hidden ${
         isSelected
           ? 'bg-amber-500/15 border-amber-500/50 shadow-[0_0_15px_rgba(245,158,11,0.2)] ring-1 ring-amber-500/50'
-          : 'bg-white/[0.02] border-border hover:bg-white/[0.05] hover:border-white/20'
+          : 'bg-white/[0.02] border-border hover:bg-white/[0.05] hover:border-border dark:border-white/20'
       }`}
     >
       <div className={`flex items-center justify-center w-8 h-8 rounded-full shrink-0 ${isSelected ? 'bg-amber-500/20' : 'bg-white/5'}`}>
@@ -63,12 +63,12 @@ function ThemeCard({ theme, isSelected, onSelect }) {
       </div>
       <div className="flex flex-col flex-1">
         <div className="flex items-center justify-between">
-          <span className={`text-[11px] font-bold uppercase tracking-wider ${isSelected ? 'text-amber-300' : 'text-zinc-300'}`}>
+          <span className={`text-[11px] font-bold uppercase tracking-wider ${isSelected ? 'text-amber-300' : 'text-muted-foreground'}`}>
             {theme.name}
           </span>
           {isSelected && <CheckCircle2 size={12} className="text-amber-400" />}
         </div>
-        <span className="text-[9px] text-zinc-500 leading-tight line-clamp-1">{theme.desc}</span>
+        <span className="text-[9px] text-muted-foreground leading-tight line-clamp-1">{theme.desc}</span>
       </div>
     </motion.button>
   );
@@ -93,7 +93,7 @@ function SeparatorPicker({ current, onChange }) {
           className={`flex flex-col items-center gap-1 px-3 py-2 rounded-lg text-lg transition-all border min-w-[52px] ${
             current === opt.id
               ? 'bg-amber-500/10 text-amber-400 border-amber-500/40 shadow-sm'
-              : 'bg-white/5 text-zinc-500 border-transparent hover:bg-white/10 hover:text-zinc-300'
+              : 'bg-white/5 text-muted-foreground border-transparent hover:bg-white/10 hover:text-muted-foreground'
           }`}
           title={opt.name}
         >
@@ -123,7 +123,7 @@ function SizePicker({ current, onChange }) {
             className={`flex items-center gap-2 px-4 py-2.5 rounded-lg text-xs font-bold uppercase tracking-wider transition-all border flex-1 justify-center ${
               current === s.id
                 ? 'bg-amber-500/10 text-amber-400 border-amber-500/40'
-                : 'bg-white/5 text-zinc-500 border-transparent hover:bg-white/10'
+                : 'bg-white/5 text-muted-foreground border-transparent hover:bg-white/10'
             }`}
           >
             <Icon size={14} />
@@ -203,7 +203,7 @@ export default function AdminBroadcast({ matches = [], players = [], announcemen
         <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-bold border transition-colors ${
           draft.enabled
             ? 'bg-red-500/10 text-red-400 border-red-500/30 shadow-[0_0_10px_rgba(239,68,68,0.2)]'
-            : 'bg-zinc-900 text-zinc-500 border-zinc-800'
+            : 'bg-secondary dark:bg-zinc-900 text-muted-foreground border-border dark:border-zinc-800'
         }`}>
           <div className={`w-1.5 h-1.5 rounded-full ${draft.enabled ? 'bg-red-500 animate-pulse' : 'bg-zinc-600'}`} />
           {draft.enabled ? 'ON AIR' : 'OFF AIR'}
@@ -215,7 +215,7 @@ export default function AdminBroadcast({ matches = [], players = [], announcemen
         <Card className="p-4 sm:p-5 bg-background/80 border-border shadow-2xl">
           <div className="flex items-center justify-between mb-3">
             <Label className="text-pitch-bright font-bold uppercase tracking-widest text-[10px]">On-Air Preview</Label>
-            <Badge className="bg-zinc-900 text-zinc-500 border-zinc-800 text-[9px]">{draft.theme?.toUpperCase() || 'CLASSIC'}</Badge>
+            <Badge className="bg-secondary dark:bg-zinc-900 text-muted-foreground border-border dark:border-zinc-800 text-[9px]">{draft.theme?.toUpperCase() || 'CLASSIC'}</Badge>
           </div>
           <div className="rounded-lg overflow-hidden ring-1 ring-white/10">
             <SportsTicker
@@ -246,7 +246,7 @@ export default function AdminBroadcast({ matches = [], players = [], announcemen
             {/* Speed Slider */}
             <div>
               <div className="flex items-center justify-between mb-3">
-                <Label className="text-zinc-400">Scroll Speed</Label>
+                <Label className="text-muted-foreground">Scroll Speed</Label>
                 <span className="text-xs font-mono text-amber-400 bg-amber-500/10 px-2 py-0.5 rounded-full border border-amber-500/20">{draft.speed}%</span>
               </div>
               <div className="relative px-1">
@@ -256,7 +256,7 @@ export default function AdminBroadcast({ matches = [], players = [], announcemen
                   max={100}
                   value={draft.speed}
                   onChange={e => update('speed', Number(e.target.value))}
-                  className="w-full h-2 bg-zinc-800 rounded-full appearance-none cursor-pointer accent-amber-500 [&::-webkit-slider-thumb]:w-5 [&::-webkit-slider-thumb]:h-5 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-amber-400 [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:shadow-[0_0_10px_rgba(245,158,11,0.5)] [&::-webkit-slider-thumb]:border-2 [&::-webkit-slider-thumb]:border-amber-300 [&::-webkit-slider-thumb]:cursor-pointer"
+                  className="w-full h-2 bg-secondary dark:bg-zinc-800 rounded-full appearance-none cursor-pointer accent-amber-500 [&::-webkit-slider-thumb]:w-5 [&::-webkit-slider-thumb]:h-5 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-amber-400 [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:shadow-[0_0_10px_rgba(245,158,11,0.5)] [&::-webkit-slider-thumb]:border-2 [&::-webkit-slider-thumb]:border-amber-300 [&::-webkit-slider-thumb]:cursor-pointer"
                 />
                 <div className="flex justify-between mt-2 text-[9px] text-zinc-600 font-bold uppercase tracking-widest">
                   <span>🐢 Slow</span>
@@ -284,7 +284,7 @@ export default function AdminBroadcast({ matches = [], players = [], announcemen
             {draft.breakingNews && (
               <button
                 onClick={() => update('breakingNews', '')}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-500 hover:text-red-400 transition-colors"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-red-400 transition-colors"
               >
                 ✕
               </button>
@@ -298,7 +298,7 @@ export default function AdminBroadcast({ matches = [], players = [], announcemen
         <Card className="p-4 sm:p-6">
           <SectionTitle icon={Eye}>Content Feed Source</SectionTitle>
           <div className="mt-4">
-            <div className="flex flex-wrap p-1 bg-zinc-900 rounded-lg w-fit border border-border/50">
+            <div className="flex flex-wrap p-1 bg-secondary dark:bg-zinc-900 rounded-lg w-fit border border-border/50">
               <SegmentBtn icon="📺" value="live" label="Live Only" current={draft.source} onChange={v => update('source', v)} />
               <SegmentBtn icon="🕒" value="live_recent" label="Recent" current={draft.source} onChange={v => update('source', v)} />
               <SegmentBtn icon="📅" value="live_today" label="Today" current={draft.source} onChange={v => update('source', v)} />
@@ -310,8 +310,8 @@ export default function AdminBroadcast({ matches = [], players = [], announcemen
             <FadeIn>
               <div className="mt-4">
                 <div className="flex items-center justify-between mb-2">
-                  <Label className="text-zinc-400">Select Matches</Label>
-                  <span className="text-xs text-zinc-500">{draft.customMatchIds?.length || 0} selected</span>
+                  <Label className="text-muted-foreground">Select Matches</Label>
+                  <span className="text-xs text-muted-foreground">{draft.customMatchIds?.length || 0} selected</span>
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-64 overflow-y-auto p-2 rounded-xl bg-black/50 border border-border/50 custom-scrollbar">
                   {matches.map(m => {
@@ -333,7 +333,7 @@ export default function AdminBroadcast({ matches = [], players = [], announcemen
                         <div className="flex-1 min-w-0 flex items-center justify-between text-xs font-semibold">
                           <div className="flex items-center gap-2 truncate">
                             <span className="truncate">{h?.name || 'Unknown'}</span>
-                            <span className="text-zinc-500 shrink-0">vs</span>
+                            <span className="text-muted-foreground shrink-0">vs</span>
                             <span className="truncate">{a?.name || 'Unknown'}</span>
                           </div>
                           {isLive && <span className="text-[9px] text-red-400 uppercase ml-2">Live</span>}
@@ -341,7 +341,7 @@ export default function AdminBroadcast({ matches = [], players = [], announcemen
                       </label>
                     );
                   })}
-                  {matches.length === 0 && <p className="text-sm text-zinc-500 p-2 col-span-2">No matches found.</p>}
+                  {matches.length === 0 && <p className="text-sm text-muted-foreground p-2 col-span-2">No matches found.</p>}
                 </div>
               </div>
             </FadeIn>
@@ -369,13 +369,13 @@ export default function AdminBroadcast({ matches = [], players = [], announcemen
           <div className="mt-4 flex flex-col gap-6">
             {/* Size */}
             <div>
-              <Label className="mb-3 block text-zinc-400">Ticker Size</Label>
+              <Label className="mb-3 block text-muted-foreground">Ticker Size</Label>
               <SizePicker current={draft.size} onChange={v => update('size', v)} />
             </div>
 
             {/* Separator */}
             <div>
-              <Label className="mb-3 block text-zinc-400">Item Separator</Label>
+              <Label className="mb-3 block text-muted-foreground">Item Separator</Label>
               <SeparatorPicker current={draft.separator} onChange={v => update('separator', v)} />
             </div>
 
@@ -451,21 +451,21 @@ export default function AdminBroadcast({ matches = [], players = [], announcemen
 
             {/* Momentum */}
             <div className="p-4 rounded-xl bg-card/40 border border-amber-500/10 shadow-inner">
-              <Label className="mb-3 block text-zinc-300">Match Momentum Glow</Label>
-              <div className="flex gap-2 p-1 bg-zinc-900 rounded-lg w-fit border border-border/50 flex-wrap">
+              <Label className="mb-3 block text-muted-foreground">Match Momentum Glow</Label>
+              <div className="flex gap-2 p-1 bg-secondary dark:bg-zinc-900 rounded-lg w-fit border border-border/50 flex-wrap">
                 <SegmentBtn icon="⏸️" value="none" label="None" current={draft.momentumTeam} onChange={v => update('momentumTeam', v)} />
                 <SegmentBtn icon="🏠" value="home" label="Home Team" current={draft.momentumTeam} onChange={v => update('momentumTeam', v)} />
                 <SegmentBtn icon="✈️" value="away" label="Away Team" current={draft.momentumTeam} onChange={v => update('momentumTeam', v)} />
               </div>
-              <p className="text-[11px] text-zinc-500 mt-2">Applies a cosmic aurora background to the dominating team in live matches.</p>
+              <p className="text-[11px] text-muted-foreground mt-2">Applies a cosmic aurora background to the dominating team in live matches.</p>
             </div>
 
             {/* Epic Moment */}
             <div className="p-4 rounded-xl bg-card/40 border border-amber-500/10 shadow-inner">
-              <Label className="mb-3 block text-zinc-300">Epic Moment Lower Third</Label>
+              <Label className="mb-3 block text-muted-foreground">Epic Moment Lower Third</Label>
               <div className="flex flex-col sm:flex-row gap-3 mb-3">
                 <select 
-                  className="px-3 py-2 rounded-lg bg-zinc-900 border border-zinc-700 text-sm text-zinc-300 focus:outline-none focus:border-amber-500/50 flex-1"
+                  className="px-3 py-2 rounded-lg bg-secondary dark:bg-zinc-900 border border-border dark:border-zinc-700 text-sm text-muted-foreground focus:outline-none focus:border-amber-500/50 flex-1"
                   value={draft.epicMoment?.playerId || ''}
                   onChange={e => update('epicMoment', { ...draft.epicMoment, playerId: e.target.value })}
                 >
@@ -475,16 +475,16 @@ export default function AdminBroadcast({ matches = [], players = [], announcemen
                 <input 
                   type="text" 
                   placeholder="e.g. 99 FINISHING" 
-                  className="px-3 py-2 rounded-lg bg-zinc-900 border border-zinc-700 text-sm text-zinc-300 focus:outline-none focus:border-amber-500/50 flex-1"
+                  className="px-3 py-2 rounded-lg bg-secondary dark:bg-zinc-900 border border-border dark:border-zinc-700 text-sm text-muted-foreground focus:outline-none focus:border-amber-500/50 flex-1"
                   value={draft.epicMoment?.text || ''}
                   onChange={e => update('epicMoment', { ...draft.epicMoment, text: e.target.value })}
                 />
               </div>
-              <div className="flex items-center justify-between border-t border-zinc-800/50 pt-3">
-                <span className="text-[11px] text-zinc-500">Triggers a sliding frosted-glass graphic.</span>
+              <div className="flex items-center justify-between border-t border-border dark:border-zinc-800/50 pt-3">
+                <span className="text-[11px] text-muted-foreground">Triggers a sliding frosted-glass graphic.</span>
                 <button 
                   onClick={() => update('epicMoment', { ...draft.epicMoment, active: !draft.epicMoment?.active })}
-                  className={`px-4 py-1.5 rounded-full text-xs font-bold transition-all shadow-md ${draft.epicMoment?.active ? 'bg-amber-500 text-black hover:bg-amber-400' : 'bg-zinc-800 text-zinc-300 hover:bg-zinc-700 border border-zinc-700'}`}
+                  className={`px-4 py-1.5 rounded-full text-xs font-bold transition-all shadow-md ${draft.epicMoment?.active ? 'bg-amber-500 text-black hover:bg-amber-400' : 'bg-secondary dark:bg-zinc-800 text-muted-foreground hover:bg-zinc-700 border border-border dark:border-zinc-700'}`}
                 >
                   {draft.epicMoment?.active ? 'Hide Graphic' : 'Show Graphic'}
                 </button>
@@ -494,8 +494,8 @@ export default function AdminBroadcast({ matches = [], players = [], announcemen
             {/* Replay Stinger */}
             <div className="p-4 rounded-xl bg-card/40 border border-amber-500/10 shadow-inner flex items-center justify-between">
               <div>
-                <Label className="block text-zinc-300 mb-0.5">Instant Replay Stinger</Label>
-                <p className="text-[11px] text-zinc-500">Plays a 2-second slicing animation over the ticker.</p>
+                <Label className="block text-muted-foreground mb-0.5">Instant Replay Stinger</Label>
+                <p className="text-[11px] text-muted-foreground">Plays a 2-second slicing animation over the ticker.</p>
               </div>
               <button 
                 onClick={() => update('replayTrigger', Date.now())}
@@ -507,12 +507,12 @@ export default function AdminBroadcast({ matches = [], players = [], announcemen
             
             {/* Custom Highlights */}
             <div className="p-4 rounded-xl bg-card/40 border border-amber-500/10 shadow-inner">
-              <Label className="mb-3 block text-zinc-300">Custom Marquee Highlights</Label>
+              <Label className="mb-3 block text-muted-foreground">Custom Marquee Highlights</Label>
               <div className="flex gap-2 mb-3">
                 <input 
                   type="text" 
                   placeholder="e.g. MESSI COMPLETES HATTRICK!" 
-                  className="flex-1 px-3 py-2 rounded-lg bg-zinc-900 border border-zinc-700 text-sm text-zinc-300 focus:outline-none focus:border-amber-500/50"
+                  className="flex-1 px-3 py-2 rounded-lg bg-secondary dark:bg-zinc-900 border border-border dark:border-zinc-700 text-sm text-muted-foreground focus:outline-none focus:border-amber-500/50"
                   value={newCustomHighlight}
                   onChange={e => setNewCustomHighlight(e.target.value)}
                   onKeyDown={e => {
@@ -529,7 +529,7 @@ export default function AdminBroadcast({ matches = [], players = [], announcemen
                       setNewCustomHighlight('');
                     }
                   }}
-                  className="px-3 py-2 rounded-lg bg-zinc-800 text-zinc-300 hover:bg-zinc-700 border border-zinc-700 transition-colors"
+                  className="px-3 py-2 rounded-lg bg-secondary dark:bg-zinc-800 text-muted-foreground hover:bg-zinc-700 border border-border dark:border-zinc-700 transition-colors"
                 >
                   <Plus size={16} />
                 </button>
@@ -540,7 +540,7 @@ export default function AdminBroadcast({ matches = [], players = [], announcemen
                     <span className="text-xs font-bold text-amber-400 bg-clip-text text-transparent bg-gradient-to-r from-amber-200 to-amber-500 truncate">{msg}</span>
                     <button 
                       onClick={() => update('customHighlights', draft.customHighlights.filter((_, i) => i !== idx))}
-                      className="text-zinc-500 hover:text-red-400 p-1"
+                      className="text-muted-foreground hover:text-red-400 p-1"
                     >
                       <X size={14} />
                     </button>

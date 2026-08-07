@@ -23,7 +23,7 @@ export default function PlayerProfileDrawer({ players, matches, seasons, announc
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={closeProfile}
-            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100]"
+            className="fixed inset-0 bg-secondary/70 dark:bg-black/60 backdrop-blur-sm z-[100]"
           />
 
           {/* Drawer */}

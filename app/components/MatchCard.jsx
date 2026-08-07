@@ -144,7 +144,7 @@ function MatchCard({ m, players, onClick }) {
       )}
       
       {/* Inner Content Wrapper */}
-      <div className={`relative z-10 flex flex-col gap-2 p-3 sm:p-4 m-[1px] rounded-[15px] ${isLive ? 'bg-background/95 dark:bg-[#0f1117]/95 backdrop-blur-sm' : 'bg-background/50'} ${isExpanded ? 'rounded-b-none border-b border-border/30' : ''}`}>
+      <div className={`relative z-10 flex flex-col gap-2 p-3 sm:p-4 m-[1px] rounded-[15px] ${isLive ? 'bg-background/95 dark:bg-background dark:bg-[#0f1117]/95 backdrop-blur-sm' : 'bg-background/50'} ${isExpanded ? 'rounded-b-none border-b border-border/30' : ''}`}>
         
         {/* Status Badge (Top Right) */}
         <div className="absolute top-3 right-3 flex items-center justify-end z-20 pointer-events-none">
@@ -204,7 +204,7 @@ function MatchCard({ m, players, onClick }) {
             animate={{ height: "auto", opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
             transition={{ duration: 0.3, ease: "easeInOut" }}
-            className="overflow-hidden bg-[#0a0c10] border-t border-border/30 shadow-[inset_0_5px_15px_rgba(0,0,0,0.4)]"
+            className="overflow-hidden bg-card dark:bg-[#0a0c10] border-t border-border/30 shadow-[inset_0_5px_15px_rgba(0,0,0,0.4)]"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="p-4 sm:p-5 flex flex-col">

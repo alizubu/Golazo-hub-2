@@ -40,7 +40,7 @@ function initials(name) {
 // Card chrome
 // ---------------------------------------------------------------------------
 function CardHeader({ title, status, tone }) {
-  const tones = { rose: "bg-claret-dim/20 text-claret border-claret/30", amber: "bg-amber-950 text-amber-400 border-amber-500/30", emerald: "bg-pitch/20 text-pitch-bright border-pitch/30", paused: "bg-zinc-900/80 text-amber-500 border-zinc-700" };
+  const tones = { rose: "bg-claret-dim/20 text-claret border-claret/30", amber: "bg-amber-950 text-amber-400 border-amber-500/30", emerald: "bg-pitch/20 text-pitch-bright border-pitch/30", paused: "bg-secondary dark:bg-zinc-900/80 text-amber-500 border-border dark:border-zinc-700" };
   const dotTones = { rose: "bg-claret shadow-[0_0_8px_rgba(178,58,72,0.8)]", amber: "bg-amber-500 shadow-[0_0_8px_rgba(245,158,11,0.8)]", emerald: "bg-pitch-bright shadow-[0_0_8px_rgba(41,193,121,0.8)]", paused: "bg-amber-500" };
   const isLive = tone === "rose" && status.includes("LIVE");
   
@@ -86,7 +86,7 @@ function ScoreRow({ home, away, homeScore, awayScore, homeObj, awayObj, paused, 
         <div className="flex items-center justify-center gap-4 sm:gap-8 w-full max-w-lg mx-auto">
           {/* Home */}
           <div className="flex flex-col items-center gap-2 sm:gap-3 flex-1">
-            <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-full flex items-center justify-center font-black text-lg sm:text-2xl bg-zinc-900 text-zinc-50 border-[3px] border-pitch shadow-[0_0_20px_rgba(41,193,121,0.4)] overflow-hidden">
+            <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-full flex items-center justify-center font-black text-lg sm:text-2xl bg-secondary dark:bg-zinc-900 text-zinc-50 border-[3px] border-pitch shadow-[0_0_20px_rgba(41,193,121,0.4)] overflow-hidden">
               <Avatar p={homeObj} size={64} className="w-full h-full" />
             </div>
             <span className="text-sm sm:text-base font-bold text-zinc-50 text-center leading-tight bg-transparent selection:bg-pitch/30">{home}</span>
@@ -103,7 +103,7 @@ function ScoreRow({ home, away, homeScore, awayScore, homeObj, awayObj, paused, 
           
           {/* Away */}
           <div className="flex flex-col items-center gap-2 sm:gap-3 flex-1">
-            <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-full flex items-center justify-center font-black text-lg sm:text-2xl bg-zinc-900 text-zinc-50 border-[3px] border-claret shadow-[0_0_20px_rgba(178,58,72,0.4)] overflow-hidden">
+            <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-full flex items-center justify-center font-black text-lg sm:text-2xl bg-secondary dark:bg-zinc-900 text-zinc-50 border-[3px] border-claret shadow-[0_0_20px_rgba(178,58,72,0.4)] overflow-hidden">
               <Avatar p={awayObj} size={64} className="w-full h-full" />
             </div>
             <span className="text-sm sm:text-base font-bold text-zinc-50 text-center leading-tight bg-transparent selection:bg-claret/30">{away}</span>
@@ -138,13 +138,13 @@ function StepIndicator({ phase }) {
           return (
             <React.Fragment key={s.key}>
               <div className="flex flex-col items-center gap-1 relative z-10 w-12">
-                <div className={`w-3 h-3 rounded-full border-[1.5px] transition-all duration-300 flex items-center justify-center ${active ? "bg-pitch border-pitch-bright shadow-[0_0_10px_rgba(41,193,121,0.6)] scale-110" : done ? "bg-pitch-bright border-pitch-bright" : "bg-zinc-900 border-zinc-700"}`}>
+                <div className={`w-3 h-3 rounded-full border-[1.5px] transition-all duration-300 flex items-center justify-center ${active ? "bg-pitch border-pitch-bright shadow-[0_0_10px_rgba(41,193,121,0.6)] scale-110" : done ? "bg-pitch-bright border-pitch-bright" : "bg-secondary dark:bg-zinc-900 border-border dark:border-zinc-700"}`}>
                    {done && <Check size={8} className="text-zinc-950 font-bold" />}
                 </div>
-                <span className={`text-[9px] sm:text-[10px] tracking-wider uppercase text-center absolute top-5 transition-colors whitespace-nowrap ${active ? "text-zinc-50 font-bold" : done ? "text-zinc-400 font-medium" : "text-zinc-600 font-medium"}`}>{s.label}</span>
+                <span className={`text-[9px] sm:text-[10px] tracking-wider uppercase text-center absolute top-5 transition-colors whitespace-nowrap ${active ? "text-zinc-50 font-bold" : done ? "text-muted-foreground font-medium" : "text-zinc-600 font-medium"}`}>{s.label}</span>
               </div>
               {i < steps.length - 1 && (
-                <div className="flex-1 h-px mx-1 bg-zinc-800 relative rounded-full overflow-hidden">
+                <div className="flex-1 h-px mx-1 bg-secondary dark:bg-zinc-800 relative rounded-full overflow-hidden">
                   <div className={`absolute left-0 top-0 h-full bg-pitch-bright transition-all duration-500 ease-out`} style={{ width: done ? '100%' : '0%' }} />
                 </div>
               )}
@@ -184,14 +184,14 @@ function StepperRow({ label, count, accent, onInc, onDec, isMuted }) {
   
   if (isMuted) {
     return (
-      <div className={`flex flex-col gap-1.5 rounded-xl bg-background/50 border border-zinc-800/50 p-2 transition-all duration-300 opacity-60 hover:opacity-100`}>
+      <div className={`flex flex-col gap-1.5 rounded-xl bg-background/50 border border-border dark:border-zinc-800/50 p-2 transition-all duration-300 opacity-60 hover:opacity-100`}>
         <div className="flex items-center justify-center gap-1.5">
-          <span className="text-[9px] font-bold uppercase tracking-widest text-zinc-500">{label}</span>
+          <span className="text-[9px] font-bold uppercase tracking-widest text-muted-foreground">{label}</span>
         </div>
         <div className="flex items-center justify-center gap-2 px-1">
-          <button onClick={onDec} className="w-10 h-10 min-w-[40px] rounded-full flex items-center justify-center bg-zinc-900 border border-zinc-800 text-zinc-500 transition-all active:scale-90"><Minus size={14} /></button>
+          <button onClick={onDec} className="w-10 h-10 min-w-[40px] rounded-full flex items-center justify-center bg-secondary dark:bg-zinc-900 border border-border dark:border-zinc-800 text-muted-foreground transition-all active:scale-90"><Minus size={14} /></button>
           <div className="w-10 text-center font-black tabular-nums text-2xl text-zinc-600">{count}</div>
-          <button onClick={onInc} className="w-10 h-10 min-w-[40px] rounded-full flex items-center justify-center bg-zinc-900 border border-zinc-800 text-zinc-500 transition-all active:scale-90"><Plus size={14} /></button>
+          <button onClick={onInc} className="w-10 h-10 min-w-[40px] rounded-full flex items-center justify-center bg-secondary dark:bg-zinc-900 border border-border dark:border-zinc-800 text-muted-foreground transition-all active:scale-90"><Plus size={14} /></button>
         </div>
       </div>
     );
@@ -201,10 +201,10 @@ function StepperRow({ label, count, accent, onInc, onDec, isMuted }) {
     <div className={`flex flex-col gap-1.5 rounded-xl ${a.bg} border p-2 backdrop-blur-md transition-all duration-300 shadow-md`}>
       <div className="flex items-center justify-center gap-1.5">
         <span className={`w-1 h-1 rounded-full ${a.dot} animate-pulse`} />
-        <span className="text-[10px] sm:text-[11px] font-bold uppercase tracking-widest text-zinc-300">{label}</span>
+        <span className="text-[10px] sm:text-[11px] font-bold uppercase tracking-widest text-muted-foreground">{label}</span>
       </div>
       <div className="flex items-center justify-center gap-1.5 px-1">
-        <button onClick={onDec} className="w-10 h-10 sm:w-11 sm:h-11 shrink-0 rounded-full flex items-center justify-center bg-zinc-900/80 hover:bg-zinc-800 border border-zinc-700/50 text-zinc-400 transition-all active:scale-90 shadow-sm backdrop-blur-sm"><Minus size={16} className="sm:w-[18px] sm:h-[18px]" /></button>
+        <button onClick={onDec} className="w-10 h-10 sm:w-11 sm:h-11 shrink-0 rounded-full flex items-center justify-center bg-secondary dark:bg-zinc-900/80 hover:bg-secondary dark:bg-zinc-800 border border-border dark:border-zinc-700/50 text-muted-foreground transition-all active:scale-90 shadow-sm backdrop-blur-sm"><Minus size={16} className="sm:w-[18px] sm:h-[18px]" /></button>
         <div className={`flex-1 text-center font-black tabular-nums text-3xl sm:text-4xl tracking-tighter drop-shadow-sm ${a.text}`}>{count}</div>
         <button onClick={onInc} className={`w-10 h-10 sm:w-11 sm:h-11 shrink-0 rounded-full flex items-center justify-center border transition-all active:scale-90 shadow-sm backdrop-blur-sm ${a.btn}`}><Plus size={16} className="sm:w-[18px] sm:h-[18px]" /></button>
       </div>
@@ -235,7 +235,7 @@ function LiveControl({ state, setState, onFinish, onTogglePause, onUndoStart }) 
       <div className="flex flex-col sm:flex-row gap-3 justify-center max-w-xl mx-auto items-center">
         {canUndo && (
           <button onClick={onUndoStart}
-            className="h-10 sm:h-11 w-full sm:w-auto px-4 rounded-xl flex items-center justify-center gap-2 font-bold text-sm transition-colors active:scale-95 shadow-md bg-zinc-800 hover:bg-zinc-700 text-zinc-400 hover:text-zinc-50 border border-zinc-700">
+            className="h-10 sm:h-11 w-full sm:w-auto px-4 rounded-xl flex items-center justify-center gap-2 font-bold text-sm transition-colors active:scale-95 shadow-md bg-secondary dark:bg-zinc-800 hover:bg-zinc-700 text-muted-foreground hover:text-zinc-50 border border-border dark:border-zinc-700">
             <RotateCcw size={16} />Undo Start
           </button>
         )}
@@ -243,7 +243,7 @@ function LiveControl({ state, setState, onFinish, onTogglePause, onUndoStart }) 
           className={`h-10 sm:h-11 w-full sm:w-48 rounded-xl flex items-center justify-center gap-2 font-bold text-sm transition-colors active:scale-95 shadow-md ${
             paused 
             ? "bg-pitch-bright/10 hover:bg-pitch-bright/20 text-pitch-bright border border-pitch-bright/30" 
-            : "bg-zinc-800 hover:bg-zinc-700 text-zinc-50 border border-zinc-700"
+            : "bg-secondary dark:bg-zinc-800 hover:bg-zinc-700 text-zinc-50 border border-border dark:border-zinc-700"
           }`}>
           {paused ? <Play size={16} className="fill-pitch-bright" /> : <Pause size={16} className="fill-zinc-50" />}
           {paused ? "Resume Match" : "Pause Match"}
@@ -293,7 +293,7 @@ const KickTrack = ({ list }) => (
       const k = list[i];
       if (!k) {
         return (
-          <div key={i} className="w-7 h-7 rounded-full border border-dashed border-zinc-700 flex items-center justify-center text-[10px] text-zinc-700 font-bold">
+          <div key={i} className="w-7 h-7 rounded-full border border-dashed border-border dark:border-zinc-700 flex items-center justify-center text-[10px] text-zinc-700 font-bold">
             {i + 1}
           </div>
         );
@@ -344,14 +344,14 @@ function Shootout({ home, away, kicks, setKicks, onDecided }) {
         {!decided && <span className={`text-xs font-semibold ${kicker === "home" ? "text-pitch-bright" : "text-claret"}`}>{kicker === "home" ? home.name : away.name} to kick</span>}
       </div>
       <div className="grid grid-cols-2 gap-4 mb-6">
-        <div className="rounded-xl p-3 bg-background border border-zinc-800">
+        <div className="rounded-xl p-3 bg-background border border-border dark:border-zinc-800">
           <div className="flex items-center justify-between mb-2">
             <span className="text-xs font-bold text-zinc-50 truncate">{home.name}</span>
             <span className="text-lg font-extrabold tabular-nums text-pitch-bright">{homeScore}</span>
           </div>
           <KickTrack list={homeKicks} />
         </div>
-        <div className="rounded-xl p-3 bg-background border border-zinc-800">
+        <div className="rounded-xl p-3 bg-background border border-border dark:border-zinc-800">
           <div className="flex items-center justify-between mb-2">
             <span className="text-xs font-bold text-zinc-50 truncate">{away.name}</span>
             <span className="text-lg font-extrabold tabular-nums text-claret">{awayScore}</span>
@@ -439,21 +439,21 @@ function ImageImport({ onApply }) {
   };
 
   return (
-    <div className="mb-6 rounded-xl border border-dashed border-zinc-700 bg-zinc-900/50 p-6 flex flex-col items-center justify-center text-center relative overflow-hidden group hover:border-pitch-bright/50 transition-colors">
+    <div className="mb-6 rounded-xl border border-dashed border-border dark:border-zinc-700 bg-secondary dark:bg-zinc-900/50 p-6 flex flex-col items-center justify-center text-center relative overflow-hidden group hover:border-pitch-bright/50 transition-colors">
       <input type="file" accept="image/jpeg, image/png, image/jpg" onChange={handleUpload} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" disabled={loading} />
       {loading ? (
         <>
           <Loader2 size={24} className="text-pitch-bright animate-spin mb-3" />
-          <p className="text-sm font-bold text-zinc-300">Analyzing image...</p>
-          <p className="text-xs text-zinc-500 mt-1 font-medium">Extracting stats with AI (this takes a few seconds)</p>
+          <p className="text-sm font-bold text-muted-foreground">Analyzing image...</p>
+          <p className="text-xs text-muted-foreground mt-1 font-medium">Extracting stats with AI (this takes a few seconds)</p>
         </>
       ) : (
         <>
-          <div className="w-12 h-12 rounded-full bg-zinc-800 flex items-center justify-center mb-3 group-hover:bg-pitch/20 transition-colors">
-            <Upload size={20} className="text-zinc-400 group-hover:text-pitch-bright transition-colors" />
+          <div className="w-12 h-12 rounded-full bg-secondary dark:bg-zinc-800 flex items-center justify-center mb-3 group-hover:bg-pitch/20 transition-colors">
+            <Upload size={20} className="text-muted-foreground group-hover:text-pitch-bright transition-colors" />
           </div>
-          <p className="text-sm font-bold text-zinc-300">Auto-fill from screenshot</p>
-          <p className="text-xs text-zinc-500 mt-1 font-medium">Tap or drag a scoreboard image here</p>
+          <p className="text-sm font-bold text-muted-foreground">Auto-fill from screenshot</p>
+          <p className="text-xs text-muted-foreground mt-1 font-medium">Tap or drag a scoreboard image here</p>
           {error && <p className="text-xs text-claret mt-3 font-bold flex items-center gap-1 bg-claret-dim/20 px-3 py-1.5 rounded-full"><X size={12}/> {error}</p>}
         </>
       )}
@@ -465,12 +465,12 @@ function ImageImport({ onApply }) {
 // Stats entry
 // ---------------------------------------------------------------------------
 const StatsRow = ({ f, i, stats, update }) => (
-  <div className={`grid grid-cols-[3.5rem_1fr_3.5rem] sm:grid-cols-[4rem_1fr_4rem] items-center gap-3 px-4 py-3 ${i % 2 === 0 ? "bg-background" : "bg-transparent"} ${i !== 0 ? "border-t border-zinc-800" : ""}`}>
+  <div className={`grid grid-cols-[3.5rem_1fr_3.5rem] sm:grid-cols-[4rem_1fr_4rem] items-center gap-3 px-4 py-3 ${i % 2 === 0 ? "bg-background" : "bg-transparent"} ${i !== 0 ? "border-t border-border dark:border-zinc-800" : ""}`}>
     <input type="number" inputMode="numeric" value={stats.home[f.key]} onChange={(e) => update("home", f.key, e.target.value)}
-      className="h-10 rounded-lg text-center text-sm font-bold tabular-nums outline-none bg-zinc-900 border border-zinc-700 text-pitch-bright focus:border-pitch-bright focus:bg-pitch/10 transition-colors" />
-    <span className="text-[11px] sm:text-xs text-center text-zinc-400 uppercase tracking-widest font-bold truncate">{f.label}{f.percent ? " (%)" : ""}</span>
+      className="h-10 rounded-lg text-center text-sm font-bold tabular-nums outline-none bg-secondary dark:bg-zinc-900 border border-border dark:border-zinc-700 text-pitch-bright focus:border-pitch-bright focus:bg-pitch/10 transition-colors" />
+    <span className="text-[11px] sm:text-xs text-center text-muted-foreground uppercase tracking-widest font-bold truncate">{f.label}{f.percent ? " (%)" : ""}</span>
     <input type="number" inputMode="numeric" value={stats.away[f.key]} onChange={(e) => update("away", f.key, e.target.value)}
-      className="h-10 rounded-lg text-center text-sm font-bold tabular-nums outline-none bg-zinc-900 border border-zinc-700 text-claret focus:border-claret focus:bg-claret-dim/20 transition-colors" />
+      className="h-10 rounded-lg text-center text-sm font-bold tabular-nums outline-none bg-secondary dark:bg-zinc-900 border border-border dark:border-zinc-700 text-claret focus:border-claret focus:bg-claret-dim/20 transition-colors" />
   </div>
 );
 
@@ -503,8 +503,8 @@ function StatsEntry({ stats, setStats, onSave, onSkip, busy }) {
     <div className="px-5 sm:px-6 pb-6">
       <ImageImport onApply={handleImportApply} />
 
-      <div className="flex flex-wrap items-center justify-between gap-4 mb-5 bg-zinc-900/50 p-4 rounded-xl border border-zinc-800">
-        <h3 className="text-sm font-bold uppercase tracking-widest text-zinc-400">Match Stats</h3>
+      <div className="flex flex-wrap items-center justify-between gap-4 mb-5 bg-secondary dark:bg-zinc-900/50 p-4 rounded-xl border border-border dark:border-zinc-800">
+        <h3 className="text-sm font-bold uppercase tracking-widest text-muted-foreground">Match Stats</h3>
         <button 
           onClick={handleSwapStats} 
           title="Swap Home and Away Stats" 
@@ -517,14 +517,14 @@ function StatsEntry({ stats, setStats, onSave, onSkip, busy }) {
 
       <div className="grid grid-cols-1 xl:grid-cols-2 gap-x-6 gap-y-0 mb-6">
         {columns.map((col, ci) => (
-          <div key={ci} className="rounded-2xl overflow-hidden border border-zinc-800 bg-background mb-4 xl:mb-0 shadow-lg shadow-black/20">
+          <div key={ci} className="rounded-2xl overflow-hidden border border-border dark:border-zinc-800 bg-background mb-4 xl:mb-0 shadow-lg shadow-black/20">
             {col.map((f, i) => <StatsRow key={f.key} f={f} i={i} stats={stats} update={update} />)}
           </div>
         ))}
       </div>
 
       <div className="grid grid-cols-2 gap-3">
-        <button disabled={busy} onClick={onSkip} className="h-14 rounded-xl flex items-center justify-center gap-2 font-bold text-sm bg-zinc-800 hover:bg-zinc-700 text-zinc-300 border border-zinc-700 transition-colors active:scale-[0.98] disabled:opacity-50">
+        <button disabled={busy} onClick={onSkip} className="h-14 rounded-xl flex items-center justify-center gap-2 font-bold text-sm bg-secondary dark:bg-zinc-800 hover:bg-zinc-700 text-muted-foreground border border-border dark:border-zinc-700 transition-colors active:scale-[0.98] disabled:opacity-50">
           <SkipForward size={16} /> Skip Stats
         </button>
         <button disabled={busy} onClick={onSave} className="h-14 rounded-xl flex items-center justify-center gap-2 font-bold text-sm bg-pitch-bright hover:bg-pitch text-stadium-base transition-colors active:scale-[0.98] disabled:opacity-50 shadow-lg shadow-pitch-bright/20">
@@ -549,12 +549,12 @@ function StatRow({ label, value, percent }) {
   return (
     <div className="mb-4 last:mb-0">
       <div className="flex items-center justify-between mb-1.5">
-        {percent ? <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-pitch/20 text-pitch-bright">{h}%</span> : <span className={`text-sm font-bold tabular-nums ${homeWins ? "text-zinc-50" : "text-zinc-500"}`}>{h}</span>}
-        <span className="text-[13px] font-medium text-zinc-500">{label}</span>
-        {percent ? <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-claret-dim/20 text-claret">{a}%</span> : <span className={`text-sm font-bold tabular-nums ${awayWins ? "text-zinc-50" : "text-zinc-500"}`}>{a}</span>}
+        {percent ? <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-pitch/20 text-pitch-bright">{h}%</span> : <span className={`text-sm font-bold tabular-nums ${homeWins ? "text-zinc-50" : "text-muted-foreground"}`}>{h}</span>}
+        <span className="text-[13px] font-medium text-muted-foreground">{label}</span>
+        {percent ? <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-claret-dim/20 text-claret">{a}%</span> : <span className={`text-sm font-bold tabular-nums ${awayWins ? "text-zinc-50" : "text-muted-foreground"}`}>{a}</span>}
       </div>
-      <div className="h-1.5 w-full rounded-full overflow-hidden flex bg-zinc-800">
-        {total === 0 ? <div className="w-full h-full bg-zinc-800" /> : (
+      <div className="h-1.5 w-full rounded-full overflow-hidden flex bg-secondary dark:bg-zinc-800">
+        {total === 0 ? <div className="w-full h-full bg-secondary dark:bg-zinc-800" /> : (
           <>
             <div className={`h-full rounded-full ${homeColorClass}`} style={{ width: `${homeWidth}%` }} />
             <div className={`h-full rounded-full ${awayColorClass}`} style={{ width: `${100 - homeWidth}%` }} />
@@ -586,14 +586,14 @@ function Published({ state, stats, resultType, shootoutWinner, onClose }) {
       <button onClick={() => hasStats && setExpanded((o) => !o)} className="w-full flex items-center justify-between mb-2">
         <div className="text-left">
           <p className="text-xs font-semibold text-pitch-bright">Result published</p>
-          <p className="text-[11px] text-zinc-500 mt-0.5">{summary}</p>
+          <p className="text-[11px] text-muted-foreground mt-0.5">{summary}</p>
         </div>
-        {hasStats && <ChevronDown size={16} className={`text-zinc-500 transition-transform duration-300 ${expanded ? "rotate-180" : "rotate-0"}`} />}
+        {hasStats && <ChevronDown size={16} className={`text-muted-foreground transition-transform duration-300 ${expanded ? "rotate-180" : "rotate-0"}`} />}
       </button>
       {hasStats && (
         <div className="grid transition-[grid-template-rows] duration-300 ease-out" style={{ gridTemplateRows: expanded ? "1fr" : "0fr" }}>
           <div className="overflow-hidden">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-x-6 rounded-xl p-4 mt-2 bg-background border border-zinc-800">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-x-6 rounded-xl p-4 mt-2 bg-background border border-border dark:border-zinc-800">
               {columns.map((col, ci) => (
                 <div key={ci}>
                   {col.map((f) => <StatRow key={f.key} label={f.label} percent={f.percent} value={[Number(stats.home[f.key]) || 0, Number(stats.away[f.key]) || 0]} />)}
@@ -604,7 +604,7 @@ function Published({ state, stats, resultType, shootoutWinner, onClose }) {
         </div>
       )}
       <div className="mt-5">
-        <button onClick={onClose} className="w-full h-12 rounded-xl flex items-center justify-center gap-2 font-semibold text-sm bg-zinc-800 hover:bg-zinc-700 text-zinc-300 border border-zinc-700 transition-colors active:scale-[0.98]">
+        <button onClick={onClose} className="w-full h-12 rounded-xl flex items-center justify-center gap-2 font-semibold text-sm bg-secondary dark:bg-zinc-800 hover:bg-zinc-700 text-muted-foreground border border-border dark:border-zinc-700 transition-colors active:scale-[0.98]">
            Close Match Control
         </button>
       </div>
@@ -918,18 +918,18 @@ export default function LiveMatchControl({ matches, players, activeSeason, showT
       
       <ScoreRow home={state.home.name} away={state.away.name} homeScore={state.home.goals} awayScore={state.away.goals} homeObj={state.home} awayObj={state.away} paused={state.paused} isLive={phase === "live" || phase === "extra_time"} />
       
-      <div className="border-b border-zinc-800/50 bg-background/30">
+      <div className="border-b border-border dark:border-zinc-800/50 bg-background/30">
         <StepIndicator phase={phase} />
       </div>
 
       <main className="pt-6 sm:pt-8 relative min-h-[300px]">
         {showDrawDecision && (
           <div className="absolute inset-0 z-50 flex items-center justify-center p-4 bg-background/95 backdrop-blur-sm rounded-b-2xl">
-            <div className="bg-zinc-900 border border-zinc-700 rounded-xl p-6 w-full max-w-sm flex flex-col items-center text-center shadow-2xl">
+            <div className="bg-secondary dark:bg-zinc-900 border border-border dark:border-zinc-700 rounded-xl p-6 w-full max-w-sm flex flex-col items-center text-center shadow-2xl">
               <h2 className="text-xl font-bold text-zinc-50 mb-2">Match is Level!</h2>
-              <p className="text-sm text-zinc-400 mb-6">How would you like to resolve this match?</p>
+              <p className="text-sm text-muted-foreground mb-6">How would you like to resolve this match?</p>
               <div className="flex flex-col gap-3 w-full">
-                <button onClick={handleChooseDraw} className="h-12 w-full rounded-xl flex items-center justify-center gap-2 font-bold bg-zinc-800 hover:bg-zinc-700 text-zinc-50 border border-zinc-700 transition-colors">Finish as Draw</button>
+                <button onClick={handleChooseDraw} className="h-12 w-full rounded-xl flex items-center justify-center gap-2 font-bold bg-secondary dark:bg-zinc-800 hover:bg-zinc-700 text-zinc-50 border border-border dark:border-zinc-700 transition-colors">Finish as Draw</button>
                 <button onClick={handleChooseExtraTime} className="h-12 w-full rounded-xl flex items-center justify-center gap-2 font-bold bg-amber-950/40 hover:bg-amber-900/60 text-amber-400 border border-amber-800/50 transition-colors">Go to Extra Time</button>
               </div>
             </div>
@@ -944,7 +944,7 @@ export default function LiveMatchControl({ matches, players, activeSeason, showT
 
       {!["live", "done"].includes(phase) && (
         <div className="px-5 sm:px-8 pb-5 flex justify-center">
-          <button onClick={() => { setPhase("live"); setKicks([]); setShootoutWinner(null); setResultType(null); }} className="text-xs font-medium text-zinc-500 hover:text-zinc-300 transition-colors">← Back to match control</button>
+          <button onClick={() => { setPhase("live"); setKicks([]); setShootoutWinner(null); setResultType(null); }} className="text-xs font-medium text-muted-foreground hover:text-muted-foreground transition-colors">← Back to match control</button>
         </div>
       )}
     </div>

@@ -916,7 +916,7 @@ function HistoryView({ history, players, matches, setTab }) {
                   <div className="text-[10px] uppercase tracking-widest text-muted-foreground mt-1">Champion</div>
                 </div>
                 <div className="p-4 rounded-xl bg-zinc-400/10 border border-zinc-400/20">
-                  <Trophy size={24} className="mx-auto mb-2 text-zinc-400" />
+                  <Trophy size={24} className="mx-auto mb-2 text-muted-foreground" />
                   <div className="text-sm font-bold font-heading tracking-wide">{runner?.name || "—"}</div>
                   <div className="text-[10px] uppercase tracking-widest text-muted-foreground mt-1">Runner-up</div>
                 </div>

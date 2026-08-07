@@ -219,7 +219,7 @@ export default function CelebrationBanner({ initialCelebrations = [] }) {
             <div className="flex-1 flex flex-col items-center sm:items-start text-center sm:text-left mt-6 sm:mt-0 sm:pl-10">
               <div className="flex items-center gap-2 mb-3">
                 <Sparkles className="w-3.5 h-3.5 text-amber-500" />
-                <span className="text-zinc-400 text-[10px] font-bold uppercase tracking-[0.25em]">League Announcement</span>
+                <span className="text-muted-foreground text-[10px] font-bold uppercase tracking-[0.25em]">League Announcement</span>
               </div>
               
               <h2 className="text-3xl sm:text-[2.75rem] leading-tight font-black tracking-tight text-foreground mb-2 font-heading">
@@ -244,23 +244,23 @@ export default function CelebrationBanner({ initialCelebrations = [] }) {
                   {current.trophy.player.avatarImage ? (
                     <img 
                       src={current.trophy.player.avatarImage} 
-                      className="w-8 h-8 rounded-full object-cover shadow-md border border-white/20" 
+                      className="w-8 h-8 rounded-full object-cover shadow-md border border-border dark:border-white/20" 
                       alt="" 
                     />
                   ) : (
-                    <div className="w-8 h-8 rounded-full bg-zinc-800 flex items-center justify-center text-xs font-bold text-foreground border border-white/20">
+                    <div className="w-8 h-8 rounded-full bg-secondary dark:bg-zinc-800 flex items-center justify-center text-xs font-bold text-foreground border border-border dark:border-white/20">
                       {current.trophy.player.name.substring(0,2).toUpperCase()}
                     </div>
                   )}
                   <span className="font-bold text-sm text-zinc-200 group-hover:text-foreground transition-colors">
                     {current.trophy.player.name}
                   </span>
-                  <ChevronRight className="w-4 h-4 text-zinc-500 group-hover:text-amber-400 group-hover:translate-x-1 transition-all" />
+                  <ChevronRight className="w-4 h-4 text-muted-foreground group-hover:text-amber-400 group-hover:translate-x-1 transition-all" />
                 </motion.button>
                 
                 <div className="hidden sm:block w-1 h-1 rounded-full bg-zinc-700"></div>
                 
-                <div className="flex items-center gap-2 text-zinc-400 text-sm font-medium">
+                <div className="flex items-center gap-2 text-muted-foreground text-sm font-medium">
                   <div className="w-2 h-2 rounded-full bg-red-500/80 animate-pulse"></div>
                   Ends in {getHoursRemaining(current.expiresAt)}h
                 </div>
@@ -270,7 +270,7 @@ export default function CelebrationBanner({ initialCelebrations = [] }) {
             {/* Right: Close Button */}
             <button 
               onClick={handleDismiss} 
-              className="absolute top-4 right-4 sm:relative sm:top-0 sm:right-0 sm:self-start w-8 h-8 flex items-center justify-center rounded-full bg-white/5 hover:bg-white/20 text-zinc-400 hover:text-foreground transition-colors border border-transparent hover:border-border"
+              className="absolute top-4 right-4 sm:relative sm:top-0 sm:right-0 sm:self-start w-8 h-8 flex items-center justify-center rounded-full bg-white/5 hover:bg-white/20 text-muted-foreground hover:text-foreground transition-colors border border-transparent hover:border-border"
               aria-label="Dismiss"
             >
               <X size={16} />

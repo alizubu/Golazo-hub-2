@@ -703,7 +703,7 @@ function TrophyTradingCard({ trophy, onEdit, onRevoke, hideActions }) {
   return (
     <motion.div
       whileHover={{ y: -6 }}
-      className="relative group rounded-2xl border border-white/[0.05] bg-[#12151b] overflow-hidden shadow-xl aspect-[3/4] flex flex-col"
+      className="relative group rounded-2xl border border-white/[0.05] bg-background dark:bg-[#12151b] overflow-hidden shadow-xl aspect-[3/4] flex flex-col"
     >
       {/* Gloss reflection effect */}
       <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/[0.03] to-white/[0.1] opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none z-10" />
@@ -742,7 +742,7 @@ function TrophyTradingCard({ trophy, onEdit, onRevoke, hideActions }) {
       {/* Overlay Actions */}
       {!hideActions && (
         <div className="absolute inset-0 bg-black/70 backdrop-blur-md opacity-0 group-hover:opacity-100 transition-all duration-300 flex flex-col items-center justify-center gap-3 z-30 pointer-events-none group-hover:pointer-events-auto translate-y-4 group-hover:translate-y-0">
-          <Btn variant="outline" className="w-32 bg-white/10 hover:bg-white/20 border-white/20 text-foreground rounded-xl gap-2 shadow-lg h-9 text-xs" onClick={(e) => { e.stopPropagation(); onEdit(trophy); }}>
+          <Btn variant="outline" className="w-32 bg-white/10 hover:bg-white/20 border-border dark:border-white/20 text-foreground rounded-xl gap-2 shadow-lg h-9 text-xs" onClick={(e) => { e.stopPropagation(); onEdit(trophy); }}>
             <Edit2 size={12} /> Edit Award
           </Btn>
           <Btn variant="danger" className="w-32 rounded-xl gap-2 shadow-lg border border-red-500/50 h-9 text-xs" onClick={(e) => { e.stopPropagation(); onRevoke(trophy); }}>
@@ -771,7 +771,7 @@ function EditTrophyDrawer({ open, onOpenChange, trophy, players, onSave }) {
         <>
           <motion.div 
             initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100]"
+            className="fixed inset-0 bg-secondary/70 dark:bg-black/60 backdrop-blur-sm z-[100]"
             onClick={() => onOpenChange(false)}
           />
           <motion.div 
@@ -943,12 +943,12 @@ export function AdminTrophies({ players, trophies = [], seasons, showToast }) {
                 </div>
                 <div>
                   <h2 className="text-xl font-black uppercase tracking-wider text-foreground">Mint Trophy</h2>
-                  <p className="text-xs text-zinc-400 font-medium">Create and issue permanent awards to players.</p>
+                  <p className="text-xs text-muted-foreground font-medium">Create and issue permanent awards to players.</p>
                 </div>
               </div>
               
               <div>
-                <Label className="mb-3 block text-zinc-400 text-xs font-bold uppercase tracking-widest">Iconic Awards</Label>
+                <Label className="mb-3 block text-muted-foreground text-xs font-bold uppercase tracking-widest">Iconic Awards</Label>
                 <div className="flex flex-wrap gap-3">
                   {TROPHY_TEMPLATES.map(a => (
                     <button
@@ -963,7 +963,7 @@ export function AdminTrophies({ players, trophies = [], seasons, showToast }) {
                           <span className="text-xl">{a.icon}</span>
                         )}
                       </span>
-                      <span className="text-xs font-bold text-zinc-300 group-hover:text-amber-400">{a.name}</span>
+                      <span className="text-xs font-bold text-muted-foreground group-hover:text-amber-400">{a.name}</span>
                     </button>
                   ))}
                 </div>
@@ -971,23 +971,23 @@ export function AdminTrophies({ players, trophies = [], seasons, showToast }) {
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mt-2">
                 <div className="md:col-span-2">
-                  <Label className="text-zinc-400 text-xs uppercase tracking-wider mb-2 block">Recipient</Label>
+                  <Label className="text-muted-foreground text-xs uppercase tracking-wider mb-2 block">Recipient</Label>
                   <PlayerCombobox players={players} value={form.playerId} onChange={v => setForm({...form, playerId: v})} />
                 </div>
                 <div>
-                  <Label className="text-zinc-400 text-xs uppercase tracking-wider mb-2 block">Title</Label>
+                  <Label className="text-muted-foreground text-xs uppercase tracking-wider mb-2 block">Title</Label>
                   <Input value={form.title} onChange={e => setForm({...form, title: e.target.value})} className="bg-black/50 border-border text-foreground font-bold" placeholder="e.g. Golden Boot" />
                 </div>
                 <div>
-                  <Label className="text-zinc-400 text-xs uppercase tracking-wider mb-2 block">Season</Label>
+                  <Label className="text-muted-foreground text-xs uppercase tracking-wider mb-2 block">Season</Label>
                   <Input value={form.season} onChange={e => setForm({...form, season: e.target.value})} className="bg-black/50 border-border text-foreground font-bold" placeholder="e.g. Season 1" />
                 </div>
                 <div className="md:col-span-2">
-                  <Label className="text-zinc-400 text-xs uppercase tracking-wider mb-2 block">Icon Emoji / URL</Label>
+                  <Label className="text-muted-foreground text-xs uppercase tracking-wider mb-2 block">Icon Emoji / URL</Label>
                   <TrophyIconPicker value={form.icon} onChange={v => setForm({...form, icon: v})} />
                 </div>
                 <div className="md:col-span-2">
-                  <Label className="text-zinc-400 text-xs uppercase tracking-wider mb-2 block">Description</Label>
+                  <Label className="text-muted-foreground text-xs uppercase tracking-wider mb-2 block">Description</Label>
                   <Input value={form.description} onChange={e => setForm({...form, description: e.target.value})} className="bg-black/50 border-border text-foreground" placeholder="e.g. Top goalscorer with 25 goals." />
                 </div>
               </div>
@@ -996,7 +996,7 @@ export function AdminTrophies({ players, trophies = [], seasons, showToast }) {
                 onClick={handleAward}
                 disabled={isAwarding || isCelebrating}
                 className={`mt-4 w-full py-5 rounded-xl font-black uppercase tracking-widest text-lg transition-all ${
-                  isAwarding || isCelebrating ? 'bg-zinc-800 text-zinc-500 cursor-not-allowed' : 'bg-gradient-to-r from-amber-500 to-amber-600 text-black hover:shadow-[0_0_30px_rgba(245,158,11,0.5)] hover:scale-[1.02]'
+                  isAwarding || isCelebrating ? 'bg-secondary dark:bg-zinc-800 text-muted-foreground cursor-not-allowed' : 'bg-gradient-to-r from-amber-500 to-amber-600 text-black hover:shadow-[0_0_30px_rgba(245,158,11,0.5)] hover:scale-[1.02]'
                 }`}
               >
                 {isAwarding ? 'Minting...' : isCelebrating ? 'Success!' : '🏆 Award Trophy'}
@@ -1096,14 +1096,14 @@ export function AdminTrophies({ players, trophies = [], seasons, showToast }) {
               </div>
             </div>
             
-            <p className="text-sm text-zinc-400 mb-6">
+            <p className="text-sm text-muted-foreground mb-6">
               Manage active 24-hour celebration banners appearing on player dashboards.
             </p>
 
             {celebrations.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-12 border border-dashed border-border rounded-2xl bg-white/5">
                 <span className="text-4xl mb-3 opacity-50">📡</span>
-                <p className="text-zinc-500 font-medium">No active broadcasts.</p>
+                <p className="text-muted-foreground font-medium">No active broadcasts.</p>
               </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -1143,7 +1143,7 @@ export function AdminTrophies({ players, trophies = [], seasons, showToast }) {
                           <h4 className="font-bold text-foreground text-sm leading-tight">{c.trophy.title}</h4>
                           <div className="flex items-center gap-1.5 mt-1">
                             <Avatar p={c.trophy.player} size={14} />
-                            <span className="text-xs text-zinc-400 font-medium">{c.trophy.player.name}</span>
+                            <span className="text-xs text-muted-foreground font-medium">{c.trophy.player.name}</span>
                           </div>
                         </div>
                       </div>
@@ -1151,13 +1151,13 @@ export function AdminTrophies({ players, trophies = [], seasons, showToast }) {
                       <div className="flex flex-col xs:flex-row items-start xs:items-center justify-between gap-3 mt-6 pt-4 border-t border-border">
                         {isActive ? (
                           <div className="flex flex-col">
-                            <span className="text-[9px] font-bold text-zinc-500 uppercase tracking-wider mb-1">Time Remaining</span>
+                            <span className="text-[9px] font-bold text-muted-foreground uppercase tracking-wider mb-1">Time Remaining</span>
                             <span className="font-mono text-red-400 font-bold text-sm tracking-wider">
                               {String(hLeft).padStart(2,'0')}:{String(mLeft).padStart(2,'0')}:{String(sLeft).padStart(2,'0')}
                             </span>
                           </div>
                         ) : (
-                          <span className="text-xs font-bold text-zinc-500 uppercase tracking-widest">
+                          <span className="text-xs font-bold text-muted-foreground uppercase tracking-widest">
                             {c.status === 'ended_early' ? 'KILLED' : 'EXPIRED'}
                           </span>
                         )}
@@ -1207,7 +1207,7 @@ const SegmentBtn = ({ value, label, icon, current, onChange }) => (
     className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-semibold transition-all ${
       current === value
         ? 'bg-amber-500 text-black shadow-sm scale-95'
-        : 'text-zinc-400 hover:text-foreground hover:bg-white/5'
+        : 'text-muted-foreground hover:text-foreground hover:bg-white/5'
     }`}
   >
     <span>{icon}</span>
@@ -1221,7 +1221,7 @@ const SpeedBtn = ({ value, icon, current, onChange }) => (
     className={`flex flex-col items-center gap-1 px-4 py-2 rounded-lg text-lg transition-colors border ${
       current === value
         ? 'bg-amber-500/10 text-amber-500 border-amber-500/50'
-        : 'bg-white/5 text-zinc-500 border-transparent hover:bg-white/10'
+        : 'bg-white/5 text-muted-foreground border-transparent hover:bg-white/10'
     }`}
     title={value}
   >
@@ -1235,7 +1235,7 @@ const ThemeBtn = ({ theme, current, onChange }) => (
     className={`px-3 py-1 rounded text-[10px] font-black uppercase tracking-wider transition-all border ${
       current === theme 
         ? 'bg-amber-500 text-black border-amber-500 shadow-[0_0_8px_rgba(245,158,11,0.5)]' 
-        : 'bg-zinc-900 text-zinc-500 border-zinc-700 hover:text-zinc-300 hover:border-zinc-500'
+        : 'bg-secondary dark:bg-zinc-900 text-muted-foreground border-border dark:border-zinc-700 hover:text-muted-foreground hover:border-zinc-500'
     }`}
   >
     {theme}

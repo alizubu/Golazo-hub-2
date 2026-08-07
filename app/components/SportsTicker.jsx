@@ -406,13 +406,13 @@ export default function SportsTicker({ matches = [], announcements = [], players
         <div className="fixed bottom-20 left-4 sm:left-10 z-[100] pointer-events-none">
            <div className="flex items-center gap-4 bg-black/70 backdrop-blur-xl border border-amber-500/30 p-3 rounded-2xl shadow-[0_0_30px_rgba(0,0,0,0.8)] animate-slide-in-left">
              <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-xl bg-gradient-to-br from-amber-400 to-amber-700 p-0.5 shadow-[0_0_15px_rgba(245,158,11,0.5)]">
-                <Avatar p={getPlayer(cfg.epicMoment.playerId)} size={64} className="w-full h-full rounded-lg object-cover bg-zinc-900" />
+                <Avatar p={getPlayer(cfg.epicMoment.playerId)} size={64} className="w-full h-full rounded-lg object-cover bg-secondary dark:bg-zinc-900" />
              </div>
              <div className="flex flex-col pr-4 sm:pr-8">
                 <span className="text-[10px] sm:text-xs font-bold text-amber-500 uppercase tracking-widest leading-tight">Highlight Reel</span>
                 <span className="text-lg sm:text-2xl font-black text-foreground leading-none mt-0.5">{getPlayer(cfg.epicMoment.playerId).name}</span>
                 {cfg.epicMoment.text && (
-                  <span className="text-xs sm:text-sm font-bold text-zinc-300 mt-1 uppercase tracking-wide">{cfg.epicMoment.text}</span>
+                  <span className="text-xs sm:text-sm font-bold text-muted-foreground mt-1 uppercase tracking-wide">{cfg.epicMoment.text}</span>
                 )}
              </div>
            </div>

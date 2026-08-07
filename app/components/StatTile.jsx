@@ -33,7 +33,7 @@ export function StatTile({
 
   const getLabelStyles = () => 'text-xs font-semibold uppercase tracking-wider text-slate-400';
   
-  const baseCardClasses = `relative flex flex-col justify-start p-5 rounded-[14px] transition-shadow duration-300 w-full h-full bg-[#12151b] border-t border-t-white/[0.06] border-r-0 border-l-0 border-b-0 ${cursorClass} ${className}`;
+  const baseCardClasses = `relative flex flex-col justify-start p-5 rounded-[14px] transition-shadow duration-300 w-full h-full bg-background dark:bg-[#12151b] border-t border-t-white/[0.06] border-r-0 border-l-0 border-b-0 ${cursorClass} ${className}`;
   const shadowClasses = 'shadow-[0_1px_2px_rgba(0,0,0,0.4),0_8px_24px_-8px_rgba(0,0,0,0.5)]';
   const heroShadowClasses = 'shadow-[0_1px_2px_rgba(0,0,0,0.4),0_8px_24px_-8px_rgba(0,0,0,0.5),0_0_32px_-8px_rgba(234,179,8,0.15)]';
 

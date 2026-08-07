@@ -40,12 +40,12 @@ function StatBar({ label, valueA, valueB, colorA, colorB, format = 'number', ind
     >
       <div className="flex items-center justify-between mb-2">
         <div className="w-10 text-left text-sm font-bold font-score" style={{ color: colorA }}>{displayA}</div>
-        <div className="text-center text-[10px] sm:text-xs tracking-[0.1em] text-zinc-400 uppercase font-bold px-2 truncate">
+        <div className="text-center text-[10px] sm:text-xs tracking-[0.1em] text-muted-foreground uppercase font-bold px-2 truncate">
           {label}
         </div>
         <div className="w-10 text-right text-sm font-bold font-score" style={{ color: colorB }}>{displayB}</div>
       </div>
-      <div className="flex w-full h-2.5 sm:h-3 bg-zinc-900 rounded-full overflow-hidden shadow-inner ring-1 ring-white/5">
+      <div className="flex w-full h-2.5 sm:h-3 bg-secondary dark:bg-zinc-900 rounded-full overflow-hidden shadow-inner ring-1 ring-white/5">
         <motion.div 
           className="h-full rounded-r-full shadow-[inset_0_1px_0_rgba(255,255,255,0.15)]" 
           style={{ backgroundColor: colorA }}
@@ -183,7 +183,7 @@ export default function MatchStatsModal({ matchId, onClose }) {
         />
         
         <motion.div 
-          className="relative w-full max-w-[420px] bg-[#0f1117] sm:rounded-2xl rounded-t-2xl shadow-2xl overflow-hidden border-t sm:border border-border/50 max-h-[90vh] flex flex-col"
+          className="relative w-full max-w-[420px] bg-background dark:bg-[#0f1117] sm:rounded-2xl rounded-t-2xl shadow-2xl overflow-hidden border-t sm:border border-border/50 max-h-[90vh] flex flex-col"
           initial={{ opacity: 0, scale: 0.95, y: 20 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.95, y: 20 }}
@@ -191,7 +191,7 @@ export default function MatchStatsModal({ matchId, onClose }) {
         >
           {/* Header Actions */}
           <div className="absolute top-3 right-3 z-10 flex gap-2">
-            <button onClick={onClose} className="w-8 h-8 flex items-center justify-center rounded-full bg-card/40 text-foreground hover:bg-black/60 transition-colors">
+            <button onClick={onClose} className="w-8 h-8 flex items-center justify-center rounded-full bg-card/40 text-foreground hover:bg-secondary/70 dark:bg-black/60 transition-colors">
               <X size={18} />
             </button>
           </div>

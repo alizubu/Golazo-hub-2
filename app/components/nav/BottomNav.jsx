@@ -95,14 +95,14 @@ const NavItem = ({ item, isActive, handleNav, shouldReduceMotion, hasLiveMatch }
         <div className="relative">
           <Icon 
             size={24} 
-            className={`transition-all duration-300 ${active ? colorClass : 'text-zinc-500 group-hover:text-zinc-400'}`} 
+            className={`transition-all duration-300 ${active ? colorClass : 'text-muted-foreground group-hover:text-muted-foreground'}`} 
             strokeWidth={active ? 2.5 : 2}
           />
           {hasLiveMatch && !active && (
             <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-rose-500 rounded-full border-2 border-zinc-950 animate-pulse" />
           )}
         </div>
-        <span className={`text-[10px] font-bold tracking-wide transition-colors duration-300 ${active ? colorClass : 'text-zinc-600 group-hover:text-zinc-400'}`}>
+        <span className={`text-[10px] font-bold tracking-wide transition-colors duration-300 ${active ? colorClass : 'text-zinc-600 group-hover:text-muted-foreground'}`}>
           {item.label}
         </span>
       </motion.div>

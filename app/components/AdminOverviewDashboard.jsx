@@ -132,7 +132,7 @@ function AdminMetrics({ matches, activeSeason, notifications = [], setTab }) {
           <FadeIn key={m.label} delay={i * 0.05} className="h-full">
             <div 
               onClick={() => m.tab && setTab && setTab(m.tab)}
-              className={`p-5 flex flex-col justify-between bg-secondary/20 border border-border/50 rounded-xl hover:bg-secondary/40 transition-all h-full ${m.tab ? 'cursor-pointer hover:border-white/20' : ''}`}
+              className={`p-5 flex flex-col justify-between bg-secondary/20 border border-border/50 rounded-xl hover:bg-secondary/40 transition-all h-full ${m.tab ? 'cursor-pointer hover:border-border dark:border-white/20' : ''}`}
             >
               <div className="flex items-center justify-between w-full">
                 <span className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground truncate mr-2">
@@ -182,7 +182,7 @@ function QuickActions({ setTab, showToast, session, managerPermissions }) {
       <div className="flex flex-col md:grid md:grid-cols-2 lg:grid-cols-3 gap-3 mt-4">
         {actions.map((act, i) => (
           <FadeIn key={act.label} delay={i * 0.05} className="h-full">
-            <button onClick={act.onClick} className="w-full h-full flex items-center justify-start gap-4 p-4 md:p-4 bg-secondary/20 border border-border/60 rounded-xl hover:bg-secondary/40 hover:border-white/20 transition-all group cursor-pointer shadow-sm relative">
+            <button onClick={act.onClick} className="w-full h-full flex items-center justify-start gap-4 p-4 md:p-4 bg-secondary/20 border border-border/60 rounded-xl hover:bg-secondary/40 hover:border-border dark:border-white/20 transition-all group cursor-pointer shadow-sm relative">
               <div className={`w-10 h-10 rounded-lg flex items-center justify-center shrink-0 ${act.bg} group-hover:scale-105 transition-transform`}>
                 <act.icon size={18} />
               </div>
@@ -214,10 +214,10 @@ function LeagueSnapshot({ matches, players, activeSeason, setTab }) {
               <div className="flex flex-col items-center flex-1">
                 <Avatar p={standings[1]} size={36} className="mb-2 ring-2 ring-zinc-300 shadow-[0_0_15px_rgba(212,212,216,0.3)]" />
                 <span className="font-bold text-xs truncate max-w-full px-1" title={standings[1].name}>{formatName(standings[1].name)}</span>
-                <span className="text-[10px] text-zinc-400 font-score">{standings[1].pts} pts</span>
+                <span className="text-[10px] text-muted-foreground font-score">{standings[1].pts} pts</span>
                 <div className="w-full h-16 bg-zinc-300/10 border-t-2 border-zinc-300/30 rounded-t-lg mt-2 flex items-center justify-center relative overflow-hidden">
                   <div className="absolute inset-0 bg-gradient-to-t from-transparent to-zinc-300/10 pointer-events-none" />
-                  <span className="text-2xl font-black text-zinc-400/50">2</span>
+                  <span className="text-2xl font-black text-muted-foreground/50">2</span>
                 </div>
               </div>
             )}
@@ -744,8 +744,8 @@ export default function AdminOverviewDashboard({ players = [], activeSeason, mat
       {/* Season Summary Dashboard */}
       <div className="w-full">
         <div className="flex items-center gap-2 mb-3">
-          <BarChart2 size={18} className="text-zinc-400" />
-          <h3 className="text-sm font-bold uppercase tracking-wider text-zinc-400">Season Summary</h3>
+          <BarChart2 size={18} className="text-muted-foreground" />
+          <h3 className="text-sm font-bold uppercase tracking-wider text-muted-foreground">Season Summary</h3>
         </div>
         <SeasonSummaryDashboard season={activeSeason} matches={liveMatches} players={players} />
       </div>

@@ -146,7 +146,7 @@ function AwardCard({ icon: Icon, label, playerName, value, player, accentFrom, a
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-1.5 mb-1">
               <Icon size={14} style={{ color: accentFrom }} className="shrink-0" />
-              <span className="text-[11px] font-bold uppercase tracking-wider text-zinc-500">{label}</span>
+              <span className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">{label}</span>
             </div>
             {playerName && (
               <div className="text-sm font-bold text-zinc-100 truncate">{playerName}</div>
@@ -166,7 +166,7 @@ function GlobalStatPill({ icon: Icon, label, value, color }) {
     <motion.div variants={cardVariants} className="flex items-center gap-2.5 px-4 py-2.5 rounded-xl bg-[#0d1017] border border-white/[0.06]">
       <Icon size={16} style={{ color }} className="shrink-0" />
       <div className="flex flex-col">
-        <span className="text-[10px] font-bold uppercase tracking-wider text-zinc-500">{label}</span>
+        <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">{label}</span>
         <span className="text-base font-black text-zinc-100">{value}</span>
       </div>
     </motion.div>
@@ -183,7 +183,7 @@ export default function SeasonSummaryDashboard({ season, matches, players, compa
 
   if (!summary) {
     return (
-      <div className="text-center py-8 text-zinc-500 text-sm font-medium">
+      <div className="text-center py-8 text-muted-foreground text-sm font-medium">
         No completed matches yet for this season.
       </div>
     );
@@ -238,7 +238,7 @@ export default function SeasonSummaryDashboard({ season, matches, players, compa
                   </div>
                   <div className="text-center">
                     <div className="text-xs font-bold uppercase tracking-wider text-slate-400/80">Runner-Up</div>
-                    <div className="text-sm font-bold text-zinc-300">{runnerUp.name}</div>
+                    <div className="text-sm font-bold text-muted-foreground">{runnerUp.name}</div>
                   </div>
                 </div>
               )}

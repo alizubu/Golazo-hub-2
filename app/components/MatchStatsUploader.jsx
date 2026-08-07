@@ -53,7 +53,7 @@ export default function MatchStatsUploader() {
       <div className="mb-8">
         <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-300" htmlFor="file_input">Upload Screenshot</label>
         <input 
-          className="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 dark:text-gray-400 focus:outline-none dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400" 
+          className="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 dark:text-muted-foreground focus:outline-none dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400" 
           id="file_input" 
           type="file" 
           accept="image/*"
@@ -91,7 +91,7 @@ export default function MatchStatsUploader() {
               <ul className="space-y-2">
                 {Object.entries(result.home).map(([key, value]) => (
                   <li key={key} className="flex justify-between border-b border-gray-200 dark:border-gray-700 pb-2">
-                    <span className="capitalize text-gray-600 dark:text-gray-400">{key.replace(/_/g, ' ')}</span>
+                    <span className="capitalize text-gray-600 dark:text-muted-foreground">{key.replace(/_/g, ' ')}</span>
                     <span className="font-bold">{value || '-'}</span>
                   </li>
                 ))}
@@ -103,7 +103,7 @@ export default function MatchStatsUploader() {
               <ul className="space-y-2">
                 {Object.entries(result.away).map(([key, value]) => (
                   <li key={key} className="flex justify-between border-b border-gray-200 dark:border-gray-700 pb-2">
-                    <span className="capitalize text-gray-600 dark:text-gray-400">{key.replace(/_/g, ' ')}</span>
+                    <span className="capitalize text-gray-600 dark:text-muted-foreground">{key.replace(/_/g, ' ')}</span>
                     <span className="font-bold">{value || '-'}</span>
                   </li>
                 ))}

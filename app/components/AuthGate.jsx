@@ -460,7 +460,7 @@ function AdminLoginForm({ onAdminLogin, onBack }) {
 // ══════════════════════════════════════════════════════════════
 function TabToggle({ mode, setMode, layoutId }) {
   return (
-    <div className="flex p-1 bg-white/5 rounded-xl border border-white/[0.08]">
+    <div className="flex p-1 bg-white/5 rounded-xl border border-border/50 dark:border-white/[0.08]">
       {['signin', 'signup'].map((key) => (
         <button
           key={key}

@@ -48,7 +48,7 @@ export function SeasonStats({ playerId, initialStats, seasons, activeSeason, sel
           
           <DropdownMenu>
             <DropdownMenuTrigger className="outline-none focus-visible:ring-2 focus-visible:ring-white/20 rounded-full">
-              <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-background dark:bg-[#12151b] border border-border hover:bg-secondary dark:hover:bg-[#1a1e27] hover:border-border dark:hover:border-white/20 transition-colors cursor-pointer text-sm font-[600] text-foreground shadow-sm w-fit h-[36px]">
+              <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-background dark:bg-background dark:bg-[#12151b] border border-border hover:bg-secondary dark:hover:bg-secondary dark:bg-[#1a1e27] hover:border-border dark:hover:border-border dark:border-white/20 transition-colors cursor-pointer text-sm font-[600] text-foreground shadow-sm w-fit h-[36px]">
                 <Calendar size={14} className="text-[#6b7280]" />
                 <span>{selectedSeason?.name || "Select Season"}</span>
                 
@@ -63,7 +63,7 @@ export function SeasonStats({ playerId, initialStats, seasons, activeSeason, sel
                 )}
               </div>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-56 bg-[#12151b] border-border shadow-[0_8px_32px_-8px_rgba(0,0,0,0.8)] rounded-xl z-[60] text-foreground">
+            <DropdownMenuContent align="end" className="w-56 bg-background dark:bg-[#12151b] border-border shadow-[0_8px_32px_-8px_rgba(0,0,0,0.8)] rounded-xl z-[60] text-foreground">
               <DropdownMenuItem 
                 onClick={() => onSeasonChange('overall')}
                 className="flex items-center justify-between cursor-pointer rounded-lg hover:bg-white/5 py-2 px-3 m-1 focus:bg-white/5 focus:text-foreground"

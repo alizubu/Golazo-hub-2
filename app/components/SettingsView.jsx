@@ -263,7 +263,7 @@ export default function SettingsView({ me, showToast }) {
                           <div className="text-xs text-muted-foreground">No cover photo set</div>
                         )}
                         
-                        <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center z-10 backdrop-blur-sm">
+                        <div className="absolute inset-0 bg-secondary/70 dark:bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center z-10 backdrop-blur-sm">
                           {coverUploading ? (
                             <div className="w-3/4 flex flex-col items-center gap-2">
                               <Progress value={coverProgress} className="h-2 w-full bg-secondary" />
