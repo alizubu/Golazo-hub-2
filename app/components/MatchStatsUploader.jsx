@@ -22,8 +22,6 @@ export default function MatchStatsUploader() {
     try {
       const formData = new FormData();
       formData.append('image', file);
-      // Let's enable debug mode so we can visually check the coordinates
-      formData.append('debug', 'true'); 
 
       const response = await extractMatchStats(formData);
 
@@ -37,6 +35,15 @@ export default function MatchStatsUploader() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleFlipStats = () => {
+    if (!result) return;
+    setResult({
+      ...result,
+      home: result.away,
+      away: result.home
+    });
   };
 
   return (
@@ -57,7 +64,7 @@ export default function MatchStatsUploader() {
       {loading && (
         <div className="flex items-center justify-center p-8">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-          <span className="ml-4 text-gray-600 dark:text-gray-300">Processing image via OCR... This may take a few seconds.</span>
+          <span className="ml-4 text-gray-600 dark:text-gray-300">Processing image with AI... This may take a few seconds.</span>
         </div>
       )}
 
@@ -68,7 +75,16 @@ export default function MatchStatsUploader() {
       )}
 
       {result && (
-        <div className="space-y-8">
+        <div className="space-y-6">
+          <div className="flex justify-end">
+            <button 
+              onClick={handleFlipStats}
+              className="px-4 py-2 bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-800 dark:text-gray-200 rounded-lg text-sm font-medium transition-colors flex items-center gap-2 shadow-sm border border-gray-200 dark:border-gray-600"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M8 3 4 7l4 4"/><path d="M4 7h16"/><path d="m16 21 4-4-4-4"/><path d="M20 17H4"/></svg>
+              Swap Home & Away
+            </button>
+          </div>
           <div className="grid grid-cols-2 gap-6">
             <div className="bg-gray-50 dark:bg-gray-900 p-4 rounded-lg">
               <h3 className="font-bold text-lg mb-4 text-blue-600">Home Stats</h3>
@@ -94,24 +110,6 @@ export default function MatchStatsUploader() {
               </ul>
             </div>
           </div>
-
-          {/* Debug Panel to Verify Crops */}
-          {result.debugImages && result.debugImages.length > 0 && (
-            <div className="mt-8 pt-8 border-t border-gray-200 dark:border-gray-700">
-              <h3 className="font-bold text-xl mb-4">Debug: OCR Crop Verification</h3>
-              <p className="text-sm text-gray-500 mb-4">
-                If the extracted numbers are wrong, check these images. The text must be perfectly inside the box and readable.
-              </p>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                {result.debugImages.map((img) => (
-                  <div key={img.name} className="flex flex-col items-center bg-gray-100 dark:bg-gray-800 p-2 rounded">
-                    <span className="text-xs text-gray-500 mb-2 truncate w-full text-center">{img.name}</span>
-                    <img src={img.dataUrl} alt={img.name} className="border border-red-500" />
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
         </div>
       )}
     </div>
