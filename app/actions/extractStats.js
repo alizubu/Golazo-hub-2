@@ -12,6 +12,11 @@ export async function extractMatchStats(formData) {
     throw new Error('No image provided');
   }
 
+  const validTypes = ['image/jpeg', 'image/jpg', 'image/png'];
+  if (!validTypes.includes(file.type)) {
+    return { success: false, error: 'Invalid file type. Please upload a JPG, JPEG, or PNG image.' };
+  }
+
   try {
     const arrayBuffer = await file.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
@@ -20,12 +25,26 @@ export async function extractMatchStats(formData) {
 
     const promptText = `
       Analyze this football match stats screenshot. 
-      Extract the data and return it ONLY as a valid JSON object matching the schema.
+      Extract the data and return it ONLY as a valid JSON object matching the exact schema below.
       
       Requirements:
       - Do not include markdown formatting or backticks like \`\`\`json.
       - Map the stats perfectly to the home and away teams.
       - If a stat is not found, return "-".
+
+      SCHEMA (MUST USE EXACTLY THESE KEYS):
+      {
+        "home": {
+            "possession": "", "shots": "", "shots_on_target": "", 
+            "fouls": "", "offsides": "", "corner_kicks": "", "free_kicks": "", "passes": "", 
+            "successful_passes": "", "crosses": "", "interceptions": "", "tackles": "", "saves": ""
+        },
+        "away": {
+            "possession": "", "shots": "", "shots_on_target": "", 
+            "fouls": "", "offsides": "", "corner_kicks": "", "free_kicks": "", "passes": "", 
+            "successful_passes": "", "crosses": "", "interceptions": "", "tackles": "", "saves": ""
+        }
+      }
     `;
 
     // Using the Interactions API as requested
@@ -39,55 +58,7 @@ export async function extractMatchStats(formData) {
             mimeType: mimeType
           }
         }
-      ],
-      config: {
-        responseMimeType: "application/json",
-        responseSchema: {
-            type: Type.OBJECT,
-            properties: {
-                home: {
-                    type: Type.OBJECT,
-                    properties: {
-                        team_name: { type: Type.STRING },
-                        score: { type: Type.STRING },
-                        possession: { type: Type.STRING },
-                        shots: { type: Type.STRING },
-                        shots_on_target: { type: Type.STRING },
-                        fouls: { type: Type.STRING },
-                        offsides: { type: Type.STRING },
-                        corner_kicks: { type: Type.STRING },
-                        free_kicks: { type: Type.STRING },
-                        passes: { type: Type.STRING },
-                        successful_passes: { type: Type.STRING },
-                        crosses: { type: Type.STRING },
-                        interceptions: { type: Type.STRING },
-                        tackles: { type: Type.STRING },
-                        saves: { type: Type.STRING },
-                    }
-                },
-                away: {
-                    type: Type.OBJECT,
-                    properties: {
-                        team_name: { type: Type.STRING },
-                        score: { type: Type.STRING },
-                        possession: { type: Type.STRING },
-                        shots: { type: Type.STRING },
-                        shots_on_target: { type: Type.STRING },
-                        fouls: { type: Type.STRING },
-                        offsides: { type: Type.STRING },
-                        corner_kicks: { type: Type.STRING },
-                        free_kicks: { type: Type.STRING },
-                        passes: { type: Type.STRING },
-                        successful_passes: { type: Type.STRING },
-                        crosses: { type: Type.STRING },
-                        interceptions: { type: Type.STRING },
-                        tackles: { type: Type.STRING },
-                        saves: { type: Type.STRING },
-                    }
-                }
-            }
-        }
-      }
+      ]
     });
 
     const responseText = interaction.output_text || interaction.outputText;

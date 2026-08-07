@@ -387,6 +387,12 @@ function ImageImport({ onApply }) {
     const file = e.target.files?.[0];
     if (!file) return;
 
+    const validTypes = ['image/jpeg', 'image/jpg', 'image/png'];
+    if (!validTypes.includes(file.type)) {
+      setError("Please upload a valid image file (JPG or PNG).");
+      return;
+    }
+
     setLoading(true);
     setError(null);
     try {
@@ -434,7 +440,7 @@ function ImageImport({ onApply }) {
 
   return (
     <div className="mb-6 rounded-xl border border-dashed border-zinc-700 bg-zinc-900/50 p-6 flex flex-col items-center justify-center text-center relative overflow-hidden group hover:border-pitch-bright/50 transition-colors">
-      <input type="file" accept="image/*" onChange={handleUpload} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" disabled={loading} />
+      <input type="file" accept="image/jpeg, image/png, image/jpg" onChange={handleUpload} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" disabled={loading} />
       {loading ? (
         <>
           <Loader2 size={24} className="text-pitch-bright animate-spin mb-3" />
