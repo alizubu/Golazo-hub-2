@@ -1,7 +1,7 @@
 import React, { useState, useMemo, useRef, useEffect } from "react";
 import {
   Plus, Minus, Play, Pause, Square, SkipForward, Check, X, ChevronDown,
-  Timer, Calendar, Upload, Loader2, ImageOff, ArrowLeftRight
+  Timer, Calendar, Upload, Loader2, ImageOff, ArrowLeftRight, RotateCcw
 } from "lucide-react";
 import { updateMatchStatus, updateMatchScore } from '@/app/actions/match';
 import { supabase } from '@/lib/supabaseClient';
@@ -221,8 +221,9 @@ function TeamStatCard({ accent, side, data, bump, phase }) {
   );
 }
 
-function LiveControl({ state, setState, onFinish, onTogglePause }) {
+function LiveControl({ state, setState, onFinish, onTogglePause, onUndoStart }) {
   const { home, away, paused } = state;
+  const canUndo = home.goals === 0 && away.goals === 0;
   const bump = (side, field, delta) => setState((s) => ({ ...s, [side]: { ...s[side], [field]: Math.max(0, s[side][field] + delta) } }));
   return (
     <div className="px-4 sm:px-6 pb-6">
@@ -231,6 +232,12 @@ function LiveControl({ state, setState, onFinish, onTogglePause }) {
         <TeamStatCard accent="rose" side="away" data={away} bump={bump} phase="live" />
       </div>
       <div className="flex flex-col sm:flex-row gap-3 justify-center max-w-xl mx-auto items-center">
+        {canUndo && (
+          <button onClick={onUndoStart}
+            className="h-10 sm:h-11 w-full sm:w-auto px-4 rounded-xl flex items-center justify-center gap-2 font-bold text-sm transition-colors active:scale-95 shadow-md bg-zinc-800 hover:bg-zinc-700 text-zinc-400 hover:text-zinc-50 border border-zinc-700">
+            <RotateCcw size={16} />Undo Start
+          </button>
+        )}
         <button onClick={onTogglePause}
           className={`h-10 sm:h-11 w-full sm:w-48 rounded-xl flex items-center justify-center gap-2 font-bold text-sm transition-colors active:scale-95 shadow-md ${
             paused 
@@ -848,6 +855,32 @@ export default function LiveMatchControl({ matches, players, activeSeason, showT
     setShowDrawDecision(true);
   };
   
+  const handleUndoStart = async () => {
+    if (!liveMatch) return;
+    if (state.home.goals > 0 || state.away.goals > 0) {
+       showToast("Cannot undo start after a goal is scored.");
+       return;
+    }
+    const res = await updateMatchStatus(liveMatch.id, { 
+      status: 'scheduled', 
+      homeScore: null,
+      awayScore: null,
+      liveState: null
+    });
+    if (res.error) {
+      showToast(res.error);
+    } else {
+      showToast("Match reverted to scheduled.");
+      setOptLiveMatch(null);
+      setPhase("live");
+      supabase.channel('league-events').send({
+        type: 'broadcast',
+        event: 'match_update',
+        payload: { ...liveMatch, status: 'scheduled' }
+      });
+    }
+  };
+  
   const handleEndExtraTime = () => {
     if (!isLevel()) { setResultType("extra_time"); setPhase("stats"); setFinishedDataCache({ match: liveMatch }); }
     else setPhase("shootout");
@@ -953,7 +986,7 @@ export default function LiveMatchControl({ matches, players, activeSeason, showT
             </div>
           </div>
         )}
-        {phase === "live" && <LiveControl state={state} setState={handleSetState} onTogglePause={handleTogglePause} onFinish={handleFinishFullTime} />}
+        {phase === "live" && <LiveControl state={state} setState={handleSetState} onTogglePause={handleTogglePause} onFinish={handleFinishFullTime} onUndoStart={handleUndoStart} />}
         {phase === "extra_time" && <ExtraTime state={state} setState={handleSetState} etHalf={etHalf} setEtHalf={setEtHalf} onDone={handleEndExtraTime} />}
         {phase === "shootout" && <Shootout home={state.home} away={state.away} kicks={kicks} setKicks={setKicks} onDecided={handleShootoutDecided} />}
         {phase === "stats" && <StatsEntry stats={stats} setStats={setStats} busy={saving} onSave={() => finalizeMatch(false)} onSkip={() => finalizeMatch(true)} />}

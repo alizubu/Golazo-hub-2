@@ -22,16 +22,22 @@ const jakarta = Plus_Jakarta_Sans({
 
 export const metadata = {
   title: 'Golazo Hub',
-  description: 'Matchday central for the crew',
+  description: 'Matchday central for the crew — Track live scores, standings, and player stats.',
   manifest: '/manifest.json',
   appleWebApp: {
     capable: true,
     statusBarStyle: 'black-translucent',
     title: 'Golazo Hub',
+    startupImage: '/icons/golazohub.png',
   },
   icons: {
-    icon: '/icons/golazohub.png',
-    apple: '/icons/golazohub.png',
+    icon: [
+      { url: '/icons/golazohub.png', sizes: '512x512', type: 'image/png' },
+      { url: '/icons/golazohub.png', sizes: '192x192', type: 'image/png' },
+    ],
+    apple: [
+      { url: '/icons/golazohub.png', sizes: '180x180', type: 'image/png' },
+    ],
   },
 };
 
@@ -40,6 +46,7 @@ export const viewport = {
   width: 'device-width',
   initialScale: 1,
   maximumScale: 1,
+  viewportFit: 'cover',
 };
 
 import AppThemeProvider from '@/pwa/components/AppThemeProvider';

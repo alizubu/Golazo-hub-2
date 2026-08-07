@@ -12,6 +12,7 @@ import AdminSidebar from './AdminSidebar';
 import AdminTopBar from './AdminTopBar';
 import PlayerProfileDrawer from './PlayerProfileDrawer';
 import AdminBroadcast from './AdminBroadcast';
+import PullToRefresh from '@/pwa/components/PullToRefresh';
 
 export default function AppShell({ 
   initialTab, 
@@ -198,7 +199,7 @@ export default function AppShell({
   // PLAYER SESSION — unchanged existing layout
   // ══════════════════════════════════════════════════════════════
   return (
-    <>
+    <PullToRefresh>
       <div className="w-full">
         <SportsTicker
           matches={matches}
@@ -216,6 +217,6 @@ export default function AppShell({
       )}
       </div>
       <PlayerProfileDrawer session={session} players={players} matches={matches} seasons={seasons} announcements={announcements} trophies={trophies} notifications={notifications} />
-    </>
+    </PullToRefresh>
   );
 }

@@ -13,6 +13,7 @@ import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuIte
 import { useRouter } from 'next/navigation';
 import TournamentControlPanel from './TournamentControlPanel';
 import LiveMatchControl from './LiveMatchControl';
+import SeasonSummaryDashboard from './SeasonSummaryDashboard';
 
 function formatName(name) {
   if (!name) return 'TBD';
@@ -739,6 +740,15 @@ export default function AdminOverviewDashboard({ players = [], activeSeason, mat
       </div>
 
       <TopPlayersHorizontal matches={liveMatches} players={players} activeSeason={activeSeason} />
+
+      {/* Season Summary Dashboard */}
+      <div className="w-full">
+        <div className="flex items-center gap-2 mb-3">
+          <BarChart2 size={18} className="text-zinc-400" />
+          <h3 className="text-sm font-bold uppercase tracking-wider text-zinc-400">Season Summary</h3>
+        </div>
+        <SeasonSummaryDashboard season={activeSeason} matches={liveMatches} players={players} />
+      </div>
       
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <DashboardStatistics matches={liveMatches} activeSeason={activeSeason} />

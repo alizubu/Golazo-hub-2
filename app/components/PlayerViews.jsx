@@ -17,6 +17,7 @@ import HeadToHeadModal from './HeadToHeadModal';
 
 import StatChip from './StatChip';
 import { SeasonStats } from './SeasonStats';
+import SeasonSummaryDashboard from './SeasonSummaryDashboard';
 import { BorderBeam } from './magicui/BorderBeam';
 import { markNotificationsRead } from '@/app/actions/player';
 import { Skeleton } from '@/app/components/ui/skeleton';
@@ -900,7 +901,7 @@ function RosterView({ players, matches, setTab }) {
   );
 }
 
-function HistoryView({ history, players, setTab }) {
+function HistoryView({ history, players, matches, setTab }) {
   if (!history || history.length === 0) return <FadeIn delay={0.1}><Card className="p-6"><EmptyState text="No completed seasons yet." /></Card></FadeIn>;
   
   return (
@@ -912,6 +913,8 @@ function HistoryView({ history, players, setTab }) {
         const runner = players.find((p) => p.id === t.runnerUpId);
         const third = players.find((p) => p.id === t.thirdId);
         const mvp = players.find((p) => p.id === t.mvpId);
+        // Use season's included matches if available, otherwise filter from all matches
+        const seasonMatches = t.matches && t.matches.length > 0 ? t.matches : matches.filter(m => m.seasonId === t.id);
         
         return (
           <FadeIn key={t.id} delay={i * 0.1}>
@@ -944,6 +947,11 @@ function HistoryView({ history, players, setTab }) {
                   <Trophy size={16} /> MVP of the season: <strong className="font-bold">{mvp.name}</strong>
                 </div>
               )}
+
+              {/* Season Summary Dashboard */}
+              <div className="mt-5 pt-5 border-t border-white/[0.06]">
+                <SeasonSummaryDashboard season={t} matches={seasonMatches} players={players} compact />
+              </div>
             </MagicCard>
           </FadeIn>
         );
