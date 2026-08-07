@@ -393,11 +393,23 @@ function ImageImport({ onApply }) {
       const processedBase64 = await new Promise((resolve, reject) => {
         const img = new Image();
         img.onload = () => {
+          let cropX = 0, cropY = 0, cropWidth = img.width, cropHeight = img.height;
+          // If it's a full landscape screenshot (aspect ratio > 1.4), crop out the sides to avoid team logos
+          // and focus on the central stats table.
+          if (img.width / img.height > 1.4) {
+            cropX = img.width * 0.15;
+            cropWidth = img.width * 0.70;
+            cropY = img.height * 0.10;
+            cropHeight = img.height * 0.90;
+          }
+
           const canvas = document.createElement('canvas');
-          canvas.width = img.width;
-          canvas.height = img.height;
+          canvas.width = cropWidth;
+          canvas.height = cropHeight;
           const ctx = canvas.getContext('2d');
-          ctx.drawImage(img, 0, 0);
+          
+          // Draw the cropped portion
+          ctx.drawImage(img, cropX, cropY, cropWidth, cropHeight, 0, 0, cropWidth, cropHeight);
           
           try {
             const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
@@ -432,14 +444,16 @@ function ImageImport({ onApply }) {
       
       const stats = { home: {}, away: {} };
       
-      // Group words by Y coordinate to form rows
+      // Group words by Y coordinate to form rows using dynamic tolerance
       const rows = [];
-      const Y_TOLERANCE = 15; // pixels
       const words = data.words || [];
       
       words.forEach(word => {
         const y = word.bbox.y0;
-        let foundRow = rows.find(r => Math.abs(r.y - y) < Y_TOLERANCE);
+        const height = word.bbox.y1 - word.bbox.y0;
+        const tolerance = Math.max(8, height * 0.6); // Dynamic tolerance based on font size
+        
+        let foundRow = rows.find(r => Math.abs(r.y - y) < tolerance);
         if (!foundRow) {
           foundRow = { y, words: [] };
           rows.push(foundRow);
@@ -451,7 +465,12 @@ function ImageImport({ onApply }) {
       rows.sort((a, b) => a.y - b.y);
       rows.forEach(r => r.words.sort((a, b) => a.bbox.x0 - b.bbox.x0));
       
-      const lines = rows.map(r => r.words.map(w => w.text).join(' ').toLowerCase());
+      const lines = rows.map(r => {
+        let text = r.words.map(w => w.text).join(' ').toLowerCase();
+        // Fix common OCR number mistakes (e.g., 'o' instead of '0', 'l' instead of '1')
+        text = text.replace(/\bo\b/g, '0').replace(/\bl\b/g, '1');
+        return text;
+      });
 
       const mappings = [
         { keys: ['posses'], jsonKey: 'possession' },
@@ -557,13 +576,16 @@ function StatsEntry({ stats, setStats, onSave, onSkip, busy }) {
     <div className="px-5 sm:px-6 pb-6">
       <ImageImport onApply={handleImportApply} />
 
-      <div className="flex items-center gap-4 mb-4">
-        <div className="flex-1 h-px bg-zinc-800"></div>
-        <p className="text-[10px] text-zinc-500 uppercase tracking-[0.2em] font-bold">Or enter manually</p>
-        <button onClick={handleSwapStats} title="Swap Home and Away Stats" className="p-1 text-zinc-500 hover:text-pitch-bright hover:bg-pitch/10 rounded transition-colors" type="button">
-          <ArrowLeftRight size={14} />
+      <div className="flex flex-wrap items-center justify-between gap-4 mb-5 bg-zinc-900/50 p-4 rounded-xl border border-zinc-800">
+        <h3 className="text-sm font-bold uppercase tracking-widest text-zinc-400">Match Stats</h3>
+        <button 
+          onClick={handleSwapStats} 
+          title="Swap Home and Away Stats" 
+          className="flex items-center gap-2 px-4 py-2 text-xs font-bold uppercase tracking-wider text-pitch-bright bg-pitch/10 hover:bg-pitch/20 border border-pitch/30 rounded-lg transition-all active:scale-95 shadow-lg shadow-pitch/5" 
+          type="button"
+        >
+          <ArrowLeftRight size={16} /> Swap Home & Away
         </button>
-        <div className="flex-1 h-px bg-zinc-800"></div>
       </div>
 
       <div className="grid grid-cols-1 xl:grid-cols-2 gap-x-6 gap-y-0 mb-6">
