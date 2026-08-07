@@ -47,20 +47,24 @@ export async function extractMatchStats(formData) {
       }
     `;
 
-    // Using the Interactions API as requested (v2.x schema)
-    const interaction = await ai.interactions.create({
-      model: "gemini-2.5-flash",
-      input: [
-        { type: "text", text: promptText },
+    // Using the standard generateContent API for robust multimodal support
+    const response = await ai.models.generateContent({
+      model: "gemini-2.0-flash",
+      contents: [
         {
-          type: "image",
-          data: base64Image,
-          mime_type: mimeType
-        }
-      ]
+          inlineData: {
+            data: base64Image,
+            mimeType: mimeType
+          }
+        },
+        promptText
+      ],
+      config: {
+        responseMimeType: "application/json"
+      }
     });
 
-    const responseText = interaction.output_text || interaction.outputText;
+    const responseText = response.text || "";
     
     // Parse the JSON safely (in case it still wrapped it in markdown)
     let cleanJson = responseText.trim();
