@@ -359,12 +359,30 @@ export default function AdminBroadcast({ matches = [], players = [], announcemen
     setNewPriority('NORMAL');
   };
 
-
   if (loading) {
     return (
-      <div className="flex items-center gap-3 text-muted-foreground text-sm py-16 justify-center">
-        <div className="w-5 h-5 rounded-full border-2 border-t-transparent border-pitch-bright animate-spin" />
-        Initializing broadcast systems…
+      <div className="flex flex-col items-center justify-center min-h-[400px] w-full rounded-3xl bg-secondary/20 dark:bg-[#0A0A0A] border border-border/40 relative overflow-hidden">
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(245,158,11,0.05)_0%,transparent_70%)] dark:bg-[radial-gradient(ellipse_at_center,rgba(245,158,11,0.1)_0%,transparent_70%)]" />
+        
+        <div className="relative z-10 flex flex-col items-center gap-6">
+          <div className="relative flex items-center justify-center w-20 h-20">
+            <div className="absolute inset-0 border-[3px] border-amber-500/20 dark:border-amber-500/20 rounded-full animate-[spin_3s_linear_infinite]" />
+            <div className="absolute inset-2 border-[3px] border-t-amber-500 border-r-amber-500 border-b-transparent border-l-transparent rounded-full animate-[spin_1.5s_ease-in-out_infinite]" />
+            <div className="absolute inset-4 bg-amber-500/10 dark:bg-amber-500/20 rounded-full animate-pulse blur-sm" />
+            <Radio size={28} className="text-amber-500 animate-pulse relative z-10" />
+          </div>
+          
+          <div className="flex flex-col items-center gap-2">
+            <h3 className="font-heading font-black text-lg uppercase tracking-widest text-foreground dark:text-amber-50">
+              Initializing Broadcast
+            </h3>
+            <div className="flex items-center gap-1.5">
+              <div className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-bounce" style={{ animationDelay: '0ms' }} />
+              <div className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-bounce" style={{ animationDelay: '150ms' }} />
+              <div className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-bounce" style={{ animationDelay: '300ms' }} />
+            </div>
+          </div>
+        </div>
       </div>
     );
   }
