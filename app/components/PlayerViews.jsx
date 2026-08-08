@@ -434,104 +434,95 @@ export function PlayerDashboard({ me, activeSeason, seasons = [], matches, playe
 
         {/* Trophy Cabinet Row */}
         <FadeIn delay={0.25} className="col-span-12">
-          <MagicCard gradientColor="rgba(251, 191, 36, 0.15)">
-            <Card className="bg-transparent border-none shadow-none">
-              {(() => {
-                // Combine hardcoded templates, db templates, and all unique awarded trophies in the game
-                const templateMap = new Map();
+          <div className="relative overflow-hidden group w-full bg-card dark:bg-card border border-border/80 dark:border-white/[0.08] rounded-[20px] shadow-sm">
+            {(() => {
+              // Combine hardcoded templates, db templates, and all unique awarded trophies in the game
+              const templateMap = new Map();
 
-                // 0. Add the 6 official hardcoded trophies
-                const HARDCODED_TROPHIES = [
-                  { id: 'bb-champion', name: 'BB Champion', icon: '/assets/trophies/BB-Champion.png', requirement: 'Champion of the BB League season.' },
-                  { id: 'world-cup', name: 'World Cup Winner', icon: '/assets/trophies/World-Cup-Winner-Trophy.png', requirement: 'Won the World Cup season.' },
-                  { id: 'golden-boot', name: 'Golden Boot', icon: '/assets/trophies/Golden-boot.png', requirement: 'Top goalscorer of the season.' },
-                  { id: 'mvp', name: 'MVP', icon: '/assets/trophies/MVP.png', requirement: 'Most Valuable Player of the season.' },
-                  { id: 'la-liga', name: 'La Liga Champion', icon: '/assets/trophies/La-Liga-trophy.png', requirement: 'La Liga season champion.' },
-                  { id: 'premier-league', name: 'Premier League Champion', icon: '/assets/trophies/Premier-League.png', requirement: 'Premier League season champion.' },
-                ];
-                
-                HARDCODED_TROPHIES.forEach(t => {
-                  templateMap.set(t.name, {
-                    id: t.id,
-                    name: t.name,
-                    image: t.icon,
+              // 0. Add the 6 official hardcoded trophies
+              const HARDCODED_TROPHIES = [
+                { id: 'bb-champion', name: 'BB Champion', icon: '/assets/trophies/BB-Champion.png', requirement: 'Champion of the BB League season.' },
+                { id: 'world-cup', name: 'World Cup Winner', icon: '/assets/trophies/World-Cup-Winner-Trophy.png', requirement: 'Won the World Cup season.' },
+                { id: 'golden-boot', name: 'Golden Boot', icon: '/assets/trophies/Golden-boot.png', requirement: 'Top goalscorer of the season.' },
+                { id: 'mvp', name: 'MVP', icon: '/assets/trophies/MVP.png', requirement: 'Most Valuable Player of the season.' },
+                { id: 'la-liga', name: 'La Liga Champion', icon: '/assets/trophies/La-Liga-trophy.png', requirement: 'La Liga season champion.' },
+                { id: 'premier-league', name: 'Premier League Champion', icon: '/assets/trophies/Premier-League.png', requirement: 'Premier League season champion.' },
+              ];
+              
+              HARDCODED_TROPHIES.forEach(t => {
+                templateMap.set(t.name, {
+                  id: t.id,
+                  name: t.name,
+                  image: t.icon,
+                  locked: true,
+                  requirement: t.requirement
+                });
+              });
+
+              // 2. Add any unique trophies awarded to ANY player (so users see what's out there)
+              trophies.forEach(t => {
+                if (!templateMap.has(t.title)) {
+                  templateMap.set(t.title, {
+                    id: t.id, // Just use the instance ID as a key
+                    name: t.title,
+                    image: t.icon || '🏆',
                     locked: true,
-                    requirement: t.requirement
+                    requirement: t.description || 'Locked'
                   });
-                });
-                // 2. Add any unique trophies awarded to ANY player (so users see what's out there)
-                trophies.forEach(t => {
-                  if (!templateMap.has(t.title)) {
-                    templateMap.set(t.title, {
-                      id: t.id, // Just use the instance ID as a key
-                      name: t.title,
-                      image: t.icon || '🏆',
-                      locked: true,
-                      requirement: t.description || 'Locked'
-                    });
-                  }
-                });
+                }
+              });
 
-                const trophyList = Array.from(templateMap.values());
+              const trophyList = Array.from(templateMap.values());
 
-                const earnedTrophies = trophyList.filter(tr => {
-                  const instances = myTrophies.filter(t => t.title === tr.name || t.id === tr.id);
-                  return instances.length > 0 || !tr.locked;
-                });
+              return (
+                <>
+                  <div className="pb-3 pt-5 px-5 sm:px-6 flex flex-row items-center justify-between gap-4 relative border-b border-border/40 dark:border-white/[0.06]">
+                    <div className="text-xl sm:text-2xl font-bold flex items-center gap-2.5 text-foreground">
+                      <Trophy className="text-amber-500 dark:text-amber-400" size={24}/> Trophy Cabinet
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Badge variant="gold" className="px-2.5 py-1 font-score text-[10px] sm:text-xs font-bold bg-amber-500/15 text-amber-600 dark:text-amber-300 border border-amber-500/30">
+                        {myTrophies.length} TROPHIES
+                      </Badge>
+                    </div>
+                  </div>
 
-                return (
-                  <>
-                    <CardHeader className="pb-3 border-b border-stadium-subtle/50 flex flex-row items-center justify-between">
-                      <h3 className="text-lg sm:text-xl font-heading font-bold flex items-center gap-2.5 text-stadium-primary">
-                        <Trophy className="text-amber-400" size={20}/> Trophy Cabinet
-                      </h3>
-                      <div className="flex items-center gap-2">
-                        <Badge variant="gold" className="px-2.5 py-1 font-score text-[10px] sm:text-xs font-bold bg-amber-500/15 text-amber-300 border border-amber-500/30">
-                          {myTrophies.length} TROPHIES
-                        </Badge>
-                      </div>
-                    </CardHeader>
-                    <CardContent className="pt-6">
-                      {earnedTrophies.length === 0 ? (
-                        <EmptyState text="No trophies earned yet." />
-                      ) : (
-                        <motion.div 
-                          className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4 w-full min-w-0" 
-                          variants={{hidden: { opacity: 0 }, show: { opacity: 1, transition: { staggerChildren: 0.06 } }}} 
-                          initial="hidden" 
-                          whileInView="show" 
-                          viewport={{ once: true }}
-                        >
-                          {earnedTrophies.map((tr) => {
-                            const instances = myTrophies.filter(t => t.title === tr.name || t.id === tr.id);
-                            const isUnlocked = instances.length > 0 || !tr.locked;
+                  <div className="pt-5 pb-5 px-5 sm:px-6">
+                    <motion.div 
+                      className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4 w-full min-w-0" 
+                      variants={{hidden: { opacity: 0 }, show: { opacity: 1, transition: { staggerChildren: 0.06 } }}} 
+                      initial="hidden" 
+                      whileInView="show" 
+                      viewport={{ once: true }}
+                    >
+                      {trophyList.map((tr) => {
+                        const instances = myTrophies.filter(t => t.title === tr.name || t.id === tr.id);
+                        const isUnlocked = instances.length > 0;
 
-                            return (
-                              <TrophyCard 
-                                key={tr.id} 
-                                trophy={tr} 
-                                unlocked={isUnlocked} 
-                                count={instances.length} 
-                                instances={instances}
-                                requirement={tr.requirement}
-                                onSelect={() => setSelectedTrophy({
-                                  trophy: tr,
-                                  unlocked: isUnlocked,
-                                  count: instances.length,
-                                  instances,
-                                  requirement: tr.requirement
-                                })}
-                              />
-                            );
-                          })}
-                        </motion.div>
-                      )}
-                    </CardContent>
-                  </>
-                );
-              })()}
-            </Card>
-          </MagicCard>
+                        return (
+                          <TrophyCard 
+                            key={tr.id} 
+                            trophy={tr} 
+                            unlocked={isUnlocked} 
+                            count={instances.length} 
+                            instances={instances}
+                            requirement={tr.requirement}
+                            onSelect={() => setSelectedTrophy({
+                              trophy: tr,
+                              unlocked: isUnlocked,
+                              count: instances.length,
+                              instances,
+                              requirement: tr.requirement
+                            })}
+                          />
+                        );
+                      })}
+                    </motion.div>
+                  </div>
+                </>
+              );
+            })()}
+          </div>
         </FadeIn>
 
         {/* Live Matches */}
@@ -1005,8 +996,8 @@ function TrophyCard({ trophy, unlocked, count = 0, instances = [], requirement, 
       onClick={() => onSelect && onSelect()}
       className={`relative flex flex-col justify-between items-center p-4 sm:p-5 border rounded-2xl text-center cursor-pointer transition-all group overflow-visible min-h-[220px] sm:min-h-[240px] w-full ${
         unlocked
-          ? 'bg-gradient-to-b from-amber-500/15 via-stadium-raised to-stadium-surface border-amber-500/40 shadow-lg shadow-amber-500/5 hover:-translate-y-1.5 hover:border-amber-400/80 hover:shadow-amber-500/15'
-          : 'bg-stadium-surface/80 border-stadium-subtle hover:bg-stadium-surface hover:border-stadium-subtle/80 hover:-translate-y-0.5'
+          ? 'bg-gradient-to-b from-amber-500/15 via-background to-background border-amber-500/40 shadow-md hover:-translate-y-1.5 hover:border-amber-400/80 hover:shadow-amber-500/15'
+          : 'bg-slate-50/80 dark:bg-[#12151b] border-border/70 dark:border-white/[0.08] hover:border-border hover:-translate-y-0.5 shadow-sm'
       }`}
     >
       {unlocked && (
@@ -1030,7 +1021,7 @@ function TrophyCard({ trophy, unlocked, count = 0, instances = [], requirement, 
 
       {/* Top: Trophy Artwork */}
       <div className="my-2 relative w-20 h-20 sm:w-24 sm:h-24 flex items-center justify-center shrink-0">
-        {!imgLoaded && <Skeleton className="absolute inset-0 rounded-xl bg-stadium-raised" />}
+        {!imgLoaded && <Skeleton className="absolute inset-0 rounded-xl bg-secondary dark:bg-white/5" />}
 
         <motion.img
           src={trophy.image || trophy.icon}
@@ -1053,26 +1044,26 @@ function TrophyCard({ trophy, unlocked, count = 0, instances = [], requirement, 
 
       {/* Middle: Trophy Name */}
       <div className="w-full my-2 flex flex-col items-center justify-center flex-1">
-        <h4 className="font-bold font-heading text-xs sm:text-sm leading-tight text-stadium-primary line-clamp-2 px-1 relative z-10 group-hover:text-amber-300 transition-colors" title={trophy.name}>
+        <h4 className="font-bold font-heading text-xs sm:text-sm leading-tight text-foreground line-clamp-2 px-1 relative z-10 group-hover:text-amber-500 dark:group-hover:text-amber-300 transition-colors" title={trophy.name}>
           {trophy.name}
         </h4>
       </div>
 
-      {/* Bottom: 2-Tier Achievement State System (Unlocked or Locked) */}
-      <div className="w-full mt-auto pt-2 border-t border-stadium-subtle/40 z-10">
+      {/* Bottom: Achievement State System */}
+      <div className="w-full mt-auto pt-2 border-t border-border/50 dark:border-white/10 z-10">
         {unlocked ? (
           <div className="flex flex-col items-center gap-0.5">
-            <span className="text-[10px] text-amber-400 uppercase tracking-widest font-black font-score">
+            <span className="text-[10px] text-amber-600 dark:text-amber-400 uppercase tracking-widest font-black font-score">
               {count > 1 ? `WON ×${count}` : 'UNLOCKED'}
             </span>
-            <span className="text-[9px] text-stadium-secondary font-score truncate max-w-full">
+            <span className="text-[9px] text-muted-foreground font-score truncate max-w-full">
               {instances[0]?.createdAt ? new Date(instances[0].createdAt).toLocaleDateString(undefined, { month: 'short', year: 'numeric' }) : 'Champion'}
             </span>
           </div>
         ) : (
-          /* Locked, No Progress (0%) */
-          <div className="w-full flex items-center justify-center gap-1 text-[10px] font-medium text-stadium-muted py-0.5 px-1">
-            <Lock size={10} className="shrink-0 text-stadium-secondary/60" />
+          /* Locked State */
+          <div className="w-full flex items-center justify-center gap-1 text-[10px] font-medium text-muted-foreground py-0.5 px-1">
+            <Lock size={10} className="shrink-0 text-muted-foreground/70" />
             <span className="truncate" title={requirement || "Locked"}>
               {requirement || "Locked"}
             </span>
