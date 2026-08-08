@@ -35,7 +35,7 @@ function NavItem({ item, active, hasLive, onClick, isMobile = false, isExpanded 
       `}
     >
       {/* Hover Background */}
-      <div className={`absolute inset-y-0 rounded-xl bg-white/[0.03] opacity-0 group-hover:opacity-100 transition-opacity duration-300 ${isMobile ? 'inset-x-3' : (isExpanded ? 'inset-x-3' : 'inset-x-2')}`} />
+      <div className={`absolute inset-y-0 rounded-xl bg-black/5 dark:bg-white/[0.03] opacity-0 group-hover:opacity-100 transition-opacity duration-300 ${isMobile ? 'inset-x-3' : (isExpanded ? 'inset-x-3' : 'inset-x-2')}`} />
       
       {/* Active state backgrounds */}
       {active && (
@@ -87,12 +87,12 @@ function SidebarFooter({ activeSeason, onNavigate, onLogout, isLoggingOut, isMob
   const showText = isMobile || isExpanded;
   
   return (
-    <div className={`border-t border-white/[0.04] flex-shrink-0 relative overflow-hidden transition-all duration-300 ${showText ? 'p-4' : 'p-2'}`}>
-      <div className="absolute inset-0 bg-gradient-to-t from-white/[0.02] to-transparent pointer-events-none" />
+    <div className={`border-t border-border dark:border-white/[0.04] flex-shrink-0 relative overflow-hidden transition-all duration-300 ${showText ? 'p-4' : 'p-2'}`}>
+      <div className="absolute inset-0 bg-gradient-to-t from-black/5 dark:from-white/[0.02] to-transparent pointer-events-none" />
       
       {/* Season chip */}
       {activeSeason && (
-        <div className={`items-center gap-3 px-4 py-3 rounded-xl bg-white/[0.03] border border-border/50 mb-3 transition-colors hover:bg-white/[0.05] ${showText ? 'flex' : 'hidden'}`}>
+        <div className={`items-center gap-3 px-4 py-3 rounded-xl bg-black/5 dark:bg-white/[0.03] border border-border/50 mb-3 transition-colors hover:bg-black/10 dark:bg-white/[0.05] ${showText ? 'flex' : 'hidden'}`}>
           <div className="w-1.5 h-1.5 bg-pitch-bright rounded-full animate-pulse shadow-[0_0_8px_rgba(41,193,121,0.6)]" />
           <div className="flex flex-col min-w-0">
             <span className="text-[9px] font-bold uppercase tracking-[0.15em] text-muted-foreground">Active Season</span>
@@ -107,7 +107,7 @@ function SidebarFooter({ activeSeason, onNavigate, onLogout, isLoggingOut, isMob
         title={!showText ? 'Settings' : undefined}
         className={`
           relative w-full flex items-center py-2.5 text-[13px] font-semibold rounded-lg
-          text-muted-foreground hover:text-foreground hover:bg-white/[0.04] transition-colors outline-none
+          text-muted-foreground hover:text-foreground hover:bg-black/5 dark:bg-white/[0.04] transition-colors outline-none
           ${showText ? 'justify-start gap-3 px-4' : 'justify-center px-0'}
         `}
       >
@@ -184,7 +184,7 @@ export default function AdminSidebar({ currentTab, setTab, activeSeason, matches
       {/* ═══ DESKTOP SIDEBAR ═══ */}
       <aside
         aria-label="Admin navigation"
-        className={`hidden md:flex flex-col fixed left-0 top-0 bottom-0 z-[50] bg-[#0A0D14] border-r border-white/[0.04] shadow-2xl transition-all duration-300 ${isExpanded ? 'w-[260px]' : 'w-16'}`}
+        className={`hidden md:flex flex-col fixed left-0 top-0 bottom-0 z-[50] bg-background dark:bg-[#0A0D14] border-r border-border dark:border-white/[0.04] shadow-2xl transition-all duration-300 ${isExpanded ? 'w-[260px]' : 'w-16'}`}
       >
         {/* Toggle Expand/Collapse Button */}
         {onToggleExpand && (
@@ -203,7 +203,7 @@ export default function AdminSidebar({ currentTab, setTab, activeSeason, matches
         </div>
 
         {/* Logo */}
-        <div className={`flex items-center h-14 border-b border-white/[0.04] flex-shrink-0 relative z-10 transition-all duration-300 ${isExpanded ? 'justify-start px-5 gap-3' : 'justify-center px-0'}`}>
+        <div className={`flex items-center h-14 border-b border-border dark:border-white/[0.04] flex-shrink-0 relative z-10 transition-all duration-300 ${isExpanded ? 'justify-start px-5 gap-3' : 'justify-center px-0'}`}>
           <div className="flex items-center justify-center w-8 h-8 rounded-xl bg-gold/10 border border-gold/20 shadow-[0_0_15px_rgba(217,169,59,0.15)] flex-shrink-0 relative overflow-hidden">
              <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent" />
              <Trophy size={16} className="text-[#D9A93B]" />
@@ -265,20 +265,20 @@ export default function AdminSidebar({ currentTab, setTab, activeSeason, matches
               animate={{ x: 0, opacity: 1 }}
               exit={{ x: '-100%', opacity: 0.5 }}
               transition={{ type: 'spring', bounce: 0, duration: 0.4 }}
-              className="md:hidden fixed left-0 top-0 bottom-0 z-[80] w-[280px] bg-[#0A0D14] border-r border-white/[0.04] shadow-2xl flex flex-col"
+              className="md:hidden fixed left-0 top-0 bottom-0 z-[80] w-[280px] bg-background dark:bg-[#0A0D14] border-r border-border dark:border-white/[0.04] shadow-2xl flex flex-col"
               aria-label="Admin navigation drawer"
             >
               <div className="absolute top-0 left-0 w-full h-64 bg-gradient-to-b from-pitch-bright/5 to-transparent pointer-events-none" />
 
               <button
                 onClick={() => setMobileOpen(false)}
-                className="absolute top-4 right-4 z-20 w-8 h-8 flex items-center justify-center rounded-full bg-white/5 border border-border text-foreground hover:bg-white/10 transition-colors"
+                className="absolute top-4 right-4 z-20 w-8 h-8 flex items-center justify-center rounded-full bg-black/5 dark:bg-white/5 border border-border text-foreground hover:bg-white/10 transition-colors"
                 aria-label="Close navigation"
               >
                 <X size={14} />
               </button>
 
-              <div className="flex items-center gap-3 h-14 px-5 border-b border-white/[0.04] flex-shrink-0 relative z-10">
+              <div className="flex items-center gap-3 h-14 px-5 border-b border-border dark:border-white/[0.04] flex-shrink-0 relative z-10">
                 <div className="flex items-center justify-center w-8 h-8 rounded-xl bg-gold/10 border border-gold/20 shadow-[0_0_15px_rgba(217,169,59,0.15)] flex-shrink-0 relative overflow-hidden">
                    <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent" />
                    <Trophy size={16} className="text-[#D9A93B]" />
