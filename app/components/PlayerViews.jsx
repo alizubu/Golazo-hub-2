@@ -434,7 +434,7 @@ export function PlayerDashboard({ me, activeSeason, seasons = [], matches, playe
 
         {/* Trophy Cabinet Row */}
         <FadeIn delay={0.25} className="col-span-12">
-          <div className="relative overflow-hidden group w-full bg-card dark:bg-card border border-border/80 dark:border-white/[0.08] rounded-[20px] shadow-sm">
+          <div className="relative overflow-hidden w-full bg-card dark:bg-card border border-border/80 dark:border-white/[0.08] rounded-[20px] shadow-sm">
             {(() => {
               // Combine hardcoded templates, db templates, and all unique awarded trophies in the game
               const templateMap = new Map();
@@ -450,7 +450,7 @@ export function PlayerDashboard({ me, activeSeason, seasons = [], matches, playe
               ];
               
               HARDCODED_TROPHIES.forEach(t => {
-                templateMap.set(t.name, {
+                templateMap.set(t.id, {
                   id: t.id,
                   name: t.name,
                   image: t.icon,
@@ -461,8 +461,9 @@ export function PlayerDashboard({ me, activeSeason, seasons = [], matches, playe
 
               // 2. Add any unique trophies awarded to ANY player (so users see what's out there)
               trophies.forEach(t => {
-                if (!templateMap.has(t.title)) {
-                  templateMap.set(t.title, {
+                const key = t.templateId || t.title;
+                if (!templateMap.has(key)) {
+                  templateMap.set(key, {
                     id: t.id, // Just use the instance ID as a key
                     name: t.title,
                     image: t.icon || '🏆',
@@ -477,7 +478,7 @@ export function PlayerDashboard({ me, activeSeason, seasons = [], matches, playe
               return (
                 <>
                   <div className="pb-3 pt-5 px-5 sm:px-6 flex flex-row items-center justify-between gap-4 relative border-b border-border/40 dark:border-white/[0.06]">
-                    <div className="text-xl sm:text-2xl font-bold flex items-center gap-2.5 text-foreground">
+                    <div className="text-xl sm:text-2xl font-bold font-heading flex items-center gap-2.5 text-foreground">
                       <Trophy className="text-amber-500 dark:text-amber-400" size={24}/> Trophy Cabinet
                     </div>
                     <div className="flex items-center gap-2">

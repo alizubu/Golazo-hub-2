@@ -40,9 +40,9 @@ export function SeasonStats({ playerId, initialStats, seasons, activeSeason, sel
 
   return (
     <FadeIn delay={0.2} className="col-span-12">
-      <div className="relative overflow-hidden group w-full bg-card dark:bg-card border border-border/80 dark:border-white/[0.08] rounded-[20px] shadow-sm">
+      <div className="relative overflow-hidden w-full bg-card dark:bg-card border border-border/80 dark:border-white/[0.08] rounded-[20px] shadow-sm">
         <div className="pb-3 pt-5 px-5 sm:px-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4 relative border-b border-border/40 dark:border-white/[0.06]">
-          <div className="text-xl sm:text-2xl font-bold flex items-center gap-2.5 text-foreground">
+          <div className="text-xl sm:text-2xl font-bold font-heading flex items-center gap-2.5 text-foreground">
             <Activity className="text-foreground/70" size={24}/> Season Stats
           </div>
           
