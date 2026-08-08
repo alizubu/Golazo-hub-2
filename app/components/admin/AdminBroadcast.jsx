@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Activity, CheckCircle2, Megaphone, Radio, Zap, TrendingUp, Flame, Eye, EyeOff, Type, Minus, Maximize2, Minimize2, X, Plus, Search, Star, User, Bold, Italic, CaseSensitive, Pipette, Palette, Edit3, Save, GripVertical } from 'lucide-react';
+import { Activity, CheckCircle2, Megaphone, Radio, Zap, TrendingUp, Flame, Eye, EyeOff, Type, Minus, Maximize2, Minimize2, X, Plus, Search, Star, User, Bold, Italic, CaseSensitive, Pipette, Palette, Edit3, Save, GripVertical, ArrowUpLeft, ArrowUp, ArrowUpRight, ArrowLeft, Circle, ArrowRight, ArrowDownLeft, ArrowDown, ArrowDownRight } from 'lucide-react';
 import { Card, Label, SectionTitle, FadeIn, ShinyButton, Badge } from '@/app/components/shared/UI';
 import { AnimatePresence, motion } from 'framer-motion';
 import { saveTickerConfig } from '@/app/actions/admin';
@@ -831,6 +831,24 @@ export default function AdminBroadcast({ matches = [], players = [], announcemen
 
                 {/* X / Y / Blur Sliders */}
                 <div className="space-y-4 pt-3 border-t border-border/40">
+                  <div className="flex justify-between items-center -mb-2">
+                    <Label className="text-[10px] text-muted-foreground uppercase font-bold">Directional Pad</Label>
+                    <span className="text-[10px] text-amber-500 font-mono">X:{newShadowX} Y:{newShadowY}</span>
+                  </div>
+                  
+                  <div className="grid grid-cols-3 gap-1 w-24 mx-auto mb-2 bg-black/20 p-1.5 rounded-xl border border-border/40 shadow-inner">
+                    <button onClick={() => {setNewShadowX(-5); setNewShadowY(-5)}} className="w-6 h-6 rounded flex items-center justify-center hover:bg-amber-500/20 text-muted-foreground hover:text-amber-500 transition-colors"><ArrowUpLeft size={12} /></button>
+                    <button onClick={() => {setNewShadowX(0); setNewShadowY(-5)}} className="w-6 h-6 rounded flex items-center justify-center hover:bg-amber-500/20 text-muted-foreground hover:text-amber-500 transition-colors"><ArrowUp size={12} /></button>
+                    <button onClick={() => {setNewShadowX(5); setNewShadowY(-5)}} className="w-6 h-6 rounded flex items-center justify-center hover:bg-amber-500/20 text-muted-foreground hover:text-amber-500 transition-colors"><ArrowUpRight size={12} /></button>
+                    
+                    <button onClick={() => {setNewShadowX(-5); setNewShadowY(0)}} className="w-6 h-6 rounded flex items-center justify-center hover:bg-amber-500/20 text-muted-foreground hover:text-amber-500 transition-colors"><ArrowLeft size={12} /></button>
+                    <button onClick={() => {setNewShadowX(0); setNewShadowY(0)}} className="w-6 h-6 rounded flex items-center justify-center hover:bg-amber-500/20 text-muted-foreground hover:text-amber-500 transition-colors"><Circle size={8} /></button>
+                    <button onClick={() => {setNewShadowX(5); setNewShadowY(0)}} className="w-6 h-6 rounded flex items-center justify-center hover:bg-amber-500/20 text-muted-foreground hover:text-amber-500 transition-colors"><ArrowRight size={12} /></button>
+                    
+                    <button onClick={() => {setNewShadowX(-5); setNewShadowY(5)}} className="w-6 h-6 rounded flex items-center justify-center hover:bg-amber-500/20 text-muted-foreground hover:text-amber-500 transition-colors"><ArrowDownLeft size={12} /></button>
+                    <button onClick={() => {setNewShadowX(0); setNewShadowY(5)}} className="w-6 h-6 rounded flex items-center justify-center hover:bg-amber-500/20 text-muted-foreground hover:text-amber-500 transition-colors"><ArrowDown size={12} /></button>
+                    <button onClick={() => {setNewShadowX(5); setNewShadowY(5)}} className="w-6 h-6 rounded flex items-center justify-center hover:bg-amber-500/20 text-muted-foreground hover:text-amber-500 transition-colors"><ArrowDownRight size={12} /></button>
+                  </div>
                   <div className="space-y-1.5">
                     <Label className="text-[10px] text-muted-foreground uppercase font-bold">X Offset: <span className="text-amber-500">{newShadowX}px</span></Label>
                     <Slider value={[newShadowX]} onValueChange={v => setNewShadowX(v[0])} min={-20} max={20} step={1} />
