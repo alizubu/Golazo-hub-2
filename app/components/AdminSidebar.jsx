@@ -255,7 +255,7 @@ export default function AdminSidebar({ currentTab, setTab, activeSeason, matches
               exit={{ opacity: 0 }}
               transition={{ duration: 0.22 }}
               onClick={() => setMobileOpen(false)}
-              className="md:hidden fixed inset-0 z-[70] bg-[#0A0D14]/80 backdrop-blur-md"
+              className="md:hidden fixed inset-0 z-[70] bg-background/80 dark:bg-[#0A0D14]/80 backdrop-blur-md"
               aria-hidden="true"
             />
 
