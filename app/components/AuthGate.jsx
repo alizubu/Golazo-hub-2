@@ -502,7 +502,7 @@ export default function AuthGate({ players = [], showToast }) {
 
         {/* ─── LEFT PANEL: Cinematic pitch ─── */}
         <div
-          className="relative flex flex-col overflow-hidden bg-background md:bg-secondary dark:bg-transparent"
+          className="relative flex flex-col overflow-hidden bg-[#0A0D14] text-white dark"
         >
           {/* Pitch SVG */}
           <PitchSVG />
@@ -536,7 +536,7 @@ export default function AuthGate({ players = [], showToast }) {
                 <Trophy size={32} className="text-gold" />
               </div>
               <h1
-                className="font-heading font-black tracking-tight text-foreground leading-none mb-4"
+                className="font-heading font-black tracking-tight text-white leading-none mb-4"
                 style={{ fontSize: 'clamp(2.6rem,5vw,4rem)' }}
               >
                 GOLAZO
@@ -545,7 +545,7 @@ export default function AuthGate({ players = [], showToast }) {
                   HUB
                 </span>
               </h1>
-              <p className="text-base text-muted-foreground font-medium leading-relaxed max-w-sm mb-8">
+              <p className="text-base text-zinc-400 font-medium leading-relaxed max-w-sm mb-8">
                 Your crew&apos;s matchday headquarters. Track seasons, score live goals, and own the pitch.
               </p>
 
@@ -564,7 +564,7 @@ export default function AuthGate({ players = [], showToast }) {
                       </div>
                     ))}
                   </div>
-                  <p className="text-sm text-muted-foreground">
+                  <p className="text-sm text-zinc-400">
                     <span className="text-pitch-bright font-bold">{players.length}</span>{' '}
                     player{players.length !== 1 ? 's' : ''} in the league
                   </p>
@@ -574,7 +574,8 @@ export default function AuthGate({ players = [], showToast }) {
           </div>
 
           {/* Soft gradient seam connecting to right panel */}
-          <div className="absolute top-0 bottom-0 right-0 w-32 bg-gradient-to-l from-[#0D1118] to-transparent pointer-events-none z-20" />
+          <div className="absolute top-0 bottom-0 right-0 w-32 bg-gradient-to-l from-[#0D1118] to-transparent pointer-events-none z-20 hidden dark:block" />
+          <div className="absolute top-0 bottom-0 right-0 w-[1px] bg-border pointer-events-none z-20 hidden md:block dark:hidden" />
         </div>
 
         {/* ─── RIGHT PANEL: Auth form ─── */}
@@ -582,7 +583,12 @@ export default function AuthGate({ players = [], showToast }) {
           {/* Top glow */}
           <div className="absolute top-0 left-0 right-0 h-64 bg-[radial-gradient(ellipse_at_50%_0%,rgba(31,138,92,0.08)_0%,transparent_70%)] pointer-events-none hidden dark:block" />
 
-          <div className="w-full max-w-[340px] relative z-10">
+          {/* Theme Toggle */}
+          <div className="absolute top-6 right-6 md:top-8 md:right-8 z-50">
+            <ThemeToggle />
+          </div>
+
+          <div className="w-full max-w-[380px] relative z-10 bg-card dark:bg-transparent backdrop-blur-sm border border-border dark:border-none shadow-2xl dark:shadow-none rounded-3xl p-6 sm:p-8">
             {/* Logo */}
             <motion.div
               initial={{ opacity: 0, y: -14 }}
@@ -640,9 +646,9 @@ export default function AuthGate({ players = [], showToast }) {
           ╚══════════════════════════════════════════╝ */}
       <div className="md:hidden flex flex-col min-h-[100dvh] bg-background dark:bg-[#0D1118]">
         {/* Top Header: Pitch Visualization */}
-        <div className="relative w-full h-[35dvh] min-h-[260px] flex flex-col items-center justify-center overflow-hidden shrink-0 bg-secondary dark:bg-transparent">
+        <div className="relative w-full h-[35dvh] min-h-[260px] flex flex-col items-center justify-center overflow-hidden shrink-0 bg-[#0A0D14] dark">
           <PitchSVG className="opacity-60" />
-          <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_60%_at_50%_30%,rgba(31,138,92,0.15)_0%,transparent_70%)] hidden dark:block" />
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_60%_at_50%_30%,rgba(31,138,92,0.15)_0%,transparent_70%)]" />
           <div className="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-t from-background dark:from-[#0D1118] to-transparent z-10" />
           
           <motion.div
@@ -665,7 +671,12 @@ export default function AuthGate({ players = [], showToast }) {
 
         {/* Bottom Area: Auth Form */}
         <div className="relative flex-1 flex flex-col items-center px-5 pt-4 pb-10 z-20 bg-background dark:bg-[#0D1118]">
-          <div className="w-full max-w-[360px] flex flex-col gap-6">
+          {/* Theme Toggle for Mobile */}
+          <div className="absolute top-4 right-4 z-50 md:hidden">
+            <ThemeToggle />
+          </div>
+
+          <div className="w-full max-w-[360px] flex flex-col gap-6 bg-card dark:bg-transparent border border-border dark:border-none shadow-xl dark:shadow-none rounded-3xl p-5 mt-4">
             {/* Tab toggle */}
             {mode !== 'admin' && (
               <TabToggle mode={mode} setMode={setMode} layoutId="mobile-tab-pill" />
