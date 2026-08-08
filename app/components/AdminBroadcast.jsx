@@ -1,9 +1,9 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Activity, CheckCircle2, Megaphone, Radio, Zap, TrendingUp, Flame, Eye, Type, Minus, Maximize2, Minimize2, X, Plus } from 'lucide-react';
+import { Activity, CheckCircle2, Megaphone, Radio, Zap, TrendingUp, Flame, Eye, Type, Minus, Maximize2, Minimize2, X, Plus, Search, Star, User } from 'lucide-react';
 import { Card, Label, SectionTitle, FadeIn, ShinyButton, Badge } from './UI';
-import { motion } from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion';
 import { saveTickerConfig } from '@/app/actions/admin';
 import SportsTicker from './SportsTicker';
 import { THEMES, SEPARATORS } from './SportsTickerBadges';
@@ -49,26 +49,43 @@ function SegmentBtn({ value, label, icon, current, onChange }) {
 function ThemeCard({ theme, isSelected, onSelect }) {
   return (
     <motion.button
+      layout
+      initial={{ opacity: 0, scale: 0.9 }}
+      animate={{ opacity: 1, scale: 1 }}
+      exit={{ opacity: 0, scale: 0.9 }}
       whileHover={{ scale: 1.02 }}
       whileTap={{ scale: 0.98 }}
       onClick={() => onSelect(theme.id)}
-      className={`relative flex items-center gap-3 p-3 rounded-lg border transition-all text-left overflow-hidden ${
+      className={`relative flex flex-col p-3 rounded-xl border transition-all text-left overflow-hidden h-full ${
         isSelected
           ? 'bg-amber-500/15 border-amber-500/50 shadow-[0_0_15px_rgba(245,158,11,0.2)] ring-1 ring-amber-500/50'
           : 'bg-white/[0.02] border-border hover:bg-white/[0.05] hover:border-border dark:border-white/20'
       }`}
     >
-      <div className={`flex items-center justify-center w-8 h-8 rounded-full shrink-0 ${isSelected ? 'bg-amber-500/20' : 'bg-white/5'}`}>
-        <span className="text-lg">{theme.emoji}</span>
-      </div>
-      <div className="flex flex-col flex-1">
-        <div className="flex items-center justify-between">
-          <span className={`text-[11px] font-bold uppercase tracking-wider ${isSelected ? 'text-amber-300' : 'text-muted-foreground'}`}>
-            {theme.name}
-          </span>
-          {isSelected && <CheckCircle2 size={12} className="text-amber-400" />}
+      <div className="flex items-center gap-3 mb-3 w-full">
+        <div className={`flex items-center justify-center w-8 h-8 rounded-full shrink-0 ${isSelected ? 'bg-amber-500/20' : 'bg-white/5'}`}>
+          <span className="text-lg">{theme.emoji}</span>
         </div>
-        <span className="text-[9px] text-muted-foreground leading-tight line-clamp-1">{theme.desc}</span>
+        <div className="flex flex-col flex-1 min-w-0">
+          <div className="flex items-center justify-between gap-1">
+            <span className={`text-[11px] font-bold uppercase tracking-wider truncate ${isSelected ? 'text-amber-300' : 'text-foreground'}`}>
+              {theme.name}
+            </span>
+            {isSelected && <CheckCircle2 size={12} className="text-amber-400 shrink-0" />}
+          </div>
+          <span className="text-[9px] text-muted-foreground leading-tight truncate">{theme.desc}</span>
+        </div>
+      </div>
+      
+      {/* Mini Preview Bar */}
+      <div className="mt-auto w-full h-10 rounded-md overflow-hidden relative border border-white/10" style={theme.wrap}>
+        <div className="absolute inset-0 flex items-center px-2">
+          <div className="flex items-center gap-2 whitespace-nowrap" style={{ ...theme.chip, borderRadius: theme.radius }}>
+            <span className="text-[10px] font-bold px-2 py-0.5" style={{ color: theme.team, fontFamily: theme.font }}>RVR</span>
+            <span className="text-[11px] font-extrabold" style={{ color: theme.score, fontFamily: theme.mono ? "'JetBrains Mono', monospace" : theme.font }}>2-1</span>
+            <span className="text-[10px] font-bold px-2 py-0.5" style={{ color: theme.team, fontFamily: theme.font }}>EMB</span>
+          </div>
+        </div>
       </div>
     </motion.button>
   );
@@ -144,7 +161,7 @@ export default function AdminBroadcast({ matches = [], players = [], announcemen
     showAvatars: true, pauseOnHover: true, theme: 'classic',
     size: 'normal', separator: 'dot', breakingNews: '',
     showStats: false, showHighlights: false, showStreaks: false,
-    highlightReelGoals: false, momentumTeam: 'none', customHighlights: [],
+    playerToWatch: { active: false, playerId: '' }, customHighlights: [],
     epicMoment: { active: false, playerId: '', text: '' }, replayTrigger: null
   };
 
@@ -152,6 +169,18 @@ export default function AdminBroadcast({ matches = [], players = [], announcemen
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [newCustomHighlight, setNewCustomHighlight] = useState('');
+  
+  // Theme Gallery state
+  const [themeQuery, setThemeQuery] = useState('');
+  const [activeThemeTag, setActiveThemeTag] = useState(null);
+  const allTags = [...new Set(THEMES.flatMap(t => t.tags || []))].sort();
+  const filteredThemes = THEMES.filter(t => 
+    (!activeThemeTag || (t.tags && t.tags.includes(activeThemeTag))) &&
+    t.name.toLowerCase().includes(themeQuery.toLowerCase())
+  );
+  
+  const selectedThemeObj = THEMES.find(t => t.id === draft.theme) || THEMES[0];
+  const isLightMode = selectedThemeObj?.page === 'light';
 
   useEffect(() => {
     fetch('/api/admin/ticker-config')
@@ -212,12 +241,14 @@ export default function AdminBroadcast({ matches = [], players = [], announcemen
 
       {/* ── On-Air Preview (Sticky) ─────────────────────────────────────────── */}
       <div className="sticky top-0 sm:top-4 z-50 -mx-4 px-4 sm:mx-0 sm:px-0">
-        <Card className="p-4 sm:p-5 bg-background/80 border-border shadow-2xl">
+        <Card className={`p-4 sm:p-5 shadow-2xl transition-colors duration-500 ${isLightMode ? 'bg-[#f4f6fb] border-[#e2e8f0]' : 'bg-background/80 border-border'}`}>
           <div className="flex items-center justify-between mb-3">
-            <Label className="text-pitch-bright font-bold uppercase tracking-widest text-[10px]">On-Air Preview</Label>
-            <Badge className="bg-secondary dark:bg-zinc-900 text-muted-foreground border-border dark:border-zinc-800 text-[9px]">{draft.theme?.toUpperCase() || 'CLASSIC'}</Badge>
+            <Label className={`font-bold uppercase tracking-widest text-[10px] ${isLightMode ? 'text-[#059669]' : 'text-pitch-bright'}`}>On-Air Preview</Label>
+            <Badge className={`text-[9px] ${isLightMode ? 'bg-[#e2e8f0] text-gray-700 border-transparent' : 'bg-secondary dark:bg-zinc-900 text-muted-foreground border-border dark:border-zinc-800'}`}>
+              {draft.theme?.toUpperCase() || 'CLASSIC'} ({isLightMode ? 'LIGHT' : 'DARK'})
+            </Badge>
           </div>
-          <div className="rounded-lg overflow-hidden ring-1 ring-white/10">
+          <div className="rounded-lg overflow-hidden ring-1 ring-black/5 dark:ring-white/10">
             <SportsTicker
               matches={matches}
               announcements={announcements}
@@ -302,6 +333,7 @@ export default function AdminBroadcast({ matches = [], players = [], announcemen
               <SegmentBtn icon="📺" value="live" label="Live Only" current={draft.source} onChange={v => update('source', v)} />
               <SegmentBtn icon="🕒" value="live_recent" label="Recent" current={draft.source} onChange={v => update('source', v)} />
               <SegmentBtn icon="📅" value="live_today" label="Today" current={draft.source} onChange={v => update('source', v)} />
+              <SegmentBtn icon="🏆" value="running_season" label="Running Season" current={draft.source} onChange={v => update('source', v)} />
               <SegmentBtn icon="⚙️" value="custom" label="Custom" current={draft.source} onChange={v => update('source', v)} />
             </div>
           </div>
@@ -354,10 +386,49 @@ export default function AdminBroadcast({ matches = [], players = [], announcemen
         <Card className="p-4 sm:p-6">
           <SectionTitle icon={Eye}>Theme Gallery</SectionTitle>
           <p className="text-xs text-muted-foreground mt-1 mb-4">Choose a visual theme for your broadcast ticker. Each theme has unique badge animations.</p>
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
-            {THEMES.map(t => (
-              <ThemeCard key={t.id} theme={t} isSelected={draft.theme === t.id} onSelect={v => update('theme', v)} />
+          
+          <div className="flex flex-col sm:flex-row gap-3 mb-4">
+            <div className="relative flex-1">
+              <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-muted-foreground" />
+              <input
+                value={themeQuery}
+                onChange={(e) => setThemeQuery(e.target.value)}
+                placeholder="Search styles… e.g. glass, neon, retro"
+                className="w-full rounded-xl pl-10 pr-4 py-2.5 text-sm outline-none bg-secondary dark:bg-zinc-900 border border-border dark:border-zinc-800 text-foreground focus:border-amber-500/50"
+              />
+            </div>
+          </div>
+          
+          <div className="flex flex-wrap gap-2 mb-6">
+            <button
+              onClick={() => setActiveThemeTag(null)}
+              className={`rounded-full px-3 py-1.5 text-xs font-bold tracking-wide transition-colors ${activeThemeTag === null ? 'bg-amber-500 text-black' : 'bg-secondary dark:bg-zinc-900 text-muted-foreground hover:bg-white/10'}`}
+            >
+              All
+            </button>
+            {allTags.map((tag) => (
+              <button
+                key={tag}
+                onClick={() => setActiveThemeTag(activeThemeTag === tag ? null : tag)}
+                className={`rounded-full px-3 py-1.5 text-xs font-bold tracking-wide capitalize transition-colors ${activeThemeTag === tag ? 'bg-amber-500 text-black' : 'bg-secondary dark:bg-zinc-900 text-muted-foreground hover:bg-white/10'}`}
+              >
+                {tag}
+              </button>
             ))}
+          </div>
+
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
+            <AnimatePresence mode="popLayout">
+              {filteredThemes.length ? (
+                filteredThemes.map(t => (
+                  <ThemeCard key={t.id} theme={t} isSelected={draft.theme === t.id} onSelect={v => update('theme', v)} />
+                ))
+              ) : (
+                <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="col-span-full py-8 text-center text-muted-foreground text-sm">
+                  No themes match your search.
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
         </Card>
       </FadeIn>
@@ -432,32 +503,48 @@ export default function AdminBroadcast({ matches = [], players = [], announcemen
         </Card>
       </FadeIn>
 
-      {/* ── Highlight Reel & Broadcast Effects ──────────────────────────────── */}
+      {/* ── Player to Watch Spotlight ────────────────────────────────────────── */}
       <FadeIn delay={0.35}>
         <Card className="p-4 sm:p-6 border-amber-500/20 bg-gradient-to-br from-zinc-950 to-amber-950/10">
-          <SectionTitle icon={Flame} className="text-amber-500">Highlight Reel Controls</SectionTitle>
-          <p className="text-xs text-amber-500/70 mt-1 mb-4">eFootball style broadcast effects for maximum hype.</p>
+          <SectionTitle icon={Star} className="text-amber-500">Player to Watch Spotlight</SectionTitle>
+          <p className="text-xs text-amber-500/70 mt-1 mb-4">Temporarily pause the broadcast to feature a specific player.</p>
           
           <div className="flex flex-col gap-5">
-            {/* Showtime Goals */}
             <div className="p-4 rounded-xl bg-card/40 border border-amber-500/10 shadow-inner">
-              <Toggle
-                checked={draft.highlightReelGoals}
-                onChange={v => update('highlightReelGoals', v)}
-                label="🌟 Showtime Goals"
-                desc="Live matches will pulse with glowing borders and sweeping light animations."
-              />
-            </div>
-
-            {/* Momentum */}
-            <div className="p-4 rounded-xl bg-card/40 border border-amber-500/10 shadow-inner">
-              <Label className="mb-3 block text-muted-foreground">Match Momentum Glow</Label>
-              <div className="flex gap-2 p-1 bg-secondary dark:bg-zinc-900 rounded-lg w-fit border border-border/50 flex-wrap">
-                <SegmentBtn icon="⏸️" value="none" label="None" current={draft.momentumTeam} onChange={v => update('momentumTeam', v)} />
-                <SegmentBtn icon="🏠" value="home" label="Home Team" current={draft.momentumTeam} onChange={v => update('momentumTeam', v)} />
-                <SegmentBtn icon="✈️" value="away" label="Away Team" current={draft.momentumTeam} onChange={v => update('momentumTeam', v)} />
+              <Label className="mb-3 block text-muted-foreground">Select Player</Label>
+              <div className="flex flex-col sm:flex-row gap-3 mb-3">
+                <div className="relative flex-1">
+                  <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                  <select 
+                    className="w-full pl-9 pr-3 py-2 rounded-lg bg-secondary dark:bg-zinc-900 border border-border dark:border-zinc-700 text-sm text-foreground focus:outline-none focus:border-amber-500/50 appearance-none"
+                    value={draft.playerToWatch?.playerId || ''}
+                    onChange={e => update('playerToWatch', { ...draft.playerToWatch, playerId: e.target.value })}
+                  >
+                    <option value="">Select a player to highlight...</option>
+                    {players.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
+                  </select>
+                </div>
               </div>
-              <p className="text-[11px] text-muted-foreground mt-2">Applies a cosmic aurora background to the dominating team in live matches.</p>
+              
+              <div className="flex flex-wrap items-center justify-between border-t border-border dark:border-zinc-800/50 pt-4 mt-2 gap-4">
+                <div className="flex flex-col">
+                  <span className="text-[11px] font-semibold text-foreground">Activate Spotlight</span>
+                  <span className="text-[10px] text-muted-foreground">This interrupts the ticker to display a large player card.</span>
+                </div>
+                <button 
+                  onClick={() => update('playerToWatch', { ...draft.playerToWatch, active: !draft.playerToWatch?.active })}
+                  disabled={!draft.playerToWatch?.playerId}
+                  className={`px-4 py-2 rounded-full text-xs font-bold transition-all shadow-md flex items-center gap-2 ${
+                    !draft.playerToWatch?.playerId ? 'opacity-50 cursor-not-allowed bg-secondary text-muted-foreground' :
+                    draft.playerToWatch?.active ? 'bg-amber-500 text-black hover:bg-amber-400' : 'bg-secondary dark:bg-zinc-800 text-foreground hover:bg-zinc-700 border border-border dark:border-zinc-700'}`}
+                >
+                  {draft.playerToWatch?.active ? (
+                    <><Zap className="w-3.5 h-3.5" /> Stop Spotlight</>
+                  ) : (
+                    <><Star className="w-3.5 h-3.5" /> Start Spotlight</>
+                  )}
+                </button>
+              </div>
             </div>
 
             {/* Epic Moment */}

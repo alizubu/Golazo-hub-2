@@ -461,7 +461,7 @@ export function PlayerDashboard({ me, activeSeason, seasons = [], matches, playe
 
               // 2. Add any unique trophies awarded to ANY player (so users see what's out there)
               trophies.forEach(t => {
-                const key = t.templateId || t.title;
+                const key = t.templateId || t.title.toLowerCase().replace(/\s+/g, '-');
                 if (!templateMap.has(key)) {
                   templateMap.set(key, {
                     id: t.id, // Just use the instance ID as a key
@@ -478,7 +478,7 @@ export function PlayerDashboard({ me, activeSeason, seasons = [], matches, playe
               return (
                 <>
                   <div className="pb-3 pt-5 px-5 sm:px-6 flex flex-row items-center justify-between gap-4 relative border-b border-border/40 dark:border-white/[0.06]">
-                    <div className="text-xl sm:text-2xl font-bold font-heading flex items-center gap-2.5 text-foreground">
+                    <div className="text-xl sm:text-2xl font-bold flex items-center gap-2.5 text-foreground" style={{ fontFamily: "'Sora', sans-serif", fontWeight: 700 }}>
                       <Trophy className="text-amber-500 dark:text-amber-400" size={24}/> Trophy Cabinet
                     </div>
                     <div className="flex items-center gap-2">
@@ -998,7 +998,7 @@ function TrophyCard({ trophy, unlocked, count = 0, instances = [], requirement, 
       className={`relative flex flex-col justify-between items-center p-4 sm:p-5 border rounded-2xl text-center cursor-pointer transition-all group overflow-visible min-h-[220px] sm:min-h-[240px] w-full ${
         unlocked
           ? 'bg-gradient-to-b from-amber-500/15 via-background to-background border-amber-500/40 shadow-md hover:-translate-y-1.5 hover:border-amber-400/80 hover:shadow-amber-500/15'
-          : 'bg-slate-50/80 dark:bg-[#12151b] border-border/70 dark:border-white/[0.08] hover:border-border hover:-translate-y-0.5 shadow-sm'
+          : 'bg-white dark:bg-[#12151b] border-border/70 dark:border-white/[0.08] hover:border-border hover:-translate-y-0.5 shadow-sm'
       }`}
     >
       {unlocked && (
@@ -1045,7 +1045,7 @@ function TrophyCard({ trophy, unlocked, count = 0, instances = [], requirement, 
 
       {/* Middle: Trophy Name */}
       <div className="w-full my-2 flex flex-col items-center justify-center flex-1">
-        <h4 className="font-bold font-heading text-xs sm:text-sm leading-tight text-foreground line-clamp-2 px-1 relative z-10 group-hover:text-amber-500 dark:group-hover:text-amber-300 transition-colors" title={trophy.name}>
+        <h4 className="font-bold text-xs sm:text-sm leading-tight text-foreground line-clamp-2 px-1 relative z-10 transition-colors" style={{ fontFamily: "'Sora', sans-serif" }} title={trophy.name}>
           {trophy.name}
         </h4>
       </div>
