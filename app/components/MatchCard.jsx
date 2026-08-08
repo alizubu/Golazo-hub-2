@@ -37,23 +37,21 @@ function StatBar({ label, valueA, valueB, colorA, colorB, format = 'number', ind
       transition={{ delay: 0.1 + index * 0.03 }}
     >
       <div className="flex items-center justify-between mb-1.5">
-        <div className="w-10 text-left text-sm font-bold font-score" style={{ color: colorA }}>{displayA}</div>
-        <div className="text-center text-[10px] sm:text-[11px] tracking-[0.1em] text-muted-foreground uppercase font-bold px-2 truncate">
+        <div className="w-10 text-left text-sm font-bold font-score text-emerald-500 dark:text-[#29C179]">{displayA}</div>
+        <div className="text-center text-[10px] sm:text-[11px] tracking-[0.1em] text-slate-500 dark:text-muted-foreground uppercase font-bold px-2 truncate">
           {label}
         </div>
-        <div className="w-10 text-right text-sm font-bold font-score" style={{ color: colorB }}>{displayB}</div>
+        <div className="w-10 text-right text-sm font-bold font-score text-rose-500 dark:text-[#B23A48]">{displayB}</div>
       </div>
-      <div className="flex w-full h-2 bg-secondary dark:bg-zinc-900 rounded-full overflow-hidden shadow-inner ring-1 ring-border/50 dark:ring-white/5">
+      <div className="flex w-full h-2 bg-slate-200 dark:bg-zinc-900 rounded-full overflow-hidden shadow-inner ring-1 ring-slate-300 dark:ring-white/5">
         <motion.div 
-          className="h-full rounded-r-full shadow-[inset_0_1px_0_rgba(255,255,255,0.15)]" 
-          style={{ backgroundColor: colorA }}
+          className="h-full rounded-r-full shadow-[inset_0_1px_0_rgba(255,255,255,0.15)] bg-emerald-500 dark:bg-[#29C179]" 
           initial={{ width: '0%' }}
           animate={{ width: `${pctA}%` }}
           transition={{ duration: 1.2, type: 'spring', bounce: 0.2, delay: 0.2 + index * 0.03 }}
         />
         <motion.div 
-          className="h-full rounded-l-full shadow-[inset_0_1px_0_rgba(255,255,255,0.15)]" 
-          style={{ backgroundColor: colorB }}
+          className="h-full rounded-l-full shadow-[inset_0_1px_0_rgba(255,255,255,0.15)] bg-rose-500 dark:bg-[#B23A48]" 
           initial={{ width: '0%' }}
           animate={{ width: `${pctB}%` }}
           transition={{ duration: 1.2, type: 'spring', bounce: 0.2, delay: 0.2 + index * 0.03 }}
@@ -66,21 +64,21 @@ function StatBar({ label, valueA, valueB, colorA, colorB, format = 'number', ind
 function PlayerRow({ player, isWinner, isLoser, isTbd }) {
   return (
     <div className={`flex items-center gap-3 p-2 rounded-xl transition-colors
-      ${isWinner ? 'bg-green-500/10 border-l-4 border-green-500' : 'border-l-4 border-transparent'}
-      ${!isWinner && !isLoser && !isTbd ? 'bg-secondary/40' : ''}
-      ${isTbd ? 'bg-secondary/20 border-dashed border border-border/50' : ''}
+      ${isWinner ? 'bg-green-50 dark:bg-green-500/10 border-l-4 border-green-500' : 'border-l-4 border-transparent'}
+      ${!isWinner && !isLoser && !isTbd ? 'bg-slate-50 dark:bg-secondary/40' : ''}
+      ${isTbd ? 'bg-slate-50 dark:bg-secondary/20 border-dashed border border-slate-200 dark:border-border/50' : ''}
     `}>
       {isTbd ? (
-        <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-secondary/50 animate-pulse shrink-0" />
+        <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-slate-200 dark:bg-secondary/50 animate-pulse shrink-0" />
       ) : (
         <Avatar p={player} size={40} ring="#0f1117" className="w-8 h-8 sm:w-10 sm:h-10 shrink-0" />
       )}
       
       <div className="flex-1 min-w-0 flex items-center">
         {isTbd ? (
-          <span className="text-sm font-semibold text-muted-foreground/50 animate-pulse uppercase tracking-wider">TBD</span>
+          <span className="text-sm font-semibold text-slate-400 dark:text-muted-foreground/50 animate-pulse uppercase tracking-wider">TBD</span>
         ) : (
-          <span className={`font-bold font-heading text-sm sm:text-base break-words ${isWinner ? 'text-green-400' : isLoser ? 'text-muted-foreground' : 'text-foreground'}`}>
+          <span className={`font-bold font-heading text-sm sm:text-base break-words ${isWinner ? 'text-green-800 dark:text-green-400' : isLoser ? 'text-slate-400 dark:text-muted-foreground' : 'text-slate-900 dark:text-foreground'}`}>
             {toTitleCase(player?.name)}
           </span>
         )}
@@ -88,7 +86,7 @@ function PlayerRow({ player, isWinner, isLoser, isTbd }) {
 
       {isWinner && (
         <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} className="shrink-0 mr-1">
-          <Trophy className="text-green-500" size={16} />
+          <Trophy className="text-green-600 dark:text-green-500" size={16} />
         </motion.div>
       )}
     </div>
@@ -132,9 +130,9 @@ function MatchCard({ m, players, onClick }) {
       whileTap={isCompleted ? { scale: 0.99 } : {}}
       onClick={handleCardClick}
       className={`
-        relative w-full min-w-[14rem] sm:min-w-[16rem] rounded-2xl transition-all duration-300 overflow-hidden bg-secondary/80
-        ${isCompleted ? 'cursor-pointer hover:border-green-500/50 hover:bg-secondary border border-border/50 shadow-sm' : ''}
-        ${!isCompleted && !isLive ? 'border border-border/50' : ''}
+        relative w-full min-w-[14rem] sm:min-w-[16rem] rounded-2xl transition-all duration-300 overflow-hidden bg-white dark:bg-secondary/80
+        ${isCompleted ? 'cursor-pointer hover:border-green-500/50 hover:bg-slate-50 dark:hover:bg-secondary border border-slate-200 dark:border-border/50 shadow-sm' : ''}
+        ${!isCompleted && !isLive ? 'border border-slate-200 dark:border-border/50 shadow-sm' : ''}
         ${isLive ? 'shadow-[0_0_20px_rgba(220,38,38,0.3)]' : ''}
       `}
     >
@@ -144,13 +142,13 @@ function MatchCard({ m, players, onClick }) {
       )}
       
       {/* Inner Content Wrapper */}
-      <div className={`relative z-10 flex flex-col gap-2 p-3 sm:p-4 m-[1px] rounded-[15px] ${isLive ? 'bg-background/95 dark:bg-background dark:bg-[#0f1117]/95 backdrop-blur-sm' : 'bg-background/50'} ${isExpanded ? 'rounded-b-none border-b border-border/30' : ''}`}>
+      <div className={`relative z-10 flex flex-col gap-2 p-3 sm:p-4 m-[1px] rounded-[15px] ${isLive ? 'bg-white/95 dark:bg-[#0f1117]/95 backdrop-blur-sm' : 'bg-white dark:bg-background/50'} ${isExpanded ? 'rounded-b-none border-b border-slate-200 dark:border-border/30' : ''}`}>
         
         {/* Status Badge (Top Right) */}
         <div className="absolute top-3 right-3 flex items-center justify-end z-20 pointer-events-none">
-          {isCompleted && !hasStats && <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest bg-secondary/80 px-2 py-0.5 rounded-md">FT</span>}
+          {isCompleted && !hasStats && <span className="text-[10px] font-bold text-slate-500 dark:text-muted-foreground uppercase tracking-widest bg-slate-100 dark:bg-secondary/80 px-2 py-0.5 rounded-md">FT</span>}
           {isCompleted && hasStats && (
-            <motion.div animate={{ rotate: isExpanded ? 180 : 0 }} className="text-muted-foreground bg-secondary/80 rounded-md p-1">
+            <motion.div animate={{ rotate: isExpanded ? 180 : 0 }} className="text-slate-500 dark:text-muted-foreground bg-slate-100 dark:bg-secondary/80 rounded-md p-1">
               <ChevronDown size={14} />
             </motion.div>
           )}
@@ -165,7 +163,7 @@ function MatchCard({ m, players, onClick }) {
             </motion.div>
           )}
           {!isCompleted && !isLive && !isTbd && (
-            <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest bg-secondary/80 px-2 py-0.5 rounded-md">
+            <span className="text-[10px] font-bold text-slate-500 dark:text-muted-foreground uppercase tracking-widest bg-slate-100 dark:bg-secondary/80 px-2 py-0.5 rounded-md">
               {formatKickoff(m.scheduledAt)}
             </span>
           )}
@@ -178,16 +176,16 @@ function MatchCard({ m, players, onClick }) {
         <div className="flex items-center justify-center gap-6 py-1 relative">
           {isCompleted || isLive ? (
              <div className="flex items-center gap-4">
-               <motion.span key={`h-${m.homeScore}`} initial={{ scale: 1.2 }} animate={{ scale: 1 }} className={`text-2xl font-bold font-score ${homeWon ? 'text-green-400' : isLive ? 'text-foreground' : 'text-foreground/70'}`}>
+               <motion.span key={`h-${m.homeScore}`} initial={{ scale: 1.2 }} animate={{ scale: 1 }} className={`text-2xl font-bold font-score ${homeWon ? 'text-green-600 dark:text-green-400' : isLive ? 'text-slate-900 dark:text-foreground' : 'text-slate-900 dark:text-foreground/70'}`}>
                  {m.homeScore ?? 0}
                </motion.span>
-               <span className="text-muted-foreground/40 font-medium text-sm">—</span>
-               <motion.span key={`a-${m.awayScore}`} initial={{ scale: 1.2 }} animate={{ scale: 1 }} className={`text-2xl font-bold font-score ${awayWon ? 'text-green-400' : isLive ? 'text-foreground' : 'text-foreground/70'}`}>
+               <span className="text-slate-300 dark:text-muted-foreground/40 font-medium text-sm">—</span>
+               <motion.span key={`a-${m.awayScore}`} initial={{ scale: 1.2 }} animate={{ scale: 1 }} className={`text-2xl font-bold font-score ${awayWon ? 'text-green-600 dark:text-green-400' : isLive ? 'text-slate-900 dark:text-foreground' : 'text-slate-900 dark:text-foreground/70'}`}>
                  {m.awayScore ?? 0}
                </motion.span>
              </div>
           ) : (
-             <span className="text-sm font-bold text-muted-foreground/30 uppercase tracking-widest">VS</span>
+             <span className="text-sm font-bold text-slate-400 dark:text-muted-foreground/30 uppercase tracking-widest">VS</span>
           )}
         </div>
 
@@ -204,7 +202,7 @@ function MatchCard({ m, players, onClick }) {
             animate={{ height: "auto", opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
             transition={{ duration: 0.3, ease: "easeInOut" }}
-            className="overflow-hidden bg-card dark:bg-[#0a0c10] border-t border-border/30 shadow-[inset_0_5px_15px_rgba(0,0,0,0.4)]"
+            className="overflow-hidden bg-slate-50 dark:bg-[#0a0c10] border-t border-slate-200 dark:border-border/30 shadow-[inset_0_5px_15px_rgba(0,0,0,0.03)] dark:shadow-[inset_0_5px_15px_rgba(0,0,0,0.4)]"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="p-4 sm:p-5 flex flex-col">
@@ -241,14 +239,14 @@ function MatchCard({ m, players, onClick }) {
                   {statDefinitions.slice(0, 7).map((def, i) => {
                     const valA = m.stats[def.key]?.a ?? 0;
                     const valB = m.stats[def.key]?.b ?? 0;
-                    return <StatBar key={def.key} index={i} label={def.label} valueA={valA} valueB={valB} colorA="#29C179" colorB="#B23A48" format={def.format} />;
+                    return <StatBar key={def.key} index={i} label={def.label} valueA={valA} valueB={valB} format={def.format} />;
                   })}
                 </div>
                 <div className="flex flex-col">
                   {statDefinitions.slice(7).map((def, i) => {
                     const valA = m.stats[def.key]?.a ?? 0;
                     const valB = m.stats[def.key]?.b ?? 0;
-                    return <StatBar key={def.key} index={i + 7} label={def.label} valueA={valA} valueB={valB} colorA="#29C179" colorB="#B23A48" format={def.format} />;
+                    return <StatBar key={def.key} index={i + 7} label={def.label} valueA={valA} valueB={valB} format={def.format} />;
                   })}
                 </div>
               </div>
