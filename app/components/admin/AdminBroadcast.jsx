@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Activity, CheckCircle2, Megaphone, Radio, Zap, TrendingUp, Flame, Eye, Type, Minus, Maximize2, Minimize2, X, Plus, Search, Star, User } from 'lucide-react';
+import { Activity, CheckCircle2, Megaphone, Radio, Zap, TrendingUp, Flame, Eye, Type, Minus, Maximize2, Minimize2, X, Plus, Search, Star, User, Bold, Italic, CaseSensitive, Pipette, Palette, Edit3 } from 'lucide-react';
 import { Card, Label, SectionTitle, FadeIn, ShinyButton, Badge } from '@/app/components/shared/UI';
 import { AnimatePresence, motion } from 'framer-motion';
 import { saveTickerConfig } from '@/app/actions/admin';
@@ -9,6 +9,13 @@ import SportsTicker from '@/app/components/shared/SportsTicker';
 import { THEMES, SEPARATORS, CyberNeonBadge, GoldStandardBadge, FrostGlassBadge, HolographicBadge, MatrixGreenBadge, LavaFlowBadge, ElectricPurpleBadge, SunriseBurstBadge, LiquidChromeBadge, NeonPopBadge, InfernoBadge, AbsoluteZeroBadge, ToxicFormBadge, RoyalMomentumBadge, VelocityBadge } from '@/app/components/shared/SportsTickerBadges';
 import { Slider } from '@/app/components/ui/slider';
 import { Toggle as ShadcnToggle } from '@/app/components/ui/toggle';
+import { Popover, PopoverTrigger, PopoverContent } from '@/app/components/ui/popover';
+import { HexColorPicker } from 'react-colorful';
+
+const COLOR_SWATCHES = [
+  '#FFFFFF', '#FFD700', '#FF4444', '#00FF88',
+  '#00BFFF', '#FF6B35', '#A855F7', '#F43F5E'
+];
 
 const BADGE_MAP = {
   CyberNeon: CyberNeonBadge,
@@ -208,10 +215,13 @@ export default function AdminBroadcast({ matches = [], players = [], announcemen
   const [saving, setSaving] = useState(false);
   const [newCustomHighlight, setNewCustomHighlight] = useState('');
   const [newBadgeType, setNewBadgeType] = useState('LavaFlow');
+  const [newBadgeLabel, setNewBadgeLabel] = useState('');
   
   // Breaking News Style State
   const [newNewsColor, setNewNewsColor] = useState('#ffffff');
   const [newNewsBold, setNewNewsBold] = useState(true);
+  const [newNewsItalic, setNewNewsItalic] = useState(false);
+  const [newNewsUppercase, setNewNewsUppercase] = useState(true);
   const [newShadowX, setNewShadowX] = useState(0);
   const [newShadowY, setNewShadowY] = useState(0);
   const [newShadowBlur, setNewShadowBlur] = useState(10);
@@ -552,195 +562,320 @@ export default function AdminBroadcast({ matches = [], players = [], announcemen
 
       {/* ── Breaking News / Custom Marquee ────────────────────────────── */}
       <FadeIn delay={0.35}>
-        <Card className="p-4 sm:p-6 border-amber-500/20 dark:bg-gradient-to-br dark:from-zinc-950 dark:to-amber-950/10 bg-white dark:bg-transparent overflow-hidden relative">
-          {/* Subtle animated background glow */}
-          <div className="absolute top-0 right-0 w-64 h-64 bg-amber-500/5 rounded-full blur-3xl pointer-events-none mix-blend-screen" />
+        <Card className="p-5 sm:p-7 border-amber-500/20 dark:bg-gradient-to-br dark:from-zinc-950 dark:to-amber-950/10 bg-white dark:bg-transparent overflow-hidden relative">
+          {/* Decorative glow */}
+          <div className="absolute -top-20 -right-20 w-72 h-72 bg-amber-500/[0.04] rounded-full blur-3xl pointer-events-none" />
+          <div className="absolute -bottom-16 -left-16 w-52 h-52 bg-red-500/[0.03] rounded-full blur-3xl pointer-events-none" />
           
           <SectionTitle icon={Megaphone} className="text-amber-500">Breaking News Alerts</SectionTitle>
-          <p className="text-xs text-amber-600 dark:text-amber-500/70 mt-1 mb-6">Create fully customized marquee alerts with rich text styling.</p>
+          <p className="text-xs text-amber-600 dark:text-amber-500/70 mt-1 mb-8">Create fully customized marquee alerts with rich text styling and custom badge labels.</p>
           
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-            
-            {/* LEFT COLUMN: Badge Selector */}
-            <div className="lg:col-span-4 flex flex-col gap-3">
-              <Label className="text-muted-foreground text-xs font-bold uppercase tracking-wider">1. Select Badge</Label>
-              <div className="bg-secondary/30 dark:bg-card/40 border border-border/50 rounded-xl p-2 h-[350px] overflow-y-auto custom-scrollbar shadow-inner">
-                <div className="grid grid-cols-2 gap-2">
-                  {BADGE_OPTIONS.map(b => {
-                    const BadgeComp = BADGE_MAP[b.id];
-                    const isSelected = newBadgeType === b.id;
-                    return (
-                      <div
-                        key={b.id}
-                        onClick={() => setNewBadgeType(b.id)}
-                        className={`flex items-center justify-center p-3 rounded-lg border transition-all cursor-pointer ${
-                          isSelected ? 'bg-amber-500/10 border-amber-500 shadow-[0_0_15px_rgba(245,158,11,0.15)] scale-[1.02]' : 'bg-black/10 border-border/40 hover:bg-white/5 hover:border-border'
-                        }`}
-                      >
-                        {BadgeComp ? <BadgeComp label={b.name.toUpperCase()} /> : <span>{b.name}</span>}
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
+          {/* ─── SECTION 1: Badge Selection + Custom Label ─── */}
+          <div className="mb-8">
+            <Label className="text-muted-foreground text-[11px] font-bold uppercase tracking-widest mb-3 flex items-center gap-2 block">
+              <span className="flex items-center justify-center w-5 h-5 rounded-full bg-amber-500/20 text-amber-500 text-[10px] font-black">1</span>
+              Select Badge & Customize Label
+            </Label>
+            <div className="grid grid-cols-3 sm:grid-cols-5 lg:grid-cols-5 gap-2 mb-4">
+              {BADGE_OPTIONS.map(b => {
+                const BadgeComp = BADGE_MAP[b.id];
+                const isSelected = newBadgeType === b.id;
+                const displayLabel = isSelected && newBadgeLabel ? newBadgeLabel.toUpperCase() : b.name.toUpperCase();
+                return (
+                  <div
+                    key={b.id}
+                    onClick={() => {
+                      setNewBadgeType(b.id);
+                      if (!isSelected) setNewBadgeLabel('');
+                    }}
+                    className={`flex items-center justify-center p-2.5 rounded-xl border-2 transition-all cursor-pointer ${
+                      isSelected
+                        ? 'bg-amber-500/10 border-amber-500 shadow-[0_0_20px_rgba(245,158,11,0.15)] scale-[1.03]'
+                        : 'bg-secondary/30 dark:bg-black/20 border-transparent hover:bg-white/5 hover:border-border/60'
+                    }`}
+                  >
+                    {BadgeComp ? <BadgeComp label={displayLabel} /> : <span>{b.name}</span>}
+                  </div>
+                );
+              })}
             </div>
+            {/* Custom Badge Label Input */}
+            <div className="flex items-center gap-3 p-3 rounded-xl bg-secondary/40 dark:bg-zinc-900/50 border border-border/50">
+              <Edit3 size={14} className="text-amber-500 shrink-0" />
+              <input
+                type="text"
+                placeholder={`Badge label (default: ${BADGE_OPTIONS.find(b => b.id === newBadgeType)?.name.toUpperCase() || 'HIGHLIGHT'})`}
+                className="flex-1 bg-transparent border-none outline-none text-sm text-foreground placeholder:text-muted-foreground/50 font-medium"
+                value={newBadgeLabel}
+                onChange={e => setNewBadgeLabel(e.target.value)}
+              />
+              <span className="text-[10px] text-muted-foreground/60 shrink-0">Custom text on badge</span>
+            </div>
+          </div>
 
-            {/* MIDDLE COLUMN: Text & Style Editor */}
-            <div className="lg:col-span-8 flex flex-col gap-5">
+          {/* ─── SECTION 2: News Content ─── */}
+          <div className="mb-8">
+            <Label className="text-muted-foreground text-[11px] font-bold uppercase tracking-widest mb-3 flex items-center gap-2 block">
+              <span className="flex items-center justify-center w-5 h-5 rounded-full bg-amber-500/20 text-amber-500 text-[10px] font-black">2</span>
+              Breaking News Text
+            </Label>
+            <div className="relative">
+              <input
+                type="text"
+                placeholder="Enter your breaking news headline..."
+                className="w-full pl-12 pr-4 py-3.5 rounded-xl bg-secondary dark:bg-zinc-900/80 border border-border dark:border-zinc-700/80 text-foreground focus:outline-none focus:ring-2 focus:ring-amber-500/40 focus:border-transparent transition-all font-semibold text-base"
+                value={newCustomHighlight}
+                onChange={e => setNewCustomHighlight(e.target.value)}
+              />
+              <Type className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground/60" size={18} />
+            </div>
+          </div>
+
+          {/* ─── SECTION 3: Text Styling Studio ─── */}
+          <div className="mb-8">
+            <Label className="text-muted-foreground text-[11px] font-bold uppercase tracking-widest mb-4 flex items-center gap-2 block">
+              <span className="flex items-center justify-center w-5 h-5 rounded-full bg-amber-500/20 text-amber-500 text-[10px] font-black">3</span>
+              Text Styling
+            </Label>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
               
-              {/* Text Input */}
-              <div className="space-y-2">
-                <Label className="text-muted-foreground text-xs font-bold uppercase tracking-wider">2. Alert Content</Label>
-                <div className="relative">
-                  <input
-                    type="text"
-                    placeholder="Enter breaking news text..."
-                    className="w-full pl-11 pr-4 py-3 rounded-xl bg-secondary dark:bg-zinc-900/80 border border-border dark:border-zinc-700/80 text-foreground focus:outline-none focus:ring-2 focus:ring-amber-500/50 focus:border-transparent transition-all font-medium"
-                    value={newCustomHighlight}
-                    onChange={e => setNewCustomHighlight(e.target.value)}
-                  />
-                  <Type className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground" size={16} />
+              {/* --- LEFT: Text Color + Font Toggles --- */}
+              <div className="p-4 rounded-xl bg-secondary/30 dark:bg-card/30 border border-border/40 space-y-5">
+                <div className="flex items-center gap-2 mb-1">
+                  <Palette size={14} className="text-amber-500" />
+                  <span className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Text Color</span>
                 </div>
-              </div>
-
-              {/* Styling Controls Grid */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 p-4 rounded-xl bg-secondary/30 dark:bg-card/40 border border-border/50 shadow-inner">
                 
-                {/* Font Options */}
-                <div className="space-y-4">
-                  <Label className="text-xs text-muted-foreground flex items-center gap-2"><Zap size={12} className="text-amber-500" /> Font Style</Label>
-                  <div className="flex items-center gap-4">
-                    <div className="flex items-center gap-2">
+                {/* Color Picker in Popover */}
+                <div className="flex items-center gap-3">
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <button
+                        className="w-10 h-10 rounded-lg border-2 border-border/60 shadow-sm transition-all hover:scale-105 hover:shadow-md"
+                        style={{ backgroundColor: newNewsColor }}
+                        title="Pick text color"
+                      />
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-3" side="bottom" align="start">
+                      <HexColorPicker color={newNewsColor} onChange={setNewNewsColor} />
                       <input 
-                        type="color" 
+                        type="text" 
                         value={newNewsColor} 
                         onChange={e => setNewNewsColor(e.target.value)}
-                        className="w-8 h-8 rounded cursor-pointer bg-transparent border-0 p-0" 
-                        title="Text Color"
+                        className="w-full mt-2 px-2 py-1.5 rounded-md bg-secondary border border-border text-xs font-mono text-center text-foreground"
                       />
-                      <span className="text-[11px] text-muted-foreground">Color</span>
+                    </PopoverContent>
+                  </Popover>
+                  <div className="flex-1">
+                    <span className="text-xs font-mono text-muted-foreground block mb-1.5">{newNewsColor}</span>
+                    <div className="flex gap-1.5 flex-wrap">
+                      {COLOR_SWATCHES.map(c => (
+                        <button 
+                          key={c} 
+                          onClick={() => setNewNewsColor(c)}
+                          className={`w-6 h-6 rounded-md border-2 transition-all hover:scale-110 ${newNewsColor === c ? 'border-amber-500 shadow-[0_0_8px_rgba(245,158,11,0.3)]' : 'border-transparent hover:border-border'}`}
+                          style={{ backgroundColor: c }}
+                          title={c}
+                        />
+                      ))}
                     </div>
-                    <ShadcnToggle 
-                      pressed={newNewsBold} 
+                  </div>
+                </div>
+
+                {/* Font Style Toggles */}
+                <div className="pt-3 border-t border-border/40">
+                  <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider block mb-2">Font Style</span>
+                  <div className="flex gap-2">
+                    <ShadcnToggle
+                      pressed={newNewsBold}
                       onPressedChange={setNewNewsBold}
-                      className="data-[state=on]:bg-amber-500/20 data-[state=on]:text-amber-500 border border-border/50 text-xs font-bold"
+                      className="data-[state=on]:bg-amber-500/20 data-[state=on]:text-amber-500 border border-border/50 flex-1 gap-1.5"
                       size="sm"
                     >
-                      Bold
+                      <Bold size={14} /> Bold
+                    </ShadcnToggle>
+                    <ShadcnToggle
+                      pressed={newNewsItalic}
+                      onPressedChange={setNewNewsItalic}
+                      className="data-[state=on]:bg-amber-500/20 data-[state=on]:text-amber-500 border border-border/50 flex-1 gap-1.5"
+                      size="sm"
+                    >
+                      <Italic size={14} /> Italic
+                    </ShadcnToggle>
+                    <ShadcnToggle
+                      pressed={newNewsUppercase}
+                      onPressedChange={setNewNewsUppercase}
+                      className="data-[state=on]:bg-amber-500/20 data-[state=on]:text-amber-500 border border-border/50 flex-1 gap-1.5"
+                      size="sm"
+                    >
+                      <CaseSensitive size={14} /> AA
                     </ShadcnToggle>
                   </div>
                 </div>
+              </div>
 
-                {/* Shadow Color */}
-                <div className="space-y-4">
-                  <Label className="text-xs text-muted-foreground flex items-center gap-2"><Flame size={12} className="text-red-500" /> Glow / Shadow</Label>
-                  <div className="flex items-center gap-2">
-                    <input 
-                      type="color" 
-                      value={newShadowColor} 
-                      onChange={e => setNewShadowColor(e.target.value)}
-                      className="w-8 h-8 rounded cursor-pointer bg-transparent border-0 p-0" 
-                      title="Shadow Color"
-                    />
-                    <span className="text-[11px] text-muted-foreground font-mono">{newShadowColor}</span>
+              {/* --- RIGHT: Shadow / Glow Controls --- */}
+              <div className="p-4 rounded-xl bg-secondary/30 dark:bg-card/30 border border-border/40 space-y-5">
+                <div className="flex items-center gap-2 mb-1">
+                  <Flame size={14} className="text-red-500" />
+                  <span className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Glow / Shadow</span>
+                </div>
+
+                {/* Shadow Color Picker in Popover */}
+                <div className="flex items-center gap-3">
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <button
+                        className="w-10 h-10 rounded-lg border-2 border-border/60 shadow-sm transition-all hover:scale-105 hover:shadow-md"
+                        style={{ backgroundColor: newShadowColor }}
+                        title="Pick shadow/glow color"
+                      />
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-3" side="bottom" align="start">
+                      <HexColorPicker color={newShadowColor} onChange={setNewShadowColor} />
+                      <input 
+                        type="text" 
+                        value={newShadowColor} 
+                        onChange={e => setNewShadowColor(e.target.value)}
+                        className="w-full mt-2 px-2 py-1.5 rounded-md bg-secondary border border-border text-xs font-mono text-center text-foreground"
+                      />
+                    </PopoverContent>
+                  </Popover>
+                  <div className="flex-1">
+                    <span className="text-xs font-mono text-muted-foreground block mb-1.5">{newShadowColor}</span>
+                    <div className="flex gap-1.5 flex-wrap">
+                      {COLOR_SWATCHES.map(c => (
+                        <button 
+                          key={c} 
+                          onClick={() => setNewShadowColor(c)}
+                          className={`w-6 h-6 rounded-md border-2 transition-all hover:scale-110 ${newShadowColor === c ? 'border-red-500 shadow-[0_0_8px_rgba(239,68,68,0.3)]' : 'border-transparent hover:border-border'}`}
+                          style={{ backgroundColor: c }}
+                          title={c}
+                        />
+                      ))}
+                    </div>
                   </div>
                 </div>
 
-                {/* Shadow Sliders */}
-                <div className="sm:col-span-2 space-y-5 pt-2 border-t border-border/50">
-                  <div className="space-y-2">
-                    <div className="flex justify-between">
-                      <Label className="text-[10px] text-muted-foreground uppercase">X Offset: {newShadowX}px</Label>
-                    </div>
-                    <Slider value={[newShadowX]} onValueChange={v => setNewShadowX(v[0])} min={-20} max={20} step={1} className="py-1" />
+                {/* X / Y / Blur Sliders */}
+                <div className="space-y-4 pt-3 border-t border-border/40">
+                  <div className="space-y-1.5">
+                    <Label className="text-[10px] text-muted-foreground uppercase font-bold">X Offset: <span className="text-amber-500">{newShadowX}px</span></Label>
+                    <Slider value={[newShadowX]} onValueChange={v => setNewShadowX(v[0])} min={-20} max={20} step={1} />
                   </div>
-                  <div className="space-y-2">
-                    <div className="flex justify-between">
-                      <Label className="text-[10px] text-muted-foreground uppercase">Y Offset: {newShadowY}px</Label>
-                    </div>
-                    <Slider value={[newShadowY]} onValueChange={v => setNewShadowY(v[0])} min={-20} max={20} step={1} className="py-1" />
+                  <div className="space-y-1.5">
+                    <Label className="text-[10px] text-muted-foreground uppercase font-bold">Y Offset: <span className="text-amber-500">{newShadowY}px</span></Label>
+                    <Slider value={[newShadowY]} onValueChange={v => setNewShadowY(v[0])} min={-20} max={20} step={1} />
                   </div>
-                  <div className="space-y-2">
-                    <div className="flex justify-between">
-                      <Label className="text-[10px] text-muted-foreground uppercase">Blur Radius: {newShadowBlur}px</Label>
-                    </div>
-                    <Slider value={[newShadowBlur]} onValueChange={v => setNewShadowBlur(v[0])} min={0} max={30} step={1} className="py-1" />
+                  <div className="space-y-1.5">
+                    <Label className="text-[10px] text-muted-foreground uppercase font-bold">Blur: <span className="text-amber-500">{newShadowBlur}px</span></Label>
+                    <Slider value={[newShadowBlur]} onValueChange={v => setNewShadowBlur(v[0])} min={0} max={30} step={1} />
                   </div>
                 </div>
               </div>
-              
-              {/* Preview & Action */}
-              <div className="mt-2 space-y-3">
-                <Label className="text-muted-foreground text-xs font-bold uppercase tracking-wider">3. Live Preview</Label>
-                <div className="p-4 rounded-xl bg-zinc-950 border border-zinc-800 shadow-2xl overflow-hidden relative min-h-[60px] flex items-center">
-                  <div className="absolute inset-0 opacity-20 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] mix-blend-overlay"></div>
-                  
-                  {/* The Preview Itself */}
-                  <div className="relative z-10 flex items-center gap-3 w-full whitespace-nowrap overflow-x-auto custom-scrollbar pb-1">
-                    {BADGE_MAP[newBadgeType] && React.createElement(BADGE_MAP[newBadgeType], { label: BADGE_OPTIONS.find(b => b.id === newBadgeType)?.name.toUpperCase() })}
-                    <span 
-                      className="tracking-wide"
-                      style={{
-                        color: newNewsColor,
-                        fontWeight: newNewsBold ? '900' : 'bold',
-                        textShadow: `${newShadowX}px ${newShadowY}px ${newShadowBlur}px ${newShadowColor}`
-                      }}
-                    >
-                      {newCustomHighlight || "YOUR CUSTOM BREAKING NEWS HERE..."}
-                    </span>
-                  </div>
-                </div>
-
-                <div className="flex justify-end pt-2">
-                  <ShinyButton 
-                    className="shadow-lg shadow-amber-500/20"
-                    onClick={() => {
-                      if (newCustomHighlight.trim()) {
-                        const style = {
-                          color: newNewsColor,
-                          bold: newNewsBold,
-                          shadowX: newShadowX,
-                          shadowY: newShadowY,
-                          shadowBlur: newShadowBlur,
-                          shadowColor: newShadowColor
-                        };
-                        const item = { id: Date.now().toString(), text: newCustomHighlight.trim(), badge: newBadgeType, style };
-                        update('customHighlights', [...(draft.customHighlights || []), item]);
-                        setNewCustomHighlight('');
-                      }
-                    }}
-                  >
-                    <Plus size={16} className="mr-2" /> Add to Marquee
-                  </ShinyButton>
-                </div>
-              </div>
-
             </div>
           </div>
-          
-          {/* List of Added Alerts */}
-          <div className="mt-8 pt-6 border-t border-border/50">
-            <Label className="text-muted-foreground text-xs font-bold uppercase tracking-wider mb-3 block">Active Alerts</Label>
-            <div className="space-y-2 max-h-[250px] overflow-y-auto custom-scrollbar pr-2">
-                {(draft.customHighlights || []).map((item, idx) => (
-                  <div key={item.id || idx} className="flex items-center justify-between p-2 rounded-md bg-white/5 border border-white/10">
-                    <div className="flex items-center gap-2 truncate">
-                      <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-zinc-800 text-amber-400 border border-zinc-700">{item.badge || 'Highlight'}</span>
-                      <span className="text-sm font-semibold truncate text-foreground">{item.text || item}</span>
+
+          {/* ─── SECTION 4: Live Preview + Add ─── */}
+          <div className="mb-8">
+            <Label className="text-muted-foreground text-[11px] font-bold uppercase tracking-widest mb-3 flex items-center gap-2 block">
+              <span className="flex items-center justify-center w-5 h-5 rounded-full bg-amber-500/20 text-amber-500 text-[10px] font-black">4</span>
+              Live Preview
+            </Label>
+            <div className="p-5 rounded-2xl bg-zinc-950 border border-zinc-800/80 shadow-2xl overflow-hidden relative min-h-[70px] flex items-center">
+              <div className="absolute inset-0 opacity-[0.08] bg-[repeating-linear-gradient(45deg,transparent,transparent_10px,rgba(255,255,255,0.03)_10px,rgba(255,255,255,0.03)_20px)]" />
+              
+              <div className="relative z-10 flex items-center gap-4 w-full">
+                {(() => {
+                  const BadgeComp = BADGE_MAP[newBadgeType];
+                  const label = newBadgeLabel || BADGE_OPTIONS.find(b => b.id === newBadgeType)?.name.toUpperCase() || 'BADGE';
+                  return BadgeComp ? <BadgeComp label={label.toUpperCase()} /> : null;
+                })()}
+                <span 
+                  className="tracking-wide text-base"
+                  style={{
+                    color: newNewsColor,
+                    fontWeight: newNewsBold ? '900' : 'normal',
+                    fontStyle: newNewsItalic ? 'italic' : 'normal',
+                    textTransform: newNewsUppercase ? 'uppercase' : 'none',
+                    textShadow: `${newShadowX}px ${newShadowY}px ${newShadowBlur}px ${newShadowColor}`
+                  }}
+                >
+                  {newCustomHighlight || "Your breaking news preview..."}
+                </span>
+              </div>
+            </div>
+            
+            <div className="flex justify-end pt-4">
+              <ShinyButton
+                className="shadow-lg shadow-amber-500/20 px-8"
+                onClick={() => {
+                  if (newCustomHighlight.trim()) {
+                    const style = {
+                      color: newNewsColor,
+                      bold: newNewsBold,
+                      italic: newNewsItalic,
+                      uppercase: newNewsUppercase,
+                      shadowX: newShadowX,
+                      shadowY: newShadowY,
+                      shadowBlur: newShadowBlur,
+                      shadowColor: newShadowColor
+                    };
+                    const badgeLabelFinal = newBadgeLabel || BADGE_OPTIONS.find(b => b.id === newBadgeType)?.name.toUpperCase() || 'HIGHLIGHT';
+                    const item = { id: Date.now().toString(), text: newCustomHighlight.trim(), badge: newBadgeType, badgeLabel: badgeLabelFinal.toUpperCase(), style };
+                    update('customHighlights', [...(draft.customHighlights || []), item]);
+                    setNewCustomHighlight('');
+                    setNewBadgeLabel('');
+                  }
+                }}
+              >
+                <Plus size={16} className="mr-2" /> Add to Marquee
+              </ShinyButton>
+            </div>
+          </div>
+
+          {/* ─── Active Alerts List ─── */}
+          <div className="pt-6 border-t border-border/30">
+            <Label className="text-muted-foreground text-[11px] font-bold uppercase tracking-widest mb-3 block">Active Alerts ({(draft.customHighlights || []).length})</Label>
+            <div className="space-y-2 max-h-[280px] overflow-y-auto custom-scrollbar pr-1">
+              {(draft.customHighlights || []).map((item, idx) => {
+                const AlertBadge = BADGE_MAP[item.badge];
+                return (
+                  <div key={item.id || idx} className="flex items-center justify-between p-3 rounded-xl bg-secondary/30 dark:bg-white/[0.03] border border-border/40 hover:border-border/70 transition-colors group">
+                    <div className="flex items-center gap-3 truncate min-w-0">
+                      {AlertBadge ? <AlertBadge label={item.badgeLabel || item.badge || 'ALERT'} /> : (
+                        <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-zinc-800 text-amber-400 border border-zinc-700">{item.badge || 'Highlight'}</span>
+                      )}
+                      <span 
+                        className="text-sm truncate"
+                        style={{
+                          color: item.style?.color || undefined,
+                          fontWeight: item.style?.bold ? '900' : 'normal',
+                          fontStyle: item.style?.italic ? 'italic' : 'normal',
+                          textTransform: item.style?.uppercase ? 'uppercase' : 'none'
+                        }}
+                      >
+                        {item.text || item}
+                      </span>
                     </div>
                     <button 
                       onClick={() => update('customHighlights', draft.customHighlights.filter((_, i) => i !== idx))}
-                      className="text-muted-foreground hover:text-red-400 p-1 shrink-0 ml-2"
+                      className="text-muted-foreground/50 hover:text-red-400 p-1.5 shrink-0 ml-2 opacity-0 group-hover:opacity-100 transition-opacity"
                     >
                       <X size={14} />
                     </button>
                   </div>
-                ))}
-                {(!draft.customHighlights || draft.customHighlights.length === 0) && (
-                  <p className="text-[11px] text-muted-foreground text-center py-2">No custom badges added.</p>
-                )}
-              </div>
+                );
+              })}
+              {(!draft.customHighlights || draft.customHighlights.length === 0) && (
+                <div className="text-center py-8">
+                  <Megaphone size={24} className="text-muted-foreground/30 mx-auto mb-2" />
+                  <p className="text-[12px] text-muted-foreground/50">No alerts yet. Create your first breaking news alert above.</p>
+                </div>
+              )}
             </div>
+          </div>
         </Card>
       </FadeIn>
 
