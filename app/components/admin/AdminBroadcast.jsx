@@ -276,6 +276,90 @@ export default function AdminBroadcast({ matches = [], players = [], announcemen
 
   const update = (key, val) => setDraft(d => ({ ...d, [key]: val }));
 
+  const applyPreset = (preset) => {
+    setNewNewsColor(preset.color);
+    setNewNewsBold(preset.bold);
+    setNewNewsUppercase(preset.uppercase);
+    setNewShadowX(preset.shadowX);
+    setNewShadowY(preset.shadowY);
+    setNewShadowBlur(preset.shadowBlur);
+    setNewShadowColor(preset.shadowColor);
+    setNewNewsFontSize(preset.fontSize || 16);
+    setNewNewsLetterSpacing(preset.letterSpacing || 0);
+  };
+
+  const handleEditAlert = (item) => {
+    setEditingAlertId(item.id);
+    setNewCustomHighlight(item.text);
+    setNewBadgeType(item.badge);
+    setNewBadgeLabel(item.badgeLabel === item.badge.toUpperCase() ? '' : item.badgeLabel);
+    setNewPriority(item.priority || 'NORMAL');
+    if (item.style) {
+      setNewNewsColor(item.style.color || '#ffffff');
+      setNewNewsBold(item.style.bold !== false);
+      setNewNewsItalic(item.style.italic || false);
+      setNewNewsUppercase(item.style.uppercase !== false);
+      setNewShadowX(item.style.shadowX || 0);
+      setNewShadowY(item.style.shadowY || 0);
+      setNewShadowBlur(item.style.shadowBlur || 0);
+      setNewShadowColor(item.style.shadowColor || '#ff0000');
+      setNewNewsFontSize(item.style.fontSize || 16);
+      setNewNewsLetterSpacing(item.style.letterSpacing || 0);
+    }
+  };
+
+  const handleSaveAlert = () => {
+    if (!newCustomHighlight.trim()) return;
+    
+    const style = {
+      color: newNewsColor,
+      bold: newNewsBold,
+      italic: newNewsItalic,
+      uppercase: newNewsUppercase,
+      shadowX: newShadowX,
+      shadowY: newShadowY,
+      shadowBlur: newShadowBlur,
+      shadowColor: newShadowColor,
+      fontSize: newNewsFontSize,
+      letterSpacing: newNewsLetterSpacing
+    };
+    const badgeLabelFinal = newBadgeLabel || BADGE_OPTIONS.find(b => b.id === newBadgeType)?.name.toUpperCase() || 'HIGHLIGHT';
+    
+    if (editingAlertId) {
+      // Update existing
+      update('customHighlights', (draft.customHighlights || []).map(item => 
+        item.id === editingAlertId 
+          ? { ...item, text: newCustomHighlight.trim(), badge: newBadgeType, badgeLabel: badgeLabelFinal.toUpperCase(), style, priority: newPriority }
+          : item
+      ));
+      setEditingAlertId(null);
+    } else {
+      // Add new
+      const item = { 
+        id: Date.now().toString(), 
+        text: newCustomHighlight.trim(), 
+        badge: newBadgeType, 
+        badgeLabel: badgeLabelFinal.toUpperCase(), 
+        style,
+        priority: newPriority,
+        visible: true 
+      };
+      update('customHighlights', [...(draft.customHighlights || []), item]);
+    }
+    
+    setNewCustomHighlight('');
+    setNewBadgeLabel('');
+    setNewPriority('NORMAL');
+  };
+
+  const cancelEdit = () => {
+    setEditingAlertId(null);
+    setNewCustomHighlight('');
+    setNewBadgeLabel('');
+    setNewPriority('NORMAL');
+  };
+
+
   if (loading) {
     return (
       <div className="flex items-center gap-3 text-muted-foreground text-sm py-16 justify-center">
