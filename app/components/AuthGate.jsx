@@ -9,6 +9,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { BorderBeam } from './magicui/BorderBeam';
 import { AnimatedGradientText } from './magicui/AnimatedGradientText';
 import { ShimmerButton } from './magicui/ShimmerButton';
+import ThemeToggle from './ThemeToggle';
 
 // ══════════════════════════════════════════════════════════════
 // PITCH SVG — top-down animated football pitch
