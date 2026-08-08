@@ -6,7 +6,26 @@ import { Card, Label, SectionTitle, FadeIn, ShinyButton, Badge } from '@/app/com
 import { AnimatePresence, motion } from 'framer-motion';
 import { saveTickerConfig } from '@/app/actions/admin';
 import SportsTicker from '@/app/components/shared/SportsTicker';
-import { THEMES, SEPARATORS } from '@/app/components/shared/SportsTickerBadges';
+import { THEMES, SEPARATORS, CyberNeonBadge, GoldStandardBadge, FrostGlassBadge, HolographicBadge, MatrixGreenBadge, LavaFlowBadge, ElectricPurpleBadge, SunriseBurstBadge, LiquidChromeBadge, NeonPopBadge, InfernoBadge, AbsoluteZeroBadge, ToxicFormBadge, RoyalMomentumBadge, VelocityBadge } from '@/app/components/shared/SportsTickerBadges';
+
+
+const BADGE_MAP = {
+  CyberNeon: CyberNeonBadge,
+  GoldStandard: GoldStandardBadge,
+  FrostGlass: FrostGlassBadge,
+  Holographic: HolographicBadge,
+  MatrixGreen: MatrixGreenBadge,
+  LavaFlow: LavaFlowBadge,
+  ElectricPurple: ElectricPurpleBadge,
+  SunriseBurst: SunriseBurstBadge,
+  LiquidChrome: LiquidChromeBadge,
+  NeonPop: NeonPopBadge,
+  Inferno: InfernoBadge,
+  AbsoluteZero: AbsoluteZeroBadge,
+  ToxicForm: ToxicFormBadge,
+  RoyalMomentum: RoyalMomentumBadge,
+  Velocity: VelocityBadge
+};
 
 const BADGE_OPTIONS = [
   { id: 'CyberNeon', name: 'Cyber Neon', type: 'STATS' },
@@ -576,20 +595,31 @@ export default function AdminBroadcast({ matches = [], players = [], announcemen
             {/* Custom Highlights */}
             <div className="p-4 rounded-xl bg-card/40 border border-amber-500/10 shadow-inner">
               <Label className="mb-3 block text-muted-foreground">Custom Marquee Badges</Label>
+              <div className="mb-4">
+                <p className="text-[11px] text-muted-foreground mb-2">Select a badge style:</p>
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 max-h-[200px] overflow-y-auto custom-scrollbar p-1">
+                  {BADGE_OPTIONS.map(b => {
+                    const BadgeComp = BADGE_MAP[b.id];
+                    const isSelected = newBadgeType === b.id;
+                    return (
+                      <button
+                        key={b.id}
+                        onClick={() => setNewBadgeType(b.id)}
+                        className={`flex items-center justify-center p-2 rounded-lg border transition-all ${
+                          isSelected ? 'bg-amber-500/20 border-amber-500 shadow-[0_0_10px_rgba(245,158,11,0.2)]' : 'bg-black/20 border-border hover:bg-white/5'
+                        }`}
+                      >
+                        {BadgeComp ? <BadgeComp label={b.name.toUpperCase()} /> : <span>{b.name}</span>}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
               <div className="flex flex-col sm:flex-row gap-2 mb-3">
-                <select 
-                  className="px-3 py-2 rounded-lg bg-secondary border border-border text-sm text-foreground focus:outline-none focus:border-amber-500/50"
-                  value={newBadgeType}
-                  onChange={e => setNewBadgeType(e.target.value)}
-                >
-                  {BADGE_OPTIONS.map(b => (
-                    <option key={b.id} value={b.id}>{b.name} ({b.type})</option>
-                  ))}
-                </select>
                 <input 
                   type="text" 
-                  placeholder="e.g. RECORD BROKEN" 
-                  className="flex-1 px-3 py-2 rounded-lg bg-secondary dark:bg-zinc-900 border border-border dark:border-zinc-700 text-sm text-foreground focus:outline-none focus:border-amber-500/50"
+                  placeholder="Type your custom text here... e.g. MESSI SCORES!" 
+                  className="flex-1 px-4 py-2.5 rounded-xl bg-secondary dark:bg-zinc-900 border border-border dark:border-zinc-700 text-sm text-foreground focus:outline-none focus:border-amber-500/50"
                   value={newCustomHighlight}
                   onChange={e => setNewCustomHighlight(e.target.value)}
                   onKeyDown={e => {
@@ -608,9 +638,9 @@ export default function AdminBroadcast({ matches = [], players = [], announcemen
                       setNewCustomHighlight('');
                     }
                   }}
-                  className="px-3 py-2 rounded-lg bg-secondary dark:bg-zinc-800 text-foreground hover:bg-zinc-700 border border-border dark:border-zinc-700 transition-colors"
+                  className="px-6 py-2.5 rounded-xl bg-amber-500 text-black font-bold hover:bg-amber-400 transition-colors shadow-lg"
                 >
-                  <Plus size={16} />
+                  Add
                 </button>
               </div>
               <div className="space-y-2 max-h-[200px] overflow-y-auto custom-scrollbar">
