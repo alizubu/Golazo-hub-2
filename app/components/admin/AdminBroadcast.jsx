@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Activity, CheckCircle2, Megaphone, Radio, Zap, TrendingUp, Flame, Eye, Type, Minus, Maximize2, Minimize2, X, Plus, Search, Star, User, Bold, Italic, CaseSensitive, Pipette, Palette, Edit3 } from 'lucide-react';
+import { Activity, CheckCircle2, Megaphone, Radio, Zap, TrendingUp, Flame, Eye, EyeOff, Type, Minus, Maximize2, Minimize2, X, Plus, Search, Star, User, Bold, Italic, CaseSensitive, Pipette, Palette, Edit3, Save, GripVertical } from 'lucide-react';
 import { Card, Label, SectionTitle, FadeIn, ShinyButton, Badge } from '@/app/components/shared/UI';
 import { AnimatePresence, motion } from 'framer-motion';
 import { saveTickerConfig } from '@/app/actions/admin';
@@ -15,6 +15,14 @@ import { HexColorPicker } from 'react-colorful';
 const COLOR_SWATCHES = [
   '#FFFFFF', '#FFD700', '#FF4444', '#00FF88',
   '#00BFFF', '#FF6B35', '#A855F7', '#F43F5E'
+];
+
+const STYLE_PRESETS = [
+  { id: 'espn', name: 'ESPN Breaking', color: '#FFFFFF', bold: true, uppercase: true, shadowX: 2, shadowY: 2, shadowBlur: 10, shadowColor: '#FF0000', fontSize: 16, letterSpacing: 0 },
+  { id: 'neon', name: 'Neon Glow', color: '#FFFFFF', bold: true, uppercase: false, shadowX: 0, shadowY: 0, shadowBlur: 15, shadowColor: '#00FF88', fontSize: 16, letterSpacing: 1 },
+  { id: 'gold', name: 'Gold Rush', color: '#FFD700', bold: true, uppercase: true, shadowX: 0, shadowY: 2, shadowBlur: 8, shadowColor: '#B8860B', fontSize: 18, letterSpacing: 1 },
+  { id: 'ice', name: 'Ice Cold', color: '#E0FFFF', bold: true, uppercase: true, shadowX: 0, shadowY: 0, shadowBlur: 12, shadowColor: '#00BFFF', fontSize: 16, letterSpacing: 2 },
+  { id: 'dark', name: 'Dark Mode', color: '#333333', bold: true, uppercase: true, shadowX: 1, shadowY: 1, shadowBlur: 3, shadowColor: '#000000', fontSize: 16, letterSpacing: 0 },
 ];
 
 const BADGE_MAP = {
@@ -226,6 +234,10 @@ export default function AdminBroadcast({ matches = [], players = [], announcemen
   const [newShadowY, setNewShadowY] = useState(0);
   const [newShadowBlur, setNewShadowBlur] = useState(10);
   const [newShadowColor, setNewShadowColor] = useState('#ff0000');
+  const [newNewsFontSize, setNewNewsFontSize] = useState(16);
+  const [newNewsLetterSpacing, setNewNewsLetterSpacing] = useState(0);
+  const [newPriority, setNewPriority] = useState('NORMAL');
+  const [editingAlertId, setEditingAlertId] = useState(null);
 
   // Theme Gallery state
   const [themeQuery, setThemeQuery] = useState('');
@@ -560,21 +572,30 @@ export default function AdminBroadcast({ matches = [], players = [], announcemen
         </Card>
       </FadeIn>
 
+      
       {/* ── Breaking News / Custom Marquee ────────────────────────────── */}
       <FadeIn delay={0.35}>
         <Card className="p-5 sm:p-7 border-amber-500/20 dark:bg-gradient-to-br dark:from-zinc-950 dark:to-amber-950/10 bg-white dark:bg-transparent overflow-hidden relative">
-          {/* Decorative glow */}
           <div className="absolute -top-20 -right-20 w-72 h-72 bg-amber-500/[0.04] rounded-full blur-3xl pointer-events-none" />
           <div className="absolute -bottom-16 -left-16 w-52 h-52 bg-red-500/[0.03] rounded-full blur-3xl pointer-events-none" />
           
-          <SectionTitle icon={Megaphone} className="text-amber-500">Breaking News Alerts</SectionTitle>
-          <p className="text-xs text-amber-600 dark:text-amber-500/70 mt-1 mb-8">Create fully customized marquee alerts with rich text styling and custom badge labels.</p>
+          <div className="flex items-center justify-between mb-8">
+            <div>
+              <SectionTitle icon={Megaphone} className="text-amber-500 mb-0">Breaking News Alerts</SectionTitle>
+              <p className="text-xs text-amber-600 dark:text-amber-500/70 mt-1">Create fully customized marquee alerts with rich text styling and custom badge labels.</p>
+            </div>
+            {editingAlertId && (
+              <Badge className="bg-amber-500/20 text-amber-500 border border-amber-500/30 animate-pulse">
+                EDIT MODE
+              </Badge>
+            )}
+          </div>
           
-          {/* ─── SECTION 1: Badge Selection + Custom Label ─── */}
+          {/* ─── SECTION 1: Badge Selection + Custom Label + Priority ─── */}
           <div className="mb-8">
             <Label className="text-muted-foreground text-[11px] font-bold uppercase tracking-widest mb-3 flex items-center gap-2 block">
               <span className="flex items-center justify-center w-5 h-5 rounded-full bg-amber-500/20 text-amber-500 text-[10px] font-black">1</span>
-              Select Badge & Customize Label
+              Select Badge & Priority
             </Label>
             <div className="grid grid-cols-3 sm:grid-cols-5 lg:grid-cols-5 gap-2 mb-4">
               {BADGE_OPTIONS.map(b => {
@@ -599,17 +620,37 @@ export default function AdminBroadcast({ matches = [], players = [], announcemen
                 );
               })}
             </div>
-            {/* Custom Badge Label Input */}
-            <div className="flex items-center gap-3 p-3 rounded-xl bg-secondary/40 dark:bg-zinc-900/50 border border-border/50">
-              <Edit3 size={14} className="text-amber-500 shrink-0" />
-              <input
-                type="text"
-                placeholder={`Badge label (default: ${BADGE_OPTIONS.find(b => b.id === newBadgeType)?.name.toUpperCase() || 'HIGHLIGHT'})`}
-                className="flex-1 bg-transparent border-none outline-none text-sm text-foreground placeholder:text-muted-foreground/50 font-medium"
-                value={newBadgeLabel}
-                onChange={e => setNewBadgeLabel(e.target.value)}
-              />
-              <span className="text-[10px] text-muted-foreground/60 shrink-0">Custom text on badge</span>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {/* Custom Badge Label Input */}
+              <div className="flex items-center gap-3 p-3 rounded-xl bg-secondary/40 dark:bg-zinc-900/50 border border-border/50">
+                <Edit3 size={14} className="text-amber-500 shrink-0" />
+                <input
+                  type="text"
+                  placeholder={`Badge label (default: ${BADGE_OPTIONS.find(b => b.id === newBadgeType)?.name.toUpperCase() || 'HIGHLIGHT'})`}
+                  className="flex-1 bg-transparent border-none outline-none text-sm text-foreground placeholder:text-muted-foreground/50 font-medium"
+                  value={newBadgeLabel}
+                  onChange={e => setNewBadgeLabel(e.target.value)}
+                />
+                <span className="text-[10px] text-muted-foreground/60 shrink-0">Custom text</span>
+              </div>
+              
+              {/* Priority Selector */}
+              <div className="flex items-center gap-2 p-1.5 rounded-xl bg-secondary/40 dark:bg-zinc-900/50 border border-border/50">
+                {['NORMAL', 'IMPORTANT', 'URGENT'].map(p => (
+                  <button
+                    key={p}
+                    onClick={() => setNewPriority(p)}
+                    className={`flex-1 py-1.5 text-xs font-bold rounded-lg transition-all ${
+                      newPriority === p 
+                        ? (p === 'URGENT' ? 'bg-red-500/20 text-red-500' : p === 'IMPORTANT' ? 'bg-amber-500/20 text-amber-500' : 'bg-zinc-500/20 text-zinc-300')
+                        : 'text-muted-foreground hover:bg-white/5'
+                    }`}
+                  >
+                    {p}
+                  </button>
+                ))}
+              </div>
             </div>
           </div>
 
@@ -635,16 +676,35 @@ export default function AdminBroadcast({ matches = [], players = [], announcemen
           <div className="mb-8">
             <Label className="text-muted-foreground text-[11px] font-bold uppercase tracking-widest mb-4 flex items-center gap-2 block">
               <span className="flex items-center justify-center w-5 h-5 rounded-full bg-amber-500/20 text-amber-500 text-[10px] font-black">3</span>
-              Text Styling
+              Text Styling Studio
             </Label>
+            
+            {/* Style Presets */}
+            <div className="mb-4 p-3 rounded-xl bg-secondary/30 dark:bg-card/30 border border-border/40">
+              <div className="flex items-center gap-2 mb-2.5">
+                <Star size={14} className="text-amber-500" />
+                <span className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Style Presets</span>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {STYLE_PRESETS.map(preset => (
+                  <button
+                    key={preset.id}
+                    onClick={() => applyPreset(preset)}
+                    className="px-3 py-1.5 rounded-lg border border-border/50 text-xs font-medium hover:border-amber-500/50 hover:bg-amber-500/10 transition-colors"
+                  >
+                    {preset.name}
+                  </button>
+                ))}
+              </div>
+            </div>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
               
-              {/* --- LEFT: Text Color + Font Toggles --- */}
+              {/* --- LEFT: Text Color + Font Toggles + Typography Sliders --- */}
               <div className="p-4 rounded-xl bg-secondary/30 dark:bg-card/30 border border-border/40 space-y-5">
                 <div className="flex items-center gap-2 mb-1">
                   <Palette size={14} className="text-amber-500" />
-                  <span className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Text Color</span>
+                  <span className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Color & Font</span>
                 </div>
                 
                 {/* Color Picker in Popover */}
@@ -652,7 +712,7 @@ export default function AdminBroadcast({ matches = [], players = [], announcemen
                   <Popover>
                     <PopoverTrigger asChild>
                       <button
-                        className="w-10 h-10 rounded-lg border-2 border-border/60 shadow-sm transition-all hover:scale-105 hover:shadow-md"
+                        className="w-10 h-10 rounded-lg border-2 border-border/60 shadow-sm transition-all hover:scale-105 hover:shadow-md shrink-0"
                         style={{ backgroundColor: newNewsColor }}
                         title="Pick text color"
                       />
@@ -685,8 +745,7 @@ export default function AdminBroadcast({ matches = [], players = [], announcemen
 
                 {/* Font Style Toggles */}
                 <div className="pt-3 border-t border-border/40">
-                  <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider block mb-2">Font Style</span>
-                  <div className="flex gap-2">
+                  <div className="flex gap-2 mb-4">
                     <ShadcnToggle
                       pressed={newNewsBold}
                       onPressedChange={setNewNewsBold}
@@ -712,6 +771,18 @@ export default function AdminBroadcast({ matches = [], players = [], announcemen
                       <CaseSensitive size={14} /> AA
                     </ShadcnToggle>
                   </div>
+                  
+                  {/* Typography Sliders */}
+                  <div className="space-y-4">
+                    <div className="space-y-1.5">
+                      <Label className="text-[10px] text-muted-foreground uppercase font-bold">Font Size: <span className="text-amber-500">{newNewsFontSize}px</span></Label>
+                      <Slider value={[newNewsFontSize]} onValueChange={v => setNewNewsFontSize(v[0])} min={12} max={28} step={1} />
+                    </div>
+                    <div className="space-y-1.5">
+                      <Label className="text-[10px] text-muted-foreground uppercase font-bold">Letter Spacing: <span className="text-amber-500">{newNewsLetterSpacing}px</span></Label>
+                      <Slider value={[newNewsLetterSpacing]} onValueChange={v => setNewNewsLetterSpacing(v[0])} min={0} max={10} step={0.5} />
+                    </div>
+                  </div>
                 </div>
               </div>
 
@@ -727,7 +798,7 @@ export default function AdminBroadcast({ matches = [], players = [], announcemen
                   <Popover>
                     <PopoverTrigger asChild>
                       <button
-                        className="w-10 h-10 rounded-lg border-2 border-border/60 shadow-sm transition-all hover:scale-105 hover:shadow-md"
+                        className="w-10 h-10 rounded-lg border-2 border-border/60 shadow-sm transition-all hover:scale-105 hover:shadow-md shrink-0"
                         style={{ backgroundColor: newShadowColor }}
                         title="Pick shadow/glow color"
                       />
@@ -777,7 +848,7 @@ export default function AdminBroadcast({ matches = [], players = [], announcemen
             </div>
           </div>
 
-          {/* ─── SECTION 4: Live Preview + Add ─── */}
+          {/* ─── SECTION 4: Live Preview + Add/Update ─── */}
           <div className="mb-8">
             <Label className="text-muted-foreground text-[11px] font-bold uppercase tracking-widest mb-3 flex items-center gap-2 block">
               <span className="flex items-center justify-center w-5 h-5 rounded-full bg-amber-500/20 text-amber-500 text-[10px] font-black">4</span>
@@ -790,16 +861,22 @@ export default function AdminBroadcast({ matches = [], players = [], announcemen
                 {(() => {
                   const BadgeComp = BADGE_MAP[newBadgeType];
                   const label = newBadgeLabel || BADGE_OPTIONS.find(b => b.id === newBadgeType)?.name.toUpperCase() || 'BADGE';
-                  return BadgeComp ? <BadgeComp label={label.toUpperCase()} /> : null;
+                  return BadgeComp ? (
+                    <div className={newPriority === 'URGENT' ? 'animate-pulse' : ''}>
+                      <BadgeComp label={label.toUpperCase()} />
+                    </div>
+                  ) : null;
                 })()}
                 <span 
-                  className="tracking-wide text-base"
+                  className="tracking-wide"
                   style={{
                     color: newNewsColor,
                     fontWeight: newNewsBold ? '900' : 'normal',
                     fontStyle: newNewsItalic ? 'italic' : 'normal',
                     textTransform: newNewsUppercase ? 'uppercase' : 'none',
-                    textShadow: `${newShadowX}px ${newShadowY}px ${newShadowBlur}px ${newShadowColor}`
+                    textShadow: `${newShadowX}px ${newShadowY}px ${newShadowBlur}px ${newShadowColor}`,
+                    fontSize: `${newNewsFontSize}px`,
+                    letterSpacing: `${newNewsLetterSpacing}px`
                   }}
                 >
                   {newCustomHighlight || "Your breaking news preview..."}
@@ -807,64 +884,100 @@ export default function AdminBroadcast({ matches = [], players = [], announcemen
               </div>
             </div>
             
-            <div className="flex justify-end pt-4">
+            <div className="flex justify-end pt-4 gap-3">
+              {editingAlertId && (
+                <ShinyButton
+                  className="bg-secondary text-foreground hover:bg-secondary/80 border border-border shadow-none"
+                  onClick={cancelEdit}
+                >
+                  <X size={16} className="mr-2" /> Cancel Edit
+                </ShinyButton>
+              )}
               <ShinyButton
-                className="shadow-lg shadow-amber-500/20 px-8"
-                onClick={() => {
-                  if (newCustomHighlight.trim()) {
-                    const style = {
-                      color: newNewsColor,
-                      bold: newNewsBold,
-                      italic: newNewsItalic,
-                      uppercase: newNewsUppercase,
-                      shadowX: newShadowX,
-                      shadowY: newShadowY,
-                      shadowBlur: newShadowBlur,
-                      shadowColor: newShadowColor
-                    };
-                    const badgeLabelFinal = newBadgeLabel || BADGE_OPTIONS.find(b => b.id === newBadgeType)?.name.toUpperCase() || 'HIGHLIGHT';
-                    const item = { id: Date.now().toString(), text: newCustomHighlight.trim(), badge: newBadgeType, badgeLabel: badgeLabelFinal.toUpperCase(), style };
-                    update('customHighlights', [...(draft.customHighlights || []), item]);
-                    setNewCustomHighlight('');
-                    setNewBadgeLabel('');
-                  }
-                }}
+                className={`shadow-lg px-8 ${editingAlertId ? 'bg-emerald-600 hover:bg-emerald-700 shadow-emerald-500/20 text-white border-emerald-500/50' : 'shadow-amber-500/20'}`}
+                onClick={handleSaveAlert}
               >
-                <Plus size={16} className="mr-2" /> Add to Marquee
+                {editingAlertId ? (
+                  <><Save size={16} className="mr-2" /> Update Alert</>
+                ) : (
+                  <><Plus size={16} className="mr-2" /> Add to Marquee</>
+                )}
               </ShinyButton>
             </div>
           </div>
 
           {/* ─── Active Alerts List ─── */}
           <div className="pt-6 border-t border-border/30">
-            <Label className="text-muted-foreground text-[11px] font-bold uppercase tracking-widest mb-3 block">Active Alerts ({(draft.customHighlights || []).length})</Label>
+            <Label className="text-muted-foreground text-[11px] font-bold uppercase tracking-widest mb-3 flex items-center gap-2 block">
+              Active Alerts ({(draft.customHighlights || []).length})
+            </Label>
             <div className="space-y-2 max-h-[280px] overflow-y-auto custom-scrollbar pr-1">
               {(draft.customHighlights || []).map((item, idx) => {
                 const AlertBadge = BADGE_MAP[item.badge];
+                const isVisible = item.visible !== false;
+                
                 return (
-                  <div key={item.id || idx} className="flex items-center justify-between p-3 rounded-xl bg-secondary/30 dark:bg-white/[0.03] border border-border/40 hover:border-border/70 transition-colors group">
+                  <div 
+                    key={item.id || idx} 
+                    className={`flex items-center justify-between p-3 rounded-xl border transition-colors group ${
+                      editingAlertId === item.id 
+                        ? 'bg-amber-500/10 border-amber-500/50'
+                        : isVisible 
+                          ? 'bg-secondary/30 dark:bg-white/[0.03] border-border/40 hover:border-border/70' 
+                          : 'bg-secondary/10 opacity-50 border-border/20 grayscale'
+                    }`}
+                  >
                     <div className="flex items-center gap-3 truncate min-w-0">
-                      {AlertBadge ? <AlertBadge label={item.badgeLabel || item.badge || 'ALERT'} /> : (
-                        <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-zinc-800 text-amber-400 border border-zinc-700">{item.badge || 'Highlight'}</span>
-                      )}
+                      {item.priority === 'URGENT' && <div className="w-2 h-2 rounded-full bg-red-500 animate-pulse shrink-0" />}
+                      {item.priority === 'IMPORTANT' && <div className="w-2 h-2 rounded-full bg-amber-500 shrink-0" />}
+                      
+                      <div className={!isVisible ? 'opacity-60' : ''}>
+                        {AlertBadge ? <AlertBadge label={item.badgeLabel || item.badge || 'ALERT'} /> : (
+                          <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-zinc-800 text-amber-400 border border-zinc-700">{item.badge || 'Highlight'}</span>
+                        )}
+                      </div>
                       <span 
-                        className="text-sm truncate"
+                        className="truncate"
                         style={{
                           color: item.style?.color || undefined,
-                          fontWeight: item.style?.bold ? '900' : 'normal',
+                          fontWeight: item.style?.bold !== false ? '900' : 'normal',
                           fontStyle: item.style?.italic ? 'italic' : 'normal',
-                          textTransform: item.style?.uppercase ? 'uppercase' : 'none'
+                          textTransform: item.style?.uppercase !== false ? 'uppercase' : 'none',
+                          fontSize: item.style?.fontSize ? `${Math.min(item.style.fontSize, 16)}px` : '14px', // cap preview size
+                          letterSpacing: item.style?.letterSpacing ? `${Math.min(item.style.letterSpacing, 2)}px` : '0px'
                         }}
                       >
                         {item.text || item}
                       </span>
                     </div>
-                    <button 
-                      onClick={() => update('customHighlights', draft.customHighlights.filter((_, i) => i !== idx))}
-                      className="text-muted-foreground/50 hover:text-red-400 p-1.5 shrink-0 ml-2 opacity-0 group-hover:opacity-100 transition-opacity"
-                    >
-                      <X size={14} />
-                    </button>
+                    
+                    <div className="flex items-center gap-1 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <button 
+                        onClick={() => {
+                          const updated = [...draft.customHighlights];
+                          updated[idx] = { ...updated[idx], visible: !isVisible };
+                          update('customHighlights', updated);
+                        }}
+                        className="text-muted-foreground/60 hover:text-foreground p-1.5 rounded hover:bg-secondary transition-colors"
+                        title={isVisible ? "Hide from ticker" : "Show on ticker"}
+                      >
+                        {isVisible ? <Eye size={14} /> : <EyeOff size={14} />}
+                      </button>
+                      <button 
+                        onClick={() => handleEditAlert(item)}
+                        className="text-muted-foreground/60 hover:text-amber-500 p-1.5 rounded hover:bg-secondary transition-colors"
+                        title="Edit alert"
+                      >
+                        <Edit3 size={14} />
+                      </button>
+                      <button 
+                        onClick={() => update('customHighlights', draft.customHighlights.filter((_, i) => i !== idx))}
+                        className="text-muted-foreground/60 hover:text-red-400 p-1.5 rounded hover:bg-secondary transition-colors"
+                        title="Delete alert"
+                      >
+                        <X size={14} />
+                      </button>
+                    </div>
                   </div>
                 );
               })}

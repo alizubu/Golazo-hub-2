@@ -309,7 +309,7 @@ export default function SportsTicker({ matches = [], announcements = [], players
       Velocity: VelocityBadge
     };
 
-    const allHighlights = [...highlightItems, ...(cfg.customHighlights || [])];
+    const allHighlights = [...highlightItems, ...(cfg.customHighlights || []).filter(h => h.visible !== false)];
     allHighlights.forEach((hl, i) => {
       if (typeof hl === 'string') {
         items.push(
@@ -325,13 +325,17 @@ export default function SportsTicker({ matches = [], announcements = [], players
           fontFamily: theme.font,
           fontWeight: hl.style?.bold !== false ? '900' : 'normal',
           fontStyle: hl.style?.italic ? 'italic' : 'normal',
-          textTransform: hl.style?.uppercase ? 'uppercase' : 'none',
-          textShadow: hl.style ? `${hl.style.shadowX}px ${hl.style.shadowY}px ${hl.style.shadowBlur}px ${hl.style.shadowColor}` : undefined
+          textTransform: hl.style?.uppercase !== false ? 'uppercase' : 'none',
+          textShadow: hl.style ? `${hl.style.shadowX}px ${hl.style.shadowY}px ${hl.style.shadowBlur}px ${hl.style.shadowColor}` : undefined,
+          fontSize: hl.style?.fontSize ? `${Math.min(hl.style.fontSize, 36)}px` : undefined,
+          letterSpacing: hl.style?.letterSpacing ? `${Math.min(hl.style.letterSpacing, 10)}px` : undefined
         };
         items.push(
           <div key={`hl-${hl.id || i}`} className="flex items-center shrink-0 gap-3 mx-4">
-            <BadgeComponent label={hl.badgeLabel || hl.badge || 'HIGHLIGHT'} />
-            <span style={textStyle} className="text-sm tracking-wide">{hl.text}</span>
+            <div className={hl.priority === 'URGENT' ? 'animate-pulse' : ''}>
+              <BadgeComponent label={hl.badgeLabel || hl.badge || 'HIGHLIGHT'} />
+            </div>
+            <span style={textStyle} className="tracking-wide">{hl.text}</span>
           </div>
         );
       }
