@@ -10,7 +10,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { generateFixtures, generatePlayoffs, updateMatchStatus, updateMatchScore, adminTriggerBracketProgress } from '@/app/actions/match';
 import { awardTrophy, removeTrophy, updateTrophy, createAnnouncement, deleteAnnouncement, endCelebration, retriggerCelebration, getCelebrations, getSystemSettings, updateSystemSettings, createCustomNotification, deleteCustomNotification, clearAllNotifications } from '@/app/actions/admin';
 
-import { startSeason, renameSeason, completeSeason, updateSeasonAwards } from '@/app/actions/season';
+import { startSeason, updateSeason, completeSeason, updateSeasonAwards } from '@/app/actions/season';
 import { signUpPlayer, adminUpdatePlayer, adminDeletePlayer } from '@/app/actions/player';
 import { supabase } from '@/lib/supabaseClient';
 import PlayoffBracket from '@/app/components/shared/PlayoffBracket';
@@ -25,6 +25,7 @@ import {
   DialogTitle,
   DialogFooter,
   DialogClose,
+  DialogDescription,
 } from '@/app/components/ui/dialog';
 import {
   AlertDialog,
@@ -1344,12 +1345,19 @@ export function AdminSeason({ activeSeason, matches = [], players = [], showToas
     setLoading(false);
   };
 
-  const handleRename = async () => {
-    if (!rename.trim()) return showToast("Enter a new name");
+  const [showEditDialog, setShowEditDialog] = useState(false);
+  const [editName, setEditName] = useState("");
+  const [editType, setEditType] = useState("");
+
+  const handleUpdateSeason = async () => {
+    if (!editName.trim()) return showToast("Enter a season name");
     setLoading(true);
-    const res = await renameSeason(activeSeason.id, rename);
+    const res = await updateSeason(activeSeason.id, { name: editName, type: editType });
     if (res.error) showToast(res.error);
-    else { showToast("Season renamed!"); setRename(""); }
+    else { 
+      showToast("Season updated!"); 
+      setShowEditDialog(false); 
+    }
     setLoading(false);
   };
 
@@ -1583,13 +1591,9 @@ export function AdminSeason({ activeSeason, matches = [], players = [], showToas
         </MagicCard>
         
         <MagicCard className="p-5 flex flex-col items-center justify-center gap-3 hover:bg-secondary/80 cursor-pointer transition-colors group" onClick={() => {
-            const newName = prompt("Enter new season name:", activeSeason.name);
-            if (newName && newName !== activeSeason.name) {
-                renameSeason(activeSeason.id, newName).then(res => {
-                    if(res.error) showToast(res.error);
-                    else showToast("Season renamed!");
-                });
-            }
+            setEditName(activeSeason.name);
+            setEditType(activeSeason.type || "League (Single)");
+            setShowEditDialog(true);
         }}>
           <div className="p-3 rounded-full bg-pitch-bright/20 text-pitch-bright">
              <Edit2 size={24} />
@@ -1860,6 +1864,43 @@ export function AdminSeason({ activeSeason, matches = [], players = [], showToas
       </Card>
 
 
+      <Dialog open={showEditDialog} onOpenChange={setShowEditDialog}>
+        <DialogContent className="sm:max-w-[425px] bg-background border border-border">
+          <DialogHeader>
+            <DialogTitle>Edit Season</DialogTitle>
+            <DialogDescription>Update the season name and format.</DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-4 py-4">
+            <div className="flex flex-col gap-2">
+              <Label htmlFor="edit-name">Season Name</Label>
+              <Input
+                id="edit-name"
+                value={editName}
+                onChange={(e) => setEditName(e.target.value)}
+                placeholder="Summer Cup 2026"
+              />
+            </div>
+            <div className="flex flex-col gap-2">
+              <Label htmlFor="edit-type">Season Format</Label>
+              <select 
+                id="edit-type"
+                value={editType}
+                onChange={(e) => setEditType(e.target.value)}
+                className="flex h-10 w-full items-center justify-between rounded-md border border-border/50 bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-pitch-bright"
+              >
+                <option value="League (Single)">League (Single)</option>
+                <option value="League (Double)">Double League</option>
+                <option value="League + Playoffs (Single)">League + Playoffs (Single)</option>
+                <option value="Double Elimination">Double Elimination</option>
+              </select>
+            </div>
+          </div>
+          <DialogFooter>
+            <Btn variant="outline" onClick={() => setShowEditDialog(false)} disabled={loading}>Cancel</Btn>
+            <ShinyButton onClick={handleUpdateSeason} loading={loading}>Save Changes</ShinyButton>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

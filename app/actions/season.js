@@ -112,21 +112,25 @@ export async function startSeason(name, type, startDate, config = {}) {
 
 
 
-export async function renameSeason(id, newName) {
+export async function updateSeason(id, { name, type }) {
   const auth = await checkSessionPermission('canManageSeason');
   if (!auth.authorized) return { error: auth.error };
-  if (!newName || !newName.trim()) return { error: 'Name cannot be empty' };
+  if (!name || !name.trim()) return { error: 'Name cannot be empty' };
   
   try {
+    const dataToUpdate = { name: name.trim() };
+    if (type) {
+      dataToUpdate.type = type;
+    }
     await prisma.season.update({
       where: { id },
-      data: { name: newName.trim() }
+      data: dataToUpdate
     });
     revalidatePath('/');
     revalidatePath('/admin');
     return { success: true };
   } catch (error) {
-    return { error: 'Failed to rename season' };
+    return { error: 'Failed to update season' };
   }
 }
 
