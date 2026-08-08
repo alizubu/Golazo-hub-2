@@ -857,14 +857,29 @@ export default function AdminBroadcast({ matches = [], players = [], announcemen
                   </div>
                   
                   {/* Typography Sliders */}
-                  <div className="space-y-4">
-                    <div className="space-y-1.5">
-                      <Label className="text-[10px] text-muted-foreground uppercase font-bold">Font Size: <span className="text-amber-500">{newNewsFontSize}px</span></Label>
-                      <Slider value={[newNewsFontSize]} onValueChange={v => setNewNewsFontSize(v[0])} min={12} max={28} step={1} />
+                  <div className="space-y-3">
+                    <div className="space-y-2 bg-black/20 p-3 rounded-xl border border-border/40 shadow-inner">
+                      <div className="flex justify-between items-center">
+                        <Label className="text-[10px] text-muted-foreground uppercase font-bold flex items-center gap-1.5"><Type size={12} className="text-amber-500"/> Font Size</Label>
+                        <span className="text-[10px] bg-amber-500/20 text-amber-500 px-1.5 py-0.5 rounded font-mono">{newNewsFontSize}px</span>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <span className="text-[10px] text-muted-foreground font-medium">A</span>
+                        <Slider value={[newNewsFontSize]} onValueChange={v => setNewNewsFontSize(v[0])} min={12} max={28} step={1} className="flex-1 [&_[role=slider]]:h-4 [&_[role=slider]]:w-4 [&_[role=slider]]:border-amber-500" />
+                        <span className="text-sm text-foreground font-bold">A</span>
+                      </div>
                     </div>
-                    <div className="space-y-1.5">
-                      <Label className="text-[10px] text-muted-foreground uppercase font-bold">Letter Spacing: <span className="text-amber-500">{newNewsLetterSpacing}px</span></Label>
-                      <Slider value={[newNewsLetterSpacing]} onValueChange={v => setNewNewsLetterSpacing(v[0])} min={0} max={10} step={0.5} />
+
+                    <div className="space-y-2 bg-black/20 p-3 rounded-xl border border-border/40 shadow-inner">
+                      <div className="flex justify-between items-center">
+                        <Label className="text-[10px] text-muted-foreground uppercase font-bold flex items-center gap-1.5"><Maximize2 size={12} className="text-amber-500"/> Letter Spacing</Label>
+                        <span className="text-[10px] bg-amber-500/20 text-amber-500 px-1.5 py-0.5 rounded font-mono">{newNewsLetterSpacing}px</span>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <span className="text-[10px] text-muted-foreground font-medium tracking-tighter">AB</span>
+                        <Slider value={[newNewsLetterSpacing]} onValueChange={v => setNewNewsLetterSpacing(v[0])} min={0} max={10} step={0.5} className="flex-1 [&_[role=slider]]:h-4 [&_[role=slider]]:w-4 [&_[role=slider]]:border-amber-500" />
+                        <span className="text-[10px] text-foreground font-bold tracking-widest">A B</span>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -933,17 +948,30 @@ export default function AdminBroadcast({ matches = [], players = [], announcemen
                     <button onClick={() => {setNewShadowX(0); setNewShadowY(5)}} className="w-6 h-6 rounded flex items-center justify-center hover:bg-amber-500/20 text-muted-foreground hover:text-amber-500 transition-colors"><ArrowDown size={12} /></button>
                     <button onClick={() => {setNewShadowX(5); setNewShadowY(5)}} className="w-6 h-6 rounded flex items-center justify-center hover:bg-amber-500/20 text-muted-foreground hover:text-amber-500 transition-colors"><ArrowDownRight size={12} /></button>
                   </div>
-                  <div className="space-y-1.5">
-                    <Label className="text-[10px] text-muted-foreground uppercase font-bold">X Offset: <span className="text-amber-500">{newShadowX}px</span></Label>
-                    <Slider value={[newShadowX]} onValueChange={v => setNewShadowX(v[0])} min={-20} max={20} step={1} />
-                  </div>
-                  <div className="space-y-1.5">
-                    <Label className="text-[10px] text-muted-foreground uppercase font-bold">Y Offset: <span className="text-amber-500">{newShadowY}px</span></Label>
-                    <Slider value={[newShadowY]} onValueChange={v => setNewShadowY(v[0])} min={-20} max={20} step={1} />
-                  </div>
-                  <div className="space-y-1.5">
-                    <Label className="text-[10px] text-muted-foreground uppercase font-bold">Blur: <span className="text-amber-500">{newShadowBlur}px</span></Label>
-                    <Slider value={[newShadowBlur]} onValueChange={v => setNewShadowBlur(v[0])} min={0} max={30} step={1} />
+                  <div className="space-y-3">
+                    <div className="space-y-2 bg-black/20 p-3 rounded-xl border border-border/40 shadow-inner">
+                      <div className="flex justify-between items-center">
+                        <Label className="text-[10px] text-muted-foreground uppercase font-bold flex items-center gap-1.5"><ArrowRight size={12} className="text-amber-500"/> X Offset</Label>
+                        <span className="text-[10px] bg-amber-500/20 text-amber-500 px-1.5 py-0.5 rounded font-mono">{newShadowX}px</span>
+                      </div>
+                      <Slider value={[newShadowX]} onValueChange={v => setNewShadowX(v[0])} min={-20} max={20} step={1} className="[&_[role=slider]]:h-4 [&_[role=slider]]:w-4 [&_[role=slider]]:border-amber-500" />
+                    </div>
+                    
+                    <div className="space-y-2 bg-black/20 p-3 rounded-xl border border-border/40 shadow-inner">
+                      <div className="flex justify-between items-center">
+                        <Label className="text-[10px] text-muted-foreground uppercase font-bold flex items-center gap-1.5"><ArrowDown size={12} className="text-amber-500"/> Y Offset</Label>
+                        <span className="text-[10px] bg-amber-500/20 text-amber-500 px-1.5 py-0.5 rounded font-mono">{newShadowY}px</span>
+                      </div>
+                      <Slider value={[newShadowY]} onValueChange={v => setNewShadowY(v[0])} min={-20} max={20} step={1} className="[&_[role=slider]]:h-4 [&_[role=slider]]:w-4 [&_[role=slider]]:border-amber-500" />
+                    </div>
+                    
+                    <div className="space-y-2 bg-black/20 p-3 rounded-xl border border-border/40 shadow-inner">
+                      <div className="flex justify-between items-center">
+                        <Label className="text-[10px] text-muted-foreground uppercase font-bold flex items-center gap-1.5"><Zap size={12} className="text-amber-500"/> Blur Spread</Label>
+                        <span className="text-[10px] bg-amber-500/20 text-amber-500 px-1.5 py-0.5 rounded font-mono">{newShadowBlur}px</span>
+                      </div>
+                      <Slider value={[newShadowBlur]} onValueChange={v => setNewShadowBlur(v[0])} min={0} max={30} step={1} className="[&_[role=slider]]:h-4 [&_[role=slider]]:w-4 [&_[role=slider]]:border-amber-500" />
+                    </div>
                   </div>
                 </div>
               </div>
