@@ -1506,9 +1506,21 @@ export function AdminSeason({ activeSeason, matches = [], players = [], showToas
     h.gf += m.homeScore; a.gf += m.awayScore;
     h.ga += m.awayScore; a.ga += m.homeScore;
     
-    if (m.homeScore > m.awayScore) { h.w++; h.pts += 3; a.l++; }
-    else if (m.homeScore < m.awayScore) { a.w++; a.pts += 3; h.l++; }
-    else { h.d++; a.d++; h.pts++; a.pts++; }
+    const isPlayoff = m.round !== 'league' && m.round !== 'friendly';
+    
+    if (isPlayoff) {
+      if (m.homeScore > m.awayScore || m.penaltyWinner === 'home') {
+        h.w++; h.pts += 3; a.l++;
+      } else if (m.homeScore < m.awayScore || m.penaltyWinner === 'away') {
+        a.w++; a.pts += 3; h.l++;
+      } else {
+        h.d++; a.d++; h.pts++; a.pts++;
+      }
+    } else {
+      if (m.homeScore > m.awayScore) { h.w++; h.pts += 3; a.l++; }
+      else if (m.homeScore < m.awayScore) { a.w++; a.pts += 3; h.l++; }
+      else { h.d++; a.d++; h.pts++; a.pts++; }
+    }
   });
   
   Object.values(table).forEach(row => row.gd = row.gf - row.ga);

@@ -51,7 +51,7 @@ export function computeStandings(matches, players, seasonId, config = {}) {
   });
   
   const completedMatches = matches
-    .filter((m) => m.seasonId === seasonId && m.round === "league" && m.status === "completed")
+    .filter((m) => m.seasonId === seasonId && m.round !== "friendly" && m.status === "completed")
     .sort((a, b) => new Date(a.completedAt || 0) - new Date(b.completedAt || 0));
 
   completedMatches.forEach((m) => {
@@ -63,17 +63,27 @@ export function computeStandings(matches, players, seasonId, config = {}) {
       h.gf += hs; h.ga += as;
       a.gf += as; a.ga += hs;
       
-      if (hs > as) { 
+      const isPlayoff = m.round !== 'league';
+      
+      let homeWon = false;
+      let awayWon = false;
+      
+      if (hs > as) homeWon = true;
+      else if (hs < as) awayWon = true;
+      else if (isPlayoff && m.penaltyWinner === 'home') homeWon = true;
+      else if (isPlayoff && m.penaltyWinner === 'away') awayWon = true;
+
+      if (homeWon) { 
         h.won++; a.lost++; h.pts += ptsWin; a.pts += ptsLoss;
-        h.form.push({ result: 'W', opp: a.name, score: `${hs}-${as}` }); 
-        a.form.push({ result: 'L', opp: h.name, score: `${as}-${hs}` });
+        h.form.push({ result: 'W', opp: a.name, score: isPlayoff && m.penaltyWinner === 'home' ? `${hs}-${as} (P)` : `${hs}-${as}` }); 
+        a.form.push({ result: 'L', opp: h.name, score: isPlayoff && m.penaltyWinner === 'home' ? `${as}-${hs} (P)` : `${as}-${hs}` });
         h.streak = h.streak > 0 ? h.streak + 1 : 1;
         a.streak = a.streak < 0 ? a.streak - 1 : -1;
       }
-      else if (hs < as) { 
+      else if (awayWon) { 
         a.won++; h.lost++; a.pts += ptsWin; h.pts += ptsLoss;
-        a.form.push({ result: 'W', opp: h.name, score: `${as}-${hs}` }); 
-        h.form.push({ result: 'L', opp: a.name, score: `${hs}-${as}` });
+        a.form.push({ result: 'W', opp: h.name, score: isPlayoff && m.penaltyWinner === 'away' ? `${as}-${hs} (P)` : `${as}-${hs}` }); 
+        h.form.push({ result: 'L', opp: a.name, score: isPlayoff && m.penaltyWinner === 'away' ? `${hs}-${as} (P)` : `${hs}-${as}` });
         a.streak = a.streak > 0 ? a.streak + 1 : 1;
         h.streak = h.streak < 0 ? h.streak - 1 : -1;
       }
