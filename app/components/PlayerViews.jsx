@@ -825,39 +825,39 @@ function RosterView({ players, matches, setTab }) {
           
           return (
             <FadeIn key={p.id} delay={i * 0.05}>
-              <MagicCard onClick={() => router.push(`/player/${p.username || p.id}`)} className="p-5 flex items-center gap-4 hover:border-border hover:scale-[1.02] transition-all hover:shadow-lg cursor-pointer group bg-stadium-surface/40 hover:bg-stadium-surface/60">
+              <MagicCard onClick={() => router.push(`/player/${p.username || p.id}`)} className="p-5 flex items-center gap-4 hover:border-slate-300 dark:hover:border-border transition-all cursor-pointer group bg-white dark:bg-stadium-surface/40 hover:bg-slate-50 dark:hover:bg-stadium-surface/60 border border-slate-200 dark:border-border/50 shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-none hover:shadow-md dark:hover:shadow-lg hover:-translate-y-1">
                 <div className="relative shrink-0">
                   <div className="absolute -inset-1 rounded-full bg-gradient-to-br from-gold/50 via-pitch-bright to-claret/50 blur-[2px] opacity-0 group-hover:opacity-100 transition-opacity" />
-                  <div className="relative rounded-full bg-card p-0.5 border border-border/50 shadow-md">
+                  <div className="relative rounded-full bg-white dark:bg-card p-0.5 border border-slate-200 dark:border-border/50 shadow-sm ring-4 ring-white dark:ring-transparent">
                     <Avatar p={p} size={56} />
                   </div>
                 </div>
                 <div className="min-w-0 flex-1">
-                  <div className="font-bold text-lg font-heading flex items-center gap-2 truncate">
+                  <div className="font-bold text-lg font-heading flex items-center gap-2 truncate text-slate-900 dark:text-foreground">
                     <span className="truncate">{p.name}</span>
                     {p.nationality && (
-                      <span className="shrink-0 text-[10px] font-score tracking-wider font-semibold border border-border/50 rounded px-1.5 py-0.5 bg-background/50 shadow-sm text-muted-foreground">
+                      <span className="shrink-0 text-[10px] font-score tracking-wider font-semibold border border-slate-200 dark:border-border/50 rounded px-1.5 py-0.5 bg-slate-100 dark:bg-background/50 shadow-sm text-slate-600 dark:text-muted-foreground">
                         {p.nationality}
                       </span>
                     )}
                   </div>
-                  <div className="text-xs text-muted-foreground mt-0.5 truncate flex items-center gap-1.5">
+                  <div className="text-xs text-slate-500 dark:text-muted-foreground mt-0.5 truncate flex items-center gap-1.5">
                     {p.teamLogo && <img src={p.teamLogo} className="w-3.5 h-3.5 object-contain" alt="" />} 
                     {p.teamName || `${p.name}'s XI`}
                   </div>
                   
                   <div className="flex gap-1.5 mt-3 text-[10px] font-score tracking-wider">
-                    <span className="flex items-center justify-center font-bold text-foreground bg-green-500/20 text-green-400 px-2 py-0.5 rounded-sm border border-green-500/20">
+                    <span className="flex items-center justify-center font-bold px-2 py-0.5 rounded-sm bg-green-100 dark:bg-green-500/20 text-green-700 dark:text-green-400 border border-green-200 dark:border-green-500/20 shadow-sm dark:shadow-none">
                       {wins}W
                     </span>
-                    <span className="flex items-center justify-center font-bold text-foreground bg-slate-500/20 text-slate-400 px-2 py-0.5 rounded-sm border border-slate-500/20">
+                    <span className="flex items-center justify-center font-bold px-2 py-0.5 rounded-sm bg-slate-100 dark:bg-slate-500/20 text-slate-700 dark:text-slate-400 border border-slate-200 dark:border-slate-500/20 shadow-sm dark:shadow-none">
                       {draws}D
                     </span>
-                    <span className="flex items-center justify-center font-bold text-foreground bg-red-500/20 text-red-400 px-2 py-0.5 rounded-sm border border-red-500/20">
+                    <span className="flex items-center justify-center font-bold px-2 py-0.5 rounded-sm bg-red-100 dark:bg-red-500/20 text-red-700 dark:text-red-400 border border-red-200 dark:border-red-500/20 shadow-sm dark:shadow-none">
                       {losses}L
                     </span>
                     {golds > 0 && (
-                      <span className="flex items-center justify-center gap-1 font-bold text-amber-400 bg-amber-400/10 px-2 py-0.5 rounded-sm border border-amber-400/20">
+                      <span className="flex items-center justify-center gap-1 font-bold px-2 py-0.5 rounded-sm bg-amber-100 dark:bg-amber-400/10 text-amber-600 dark:text-amber-400 border border-amber-200 dark:border-amber-400/20 shadow-sm dark:shadow-none">
                         <Trophy size={10} />{golds}
                       </span>
                     )}
