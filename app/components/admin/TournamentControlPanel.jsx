@@ -12,7 +12,7 @@ import {
 } from '@/app/components/ui/dialog';
 import { Input } from '@/app/components/shared/UI';
 import {
-  renameSeason,
+  updateSeason,
   adminResetStandings,
   adminRestartSeason,
   adminForceEndTournament,
@@ -40,7 +40,7 @@ export default function TournamentControlPanel({ season, showToast, session, man
   const handleRename = async () => {
     if (!newName.trim()) return showToast("Enter a name");
     setLoading(true);
-    const res = await renameSeason(season.id, newName);
+    const res = await updateSeason(season.id, { name: newName });
     if (res.error) {
       showToast(res.error);
     } else {
