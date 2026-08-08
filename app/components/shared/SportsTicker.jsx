@@ -14,7 +14,10 @@ import {
   StreakBadge,
   HighlightBadge,
   ShinyBadge,
-  BADGE_STYLES
+  BADGE_STYLES,
+  CyberNeonBadge, GoldStandardBadge, FrostGlassBadge, HolographicBadge, MatrixGreenBadge,
+  LavaFlowBadge, ElectricPurpleBadge, SunriseBurstBadge, LiquidChromeBadge, NeonPopBadge,
+  InfernoBadge, AbsoluteZeroBadge, ToxicFormBadge, RoyalMomentumBadge, VelocityBadge
 } from '@/app/components/shared/SportsTickerBadges';
 
 // ── Match Chip Component ───────────────────────────────────────────────────
@@ -288,15 +291,43 @@ export default function SportsTicker({ matches = [], announcements = [], players
   });
 
   // ── Highlight Reel Items (Auto + Custom) ──────────────────────────────────
-  const allHighlights = [...highlightItems, ...(cfg.customHighlights || [])];
-  allHighlights.forEach((text, i) => {
-    items.push(
-      <div key={`hl-${i}`} className="flex items-center shrink-0 gap-3 font-semibold mx-4">
-        <HighlightBadge />
-        <span style={{ color: theme.team, fontFamily: theme.font }} className="text-sm font-bold tracking-wide">{text}</span>
-      </div>
-    );
-  });
+    const badgeComponentMap = {
+      CyberNeon: CyberNeonBadge,
+      GoldStandard: GoldStandardBadge,
+      FrostGlass: FrostGlassBadge,
+      Holographic: HolographicBadge,
+      MatrixGreen: MatrixGreenBadge,
+      LavaFlow: LavaFlowBadge,
+      ElectricPurple: ElectricPurpleBadge,
+      SunriseBurst: SunriseBurstBadge,
+      LiquidChrome: LiquidChromeBadge,
+      NeonPop: NeonPopBadge,
+      Inferno: InfernoBadge,
+      AbsoluteZero: AbsoluteZeroBadge,
+      ToxicForm: ToxicFormBadge,
+      RoyalMomentum: RoyalMomentumBadge,
+      Velocity: VelocityBadge
+    };
+
+    const allHighlights = [...highlightItems, ...(cfg.customHighlights || [])];
+    allHighlights.forEach((hl, i) => {
+      if (typeof hl === 'string') {
+        items.push(
+          <div key={`hl-${i}`} className="flex items-center shrink-0 gap-3 font-semibold mx-4">
+            <HighlightBadge />
+            <span style={{ color: theme.team, fontFamily: theme.font }} className="text-sm font-bold tracking-wide">{hl}</span>
+          </div>
+        );
+      } else {
+        const BadgeComponent = badgeComponentMap[hl.badge] || HighlightBadge;
+        items.push(
+          <div key={`hl-${hl.id || i}`} className="flex items-center shrink-0 gap-3 font-semibold mx-4">
+            <BadgeComponent label={hl.badge || 'HIGHLIGHT'} />
+            <span style={{ color: theme.team, fontFamily: theme.font }} className="text-sm font-bold tracking-wide">{hl.text}</span>
+          </div>
+        );
+      }
+    });
 
   // ── Player Streak Alerts ──────────────────────────────────────────────────
   streakItems.forEach((item, i) => {
