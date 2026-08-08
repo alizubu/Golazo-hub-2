@@ -8,6 +8,24 @@ import { saveTickerConfig } from '@/app/actions/admin';
 import SportsTicker from '@/app/components/shared/SportsTicker';
 import { THEMES, SEPARATORS } from '@/app/components/shared/SportsTickerBadges';
 
+const BADGE_OPTIONS = [
+  { id: 'CyberNeon', name: 'Cyber Neon', type: 'STATS' },
+  { id: 'GoldStandard', name: 'Gold Standard', type: 'STATS' },
+  { id: 'FrostGlass', name: 'Frost Glass', type: 'STATS' },
+  { id: 'Holographic', name: 'Holographic', type: 'STATS' },
+  { id: 'MatrixGreen', name: 'Matrix Green', type: 'STATS' },
+  { id: 'LavaFlow', name: 'Lava Flow', type: 'HIGHLIGHT' },
+  { id: 'ElectricPurple', name: 'Electric Purple', type: 'HIGHLIGHT' },
+  { id: 'SunriseBurst', name: 'Sunrise Burst', type: 'HIGHLIGHT' },
+  { id: 'LiquidChrome', name: 'Liquid Chrome', type: 'HIGHLIGHT' },
+  { id: 'NeonPop', name: 'Neon Pop', type: 'HIGHLIGHT' },
+  { id: 'Inferno', name: 'Inferno', type: 'STREAK' },
+  { id: 'AbsoluteZero', name: 'Absolute Zero', type: 'STREAK' },
+  { id: 'ToxicForm', name: 'Toxic Form', type: 'STREAK' },
+  { id: 'RoyalMomentum', name: 'Royal Momentum', type: 'STREAK' },
+  { id: 'Velocity', name: 'Velocity', type: 'STREAK' }
+];
+
 // ── Toggle Switch ────────────────────────────────────────────────────────────
 function Toggle({ checked, onChange, label, desc }) {
   return (
@@ -169,6 +187,7 @@ export default function AdminBroadcast({ matches = [], players = [], announcemen
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [newCustomHighlight, setNewCustomHighlight] = useState('');
+  const [newBadgeType, setNewBadgeType] = useState('LavaFlow');
   
   // Theme Gallery state
   const [themeQuery, setThemeQuery] = useState('');
@@ -506,48 +525,10 @@ export default function AdminBroadcast({ matches = [], players = [], announcemen
       {/* ── Player to Watch Spotlight ────────────────────────────────────────── */}
       <FadeIn delay={0.35}>
         <Card className="p-4 sm:p-6 border-amber-500/20 bg-gradient-to-br from-zinc-950 to-amber-950/10">
-          <SectionTitle icon={Star} className="text-amber-500">Player to Watch Spotlight</SectionTitle>
-          <p className="text-xs text-amber-500/70 mt-1 mb-4">Temporarily pause the broadcast to feature a specific player.</p>
-          
-          <div className="flex flex-col gap-5">
-            <div className="p-4 rounded-xl bg-card/40 border border-amber-500/10 shadow-inner">
-              <Label className="mb-3 block text-muted-foreground">Select Player</Label>
-              <div className="flex flex-col sm:flex-row gap-3 mb-3">
-                <div className="relative flex-1">
-                  <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                  <select 
-                    className="w-full pl-9 pr-3 py-2 rounded-lg bg-secondary dark:bg-zinc-900 border border-border dark:border-zinc-700 text-sm text-foreground focus:outline-none focus:border-amber-500/50 appearance-none"
-                    value={draft.playerToWatch?.playerId || ''}
-                    onChange={e => update('playerToWatch', { ...draft.playerToWatch, playerId: e.target.value })}
-                  >
-                    <option value="">Select a player to highlight...</option>
-                    {players.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
-                  </select>
-                </div>
-              </div>
-              
-              <div className="flex flex-wrap items-center justify-between border-t border-border dark:border-zinc-800/50 pt-4 mt-2 gap-4">
-                <div className="flex flex-col">
-                  <span className="text-[11px] font-semibold text-foreground">Activate Spotlight</span>
-                  <span className="text-[10px] text-muted-foreground">This interrupts the ticker to display a large player card.</span>
-                </div>
-                <button 
-                  onClick={() => update('playerToWatch', { ...draft.playerToWatch, active: !draft.playerToWatch?.active })}
-                  disabled={!draft.playerToWatch?.playerId}
-                  className={`px-4 py-2 rounded-full text-xs font-bold transition-all shadow-md flex items-center gap-2 ${
-                    !draft.playerToWatch?.playerId ? 'opacity-50 cursor-not-allowed bg-secondary text-muted-foreground' :
-                    draft.playerToWatch?.active ? 'bg-amber-500 text-black hover:bg-amber-400' : 'bg-secondary dark:bg-zinc-800 text-foreground hover:bg-zinc-700 border border-border dark:border-zinc-700'}`}
-                >
-                  {draft.playerToWatch?.active ? (
-                    <><Zap className="w-3.5 h-3.5" /> Stop Spotlight</>
-                  ) : (
-                    <><Star className="w-3.5 h-3.5" /> Start Spotlight</>
-                  )}
-                </button>
-              </div>
-            </div>
-
-            {/* Epic Moment */}
+          <SectionTitle icon={Star} className="text-amber-500">Broadcast Graphics</SectionTitle>
+<p className="text-xs text-amber-500/70 mt-1 mb-4">Trigger lower thirds and instant replay stingers.</p>
+<div className="flex flex-col gap-5">
+{/* Epic Moment */}
             <div className="p-4 rounded-xl bg-card/40 border border-amber-500/10 shadow-inner">
               <Label className="mb-3 block text-muted-foreground">Epic Moment Lower Third</Label>
               <div className="flex flex-col sm:flex-row gap-3 mb-3">
@@ -594,17 +575,27 @@ export default function AdminBroadcast({ matches = [], players = [], announcemen
             
             {/* Custom Highlights */}
             <div className="p-4 rounded-xl bg-card/40 border border-amber-500/10 shadow-inner">
-              <Label className="mb-3 block text-muted-foreground">Custom Marquee Highlights</Label>
-              <div className="flex gap-2 mb-3">
+              <Label className="mb-3 block text-muted-foreground">Custom Marquee Badges</Label>
+              <div className="flex flex-col sm:flex-row gap-2 mb-3">
+                <select 
+                  className="px-3 py-2 rounded-lg bg-secondary border border-border text-sm text-foreground focus:outline-none focus:border-amber-500/50"
+                  value={newBadgeType}
+                  onChange={e => setNewBadgeType(e.target.value)}
+                >
+                  {BADGE_OPTIONS.map(b => (
+                    <option key={b.id} value={b.id}>{b.name} ({b.type})</option>
+                  ))}
+                </select>
                 <input 
                   type="text" 
-                  placeholder="e.g. MESSI COMPLETES HATTRICK!" 
-                  className="flex-1 px-3 py-2 rounded-lg bg-secondary dark:bg-zinc-900 border border-border dark:border-zinc-700 text-sm text-muted-foreground focus:outline-none focus:border-amber-500/50"
+                  placeholder="e.g. RECORD BROKEN" 
+                  className="flex-1 px-3 py-2 rounded-lg bg-secondary dark:bg-zinc-900 border border-border dark:border-zinc-700 text-sm text-foreground focus:outline-none focus:border-amber-500/50"
                   value={newCustomHighlight}
                   onChange={e => setNewCustomHighlight(e.target.value)}
                   onKeyDown={e => {
                     if (e.key === 'Enter' && newCustomHighlight.trim()) {
-                      update('customHighlights', [...(draft.customHighlights || []), newCustomHighlight.trim()]);
+                      const item = { id: Date.now().toString(), text: newCustomHighlight.trim(), badge: newBadgeType };
+                      update('customHighlights', [...(draft.customHighlights || []), item]);
                       setNewCustomHighlight('');
                     }
                   }}
@@ -612,33 +603,36 @@ export default function AdminBroadcast({ matches = [], players = [], announcemen
                 <button 
                   onClick={() => {
                     if (newCustomHighlight.trim()) {
-                      update('customHighlights', [...(draft.customHighlights || []), newCustomHighlight.trim()]);
+                      const item = { id: Date.now().toString(), text: newCustomHighlight.trim(), badge: newBadgeType };
+                      update('customHighlights', [...(draft.customHighlights || []), item]);
                       setNewCustomHighlight('');
                     }
                   }}
-                  className="px-3 py-2 rounded-lg bg-secondary dark:bg-zinc-800 text-muted-foreground hover:bg-zinc-700 border border-border dark:border-zinc-700 transition-colors"
+                  className="px-3 py-2 rounded-lg bg-secondary dark:bg-zinc-800 text-foreground hover:bg-zinc-700 border border-border dark:border-zinc-700 transition-colors"
                 >
                   <Plus size={16} />
                 </button>
               </div>
-              <div className="space-y-2">
-                {(draft.customHighlights || []).map((msg, idx) => (
-                  <div key={idx} className="flex items-center justify-between p-2 rounded-md bg-amber-500/5 border border-amber-500/10">
-                    <span className="text-xs font-bold text-amber-400 bg-clip-text text-transparent bg-gradient-to-r from-amber-200 to-amber-500 truncate">{msg}</span>
+              <div className="space-y-2 max-h-[200px] overflow-y-auto custom-scrollbar">
+                {(draft.customHighlights || []).map((item, idx) => (
+                  <div key={item.id || idx} className="flex items-center justify-between p-2 rounded-md bg-white/5 border border-white/10">
+                    <div className="flex items-center gap-2 truncate">
+                      <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-zinc-800 text-amber-400 border border-zinc-700">{item.badge || 'Highlight'}</span>
+                      <span className="text-sm font-semibold truncate text-foreground">{item.text || item}</span>
+                    </div>
                     <button 
                       onClick={() => update('customHighlights', draft.customHighlights.filter((_, i) => i !== idx))}
-                      className="text-muted-foreground hover:text-red-400 p-1"
+                      className="text-muted-foreground hover:text-red-400 p-1 shrink-0 ml-2"
                     >
                       <X size={14} />
                     </button>
                   </div>
                 ))}
                 {(!draft.customHighlights || draft.customHighlights.length === 0) && (
-                  <p className="text-[11px] text-muted-foreground text-center py-2">No custom highlights added.</p>
+                  <p className="text-[11px] text-muted-foreground text-center py-2">No custom badges added.</p>
                 )}
               </div>
             </div>
-
           </div>
         </Card>
       </FadeIn>
