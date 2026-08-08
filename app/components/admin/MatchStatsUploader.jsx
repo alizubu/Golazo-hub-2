@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { extractMatchStats } from '../actions/extractStats';
+import { extractMatchStats } from '@/app/actions/extractStats';
 
 export default function MatchStatsUploader() {
   const [loading, setLoading] = useState(false);

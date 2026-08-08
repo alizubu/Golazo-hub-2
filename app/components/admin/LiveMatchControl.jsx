@@ -7,7 +7,7 @@ import { updateMatchStatus, updateMatchScore } from '@/app/actions/match';
 import { supabase } from '@/lib/supabaseClient';
 import { Btn, MagicCard, Avatar } from '@/app/components/shared/UI';
 import { MatchStatsPreview } from '@/app/components/admin/AdminConsole';
-import { extractMatchStats } from '../actions/extractStats';
+import { extractMatchStats } from '@/app/actions/extractStats';
 import { motion, AnimatePresence } from 'framer-motion';
 
 

@@ -6,9 +6,9 @@ import { Avatar } from '@/app/components/shared/UI';
 import { signInPlayer, signUpPlayer } from '@/app/actions/player';
 import { setAuthCookie } from '@/app/actions/auth';
 import { motion, AnimatePresence } from 'framer-motion';
-import { BorderBeam } from './magicui/BorderBeam';
-import { AnimatedGradientText } from './magicui/AnimatedGradientText';
-import { ShimmerButton } from './magicui/ShimmerButton';
+import { BorderBeam } from '@/app/components/magicui/BorderBeam';
+import { AnimatedGradientText } from '@/app/components/magicui/AnimatedGradientText';
+import { ShimmerButton } from '@/app/components/magicui/ShimmerButton';
 import ThemeToggle from '@/app/components/shared/ThemeToggle';
 
 // ══════════════════════════════════════════════════════════════

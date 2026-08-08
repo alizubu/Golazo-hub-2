@@ -2,7 +2,7 @@ import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Swords, Trophy, Activity, Target } from 'lucide-react';
 import { Avatar, Badge, MagicCard } from '@/app/components/shared/UI';
-import { NumberTicker } from './ui/number-ticker';
+import { NumberTicker } from '@/app/components/ui/number-ticker';
 import MatchCard from '@/app/components/shared/MatchCard';
 
 function ComparisonBar({ leftValue, rightValue, middleValue = 0, label, suffix = "", leftColor = "bg-pitch-bright", rightColor = "bg-claret", middleColor = "bg-slate-600" }) {

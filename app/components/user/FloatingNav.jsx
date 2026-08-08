@@ -2,10 +2,10 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { clearAuthCookie } from '@/app/actions/auth';
-import { useActiveRoute } from './nav/useActiveRoute';
-import { TopBar } from './nav/TopBar';
-import { BottomNav } from './nav/BottomNav';
-import { playerTabs, adminTabs } from './nav/navConfig';
+import { useActiveRoute } from '@/app/components/nav/useActiveRoute';
+import { TopBar } from '@/app/components/nav/TopBar';
+import { BottomNav } from '@/app/components/nav/BottomNav';
+import { playerTabs, adminTabs } from '@/app/components/nav/navConfig';
 import { Avatar } from '@/app/components/shared/UI';
 import {
   Dialog,

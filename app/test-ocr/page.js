@@ -1,4 +1,4 @@
-import MatchStatsUploader from '../components/MatchStatsUploader';
+import MatchStatsUploader from '@/app/components/admin/MatchStatsUploader';
 
 export default function TestOCRPage() {
   return (

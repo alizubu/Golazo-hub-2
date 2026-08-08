@@ -9,7 +9,7 @@ import dynamic from 'next/dynamic';
 
 const SearchableLogoPicker = dynamic(() => import('./SearchableLogoPicker'), { ssr: false });
 import AvatarUpload from '@/app/components/shared/AvatarUpload';
-import { MagicCard } from './magicui/MagicCard';
+import { MagicCard } from '@/app/components/magicui/MagicCard';
 import { Card, CardContent, CardHeader, CardTitle } from '@/app/components/ui/card';
 import { Input } from '@/app/components/ui/input';
 import { Textarea } from '@/app/components/ui/textarea';

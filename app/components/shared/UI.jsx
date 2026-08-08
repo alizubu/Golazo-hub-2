@@ -1,11 +1,11 @@
 import React from 'react';
 import { UserCircle2, Loader2 } from 'lucide-react';
-import { Button } from './ui/button';
-import { Card as ShadcnCard } from './ui/card';
-import { Input as ShadcnInput } from './ui/input';
-import { Label as ShadcnLabel } from './ui/label';
-import { Badge as ShadcnBadge } from './ui/badge';
-import { Avatar as ShadcnAvatar, AvatarFallback, AvatarImage } from './ui/avatar';
+import { Button } from '@/app/components/ui/button';
+import { Card as ShadcnCard } from '@/app/components/ui/card';
+import { Input as ShadcnInput } from '@/app/components/ui/input';
+import { Label as ShadcnLabel } from '@/app/components/ui/label';
+import { Badge as ShadcnBadge } from '@/app/components/ui/badge';
+import { Avatar as ShadcnAvatar, AvatarFallback, AvatarImage } from '@/app/components/ui/avatar';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 

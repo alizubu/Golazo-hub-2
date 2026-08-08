@@ -3,8 +3,8 @@ import React from 'react';
 import Link from 'next/link';
 import { motion, useReducedMotion } from 'framer-motion';
 import { LogOut, Settings, Bell, Trophy, Loader2 } from 'lucide-react';
-import { Avatar } from '../UI';
-import ThemeToggle from '../ThemeToggle';
+import { Avatar } from '@/app/components/shared/UI';
+import ThemeToggle from '@/app/components/shared/ThemeToggle';
 
 export const TopBar = ({ session, me, items, pathname, handleNav, unreadCount, isLoggingOut, handleLogout }) => {
   const shouldReduceMotion = useReducedMotion();

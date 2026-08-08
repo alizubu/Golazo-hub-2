@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Download, X } from 'lucide-react';
-import { Btn } from '@/app/components/UI';
+import { Btn } from '@/app/components/shared/UI';
 
 export default function InstallPrompt() {
   const [deferredPrompt, setDeferredPrompt] = useState(null);
