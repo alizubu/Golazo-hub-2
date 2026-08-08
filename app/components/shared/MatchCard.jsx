@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Trophy, ChevronDown } from 'lucide-react';
-import { toTitleCase, Avatar } from './UI';
+import { toTitleCase, Avatar } from '@/app/components/shared/UI';
 
 const statDefinitions = [
   { key: 'possession', label: 'BALL POSSESSION', format: 'percent' },

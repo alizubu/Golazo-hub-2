@@ -2,8 +2,8 @@
 import React, { useState, useEffect } from 'react';
 import { Activity, Trophy, Swords, Target, Handshake, TrendingUp, Calendar, Check } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { FadeIn } from '@/app/components/UI';
-import { StatTile } from './StatTile';
+import { FadeIn } from '@/app/components/shared/UI';
+import { StatTile } from '@/app/components/shared/StatTile';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/app/components/ui/dropdown-menu';
 
 export function SeasonStats({ playerId, initialStats, seasons, activeSeason, selectedSeasonId, onSeasonChange }) {

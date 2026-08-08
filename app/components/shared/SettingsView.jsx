@@ -1,14 +1,14 @@
 'use client';
 
-import { PageHeader } from './PageHeader';
+import { PageHeader } from '@/app/components/shared/PageHeader';
 import React, { useState, useRef } from 'react';
 import { Camera, KeyRound, Shield, CheckCircle2, Flame, Eye, EyeOff, Settings, Bell, BellOff, LogOut, Loader2 } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { Label, Btn } from './UI';
+import { Label, Btn } from '@/app/components/shared/UI';
 import dynamic from 'next/dynamic';
 
 const SearchableLogoPicker = dynamic(() => import('./SearchableLogoPicker'), { ssr: false });
-import AvatarUpload from './AvatarUpload';
+import AvatarUpload from '@/app/components/shared/AvatarUpload';
 import { MagicCard } from './magicui/MagicCard';
 import { Card, CardContent, CardHeader, CardTitle } from '@/app/components/ui/card';
 import { Input } from '@/app/components/ui/input';

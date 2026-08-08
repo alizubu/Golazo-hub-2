@@ -2,7 +2,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Trophy } from 'lucide-react';
-import MatchCard from './MatchCard';
+import MatchCard from '@/app/components/shared/MatchCard';
 
 function EmptyState({ text }) {
   return (

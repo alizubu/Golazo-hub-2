@@ -1,13 +1,13 @@
 import { getPlayers } from '@/app/actions/player';
 import { getMatches } from '@/app/actions/match';
 import prisma from '@/lib/db';
-import FloatingNav from '@/app/components/FloatingNav';
-import ErrorBoundary from '@/app/components/ErrorBoundary';
+import FloatingNav from '@/app/components/user/FloatingNav';
+import ErrorBoundary from '@/app/components/shared/ErrorBoundary';
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import PageTransition from '@/pwa/components/PageTransition';
 
-import { AppProvider } from '@/app/components/AppContextProvider';
+import { AppProvider } from '@/app/components/shared/AppContextProvider';
 
 export default async function AppLayout({ children }) {
   const cookieStore = await cookies();

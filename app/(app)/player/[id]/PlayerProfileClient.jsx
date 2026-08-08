@@ -1,13 +1,13 @@
 'use client';
 
 import React, { useState } from 'react';
-import { PlayerDashboard } from '@/app/components/PlayerViews';
-import { useAppContext } from '@/app/components/AppContextProvider';
+import { PlayerDashboard } from '@/app/components/user/PlayerViews';
+import { useAppContext } from '@/app/components/shared/AppContextProvider';
 import { useRouter } from 'next/navigation';
-import { PageHeader } from '@/app/components/PageHeader';
-import HeadToHeadModal from '@/app/components/HeadToHeadModal';
+import { PageHeader } from '@/app/components/shared/PageHeader';
+import HeadToHeadModal from '@/app/components/shared/HeadToHeadModal';
 import { Swords } from 'lucide-react';
-import { Btn } from '@/app/components/UI';
+import { Btn } from '@/app/components/shared/UI';
 
 export default function PlayerProfileClient({ targetPlayer, loggedInPlayer, players, ...props }) {
   const { matches } = useAppContext();

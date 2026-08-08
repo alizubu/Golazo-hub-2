@@ -1,8 +1,8 @@
 'use client';
 
 import React from 'react';
-import { Avatar } from './UI';
-import { useAppContext } from './AppContextProvider';
+import { Avatar } from '@/app/components/shared/UI';
+import { useAppContext } from '@/app/components/shared/AppContextProvider';
 
 /**
  * A reusable component to render a player's name and avatar that can be clicked

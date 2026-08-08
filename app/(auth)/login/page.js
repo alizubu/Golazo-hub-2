@@ -1,5 +1,5 @@
 import { getPlayers } from '@/app/actions/player';
-import AuthGate from '@/app/components/AuthGate';
+import AuthGate from '@/app/components/shared/AuthGate';
 import { redirect } from 'next/navigation';
 import { cookies } from 'next/headers';
 

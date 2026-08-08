@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { Menu } from 'lucide-react';
-import ThemeToggle from './ThemeToggle';
+import ThemeToggle from '@/app/components/shared/ThemeToggle';
 
 const SECTION_LABELS = {
   'admin':                'Dashboard',

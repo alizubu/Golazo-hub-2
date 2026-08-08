@@ -1,17 +1,17 @@
 'use client';
 
 import React, { useState, useEffect, useCallback } from 'react';
-import PlayerViews from './PlayerViews';
-import AdminOverviewDashboard from './AdminOverviewDashboard';
-import { AdminSeason, AdminPlayers, AdminMatches, AdminTrophies, AdminAnnouncements, AdminSettings, AdminRoles } from './AdminConsole';
-import HallOfFame from './HallOfFame';
-import { useAppContext } from './AppContextProvider';
-import SportsTicker from './SportsTicker';
-import CelebrationBanner from './CelebrationBanner';
-import AdminSidebar from './AdminSidebar';
-import AdminTopBar from './AdminTopBar';
-import PlayerProfileDrawer from './PlayerProfileDrawer';
-import AdminBroadcast from './AdminBroadcast';
+import PlayerViews from '@/app/components/user/PlayerViews';
+import AdminOverviewDashboard from '@/app/components/admin/AdminOverviewDashboard';
+import { AdminSeason, AdminPlayers, AdminMatches, AdminTrophies, AdminAnnouncements, AdminSettings, AdminRoles } from '@/app/components/admin/AdminConsole';
+import HallOfFame from '@/app/components/shared/HallOfFame';
+import { useAppContext } from '@/app/components/shared/AppContextProvider';
+import SportsTicker from '@/app/components/shared/SportsTicker';
+import CelebrationBanner from '@/app/components/shared/CelebrationBanner';
+import AdminSidebar from '@/app/components/admin/AdminSidebar';
+import AdminTopBar from '@/app/components/admin/AdminTopBar';
+import PlayerProfileDrawer from '@/app/components/user/PlayerProfileDrawer';
+import AdminBroadcast from '@/app/components/admin/AdminBroadcast';
 
 export default function AppShell({ 
   initialTab, 

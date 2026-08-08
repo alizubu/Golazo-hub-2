@@ -6,7 +6,7 @@ import { useActiveRoute } from './nav/useActiveRoute';
 import { TopBar } from './nav/TopBar';
 import { BottomNav } from './nav/BottomNav';
 import { playerTabs, adminTabs } from './nav/navConfig';
-import { Avatar } from './UI';
+import { Avatar } from '@/app/components/shared/UI';
 import {
   Dialog,
   DialogContent,

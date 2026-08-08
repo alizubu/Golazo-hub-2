@@ -5,8 +5,8 @@ import {
 } from "lucide-react";
 import { updateMatchStatus, updateMatchScore } from '@/app/actions/match';
 import { supabase } from '@/lib/supabaseClient';
-import { Btn, MagicCard, Avatar } from './UI';
-import { MatchStatsPreview } from './AdminConsole';
+import { Btn, MagicCard, Avatar } from '@/app/components/shared/UI';
+import { MatchStatsPreview } from '@/app/components/admin/AdminConsole';
 import { extractMatchStats } from '../actions/extractStats';
 import { motion, AnimatePresence } from 'framer-motion';
 

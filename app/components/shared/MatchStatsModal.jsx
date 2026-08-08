@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Trophy, X } from 'lucide-react';
 import { supabase } from '@/lib/supabaseClient';
 import { Skeleton } from '@/app/components/ui/skeleton';
-import { Avatar } from './UI';
+import { Avatar } from '@/app/components/shared/UI';
 
 const statDefinitions = [
   { key: 'possession', label: 'BALL POSSESSION', format: 'percent' },

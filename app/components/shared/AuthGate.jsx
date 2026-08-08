@@ -2,14 +2,14 @@
 
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { Lock, User, UserPlus, ShieldAlert, Eye, EyeOff, Loader2, X, ChevronRight, Trophy, Mail } from 'lucide-react';
-import { Avatar } from './UI';
+import { Avatar } from '@/app/components/shared/UI';
 import { signInPlayer, signUpPlayer } from '@/app/actions/player';
 import { setAuthCookie } from '@/app/actions/auth';
 import { motion, AnimatePresence } from 'framer-motion';
 import { BorderBeam } from './magicui/BorderBeam';
 import { AnimatedGradientText } from './magicui/AnimatedGradientText';
 import { ShimmerButton } from './magicui/ShimmerButton';
-import ThemeToggle from './ThemeToggle';
+import ThemeToggle from '@/app/components/shared/ThemeToggle';
 
 // ══════════════════════════════════════════════════════════════
 // PITCH SVG — top-down animated football pitch

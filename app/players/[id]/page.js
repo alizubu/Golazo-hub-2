@@ -2,7 +2,7 @@ import prisma from '@/lib/db';
 import { getPlayers } from '@/app/actions/player';
 import { getSeasons } from '@/app/actions/season';
 import { getMatches } from '@/app/actions/match';
-import PlayerViews from '@/app/components/PlayerViews';
+import PlayerViews from '@/app/components/user/PlayerViews';
 import { notFound } from 'next/navigation';
 
 export const dynamic = 'force-dynamic';

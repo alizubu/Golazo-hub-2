@@ -2,8 +2,8 @@
 
 import React, { useState, useMemo, useCallback, useEffect } from 'react';
 import { Megaphone } from 'lucide-react';
-import { Avatar } from './UI';
-import MatchStatsModal from './MatchStatsModal';
+import { Avatar } from '@/app/components/shared/UI';
+import MatchStatsModal from '@/app/components/shared/MatchStatsModal';
 import {
   getThemeStyles,
   speedToDuration,
@@ -15,7 +15,7 @@ import {
   HighlightBadge,
   ShinyBadge,
   BADGE_STYLES
-} from './SportsTickerBadges';
+} from '@/app/components/shared/SportsTickerBadges';
 
 // ── Match Chip Component ───────────────────────────────────────────────────
 function MatchChip({ match, home, away, theme, isLive, onClick, showAvatars, previewMode, momentumTeam, showtimeGoals }) {

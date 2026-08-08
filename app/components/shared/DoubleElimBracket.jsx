@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Trophy, ChevronDown, ChevronRight, Shield, ShieldAlert, Zap } from 'lucide-react';
-import MatchCard from './MatchCard';
+import MatchCard from '@/app/components/shared/MatchCard';
 
 function RoundGroup({ title, matches, players, onMatchClick, icon: Icon, colorClass }) {
   const [isOpen, setIsOpen] = useState(true);

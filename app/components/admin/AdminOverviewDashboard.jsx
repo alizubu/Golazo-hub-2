@@ -3,17 +3,17 @@
 import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Trophy, Calendar, Users, Radio, Activity, ArrowRight, Shield, Flame, Swords, Target, Goal, TrendingUp, History, ListOrdered, Zap, PlusCircle, CheckCircle2, Megaphone, Clock, AlertTriangle, ChevronRight, BarChart2, Star, CalendarDays, PlayCircle, Edit2, Bell, MoreVertical, ShieldAlert } from 'lucide-react';
-import { Card, SectionTitle, EmptyState, MagicCard, FadeIn, Badge, Btn, Avatar, toTitleCase } from './UI';
+import { Card, SectionTitle, EmptyState, MagicCard, FadeIn, Badge, Btn, Avatar, toTitleCase } from '@/app/components/shared/UI';
 import { supabase } from '@/lib/supabaseClient';
 import { BorderBeam } from './magicui/BorderBeam';
 import { NumberTicker } from './ui/number-ticker';
-import { computeStandings } from './StandingsTable';
-import StandingsTable from './StandingsTable';
+import { computeStandings } from '@/app/components/shared/StandingsTable';
+import StandingsTable from '@/app/components/shared/StandingsTable';
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from './ui/dropdown-menu';
 import { useRouter } from 'next/navigation';
-import TournamentControlPanel from './TournamentControlPanel';
-import LiveMatchControl from './LiveMatchControl';
-import SeasonSummaryDashboard from './SeasonSummaryDashboard';
+import TournamentControlPanel from '@/app/components/admin/TournamentControlPanel';
+import LiveMatchControl from '@/app/components/admin/LiveMatchControl';
+import SeasonSummaryDashboard from '@/app/components/user/SeasonSummaryDashboard';
 
 function formatName(name) {
   if (!name) return 'TBD';

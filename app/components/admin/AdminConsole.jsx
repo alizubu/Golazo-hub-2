@@ -3,8 +3,8 @@
 import React, { useState, useEffect } from 'react';
 import { Trophy, Calendar, Users, Radio, Clock, Check, Archive, Plus, Trash2, Settings, Swords, Edit2, ListOrdered, BarChart2, AlertTriangle, ArrowRight, Megaphone, ChevronDown, Package, MoreVertical, History, CheckCircle2, X } from 'lucide-react';
 import { BorderBeam } from './magicui/BorderBeam';
-import { Card, Btn, Input, Label, SectionTitle, EmptyState, MagicCard, FadeIn, ShinyButton, Badge, Avatar, toTitleCase } from './UI';
-import PlayerTag from './PlayerTag';
+import { Card, Btn, Input, Label, SectionTitle, EmptyState, MagicCard, FadeIn, ShinyButton, Badge, Avatar, toTitleCase } from '@/app/components/shared/UI';
+import PlayerTag from '@/app/components/shared/PlayerTag';
 import { motion, AnimatePresence } from 'framer-motion';
 
 import { generateFixtures, generatePlayoffs, updateMatchStatus, updateMatchScore, adminTriggerBracketProgress } from '@/app/actions/match';
@@ -13,7 +13,7 @@ import { awardTrophy, removeTrophy, updateTrophy, createAnnouncement, deleteAnno
 import { startSeason, renameSeason, completeSeason, updateSeasonAwards } from '@/app/actions/season';
 import { signUpPlayer, adminUpdatePlayer, adminDeletePlayer } from '@/app/actions/player';
 import { supabase } from '@/lib/supabaseClient';
-import PlayoffBracket from './PlayoffBracket';
+import PlayoffBracket from '@/app/components/shared/PlayoffBracket';
 import { getCode } from 'country-list';
 import nationalTeamsData from '@/lib/data/national_teams.json';
 import { useRouter } from 'next/navigation';
@@ -67,12 +67,12 @@ const TROPHY_TEMPLATES = [
   { id: 'la-liga', name: 'La Liga Champion', image: '/assets/trophies/La-Liga-trophy.png', icon: '/assets/trophies/La-Liga-trophy.png', defaultDesc: 'La Liga season champion.' },
   { id: 'premier-league', name: 'Premier League Champion', image: '/assets/trophies/Premier-League.png', icon: '/assets/trophies/Premier-League.png', defaultDesc: 'Premier League season champion.' },
 ];
-import AdminHistory from './AdminHistory';
-import AdminNotifications from './AdminNotifications';
-import { MobileStandingsList } from './AdminOverviewDashboard';
+import AdminHistory from '@/app/components/admin/AdminHistory';
+import AdminNotifications from '@/app/components/admin/AdminNotifications';
+import { MobileStandingsList } from '@/app/components/admin/AdminOverviewDashboard';
 
 import dynamic from 'next/dynamic';
-import RichTextEditor from './RichTextEditor';
+import RichTextEditor from '@/app/components/shared/RichTextEditor';
 
 
 

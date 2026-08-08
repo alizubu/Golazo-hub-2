@@ -4,7 +4,7 @@ import { getSeasons } from '@/app/actions/season';
 import { getCelebrations } from '@/app/actions/admin';
 import prisma from '@/lib/db';
 import { cookies } from 'next/headers';
-import AppShell from '@/app/components/AppShell';
+import AppShell from '@/app/components/shared/AppShell';
 import { validateEnv } from '@/lib/env';
 
 export const dynamic = 'force-dynamic';

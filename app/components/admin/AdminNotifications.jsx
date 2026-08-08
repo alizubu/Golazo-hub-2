@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Bell, Trash2, Send, Settings, ShieldAlert } from 'lucide-react';
-import { Card, SectionTitle, EmptyState, Btn, Input, Label, Badge } from './UI';
+import { Card, SectionTitle, EmptyState, Btn, Input, Label, Badge } from '@/app/components/shared/UI';
 import { getSystemSettings, updateSystemSettings, createCustomNotification, deleteCustomNotification, clearAllNotifications } from '@/app/actions/admin';
 import { supabase } from '@/lib/supabaseClient';
 

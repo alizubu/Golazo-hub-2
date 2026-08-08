@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Trophy, Lock, Calendar, Award, CheckCircle2, TrendingUp, X } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from './ui/dialog';
 import { Progress } from './ui/progress';
-import { Badge, Btn } from './UI';
+import { Badge, Btn } from '@/app/components/shared/UI';
 
 export default function TrophyDetailModal({
   open,

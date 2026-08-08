@@ -125,7 +125,7 @@ export const Avatar = ({ p, size = 40, ring, glow, className = "" }) => {
   );
 };
 
-import PlayerTag from './PlayerTag';
+import PlayerTag from '@/app/components/shared/PlayerTag';
 
 export const PlayerChip = ({ p, size = 8 }) => (
   <PlayerTag player={p} size={Math.max(24, size)} className="min-w-0" />

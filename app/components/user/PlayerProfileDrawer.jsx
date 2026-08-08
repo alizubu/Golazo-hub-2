@@ -3,9 +3,9 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, ShieldAlert, Edit, Key } from 'lucide-react';
-import { useAppContext } from './AppContextProvider';
-import { PlayerDashboard } from './PlayerViews';
-import { Btn, Avatar } from './UI';
+import { useAppContext } from '@/app/components/shared/AppContextProvider';
+import { PlayerDashboard } from '@/app/components/user/PlayerViews';
+import { Btn, Avatar } from '@/app/components/shared/UI';
 
 export default function PlayerProfileDrawer({ players, matches, seasons, announcements, trophies, notifications, session }) {
   const { selectedProfileId, closeProfile } = useAppContext();

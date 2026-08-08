@@ -6,7 +6,7 @@ import {
   Crown, Medal, Star, Zap, BarChart3
 } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { Avatar } from './UI';
+import { Avatar } from '@/app/components/shared/UI';
 
 // ─── Utility: compute all season summary stats from raw match data ──────────
 function computeSeasonSummary(matches, players, seasonId) {

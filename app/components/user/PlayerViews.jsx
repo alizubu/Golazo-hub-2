@@ -1,28 +1,28 @@
 'use client';
 
 import React from 'react';
-import { PageHeader } from './PageHeader';
+import { PageHeader } from '@/app/components/shared/PageHeader';
 import { Trophy, Clock, ListOrdered, Calendar, Swords, Megaphone, Bell, Pen, Target, Handshake, Shield, Activity, Lock, Flame, BadgeCheck, TrendingUp, Users, ArrowRight } from 'lucide-react';
-import { Btn, Badge, Avatar, PlayerChip, SectionTitle, EmptyState, MagicCard, FadeIn, ShinyButton, Label } from './UI';
+import { Btn, Badge, Avatar, PlayerChip, SectionTitle, EmptyState, MagicCard, FadeIn, ShinyButton, Label } from '@/app/components/shared/UI';
 import { Card, CardHeader, CardTitle, CardContent } from '@/app/components/ui/card';
 import { NumberTicker } from './ui/number-ticker';
 import { motion } from 'framer-motion';
 import { useRouter } from 'next/navigation';
-import SettingsView from './SettingsView';
-import MatchesPage from './MatchesPage';
-import MatchCard from './MatchCard';
+import SettingsView from '@/app/components/shared/SettingsView';
+import MatchesPage from '@/app/components/shared/MatchesPage';
+import MatchCard from '@/app/components/shared/MatchCard';
 
-import TrophyDetailModal from './TrophyDetailModal';
-import HeadToHeadModal from './HeadToHeadModal';
+import TrophyDetailModal from '@/app/components/shared/TrophyDetailModal';
+import HeadToHeadModal from '@/app/components/shared/HeadToHeadModal';
 
-import StatChip from './StatChip';
-import { SeasonStats } from './SeasonStats';
-import SeasonSummaryDashboard from './SeasonSummaryDashboard';
+import StatChip from '@/app/components/shared/StatChip';
+import { SeasonStats } from '@/app/components/user/SeasonStats';
+import SeasonSummaryDashboard from '@/app/components/user/SeasonSummaryDashboard';
 import { BorderBeam } from './magicui/BorderBeam';
 import { markNotificationsRead } from '@/app/actions/player';
 import { Skeleton } from '@/app/components/ui/skeleton';
 import { HoverCard, HoverCardContent, HoverCardTrigger } from '@/app/components/ui/hover-card';
-import { computeStandings } from './StandingsTable';
+import { computeStandings } from '@/app/components/shared/StandingsTable';
 import clubsData from '@/lib/data/clubs.json';
 import nationalTeamsData from '@/lib/data/national_teams.json';
 

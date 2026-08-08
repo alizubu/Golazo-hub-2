@@ -1,7 +1,7 @@
 "use client";
 import React, { useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Avatar } from './UI';
+import { Avatar } from '@/app/components/shared/UI';
 import { HoverCard, HoverCardTrigger, HoverCardContent } from '@/app/components/ui/hover-card';
 import { Download, Loader2, Medal, ChevronDown, ChevronUp } from 'lucide-react';
 import nationalTeamsData from '@/lib/data/national_teams.json';

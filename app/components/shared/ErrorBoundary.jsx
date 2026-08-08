@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { AlertTriangle, RefreshCw } from 'lucide-react';
-import { Card, Btn } from './UI';
+import { Card, Btn } from '@/app/components/shared/UI';
 
 export default class ErrorBoundary extends React.Component {
   constructor(props) {

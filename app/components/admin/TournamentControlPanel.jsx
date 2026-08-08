@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { SectionTitle, MagicCard, Btn, FadeIn } from './UI';
+import { SectionTitle, MagicCard, Btn, FadeIn } from '@/app/components/shared/UI';
 import { RotateCcw, Trophy, Trash2, Shuffle, AlertTriangle, PlayCircle, Pencil } from 'lucide-react';
 import {
   Dialog,
@@ -10,7 +10,7 @@ import {
   DialogDescription,
   DialogFooter,
 } from '@/app/components/ui/dialog';
-import { Input } from './UI';
+import { Input } from '@/app/components/shared/UI';
 import {
   renameSeason,
   adminResetStandings,

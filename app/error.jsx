@@ -2,7 +2,7 @@
 
 import { useEffect } from 'react';
 import { ShieldAlert, RefreshCw } from 'lucide-react';
-import { Btn, MagicCard } from '@/app/components/UI';
+import { Btn, MagicCard } from '@/app/components/shared/UI';
 
 export default function ErrorBoundary({ error, reset }) {
   useEffect(() => {

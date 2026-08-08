@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { History, Trash2, Edit2, ChevronDown, CheckCircle2 } from 'lucide-react';
-import { Card, SectionTitle, EmptyState, Btn, Input, Label, Badge, Avatar } from './UI';
+import { Card, SectionTitle, EmptyState, Btn, Input, Label, Badge, Avatar } from '@/app/components/shared/UI';
 import { updateSeasonAwards, adminDeleteSeason } from '@/app/actions/season';
 import { updateMatchScore } from '@/app/actions/match';
 

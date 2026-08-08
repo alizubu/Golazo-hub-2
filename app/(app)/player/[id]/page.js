@@ -1,7 +1,7 @@
 import { getPlayers } from '@/app/actions/player';
 import { getSeasons } from '@/app/actions/season';
 import prisma from '@/lib/db';
-import PlayerProfileClient from './PlayerProfileClient';
+import PlayerProfileClient from '@/app/components/shared/PlayerProfileClient';
 import { cookies } from 'next/headers';
 import { notFound } from 'next/navigation';
 

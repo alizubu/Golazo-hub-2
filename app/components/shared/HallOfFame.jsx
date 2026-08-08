@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { Trophy } from 'lucide-react';
-import { Avatar, MagicCard, FadeIn } from './UI';
+import { Avatar, MagicCard, FadeIn } from '@/app/components/shared/UI';
 import { motion, AnimatePresence } from 'framer-motion';
 
 // ---------------------------------------------------------------------------

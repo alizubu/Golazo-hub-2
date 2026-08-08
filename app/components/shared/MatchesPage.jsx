@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/app/components/ui/tabs";
-import MatchCard from './MatchCard';
-import StandingsTable from './StandingsTable';
-import PlayoffBracket from './PlayoffBracket';
-import DoubleElimBracket from './DoubleElimBracket';
+import MatchCard from '@/app/components/shared/MatchCard';
+import StandingsTable from '@/app/components/shared/StandingsTable';
+import PlayoffBracket from '@/app/components/shared/PlayoffBracket';
+import DoubleElimBracket from '@/app/components/shared/DoubleElimBracket';
 import { Calendar, ListOrdered, Swords } from 'lucide-react';
 import { supabase } from '@/lib/supabaseClient';
 

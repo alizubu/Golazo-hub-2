@@ -3,7 +3,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Camera, CheckCircle2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Avatar } from '@/app/components/UI';
+import { Avatar } from '@/app/components/shared/UI';
 import { Progress } from '@/app/components/ui/progress';
 import { updatePlayerProfile } from '@/app/actions/player';
 

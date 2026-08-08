@@ -2,11 +2,11 @@
 
 import React, { useState, useEffect } from 'react';
 import { Activity, CheckCircle2, Megaphone, Radio, Zap, TrendingUp, Flame, Eye, Type, Minus, Maximize2, Minimize2, X, Plus, Search, Star, User } from 'lucide-react';
-import { Card, Label, SectionTitle, FadeIn, ShinyButton, Badge } from './UI';
+import { Card, Label, SectionTitle, FadeIn, ShinyButton, Badge } from '@/app/components/shared/UI';
 import { AnimatePresence, motion } from 'framer-motion';
 import { saveTickerConfig } from '@/app/actions/admin';
-import SportsTicker from './SportsTicker';
-import { THEMES, SEPARATORS } from './SportsTickerBadges';
+import SportsTicker from '@/app/components/shared/SportsTicker';
+import { THEMES, SEPARATORS } from '@/app/components/shared/SportsTickerBadges';
 
 // ── Toggle Switch ────────────────────────────────────────────────────────────
 function Toggle({ checked, onChange, label, desc }) {
