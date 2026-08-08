@@ -1,5 +1,9 @@
 import React from 'react';
-import { CheckCircle2, Zap, TrendingUp, Flame, Trophy, Megaphone } from 'lucide-react';
+import { 
+  CheckCircle2, Zap, TrendingUp, Flame, Trophy, Megaphone,
+  Activity, BarChart2, PieChart, Target, Terminal,
+  Video, Star, Camera, PlayCircle, Snowflake, Skull, Crown, FastForward
+} from 'lucide-react';
 
 /* ---------------------------------------------------------
    DATA: 40 THEMES FROM SHOWCASE
@@ -313,11 +317,34 @@ export function getThemeStyles(themeId) {
    Shiny Badges (for Smart Content & Highlights)
 --------------------------------------------------------- */
 export const BADGE_STYLES = {
-  breaking: { background: "linear-gradient(135deg,#5c000d,#ff0a33 50%,#5c000d)", color: "#fff" },
-  highlight: { background: "linear-gradient(135deg,#8a6a1e,#F5C542 50%,#8a6a1e)", color: "#241a03" },
-  stats: { background: "linear-gradient(135deg,#0b3d24,#39ff9c 50%,#0b3d24)", color: "#052a16" },
-  streakHot: { background: "linear-gradient(135deg,#7a1f00,#ff6200 50%,#7a1f00)", color: "#ffe6cc" },
-  streakCold: { background: "linear-gradient(135deg,#0b1a3d,#3988ff 50%,#0b1a3d)", color: "#cce0ff" }
+  breaking: { background: "linear-gradient(135deg,#8a0013,#ff0a33 50%,#8a0013)", color: "#fff", border: "1px solid #ff4d6d" },
+  
+  // STATS
+  cyberNeon: { background: "#0a1128", color: "#00f0ff", border: "1px solid #00f0ff", boxShadow: "0 0 10px rgba(0,240,255,0.4)" },
+  goldStandard: { background: "#1a1a1a", color: "#ffd700", border: "1px solid #ffd700" },
+  frostGlass: { background: "rgba(255, 255, 255, 0.1)", backdropFilter: "blur(12px)", color: "#ffffff", border: "1px solid rgba(255, 255, 255, 0.3)" },
+  holographic: { background: "linear-gradient(135deg, rgba(255,107,107,0.3), rgba(78,205,196,0.3))", color: "#ffffff", border: "1px solid #ffffff" },
+  matrixGreen: { background: "#000000", color: "#00ff41", border: "1px dashed #00ff41" },
+  
+  // HIGHLIGHTS
+  lavaFlow: { background: "linear-gradient(90deg, #7f1d1d, #ea580c)", color: "#ffffff", textShadow: "0 0 5px rgba(255,165,0,0.5)" },
+  electricPurple: { background: "#4c1d95", color: "#f472b6", border: "1px solid #f472b6", textShadow: "0 0 5px rgba(244,114,182,0.5)" },
+  sunriseBurst: { background: "linear-gradient(45deg, #fbbf24, #ec4899, #8b5cf6)", color: "#ffffff" },
+  liquidChrome: { background: "linear-gradient(180deg, #f8fafc, #94a3b8)", color: "#0f172a", border: "1px solid #64748b" },
+  neonPop: { background: "#06b6d4", color: "#000000", border: "1px solid #000", boxShadow: "2px 2px 0px #000" },
+
+  // STREAKS
+  inferno: { background: "#450a0a", color: "#ff4500", border: "1px solid #ff4500", boxShadow: "0 0 15px rgba(255,69,0,0.5)" },
+  absoluteZero: { background: "#000033", color: "#00ffff", border: "1px solid #00ffff", textShadow: "0 0 5px #00ffff" },
+  toxicForm: { background: "#022c22", color: "#39ff14", border: "1px solid #39ff14", boxShadow: "0 0 10px rgba(57,255,20,0.3)" },
+  royalMomentum: { background: "#312e81", color: "#fbbf24", border: "1px solid #fbbf24" },
+  velocity: { background: "linear-gradient(90deg, #1e293b, #eab308)", color: "#ffffff" },
+
+  // LEGACY
+  highlight: { background: "linear-gradient(90deg, #b91c1c, #d97706)", color: "#fff", border: "1px solid #fbbf24", boxShadow: "0 0 10px rgba(217,119,6,0.3)" },
+  stats: { background: "rgba(0,0,0,0.5)", backdropFilter: "blur(10px)", color: "#39ff9c", border: "1px solid rgba(57,255,156,0.6)", boxShadow: "0 0 12px rgba(57,255,156,0.2)" },
+  streakHot: { background: "#1a0800", color: "#ff8c00", border: "1px solid rgba(255,98,0,0.6)", boxShadow: "0 0 12px rgba(255,98,0,0.3)" },
+  streakCold: { background: "#00081a", color: "#3988ff", border: "1px solid rgba(57,136,255,0.6)", boxShadow: "0 0 12px rgba(57,136,255,0.3)" }
 };
 
 export function ShinyBadge({ label, style, icon: Icon }) {
@@ -371,3 +398,26 @@ export function StreakBadge({ type, sizeKey }) {
 export function HighlightBadge({ sizeKey }) {
   return <ShinyBadge label="HIGHLIGHT" icon={Trophy} style={BADGE_STYLES.highlight} />;
 }
+
+// ── CUSTOM MANUALLY ADDED BADGES ─────────────────────────────────────────────
+
+// STATS
+export function CyberNeonBadge({ label = "STATS" }) { return <ShinyBadge label={label} icon={Activity} style={BADGE_STYLES.cyberNeon} />; }
+export function GoldStandardBadge({ label = "STATS" }) { return <ShinyBadge label={label} icon={BarChart2} style={BADGE_STYLES.goldStandard} />; }
+export function FrostGlassBadge({ label = "STATS" }) { return <ShinyBadge label={label} icon={PieChart} style={BADGE_STYLES.frostGlass} />; }
+export function HolographicBadge({ label = "STATS" }) { return <ShinyBadge label={label} icon={Target} style={BADGE_STYLES.holographic} />; }
+export function MatrixGreenBadge({ label = "STATS" }) { return <ShinyBadge label={label} icon={Terminal} style={BADGE_STYLES.matrixGreen} />; }
+
+// HIGHLIGHTS
+export function LavaFlowBadge({ label = "HIGHLIGHT" }) { return <ShinyBadge label={label} icon={Video} style={BADGE_STYLES.lavaFlow} />; }
+export function ElectricPurpleBadge({ label = "HIGHLIGHT" }) { return <ShinyBadge label={label} icon={Zap} style={BADGE_STYLES.electricPurple} />; }
+export function SunriseBurstBadge({ label = "HIGHLIGHT" }) { return <ShinyBadge label={label} icon={Star} style={BADGE_STYLES.sunriseBurst} />; }
+export function LiquidChromeBadge({ label = "HIGHLIGHT" }) { return <ShinyBadge label={label} icon={Camera} style={BADGE_STYLES.liquidChrome} />; }
+export function NeonPopBadge({ label = "HIGHLIGHT" }) { return <ShinyBadge label={label} icon={PlayCircle} style={BADGE_STYLES.neonPop} />; }
+
+// STREAKS
+export function InfernoBadge({ label = "STREAK" }) { return <ShinyBadge label={label} icon={Flame} style={BADGE_STYLES.inferno} />; }
+export function AbsoluteZeroBadge({ label = "STREAK" }) { return <ShinyBadge label={label} icon={Snowflake} style={BADGE_STYLES.absoluteZero} />; }
+export function ToxicFormBadge({ label = "STREAK" }) { return <ShinyBadge label={label} icon={Skull} style={BADGE_STYLES.toxicForm} />; }
+export function RoyalMomentumBadge({ label = "STREAK" }) { return <ShinyBadge label={label} icon={Crown} style={BADGE_STYLES.royalMomentum} />; }
+export function VelocityBadge({ label = "STREAK" }) { return <ShinyBadge label={label} icon={FastForward} style={BADGE_STYLES.velocity} />; }

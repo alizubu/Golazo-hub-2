@@ -291,11 +291,9 @@ export default function SportsTicker({ matches = [], announcements = [], players
   const allHighlights = [...highlightItems, ...(cfg.customHighlights || [])];
   allHighlights.forEach((text, i) => {
     items.push(
-      <div key={`hl-${i}`} className="flex items-center shrink-0 gap-3 font-semibold mx-4 relative overflow-visible">
-        <span className="w-2 h-2 rounded-full bg-amber-400 shadow-[0_0_10px_rgba(245,158,11,0.8)] animate-pulse" />
-        <span className="text-sm font-black tracking-wide uppercase bg-clip-text text-transparent bg-gradient-to-r from-amber-200 via-amber-400 to-amber-200 drop-shadow-[0_2px_2px_rgba(0,0,0,0.5)]" style={{ fontFamily: theme.font }}>
-          {text}
-        </span>
+      <div key={`hl-${i}`} className="flex items-center shrink-0 gap-3 font-semibold mx-4">
+        <HighlightBadge />
+        <span style={{ color: theme.team, fontFamily: theme.font }} className="text-sm font-bold tracking-wide">{text}</span>
       </div>
     );
   });
