@@ -541,60 +541,13 @@ export default function AdminBroadcast({ matches = [], players = [], announcemen
         </Card>
       </FadeIn>
 
-      {/* ── Player to Watch Spotlight ────────────────────────────────────────── */}
+      {/* ── Custom Marquee Badges ────────────────────────────────────────── */}
       <FadeIn delay={0.35}>
-        <Card className="p-4 sm:p-6 border-amber-500/20 bg-gradient-to-br from-zinc-950 to-amber-950/10">
-          <SectionTitle icon={Star} className="text-amber-500">Broadcast Graphics</SectionTitle>
-<p className="text-xs text-amber-500/70 mt-1 mb-4">Trigger lower thirds and instant replay stingers.</p>
-<div className="flex flex-col gap-5">
-{/* Epic Moment */}
-            <div className="p-4 rounded-xl bg-card/40 border border-amber-500/10 shadow-inner">
-              <Label className="mb-3 block text-muted-foreground">Epic Moment Lower Third</Label>
-              <div className="flex flex-col sm:flex-row gap-3 mb-3">
-                <select 
-                  className="px-3 py-2 rounded-lg bg-secondary dark:bg-zinc-900 border border-border dark:border-zinc-700 text-sm text-muted-foreground focus:outline-none focus:border-amber-500/50 flex-1"
-                  value={draft.epicMoment?.playerId || ''}
-                  onChange={e => update('epicMoment', { ...draft.epicMoment, playerId: e.target.value })}
-                >
-                  <option value="">Select Player...</option>
-                  {players.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
-                </select>
-                <input 
-                  type="text" 
-                  placeholder="e.g. 99 FINISHING" 
-                  className="px-3 py-2 rounded-lg bg-secondary dark:bg-zinc-900 border border-border dark:border-zinc-700 text-sm text-muted-foreground focus:outline-none focus:border-amber-500/50 flex-1"
-                  value={draft.epicMoment?.text || ''}
-                  onChange={e => update('epicMoment', { ...draft.epicMoment, text: e.target.value })}
-                />
-              </div>
-              <div className="flex items-center justify-between border-t border-border dark:border-zinc-800/50 pt-3">
-                <span className="text-[11px] text-muted-foreground">Triggers a sliding frosted-glass graphic.</span>
-                <button 
-                  onClick={() => update('epicMoment', { ...draft.epicMoment, active: !draft.epicMoment?.active })}
-                  className={`px-4 py-1.5 rounded-full text-xs font-bold transition-all shadow-md ${draft.epicMoment?.active ? 'bg-amber-500 text-black hover:bg-amber-400' : 'bg-secondary dark:bg-zinc-800 text-muted-foreground hover:bg-zinc-700 border border-border dark:border-zinc-700'}`}
-                >
-                  {draft.epicMoment?.active ? 'Hide Graphic' : 'Show Graphic'}
-                </button>
-              </div>
-            </div>
-
-            {/* Replay Stinger */}
-            <div className="p-4 rounded-xl bg-card/40 border border-amber-500/10 shadow-inner flex items-center justify-between">
-              <div>
-                <Label className="block text-muted-foreground mb-0.5">Instant Replay Stinger</Label>
-                <p className="text-[11px] text-muted-foreground">Plays a 2-second slicing animation over the ticker.</p>
-              </div>
-              <button 
-                onClick={() => update('replayTrigger', Date.now())}
-                className="px-4 py-2 rounded-lg bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 hover:bg-indigo-500/30 font-bold text-xs transition-colors flex items-center gap-2"
-              >
-                <Zap size={14} /> Fire Transition
-              </button>
-            </div>
-            
-            {/* Custom Highlights */}
-            <div className="p-4 rounded-xl bg-card/40 border border-amber-500/10 shadow-inner">
-              <Label className="mb-3 block text-muted-foreground">Custom Marquee Badges</Label>
+        <Card className="p-4 sm:p-6 border-amber-500/20 dark:bg-gradient-to-br dark:from-zinc-950 dark:to-amber-950/10 bg-white dark:bg-transparent">
+          <SectionTitle icon={Star} className="text-amber-500">Custom Marquee Badges</SectionTitle>
+          <p className="text-xs text-amber-600 dark:text-amber-500/70 mt-1 mb-4">Add custom alerts and dynamic badges directly into the broadcast marquee.</p>
+          <div className="flex flex-col gap-5">
+            <div className="p-4 rounded-xl bg-secondary/50 dark:bg-card/40 border border-amber-500/10 shadow-inner">
               <div className="mb-4">
                 <p className="text-[11px] text-muted-foreground mb-2">Select a badge style:</p>
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 max-h-[200px] overflow-y-auto custom-scrollbar p-1">
