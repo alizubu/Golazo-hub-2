@@ -549,52 +549,52 @@ export default function AdminBroadcast({ matches = [], players = [], announcemen
           <div className="flex flex-col gap-5">
             <div className="p-4 rounded-xl bg-secondary/50 dark:bg-card/40 border border-amber-500/10 shadow-inner">
               <div className="mb-4">
-                <p className="text-[11px] text-muted-foreground mb-2">Select a badge style:</p>
-                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 max-h-[200px] overflow-y-auto custom-scrollbar p-1">
+                <p className="text-[11px] text-muted-foreground mb-2 flex items-center gap-2">
+                  <span>Select a badge and type directly on it. Press</span>
+                  <kbd className="px-1.5 py-0.5 rounded bg-zinc-800 border border-zinc-700 text-[9px] font-mono text-amber-500">ENTER</kbd>
+                  <span>to add.</span>
+                </p>
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 p-1">
                   {BADGE_OPTIONS.map(b => {
                     const BadgeComp = BADGE_MAP[b.id];
                     const isSelected = newBadgeType === b.id;
                     return (
-                      <button
+                      <div
                         key={b.id}
                         onClick={() => setNewBadgeType(b.id)}
-                        className={`flex items-center justify-center p-2 rounded-lg border transition-all ${
+                        className={`flex items-center justify-center p-2 rounded-lg border transition-all cursor-pointer ${
                           isSelected ? 'bg-amber-500/20 border-amber-500 shadow-[0_0_10px_rgba(245,158,11,0.2)]' : 'bg-black/20 border-border hover:bg-white/5'
                         }`}
                       >
-                        {BadgeComp ? <BadgeComp label={b.name.toUpperCase()} /> : <span>{b.name}</span>}
-                      </button>
+                        {BadgeComp ? (
+                          isSelected ? (
+                            <BadgeComp label={
+                              <input 
+                                type="text" 
+                                autoFocus
+                                className="bg-transparent border-none outline-none text-center w-full min-w-[60px] text-inherit font-inherit p-0 m-0 placeholder:text-inherit placeholder:opacity-50"
+                                value={newCustomHighlight}
+                                onChange={e => setNewCustomHighlight(e.target.value)}
+                                placeholder={b.name.toUpperCase()}
+                                onClick={e => e.stopPropagation()}
+                                onKeyDown={e => {
+                                  if (e.key === 'Enter' && newCustomHighlight.trim()) {
+                                    const item = { id: Date.now().toString(), text: newCustomHighlight.trim(), badge: b.id };
+                                    update('customHighlights', [...(draft.customHighlights || []), item]);
+                                    setNewCustomHighlight('');
+                                    setNewBadgeType(''); // Deselect after adding
+                                  }
+                                }}
+                              />
+                            } />
+                          ) : (
+                            <BadgeComp label={b.name.toUpperCase()} />
+                          )
+                        ) : <span>{b.name}</span>}
+                      </div>
                     );
                   })}
                 </div>
-              </div>
-              <div className="flex flex-col sm:flex-row gap-2 mb-3">
-                <input 
-                  type="text" 
-                  placeholder="Type your custom text here... e.g. MESSI SCORES!" 
-                  className="flex-1 px-4 py-2.5 rounded-xl bg-secondary dark:bg-zinc-900 border border-border dark:border-zinc-700 text-sm text-foreground focus:outline-none focus:border-amber-500/50"
-                  value={newCustomHighlight}
-                  onChange={e => setNewCustomHighlight(e.target.value)}
-                  onKeyDown={e => {
-                    if (e.key === 'Enter' && newCustomHighlight.trim()) {
-                      const item = { id: Date.now().toString(), text: newCustomHighlight.trim(), badge: newBadgeType };
-                      update('customHighlights', [...(draft.customHighlights || []), item]);
-                      setNewCustomHighlight('');
-                    }
-                  }}
-                />
-                <button 
-                  onClick={() => {
-                    if (newCustomHighlight.trim()) {
-                      const item = { id: Date.now().toString(), text: newCustomHighlight.trim(), badge: newBadgeType };
-                      update('customHighlights', [...(draft.customHighlights || []), item]);
-                      setNewCustomHighlight('');
-                    }
-                  }}
-                  className="px-6 py-2.5 rounded-xl bg-amber-500 text-black font-bold hover:bg-amber-400 transition-colors shadow-lg"
-                >
-                  Add
-                </button>
               </div>
               <div className="space-y-2 max-h-[200px] overflow-y-auto custom-scrollbar">
                 {(draft.customHighlights || []).map((item, idx) => (
