@@ -49,16 +49,19 @@ export const viewport = {
   viewportFit: 'cover',
 };
 
+import { ThemeProvider } from 'next-themes';
 import AppThemeProvider from '@/pwa/components/AppThemeProvider';
 import InstallPrompt from '@/pwa/components/InstallPrompt';
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <body className={`${jakarta.variable} ${sora.variable} ${chakra.variable} font-sans`}>
-        <AppThemeProvider />
-        <InstallPrompt />
-        {children}
+        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+          <AppThemeProvider />
+          <InstallPrompt />
+          {children}
+        </ThemeProvider>
       </body>
     </html>
   );

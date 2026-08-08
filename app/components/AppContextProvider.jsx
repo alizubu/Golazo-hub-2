@@ -40,9 +40,8 @@ export function AppProvider({ children, initialMatches = [] }) {
   const closeProfile = () => setSelectedProfileId(null);
 
   return (
-    <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-      <AppContext.Provider value={{ matches, showToast, selectedProfileId, openProfile, closeProfile }}>
-        {children}
+    <AppContext.Provider value={{ matches, showToast, selectedProfileId, openProfile, closeProfile }}>
+      {children}
       {/* Toast Render */}
       <AnimatePresence>
         {toast && (
@@ -56,8 +55,7 @@ export function AppProvider({ children, initialMatches = [] }) {
           </motion.div>
         )}
       </AnimatePresence>
-      </AppContext.Provider>
-    </ThemeProvider>
+    </AppContext.Provider>
   );
 }
 

@@ -501,16 +501,17 @@ export default function AuthGate({ players = [], showToast }) {
           ╚══════════════════════════════════════════╝ */}
       <div className="hidden md:grid grid-cols-[3fr_2fr] xl:grid-cols-[7fr_5fr] min-h-[100dvh]">
 
-        {/* ─── LEFT PANEL: Cinematic pitch ─── */}
+        {/* ─── LEFT PANEL: Dynamic Pitch (Daytime Light / Nighttime Dark) ─── */}
         <div
-          className="relative flex flex-col overflow-hidden bg-[#0A0D14] text-white dark"
+          className="relative flex flex-col overflow-hidden bg-emerald-950/5 dark:bg-[#0A0D14] text-foreground transition-colors duration-300"
         >
           {/* Pitch SVG */}
           <PitchSVG />
 
-          {/* Radial glow layers */}
-          <div className="absolute inset-0 pointer-events-none hidden dark:block">
-            <div className="absolute inset-0 bg-[radial-gradient(ellipse_65%_55%_at_50%_50%,rgba(31,138,92,0.18)_0%,transparent_70%)]" />
+          {/* Radial glow / Daytime pitch gradient layers */}
+          <div className="absolute inset-0 pointer-events-none">
+            <div className="absolute inset-0 bg-gradient-to-br from-emerald-100/60 via-slate-100/40 to-background dark:from-transparent dark:to-transparent" />
+            <div className="absolute inset-0 bg-[radial-gradient(ellipse_65%_55%_at_50%_50%,rgba(31,138,92,0.18)_0%,transparent_70%)] hidden dark:block" />
             <div className="absolute bottom-0 left-0 right-0 h-36 bg-gradient-to-t from-background dark:from-[#0B0E14] to-transparent" />
             <div className="absolute top-0 left-0 right-0 h-24 bg-gradient-to-b from-background/50 dark:from-[#0B0E14]/50 to-transparent" />
           </div>
@@ -537,7 +538,7 @@ export default function AuthGate({ players = [], showToast }) {
                 <Trophy size={32} className="text-gold" />
               </div>
               <h1
-                className="font-heading font-black tracking-tight text-white leading-none mb-4"
+                className="font-heading font-black tracking-tight text-foreground leading-none mb-4"
                 style={{ fontSize: 'clamp(2.6rem,5vw,4rem)' }}
               >
                 GOLAZO
@@ -546,7 +547,7 @@ export default function AuthGate({ players = [], showToast }) {
                   HUB
                 </span>
               </h1>
-              <p className="text-base text-zinc-400 font-medium leading-relaxed max-w-sm mb-8">
+              <p className="text-base text-muted-foreground font-medium leading-relaxed max-w-sm mb-8">
                 Your crew&apos;s matchday headquarters. Track seasons, score live goals, and own the pitch.
               </p>
 
@@ -565,7 +566,7 @@ export default function AuthGate({ players = [], showToast }) {
                       </div>
                     ))}
                   </div>
-                  <p className="text-sm text-zinc-400">
+                  <p className="text-sm text-muted-foreground">
                     <span className="text-pitch-bright font-bold">{players.length}</span>{' '}
                     player{players.length !== 1 ? 's' : ''} in the league
                   </p>
@@ -575,8 +576,7 @@ export default function AuthGate({ players = [], showToast }) {
           </div>
 
           {/* Soft gradient seam connecting to right panel */}
-          <div className="absolute top-0 bottom-0 right-0 w-32 bg-gradient-to-l from-[#0D1118] to-transparent pointer-events-none z-20 hidden dark:block" />
-          <div className="absolute top-0 bottom-0 right-0 w-[1px] bg-border pointer-events-none z-20 hidden md:block dark:hidden" />
+          <div className="absolute top-0 bottom-0 right-0 w-32 bg-gradient-to-l from-background dark:from-[#0D1118] to-transparent pointer-events-none z-20" />
         </div>
 
         {/* ─── RIGHT PANEL: Auth form ─── */}
@@ -647,9 +647,10 @@ export default function AuthGate({ players = [], showToast }) {
           ╚══════════════════════════════════════════╝ */}
       <div className="md:hidden flex flex-col min-h-[100dvh] bg-background dark:bg-[#0D1118]">
         {/* Top Header: Pitch Visualization */}
-        <div className="relative w-full h-[35dvh] min-h-[260px] flex flex-col items-center justify-center overflow-hidden shrink-0 bg-[#0A0D14] dark">
+        <div className="relative w-full h-[35dvh] min-h-[260px] flex flex-col items-center justify-center overflow-hidden shrink-0 bg-emerald-950/5 dark:bg-[#0A0D14]">
           <PitchSVG className="opacity-60" />
-          <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_60%_at_50%_30%,rgba(31,138,92,0.15)_0%,transparent_70%)]" />
+          <div className="absolute inset-0 bg-gradient-to-b from-emerald-100/40 via-transparent to-background dark:from-transparent dark:to-transparent" />
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_60%_at_50%_30%,rgba(31,138,92,0.15)_0%,transparent_70%)] hidden dark:block" />
           <div className="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-t from-background dark:from-[#0D1118] to-transparent z-10" />
           
           <motion.div
