@@ -320,10 +320,16 @@ export default function SportsTicker({ matches = [], announcements = [], players
         );
       } else {
         const BadgeComponent = badgeComponentMap[hl.badge] || HighlightBadge;
+        const textStyle = {
+          color: hl.style?.color || theme.team,
+          fontFamily: theme.font,
+          fontWeight: hl.style?.bold !== false ? '900' : 'normal',
+          textShadow: hl.style ? `${hl.style.shadowX}px ${hl.style.shadowY}px ${hl.style.shadowBlur}px ${hl.style.shadowColor}` : undefined
+        };
         items.push(
-          <div key={`hl-${hl.id || i}`} className="flex items-center shrink-0 gap-3 font-semibold mx-4">
+          <div key={`hl-${hl.id || i}`} className="flex items-center shrink-0 gap-3 mx-4">
             <BadgeComponent label={hl.badge || 'HIGHLIGHT'} />
-            <span style={{ color: theme.team, fontFamily: theme.font }} className="text-sm font-bold tracking-wide">{hl.text}</span>
+            <span style={textStyle} className="text-sm tracking-wide">{hl.text}</span>
           </div>
         );
       }

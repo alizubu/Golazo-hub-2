@@ -7,7 +7,8 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { saveTickerConfig } from '@/app/actions/admin';
 import SportsTicker from '@/app/components/shared/SportsTicker';
 import { THEMES, SEPARATORS, CyberNeonBadge, GoldStandardBadge, FrostGlassBadge, HolographicBadge, MatrixGreenBadge, LavaFlowBadge, ElectricPurpleBadge, SunriseBurstBadge, LiquidChromeBadge, NeonPopBadge, InfernoBadge, AbsoluteZeroBadge, ToxicFormBadge, RoyalMomentumBadge, VelocityBadge } from '@/app/components/shared/SportsTickerBadges';
-
+import { Slider } from '@/app/components/ui/slider';
+import { Toggle as ShadcnToggle } from '@/app/components/ui/toggle';
 
 const BADGE_MAP = {
   CyberNeon: CyberNeonBadge,
@@ -208,6 +209,14 @@ export default function AdminBroadcast({ matches = [], players = [], announcemen
   const [newCustomHighlight, setNewCustomHighlight] = useState('');
   const [newBadgeType, setNewBadgeType] = useState('LavaFlow');
   
+  // Breaking News Style State
+  const [newNewsColor, setNewNewsColor] = useState('#ffffff');
+  const [newNewsBold, setNewNewsBold] = useState(true);
+  const [newShadowX, setNewShadowX] = useState(0);
+  const [newShadowY, setNewShadowY] = useState(0);
+  const [newShadowBlur, setNewShadowBlur] = useState(10);
+  const [newShadowColor, setNewShadowColor] = useState('#ff0000');
+
   // Theme Gallery state
   const [themeQuery, setThemeQuery] = useState('');
   const [activeThemeTag, setActiveThemeTag] = useState(null);
@@ -541,20 +550,22 @@ export default function AdminBroadcast({ matches = [], players = [], announcemen
         </Card>
       </FadeIn>
 
-      {/* ── Custom Marquee Badges ────────────────────────────────────────── */}
+      {/* ── Breaking News / Custom Marquee ────────────────────────────── */}
       <FadeIn delay={0.35}>
-        <Card className="p-4 sm:p-6 border-amber-500/20 dark:bg-gradient-to-br dark:from-zinc-950 dark:to-amber-950/10 bg-white dark:bg-transparent">
-          <SectionTitle icon={Star} className="text-amber-500">Custom Marquee Badges</SectionTitle>
-          <p className="text-xs text-amber-600 dark:text-amber-500/70 mt-1 mb-4">Add custom alerts and dynamic badges directly into the broadcast marquee.</p>
-          <div className="flex flex-col gap-5">
-            <div className="p-4 rounded-xl bg-secondary/50 dark:bg-card/40 border border-amber-500/10 shadow-inner">
-              <div className="mb-4">
-                <p className="text-[11px] text-muted-foreground mb-2 flex items-center gap-2">
-                  <span>Select a badge and type directly on it. Press</span>
-                  <kbd className="px-1.5 py-0.5 rounded bg-zinc-800 border border-zinc-700 text-[9px] font-mono text-amber-500">ENTER</kbd>
-                  <span>to add.</span>
-                </p>
-                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 p-1">
+        <Card className="p-4 sm:p-6 border-amber-500/20 dark:bg-gradient-to-br dark:from-zinc-950 dark:to-amber-950/10 bg-white dark:bg-transparent overflow-hidden relative">
+          {/* Subtle animated background glow */}
+          <div className="absolute top-0 right-0 w-64 h-64 bg-amber-500/5 rounded-full blur-3xl pointer-events-none mix-blend-screen" />
+          
+          <SectionTitle icon={Megaphone} className="text-amber-500">Breaking News Alerts</SectionTitle>
+          <p className="text-xs text-amber-600 dark:text-amber-500/70 mt-1 mb-6">Create fully customized marquee alerts with rich text styling.</p>
+          
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            
+            {/* LEFT COLUMN: Badge Selector */}
+            <div className="lg:col-span-4 flex flex-col gap-3">
+              <Label className="text-muted-foreground text-xs font-bold uppercase tracking-wider">1. Select Badge</Label>
+              <div className="bg-secondary/30 dark:bg-card/40 border border-border/50 rounded-xl p-2 h-[350px] overflow-y-auto custom-scrollbar shadow-inner">
+                <div className="grid grid-cols-2 gap-2">
                   {BADGE_OPTIONS.map(b => {
                     const BadgeComp = BADGE_MAP[b.id];
                     const isSelected = newBadgeType === b.id;
@@ -562,41 +573,155 @@ export default function AdminBroadcast({ matches = [], players = [], announcemen
                       <div
                         key={b.id}
                         onClick={() => setNewBadgeType(b.id)}
-                        className={`flex items-center justify-center p-2 rounded-lg border transition-all cursor-pointer ${
-                          isSelected ? 'bg-amber-500/20 border-amber-500 shadow-[0_0_10px_rgba(245,158,11,0.2)]' : 'bg-black/20 border-border hover:bg-white/5'
+                        className={`flex items-center justify-center p-3 rounded-lg border transition-all cursor-pointer ${
+                          isSelected ? 'bg-amber-500/10 border-amber-500 shadow-[0_0_15px_rgba(245,158,11,0.15)] scale-[1.02]' : 'bg-black/10 border-border/40 hover:bg-white/5 hover:border-border'
                         }`}
                       >
-                        {BadgeComp ? (
-                          isSelected ? (
-                            <BadgeComp label={
-                              <input 
-                                type="text" 
-                                autoFocus
-                                className="bg-transparent border-none outline-none text-center w-full min-w-[60px] text-inherit font-inherit p-0 m-0 placeholder:text-inherit placeholder:opacity-50"
-                                value={newCustomHighlight}
-                                onChange={e => setNewCustomHighlight(e.target.value)}
-                                placeholder={b.name.toUpperCase()}
-                                onClick={e => e.stopPropagation()}
-                                onKeyDown={e => {
-                                  if (e.key === 'Enter' && newCustomHighlight.trim()) {
-                                    const item = { id: Date.now().toString(), text: newCustomHighlight.trim(), badge: b.id };
-                                    update('customHighlights', [...(draft.customHighlights || []), item]);
-                                    setNewCustomHighlight('');
-                                    setNewBadgeType(''); // Deselect after adding
-                                  }
-                                }}
-                              />
-                            } />
-                          ) : (
-                            <BadgeComp label={b.name.toUpperCase()} />
-                          )
-                        ) : <span>{b.name}</span>}
+                        {BadgeComp ? <BadgeComp label={b.name.toUpperCase()} /> : <span>{b.name}</span>}
                       </div>
                     );
                   })}
                 </div>
               </div>
-              <div className="space-y-2 max-h-[200px] overflow-y-auto custom-scrollbar">
+            </div>
+
+            {/* MIDDLE COLUMN: Text & Style Editor */}
+            <div className="lg:col-span-8 flex flex-col gap-5">
+              
+              {/* Text Input */}
+              <div className="space-y-2">
+                <Label className="text-muted-foreground text-xs font-bold uppercase tracking-wider">2. Alert Content</Label>
+                <div className="relative">
+                  <input
+                    type="text"
+                    placeholder="Enter breaking news text..."
+                    className="w-full pl-11 pr-4 py-3 rounded-xl bg-secondary dark:bg-zinc-900/80 border border-border dark:border-zinc-700/80 text-foreground focus:outline-none focus:ring-2 focus:ring-amber-500/50 focus:border-transparent transition-all font-medium"
+                    value={newCustomHighlight}
+                    onChange={e => setNewCustomHighlight(e.target.value)}
+                  />
+                  <Type className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground" size={16} />
+                </div>
+              </div>
+
+              {/* Styling Controls Grid */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 p-4 rounded-xl bg-secondary/30 dark:bg-card/40 border border-border/50 shadow-inner">
+                
+                {/* Font Options */}
+                <div className="space-y-4">
+                  <Label className="text-xs text-muted-foreground flex items-center gap-2"><Zap size={12} className="text-amber-500" /> Font Style</Label>
+                  <div className="flex items-center gap-4">
+                    <div className="flex items-center gap-2">
+                      <input 
+                        type="color" 
+                        value={newNewsColor} 
+                        onChange={e => setNewNewsColor(e.target.value)}
+                        className="w-8 h-8 rounded cursor-pointer bg-transparent border-0 p-0" 
+                        title="Text Color"
+                      />
+                      <span className="text-[11px] text-muted-foreground">Color</span>
+                    </div>
+                    <ShadcnToggle 
+                      pressed={newNewsBold} 
+                      onPressedChange={setNewNewsBold}
+                      className="data-[state=on]:bg-amber-500/20 data-[state=on]:text-amber-500 border border-border/50 text-xs font-bold"
+                      size="sm"
+                    >
+                      Bold
+                    </ShadcnToggle>
+                  </div>
+                </div>
+
+                {/* Shadow Color */}
+                <div className="space-y-4">
+                  <Label className="text-xs text-muted-foreground flex items-center gap-2"><Flame size={12} className="text-red-500" /> Glow / Shadow</Label>
+                  <div className="flex items-center gap-2">
+                    <input 
+                      type="color" 
+                      value={newShadowColor} 
+                      onChange={e => setNewShadowColor(e.target.value)}
+                      className="w-8 h-8 rounded cursor-pointer bg-transparent border-0 p-0" 
+                      title="Shadow Color"
+                    />
+                    <span className="text-[11px] text-muted-foreground font-mono">{newShadowColor}</span>
+                  </div>
+                </div>
+
+                {/* Shadow Sliders */}
+                <div className="sm:col-span-2 space-y-5 pt-2 border-t border-border/50">
+                  <div className="space-y-2">
+                    <div className="flex justify-between">
+                      <Label className="text-[10px] text-muted-foreground uppercase">X Offset: {newShadowX}px</Label>
+                    </div>
+                    <Slider value={[newShadowX]} onValueChange={v => setNewShadowX(v[0])} min={-20} max={20} step={1} className="py-1" />
+                  </div>
+                  <div className="space-y-2">
+                    <div className="flex justify-between">
+                      <Label className="text-[10px] text-muted-foreground uppercase">Y Offset: {newShadowY}px</Label>
+                    </div>
+                    <Slider value={[newShadowY]} onValueChange={v => setNewShadowY(v[0])} min={-20} max={20} step={1} className="py-1" />
+                  </div>
+                  <div className="space-y-2">
+                    <div className="flex justify-between">
+                      <Label className="text-[10px] text-muted-foreground uppercase">Blur Radius: {newShadowBlur}px</Label>
+                    </div>
+                    <Slider value={[newShadowBlur]} onValueChange={v => setNewShadowBlur(v[0])} min={0} max={30} step={1} className="py-1" />
+                  </div>
+                </div>
+              </div>
+              
+              {/* Preview & Action */}
+              <div className="mt-2 space-y-3">
+                <Label className="text-muted-foreground text-xs font-bold uppercase tracking-wider">3. Live Preview</Label>
+                <div className="p-4 rounded-xl bg-zinc-950 border border-zinc-800 shadow-2xl overflow-hidden relative min-h-[60px] flex items-center">
+                  <div className="absolute inset-0 opacity-20 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] mix-blend-overlay"></div>
+                  
+                  {/* The Preview Itself */}
+                  <div className="relative z-10 flex items-center gap-3 w-full whitespace-nowrap overflow-x-auto custom-scrollbar pb-1">
+                    {BADGE_MAP[newBadgeType] && React.createElement(BADGE_MAP[newBadgeType], { label: BADGE_OPTIONS.find(b => b.id === newBadgeType)?.name.toUpperCase() })}
+                    <span 
+                      className="tracking-wide"
+                      style={{
+                        color: newNewsColor,
+                        fontWeight: newNewsBold ? '900' : 'bold',
+                        textShadow: `${newShadowX}px ${newShadowY}px ${newShadowBlur}px ${newShadowColor}`
+                      }}
+                    >
+                      {newCustomHighlight || "YOUR CUSTOM BREAKING NEWS HERE..."}
+                    </span>
+                  </div>
+                </div>
+
+                <div className="flex justify-end pt-2">
+                  <ShinyButton 
+                    className="shadow-lg shadow-amber-500/20"
+                    onClick={() => {
+                      if (newCustomHighlight.trim()) {
+                        const style = {
+                          color: newNewsColor,
+                          bold: newNewsBold,
+                          shadowX: newShadowX,
+                          shadowY: newShadowY,
+                          shadowBlur: newShadowBlur,
+                          shadowColor: newShadowColor
+                        };
+                        const item = { id: Date.now().toString(), text: newCustomHighlight.trim(), badge: newBadgeType, style };
+                        update('customHighlights', [...(draft.customHighlights || []), item]);
+                        setNewCustomHighlight('');
+                      }
+                    }}
+                  >
+                    <Plus size={16} className="mr-2" /> Add to Marquee
+                  </ShinyButton>
+                </div>
+              </div>
+
+            </div>
+          </div>
+          
+          {/* List of Added Alerts */}
+          <div className="mt-8 pt-6 border-t border-border/50">
+            <Label className="text-muted-foreground text-xs font-bold uppercase tracking-wider mb-3 block">Active Alerts</Label>
+            <div className="space-y-2 max-h-[250px] overflow-y-auto custom-scrollbar pr-2">
                 {(draft.customHighlights || []).map((item, idx) => (
                   <div key={item.id || idx} className="flex items-center justify-between p-2 rounded-md bg-white/5 border border-white/10">
                     <div className="flex items-center gap-2 truncate">
@@ -616,7 +741,6 @@ export default function AdminBroadcast({ matches = [], players = [], announcemen
                 )}
               </div>
             </div>
-          </div>
         </Card>
       </FadeIn>
 
