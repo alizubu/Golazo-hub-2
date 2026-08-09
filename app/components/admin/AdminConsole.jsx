@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Trophy, Calendar, Users, Radio, Clock, Check, Archive, Plus, Trash2, Settings, Swords, Edit2, ListOrdered, BarChart2, AlertTriangle, ArrowRight, Megaphone, ChevronDown, Package, MoreVertical, History, CheckCircle2, X } from 'lucide-react';
+import { Trophy, Calendar, Users, Radio, Clock, Check, Archive, Plus, Trash2, Settings, Swords, Edit2, ListOrdered, BarChart2, AlertTriangle, ArrowRight, Megaphone, ChevronDown, Package, MoreVertical, History, CheckCircle2, X, Camera } from 'lucide-react';
 import { BorderBeam } from '@/app/components/magicui/BorderBeam';
 import { Card, Btn, Input, Label, SectionTitle, EmptyState, MagicCard, FadeIn, ShinyButton, Badge, Avatar, toTitleCase } from '@/app/components/shared/UI';
 import PlayerTag from '@/app/components/shared/PlayerTag';
@@ -12,7 +12,7 @@ import { awardTrophy, removeTrophy, updateTrophy, createAnnouncement, deleteAnno
 
 import { startSeason, updateSeason, completeSeason, updateSeasonAwards } from '@/app/actions/season';
 import { signUpPlayer, adminUpdatePlayer, adminDeletePlayer } from '@/app/actions/player';
-import { uploadImage } from '@/app/actions/upload';
+import { CldUploadWidget } from 'next-cloudinary';
 import { supabase } from '@/lib/supabaseClient';
 import PlayoffBracket from '@/app/components/shared/PlayoffBracket';
 import { getCode } from 'country-list';
@@ -81,7 +81,6 @@ import RichTextEditor from '@/app/components/shared/RichTextEditor';
 export function AdminPlayers({ players, showToast, session, managerPermissions }) {
   const [editing, setEditing] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [uploading, setUploading] = useState(false);
   const blank = { name: "", username: "", email: "", avatar: null, avatarImage: null, flag: null, teamName: "", teamLogo: null, password: "" };
   const [form, setForm] = useState(blank);
   const startNew = () => { setForm(blank); setEditing("new"); };
@@ -104,26 +103,6 @@ export function AdminPlayers({ players, showToast, session, managerPermissions }
     }
     setLoading(false);
     setEditing(null);
-  };
-  
-  const handleImageUpload = async (e) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    if (file.size > 5 * 1024 * 1024) return showToast("Image must be less than 5MB");
-    
-    setUploading(true);
-    const reader = new FileReader();
-    reader.onloadend = async () => {
-      const base64 = reader.result;
-      const res = await uploadImage(base64);
-      if (res.error) showToast(res.error);
-      else {
-        setForm(prev => ({ ...prev, avatarImage: res.url }));
-        showToast("Image uploaded!");
-      }
-      setUploading(false);
-    };
-    reader.readAsDataURL(file);
   };
   
   const remove = async (id) => { 
@@ -149,31 +128,55 @@ export function AdminPlayers({ players, showToast, session, managerPermissions }
             <div className="text-xl font-bold font-heading tracking-wide mb-4 text-gold">
               {editing === "new" ? "New player account" : "Edit player"}
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="md:col-span-2 flex flex-col gap-2">
-                <Label>Avatar Image (Click to upload)</Label>
-                <label className={`w-16 h-16 rounded-full overflow-hidden border-2 border-dashed border-border/50 hover:border-gold cursor-pointer transition-colors flex items-center justify-center bg-secondary/30 ${uploading ? 'opacity-50 pointer-events-none' : ''}`}>
-                   {form.avatarImage ? (
-                     <img src={form.avatarImage} alt="Avatar" className="w-full h-full object-cover" />
-                   ) : form.avatar ? (
-                     <span className="font-heading font-black text-xl text-muted-foreground">{form.avatar}</span>
-                   ) : (
-                     <Plus size={20} className="text-muted-foreground" />
-                   )}
-                   <input type="file" accept="image/*" className="hidden" onChange={handleImageUpload} disabled={uploading} />
-                </label>
+            <div className="grid grid-cols-1 md:grid-cols-[auto_1fr] gap-8 items-start">
+              
+              <div className="flex flex-col items-center justify-center gap-4 w-full md:w-48 mt-2">
+                <CldUploadWidget 
+                  signatureEndpoint="/api/sign-cloudinary-params"
+                  options={{ cropping: true, croppingAspectRatio: 1, multiple: false, clientAllowedFormats: ['png','jpeg','jpg','webp'] }}
+                  onSuccess={(result) => {
+                    setForm(prev => ({ ...prev, avatarImage: result.info.secure_url }));
+                    showToast("Image uploaded successfully!");
+                  }}
+                >
+                  {({ open }) => (
+                    <div 
+                      className="group relative w-32 h-32 md:w-40 md:h-40 rounded-full overflow-hidden border-4 border-secondary/50 hover:border-gold cursor-pointer transition-all shadow-2xl flex items-center justify-center bg-secondary/30"
+                      onClick={() => open()}
+                    >
+                      {form.avatarImage ? (
+                        <img src={form.avatarImage} alt="Avatar" className="w-full h-full object-cover" />
+                      ) : form.avatar ? (
+                        <span className="font-heading font-black text-5xl text-muted-foreground">{form.avatar}</span>
+                      ) : (
+                        <Camera size={40} className="text-muted-foreground/30" />
+                      )}
+                      
+                      <div className="absolute inset-0 bg-black/60 backdrop-blur-sm flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                        <Camera size={24} className="text-white mb-2" />
+                        <span className="text-white text-xs font-bold tracking-wide uppercase">Change Photo</span>
+                      </div>
+                    </div>
+                  )}
+                </CldUploadWidget>
+                <div className="text-center">
+                  <p className="text-[10px] text-muted-foreground font-semibold uppercase tracking-widest">Profile Picture</p>
+                </div>
               </div>
-              <div><Label>Display name</Label><Input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} placeholder="Player name" /></div>
-              <div><Label>Username</Label><Input value={form.username} onChange={(e) => setForm({ ...form, username: e.target.value })} placeholder="username" /></div>
-              <div className="md:col-span-2"><Label>Email</Label><Input value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} placeholder="email" /></div>
-              <div className="md:col-span-2"><Label>{editing === "new" ? "Temporary password" : "Reset password (leave blank to keep)"}</Label><Input type="password" value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} placeholder="4+ characters" /></div>
-              {editing !== "new" && (
-                <>
-                  <div><Label>Team name</Label><Input value={form.teamName} onChange={(e) => setForm({ ...form, teamName: e.target.value })} /></div>
-                  <div><Label>2-Letter Flag Code</Label><Input value={form.flag || ""} onChange={(e) => setForm({ ...form, flag: e.target.value.toLowerCase() })} placeholder="e.g. gb, us, br" maxLength={2} /></div>
-                  <div><Label>Short Initials (Fallback)</Label><Input value={form.avatar || ""} onChange={(e) => setForm({ ...form, avatar: e.target.value.toUpperCase() })} placeholder="e.g. MES" maxLength={3} /></div>
-                </>
-              )}
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
+                <div><Label>Display name</Label><Input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} placeholder="Player name" /></div>
+                <div><Label>Username</Label><Input value={form.username} onChange={(e) => setForm({ ...form, username: e.target.value })} placeholder="username" /></div>
+                <div className="md:col-span-2"><Label>Email</Label><Input value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} placeholder="email" /></div>
+                <div className="md:col-span-2"><Label>{editing === "new" ? "Temporary password" : "Reset password (leave blank to keep)"}</Label><Input type="password" value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} placeholder="4+ characters" /></div>
+                {editing !== "new" && (
+                  <>
+                    <div><Label>Team name</Label><Input value={form.teamName} onChange={(e) => setForm({ ...form, teamName: e.target.value })} /></div>
+                    <div><Label>2-Letter Flag Code</Label><Input value={form.flag || ""} onChange={(e) => setForm({ ...form, flag: e.target.value.toLowerCase() })} placeholder="e.g. gb, us, br" maxLength={2} /></div>
+                    <div><Label>Short Initials</Label><Input value={form.avatar || ""} onChange={(e) => setForm({ ...form, avatar: e.target.value.toUpperCase() })} placeholder="e.g. MES" maxLength={3} /></div>
+                  </>
+                )}
+              </div>
             </div>
             <div className="flex gap-3 mt-6">
               <ShinyButton onClick={save} loading={loading}><Check size={15} /> Save</ShinyButton>
