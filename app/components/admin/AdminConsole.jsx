@@ -133,7 +133,7 @@ export function AdminPlayers({ players, showToast, session, managerPermissions }
               <div className="flex flex-col items-center justify-center gap-4 w-full md:w-48 mt-2">
                 <CldUploadWidget 
                   signatureEndpoint="/api/sign-cloudinary-params"
-                  options={{ cropping: true, croppingAspectRatio: 1, multiple: false, clientAllowedFormats: ['png','jpeg','jpg','webp'] }}
+                  options={{ sources: ['local', 'camera'], cropping: true, croppingAspectRatio: 1, multiple: false, clientAllowedFormats: ['png','jpeg','jpg','webp'] }}
                   onSuccess={(result) => {
                     setForm(prev => ({ ...prev, avatarImage: result.info.secure_url }));
                     showToast("Image uploaded successfully!");
