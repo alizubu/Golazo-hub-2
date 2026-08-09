@@ -62,14 +62,29 @@ export const TopBar = ({ session, me, items, pathname, handleNav, unreadCount, i
                 <Link href="/notifications" onClick={(e) => handleNav(e, "/notifications")}
                   className="relative flex items-center justify-center w-10 h-10 rounded-full text-muted-foreground hover:text-foreground hover:bg-secondary/50 active:bg-secondary transition-colors outline-none"
                 >
-                  <Bell size={20} />
+                  <motion.div
+                    key={`bell-${unreadCount}`}
+                    initial={{ rotate: 0 }}
+                    animate={unreadCount > 0 && !shouldReduceMotion ? { rotate: [0, -15, 15, -15, 15, 0] } : { rotate: 0 }}
+                    transition={{ duration: 0.6, type: "spring" }}
+                  >
+                    <Bell size={20} />
+                  </motion.div>
                   {unreadCount > 0 && (
-                    <div className="absolute -top-0.5 -right-0.5 flex items-center justify-center z-10">
-                      <span className="absolute w-5 h-5 rounded-full bg-rose-500 opacity-75 animate-ping" />
+                    <motion.div 
+                      key={`badge-${unreadCount}`}
+                      initial={{ scale: 0.6, opacity: 0 }}
+                      animate={{ scale: 1, opacity: 1 }}
+                      transition={{ type: "spring", stiffness: 400, damping: 12 }}
+                      className="absolute -top-0.5 -right-0.5 flex items-center justify-center z-10"
+                    >
+                      {!shouldReduceMotion && (
+                        <span className="absolute w-5 h-5 rounded-full bg-rose-500 opacity-75 animate-ping" />
+                      )}
                       <span className="relative flex items-center justify-center w-5 h-5 rounded-full bg-gradient-to-br from-rose-500 to-red-600 text-foreground text-[10px] font-bold border-2 border-zinc-950 shadow-sm">
                         {unreadCount > 9 ? '9+' : unreadCount}
                       </span>
-                    </div>
+                    </motion.div>
                   )}
                 </Link>
 
@@ -117,16 +132,29 @@ export const TopBar = ({ session, me, items, pathname, handleNav, unreadCount, i
               <>
                 <ThemeToggle />
                 <Link href="/notifications" onClick={(e) => handleNav(e, "/notifications")} className="relative flex items-center justify-center w-8 h-8 rounded-full text-muted-foreground hover:text-foreground active:bg-secondary/50 transition-colors outline-none">
-                  <Bell size={18} />
+                  <motion.div
+                    key={`bell-m-${unreadCount}`}
+                    initial={{ rotate: 0 }}
+                    animate={unreadCount > 0 && !shouldReduceMotion ? { rotate: [0, -15, 15, -15, 15, 0] } : { rotate: 0 }}
+                    transition={{ duration: 0.6, type: "spring" }}
+                  >
+                    <Bell size={18} />
+                  </motion.div>
                   {unreadCount > 0 && (
-                    <div className="absolute -top-1 -right-1 flex items-center justify-center">
+                    <motion.div 
+                      key={`badge-m-${unreadCount}`}
+                      initial={{ scale: 0.6, opacity: 0 }}
+                      animate={{ scale: 1, opacity: 1 }}
+                      transition={{ type: "spring", stiffness: 400, damping: 12 }}
+                      className="absolute -top-1 -right-1 flex items-center justify-center"
+                    >
                       {!shouldReduceMotion && (
                         <span className="absolute w-4 h-4 rounded-full bg-rose-500 opacity-75 animate-ping" style={{ animationDuration: '2s' }} />
                       )}
                       <span className="relative flex items-center justify-center w-4 h-4 rounded-full bg-gradient-to-br from-rose-500 to-red-600 text-foreground text-[9px] font-bold border-[1.5px] border-zinc-950">
                         {unreadCount > 9 ? '9+' : unreadCount}
                       </span>
-                    </div>
+                    </motion.div>
                   )}
                 </Link>
 

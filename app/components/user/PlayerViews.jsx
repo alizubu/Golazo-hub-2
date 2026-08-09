@@ -5,9 +5,10 @@ import { PageHeader } from '@/app/components/shared/PageHeader';
 import { Trophy, Clock, ListOrdered, Calendar, Swords, Megaphone, Bell, Pen, Target, Handshake, Shield, Activity, Lock, Flame, BadgeCheck, TrendingUp, Users, ArrowRight } from 'lucide-react';
 import { Btn, Badge, Avatar, PlayerChip, SectionTitle, EmptyState, MagicCard, FadeIn, ShinyButton, Label, WavingFlag, PlayStyleBadge, OnFireAvatar } from '@/app/components/shared/UI';
 import { AvatarWithBadge } from '@/app/components/shared/FootballIdentity';
+import { ClubLogo } from '@/app/components/shared/ClubLogo';
 import { Card, CardHeader, CardTitle, CardContent } from '@/app/components/ui/card';
 import { NumberTicker } from '@/app/components/ui/number-ticker';
-import { motion } from 'framer-motion';
+import { motion, useScroll, useTransform, useReducedMotion } from 'framer-motion';
 import { useRouter } from 'next/navigation';
 import SettingsView from '@/app/components/shared/SettingsView';
 import MatchesPage from '@/app/components/shared/MatchesPage';
@@ -24,6 +25,7 @@ import { markNotificationsRead } from '@/app/actions/player';
 import { Skeleton } from '@/app/components/ui/skeleton';
 import { HoverCard, HoverCardContent, HoverCardTrigger } from '@/app/components/ui/hover-card';
 import { computeStandings } from '@/app/components/shared/StandingsTable';
+import { CLUB_COLORS } from '@/lib/data/club-colors';
 import clubsData from '@/lib/data/clubs.json';
 import nationalTeamsData from '@/lib/data/national_teams.json';
 
@@ -151,6 +153,10 @@ function CircularProgress({ value, color = "var(--pitch-bright)", label }) {
 
 export function PlayerDashboard({ me, activeSeason, seasons = [], matches, players, announcements = [], trophies = [], notifications = [], setTab, persistPlayers, onMatchClick, viewOnly, onH2HClick }) {
   const router = useRouter();
+  const shouldReduceMotion = useReducedMotion();
+  const { scrollY } = useScroll();
+  const coverY = useTransform(scrollY, [0, 500], [0, 80]);
+
   const [selectedSeasonId, setSelectedSeasonId] = React.useState(activeSeason?.id);
   const [statsLoaded, setStatsLoaded] = React.useState(false);
   const [failedCoverUrl, setFailedCoverUrl] = React.useState(null);
@@ -317,15 +323,18 @@ export function PlayerDashboard({ me, activeSeason, seasons = [], matches, playe
         <div className="relative rounded-3xl overflow-hidden bg-card border border-border shadow-2xl flex flex-col">
           {/* Cover Banner */}
           <div className="h-48 md:h-56 w-full relative bg-secondary/50 overflow-hidden flex-shrink-0">
-            {me.coverBanner && failedCoverUrl !== me.coverBanner ? (
-              <img src={me.coverBanner} alt="Cover Banner" className="w-full h-full object-cover" onError={() => setFailedCoverUrl(me.coverBanner)} />
-            ) : (
-              <div className="w-full h-full bg-gradient-to-tr from-pitch/80 via-claret/60 to-gold/40 flex items-center justify-center">
-                <span className="text-6xl drop-shadow-2xl opacity-50">⚽</span>
-              </div>
-            )}
-
-
+            <motion.div 
+              style={{ y: shouldReduceMotion ? 0 : coverY }} 
+              className="w-full h-[120%] -top-[10%] absolute"
+            >
+              {me.coverBanner && failedCoverUrl !== me.coverBanner ? (
+                <img src={me.coverBanner} alt="Cover Banner" className="w-full h-full object-cover" onError={() => setFailedCoverUrl(me.coverBanner)} />
+              ) : (
+                <div className="w-full h-full bg-gradient-to-tr from-pitch/80 via-claret/60 to-gold/40 flex items-center justify-center">
+                  <span className="text-6xl drop-shadow-2xl opacity-50">⚽</span>
+                </div>
+              )}
+            </motion.div>
           </div>
 
           {/* Profile Body */}
@@ -338,7 +347,19 @@ export function PlayerDashboard({ me, activeSeason, seasons = [], matches, playe
                 {/* Avatar */}
                 <div className="-mt-16 md:-mt-20 relative z-30 flex-shrink-0">
                   <div className="relative inline-block">
-                    <div className="absolute -inset-1 rounded-full bg-gradient-to-br from-gold via-pitch-bright to-claret animate-spin [animation-duration:4s] blur-[1px] opacity-80" />
+                    {/* Dynamic Glow Ring */}
+                    <motion.div 
+                      animate={!viewOnly && !shouldReduceMotion ? { scale: [1, 1.03, 1], opacity: [0.8, 1, 0.8] } : {}}
+                      transition={{ duration: 2.8, repeat: Infinity, ease: "easeInOut" }}
+                      className="absolute -inset-1 rounded-full blur-[2px]"
+                      style={{
+                        background: selectedClub && CLUB_COLORS[selectedClub.name]
+                          ? `linear-gradient(135deg, ${CLUB_COLORS[selectedClub.name].primary}, ${CLUB_COLORS[selectedClub.name].secondary})`
+                          : selectedNationalTeam
+                            ? `linear-gradient(135deg, var(--gold), var(--claret))`
+                            : `linear-gradient(135deg, var(--pitch-bright), var(--pitch))`
+                      }}
+                    />
                     <div className="relative rounded-full p-1 bg-card shadow-xl">
                       <AvatarWithBadge player={me} size={100} isOnFire={isOnFire} />
                     </div>
@@ -347,7 +368,7 @@ export function PlayerDashboard({ me, activeSeason, seasons = [], matches, playe
 
                 <div className="flex-1 flex flex-col items-center md:items-start gap-1 pt-1 min-w-0">
                   
-                  {/* Name + Rank Badge */}
+                  {/* Name */}
                   <motion.div 
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
@@ -358,15 +379,6 @@ export function PlayerDashboard({ me, activeSeason, seasons = [], matches, playe
                       {me.name}
                       {myRank === 1 && <BadgeCheck size={22} className="text-blue-400 shrink-0" title="Top Ranked Player" />}
                     </h1>
-                    {me.flag && (
-                      <div className="hidden md:block shrink-0 mt-1"><WavingFlag code={me.flag} size="md" /></div>
-                    )}
-                    {myRank > 0 && (
-                      <Badge className="shrink-0 bg-amber-500/15 text-amber-500 border border-amber-500/30 px-2 py-0.5 shadow-sm text-sm font-bold flex items-center gap-1.5">
-                        <Trophy size={12} className="text-amber-500" />
-                        #{myRank}
-                      </Badge>
-                    )}
                   </motion.div>
 
                   {/* Handle Row */}
@@ -378,72 +390,130 @@ export function PlayerDashboard({ me, activeSeason, seasons = [], matches, playe
                   >
                     <span className="text-muted-foreground font-score text-sm">@{me.username}</span>
                     <PlayStyleBadge style={me.playStyle} showLabel={true} size="sm" />
-                    {me.flag && (
-                      <div className="md:hidden shrink-0"><WavingFlag code={me.flag} size="sm" /></div>
-                    )}
                   </motion.div>
 
-                  {/* Stat Chips Row */}
+                  {/* Stats Grid */}
                   {played > 0 && (
-                    <div className="flex flex-wrap items-center justify-center md:justify-start gap-2 mb-4 w-full">
-                      <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.2 }}>
-                        <StatChip icon={Swords} value={played} label="Matches" />
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 w-full mb-6">
+                      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="bg-card border border-border/50 rounded-2xl p-4 shadow-sm flex flex-col items-center sm:items-start text-center sm:text-left">
+                        <Swords size={16} className="text-muted-foreground mb-2" />
+                        <span className="text-2xl font-black font-score text-foreground leading-none mb-1"><NumberTicker value={played} /></span>
+                        <span className="text-[10px] uppercase font-bold text-muted-foreground tracking-widest">Matches</span>
                       </motion.div>
-                      <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.24 }}>
-                        <StatChip icon={Trophy} value={won} label="Wins" />
+                      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.24 }} className="bg-card border border-border/50 rounded-2xl p-4 shadow-sm flex flex-col items-center sm:items-start text-center sm:text-left">
+                        <Trophy size={16} className="text-amber-500 mb-2" />
+                        <span className="text-2xl font-black font-score text-foreground leading-none mb-1"><NumberTicker value={won} /></span>
+                        <span className="text-[10px] uppercase font-bold text-muted-foreground tracking-widest">Wins</span>
                       </motion.div>
-                      <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.28 }}>
-                        <StatChip icon={TrendingUp} value={`${winRate}%`} label="Win Rate" />
+                      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.28 }} className="rounded-2xl p-4 shadow-sm flex flex-col items-center sm:items-start text-center sm:text-left relative overflow-hidden group" style={{
+                        backgroundColor: selectedClub && CLUB_COLORS[selectedClub.name] ? `${CLUB_COLORS[selectedClub.name].primary}15` : 'rgba(16, 185, 129, 0.1)',
+                        borderColor: selectedClub && CLUB_COLORS[selectedClub.name] ? `${CLUB_COLORS[selectedClub.name].primary}40` : 'rgba(16, 185, 129, 0.3)',
+                        borderWidth: '1px'
+                      }}>
+                        <TrendingUp size={16} className="mb-2" style={{ color: selectedClub && CLUB_COLORS[selectedClub.name] ? CLUB_COLORS[selectedClub.name].primary : 'var(--brand-green)' }} />
+                        <span className="text-2xl font-black font-score leading-none mb-1 flex items-baseline gap-0.5" style={{ color: selectedClub && CLUB_COLORS[selectedClub.name] ? CLUB_COLORS[selectedClub.name].primary : 'var(--brand-green)' }}>
+                          <NumberTicker value={winRate} />%
+                        </span>
+                        <span className="text-[10px] uppercase font-bold tracking-widest" style={{ color: selectedClub && CLUB_COLORS[selectedClub.name] ? CLUB_COLORS[selectedClub.name].primary : 'var(--brand-green)', opacity: 0.8 }}>Win Rate</span>
                       </motion.div>
-                      <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.32 }}>
-                        <StatChip icon={Target} value={goals} label="Goals" />
+                      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.32 }} className="bg-card border border-border/50 rounded-2xl p-4 shadow-sm flex flex-col items-center sm:items-start text-center sm:text-left">
+                        <Target size={16} className="text-muted-foreground mb-2" />
+                        <span className="text-2xl font-black font-score text-foreground leading-none mb-1"><NumberTicker value={goals} /></span>
+                        <span className="text-[10px] uppercase font-bold text-muted-foreground tracking-widest">Goals</span>
                       </motion.div>
                     </div>
                   )}
 
-                  {/* Gamification Stats */}
-                  <div className="flex flex-wrap items-center justify-center md:justify-start gap-3 w-full mb-2">
+                  {/* Rank and Gamification (Relocated) */}
+                  <div className="flex flex-wrap items-center justify-center md:justify-start gap-3 w-full mb-6">
+                    {myRank > 0 && (
+                      <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.3 }}>
+                        <Badge className="bg-amber-500/10 text-amber-500 border border-amber-500/20 px-3 py-1.5 shadow-sm text-xs font-bold flex items-center gap-1.5 rounded-xl">
+                          <Trophy size={14} className="text-amber-500" />
+                          Rank #{myRank}
+                        </Badge>
+                      </motion.div>
+                    )}
                     {winStreak >= 2 && (
-                       <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.3 }} className="bg-gradient-to-r from-orange-500/10 to-red-500/10 border border-orange-500/30 rounded-xl px-3 py-1.5 flex items-center gap-2 shadow-[0_0_15px_rgba(239,68,68,0.15)] shrink-0">
+                       <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.35 }} className="bg-gradient-to-r from-orange-500/10 to-red-500/10 border border-orange-500/30 rounded-xl px-3 py-1.5 flex items-center gap-2 shadow-[0_0_15px_rgba(239,68,68,0.15)] shrink-0">
                          <span className="text-lg animate-bounce drop-shadow-[0_0_5px_rgba(239,68,68,0.8)]">🔥</span>
                          <span className="text-xs font-bold text-orange-500 tracking-wide uppercase">{winStreak} Match Win Streak</span>
                        </motion.div>
                     )}
-                    
-                    {biggestRival && rivalStats && (
-                       <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.35 }} className="bg-secondary/50 border border-border/50 rounded-xl px-3 py-1.5 flex items-center gap-2 shrink-0">
-                         <Swords size={16} className="text-muted-foreground shrink-0" />
-                         <div className="flex flex-col">
-                           <span className="text-[9px] uppercase font-bold text-muted-foreground tracking-widest leading-none mb-0.5">Biggest Rival</span>
-                           <span className="text-xs font-bold flex items-center gap-1.5 leading-none">
-                             <Avatar p={biggestRival} size={14} /> <span className="truncate max-w-[80px]">{biggestRival.name}</span> 
-                             <span className="text-muted-foreground opacity-30 text-[10px]">•</span> 
-                             <span className="text-green-500 text-[10px]">{rivalStats.w}W</span>
-                             <span className="text-red-500 text-[10px]">{rivalStats.l}L</span>
-                           </span>
-                         </div>
-                       </motion.div>
-                    )}
                   </div>
 
-                  {/* Identity Badges Row (Club & Nation) */}
-                  {(selectedClub || selectedNationalTeam) && (
-                    <motion.div 
-                      initial={{ opacity: 0, y: 5 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: 0.4 }}
-                      className="flex flex-wrap items-center justify-center md:justify-start gap-2 w-full"
-                    >
-                      {selectedClub && (
-                        <div className="flex items-center gap-1.5 bg-secondary/50 px-2.5 py-1 rounded-md border border-border/50 text-xs font-semibold shadow-sm">
-                          <span className="text-muted-foreground">Favorite Club:</span> {selectedClub.name}
+                  {/* Identity Badges Row (Club & Nation Side-by-Side) */}
+                  <div className="grid grid-cols-2 gap-3 w-full mb-6">
+                    <motion.div initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.4 }} className="bg-secondary/30 border border-border/50 rounded-2xl p-3 sm:p-4 flex flex-col gap-2">
+                      <span className="text-[9px] uppercase font-bold text-muted-foreground tracking-widest leading-none">Favorite Club</span>
+                      {selectedClub ? (
+                        <div className="flex items-center gap-2">
+                          <ClubLogo club={selectedClub} size={24} className="scale-90 origin-left" />
+                          <span className="text-sm font-bold truncate">{selectedClub.name}</span>
                         </div>
+                      ) : (
+                        <span className="text-sm font-semibold text-muted-foreground opacity-50">Not set</span>
                       )}
-                      {selectedNationalTeam && (
-                        <div className="flex items-center gap-1.5 bg-secondary/50 px-2.5 py-1 rounded-md border border-border/50 text-xs font-semibold shadow-sm">
-                          <span className="text-muted-foreground">Favorite Team:</span> {selectedNationalTeam.name}
+                    </motion.div>
+                    <motion.div initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.4 }} className="bg-secondary/30 border border-border/50 rounded-2xl p-3 sm:p-4 flex flex-col gap-2">
+                      <span className="text-[9px] uppercase font-bold text-muted-foreground tracking-widest leading-none">National Team</span>
+                      {selectedNationalTeam ? (
+                        <div className="flex items-center gap-2">
+                          <div className="shrink-0 scale-90 origin-left"><WavingFlag code={selectedNationalTeam.isoCode} size="sm" /></div>
+                          <span className="text-sm font-bold truncate">{selectedNationalTeam.name}</span>
                         </div>
+                      ) : (
+                        <span className="text-sm font-semibold text-muted-foreground opacity-50">Not set</span>
                       )}
+                    </motion.div>
+                  </div>
+
+                  {/* Biggest Rival (Mini Versus Card) */}
+                  {biggestRival && rivalStats && (
+                    <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.45 }} className="w-full">
+                      <div 
+                        onClick={() => onH2HClick(biggestRival.id)} 
+                        className="bg-card border border-border/50 rounded-2xl p-4 shadow-sm hover:bg-secondary/50 transition-colors cursor-pointer w-full flex flex-col gap-3"
+                      >
+                        <div className="flex items-center justify-between">
+                          <span className="text-[9px] uppercase font-bold text-muted-foreground tracking-widest flex items-center gap-1.5"><Swords size={12}/> Biggest Rival</span>
+                          <span className="text-[10px] text-muted-foreground font-semibold">View H2H <ArrowRight size={10} className="inline"/></span>
+                        </div>
+                        <div className="flex items-center justify-between px-2">
+                          <div className="flex flex-col items-center gap-1.5 w-[30%]">
+                            <Avatar p={me} size={36} />
+                            <span className="text-[10px] font-bold truncate w-full text-center">You</span>
+                          </div>
+                          <div className="flex flex-col items-center justify-center gap-1 w-[40%]">
+                            <Badge className="bg-secondary text-[10px] font-black border-border shadow-sm tracking-widest px-2 py-0.5">VS</Badge>
+                          </div>
+                          <div className="flex flex-col items-center gap-1.5 w-[30%]">
+                            <Avatar p={biggestRival} size={36} />
+                            <span className="text-[10px] font-bold truncate w-full text-center">{biggestRival.name}</span>
+                          </div>
+                        </div>
+                        {/* Animated Ratio Bar */}
+                        <div className="flex flex-col gap-1.5 w-full mt-1">
+                          <div className="flex justify-between text-[10px] font-bold">
+                            <span className="text-green-500">{rivalStats.w}W</span>
+                            <span className="text-red-500">{rivalStats.l}L</span>
+                          </div>
+                          <div className="h-1.5 rounded-full bg-secondary overflow-hidden flex w-full relative">
+                            <motion.div 
+                              initial={{ width: 0 }}
+                              animate={!shouldReduceMotion ? { width: `${(rivalStats.w / ((rivalStats.w + rivalStats.l) || 1)) * 100}%` } : { width: `${(rivalStats.w / ((rivalStats.w + rivalStats.l) || 1)) * 100}%` }}
+                              transition={{ duration: 1, type: "spring", bounce: 0, delay: 0.5 }}
+                              className="h-full bg-green-500 rounded-l-full relative z-10" 
+                            />
+                            <motion.div 
+                              initial={{ width: 0 }}
+                              animate={!shouldReduceMotion ? { width: `${(rivalStats.l / ((rivalStats.w + rivalStats.l) || 1)) * 100}%` } : { width: `${(rivalStats.l / ((rivalStats.w + rivalStats.l) || 1)) * 100}%` }}
+                              transition={{ duration: 1, type: "spring", bounce: 0, delay: 0.5 }}
+                              className="absolute right-0 top-0 bottom-0 bg-red-500 rounded-r-full" 
+                            />
+                          </div>
+                        </div>
+                      </div>
                     </motion.div>
                   )}
                 </div>

@@ -236,7 +236,7 @@ export function AvatarWithBadge({ player, size = 100, isOnFire = false }) {
       
       {badgeIcon && (
         <div 
-          className="absolute -bottom-1 -left-1 rounded-full border-2 border-background bg-background shadow-sm flex items-center justify-center overflow-hidden z-10"
+          className="absolute -bottom-1 -left-1 flex items-center justify-center z-10"
           style={{ width: badgeSize, height: badgeSize }}
         >
           {badgeIcon}
