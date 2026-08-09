@@ -1,5 +1,5 @@
 import React from 'react';
-import { UserCircle2, Loader2 } from 'lucide-react';
+import { UserCircle2, Loader2, Shield, Target, Zap, Hand } from 'lucide-react';
 import { Button } from '@/app/components/ui/button';
 import { Card as ShadcnCard } from '@/app/components/ui/card';
 import { Input as ShadcnInput } from '@/app/components/ui/input';
@@ -130,6 +130,61 @@ import PlayerTag from '@/app/components/shared/PlayerTag';
 export const PlayerChip = ({ p, size = 8 }) => (
   <PlayerTag player={p} size={Math.max(24, size)} className="min-w-0" />
 );
+
+export const PlayStyleBadge = ({ style, showLabel = false, size = "md" }) => {
+  if (!style) return null;
+  const config = {
+    Attacker: { icon: Target, color: "text-red-500", glow: "shadow-[0_0_15px_rgba(239,68,68,0.5)]", bg: "bg-red-500/10", border: "border-red-500/30" },
+    Midfielder: { icon: Zap, color: "text-blue-500", glow: "shadow-[0_0_15px_rgba(59,130,246,0.5)]", bg: "bg-blue-500/10", border: "border-blue-500/30" },
+    Defender: { icon: Shield, color: "text-emerald-500", glow: "shadow-[0_0_15px_rgba(16,185,129,0.5)]", bg: "bg-emerald-500/10", border: "border-emerald-500/30" },
+    Goalkeeper: { icon: Hand, color: "text-amber-500", glow: "shadow-[0_0_15px_rgba(245,158,11,0.5)]", bg: "bg-amber-500/10", border: "border-amber-500/30" },
+  };
+  const c = config[style];
+  if (!c) return null;
+  const Icon = c.icon;
+  const dims = size === "lg" ? "w-12 h-12" : size === "sm" ? "w-6 h-6" : "w-8 h-8";
+  const iconSize = size === "lg" ? 24 : size === "sm" ? 14 : 18;
+
+  return (
+    <div className={`flex items-center gap-2 ${showLabel ? 'pr-3' : ''} ${c.bg} ${c.border} border rounded-full ${c.glow} transition-all duration-500`}>
+      <div className={`${dims} rounded-full flex items-center justify-center shrink-0`}>
+        <Icon size={iconSize} className={c.color} />
+      </div>
+      {showLabel && <span className={`text-xs font-bold tracking-widest uppercase ${c.color}`}>{style}</span>}
+    </div>
+  );
+};
+
+export const WavingFlag = ({ code, size = "md", className = "" }) => {
+  if (!code) return null;
+  const url = `https://flagcdn.com/w160/${code.toLowerCase()}.png`;
+  const dims = size === "lg" ? "w-16 h-12" : size === "sm" ? "w-6 h-[18px]" : "w-10 h-[30px]";
+  return (
+    <div className={`relative overflow-hidden rounded-sm shadow-md ${dims} ${className} group`} style={{ transformStyle: 'preserve-3d', perspective: '200px' }}>
+      <img src={url} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 origin-left" style={{
+         animation: "wave 3s ease-in-out infinite",
+         transformOrigin: "left center"
+      }} />
+      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent mix-blend-overlay opacity-50 animate-[shimmer_2s_infinite]" />
+    </div>
+  );
+};
+
+export const OnFireAvatar = ({ p, size = 40, isOnFire = false, className = "" }) => {
+  return (
+    <div className="relative group inline-block">
+      {isOnFire && (
+        <div className="absolute -inset-2 bg-gradient-to-r from-orange-500 via-red-500 to-yellow-500 rounded-full blur-[10px] opacity-70 animate-pulse transition-opacity z-0 pointer-events-none" />
+      )}
+      <div className="relative z-10">
+        <Avatar p={p} size={size} className={className} ring={isOnFire ? "#ef4444" : undefined} />
+      </div>
+      {isOnFire && (
+        <div className="absolute -bottom-2 -right-2 z-20 text-xl animate-bounce drop-shadow-[0_0_10px_rgba(239,68,68,0.8)] pointer-events-none">🔥</div>
+      )}
+    </div>
+  );
+};
 
 export const SectionTitle = ({ icon: Icon, children, right }) => (
   <div className="flex items-center justify-between mb-4">

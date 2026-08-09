@@ -18,6 +18,7 @@ import PlayoffBracket from '@/app/components/shared/PlayoffBracket';
 import { getCode } from 'country-list';
 import Cropper from 'react-easy-crop';
 import { getCroppedImgBase64 } from '@/app/utils/cropUtils';
+import { PlayStyleBadge } from '@/app/components/shared/UI';
 import nationalTeamsData from '@/lib/data/national_teams.json';
 import { useRouter } from 'next/navigation';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/app/components/ui/tabs';
@@ -90,10 +91,18 @@ export function AdminPlayers({ players, showToast, session, managerPermissions }
   const [zoom, setZoom] = useState(1);
   const [croppedAreaPixels, setCroppedAreaPixels] = useState(null);
   
-  const blank = { name: "", username: "", email: "", avatar: null, avatarImage: null, flag: null, teamName: "", teamLogo: null, password: "" };
+  const blank = { name: "", username: "", email: "", avatar: null, avatarImage: null, flag: null, teamName: "", teamLogo: null, password: "", playStyle: "", badges: [] };
   const [form, setForm] = useState(blank);
   const startNew = () => { setForm(blank); setEditing("new"); };
-  const startEdit = (p) => { setForm({ ...p, password: "" }); setEditing(p.id); };
+  const startEdit = (p) => { 
+    setForm({ 
+      ...blank, 
+      ...p, 
+      password: "",
+      badges: p.badges || [] 
+    }); 
+    setEditing(p.id); 
+  };
 
   const save = async () => {
     if (!form.name.trim()) return showToast("Enter a player name");
@@ -229,18 +238,84 @@ export function AdminPlayers({ players, showToast, session, managerPermissions }
                 </div>
               </div>
               
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
-                <div><Label>Display name</Label><Input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} placeholder="Player name" /></div>
-                <div><Label>Username</Label><Input value={form.username} onChange={(e) => setForm({ ...form, username: e.target.value })} placeholder="username" /></div>
-                <div className="md:col-span-2"><Label>Email</Label><Input value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} placeholder="email" /></div>
-                <div className="md:col-span-2"><Label>{editing === "new" ? "Temporary password" : "Reset password (leave blank to keep)"}</Label><Input type="password" value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} placeholder="4+ characters" /></div>
-                {editing !== "new" && (
-                  <>
-                    <div><Label>Team name</Label><Input value={form.teamName} onChange={(e) => setForm({ ...form, teamName: e.target.value })} /></div>
-                    <div><Label>2-Letter Flag Code</Label><Input value={form.flag || ""} onChange={(e) => setForm({ ...form, flag: e.target.value.toLowerCase() })} placeholder="e.g. gb, us, br" maxLength={2} /></div>
-                    <div><Label>Short Initials</Label><Input value={form.avatar || ""} onChange={(e) => setForm({ ...form, avatar: e.target.value.toUpperCase() })} placeholder="e.g. MES" maxLength={3} /></div>
-                  </>
-                )}
+              <div className="w-full min-w-0">
+                <Tabs defaultValue="account" className="w-full">
+                  <TabsList className="grid w-full grid-cols-3 mb-6 bg-secondary/30 h-12">
+                    <TabsTrigger value="account" className="text-xs sm:text-sm font-semibold">Account</TabsTrigger>
+                    <TabsTrigger value="gaming" className="text-xs sm:text-sm font-semibold">Identity</TabsTrigger>
+                    <TabsTrigger value="badges" className="text-xs sm:text-sm font-semibold">Badges</TabsTrigger>
+                  </TabsList>
+                  
+                  <TabsContent value="account" className="mt-0 space-y-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div><Label>Display name</Label><Input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} placeholder="Player name" /></div>
+                      <div><Label>Username</Label><Input value={form.username} onChange={(e) => setForm({ ...form, username: e.target.value })} placeholder="username" /></div>
+                      <div className="md:col-span-2"><Label>Email</Label><Input value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} placeholder="email" /></div>
+                      <div className="md:col-span-2"><Label>{editing === "new" ? "Temporary password" : "Reset password (leave blank to keep)"}</Label><Input type="password" value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} placeholder="4+ characters" /></div>
+                      {editing !== "new" && (
+                        <div><Label>Short Initials</Label><Input value={form.avatar || ""} onChange={(e) => setForm({ ...form, avatar: e.target.value.toUpperCase() })} placeholder="e.g. MES" maxLength={3} /></div>
+                      )}
+                    </div>
+                  </TabsContent>
+
+                  <TabsContent value="gaming" className="mt-0 space-y-4">
+                    <div className="grid grid-cols-1 gap-4">
+                      {editing !== "new" && (
+                        <div className="grid grid-cols-2 gap-4">
+                          <div><Label>Team name</Label><Input value={form.teamName} onChange={(e) => setForm({ ...form, teamName: e.target.value })} /></div>
+                          <div><Label>2-Letter Flag Code</Label><Input value={form.flag || ""} onChange={(e) => setForm({ ...form, flag: e.target.value.toLowerCase() })} placeholder="e.g. gb, us, br" maxLength={2} /></div>
+                        </div>
+                      )}
+                      <div>
+                        <Label>Play Style (Archetype)</Label>
+                        <select 
+                          value={form.playStyle || ""}
+                          onChange={(e) => setForm({ ...form, playStyle: e.target.value })}
+                          className="w-full bg-secondary/50 border border-white/10 rounded-lg p-3 text-sm text-foreground outline-none focus:ring-2 focus:ring-gold/50 font-semibold"
+                        >
+                          <option value="">Select Play Style...</option>
+                          <option value="Attacker">Attacker</option>
+                          <option value="Midfielder">Midfielder</option>
+                          <option value="Defender">Defender</option>
+                          <option value="Goalkeeper">Goalkeeper</option>
+                        </select>
+                      </div>
+                      {form.playStyle && (
+                         <div className="mt-2 p-6 bg-secondary/20 rounded-xl flex flex-col items-center justify-center border border-white/5 gap-3">
+                            <span className="text-xs text-muted-foreground uppercase tracking-widest font-bold">Live Preview</span>
+                            <PlayStyleBadge style={form.playStyle} showLabel={true} size="lg" />
+                         </div>
+                      )}
+                    </div>
+                  </TabsContent>
+
+                  <TabsContent value="badges" className="mt-0">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      {['Season 1 Champion', 'Top Scorer', 'VIP', 'Golden Boot Winner', 'Player of the Month', 'Best Passer'].map(badge => {
+                        const hasBadge = form.badges?.includes(badge);
+                        return (
+                          <label key={badge} className={`flex items-center gap-3 p-3 rounded-xl border cursor-pointer transition-all ${hasBadge ? 'bg-gold/10 border-gold/50 text-gold' : 'bg-secondary/30 border-white/5 text-muted-foreground hover:bg-secondary/50'}`}>
+                            <input 
+                              type="checkbox" 
+                              className="hidden"
+                              checked={hasBadge || false}
+                              onChange={(e) => {
+                                const newBadges = e.target.checked 
+                                  ? [...(form.badges || []), badge]
+                                  : (form.badges || []).filter(b => b !== badge);
+                                setForm({ ...form, badges: newBadges });
+                              }}
+                            />
+                            <div className={`w-5 h-5 rounded-md flex items-center justify-center border transition-colors shrink-0 ${hasBadge ? 'bg-gold border-gold text-black shadow-[0_0_10px_rgba(255,215,0,0.5)]' : 'border-white/20 bg-black/20'}`}>
+                              {hasBadge && <Check size={14} strokeWidth={4} />}
+                            </div>
+                            <span className="text-sm font-semibold truncate leading-tight">{badge}</span>
+                          </label>
+                        )
+                      })}
+                    </div>
+                  </TabsContent>
+                </Tabs>
               </div>
             </div>
             <div className="flex gap-3 mt-6">

@@ -160,6 +160,17 @@
   from { stroke-dashoffset: 1000; }
   to { stroke-dashoffset: 0; }
 }
+@keyframes wave {
+  0% { transform: scale(1.1) skewY(0deg); }
+  25% { transform: scale(1.1) skewY(1.5deg); }
+  50% { transform: scale(1.1) skewY(0deg); }
+  75% { transform: scale(1.1) skewY(-1.5deg); }
+  100% { transform: scale(1.1) skewY(0deg); }
+}
+@keyframes shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
 .pitch-draw-line {
   stroke-dasharray: 1000;
   animation: pitchDraw 3s ease forwards;

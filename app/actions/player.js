@@ -108,6 +108,8 @@ export async function updatePlayerProfile(id, data) {
         nationality: data.nationality,
         favoriteClub: data.favoriteClub,
         favoriteCompetition: data.favoriteCompetition,
+        playStyle: data.playStyle,
+        badges: data.badges,
         coverBanner: data.coverBanner,
       }
     });
@@ -169,6 +171,8 @@ export async function adminUpdatePlayer(id, data) {
       nationality: data.nationality,
       favoriteClub: data.favoriteClub,
       favoriteCompetition: data.favoriteCompetition,
+      playStyle: data.playStyle,
+      badges: data.badges,
     };
 
     if (data.password && data.password.length >= 4) {

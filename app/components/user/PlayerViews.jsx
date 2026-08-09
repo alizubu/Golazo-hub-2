@@ -209,6 +209,55 @@ export function PlayerDashboard({ me, activeSeason, seasons = [], matches, playe
   const upcoming = tMatches.filter((m) => m.status === "scheduled" && (m.homeId === me.id || m.awayId === me.id)).slice(0, 1);
   const nextMatch = upcoming[0];
   const recent = [...myMatches].sort((a,b) => new Date(b.completedAt || 0) - new Date(a.completedAt || 0)).slice(0, 5);
+
+  const allMyCompletedMatches = matches.filter(m => (m.homeId === me.id || m.awayId === me.id) && m.status === 'completed');
+  allMyCompletedMatches.sort((a,b) => new Date(b.completedAt || 0) - new Date(a.completedAt || 0));
+
+  const last2 = allMyCompletedMatches.slice(0, 2);
+  let isOnFire = false;
+  if (last2.length === 2) {
+    const isGood = (m) => {
+      const isHome = m.homeId === me.id;
+      const myScore = isHome ? m.homeScore : m.awayScore;
+      const oppScore = isHome ? m.awayScore : m.homeScore;
+      return myScore > oppScore || myScore > 0;
+    };
+    isOnFire = isGood(last2[0]) && isGood(last2[1]);
+  }
+
+  let winStreak = 0;
+  for (const m of allMyCompletedMatches) {
+    const isHome = m.homeId === me.id;
+    const myScore = isHome ? m.homeScore : m.awayScore;
+    const oppScore = isHome ? m.awayScore : m.homeScore;
+    if (myScore > oppScore) winStreak++;
+    else break;
+  }
+
+  const opponents = {};
+  allMyCompletedMatches.forEach(m => {
+    const oppId = m.homeId === me.id ? m.awayId : m.homeId;
+    if (!oppId) return;
+    if (!opponents[oppId]) opponents[oppId] = { matches: 0, w: 0, d: 0, l: 0 };
+    opponents[oppId].matches++;
+    const isHome = m.homeId === me.id;
+    const myScore = isHome ? m.homeScore : m.awayScore;
+    const oppScore = isHome ? m.awayScore : m.homeScore;
+    if (myScore > oppScore) opponents[oppId].w++;
+    else if (myScore < oppScore) opponents[oppId].l++;
+    else opponents[oppId].d++;
+  });
+  
+  let biggestRivalId = null;
+  let maxMatches = 0;
+  for (const [id, stats] of Object.entries(opponents)) {
+    if (stats.matches > maxMatches) {
+      maxMatches = stats.matches;
+      biggestRivalId = id;
+    }
+  }
+  const biggestRival = players.find(p => p.id === biggestRivalId);
+  const rivalStats = biggestRivalId ? opponents[biggestRivalId] : null;
   
   const getMatchResult = (m) => {
     if (!m) return null;
@@ -290,7 +339,7 @@ export function PlayerDashboard({ me, activeSeason, seasons = [], matches, playe
                   <div className="relative inline-block">
                     <div className="absolute -inset-1 rounded-full bg-gradient-to-br from-gold via-pitch-bright to-claret animate-spin [animation-duration:4s] blur-[1px] opacity-80" />
                     <div className="relative rounded-full p-1 bg-card shadow-xl">
-                      <Avatar p={me} size={100} />
+                      <OnFireAvatar p={me} size={100} isOnFire={isOnFire} />
                     </div>
                   </div>
                 </div>
@@ -308,6 +357,9 @@ export function PlayerDashboard({ me, activeSeason, seasons = [], matches, playe
                       {me.name}
                       {myRank === 1 && <BadgeCheck size={22} className="text-blue-400 shrink-0" title="Top Ranked Player" />}
                     </h1>
+                    {me.flag && (
+                      <div className="hidden md:block shrink-0 mt-1"><WavingFlag code={me.flag} size="md" /></div>
+                    )}
                     {myRank > 0 && (
                       <Badge className="shrink-0 bg-amber-500/15 text-amber-500 border border-amber-500/30 px-2 py-0.5 shadow-sm text-sm font-bold flex items-center gap-1.5">
                         <Trophy size={12} className="text-amber-500" />
@@ -321,9 +373,13 @@ export function PlayerDashboard({ me, activeSeason, seasons = [], matches, playe
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     transition={{ delay: 0.15 }}
-                    className="text-muted-foreground font-score text-sm mb-3"
+                    className="flex flex-wrap items-center justify-center md:justify-start gap-3 mb-3 w-full"
                   >
-                    @{me.username}
+                    <span className="text-muted-foreground font-score text-sm">@{me.username}</span>
+                    <PlayStyleBadge style={me.playStyle} showLabel={true} size="sm" />
+                    {me.flag && (
+                      <div className="md:hidden shrink-0"><WavingFlag code={me.flag} size="sm" /></div>
+                    )}
                   </motion.div>
 
                   {/* Stat Chips Row */}
@@ -343,6 +399,31 @@ export function PlayerDashboard({ me, activeSeason, seasons = [], matches, playe
                       </motion.div>
                     </div>
                   )}
+
+                  {/* Gamification Stats */}
+                  <div className="flex flex-wrap items-center justify-center md:justify-start gap-3 w-full mb-2">
+                    {winStreak >= 2 && (
+                       <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.3 }} className="bg-gradient-to-r from-orange-500/10 to-red-500/10 border border-orange-500/30 rounded-xl px-3 py-1.5 flex items-center gap-2 shadow-[0_0_15px_rgba(239,68,68,0.15)] shrink-0">
+                         <span className="text-lg animate-bounce drop-shadow-[0_0_5px_rgba(239,68,68,0.8)]">🔥</span>
+                         <span className="text-xs font-bold text-orange-500 tracking-wide uppercase">{winStreak} Match Win Streak</span>
+                       </motion.div>
+                    )}
+                    
+                    {biggestRival && rivalStats && (
+                       <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.35 }} className="bg-secondary/50 border border-border/50 rounded-xl px-3 py-1.5 flex items-center gap-2 shrink-0">
+                         <Swords size={16} className="text-muted-foreground shrink-0" />
+                         <div className="flex flex-col">
+                           <span className="text-[9px] uppercase font-bold text-muted-foreground tracking-widest leading-none mb-0.5">Biggest Rival</span>
+                           <span className="text-xs font-bold flex items-center gap-1.5 leading-none">
+                             <Avatar p={biggestRival} size={14} /> <span className="truncate max-w-[80px]">{biggestRival.name}</span> 
+                             <span className="text-muted-foreground opacity-30 text-[10px]">•</span> 
+                             <span className="text-green-500 text-[10px]">{rivalStats.w}W</span>
+                             <span className="text-red-500 text-[10px]">{rivalStats.l}L</span>
+                           </span>
+                         </div>
+                       </motion.div>
+                    )}
+                  </div>
 
                   {/* Identity Badges Row (Club & Nation) */}
                   {(selectedClub || selectedNationalTeam) && (
@@ -473,17 +554,32 @@ export function PlayerDashboard({ me, activeSeason, seasons = [], matches, playe
                 }
               });
 
+              // 3. Add Badges
+              (me.badges || []).forEach(badgeName => {
+                const badgeKey = `badge-${badgeName.toLowerCase().replace(/\s+/g, '-')}`;
+                if (!templateMap.has(badgeKey)) {
+                  templateMap.set(badgeKey, {
+                    id: badgeKey,
+                    name: badgeName,
+                    image: '🎖️',
+                    locked: false, // Badges are always unlocked since they are stored directly on the player
+                    requirement: 'Admin Awarded Badge',
+                    isBadge: true
+                  });
+                }
+              });
+
               const trophyList = Array.from(templateMap.values());
 
               return (
                 <>
                   <div className="pb-3 pt-5 px-5 sm:px-6 flex flex-row items-center justify-between gap-4 relative border-b border-border/40 dark:border-white/[0.06]">
                     <div className="text-xl sm:text-2xl font-bold flex items-center gap-2.5 text-foreground" style={{ fontFamily: "'Sora', sans-serif", fontWeight: 700 }}>
-                      <Trophy className="text-amber-500 dark:text-amber-400" size={24}/> Trophy Cabinet
+                      <Trophy className="text-amber-500 dark:text-amber-400" size={24}/> Cabinet & Badges
                     </div>
                     <div className="flex items-center gap-2">
                       <Badge variant="gold" className="px-2.5 py-1 font-score text-[10px] sm:text-xs font-bold bg-amber-500/15 text-amber-600 dark:text-amber-300 border border-amber-500/30">
-                        {myTrophies.length} TROPHIES
+                        {myTrophies.length + (me.badges?.length || 0)} AWARDS
                       </Badge>
                     </div>
                   </div>
@@ -497,21 +593,22 @@ export function PlayerDashboard({ me, activeSeason, seasons = [], matches, playe
                       viewport={{ once: true }}
                     >
                       {trophyList.map((tr) => {
-                        const instances = myTrophies.filter(t => t.title === tr.name || t.id === tr.id);
-                        const isUnlocked = instances.length > 0;
+                        const isUnlocked = tr.isBadge || myTrophies.some(t => t.title === tr.name || t.id === tr.id);
+                        const instances = tr.isBadge ? [{ id: tr.id, title: tr.name }] : myTrophies.filter(t => t.title === tr.name || t.id === tr.id);
+                        const count = tr.isBadge ? 1 : instances.length;
 
                         return (
                           <TrophyCard 
                             key={tr.id} 
                             trophy={tr} 
                             unlocked={isUnlocked} 
-                            count={instances.length} 
+                            count={count} 
                             instances={instances}
                             requirement={tr.requirement}
                             onSelect={() => setSelectedTrophy({
                               trophy: tr,
                               unlocked: isUnlocked,
-                              count: instances.length,
+                              count: count,
                               instances,
                               requirement: tr.requirement
                             })}
