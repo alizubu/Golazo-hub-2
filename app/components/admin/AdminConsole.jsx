@@ -1864,43 +1864,59 @@ export function AdminSeason({ activeSeason, matches = [], players = [], showToas
       </Card>
 
 
-      <Dialog open={showEditDialog} onOpenChange={setShowEditDialog}>
-        <DialogContent className="sm:max-w-[425px] bg-background border border-border">
-          <DialogHeader>
-            <DialogTitle>Edit Season</DialogTitle>
-            <DialogDescription>Update the season name and format.</DialogDescription>
-          </DialogHeader>
-          <div className="grid gap-4 py-4">
-            <div className="flex flex-col gap-2">
-              <Label htmlFor="edit-name">Season Name</Label>
-              <Input
-                id="edit-name"
-                value={editName}
-                onChange={(e) => setEditName(e.target.value)}
-                placeholder="Summer Cup 2026"
-              />
+      {showEditDialog && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+          {/* Backdrop */}
+          <div 
+            className="fixed inset-0 bg-black/80 backdrop-blur-sm" 
+            onClick={() => !loading && setShowEditDialog(false)}
+          />
+          {/* Modal Content */}
+          <div className="relative bg-background border border-border shadow-2xl rounded-xl w-full max-w-[425px] p-6 z-10 flex flex-col gap-2">
+            <button 
+              className="absolute right-4 top-4 p-1 rounded-sm opacity-70 hover:opacity-100 transition-opacity hover:bg-secondary/50 text-muted-foreground"
+              onClick={() => setShowEditDialog(false)}
+              disabled={loading}
+            >
+              <X size={16} />
+              <span className="sr-only">Close</span>
+            </button>
+            <div className="flex flex-col space-y-1.5 mb-2">
+              <h2 className="text-xl font-bold font-heading tracking-tight leading-none">Edit Season</h2>
+              <p className="text-sm text-muted-foreground mt-1.5">Update the season name and format.</p>
             </div>
-            <div className="flex flex-col gap-2">
-              <Label htmlFor="edit-type">Season Format</Label>
-              <select 
-                id="edit-type"
-                value={editType}
-                onChange={(e) => setEditType(e.target.value)}
-                className="flex h-10 w-full items-center justify-between rounded-md border border-border/50 bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-pitch-bright"
-              >
-                <option value="League (Single)">League (Single)</option>
-                <option value="League (Double)">Double League</option>
-                <option value="League + Playoffs (Single)">League + Playoffs (Single)</option>
-                <option value="Double Elimination">Double Elimination</option>
-              </select>
+            <div className="grid gap-4 py-2">
+              <div className="flex flex-col gap-2">
+                <Label htmlFor="edit-name">Season Name</Label>
+                <Input
+                  id="edit-name"
+                  value={editName}
+                  onChange={(e) => setEditName(e.target.value)}
+                  placeholder="Summer Cup 2026"
+                />
+              </div>
+              <div className="flex flex-col gap-2">
+                <Label htmlFor="edit-type">Season Format</Label>
+                <select 
+                  id="edit-type"
+                  value={editType}
+                  onChange={(e) => setEditType(e.target.value)}
+                  className="flex h-10 w-full items-center justify-between rounded-md border border-border/50 bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-pitch-bright"
+                >
+                  <option value="League (Single)">League (Single)</option>
+                  <option value="League (Double)">Double League</option>
+                  <option value="League + Playoffs (Single)">League + Playoffs (Single)</option>
+                  <option value="Double Elimination">Double Elimination</option>
+                </select>
+              </div>
+            </div>
+            <div className="flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-3 mt-4">
+              <Btn variant="outline" onClick={() => setShowEditDialog(false)} disabled={loading} className="mt-2 sm:mt-0">Cancel</Btn>
+              <ShinyButton onClick={handleUpdateSeason} loading={loading}>Save Changes</ShinyButton>
             </div>
           </div>
-          <DialogFooter>
-            <Btn variant="outline" onClick={() => setShowEditDialog(false)} disabled={loading}>Cancel</Btn>
-            <ShinyButton onClick={handleUpdateSeason} loading={loading}>Save Changes</ShinyButton>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+        </div>
+      )}
     </div>
   );
 }
