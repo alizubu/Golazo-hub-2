@@ -1601,7 +1601,7 @@ export function AdminSeason({ activeSeason, matches = [], players = [], showToas
           <span className="text-sm font-bold tracking-wide">Edit Season</span>
         </MagicCard>
         
-        <MagicCard className="p-5 flex flex-col items-center justify-center gap-3 hover:bg-secondary/80 cursor-pointer transition-colors group" onClick={() => setTab && setTab("admin-playoffs")}>
+        <MagicCard className="p-5 flex flex-col items-center justify-center gap-3 hover:bg-secondary/80 cursor-pointer transition-colors group" onClick={() => setTab && setTab("admin/matches")}>
           <div className="p-3 rounded-full bg-claret/20 text-claret">
              <Swords size={24} />
           </div>
@@ -1616,7 +1616,7 @@ export function AdminSeason({ activeSeason, matches = [], players = [], showToas
              
              const res = await generatePlayoffs(activeSeason.id, top4);
              if (res.error) showToast(res.error);
-             else { showToast("Playoff bracket generated!"); setTab("admin-playoffs"); }
+             else { showToast("Playoff bracket generated!"); setTab("admin/matches"); }
           }}>
             <div className="p-3 rounded-full bg-gold/20 text-gold">
                <Swords size={24} />
