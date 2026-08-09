@@ -1,15 +1,16 @@
 'use client';
-import React, { useState } from 'react';
+import React from 'react';
 import Link from 'next/link';
-import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
-import { LogOut, Settings, Bell, Trophy, Loader2, Menu, X } from 'lucide-react';
+import { motion, useReducedMotion } from 'framer-motion';
+import { LogOut, Settings, Bell, Trophy, Loader2 } from 'lucide-react';
 import { Avatar } from '@/app/components/shared/UI';
 import ThemeToggle from '@/app/components/shared/ThemeToggle';
-import { cn } from '@/lib/utils';
 
 export const TopBar = ({ session, me, items, pathname, handleNav, unreadCount, isLoggingOut, handleLogout }) => {
   const shouldReduceMotion = useReducedMotion();
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  // Desktop header is retained but updated to use the unified gradient border approach if needed,
+  // but the prompt focused heavily on the mobile experience. We will update both.
 
   return (
     <>
@@ -103,27 +104,18 @@ export const TopBar = ({ session, me, items, pathname, handleNav, unreadCount, i
           {/* 1px Gradient Bottom Border */}
           <div className="absolute bottom-0 inset-x-0 h-[1px] bg-brand-gradient" />
 
-          <div className="flex items-center gap-3 z-10">
-            {/* Hamburger Button */}
-            <button
-              onClick={() => setMobileMenuOpen(true)}
-              className="flex items-center justify-center p-1 -ml-1 text-foreground active:scale-95 transition-transform outline-none"
-            >
-              <Menu size={24} />
-            </button>
-
-            {/* Logo */}
-            <Link href="/dashboard" onClick={(e) => handleNav(e, "/dashboard")} className="flex items-center gap-2 outline-none">
-              <div className="flex items-center justify-center w-7 h-7 rounded-full bg-amber-500/10">
-                <Trophy size={14} className="text-amber-400" />
-              </div>
-              <span className="font-heading text-sm font-bold tracking-tight text-foreground">GOLAZO HUB</span>
-            </Link>
-          </div>
+          {/* Logo */}
+          <Link href="/dashboard" onClick={(e) => handleNav(e, "/dashboard")} className="flex items-center gap-2 z-10 outline-none">
+            <div className="flex items-center justify-center w-7 h-7 rounded-full bg-amber-500/10">
+              <Trophy size={14} className="text-amber-400" />
+            </div>
+            <span className="font-heading text-sm font-bold tracking-tight text-foreground">GOLAZO HUB</span>
+          </Link>
           
-          <div className="flex items-center gap-3 z-10">
+          <div className="flex items-center gap-4 z-10">
             {me && (
               <>
+                <ThemeToggle />
                 <Link href="/notifications" onClick={(e) => handleNav(e, "/notifications")} className="relative flex items-center justify-center w-8 h-8 rounded-full text-muted-foreground hover:text-foreground active:bg-secondary/50 transition-colors outline-none">
                   <Bell size={18} />
                   {unreadCount > 0 && (
@@ -146,89 +138,17 @@ export const TopBar = ({ session, me, items, pathname, handleNav, unreadCount, i
                 </Link>
               </>
             )}
+            
+            <button 
+              onClick={handleLogout} 
+              disabled={isLoggingOut} 
+              className="flex items-center justify-center text-muted-foreground hover:text-foreground active:scale-95 transition-all outline-none"
+            >
+              {isLoggingOut ? <Loader2 size={18} className="animate-spin text-foreground" /> : <LogOut size={18} />}
+            </button>
           </div>
         </div>
       </div>
-
-      {/* --- MOBILE NAVIGATION DRAWER --- */}
-      <AnimatePresence>
-        {mobileMenuOpen && (
-          <>
-            {/* Backdrop */}
-            <motion.div 
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={() => setMobileMenuOpen(false)}
-              className="md:hidden fixed inset-0 z-[70] bg-background/80 backdrop-blur-sm"
-            />
-            
-            {/* Drawer */}
-            <motion.div
-              initial={{ x: '-100%' }}
-              animate={{ x: 0 }}
-              exit={{ x: '-100%' }}
-              transition={{ type: "spring", stiffness: 300, damping: 30 }}
-              className="md:hidden fixed top-0 left-0 bottom-0 w-[80%] max-w-sm bg-background border-r border-border z-[80] shadow-2xl flex flex-col"
-              style={{ paddingTop: 'env(safe-area-inset-top)', paddingBottom: 'env(safe-area-inset-bottom)' }}
-            >
-              <div className="flex items-center justify-between p-4 border-b border-border">
-                <div className="flex items-center gap-2">
-                  <div className="flex items-center justify-center w-8 h-8 rounded-full bg-amber-500/10">
-                    <Trophy size={16} className="text-amber-400" />
-                  </div>
-                  <span className="font-heading text-sm font-bold tracking-tight">GOLAZO HUB</span>
-                </div>
-                <button onClick={() => setMobileMenuOpen(false)} className="p-2 -mr-2 text-muted-foreground hover:text-foreground">
-                  <X size={20} />
-                </button>
-              </div>
-
-              <div className="flex-1 overflow-y-auto py-4 px-3 flex flex-col gap-2">
-                {items.map(it => {
-                  const Icon = it.icon;
-                  const active = it.matchRoot ? pathname === it.href : pathname.startsWith(it.href);
-                  return (
-                    <Link
-                      key={it.href}
-                      href={it.href}
-                      onClick={(e) => {
-                        handleNav(e, it.href);
-                        setMobileMenuOpen(false);
-                      }}
-                      className={cn(
-                        "flex items-center gap-3 px-4 py-3 rounded-xl transition-colors",
-                        active ? "bg-brand-green/10 text-foreground font-bold" : "text-muted-foreground font-medium hover:bg-secondary/50"
-                      )}
-                    >
-                      <Icon size={20} className={active ? "text-brand-green" : "text-muted-foreground"} />
-                      <span>{it.label}</span>
-                    </Link>
-                  );
-                })}
-              </div>
-
-              <div className="p-4 border-t border-border flex flex-col gap-4">
-                <div className="flex items-center justify-between px-2">
-                  <span className="text-sm font-medium text-muted-foreground">Theme</span>
-                  <ThemeToggle />
-                </div>
-                <button
-                  onClick={() => {
-                    setMobileMenuOpen(false);
-                    handleLogout();
-                  }}
-                  disabled={isLoggingOut}
-                  className="flex items-center gap-3 w-full px-4 py-3 text-rose-500 hover:bg-rose-500/10 rounded-xl transition-colors font-medium"
-                >
-                  {isLoggingOut ? <Loader2 size={20} className="animate-spin" /> : <LogOut size={20} />}
-                  <span>Sign Out</span>
-                </button>
-              </div>
-            </motion.div>
-          </>
-        )}
-      </AnimatePresence>
     </>
   );
 };
