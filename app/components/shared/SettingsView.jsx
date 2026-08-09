@@ -315,8 +315,8 @@ export default function SettingsView({ me, showToast }) {
                  <p className="text-sm text-muted-foreground mt-1">Select your favorite real-world teams to show them off on your profile.</p>
                </CardHeader>
                <CardContent className="pt-6">
-                 <div className="flex flex-col md:flex-row gap-8 items-start">
-                   <div className="space-y-6 flex-1 w-full">
+                 <div className="flex flex-col md:flex-row gap-6 relative p-1 rounded-2xl bg-gradient-to-br from-secondary/30 to-background border border-border/20 shadow-sm">
+                   <div className="flex-1 space-y-6 z-10 p-2 md:p-4">
                      <div className="space-y-2">
                        <Label>Favorite Club</Label>
                        <TeamCombobox 
@@ -333,7 +333,7 @@ export default function SettingsView({ me, showToast }) {
                          onSelect={(val) => setForm({...form, flag: val})} 
                        />
                      </div>
-                     <div className="space-y-2 pt-2 border-t border-border/30">
+                     <div className="space-y-2 pt-4 border-t border-border/30">
                        <Label>Display Badge</Label>
                        <DisplayBadgeToggle 
                          value={form.displayBadgePreference} 
@@ -342,9 +342,26 @@ export default function SettingsView({ me, showToast }) {
                        />
                        <p className="text-xs text-muted-foreground mt-1">Choose which badge displays on your public profile avatar.</p>
                      </div>
+                     
+                     {/* Mobile Live Preview Strip */}
+                     <div className="md:hidden flex items-center justify-between p-4 mt-6 rounded-xl border border-border/50 bg-background/50 shadow-inner">
+                        <span className="text-sm font-bold text-muted-foreground uppercase tracking-wider">Preview</span>
+                        <AvatarWithBadge 
+                          player={{ 
+                            avatar: form.avatar, 
+                            avatarImage: form.avatarImage, 
+                            flag: form.flag, 
+                            favoriteClub: form.favoriteClub, 
+                            displayBadgePreference: form.displayBadgePreference 
+                          }} 
+                          size={64} 
+                        />
+                     </div>
                    </div>
-                   <div className="shrink-0 flex flex-col items-center gap-3 bg-secondary/20 p-6 rounded-2xl border border-border/50 self-center md:self-start md:mt-2">
-                     <Label className="text-center w-full">Live Preview</Label>
+
+                   {/* Desktop Docked Preview */}
+                   <div className="hidden md:flex shrink-0 flex-col items-center justify-center p-8 bg-background/60 rounded-xl border-l border-border/30 backdrop-blur-md self-stretch min-w-[240px]">
+                     <Label className="text-center w-full mb-8 text-xs uppercase tracking-widest opacity-60">Live Preview</Label>
                      <AvatarWithBadge 
                        player={{ 
                          avatar: form.avatar, 
@@ -353,7 +370,7 @@ export default function SettingsView({ me, showToast }) {
                          favoriteClub: form.favoriteClub, 
                          displayBadgePreference: form.displayBadgePreference 
                        }} 
-                       size={96} 
+                       size={112} 
                      />
                    </div>
                  </div>
@@ -361,8 +378,8 @@ export default function SettingsView({ me, showToast }) {
             </Card>
           </MagicCard>
 
-          <div className="flex justify-end pt-4 pb-12">
-            <Btn variant="primary" onClick={saveProfile} disabled={isSaving} className="px-8 font-semibold shadow-md">
+          <div className="flex justify-end pt-8 pb-12 max-md:fixed max-md:bottom-0 max-md:inset-x-0 max-md:bg-background/85 max-md:backdrop-blur-xl max-md:border-t max-md:border-border max-md:p-4 max-md:pb-[calc(env(safe-area-inset-bottom)+16px)] max-md:z-50">
+            <Btn variant="primary" onClick={saveProfile} disabled={isSaving} className="px-8 font-semibold shadow-md max-md:w-full h-12">
               {isSaving ? "Saving..." : "Save Profile"}
             </Btn>
           </div>

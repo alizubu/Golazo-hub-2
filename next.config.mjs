@@ -3,7 +3,14 @@ import withPWAInit from '@ducanh2912/next-pwa';
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   turbopack: {},
-  /* config options here */
+  images: {
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'media.api-sports.io',
+      },
+    ],
+  },
 };
 
 const withPWA = withPWAInit({

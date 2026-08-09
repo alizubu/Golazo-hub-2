@@ -21,30 +21,15 @@ import {
 
 import { CLUBS } from '@/lib/data/clubs';
 import { NATIONAL_TEAMS } from '@/lib/data/national-teams';
+import { CLUB_COLORS } from '@/lib/data/club-colors';
 import { WavingFlag, Avatar, OnFireAvatar } from '@/app/components/shared/UI';
+import { ClubLogo } from '@/app/components/shared/ClubLogo';
 
 // ─── TEAM COMBOBOX ─────────────────────────────────────────────────────────
 
 function ItemIcon({ item, isClub }) {
   if (isClub) {
-    return (
-      <div className="w-6 h-6 flex items-center justify-center shrink-0 bg-secondary/50 rounded-md overflow-hidden p-0.5">
-        <Image 
-          src={item.crestPath} 
-          alt={item.name} 
-          width={24}
-          height={24}
-          className="w-full h-full object-contain"
-          onError={(e) => {
-            e.target.style.display = 'none';
-            e.target.nextSibling.style.display = 'flex';
-          }}
-        />
-        <div className="w-full h-full hidden items-center justify-center bg-pitch font-bold text-[10px] text-white">
-          {item.name.charAt(0)}
-        </div>
-      </div>
-    );
+    return <ClubLogo club={item} size={24} />;
   }
   return <div className="shrink-0"><WavingFlag code={item.isoCode} size="sm" /></div>;
 }
@@ -72,9 +57,59 @@ export function TeamCombobox({ type, selectedValue, onSelect }) {
     return Array.from(map.entries());
   }, [data, isClub]);
 
+  const renderPopoverContent = () => (
+    <PopoverContent 
+      className="w-[300px] sm:w-[350px] p-0 max-md:fixed max-md:inset-0 max-md:w-screen max-md:h-screen max-md:max-w-none max-md:border-none max-md:rounded-none max-md:bg-background max-md:z-[100] max-md:flex max-md:flex-col shadow-2xl" 
+      align="start" 
+      sideOffset={10}
+    >
+      <Command className="flex-1 flex flex-col">
+        <div className="flex items-center border-b border-border max-md:px-2">
+          <CommandInput placeholder={placeholderText} className="h-14 md:h-11 flex-1 border-none outline-none" />
+          <Button variant="ghost" size="icon" className="md:hidden shrink-0 text-muted-foreground" onClick={() => setOpen(false)}>
+            <X size={20} />
+          </Button>
+        </div>
+        <CommandList className="max-h-[300px] max-md:max-h-none max-md:flex-1 overflow-y-auto">
+          <CommandEmpty>{emptyText}</CommandEmpty>
+          {groups.map(([groupName, items]) => (
+            <CommandGroup key={groupName} heading={groupName} className="text-muted-foreground">
+              {items.map(item => {
+                const clubPrimary = isClub ? (CLUB_COLORS[item.slug]?.primary || 'var(--pitch-bright)') : 'var(--pitch-bright)';
+                return (
+                  <CommandItem
+                    key={item.id}
+                    value={item.name}
+                    onSelect={() => {
+                      onSelect(isClub ? item.name : item.isoCode);
+                      setOpen(false);
+                    }}
+                    style={{ '--club-color': clubPrimary }}
+                    className="flex items-center gap-3 py-3 md:py-2.5 cursor-pointer border-l-4 border-transparent hover:border-l-[color:var(--club-color)] hover:bg-[color:color-mix(in_srgb,var(--club-color)_10%,transparent)] data-[selected=true]:border-l-[color:var(--club-color)] data-[selected=true]:bg-[color:color-mix(in_srgb,var(--club-color)_10%,transparent)] transition-colors min-h-[48px]"
+                  >
+                    <ItemIcon item={item} isClub={isClub} />
+                    <div className="flex flex-col min-w-0 flex-1">
+                      <span className="font-semibold text-sm truncate">{item.name}</span>
+                    </div>
+                    <Check
+                      className={cn(
+                        "h-4 w-4 shrink-0 transition-opacity",
+                        (isClub ? item.name === selectedValue : item.isoCode === selectedValue) ? "opacity-100 text-[color:var(--club-color)]" : "opacity-0"
+                      )}
+                    />
+                  </CommandItem>
+                );
+              })}
+            </CommandGroup>
+          ))}
+        </CommandList>
+      </Command>
+    </PopoverContent>
+  );
+
   if (selectedItem) {
     return (
-      <div className="flex items-center justify-between p-3 rounded-xl border border-border/50 bg-secondary/30 group hover:bg-secondary/50 transition-colors">
+      <div className="flex items-center justify-between p-3 rounded-xl border border-border/50 bg-secondary/30 group hover:bg-secondary/50 hover:shadow-sm transition-all duration-300">
         <div className="flex items-center gap-3 min-w-0">
           <ItemIcon item={selectedItem} isClub={isClub} />
           <div className="flex flex-col min-w-0">
@@ -98,40 +133,7 @@ export function TeamCombobox({ type, selectedValue, onSelect }) {
             <PopoverTrigger asChild>
                <div className="hidden"></div>
             </PopoverTrigger>
-            <PopoverContent className="w-[300px] sm:w-[350px] p-0" align="end" sideOffset={10}>
-              <Command>
-                <CommandInput placeholder={placeholderText} className="h-11" />
-                <CommandList className="max-h-[300px]">
-                  <CommandEmpty>{emptyText}</CommandEmpty>
-                  {groups.map(([groupName, items]) => (
-                    <CommandGroup key={groupName} heading={groupName} className="text-muted-foreground">
-                      {items.map(item => (
-                        <CommandItem
-                          key={item.id}
-                          value={item.name}
-                          onSelect={() => {
-                            onSelect(isClub ? item.name : item.isoCode);
-                            setOpen(false);
-                          }}
-                          className="flex items-center gap-3 py-2.5 cursor-pointer"
-                        >
-                          <ItemIcon item={item} isClub={isClub} />
-                          <div className="flex flex-col min-w-0 flex-1">
-                            <span className="font-semibold text-sm truncate">{item.name}</span>
-                          </div>
-                          <Check
-                            className={cn(
-                              "h-4 w-4 text-pitch-bright shrink-0",
-                              (isClub ? item.name === selectedValue : item.isoCode === selectedValue) ? "opacity-100" : "opacity-0"
-                            )}
-                          />
-                        </CommandItem>
-                      ))}
-                    </CommandGroup>
-                  ))}
-                </CommandList>
-              </Command>
-            </PopoverContent>
+            {renderPopoverContent()}
           </Popover>
         )}
       </div>
@@ -145,40 +147,13 @@ export function TeamCombobox({ type, selectedValue, onSelect }) {
           variant="outline" 
           role="combobox" 
           aria-expanded={open} 
-          className="w-full justify-start h-12 text-muted-foreground border-dashed bg-secondary/20 hover:bg-secondary/40"
+          className="w-full justify-start h-12 text-muted-foreground border-dashed bg-secondary/20 hover:bg-secondary/40 hover:border-muted-foreground/50 transition-all duration-300"
         >
           <Plus className="mr-2 h-4 w-4" />
           {addLabel}
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-[300px] sm:w-[350px] p-0" align="start">
-        <Command>
-          <CommandInput placeholder={placeholderText} className="h-11" />
-          <CommandList className="max-h-[300px]">
-            <CommandEmpty>{emptyText}</CommandEmpty>
-            {groups.map(([groupName, items]) => (
-              <CommandGroup key={groupName} heading={groupName} className="text-muted-foreground">
-                {items.map(item => (
-                  <CommandItem
-                    key={item.id}
-                    value={item.name}
-                    onSelect={() => {
-                      onSelect(isClub ? item.name : item.isoCode);
-                      setOpen(false);
-                    }}
-                    className="flex items-center gap-3 py-2.5 cursor-pointer"
-                  >
-                    <ItemIcon item={item} isClub={isClub} />
-                    <div className="flex flex-col min-w-0 flex-1">
-                      <span className="font-semibold text-sm truncate">{item.name}</span>
-                    </div>
-                  </CommandItem>
-                ))}
-              </CommandGroup>
-            ))}
-          </CommandList>
-        </Command>
-      </PopoverContent>
+      {renderPopoverContent()}
     </Popover>
   );
 }
@@ -186,11 +161,8 @@ export function TeamCombobox({ type, selectedValue, onSelect }) {
 // ─── DISPLAY BADGE TOGGLE ──────────────────────────────────────────────────
 
 export function DisplayBadgeToggle({ value, onChange, disabledOption }) {
-  // value is 'club' or 'nation'
-  // disabledOption is 'club' (if no club selected) or 'nation' (if no nation selected) or null
-
   return (
-    <div className="flex bg-secondary/50 p-1 rounded-xl w-full relative">
+    <div className="flex bg-secondary/50 p-1 rounded-xl w-full relative min-h-[44px]">
       {['club', 'nation'].map((opt) => {
         const isActive = value === opt;
         const isDisabled = disabledOption === opt;
@@ -227,7 +199,6 @@ export function DisplayBadgeToggle({ value, onChange, disabledOption }) {
 // ─── AVATAR WITH BADGE ─────────────────────────────────────────────────────
 
 export function AvatarWithBadge({ player, size = 100, isOnFire = false }) {
-  // player needs avatar, flag, favoriteClub, displayBadgePreference
   const badgePref = player.displayBadgePreference || 'club';
   
   let badgeIcon = null;
@@ -235,38 +206,20 @@ export function AvatarWithBadge({ player, size = 100, isOnFire = false }) {
   if (badgePref === 'club' && player.favoriteClub) {
     const club = CLUBS.find(c => c.name === player.favoriteClub);
     if (club) {
-      badgeIcon = (
-        <Image 
-          src={club.crestPath} 
-          alt={club.name} 
-          width={48}
-          height={48}
-          className="w-full h-full object-contain scale-[0.8]"
-          onError={(e) => e.target.style.display = 'none'}
-        />
-      );
+      badgeIcon = <ClubLogo club={club} size={48} className="scale-[0.8]" />;
     }
   } else if (badgePref === 'nation' && player.flag) {
     badgeIcon = <div className="w-[120%] h-[120%]"><WavingFlag code={player.flag} size="md" className="!w-full !h-full rounded-full" /></div>;
   }
 
-  // Fallback to the other if the preferred one is missing
+  // Fallback
   if (!badgeIcon) {
     if (badgePref === 'club' && player.flag) {
         badgeIcon = <div className="w-[120%] h-[120%]"><WavingFlag code={player.flag} size="md" className="!w-full !h-full rounded-full" /></div>;
     } else if (badgePref === 'nation' && player.favoriteClub) {
         const club = CLUBS.find(c => c.name === player.favoriteClub);
         if (club) {
-            badgeIcon = (
-                <Image 
-                  src={club.crestPath} 
-                  alt={club.name} 
-                  width={48}
-                  height={48}
-                  className="w-full h-full object-contain scale-[0.8]"
-                  onError={(e) => e.target.style.display = 'none'}
-                />
-            );
+            badgeIcon = <ClubLogo club={club} size={48} className="scale-[0.8]" />;
         }
     }
   }
@@ -281,25 +234,14 @@ export function AvatarWithBadge({ player, size = 100, isOnFire = false }) {
         <Avatar p={player} size={size} />
       )}
       
-      <AnimatePresence>
-        {badgeIcon && (
-          <motion.div
-            initial={{ scale: 0, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            exit={{ scale: 0, opacity: 0 }}
-            transition={{ type: "spring", stiffness: 400, damping: 25 }}
-            className="absolute z-10 flex items-center justify-center bg-card rounded-full shadow-lg border-[3px] border-card overflow-hidden"
-            style={{ 
-              width: badgeSize, 
-              height: badgeSize,
-              bottom: size > 64 ? -4 : -2,
-              left: size > 64 ? -4 : -2
-            }}
-          >
-            {badgeIcon}
-          </motion.div>
-        )}
-      </AnimatePresence>
+      {badgeIcon && (
+        <div 
+          className="absolute -bottom-1 -left-1 rounded-full border-2 border-background bg-background shadow-sm flex items-center justify-center overflow-hidden z-10"
+          style={{ width: badgeSize, height: badgeSize }}
+        >
+          {badgeIcon}
+        </div>
+      )}
     </div>
   );
 }
