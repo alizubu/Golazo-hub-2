@@ -24,6 +24,7 @@ model Player {
   nationality            String?
   favoriteClub           String?
   favoriteCompetition    String?
+  displayBadgePreference String    @default("club")
   playStyle              String?
   badges                 Json?
   coverBanner            String?

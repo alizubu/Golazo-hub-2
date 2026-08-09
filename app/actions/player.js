@@ -108,6 +108,7 @@ export async function updatePlayerProfile(id, data) {
         nationality: data.nationality,
         favoriteClub: data.favoriteClub,
         favoriteCompetition: data.favoriteCompetition,
+        displayBadgePreference: data.displayBadgePreference,
         playStyle: data.playStyle,
         badges: data.badges,
         coverBanner: data.coverBanner,
@@ -171,6 +172,7 @@ export async function adminUpdatePlayer(id, data) {
       nationality: data.nationality,
       favoriteClub: data.favoriteClub,
       favoriteCompetition: data.favoriteCompetition,
+      displayBadgePreference: data.displayBadgePreference,
       playStyle: data.playStyle,
       badges: data.badges,
     };

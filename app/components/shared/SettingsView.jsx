@@ -1,5 +1,7 @@
 'use client';
 
+import Image from 'next/image';
+
 import { PageHeader } from '@/app/components/shared/PageHeader';
 import React, { useState, useRef } from 'react';
 import { Camera, KeyRound, Shield, CheckCircle2, Flame, Eye, EyeOff, Settings, Bell, BellOff, LogOut, Loader2 } from 'lucide-react';
@@ -7,7 +9,7 @@ import { motion } from 'framer-motion';
 import { Label, Btn } from '@/app/components/shared/UI';
 import dynamic from 'next/dynamic';
 
-const SearchableLogoPicker = dynamic(() => import('./SearchableLogoPicker'), { ssr: false });
+import { TeamCombobox, DisplayBadgeToggle, AvatarWithBadge } from '@/app/components/shared/FootballIdentity';
 import AvatarUpload from '@/app/components/shared/AvatarUpload';
 import { MagicCard } from '@/app/components/magicui/MagicCard';
 import { Card, CardContent, CardHeader, CardTitle } from '@/app/components/ui/card';
@@ -37,6 +39,7 @@ export default function SettingsView({ me, showToast }) {
     bio: me.bio || "",
     nationality: me.nationality || "",
     favoriteClub: me.favoriteClub || "",
+    displayBadgePreference: me.displayBadgePreference || "club",
   });
   
   const [pwd, setPwd] = useState(""); 
@@ -258,7 +261,7 @@ export default function SettingsView({ me, showToast }) {
                       <Label className="text-xs opacity-70">Cover Photo</Label>
                       <div className="relative h-32 w-full rounded-xl overflow-hidden bg-secondary/50 border border-dashed border-border/50 group flex items-center justify-center">
                         {form.coverBanner && coverFailedUrl !== form.coverBanner ? (
-                          <img src={form.coverBanner} alt="Cover Banner" className="w-full h-full object-cover" onError={() => setCoverFailedUrl(form.coverBanner)} />
+                          <Image src={form.coverBanner} alt="Cover Banner" fill className="object-cover" onError={() => setCoverFailedUrl(form.coverBanner)} />
                         ) : (
                           <div className="text-xs text-muted-foreground">No cover photo set</div>
                         )}
@@ -300,10 +303,6 @@ export default function SettingsView({ me, showToast }) {
                     </div>
                     <Textarea value={form.bio} onChange={e => setForm({...form, bio: e.target.value.substring(0, 150)})} placeholder="Tell us about your playstyle..." className="min-h-[100px] resize-none focus-visible:ring-pitch-bright bg-background/50" />
                   </div>
-                  <div className="space-y-1.5">
-                    <Label>Nationality (Emoji)</Label>
-                    <Input value={form.nationality} onChange={e => setForm({...form, nationality: e.target.value})} placeholder="e.g. 🇧🇷" className="text-xl focus-visible:ring-pitch-bright bg-background/50" />
-                  </div>
                 </div>
               </CardContent>
             </Card>
@@ -316,9 +315,47 @@ export default function SettingsView({ me, showToast }) {
                  <p className="text-sm text-muted-foreground mt-1">Select your favorite real-world teams to show them off on your profile.</p>
                </CardHeader>
                <CardContent className="pt-6">
-                 <div className="space-y-6">
-                   <SearchableLogoPicker label="Favorite Club" items={clubs} value={form.favoriteClub} onChange={(val) => setForm({...form, favoriteClub: val})} placeholder="Search Club..." />
-                   <SearchableLogoPicker label="Favorite National Team" items={nationalTeams} value={form.flag} onChange={(val) => setForm({...form, flag: val})} placeholder="Search National Team..." />
+                 <div className="flex flex-col md:flex-row gap-8 items-start">
+                   <div className="space-y-6 flex-1 w-full">
+                     <div className="space-y-2">
+                       <Label>Favorite Club</Label>
+                       <TeamCombobox 
+                         type="club" 
+                         selectedValue={form.favoriteClub} 
+                         onSelect={(val) => setForm({...form, favoriteClub: val})} 
+                       />
+                     </div>
+                     <div className="space-y-2">
+                       <Label>Favorite National Team</Label>
+                       <TeamCombobox 
+                         type="nation" 
+                         selectedValue={form.flag} 
+                         onSelect={(val) => setForm({...form, flag: val})} 
+                       />
+                     </div>
+                     <div className="space-y-2 pt-2 border-t border-border/30">
+                       <Label>Display Badge</Label>
+                       <DisplayBadgeToggle 
+                         value={form.displayBadgePreference} 
+                         onChange={(val) => setForm({...form, displayBadgePreference: val})} 
+                         disabledOption={!form.favoriteClub ? 'club' : !form.flag ? 'nation' : null} 
+                       />
+                       <p className="text-xs text-muted-foreground mt-1">Choose which badge displays on your public profile avatar.</p>
+                     </div>
+                   </div>
+                   <div className="shrink-0 flex flex-col items-center gap-3 bg-secondary/20 p-6 rounded-2xl border border-border/50 self-center md:self-start md:mt-2">
+                     <Label className="text-center w-full">Live Preview</Label>
+                     <AvatarWithBadge 
+                       player={{ 
+                         avatar: form.avatar, 
+                         avatarImage: form.avatarImage, 
+                         flag: form.flag, 
+                         favoriteClub: form.favoriteClub, 
+                         displayBadgePreference: form.displayBadgePreference 
+                       }} 
+                       size={96} 
+                     />
+                   </div>
                  </div>
                </CardContent>
             </Card>

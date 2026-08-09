@@ -4,6 +4,7 @@ import React from 'react';
 import { PageHeader } from '@/app/components/shared/PageHeader';
 import { Trophy, Clock, ListOrdered, Calendar, Swords, Megaphone, Bell, Pen, Target, Handshake, Shield, Activity, Lock, Flame, BadgeCheck, TrendingUp, Users, ArrowRight } from 'lucide-react';
 import { Btn, Badge, Avatar, PlayerChip, SectionTitle, EmptyState, MagicCard, FadeIn, ShinyButton, Label, WavingFlag, PlayStyleBadge, OnFireAvatar } from '@/app/components/shared/UI';
+import { AvatarWithBadge } from '@/app/components/shared/FootballIdentity';
 import { Card, CardHeader, CardTitle, CardContent } from '@/app/components/ui/card';
 import { NumberTicker } from '@/app/components/ui/number-ticker';
 import { motion } from 'framer-motion';
@@ -339,7 +340,7 @@ export function PlayerDashboard({ me, activeSeason, seasons = [], matches, playe
                   <div className="relative inline-block">
                     <div className="absolute -inset-1 rounded-full bg-gradient-to-br from-gold via-pitch-bright to-claret animate-spin [animation-duration:4s] blur-[1px] opacity-80" />
                     <div className="relative rounded-full p-1 bg-card shadow-xl">
-                      <OnFireAvatar p={me} size={100} isOnFire={isOnFire} />
+                      <AvatarWithBadge player={me} size={100} isOnFire={isOnFire} />
                     </div>
                   </div>
                 </div>
