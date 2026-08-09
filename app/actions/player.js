@@ -147,8 +147,14 @@ export async function adminDeletePlayer(id) {
 }
 
 export async function adminUpdatePlayer(id, data) {
-  const auth = await checkSessionPermission('canManagePlayers');
+  const auth = await checkSessionPermission();
   if (!auth.authorized) return { error: auth.error };
+  if (auth.role === 'manager') {
+    const perms = await prisma.managerPermissions.findUnique({ where: { id: 'global' } });
+    if (!perms?.canManagePlayers && !perms?.canManageProfiles) {
+      return { error: 'Permission denied: Manager lacks canManagePlayers or canManageProfiles' };
+    }
+  }
   try {
     const updateData = {
       name: data.name,
@@ -156,6 +162,7 @@ export async function adminUpdatePlayer(id, data) {
       email: data.email,
       teamName: data.teamName,
       avatar: data.avatar,
+      avatarImage: data.avatarImage,
       flag: data.flag,
       teamLogo: data.teamLogo,
       bio: data.bio,

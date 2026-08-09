@@ -170,7 +170,7 @@ export default function AdminSidebar({ currentTab, setTab, activeSeason, matches
   const navItems = NAV_ITEMS.filter(item => {
     if (session?.role === 'admin') return true;
     if (item.tab === 'admin/roles') return false;
-    if (item.tab === 'admin/players') return !!managerPermissions?.canManagePlayers;
+    if (item.tab === 'admin/players') return !!managerPermissions?.canManagePlayers || !!managerPermissions?.canManageProfiles;
     if (item.tab === 'admin/season') return !!managerPermissions?.canManageSeason;
     if (item.tab === 'admin/matches') return !!managerPermissions?.canManageMatches;
     if (item.tab === 'admin/trophies') return !!managerPermissions?.canManageSeason;

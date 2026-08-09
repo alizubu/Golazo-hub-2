@@ -12,6 +12,7 @@ import { awardTrophy, removeTrophy, updateTrophy, createAnnouncement, deleteAnno
 
 import { startSeason, updateSeason, completeSeason, updateSeasonAwards } from '@/app/actions/season';
 import { signUpPlayer, adminUpdatePlayer, adminDeletePlayer } from '@/app/actions/player';
+import { uploadImage } from '@/app/actions/upload';
 import { supabase } from '@/lib/supabaseClient';
 import PlayoffBracket from '@/app/components/shared/PlayoffBracket';
 import { getCode } from 'country-list';
@@ -77,10 +78,11 @@ import RichTextEditor from '@/app/components/shared/RichTextEditor';
 
 
 
-export function AdminPlayers({ players, showToast }) {
+export function AdminPlayers({ players, showToast, session, managerPermissions }) {
   const [editing, setEditing] = useState(null);
   const [loading, setLoading] = useState(false);
-  const blank = { name: "", username: "", email: "", avatar: null, flag: null, teamName: "", teamLogo: null, password: "" };
+  const [uploading, setUploading] = useState(false);
+  const blank = { name: "", username: "", email: "", avatar: null, avatarImage: null, flag: null, teamName: "", teamLogo: null, password: "" };
   const [form, setForm] = useState(blank);
   const startNew = () => { setForm(blank); setEditing("new"); };
   const startEdit = (p) => { setForm({ ...p, password: "" }); setEditing(p.id); };
@@ -104,6 +106,26 @@ export function AdminPlayers({ players, showToast }) {
     setEditing(null);
   };
   
+  const handleImageUpload = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (file.size > 5 * 1024 * 1024) return showToast("Image must be less than 5MB");
+    
+    setUploading(true);
+    const reader = new FileReader();
+    reader.onloadend = async () => {
+      const base64 = reader.result;
+      const res = await uploadImage(base64);
+      if (res.error) showToast(res.error);
+      else {
+        setForm(prev => ({ ...prev, avatarImage: res.url }));
+        showToast("Image uploaded!");
+      }
+      setUploading(false);
+    };
+    reader.readAsDataURL(file);
+  };
+  
   const remove = async (id) => { 
     if (!confirm("Delete player?")) return;
     setLoading(true);
@@ -117,7 +139,9 @@ export function AdminPlayers({ players, showToast }) {
     <div className="flex flex-col gap-6">
       <div className="flex items-center justify-between">
         <SectionTitle icon={Users}>Players ({players.length})</SectionTitle>
-        <ShinyButton onClick={startNew}><Plus size={15} /> Add player</ShinyButton>
+        {(session?.role === 'admin' || managerPermissions?.canManagePlayers) && (
+          <ShinyButton onClick={startNew}><Plus size={15} /> Add player</ShinyButton>
+        )}
       </div>
       {editing && (
         <FadeIn>
@@ -126,6 +150,19 @@ export function AdminPlayers({ players, showToast }) {
               {editing === "new" ? "New player account" : "Edit player"}
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="md:col-span-2 flex flex-col gap-2">
+                <Label>Avatar Image (Click to upload)</Label>
+                <label className={`w-16 h-16 rounded-full overflow-hidden border-2 border-dashed border-border/50 hover:border-gold cursor-pointer transition-colors flex items-center justify-center bg-secondary/30 ${uploading ? 'opacity-50 pointer-events-none' : ''}`}>
+                   {form.avatarImage ? (
+                     <img src={form.avatarImage} alt="Avatar" className="w-full h-full object-cover" />
+                   ) : form.avatar ? (
+                     <span className="font-heading font-black text-xl text-muted-foreground">{form.avatar}</span>
+                   ) : (
+                     <Plus size={20} className="text-muted-foreground" />
+                   )}
+                   <input type="file" accept="image/*" className="hidden" onChange={handleImageUpload} disabled={uploading} />
+                </label>
+              </div>
               <div><Label>Display name</Label><Input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} placeholder="Player name" /></div>
               <div><Label>Username</Label><Input value={form.username} onChange={(e) => setForm({ ...form, username: e.target.value })} placeholder="username" /></div>
               <div className="md:col-span-2"><Label>Email</Label><Input value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} placeholder="email" /></div>
@@ -133,6 +170,8 @@ export function AdminPlayers({ players, showToast }) {
               {editing !== "new" && (
                 <>
                   <div><Label>Team name</Label><Input value={form.teamName} onChange={(e) => setForm({ ...form, teamName: e.target.value })} /></div>
+                  <div><Label>2-Letter Flag Code</Label><Input value={form.flag || ""} onChange={(e) => setForm({ ...form, flag: e.target.value.toLowerCase() })} placeholder="e.g. gb, us, br" maxLength={2} /></div>
+                  <div><Label>Short Initials (Fallback)</Label><Input value={form.avatar || ""} onChange={(e) => setForm({ ...form, avatar: e.target.value.toUpperCase() })} placeholder="e.g. MES" maxLength={3} /></div>
                 </>
               )}
             </div>
@@ -165,10 +204,14 @@ export function AdminPlayers({ players, showToast }) {
                   <DropdownMenuItem className="cursor-pointer py-2.5 rounded-lg" onSelect={() => startEdit(p)} disabled={loading}>
                     <Edit2 size={15} className="mr-2.5 text-muted-foreground" /> Edit Profile
                   </DropdownMenuItem>
-                  <DropdownMenuSeparator className="bg-border/30 my-1" />
-                  <DropdownMenuItem className="cursor-pointer py-2.5 rounded-lg text-destructive focus:text-destructive focus:bg-destructive/10" onSelect={() => remove(p.id)} disabled={loading}>
-                    <Trash2 size={15} className="mr-2.5" /> Remove Player
-                  </DropdownMenuItem>
+                  {(session?.role === 'admin' || managerPermissions?.canManagePlayers) && (
+                    <>
+                      <DropdownMenuSeparator className="bg-border/30 my-1" />
+                      <DropdownMenuItem className="cursor-pointer py-2.5 rounded-lg text-destructive focus:text-destructive focus:bg-destructive/10" onSelect={() => remove(p.id)} disabled={loading}>
+                        <Trash2 size={15} className="mr-2.5" /> Remove Player
+                      </DropdownMenuItem>
+                    </>
+                  )}
                 </DropdownMenuContent>
               </DropdownMenu>
             </div>
@@ -1982,8 +2025,16 @@ export function AdminRoles({ showToast }) {
             <Toggle 
               checked={permissions.canManagePlayers} 
               onChange={v => update('canManagePlayers', v)} 
-              label="Manage Players" 
-              desc="Allow the manager to add, edit, or delete player profiles." 
+              label="Create / Delete Players" 
+              desc="Allow the manager to add new players or delete them." 
+            />
+          </div>
+          <div className="p-4 rounded-xl bg-secondary/30 border border-border/50">
+            <Toggle 
+              checked={permissions.canManageProfiles} 
+              onChange={v => update('canManageProfiles', v)} 
+              label="Edit Player Profiles" 
+              desc="Allow the manager to update player avatars, names, and bio stats." 
             />
           </div>
           <div className="p-4 rounded-xl bg-secondary/30 border border-border/50">

@@ -141,7 +141,7 @@ export default function AppShell({
               {currentTab === 'hall-of-fame' ? (
                 <HallOfFame trophies={trophies} players={players} />
               ) : currentTab === 'admin/players' ? (
-                (session?.role === 'admin' || managerPermissions?.canManagePlayers) ? (
+                (session?.role === 'admin' || managerPermissions?.canManagePlayers || managerPermissions?.canManageProfiles) ? (
                   <div className="pt-2"><AdminPlayers {...adminProps} /></div>
                 ) : (
                   <div className="p-8 text-center text-muted-foreground">Access Denied: You do not have permission to manage players.</div>

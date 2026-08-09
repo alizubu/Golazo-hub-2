@@ -38,6 +38,7 @@ export async function POST(req) {
       update: {
         canManageMatches: data.canManageMatches,
         canManagePlayers: data.canManagePlayers,
+        canManageProfiles: data.canManageProfiles,
         canManageSeason: data.canManageSeason,
         canEditBroadcast: data.canEditBroadcast,
       },
@@ -45,6 +46,7 @@ export async function POST(req) {
         id: 'global',
         canManageMatches: data.canManageMatches ?? true,
         canManagePlayers: data.canManagePlayers ?? false,
+        canManageProfiles: data.canManageProfiles ?? false,
         canManageSeason: data.canManageSeason ?? false,
         canEditBroadcast: data.canEditBroadcast ?? false,
       },

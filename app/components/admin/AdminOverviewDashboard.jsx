@@ -165,14 +165,17 @@ function QuickActions({ setTab, showToast, session, managerPermissions }) {
     { label: "Edit Season", category: "Match Logistics", icon: Edit2, bg: "bg-orange-500/10 text-orange-500", onClick: () => setTab ? setTab("admin/season") : showToast?.("Go to Season tab"), perm: 'canManageSeason' },
     { label: "Create Announcement", category: "Content & Trophies", icon: Megaphone, bg: "bg-purple-500/10 text-purple-500", onClick: () => setTab ? setTab("admin/announcements") : showToast?.("Go to Announcements tab"), perm: 'canEditBroadcast' },
     { label: "Manage Trophies", category: "Content & Trophies", icon: Trophy, bg: "bg-gold/10 text-gold", onClick: () => setTab ? setTab("admin/trophies") : showToast?.("Go to Trophies tab"), perm: 'canManageSeason' },
-    { label: "Manage Players", category: "Player Management", icon: Users, bg: "bg-pink-500/10 text-pink-500", onClick: () => setTab ? setTab("admin/players") : showToast?.("Go to Players tab"), perm: 'canManagePlayers' },
+    { label: "Manage Players", category: "Player Management", icon: Users, bg: "bg-pink-500/10 text-pink-500", onClick: () => setTab ? setTab("admin/players") : showToast?.("Go to Players tab"), perm: ['canManagePlayers', 'canManageProfiles'] },
     { label: "Role Manage", category: "Access Control", icon: ShieldAlert, bg: "bg-amber-500/10 text-amber-500", onClick: () => setTab ? setTab("admin/roles") : showToast?.("Go to Role Manage tab"), adminOnly: true }
   ];
 
   const actions = allActions.filter(act => {
     if (session?.role === 'admin') return true;
     if (act.adminOnly) return false;
-    if (act.perm && managerPermissions) return !!managerPermissions[act.perm];
+    if (act.perm && managerPermissions) {
+      if (Array.isArray(act.perm)) return act.perm.some(p => !!managerPermissions[p]);
+      return !!managerPermissions[act.perm];
+    }
     return true;
   });
 
