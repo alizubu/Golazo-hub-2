@@ -12,10 +12,12 @@ import { awardTrophy, removeTrophy, updateTrophy, createAnnouncement, deleteAnno
 
 import { startSeason, updateSeason, completeSeason, updateSeasonAwards } from '@/app/actions/season';
 import { signUpPlayer, adminUpdatePlayer, adminDeletePlayer } from '@/app/actions/player';
-import { CldUploadWidget } from 'next-cloudinary';
+import { uploadImage } from '@/app/actions/upload';
 import { supabase } from '@/lib/supabaseClient';
 import PlayoffBracket from '@/app/components/shared/PlayoffBracket';
 import { getCode } from 'country-list';
+import Cropper from 'react-easy-crop';
+import { getCroppedImgBase64 } from '@/app/utils/cropUtils';
 import nationalTeamsData from '@/lib/data/national_teams.json';
 import { useRouter } from 'next/navigation';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/app/components/ui/tabs';
@@ -81,6 +83,13 @@ import RichTextEditor from '@/app/components/shared/RichTextEditor';
 export function AdminPlayers({ players, showToast, session, managerPermissions }) {
   const [editing, setEditing] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  
+  const [cropDataUrl, setCropDataUrl] = useState(null);
+  const [crop, setCrop] = useState({ x: 0, y: 0 });
+  const [zoom, setZoom] = useState(1);
+  const [croppedAreaPixels, setCroppedAreaPixels] = useState(null);
+  
   const blank = { name: "", username: "", email: "", avatar: null, avatarImage: null, flag: null, teamName: "", teamLogo: null, password: "" };
   const [form, setForm] = useState(blank);
   const startNew = () => { setForm(blank); setEditing("new"); };
@@ -105,6 +114,40 @@ export function AdminPlayers({ players, showToast, session, managerPermissions }
     setEditing(null);
   };
   
+  const handleImageUpload = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (file.size > 5 * 1024 * 1024) return showToast("Image must be less than 5MB");
+    
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setCropDataUrl(reader.result);
+    };
+    reader.readAsDataURL(file);
+    e.target.value = ''; // Reset input
+  };
+
+  const handleCropComplete = async () => {
+    if (!cropDataUrl || !croppedAreaPixels) return;
+    setUploading(true);
+    try {
+      const croppedBase64 = await getCroppedImgBase64(cropDataUrl, croppedAreaPixels);
+      if (!croppedBase64) throw new Error("Failed to crop");
+      
+      const res = await uploadImage(croppedBase64);
+      if (res.error) showToast(res.error);
+      else {
+        setForm(prev => ({ ...prev, avatarImage: res.url }));
+        showToast("Image cropped and uploaded successfully!");
+        setCropDataUrl(null);
+        setZoom(1);
+      }
+    } catch (e) {
+      showToast("Error processing crop.");
+    }
+    setUploading(false);
+  };
+  
   const remove = async (id) => { 
     if (!confirm("Delete player?")) return;
     setLoading(true);
@@ -122,6 +165,41 @@ export function AdminPlayers({ players, showToast, session, managerPermissions }
           <ShinyButton onClick={startNew}><Plus size={15} /> Add player</ShinyButton>
         )}
       </div>
+      
+      {cropDataUrl && (
+        <div className="fixed inset-0 z-[200] bg-black/90 flex flex-col items-center justify-center p-4">
+          <div className="relative w-full max-w-lg h-[50vh] bg-black rounded-xl overflow-hidden mb-6 border border-white/10 shadow-2xl">
+            <Cropper
+              image={cropDataUrl}
+              crop={crop}
+              zoom={zoom}
+              aspect={1}
+              cropShape="round"
+              showGrid={false}
+              onCropChange={setCrop}
+              onZoomChange={setZoom}
+              onCropComplete={(_, croppedPixels) => setCroppedAreaPixels(croppedPixels)}
+            />
+          </div>
+          <div className="flex gap-4 w-full max-w-lg mb-8 items-center bg-secondary/50 p-4 rounded-xl border border-white/5">
+            <span className="text-muted-foreground text-sm font-bold">Zoom</span>
+            <input 
+              type="range" 
+              value={zoom} 
+              min={1} 
+              max={3} 
+              step={0.05} 
+              onChange={(e) => setZoom(e.target.value)} 
+              className="w-full accent-gold"
+            />
+          </div>
+          <div className="flex gap-4">
+            <Btn variant="ghost" onClick={() => { setCropDataUrl(null); setZoom(1); }} className="text-white hover:bg-white/20">Cancel</Btn>
+            <ShinyButton onClick={handleCropComplete} loading={uploading}>Confirm Crop</ShinyButton>
+          </div>
+        </div>
+      )}
+      
       {editing && (
         <FadeIn>
           <Card className="p-6 border-gold/50 bg-gold/5">
@@ -130,37 +208,24 @@ export function AdminPlayers({ players, showToast, session, managerPermissions }
             </div>
             <div className="grid grid-cols-1 md:grid-cols-[auto_1fr] gap-8 items-start">
               
-              <div className="flex flex-col items-center justify-center gap-4 w-full md:w-48 mt-2">
-                <CldUploadWidget 
-                  signatureEndpoint="/api/sign-cloudinary-params"
-                  options={{ sources: ['local', 'camera'], cropping: true, croppingAspectRatio: 1, multiple: false, clientAllowedFormats: ['png','jpeg','jpg','webp'] }}
-                  onSuccess={(result) => {
-                    setForm(prev => ({ ...prev, avatarImage: result.info.secure_url }));
-                    showToast("Image uploaded successfully!");
-                  }}
-                >
-                  {({ open }) => (
-                    <div 
-                      className="group relative w-32 h-32 md:w-40 md:h-40 rounded-full overflow-hidden border-4 border-secondary/50 hover:border-gold cursor-pointer transition-all shadow-2xl flex items-center justify-center bg-secondary/30"
-                      onClick={() => open()}
-                    >
-                      {form.avatarImage ? (
-                        <img src={form.avatarImage} alt="Avatar" className="w-full h-full object-cover" />
-                      ) : form.avatar ? (
-                        <span className="font-heading font-black text-5xl text-muted-foreground">{form.avatar}</span>
-                      ) : (
-                        <Camera size={40} className="text-muted-foreground/30" />
-                      )}
-                      
-                      <div className="absolute inset-0 bg-black/60 backdrop-blur-sm flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                        <Camera size={24} className="text-white mb-2" />
-                        <span className="text-white text-xs font-bold tracking-wide uppercase">Change Photo</span>
-                      </div>
-                    </div>
+              <div className="flex flex-col items-center justify-center gap-4 w-full md:w-64 mt-2">
+                <label className={`group relative w-56 h-56 md:w-64 md:h-64 rounded-full overflow-hidden border-4 border-secondary/50 hover:border-gold cursor-pointer transition-all shadow-2xl flex items-center justify-center bg-secondary/30 ${uploading ? 'opacity-50 pointer-events-none' : ''}`}>
+                  {form.avatarImage ? (
+                    <img src={form.avatarImage} alt="Avatar" className="w-full h-full object-cover" />
+                  ) : form.avatar ? (
+                    <span className="font-heading font-black text-6xl md:text-7xl text-muted-foreground">{form.avatar}</span>
+                  ) : (
+                    <Camera size={64} className="text-muted-foreground/30" />
                   )}
-                </CldUploadWidget>
+                  
+                  <div className="absolute inset-0 bg-black/60 backdrop-blur-sm flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                    <Camera size={32} className="text-white mb-2" />
+                    <span className="text-white text-sm font-bold tracking-wide uppercase">Tap to Change</span>
+                  </div>
+                  <input type="file" accept="image/*" className="hidden" onChange={handleImageUpload} disabled={uploading} />
+                </label>
                 <div className="text-center">
-                  <p className="text-[10px] text-muted-foreground font-semibold uppercase tracking-widest">Profile Picture</p>
+                  <p className="text-[10px] text-muted-foreground font-semibold uppercase tracking-widest">Auto-Cropped Profile Picture</p>
                 </div>
               </div>
               

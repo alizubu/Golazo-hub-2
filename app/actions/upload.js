@@ -17,8 +17,7 @@ export async function uploadImage(base64Data) {
     const result = await cloudinary.uploader.upload(base64Data, {
       folder: 'golazo_avatars',
       transformation: [
-        { width: 400, height: 400, crop: "fill", gravity: "face" },
-        { quality: "auto", fetch_format: "auto" }
+        { quality: "auto", fetch_format: "auto", width: 800 }
       ]
     });
     
