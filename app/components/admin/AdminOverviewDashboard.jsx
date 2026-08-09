@@ -90,10 +90,10 @@ function HeroSeasonSummary({ activeSeason, players, matches, setTab }) {
           <div className="h-full w-px bg-border/50 hidden sm:block" />
 
           <div className="flex flex-col gap-2 w-full sm:w-auto">
-            <Btn variant="primary" onClick={() => setTab && setTab('admin-matches')} className="w-full justify-center text-xs uppercase font-bold tracking-wider py-2 shadow-lg shadow-pitch/20 cursor-pointer">
+            <Btn variant="primary" onClick={() => setTab && setTab('admin/matches')} className="w-full justify-center text-xs uppercase font-bold tracking-wider py-2 shadow-lg shadow-pitch/20 cursor-pointer">
               Manage Matches <ArrowRight size={14} className="ml-1" />
             </Btn>
-            <Btn variant="outline" onClick={() => setTab && setTab('admin-season')} className="w-full justify-center text-xs uppercase font-bold tracking-wider py-1.5 cursor-pointer">
+            <Btn variant="outline" onClick={() => setTab && setTab('admin/season')} className="w-full justify-center text-xs uppercase font-bold tracking-wider py-1.5 cursor-pointer">
               Season Settings
             </Btn>
           </div>
@@ -118,9 +118,9 @@ function AdminMetrics({ matches, activeSeason, notifications = [], setTab }) {
   const unreadNotifs = notifications.length;
 
   const metrics = [
-    { label: "Live Matches", value: liveMatchesCount, icon: Radio, color: "text-destructive", bg: "bg-destructive/15", pulse: liveMatchesCount > 0, tab: "admin-matches" },
-    { label: "Upcoming Fixtures", value: scheduledCount, icon: Calendar, color: "text-sky-400", bg: "bg-sky-400/15", tab: "admin-matches" },
-    { label: "Completed Matches", value: completedCount, icon: CheckCircle2, color: "text-green-500", bg: "bg-green-500/15", tab: "admin-matches" },
+    { label: "Live Matches", value: liveMatchesCount, icon: Radio, color: "text-destructive", bg: "bg-destructive/15", pulse: liveMatchesCount > 0, tab: "admin/matches" },
+    { label: "Upcoming Fixtures", value: scheduledCount, icon: Calendar, color: "text-sky-400", bg: "bg-sky-400/15", tab: "admin/matches" },
+    { label: "Completed Matches", value: completedCount, icon: CheckCircle2, color: "text-green-500", bg: "bg-green-500/15", tab: "admin/matches" },
     { label: "System Alerts", value: unreadNotifs, icon: AlertTriangle, color: unreadNotifs > 0 ? "text-amber-500" : "text-muted-foreground", bg: unreadNotifs > 0 ? "bg-amber-500/15" : "bg-secondary/50", sub: unreadNotifs > 0 ? "Click to review alerts" : "System normal", tab: "notifications" }
   ];
 
@@ -160,13 +160,13 @@ function AdminMetrics({ matches, activeSeason, notifications = [], setTab }) {
 
 function QuickActions({ setTab, showToast, session, managerPermissions }) {
   const allActions = [
-    { label: "Start Match", category: "Match Logistics", icon: PlayCircle, bg: "bg-green-500/10 text-green-500", onClick: () => setTab ? setTab("admin-matches") : showToast?.("Go to Matches tab"), perm: 'canManageMatches' },
-    { label: "Generate Fixtures", category: "Match Logistics", icon: CalendarDays, bg: "bg-blue-500/10 text-blue-500", onClick: () => setTab ? setTab("admin-season") : showToast?.("Go to Season tab"), perm: 'canManageSeason' },
-    { label: "Edit Season", category: "Match Logistics", icon: Edit2, bg: "bg-orange-500/10 text-orange-500", onClick: () => setTab ? setTab("admin-season") : showToast?.("Go to Season tab"), perm: 'canManageSeason' },
-    { label: "Create Announcement", category: "Content & Trophies", icon: Megaphone, bg: "bg-purple-500/10 text-purple-500", onClick: () => setTab ? setTab("admin-announcements") : showToast?.("Go to Announcements tab"), perm: 'canEditBroadcast' },
-    { label: "Manage Trophies", category: "Content & Trophies", icon: Trophy, bg: "bg-gold/10 text-gold", onClick: () => setTab ? setTab("admin-trophies") : showToast?.("Go to Trophies tab"), perm: 'canManageSeason' },
-    { label: "Manage Players", category: "Player Management", icon: Users, bg: "bg-pink-500/10 text-pink-500", onClick: () => setTab ? setTab("admin-players") : showToast?.("Go to Players tab"), perm: 'canManagePlayers' },
-    { label: "Role Manage", category: "Access Control", icon: ShieldAlert, bg: "bg-amber-500/10 text-amber-500", onClick: () => setTab ? setTab("admin-roles") : showToast?.("Go to Role Manage tab"), adminOnly: true }
+    { label: "Start Match", category: "Match Logistics", icon: PlayCircle, bg: "bg-green-500/10 text-green-500", onClick: () => setTab ? setTab("admin/matches") : showToast?.("Go to Matches tab"), perm: 'canManageMatches' },
+    { label: "Generate Fixtures", category: "Match Logistics", icon: CalendarDays, bg: "bg-blue-500/10 text-blue-500", onClick: () => setTab ? setTab("admin/season") : showToast?.("Go to Season tab"), perm: 'canManageSeason' },
+    { label: "Edit Season", category: "Match Logistics", icon: Edit2, bg: "bg-orange-500/10 text-orange-500", onClick: () => setTab ? setTab("admin/season") : showToast?.("Go to Season tab"), perm: 'canManageSeason' },
+    { label: "Create Announcement", category: "Content & Trophies", icon: Megaphone, bg: "bg-purple-500/10 text-purple-500", onClick: () => setTab ? setTab("admin/announcements") : showToast?.("Go to Announcements tab"), perm: 'canEditBroadcast' },
+    { label: "Manage Trophies", category: "Content & Trophies", icon: Trophy, bg: "bg-gold/10 text-gold", onClick: () => setTab ? setTab("admin/trophies") : showToast?.("Go to Trophies tab"), perm: 'canManageSeason' },
+    { label: "Manage Players", category: "Player Management", icon: Users, bg: "bg-pink-500/10 text-pink-500", onClick: () => setTab ? setTab("admin/players") : showToast?.("Go to Players tab"), perm: 'canManagePlayers' },
+    { label: "Role Manage", category: "Access Control", icon: ShieldAlert, bg: "bg-amber-500/10 text-amber-500", onClick: () => setTab ? setTab("admin/roles") : showToast?.("Go to Role Manage tab"), adminOnly: true }
   ];
 
   const actions = allActions.filter(act => {

@@ -140,7 +140,7 @@ export default function TournamentControlPanel({ season, showToast, session, man
                 <p className="text-xs text-muted-foreground mb-4">{ctrl.desc}</p>
               </div>
               
-              {ctrl.id === 'rename-season' ? (
+              {ctrl.id === 'edit-season' ? (
                 <Btn variant="outline" className="w-full text-xs" onClick={ctrl.action}>
                   {ctrl.label}
                 </Btn>
@@ -164,7 +164,7 @@ export default function TournamentControlPanel({ season, showToast, session, man
         {controls.map((ctrl, i) => (
           <button 
             key={ctrl.id}
-            onClick={() => ctrl.id === 'rename-season' ? ctrl.action() : setActiveDialog(ctrl.id)}
+            onClick={() => ctrl.id === 'edit-season' ? ctrl.action() : setActiveDialog(ctrl.id)}
             className="flex items-center gap-4 p-4 text-left active:bg-white/5 transition-colors group"
           >
             <div className={`p-2.5 rounded-xl shrink-0 transition-colors ${ctrl.bg} group-active:scale-95`}>
