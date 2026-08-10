@@ -691,43 +691,87 @@ export function PlayerDashboard({ me, activeSeason, seasons = [], matches, playe
           </FadeIn>
         ))}
 
-        {/* Remaining Dashboard Widgets */}
-        <FadeIn delay={0.35} className="col-span-12 md:col-span-7 h-full">
-          <MagicCard className="p-4 sm:p-6 flex flex-col h-full bg-card/50 backdrop-blur min-h-[300px]">
-            <div className="flex items-center justify-between mb-4">
+        {/* Cinematic Leaderboard */}
+        <FadeIn delay={0.35} className="col-span-12 h-full mb-8">
+          <MagicCard className="p-0 overflow-hidden flex flex-col h-full bg-[#181a20]/80 backdrop-blur-xl border border-white/[0.05] rounded-3xl shadow-2xl">
+            <div className="flex items-center justify-between p-6 border-b border-white/[0.05] bg-gradient-to-r from-black/40 to-transparent">
               <SectionTitle icon={ListOrdered}>Current Standings</SectionTitle>
-              <Btn variant="ghost" className="text-xs p-1 h-auto" onClick={() => setTab('matches')}>Full Table <ArrowRight size={14} className="ml-1" /></Btn>
+              <Btn variant="ghost" className="text-xs p-1 h-auto text-amber-500 hover:text-amber-400 hover:bg-amber-500/10" onClick={() => setTab('matches')}>
+                Full Table <ArrowRight size={14} className="ml-1" />
+              </Btn>
             </div>
 
-            <div className="flex-1 overflow-x-auto rounded-xl border border-border/40">
-              {/* Desktop Table View */}
-              <table className="w-full text-left text-sm hidden md:table">
+            <div className="w-full overflow-x-auto">
+              <table className="w-full text-left text-sm whitespace-nowrap min-w-[700px]">
                 <thead>
-                  <tr className="border-b border-border/40 text-muted-foreground text-[10px] uppercase tracking-widest bg-secondary/30">
-                    <th className="py-2 px-2 text-center w-8">#</th>
-                    <th className="py-2 px-2">Player</th>
-                    <th className="py-2 px-2 text-center">P</th>
-                    <th className="py-2 px-2 text-center">GD</th>
-                    <th className="py-2 px-2 text-center text-primary">PTS</th>
-                    <th className="py-2 px-2 text-center">Form</th>
+                  <tr className="text-muted-foreground text-[10px] uppercase tracking-[0.2em] bg-black/40 border-b border-white/[0.05]">
+                    <th className="py-4 px-4 text-center w-12">#</th>
+                    <th className="py-4 px-4 font-bold">Player</th>
+                    <th className="py-4 px-3 text-center">P</th>
+                    <th className="py-4 px-3 text-center">W</th>
+                    <th className="py-4 px-3 text-center">D</th>
+                    <th className="py-4 px-3 text-center">L</th>
+                    <th className="py-4 px-3 text-center">GF</th>
+                    <th className="py-4 px-3 text-center">GA</th>
+                    <th className="py-4 px-3 text-center">GD</th>
+                    <th className="py-4 px-4 text-center text-amber-500 font-bold">PTS</th>
+                    <th className="py-4 px-4 text-center">Form</th>
                   </tr>
                 </thead>
-                <tbody>
+                <tbody className="divide-y divide-white/[0.02]">
                   {standings.map((s, i) => {
+                    const isTop1 = i === 0;
+                    const isTop2 = i === 1;
+                    const isTop3 = i === 2;
+                    const isMe = me && s.id === me.id;
+
+                    let rowStyle = 'hover:bg-white/[0.02] transition-colors duration-300';
+                    let rankStyle = 'text-muted-foreground font-bold';
+                    let nameStyle = 'font-bold text-foreground';
+
+                    if (isTop1) {
+                      rowStyle = 'bg-gradient-to-r from-amber-500/10 via-transparent to-transparent hover:from-amber-500/20 border-l-2 border-l-amber-500 transition-all duration-300 shadow-[inset_0_1px_0_rgba(245,158,11,0.1)]';
+                      rankStyle = 'text-amber-400 font-black drop-shadow-[0_0_8px_rgba(245,158,11,0.5)]';
+                      nameStyle = 'font-black text-amber-50 drop-shadow-sm';
+                    } else if (isTop2) {
+                      rowStyle = 'bg-gradient-to-r from-slate-300/10 via-transparent to-transparent hover:from-slate-300/20 border-l-2 border-l-slate-300 transition-all duration-300';
+                      rankStyle = 'text-slate-300 font-black drop-shadow-[0_0_8px_rgba(203,213,225,0.4)]';
+                      nameStyle = 'font-black text-slate-100';
+                    } else if (isTop3) {
+                      rowStyle = 'bg-gradient-to-r from-orange-700/10 via-transparent to-transparent hover:from-orange-700/20 border-l-2 border-l-orange-700 transition-all duration-300';
+                      rankStyle = 'text-orange-500 font-black drop-shadow-[0_0_8px_rgba(194,65,12,0.4)]';
+                      nameStyle = 'font-black text-orange-100';
+                    } else if (isMe) {
+                      rowStyle = 'bg-white/[0.03] hover:bg-white/[0.05] border-l-2 border-l-white/20 transition-all duration-300';
+                    }
+
                     return (
-                      <tr key={s.id} className="border-b border-border/20 last:border-0 hover:bg-secondary/40">
-                        <td className="py-3 px-2 text-center text-muted-foreground">{i + 1}</td>
-                        <td className="py-3 px-2 font-bold">{s.name}</td>
-                        <td className="py-3 px-2 text-center text-muted-foreground font-score">{s.played}</td>
-                        <td className="py-3 px-2 text-center text-muted-foreground font-score">{s.gd > 0 ? `+${s.gd}` : s.gd}</td>
-                        <td className="py-3 px-2 text-center font-bold text-pitch-bright font-score text-base">{s.pts}</td>
-                        <td className="py-3 px-2 text-center">
-                          <div className="flex justify-center gap-1">
-                            {s.form.slice(-3).map((resObj, idx) => {
+                      <tr key={s.id} className={`group ${rowStyle}`}>
+                        <td className={`py-4 px-4 text-center text-lg font-score ${rankStyle}`}>{i + 1}</td>
+                        <td className="py-4 px-4">
+                          <div className="flex items-center gap-3">
+                            <div className="relative">
+                              <Avatar p={players.find(p => p.id === s.id)} size={36} className={`border ${isTop1 ? 'border-amber-500/50' : isTop2 ? 'border-slate-300/50' : isTop3 ? 'border-orange-700/50' : 'border-white/10'}`} />
+                              {isTop1 && <div className="absolute -top-2 -right-2 text-lg drop-shadow-[0_0_5px_rgba(245,158,11,0.8)]">👑</div>}
+                            </div>
+                            <span className={`${nameStyle} text-[15px]`}>{s.name}</span>
+                          </div>
+                        </td>
+                        <td className="py-4 px-3 text-center text-muted-foreground font-score group-hover:text-foreground transition-colors">{s.played}</td>
+                        <td className="py-4 px-3 text-center text-emerald-400/70 font-score group-hover:text-emerald-400 transition-colors">{s.won}</td>
+                        <td className="py-4 px-3 text-center text-slate-400/70 font-score group-hover:text-slate-300 transition-colors">{s.drawn}</td>
+                        <td className="py-4 px-3 text-center text-red-400/70 font-score group-hover:text-red-400 transition-colors">{s.lost}</td>
+                        <td className="py-4 px-3 text-center text-muted-foreground font-score">{s.gf}</td>
+                        <td className="py-4 px-3 text-center text-muted-foreground font-score">{s.ga}</td>
+                        <td className="py-4 px-3 text-center text-muted-foreground font-score">{s.gd > 0 ? `+${s.gd}` : s.gd}</td>
+                        <td className={`py-4 px-4 text-center font-black font-score text-lg ${isTop1 ? 'text-amber-400 drop-shadow-[0_0_10px_rgba(245,158,11,0.5)]' : 'text-pitch-bright'}`}>{s.pts}</td>
+                        <td className="py-4 px-4 text-center">
+                          <div className="flex justify-center gap-1.5">
+                            {s.form.slice(-5).map((resObj, idx) => {
                               const res = typeof resObj === 'object' && resObj !== null ? resObj.result : resObj;
                               return (
-                                <span key={idx} className={`w-3 h-3 rounded-full flex items-center justify-center text-[7px] font-bold text-foreground
-                                    ${res === 'W' ? 'bg-emerald-500' : res === 'D' ? 'bg-slate-400' : 'bg-red-500'}
+                                <span key={idx} className={`w-4 h-4 rounded-[4px] flex items-center justify-center text-[9px] font-bold text-black shadow-inner
+                                    ${res === 'W' ? 'bg-emerald-500 shadow-emerald-500/50' : res === 'D' ? 'bg-slate-400 shadow-slate-400/50' : 'bg-red-500 shadow-red-500/50'}
                                   `}>
                                   {res}
                                 </span>
@@ -740,110 +784,6 @@ export function PlayerDashboard({ me, activeSeason, seasons = [], matches, playe
                   })}
                 </tbody>
               </table>
-
-              {/* Mobile View */}
-              <div className="flex flex-col md:hidden divide-y divide-border/20">
-                {standings.map((s, i) => {
-                  const isMe = me && s.id === me.id;
-                  return (
-                    <div key={s.id} className={`flex items-center justify-between p-3 ${isMe ? 'bg-pitch/10' : ''}`}>
-                      <div className="flex items-center gap-3">
-                        <div className="w-5 text-center text-xs font-bold text-muted-foreground">{i + 1}</div>
-                        <Avatar p={players.find(p => p.id === s.id)} size={32} className="border border-border/50" />
-                        <div className="flex flex-col">
-                          <span className="font-bold text-sm leading-tight">{s.name}</span>
-                          <span className="text-[10px] text-muted-foreground font-score uppercase tracking-widest mt-0.5">P:{s.played} GD:{s.gd > 0 ? `+${s.gd}` : s.gd}</span>
-                        </div>
-                      </div>
-                      <div className="flex flex-col items-end gap-1.5">
-                        <span className="font-bold text-pitch-bright text-lg font-score leading-none">{s.pts}</span>
-                        <div className="flex gap-0.5">
-                          {s.form.slice(-3).map((resObj, idx) => {
-                            const res = typeof resObj === 'object' && resObj !== null ? resObj.result : resObj;
-                            return (
-                              <span key={idx} className={`w-2.5 h-2.5 rounded-sm flex items-center justify-center text-[6px] font-bold text-foreground
-                                ${res === 'W' ? 'bg-emerald-500' : res === 'D' ? 'bg-slate-400' : 'bg-red-500'}
-                              `}>
-                                {res}
-                              </span>
-                            );
-                          })}
-                        </div>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-          </MagicCard>
-        </FadeIn>
-
-        <FadeIn delay={0.4} className="col-span-12 md:col-span-5 h-full">
-          <MagicCard className="h-full p-6 flex flex-col bg-card/50 backdrop-blur">
-            <SectionTitle icon={Calendar}>Upcoming Fixture</SectionTitle>
-            <div className="flex-1 flex flex-col justify-center">
-              {nextMatch ? (
-                <div className="flex flex-col items-center bg-secondary/50 rounded-2xl p-6 border border-border/50 shadow-inner">
-                  <div className="text-xs uppercase tracking-widest text-muted-foreground font-semibold mb-4 text-center flex flex-col gap-1">
-                    <span>Matchday {nextMatch.matchday || 1}</span>
-                    <span className="text-pitch-bright">{nextMatch.scheduledAt ? new Date(nextMatch.scheduledAt).toLocaleDateString(undefined, { weekday: 'short', hour: 'numeric', minute: '2-digit' }) : 'Date TBD'}</span>
-                    <span className="text-destructive animate-pulse">Starts in 2 hours</span>
-                  </div>
-                  <div className="flex items-center justify-center gap-6 w-full mb-4">
-                    <div className="flex flex-col items-center gap-2 flex-1">
-                      <Avatar p={players.find(p => p.id === nextMatch.homeId)} size={56} />
-                      <span className="font-bold text-sm truncate w-full text-center">{players.find(p => p.id === nextMatch.homeId)?.name}</span>
-                    </div>
-                    <div className="font-score text-xl text-muted-foreground font-bold">VS</div>
-                    <div className="flex flex-col items-center gap-2 flex-1">
-                      <Avatar p={players.find(p => p.id === nextMatch.awayId)} size={56} />
-                      <span className="font-bold text-sm truncate w-full text-center">{players.find(p => p.id === nextMatch.awayId)?.name}</span>
-                    </div>
-                  </div>
-                  <div className="flex flex-col items-center gap-1 text-[10px] text-muted-foreground uppercase tracking-widest font-semibold w-full mt-2 pt-3 border-t border-border/50">
-                    <span>🏟️ Wembley Stadium</span>
-                    <span>👨‍⚖️ Ref: Mike Dean</span>
-                  </div>
-                  <Btn variant="primary" className="mt-4 w-full text-xs" onClick={() => setTab('matches')}>View All Fixtures</Btn>
-                </div>
-              ) : (
-                <div className="flex flex-col items-center justify-center py-8 text-center">
-                  <span className="text-4xl mb-4 opacity-50">🎉</span>
-                  <div className="font-semibold text-foreground">No upcoming fixtures.</div>
-                  <div className="text-sm text-muted-foreground mt-1">Enjoy your break!</div>
-                </div>
-              )}
-            </div>
-          </MagicCard>
-        </FadeIn>
-
-        <FadeIn delay={0.45} className="col-span-12 md:col-span-7 h-full">
-          <MagicCard className="h-full p-5 bg-card/50 backdrop-blur flex flex-col">
-            <SectionTitle icon={Clock}>Last Five Matches</SectionTitle>
-            <div className="flex flex-col gap-2 flex-1 justify-center">
-              {recent.length > 0 ? recent.map((m, i) => {
-                return (
-                  <MatchCard key={m.id} m={m} players={players} />
-                );
-              }) : (
-                <EmptyState text="No completed matches yet." />
-              )}
-            </div>
-          </MagicCard>
-        </FadeIn>
-
-        <FadeIn delay={0.5} className="col-span-12 md:col-span-5 h-full">
-          <MagicCard className="h-full p-5 bg-card/50 backdrop-blur flex flex-col">
-            <SectionTitle icon={Calendar}>Season Progress</SectionTitle>
-            <div className="flex-1 flex flex-col items-center justify-center py-4">
-              <CircularProgress
-                value={myRow ? Math.round((myRow.played / (players.length * 2 - 2)) * 100) || 0 : 0}
-                label="Matches Played"
-                color="var(--gold)"
-              />
-              <div className="text-sm mt-6 text-center text-muted-foreground">
-                <span className="font-bold text-foreground">{myRow?.played || 0}</span> out of <span className="font-bold text-foreground">{players.length * 2 - 2}</span> matches completed
-              </div>
             </div>
           </MagicCard>
         </FadeIn>
@@ -1182,7 +1122,7 @@ function TrophyCard({ trophy, unlocked, count = 0, instances = [], requirement, 
       )}
 
       {/* Top: Trophy Artwork */}
-      <div className={`mt-2 mb-4 relative flex items-center justify-center shrink-0 ${isBentoHero ? 'w-32 h-32 md:w-48 md:h-48' : 'w-24 h-24 sm:w-28 sm:h-28'}`}>
+      <div className={`mt-2 mb-4 relative flex items-center justify-center shrink-0 ${isBentoHero ? 'w-48 h-48 md:w-80 md:h-80' : 'w-24 h-24 sm:w-28 sm:h-28'}`}>
         <motion.img
           src={trophy.image || trophy.icon}
           alt={trophy.name}
