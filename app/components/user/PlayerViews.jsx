@@ -585,7 +585,9 @@ export function PlayerDashboard({ me, activeSeason, seasons = [], matches, playe
                 { id: 'premier-league', name: 'Premier League Champion', icon: '/assets/trophies/Premier-League.png', requirement: 'Premier League season champion.' },
               ];
 
+              const seenIcons = new Set();
               HARDCODED_TROPHIES.forEach(t => {
+                if (t.icon) seenIcons.add(t.icon);
                 templateMap.set(t.id, {
                   id: t.id,
                   name: t.name,
@@ -598,7 +600,9 @@ export function PlayerDashboard({ me, activeSeason, seasons = [], matches, playe
               // 2. Add any unique trophies awarded to ANY player (so users see what's out there)
               trophies.forEach(t => {
                 const key = t.templateId || t.title.toLowerCase().replace(/\s+/g, '-');
-                if (!templateMap.has(key)) {
+                const isDuplicateIcon = t.icon && seenIcons.has(t.icon);
+                if (!templateMap.has(key) && !isDuplicateIcon) {
+                  if (t.icon) seenIcons.add(t.icon);
                   templateMap.set(key, {
                     id: t.id, // Just use the instance ID as a key
                     name: t.title,
@@ -608,8 +612,6 @@ export function PlayerDashboard({ me, activeSeason, seasons = [], matches, playe
                   });
                 }
               });
-
-              // 3. Add Badges
               (me.badges || []).forEach(badgeName => {
                 const badgeKey = `badge-${badgeName.toLowerCase().replace(/\s+/g, '-')}`;
                 if (!templateMap.has(badgeKey)) {
@@ -1148,9 +1150,9 @@ function TrophyCard({ trophy, unlocked, count = 0, instances = [], requirement, 
     <motion.div
       variants={{ hidden: { opacity: 0, y: 20 }, show: { opacity: 1, y: 0 } }}
       onClick={() => onSelect && onSelect()}
-      className={`relative flex flex-col items-center p-5 rounded-[24px] text-center cursor-pointer transition-all duration-300 group overflow-hidden w-full aspect-[3/4] ${unlocked
+      className={`relative flex flex-col items-center p-5 rounded-[24px] text-center cursor-pointer transition-all duration-300 group overflow-hidden w-full h-full min-h-[240px] ${unlocked
         ? 'bg-gradient-to-b from-[#1a1c23] to-[#12141a] border border-amber-500/30 shadow-[0_8px_30px_rgb(0,0,0,0.4)] hover:-translate-y-2 hover:shadow-[0_15px_40px_rgba(245,158,11,0.15)] hover:border-amber-400/60 z-10'
-        : 'bg-black/40 backdrop-blur-md border border-white/5 hover:border-white/10 hover:-translate-y-1'
+        : 'bg-[#181a20]/60 backdrop-blur-md border border-white/[0.06] hover:border-white/15 hover:-translate-y-1'
         }`}
     >
       {/* Dynamic Background Glow for Unlocked */}
@@ -1186,7 +1188,7 @@ function TrophyCard({ trophy, unlocked, count = 0, instances = [], requirement, 
           className={`w-full h-full object-contain z-10 transition-all duration-500 ${imgLoaded ? 'opacity-100' : 'opacity-0'} ${
             unlocked 
               ? 'drop-shadow-[0_0_15px_rgba(245,158,11,0.3)] group-hover:scale-110 group-hover:drop-shadow-[0_0_25px_rgba(245,158,11,0.5)]' 
-              : 'grayscale brightness-[0.3] opacity-50 group-hover:opacity-80 blur-[1px] group-hover:blur-none'
+              : 'grayscale opacity-[0.65] group-hover:opacity-100 blur-[0.5px] group-hover:blur-none drop-shadow-md'
           }`}
           whileHover={{ rotate: unlocked ? [-2, 2, -2, 2, 0] : 0 }}
           transition={{ type: 'spring', stiffness: 300, damping: 10 }}
@@ -1203,14 +1205,14 @@ function TrophyCard({ trophy, unlocked, count = 0, instances = [], requirement, 
       </div>
 
       {/* Middle: Trophy Name */}
-      <div className="w-full mt-2 flex flex-col items-center justify-center flex-1 z-10">
-        <h4 className={`font-black text-[13px] sm:text-[15px] leading-tight line-clamp-2 px-1 relative z-10 transition-colors ${unlocked ? 'text-amber-50 drop-shadow-md' : 'text-muted-foreground/40'}`} style={{ fontFamily: "'Sora', sans-serif" }} title={trophy.name}>
+      <div className="w-full mt-3 flex flex-col items-center justify-center flex-1 z-10">
+        <h4 className={`font-black text-[13px] sm:text-[15px] leading-tight line-clamp-2 px-1 relative z-10 transition-colors ${unlocked ? 'text-amber-50 drop-shadow-md' : 'text-muted-foreground/60'}`} style={{ fontFamily: "'Sora', sans-serif" }} title={trophy.name}>
           {trophy.name}
         </h4>
       </div>
 
       {/* Bottom: Achievement State System */}
-      <div className="w-full mt-auto pt-3 z-10">
+      <div className="w-full mt-4 pt-0 z-10">
         {unlocked ? (
           <div className="flex flex-col items-center gap-0.5 bg-gradient-to-b from-amber-500/20 to-amber-500/5 py-2 rounded-xl border border-amber-500/30 backdrop-blur-sm shadow-inner">
             <span className="text-[9px] text-amber-400 uppercase tracking-widest font-black font-score drop-shadow-sm">
@@ -1222,8 +1224,8 @@ function TrophyCard({ trophy, unlocked, count = 0, instances = [], requirement, 
           </div>
         ) : (
           /* Locked State */
-          <div className="w-full flex flex-col items-center justify-center gap-1.5 text-[9px] font-medium text-muted-foreground/30 bg-black/60 py-2 rounded-xl border border-white/5 backdrop-blur-sm shadow-inner">
-            <Lock size={12} className="shrink-0 text-muted-foreground/20" />
+          <div className="w-full flex flex-col items-center justify-center gap-1.5 text-[9px] font-medium text-muted-foreground/40 bg-black/40 py-2 rounded-xl border border-white/[0.03] backdrop-blur-sm">
+            <Lock size={12} className="shrink-0 text-muted-foreground/30" />
             <span className="truncate w-full px-3 text-center" title={requirement || "Locked"}>
               {requirement || "Locked"}
             </span>
