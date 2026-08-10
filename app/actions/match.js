@@ -328,6 +328,12 @@ export async function generatePlayoffs(seasonId, top4PlayerIds) {
   if (top4PlayerIds.length < 4) return { error: 'Need 4 players for playoffs' };
   
   try {
+    // Prevent duplicate playoffs
+    const existing = await prisma.match.findFirst({
+      where: { seasonId, round: { in: ['semiA', 'semiB'] } }
+    });
+    if (existing) return { error: 'Playoffs already generated for this season' };
+
     const [r1, r2, r3, r4] = top4PlayerIds;
     
     await prisma.match.createMany({
@@ -413,7 +419,8 @@ export async function progressPlayoffBracket(matchId) {
       });
       if (!existingFinal) {
         const semiA = await prisma.match.findFirst({
-          where: { seasonId: match.seasonId, round: 'semiA' }
+          where: { seasonId: match.seasonId, round: 'semiA', status: 'completed' },
+          orderBy: { createdAt: 'desc' }
         });
         const semiAWinner = matchWinnerId(semiA);
         const challengerWinner = matchWinnerId(match);

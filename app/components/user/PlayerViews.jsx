@@ -374,6 +374,11 @@ export function PlayerDashboard({ me, activeSeason, seasons = [], matches, playe
 
               {/* Right: Actions & Status */}
               <div className="flex items-center gap-4 shrink-0 w-full md:w-auto justify-end">
+                {tMatches.some(m => m.round !== 'league' && m.round !== 'friendly') && (
+                  <Btn variant="primary" onClick={() => setTab('matches')} className="gap-2 rounded-full border-amber-500/50 shadow-[0_0_15px_rgba(245,158,11,0.3)] bg-gradient-to-r from-amber-600 to-amber-500 text-white backdrop-blur h-9 px-4">
+                    <Trophy size={14} /> Playoffs
+                  </Btn>
+                )}
                 {form.length > 0 && (
                   <div className="flex items-center gap-1 bg-black/40 px-3 py-1.5 rounded-full border border-white/10 shadow-inner">
                     {form.map((r, i) => (
