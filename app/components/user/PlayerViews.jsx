@@ -639,9 +639,10 @@ export function PlayerDashboard({ me, activeSeason, seasons = [], matches, playe
                     </div>
                   </div>
 
-                  <div className="pt-5 pb-5 px-5 sm:px-6">
+                  <div className="pt-5 pb-6 px-5 sm:px-6 relative">
+                    <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black/20 pointer-events-none rounded-b-2xl" />
                     <motion.div
-                      className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4 w-full min-w-0"
+                      className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 sm:gap-6 w-full min-w-0 relative z-10"
                       variants={{ hidden: { opacity: 0 }, show: { opacity: 1, transition: { staggerChildren: 0.06 } } }}
                       initial="hidden"
                       whileInView="show"
@@ -1147,13 +1148,17 @@ function TrophyCard({ trophy, unlocked, count = 0, instances = [], requirement, 
     <motion.div
       variants={{ hidden: { opacity: 0, y: 20 }, show: { opacity: 1, y: 0 } }}
       onClick={() => onSelect && onSelect()}
-      className={`relative flex flex-col justify-between items-center p-4 sm:p-5 border rounded-2xl text-center cursor-pointer transition-all group overflow-visible min-h-[220px] sm:min-h-[240px] w-full ${unlocked
-        ? 'bg-gradient-to-b from-amber-500/15 via-background to-background border-amber-500/40 shadow-md hover:-translate-y-1.5 hover:border-amber-400/80 hover:shadow-amber-500/15'
-        : 'bg-white dark:bg-[#12151b] border-border/70 dark:border-white/[0.08] hover:border-border hover:-translate-y-0.5 shadow-sm'
+      className={`relative flex flex-col items-center p-5 rounded-[24px] text-center cursor-pointer transition-all duration-300 group overflow-hidden w-full aspect-[3/4] ${unlocked
+        ? 'bg-gradient-to-b from-[#1a1c23] to-[#12141a] border border-amber-500/30 shadow-[0_8px_30px_rgb(0,0,0,0.4)] hover:-translate-y-2 hover:shadow-[0_15px_40px_rgba(245,158,11,0.15)] hover:border-amber-400/60 z-10'
+        : 'bg-black/40 backdrop-blur-md border border-white/5 hover:border-white/10 hover:-translate-y-1'
         }`}
     >
+      {/* Dynamic Background Glow for Unlocked */}
       {unlocked && (
-        <BorderBeam size={100} duration={8} delay={0} colorFrom="#E8B34C" colorTo="transparent" />
+        <>
+          <div className="absolute top-0 inset-x-0 h-1/2 bg-amber-500/15 blur-3xl rounded-full opacity-60 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
+          <BorderBeam size={100} duration={8} delay={0} colorFrom="#E8B34C" colorTo="transparent" />
+        </>
       )}
 
       {/* Duplicate count badge */}
@@ -1162,24 +1167,28 @@ function TrophyCard({ trophy, unlocked, count = 0, instances = [], requirement, 
           initial={{ scale: 0, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
           transition={{ type: 'spring', stiffness: 500, damping: 20, delay: 0.15 }}
-          className="absolute -top-2.5 -right-2.5 z-20 flex items-center justify-center"
+          className="absolute top-3 right-3 z-20 flex items-center justify-center"
         >
-          <span className="absolute w-6 h-6 rounded-full bg-amber-400/40 animate-ping" />
-          <span className="relative flex items-center justify-center w-6 h-6 rounded-full bg-amber-400 text-black text-[10px] font-black shadow-lg shadow-amber-500/40 border border-amber-300/60">
+          <span className="absolute w-7 h-7 rounded-full bg-amber-400/40 animate-ping" />
+          <span className="relative flex items-center justify-center w-7 h-7 rounded-full bg-gradient-to-br from-amber-300 to-amber-500 text-black text-[11px] font-black shadow-lg shadow-amber-500/40 border border-amber-200">
             ×{count}
           </span>
         </motion.div>
       )}
 
       {/* Top: Trophy Artwork */}
-      <div className="my-2 relative w-20 h-20 sm:w-24 sm:h-24 flex items-center justify-center shrink-0">
-        {!imgLoaded && <Skeleton className="absolute inset-0 rounded-xl bg-secondary dark:bg-white/5" />}
-
+      <div className="mt-2 mb-4 relative w-24 h-24 sm:w-28 sm:h-28 flex items-center justify-center shrink-0">
+        {!imgLoaded && <Skeleton className="absolute inset-0 rounded-full bg-white/5" />}
+        
         <motion.img
           src={trophy.image || trophy.icon}
           alt={trophy.name}
-          className={`w-full h-full object-contain drop-shadow-md z-10 transition-all duration-300 ${imgLoaded ? 'opacity-100' : 'opacity-0'} ${!unlocked ? 'grayscale opacity-40 group-hover:opacity-60' : 'group-hover:scale-110'}`}
-          whileHover={{ scale: unlocked ? 1.15 : 1.05, rotate: [-2, 2, -2, 2, 0] }}
+          className={`w-full h-full object-contain z-10 transition-all duration-500 ${imgLoaded ? 'opacity-100' : 'opacity-0'} ${
+            unlocked 
+              ? 'drop-shadow-[0_0_15px_rgba(245,158,11,0.3)] group-hover:scale-110 group-hover:drop-shadow-[0_0_25px_rgba(245,158,11,0.5)]' 
+              : 'grayscale brightness-[0.3] opacity-50 group-hover:opacity-80 blur-[1px] group-hover:blur-none'
+          }`}
+          whileHover={{ rotate: unlocked ? [-2, 2, -2, 2, 0] : 0 }}
           transition={{ type: 'spring', stiffness: 300, damping: 10 }}
           onLoad={() => setImgLoaded(true)}
           onError={(e) => {
@@ -1189,34 +1198,33 @@ function TrophyCard({ trophy, unlocked, count = 0, instances = [], requirement, 
           }}
         />
 
-        <div className="hidden absolute inset-0 items-center justify-center text-5xl transition-transform group-hover:scale-110 opacity-30 grayscale select-none">
-          🏆
-        </div>
+        {/* 3D Glass Shelf base */}
+        <div className={`absolute w-3/4 h-2 rounded-[100%] blur-[2px] transition-all duration-300 ${unlocked ? 'bg-amber-500/40 group-hover:bg-amber-500/70 group-hover:w-4/5 shadow-[0_0_10px_rgba(245,158,11,0.5)]' : 'bg-white/10 group-hover:w-4/5'}`} style={{ bottom: '-5px' }} />
       </div>
 
       {/* Middle: Trophy Name */}
-      <div className="w-full my-2 flex flex-col items-center justify-center flex-1">
-        <h4 className="font-bold text-xs sm:text-sm leading-tight text-foreground line-clamp-2 px-1 relative z-10 transition-colors" style={{ fontFamily: "'Sora', sans-serif" }} title={trophy.name}>
+      <div className="w-full mt-2 flex flex-col items-center justify-center flex-1 z-10">
+        <h4 className={`font-black text-[13px] sm:text-[15px] leading-tight line-clamp-2 px-1 relative z-10 transition-colors ${unlocked ? 'text-amber-50 drop-shadow-md' : 'text-muted-foreground/40'}`} style={{ fontFamily: "'Sora', sans-serif" }} title={trophy.name}>
           {trophy.name}
         </h4>
       </div>
 
       {/* Bottom: Achievement State System */}
-      <div className="w-full mt-auto pt-2 border-t border-border/50 dark:border-white/10 z-10">
+      <div className="w-full mt-auto pt-3 z-10">
         {unlocked ? (
-          <div className="flex flex-col items-center gap-0.5">
-            <span className="text-[10px] text-amber-600 dark:text-amber-400 uppercase tracking-widest font-black font-score">
+          <div className="flex flex-col items-center gap-0.5 bg-gradient-to-b from-amber-500/20 to-amber-500/5 py-2 rounded-xl border border-amber-500/30 backdrop-blur-sm shadow-inner">
+            <span className="text-[9px] text-amber-400 uppercase tracking-widest font-black font-score drop-shadow-sm">
               {count > 1 ? `WON ×${count}` : 'UNLOCKED'}
             </span>
-            <span className="text-[9px] text-muted-foreground font-score truncate max-w-full">
+            <span className="text-[10px] text-amber-200/80 font-score truncate max-w-full px-2">
               {instances[0]?.createdAt ? new Date(instances[0].createdAt).toLocaleDateString(undefined, { month: 'short', year: 'numeric' }) : 'Champion'}
             </span>
           </div>
         ) : (
           /* Locked State */
-          <div className="w-full flex items-center justify-center gap-1 text-[10px] font-medium text-muted-foreground py-0.5 px-1">
-            <Lock size={10} className="shrink-0 text-muted-foreground/70" />
-            <span className="truncate" title={requirement || "Locked"}>
+          <div className="w-full flex flex-col items-center justify-center gap-1.5 text-[9px] font-medium text-muted-foreground/30 bg-black/60 py-2 rounded-xl border border-white/5 backdrop-blur-sm shadow-inner">
+            <Lock size={12} className="shrink-0 text-muted-foreground/20" />
+            <span className="truncate w-full px-3 text-center" title={requirement || "Locked"}>
               {requirement || "Locked"}
             </span>
           </div>
