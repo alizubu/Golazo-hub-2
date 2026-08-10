@@ -64,29 +64,25 @@ function StatBar({ label, valueA, valueB, format = 'number', index }) {
         </motion.div>
       </div>
 
-      <div className="relative w-full h-[6px] rounded-full bg-white/[0.02] ring-1 ring-white/[0.05] overflow-hidden flex">
-        {/* Center Divider line */}
-        <div className="absolute top-0 bottom-0 left-1/2 w-[1px] bg-white/10 z-10 -translate-x-1/2" />
+      <div className="relative w-full h-[8px] sm:h-[10px] rounded-full bg-white/[0.02] ring-1 ring-white/[0.05] overflow-hidden flex shadow-inner">
+        {/* Center Tick */}
+        <div className="absolute top-0 bottom-0 left-1/2 w-[2px] bg-white/10 z-10 -translate-x-1/2" />
         
-        {/* Player A (Left side - grows towards left from center) */}
-        <div className="w-1/2 h-full flex justify-end">
-          <motion.div 
-            className={`h-full rounded-l-full ${aWinning ? 'bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.5)]' : 'bg-muted-foreground/30'}`}
-            initial={{ width: '0%' }}
-            animate={{ width: `${pctA}%` }}
-            transition={{ duration: 1, type: 'spring', bounce: 0.15, delay: 0.25 + index * 0.04 }}
-          />
-        </div>
+        {/* Player A Bar */}
+        <motion.div 
+          className={`h-full ${aWinning ? 'bg-emerald-500 shadow-[0_0_12px_rgba(16,185,129,0.5)]' : 'bg-muted-foreground/40'}`}
+          initial={{ width: '0%' }}
+          animate={{ width: `${pctA}%` }}
+          transition={{ duration: 1, type: 'spring', bounce: 0.15, delay: 0.25 + index * 0.04 }}
+        />
         
-        {/* Player B (Right side - grows towards right from center) */}
-        <div className="w-1/2 h-full flex justify-start">
-          <motion.div 
-            className={`h-full rounded-r-full ${bWinning ? 'bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.5)]' : 'bg-muted-foreground/30'}`}
-            initial={{ width: '0%' }}
-            animate={{ width: `${pctB}%` }}
-            transition={{ duration: 1, type: 'spring', bounce: 0.15, delay: 0.25 + index * 0.04 }}
-          />
-        </div>
+        {/* Player B Bar */}
+        <motion.div 
+          className={`h-full ${bWinning ? 'bg-emerald-500 shadow-[0_0_12px_rgba(16,185,129,0.5)]' : 'bg-muted-foreground/40'}`}
+          initial={{ width: '0%' }}
+          animate={{ width: `${pctB}%` }}
+          transition={{ duration: 1, type: 'spring', bounce: 0.15, delay: 0.25 + index * 0.04 }}
+        />
       </div>
     </motion.div>
   );
@@ -184,15 +180,15 @@ function MatchCard({ m, players, onClick }) {
           </div>
 
           {/* Center Row: Player A — Score — Player B */}
-          <div className="flex items-center justify-between gap-2 sm:gap-4">
+          <div className="flex items-center justify-between gap-2 sm:gap-6 mt-2 mb-2">
             
             {/* Home Player (Left) */}
-            <div className={`flex items-center gap-2.5 sm:gap-3 flex-1 min-w-0 ${homeWon ? '' : 'opacity-70'}`}>
+            <div className={`flex flex-col sm:flex-row items-center sm:items-center gap-2 sm:gap-4 flex-1 min-w-0 ${homeWon ? '' : 'opacity-70'}`}>
               {isTbd || !h ? (
-                <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-white/[0.04] animate-pulse shrink-0" />
+                <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-white/[0.04] animate-pulse shrink-0" />
               ) : (
                 <div className="relative shrink-0">
-                  <Avatar p={h} size={48} className={`w-10 h-10 sm:w-12 sm:h-12 border-2 transition-colors ${homeWon ? 'border-emerald-500/50 shadow-[0_0_12px_rgba(16,185,129,0.2)]' : 'border-white/[0.06]'}`} />
+                  <Avatar p={h} size={64} className={`w-14 h-14 sm:w-16 sm:h-16 border-2 transition-colors ${homeWon ? 'border-emerald-500/50 shadow-[0_0_12px_rgba(16,185,129,0.2)]' : 'border-white/[0.06]'}`} />
                   {homeWon && (
                     <motion.div 
                       initial={{ scale: 0, rotate: -45 }} 
@@ -200,57 +196,57 @@ function MatchCard({ m, players, onClick }) {
                       transition={{ type: 'spring', stiffness: 400, damping: 15, delay: 0.2 }}
                       className="absolute -top-1.5 -right-1.5"
                     >
-                      <Trophy size={14} className="text-emerald-500 drop-shadow-[0_0_4px_rgba(16,185,129,0.6)]" />
+                      <Trophy size={16} className="text-emerald-500 drop-shadow-[0_0_4px_rgba(16,185,129,0.6)]" />
                     </motion.div>
                   )}
                 </div>
               )}
-              <div className="flex flex-col min-w-0">
-                <span className={`font-bold text-sm sm:text-[15px] truncate leading-tight ${homeWon ? 'text-foreground' : 'text-muted-foreground/60'}`} style={{ fontFamily: "'Sora', sans-serif" }}>
+              <div className="flex flex-col min-w-0 text-center sm:text-left w-full">
+                <span className={`font-bold text-xs sm:text-[15px] truncate leading-tight ${homeWon ? 'text-foreground' : 'text-muted-foreground/60'}`} style={{ fontFamily: "'Sora', sans-serif" }}>
                   {isTbd || !h ? 'TBD' : toTitleCase(h?.name)}
                 </span>
               </div>
             </div>
 
             {/* Score Center */}
-            <div className="flex items-center gap-3 sm:gap-4 shrink-0 px-2 sm:px-4">
+            <div className="flex flex-col items-center justify-center shrink-0 min-w-[70px] sm:min-w-[100px]">
               {isCompleted || isLive ? (
-                <>
+                <div className="flex items-center gap-2 sm:gap-4">
                   <motion.span 
                     key={`h-${m.homeScore}`} 
                     initial={{ scale: 1.3, opacity: 0 }} 
                     animate={{ scale: 1, opacity: 1 }} 
-                    className={`text-2xl sm:text-3xl font-black font-score tabular-nums ${homeWon ? 'text-foreground' : 'text-muted-foreground/40'}`}
+                    className={`text-3xl sm:text-4xl font-black font-score tabular-nums ${homeWon ? 'text-foreground' : 'text-muted-foreground/40'}`}
                   >
                     {m.homeScore ?? 0}
                   </motion.span>
-                  <span className="text-muted-foreground/20 font-light text-lg">—</span>
+                  <span className="text-muted-foreground/20 font-light text-xl sm:text-2xl">—</span>
                   <motion.span 
                     key={`a-${m.awayScore}`} 
                     initial={{ scale: 1.3, opacity: 0 }} 
                     animate={{ scale: 1, opacity: 1 }} 
-                    className={`text-2xl sm:text-3xl font-black font-score tabular-nums ${awayWon ? 'text-foreground' : 'text-muted-foreground/40'}`}
+                    className={`text-3xl sm:text-4xl font-black font-score tabular-nums ${awayWon ? 'text-foreground' : 'text-muted-foreground/40'}`}
                   >
                     {m.awayScore ?? 0}
                   </motion.span>
-                </>
+                </div>
               ) : (
-                <span className="text-sm font-bold text-muted-foreground/20 uppercase tracking-[0.2em] font-score">VS</span>
+                <span className="text-base sm:text-lg font-bold text-muted-foreground/20 uppercase tracking-[0.2em] font-score">VS</span>
               )}
             </div>
 
             {/* Away Player (Right) */}
-            <div className={`flex items-center gap-2.5 sm:gap-3 flex-1 min-w-0 justify-end ${awayWon ? '' : 'opacity-70'}`}>
-              <div className="flex flex-col min-w-0 items-end">
-                <span className={`font-bold text-sm sm:text-[15px] truncate leading-tight text-right ${awayWon ? 'text-foreground' : 'text-muted-foreground/60'}`} style={{ fontFamily: "'Sora', sans-serif" }}>
+            <div className={`flex flex-col-reverse sm:flex-row items-center sm:items-center gap-2 sm:gap-4 flex-1 min-w-0 justify-end ${awayWon ? '' : 'opacity-70'}`}>
+              <div className="flex flex-col min-w-0 text-center sm:text-right w-full">
+                <span className={`font-bold text-xs sm:text-[15px] truncate leading-tight text-center sm:text-right ${awayWon ? 'text-foreground' : 'text-muted-foreground/60'}`} style={{ fontFamily: "'Sora', sans-serif" }}>
                   {isTbd || !a ? 'TBD' : toTitleCase(a?.name)}
                 </span>
               </div>
               {isTbd || !a ? (
-                <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-white/[0.04] animate-pulse shrink-0" />
+                <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-white/[0.04] animate-pulse shrink-0" />
               ) : (
                 <div className="relative shrink-0">
-                  <Avatar p={a} size={48} className={`w-10 h-10 sm:w-12 sm:h-12 border-2 transition-colors ${awayWon ? 'border-emerald-500/50 shadow-[0_0_12px_rgba(16,185,129,0.2)]' : 'border-white/[0.06]'}`} />
+                  <Avatar p={a} size={64} className={`w-14 h-14 sm:w-16 sm:h-16 border-2 transition-colors ${awayWon ? 'border-emerald-500/50 shadow-[0_0_12px_rgba(16,185,129,0.2)]' : 'border-white/[0.06]'}`} />
                   {awayWon && (
                     <motion.div 
                       initial={{ scale: 0, rotate: 45 }} 
@@ -258,7 +254,7 @@ function MatchCard({ m, players, onClick }) {
                       transition={{ type: 'spring', stiffness: 400, damping: 15, delay: 0.2 }}
                       className="absolute -top-1.5 -left-1.5"
                     >
-                      <Trophy size={14} className="text-emerald-500 drop-shadow-[0_0_4px_rgba(16,185,129,0.6)]" />
+                      <Trophy size={16} className="text-emerald-500 drop-shadow-[0_0_4px_rgba(16,185,129,0.6)]" />
                     </motion.div>
                   )}
                 </div>
