@@ -20,12 +20,12 @@ const statDefinitions = [
   { key: 'saves', label: 'SAVES', format: 'number' },
 ];
 
-function StatBar({ label, valueA, valueB, colorA, colorB, format = 'number', index }) {
+function StatBar({ label, valueA, valueB, format = 'number', index }) {
   const valA = Number(valueA) || 0;
   const valB = Number(valueB) || 0;
   const total = valA + valB;
-  const pctA = total === 0 ? 50 : (valA / total) * 100;
-  const pctB = total === 0 ? 50 : (valB / total) * 100;
+  const pctA = total === 0 ? 0 : (valA / total) * 100;
+  const pctB = total === 0 ? 0 : (valB / total) * 100;
   
   const displayA = format === 'percent' ? `${valA}%` : valA;
   const displayB = format === 'percent' ? `${valB}%` : valB;
@@ -35,25 +35,27 @@ function StatBar({ label, valueA, valueB, colorA, colorB, format = 'number', ind
 
   return (
     <motion.div 
-      className="flex flex-col mb-4 last:mb-0"
+      className="flex flex-col mb-5 last:mb-0"
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.15 + index * 0.04, type: 'spring', stiffness: 300, damping: 25 }}
     >
-      <div className="flex items-center justify-between mb-1.5">
+      <div className="flex items-center justify-between mb-2">
         <motion.div 
-          className={`w-10 text-left text-sm font-bold font-score ${aWinning ? 'text-emerald-400' : 'text-muted-foreground/60'}`}
+          className={`w-12 text-left text-sm sm:text-base font-bold font-score ${aWinning ? 'text-emerald-400' : 'text-muted-foreground/80'}`}
           initial={{ scale: 0.5, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
           transition={{ delay: 0.3 + index * 0.04, type: 'spring', stiffness: 400 }}
         >
           {displayA}
         </motion.div>
-        <div className="text-center text-[10px] sm:text-[11px] tracking-[0.15em] text-muted-foreground/50 uppercase font-bold px-2 truncate">
+        
+        <div className="text-center text-[10px] sm:text-[11px] tracking-[0.2em] text-muted-foreground/60 uppercase font-bold px-4 truncate">
           {label}
         </div>
+        
         <motion.div 
-          className={`w-10 text-right text-sm font-bold font-score ${bWinning ? 'text-emerald-400' : 'text-muted-foreground/60'}`}
+          className={`w-12 text-right text-sm sm:text-base font-bold font-score ${bWinning ? 'text-emerald-400' : 'text-muted-foreground/80'}`}
           initial={{ scale: 0.5, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
           transition={{ delay: 0.3 + index * 0.04, type: 'spring', stiffness: 400 }}
@@ -61,19 +63,30 @@ function StatBar({ label, valueA, valueB, colorA, colorB, format = 'number', ind
           {displayB}
         </motion.div>
       </div>
-      <div className="flex w-full h-[6px] bg-white/[0.03] rounded-full overflow-hidden ring-1 ring-white/[0.04]">
-        <motion.div 
-          className={`h-full rounded-r-full ${aWinning ? 'bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.4)]' : 'bg-muted-foreground/20'}`}
-          initial={{ width: '0%' }}
-          animate={{ width: `${pctA}%` }}
-          transition={{ duration: 1, type: 'spring', bounce: 0.15, delay: 0.25 + index * 0.04 }}
-        />
-        <motion.div 
-          className={`h-full rounded-l-full ${bWinning ? 'bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.4)]' : 'bg-muted-foreground/20'}`}
-          initial={{ width: '0%' }}
-          animate={{ width: `${pctB}%` }}
-          transition={{ duration: 1, type: 'spring', bounce: 0.15, delay: 0.25 + index * 0.04 }}
-        />
+
+      <div className="relative w-full h-[6px] rounded-full bg-white/[0.02] ring-1 ring-white/[0.05] overflow-hidden flex">
+        {/* Center Divider line */}
+        <div className="absolute top-0 bottom-0 left-1/2 w-[1px] bg-white/10 z-10 -translate-x-1/2" />
+        
+        {/* Player A (Left side - grows towards left from center) */}
+        <div className="w-1/2 h-full flex justify-end">
+          <motion.div 
+            className={`h-full rounded-l-full ${aWinning ? 'bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.5)]' : 'bg-muted-foreground/30'}`}
+            initial={{ width: '0%' }}
+            animate={{ width: `${pctA}%` }}
+            transition={{ duration: 1, type: 'spring', bounce: 0.15, delay: 0.25 + index * 0.04 }}
+          />
+        </div>
+        
+        {/* Player B (Right side - grows towards right from center) */}
+        <div className="w-1/2 h-full flex justify-start">
+          <motion.div 
+            className={`h-full rounded-r-full ${bWinning ? 'bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.5)]' : 'bg-muted-foreground/30'}`}
+            initial={{ width: '0%' }}
+            animate={{ width: `${pctB}%` }}
+            transition={{ duration: 1, type: 'spring', bounce: 0.15, delay: 0.25 + index * 0.04 }}
+          />
+        </div>
       </div>
     </motion.div>
   );
@@ -311,22 +324,13 @@ function MatchCard({ m, players, onClick }) {
                   </motion.div>
                 )}
 
-                {/* Stats Grid with staggered animations */}
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-x-10">
-                  <div className="flex flex-col">
-                    {statDefinitions.slice(0, 7).map((def, i) => {
-                      const valA = m.stats[def.key]?.a ?? 0;
-                      const valB = m.stats[def.key]?.b ?? 0;
-                      return <StatBar key={def.key} index={i} label={def.label} valueA={valA} valueB={valB} format={def.format} />;
-                    })}
-                  </div>
-                  <div className="flex flex-col">
-                    {statDefinitions.slice(7).map((def, i) => {
-                      const valA = m.stats[def.key]?.a ?? 0;
-                      const valB = m.stats[def.key]?.b ?? 0;
-                      return <StatBar key={def.key} index={i + 7} label={def.label} valueA={valA} valueB={valB} format={def.format} />;
-                    })}
-                  </div>
+                {/* Tug-of-War Single Column Stats Grid */}
+                <div className="flex flex-col max-w-2xl mx-auto mt-4">
+                  {statDefinitions.map((def, i) => {
+                    const valA = m.stats[def.key]?.a ?? 0;
+                    const valB = m.stats[def.key]?.b ?? 0;
+                    return <StatBar key={def.key} index={i} label={def.label} valueA={valA} valueB={valB} format={def.format} />;
+                  })}
                 </div>
               </div>
             </motion.div>
