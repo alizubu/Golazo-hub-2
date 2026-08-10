@@ -125,7 +125,7 @@ export default function AvatarUpload({ me, form, setForm, showToast }) {
         className={`rounded-full p-1.5 shrink-0 shadow-xl inline-block relative cursor-pointer transition-colors duration-300 ${isDragging ? 'bg-pitch border-2 border-dashed border-pitch-bright' : 'bg-card'}`}
         onClick={() => fileInputRef.current?.click()}
       >
-        <Avatar p={{ ...me, avatar: form.avatar, avatarImage: form.avatarImage }} size={120} ring="var(--gold)" />
+        <Avatar p={{ ...me, avatar: form.avatar, avatarImage: form.avatarImage }} size={240} ring="var(--gold)" />
         
         {/* Hover Overlay */}
         <AnimatePresence>

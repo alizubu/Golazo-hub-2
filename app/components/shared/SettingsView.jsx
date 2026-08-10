@@ -11,6 +11,8 @@ import dynamic from 'next/dynamic';
 
 import { TeamCombobox, DisplayBadgeToggle, AvatarWithBadge } from '@/app/components/shared/FootballIdentity';
 import AvatarUpload from '@/app/components/shared/AvatarUpload';
+import { ClubLogo } from '@/app/components/shared/ClubLogo';
+import { WavingFlag } from '@/app/components/shared/UI';
 import { MagicCard } from '@/app/components/magicui/MagicCard';
 import { Card, CardContent, CardHeader, CardTitle } from '@/app/components/ui/card';
 import { Input } from '@/app/components/ui/input';
@@ -252,8 +254,22 @@ export default function SettingsView({ me, showToast }) {
                 
                 <div className="flex flex-col md:flex-row gap-8 items-start">
                   <div className="flex flex-col items-center gap-2">
-                    <Label className="mb-1 text-xs opacity-70">Avatar</Label>
+                    <Label className="mb-1 text-sm opacity-70">Avatar</Label>
                     <AvatarUpload me={me} form={form} setForm={setForm} showToast={showToast} />
+                    <div className="flex items-center justify-center gap-4 mt-3">
+                      {form.favoriteClub && (
+                         <div className="flex items-center gap-2 px-3 py-1.5 bg-secondary/30 rounded-xl border border-border/30 shadow-sm backdrop-blur-sm">
+                           <ClubLogo club={form.favoriteClub} size={24} />
+                           <span className="text-xs font-bold text-foreground/80">{form.favoriteClub.name}</span>
+                         </div>
+                       )}
+                       {form.flag && (
+                         <div className="flex items-center gap-2 px-3 py-1.5 bg-secondary/30 rounded-xl border border-border/30 shadow-sm backdrop-blur-sm">
+                           <WavingFlag code={form.flag} size="md" />
+                           <span className="text-xs font-bold text-foreground/80">National Team</span>
+                         </div>
+                       )}
+                    </div>
                   </div>
 
                   <div className="flex-1 w-full space-y-4">
@@ -285,13 +301,13 @@ export default function SettingsView({ me, showToast }) {
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                  <div className="space-y-1.5">
-                    <Label>Display Name</Label>
-                    <Input value={form.name} onChange={e => setForm({...form, name: e.target.value})} className="focus-visible:ring-pitch-bright bg-background/50" />
+                  <div className="space-y-2">
+                    <Label className="text-sm">Display Name</Label>
+                    <Input value={form.name} onChange={e => setForm({...form, name: e.target.value})} className="h-12 text-lg focus-visible:ring-pitch-bright bg-background/50 shadow-sm" />
                   </div>
-                  <div className="space-y-1.5">
-                    <Label>Username</Label>
-                    <Input value={me.username} disabled className="opacity-50 cursor-not-allowed font-score bg-secondary/30" />
+                  <div className="space-y-2">
+                    <Label className="text-sm">Username</Label>
+                    <Input value={me.username} disabled className="h-12 text-lg opacity-50 cursor-not-allowed font-score bg-secondary/30 shadow-sm" />
                   </div>
                 </div>
 
