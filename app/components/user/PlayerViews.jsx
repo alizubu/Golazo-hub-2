@@ -1180,17 +1180,15 @@ function TrophyCard({ trophy, unlocked, count = 0, instances = [], requirement, 
 
       {/* Top: Trophy Artwork */}
       <div className="mt-2 mb-4 relative w-24 h-24 sm:w-28 sm:h-28 flex items-center justify-center shrink-0">
-        {!imgLoaded && <Skeleton className="absolute inset-0 rounded-full bg-white/5" />}
-        
         <motion.img
           src={trophy.image || trophy.icon}
           alt={trophy.name}
           className={`w-full h-full object-contain z-10 transition-all duration-500 ${imgLoaded ? 'opacity-100' : 'opacity-0'} ${
             unlocked 
               ? 'drop-shadow-[0_0_15px_rgba(245,158,11,0.3)] group-hover:scale-110 group-hover:drop-shadow-[0_0_25px_rgba(245,158,11,0.5)]' 
-              : 'grayscale opacity-[0.65] group-hover:opacity-100 blur-[0.5px] group-hover:blur-none drop-shadow-md'
+              : 'grayscale opacity-[0.65] group-hover:opacity-100 group-hover:scale-105 blur-[0.5px] group-hover:blur-none drop-shadow-md'
           }`}
-          whileHover={{ rotate: unlocked ? [-2, 2, -2, 2, 0] : 0 }}
+          whileHover={{ rotate: unlocked ? [-2, 2, -2, 2, 0] : [-1, 1, -1, 1, 0] }}
           transition={{ type: 'spring', stiffness: 300, damping: 10 }}
           onLoad={() => setImgLoaded(true)}
           onError={(e) => {
@@ -1201,7 +1199,7 @@ function TrophyCard({ trophy, unlocked, count = 0, instances = [], requirement, 
         />
 
         {/* 3D Glass Shelf base */}
-        <div className={`absolute w-3/4 h-2 rounded-[100%] blur-[2px] transition-all duration-300 ${unlocked ? 'bg-amber-500/40 group-hover:bg-amber-500/70 group-hover:w-4/5 shadow-[0_0_10px_rgba(245,158,11,0.5)]' : 'bg-white/10 group-hover:w-4/5'}`} style={{ bottom: '-5px' }} />
+        <div className={`absolute w-3/4 h-2 rounded-[100%] blur-[2px] transition-all duration-300 pointer-events-none ${unlocked ? 'bg-amber-500/40 group-hover:bg-amber-500/70 group-hover:w-4/5 shadow-[0_0_10px_rgba(245,158,11,0.5)]' : 'bg-white/10 group-hover:w-4/5'}`} style={{ bottom: '-5px' }} />
       </div>
 
       {/* Middle: Trophy Name */}
