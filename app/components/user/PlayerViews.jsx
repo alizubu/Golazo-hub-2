@@ -644,19 +644,22 @@ export function PlayerDashboard({ me, activeSeason, seasons = [], matches, playe
                   <div className="pt-5 pb-6 px-5 sm:px-6 relative">
                     <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black/20 pointer-events-none rounded-b-2xl" />
                     <motion.div
-                      className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 sm:gap-6 w-full min-w-0 relative z-10"
+                      className="grid grid-cols-2 md:grid-cols-3 gap-4 sm:gap-5 lg:gap-6 w-full min-w-0 relative z-10 grid-flow-dense auto-rows-fr"
                       variants={{ hidden: { opacity: 0 }, show: { opacity: 1, transition: { staggerChildren: 0.06 } } }}
                       initial="hidden"
                       whileInView="show"
                       viewport={{ once: true }}
                     >
-                      {trophyList.map((tr) => {
+                      {trophyList.map((tr, index) => {
                         const isUnlocked = tr.isBadge || myTrophies.some(t => t.title === tr.name || t.id === tr.id);
                         const instances = tr.isBadge ? [{ id: tr.id, title: tr.name }] : myTrophies.filter(t => t.title === tr.name || t.id === tr.id);
                         const count = tr.isBadge ? 1 : instances.length;
+                        const isBentoHero = index === 0;
 
                         return (
                           <TrophyCard
+                            className={isBentoHero ? "md:col-span-2 md:row-span-2" : ""}
+                            isBentoHero={isBentoHero}
                             key={tr.id}
                             trophy={tr}
                             unlocked={isUnlocked}
@@ -1142,7 +1145,7 @@ function NotificationsView({ notifications, me }) {
 }
 
 
-function TrophyCard({ trophy, unlocked, count = 0, instances = [], requirement, onSelect }) {
+function TrophyCard({ trophy, unlocked, count = 0, instances = [], requirement, onSelect, className = "", isBentoHero = false }) {
   const [imgLoaded, setImgLoaded] = React.useState(false);
   const showDuplicate = count > 1;
 
@@ -1150,7 +1153,7 @@ function TrophyCard({ trophy, unlocked, count = 0, instances = [], requirement, 
     <motion.div
       variants={{ hidden: { opacity: 0, y: 20 }, show: { opacity: 1, y: 0 } }}
       onClick={() => onSelect && onSelect()}
-      className={`relative flex flex-col items-center p-5 rounded-[24px] text-center cursor-pointer transition-all duration-300 group overflow-hidden w-full h-full min-h-[240px] ${unlocked
+      className={`relative flex flex-col items-center p-5 rounded-[24px] text-center cursor-pointer transition-all duration-300 group overflow-hidden w-full h-full min-h-[240px] ${className} ${unlocked
         ? 'bg-gradient-to-b from-[#1a1c23] to-[#12141a] border border-amber-500/30 shadow-[0_8px_30px_rgb(0,0,0,0.4)] hover:-translate-y-2 hover:shadow-[0_15px_40px_rgba(245,158,11,0.15)] hover:border-amber-400/60 z-10'
         : 'bg-[#181a20]/60 backdrop-blur-md border border-white/[0.06] hover:border-white/15 hover:-translate-y-1'
         }`}
@@ -1179,7 +1182,7 @@ function TrophyCard({ trophy, unlocked, count = 0, instances = [], requirement, 
       )}
 
       {/* Top: Trophy Artwork */}
-      <div className="mt-2 mb-4 relative w-24 h-24 sm:w-28 sm:h-28 flex items-center justify-center shrink-0">
+      <div className={`mt-2 mb-4 relative flex items-center justify-center shrink-0 ${isBentoHero ? 'w-32 h-32 md:w-48 md:h-48' : 'w-24 h-24 sm:w-28 sm:h-28'}`}>
         <motion.img
           src={trophy.image || trophy.icon}
           alt={trophy.name}
@@ -1204,7 +1207,7 @@ function TrophyCard({ trophy, unlocked, count = 0, instances = [], requirement, 
 
       {/* Middle: Trophy Name */}
       <div className="w-full mt-3 flex flex-col items-center justify-center flex-1 z-10">
-        <h4 className={`font-black text-[13px] sm:text-[15px] leading-tight line-clamp-2 px-1 relative z-10 transition-colors ${unlocked ? 'text-amber-50 drop-shadow-md' : 'text-muted-foreground/60'}`} style={{ fontFamily: "'Sora', sans-serif" }} title={trophy.name}>
+        <h4 className={`font-black leading-tight line-clamp-2 px-1 relative z-10 transition-colors ${isBentoHero ? 'text-[15px] md:text-xl' : 'text-[13px] sm:text-[15px]'} ${unlocked ? 'text-amber-50 drop-shadow-md' : 'text-muted-foreground/60'}`} style={{ fontFamily: "'Sora', sans-serif" }} title={trophy.name}>
           {trophy.name}
         </h4>
       </div>
