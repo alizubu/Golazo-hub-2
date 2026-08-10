@@ -3,8 +3,8 @@ import React, { useState, useEffect } from 'react';
 import { Activity, Trophy, Swords, Target, Handshake, TrendingUp, Calendar, Check } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FadeIn } from '@/app/components/shared/UI';
-import { StatTile } from '@/app/components/shared/StatTile';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/app/components/ui/dropdown-menu';
+import { NumberTicker } from '@/app/components/ui/number-ticker';
 
 export function SeasonStats({ playerId, initialStats, seasons, activeSeason, selectedSeasonId, onSeasonChange }) {
   const [stats, setStats] = useState(initialStats);
@@ -35,8 +35,15 @@ export function SeasonStats({ playerId, initialStats, seasons, activeSeason, sel
   const selectedSeason = isOverall ? { name: "Overall Career", id: 'overall' } : (seasons.find(s => s.id === selectedSeasonId) || activeSeason);
   const isActive = !isOverall && selectedSeason?.id === activeSeason?.id;
 
-  const { rank, elo, played, winRate, goals, assists } = stats || {};
+  const { rank, played, winRate, goals, assists } = stats || {};
   const hasData = played > 0;
+
+  const winRateColor = winRate >= 50 ? "#22c55e" : "#ef4444";
+  const radius = 64;
+  const stroke = 12;
+  const normalizedRadius = radius - stroke * 2;
+  const circumference = normalizedRadius * 2 * Math.PI;
+  const strokeDashoffset = circumference - ((hasData ? winRate : 0) / 100) * circumference;
 
   return (
     <FadeIn delay={0.2} className="col-span-12">
@@ -99,91 +106,82 @@ export function SeasonStats({ playerId, initialStats, seasons, activeSeason, sel
           </DropdownMenu>
         </div>
         
-        <div className="pt-2 pb-5 px-5 sm:px-6">
-          <AnimatePresence mode="wait">
-            <motion.div 
-              key={selectedSeasonId}
-              initial="hidden"
-              animate="visible"
-              exit="exit"
-              variants={{
-                hidden: { opacity: 0 },
-                visible: { 
-                  opacity: 1,
-                  transition: { staggerChildren: 0.06 }
-                },
-                exit: { opacity: 0, transition: { duration: 0.2 } }
-              }}
-              className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 auto-rows-fr gap-4"
-            >
-              <div className="col-span-1 flex min-h-[120px]">
-                <StatTile 
-                  icon={Trophy}
-                  label="Rank"
-                  value={hasData && rank ? `#${rank}` : null}
-                  loaded={!loading}
-                  isHero={true}
-                  emptyStateText="Unranked"
+        <div className="pt-6 pb-8 px-5 sm:px-6 flex flex-col md:flex-row items-center gap-8 md:gap-12">
+          
+          {/* 1. The Fitness Ring (Win Rate) */}
+          <div className="flex flex-col items-center justify-center shrink-0 relative group">
+            <div className="relative flex items-center justify-center w-32 h-32 md:w-40 md:h-40">
+              {/* Background Track */}
+              <svg height={radius * 2} width={radius * 2} className="transform -rotate-90 drop-shadow-xl scale-110 md:scale-125">
+                <circle
+                  stroke="rgba(255,255,255,0.05)"
+                  fill="transparent"
+                  strokeWidth={stroke}
+                  r={normalizedRadius}
+                  cx={radius}
+                  cy={radius}
                 />
+                {/* Progress Ring */}
+                {!loading && (
+                  <motion.circle
+                    stroke={winRateColor}
+                    fill="transparent"
+                    strokeWidth={stroke}
+                    strokeDasharray={circumference + ' ' + circumference}
+                    style={{ strokeDashoffset }}
+                    strokeLinecap="round"
+                    r={normalizedRadius}
+                    cx={radius}
+                    cy={radius}
+                    initial={{ strokeDashoffset: circumference }}
+                    animate={{ strokeDashoffset }}
+                    transition={{ duration: 1.5, ease: "easeOut", delay: 0.2 }}
+                    className="drop-shadow-[0_0_15px_rgba(0,0,0,0.5)]"
+                  />
+                )}
+              </svg>
+              {/* Center Text */}
+              <div className="absolute flex flex-col items-center justify-center pointer-events-none">
+                <span className="text-3xl md:text-4xl font-black font-score tracking-tighter" style={{ color: winRateColor }}>
+                  {loading ? '-' : (hasData ? <NumberTicker value={winRate} /> : 0)}<span className="text-xl opacity-80">%</span>
+                </span>
+                <span className="text-[9px] uppercase font-bold text-muted-foreground tracking-widest mt-1">Win Rate</span>
               </div>
+            </div>
+          </div>
 
-              <div className="col-span-1 flex min-h-[120px]">
-                <StatTile 
-                  icon={Activity}
-                  label="Elo Rating"
-                  value={hasData ? elo : null}
-                  loaded={!loading}
-                  isCountUp={true}
-                  emptyStateText="No matches"
-                />
-              </div>
-
-              <div className="col-span-1 flex min-h-[120px]">
-                <StatTile 
-                  icon={TrendingUp}
-                  label="Win Rate"
-                  value={hasData ? winRate : null}
-                  loaded={!loading}
-                  isPercentage={true}
-                  isCountUp={true}
-                  emptyStateText="Play 1+ match"
-                />
-              </div>
-
-              <div className="col-span-1 flex min-h-[120px]">
-                <StatTile 
-                  icon={Swords}
-                  label="Matches"
-                  value={hasData ? played : null}
-                  loaded={!loading}
-                  isCountUp={true}
-                  emptyStateText="No matches"
-                />
-              </div>
-
-              <div className="col-span-1 flex min-h-[120px]">
-                <StatTile 
-                  icon={Target}
-                  label="Goals"
-                  value={hasData ? goals : null}
-                  loaded={!loading}
-                  isCountUp={true}
-                  emptyStateText="No goals"
-                />
-              </div>
-
-              <div className="col-span-1 flex min-h-[120px]">
-                <StatTile 
-                  icon={Handshake}
-                  label="Assists"
-                  value={hasData ? assists : null}
-                  loaded={!loading}
-                  isCountUp={true}
-                  emptyStateText="No assists"
-                />
-              </div>
+          {/* 2. The Glass Pill Grid (Rank, Matches, Goals, Assists) */}
+          <div className="flex-1 w-full grid grid-cols-2 lg:grid-cols-4 gap-4">
+            
+            <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.3 }} className="bg-secondary/30 border border-border/50 rounded-2xl p-5 flex flex-col items-center justify-center relative overflow-hidden backdrop-blur-md group">
+               <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
+               <Trophy size={22} className="text-amber-500 mb-2 drop-shadow-md" />
+               <span className="text-2xl font-black text-foreground font-score">{loading ? '-' : (hasData && rank ? `#${rank}` : '-')}</span>
+               <span className="text-[10px] uppercase font-bold text-muted-foreground tracking-widest mt-1">Rank</span>
             </motion.div>
-          </AnimatePresence>
+
+            <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.4 }} className="bg-secondary/30 border border-border/50 rounded-2xl p-5 flex flex-col items-center justify-center relative overflow-hidden backdrop-blur-md group">
+               <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
+               <Swords size={22} className="text-blue-500 mb-2 drop-shadow-md" />
+               <span className="text-2xl font-black text-foreground font-score">{loading ? '-' : (hasData ? <NumberTicker value={played} /> : 0)}</span>
+               <span className="text-[10px] uppercase font-bold text-muted-foreground tracking-widest mt-1">Matches</span>
+            </motion.div>
+
+            <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.5 }} className="bg-secondary/30 border border-border/50 rounded-2xl p-5 flex flex-col items-center justify-center relative overflow-hidden backdrop-blur-md group">
+               <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
+               <Target size={22} className="text-green-500 mb-2 drop-shadow-md" />
+               <span className="text-2xl font-black text-foreground font-score">{loading ? '-' : (hasData ? <NumberTicker value={goals} /> : 0)}</span>
+               <span className="text-[10px] uppercase font-bold text-muted-foreground tracking-widest mt-1">Goals</span>
+            </motion.div>
+
+            <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.6 }} className="bg-secondary/30 border border-border/50 rounded-2xl p-5 flex flex-col items-center justify-center relative overflow-hidden backdrop-blur-md group">
+               <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
+               <Handshake size={22} className="text-purple-500 mb-2 drop-shadow-md" />
+               <span className="text-2xl font-black text-foreground font-score">{loading ? '-' : (hasData ? <NumberTicker value={assists} /> : 0)}</span>
+               <span className="text-[10px] uppercase font-bold text-muted-foreground tracking-widest mt-1">Assists</span>
+            </motion.div>
+
+          </div>
         </div>
       </div>
     </FadeIn>
