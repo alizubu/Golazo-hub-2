@@ -25,13 +25,21 @@ export function NumberTicker({
   }, [motionValue, isInView, delay, value, direction]);
 
   useEffect(() => {
-    springValue.on("change", (latest) => {
+    const handleUpdate = (latest) => {
       if (ref.current) {
+        const num = Number(latest);
         ref.current.textContent = Intl.NumberFormat("en-US").format(
-          Math.round(Number(latest))
+          isNaN(num) ? 0 : Math.round(num)
         );
       }
-    });
+    };
+
+    const unsubscribe = springValue.on("change", handleUpdate);
+    
+    // Set initial value immediately to prevent blank rendering
+    handleUpdate(springValue.get());
+
+    return () => unsubscribe();
   }, [springValue]);
 
   return (

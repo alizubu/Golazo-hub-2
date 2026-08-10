@@ -470,31 +470,6 @@ export default function AdminBroadcast({ matches = [], players = [], announcemen
         </Card>
       </FadeIn>
 
-      {/* ── Breaking News ───────────────────────────────────────────────────── */}
-      <FadeIn delay={0.1}>
-        <Card className="p-4 sm:p-6 border-red-500/10">
-          <SectionTitle icon={Megaphone}>Breaking News Banner</SectionTitle>
-          <p className="text-xs text-muted-foreground mt-1 mb-4">Type a message to display as a red &quot;BREAKING&quot; alert in the ticker. Leave empty to disable.</p>
-          <div className="relative">
-            <input
-              type="text"
-              value={draft.breakingNews}
-              onChange={e => update('breakingNews', e.target.value)}
-              placeholder="e.g. Ali Zubu breaks the all-time goal record!"
-              className="w-full px-4 py-3 rounded-xl bg-red-500/5 border border-red-500/20 text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-red-500/40 focus:ring-1 focus:ring-red-500/20 text-sm"
-            />
-            {draft.breakingNews && (
-              <button
-                onClick={() => update('breakingNews', '')}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-red-400 transition-colors"
-              >
-                ✕
-              </button>
-            )}
-          </div>
-        </Card>
-      </FadeIn>
-
       {/* ── Content Feed Source ──────────────────────────────────────────────── */}
       <FadeIn delay={0.15}>
         <Card className="p-4 sm:p-6">
@@ -588,7 +563,7 @@ export default function AdminBroadcast({ matches = [], players = [], announcemen
             ))}
           </div>
 
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
             <AnimatePresence mode="popLayout">
               {filteredThemes.length ? (
                 filteredThemes.map(t => (
@@ -699,7 +674,7 @@ export default function AdminBroadcast({ matches = [], players = [], announcemen
               <span className="flex items-center justify-center w-5 h-5 rounded-full bg-amber-500/20 text-amber-500 text-[10px] font-black">1</span>
               Select Badge & Priority
             </Label>
-            <div className="grid grid-cols-3 sm:grid-cols-5 lg:grid-cols-5 gap-2 mb-4">
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2 mb-4">
               {BADGE_OPTIONS.map(b => {
                 const BadgeComp = BADGE_MAP[b.id];
                 const isSelected = newBadgeType === b.id;
@@ -803,7 +778,7 @@ export default function AdminBroadcast({ matches = [], players = [], announcemen
             <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
               
               {/* --- LEFT: Text Color + Font Toggles + Typography Sliders --- */}
-              <div className="p-4 rounded-xl bg-secondary/30 dark:bg-card/30 border border-border/40 space-y-5">
+              <div className="p-4 rounded-xl bg-secondary/30 dark:bg-card/30 border border-border/40 space-y-5 flex-1 min-w-0">
                 <div className="flex items-center gap-2 mb-1">
                   <Palette size={14} className="text-amber-500" />
                   <span className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Color & Font</span>
@@ -904,7 +879,7 @@ export default function AdminBroadcast({ matches = [], players = [], announcemen
               </div>
 
               {/* --- RIGHT: Shadow / Glow Controls --- */}
-              <div className="p-4 rounded-xl bg-secondary/30 dark:bg-card/30 border border-border/40 space-y-5">
+              <div className="p-4 rounded-xl bg-secondary/30 dark:bg-card/30 border border-border/40 space-y-5 flex-1 min-w-0">
                 <div className="flex items-center gap-2 mb-1">
                   <Flame size={14} className="text-red-500" />
                   <span className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Glow / Shadow</span>

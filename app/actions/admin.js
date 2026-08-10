@@ -171,6 +171,10 @@ export async function saveTickerConfig(data) {
       showStats: data.showStats ?? false,
       showHighlights: data.showHighlights ?? false,
       showStreaks: data.showStreaks ?? false,
+      customHighlights: data.customHighlights || [],
+      playerToWatch: data.playerToWatch || { active: false, playerId: '' },
+      epicMoment: data.epicMoment || { active: false, playerId: '', text: '' },
+      replayTrigger: data.replayTrigger || null,
     };
     if (existing) {
       config = await prisma.tickerConfig.update({

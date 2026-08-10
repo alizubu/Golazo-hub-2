@@ -426,7 +426,7 @@ export default function SportsTicker({ matches = [], announcements = [], players
         )}
 
         <div
-          className={`flex whitespace-nowrap w-max animate-custom-marquee ${pauseClass}`}
+          className={`flex shrink-0 whitespace-nowrap min-w-max animate-custom-marquee ${pauseClass}`}
           style={{ '--duration': duration, '--gap': '2rem' }}
         >
           {separatedItems}{separatedItems}

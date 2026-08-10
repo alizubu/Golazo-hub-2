@@ -393,8 +393,7 @@ export function PlayerDashboard({ me, activeSeason, seasons = [], matches, playe
                   </motion.div>
 
                   {/* Stats Grid */}
-                  {played > 0 && (
-                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 w-full mb-6">
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 w-full mb-6">
                       <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="bg-card border border-border/50 rounded-2xl p-4 shadow-sm flex flex-col items-center sm:items-start text-center sm:text-left">
                         <Swords size={16} className="text-muted-foreground mb-2" />
                         <span className="text-2xl font-black font-score text-foreground leading-none mb-1"><NumberTicker value={played} /></span>
@@ -422,28 +421,31 @@ export function PlayerDashboard({ me, activeSeason, seasons = [], matches, playe
                         <span className="text-[10px] uppercase font-bold text-muted-foreground tracking-widest">Goals</span>
                       </motion.div>
                     </div>
-                  )}
 
-                  {/* Rank and Gamification (Relocated) */}
-                  <div className="flex flex-wrap items-center justify-center md:justify-start gap-3 w-full mb-6">
-                    {myRank > 0 && (
-                      <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.3 }}>
-                        <Badge className="bg-amber-500/10 text-amber-500 border border-amber-500/20 px-3 py-1.5 shadow-sm text-xs font-bold flex items-center gap-1.5 rounded-xl">
-                          <Trophy size={14} className="text-amber-500" />
-                          Rank #{myRank}
-                        </Badge>
-                      </motion.div>
-                    )}
-                    {winStreak >= 2 && (
-                       <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.35 }} className="bg-gradient-to-r from-orange-500/10 to-red-500/10 border border-orange-500/30 rounded-xl px-3 py-1.5 flex items-center gap-2 shadow-[0_0_15px_rgba(239,68,68,0.15)] shrink-0">
-                         <span className="text-lg animate-bounce drop-shadow-[0_0_5px_rgba(239,68,68,0.8)]">🔥</span>
-                         <span className="text-xs font-bold text-orange-500 tracking-wide uppercase">{winStreak} Match Win Streak</span>
-                       </motion.div>
-                    )}
-                  </div>
+                  {/* Two Column Layout for Desktop */}
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 w-full">
+                    {/* Left Column */}
+                    <div className="flex flex-col gap-6">
+                      {/* Rank and Gamification (Relocated) */}
+                      <div className="flex flex-wrap items-center justify-center md:justify-start gap-3 w-full">
+                        {myRank > 0 && (
+                          <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.3 }}>
+                            <Badge className="bg-amber-500/10 text-amber-500 border border-amber-500/20 px-3 py-1.5 shadow-sm text-xs font-bold flex items-center gap-1.5 rounded-xl">
+                              <Trophy size={14} className="text-amber-500" />
+                              Rank #{myRank}
+                            </Badge>
+                          </motion.div>
+                        )}
+                        {winStreak >= 2 && (
+                          <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.35 }} className="bg-gradient-to-r from-orange-500/10 to-red-500/10 border border-orange-500/30 rounded-xl px-3 py-1.5 flex items-center gap-2 shadow-[0_0_15px_rgba(239,68,68,0.15)] shrink-0">
+                            <span className="text-lg animate-bounce drop-shadow-[0_0_5px_rgba(239,68,68,0.8)]">🔥</span>
+                            <span className="text-xs font-bold text-orange-500 tracking-wide uppercase">{winStreak} Match Win Streak</span>
+                          </motion.div>
+                        )}
+                      </div>
 
-                  {/* Identity Badges Row (Club & Nation Side-by-Side) */}
-                  <div className="grid grid-cols-2 gap-3 w-full mb-6">
+                      {/* Identity Badges Row (Club & Nation Side-by-Side) */}
+                      <div className="grid grid-cols-2 gap-3 w-full">
                     <motion.div initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.4 }} className="bg-secondary/30 border border-border/50 rounded-2xl p-3 sm:p-4 flex flex-col gap-2">
                       <span className="text-[9px] uppercase font-bold text-muted-foreground tracking-widest leading-none">Favorite Club</span>
                       {selectedClub ? (
@@ -466,56 +468,61 @@ export function PlayerDashboard({ me, activeSeason, seasons = [], matches, playe
                         <span className="text-sm font-semibold text-muted-foreground opacity-50">Not set</span>
                       )}
                     </motion.div>
-                  </div>
-
-                  {/* Biggest Rival (Mini Versus Card) */}
-                  {biggestRival && rivalStats && (
-                    <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.45 }} className="w-full">
-                      <div 
-                        onClick={() => onH2HClick(biggestRival.id)} 
-                        className="bg-card border border-border/50 rounded-2xl p-4 shadow-sm hover:bg-secondary/50 transition-colors cursor-pointer w-full flex flex-col gap-3"
-                      >
-                        <div className="flex items-center justify-between">
-                          <span className="text-[9px] uppercase font-bold text-muted-foreground tracking-widest flex items-center gap-1.5"><Swords size={12}/> Biggest Rival</span>
-                          <span className="text-[10px] text-muted-foreground font-semibold">View H2H <ArrowRight size={10} className="inline"/></span>
-                        </div>
-                        <div className="flex items-center justify-between px-2">
-                          <div className="flex flex-col items-center gap-1.5 w-[30%]">
-                            <Avatar p={me} size={36} />
-                            <span className="text-[10px] font-bold truncate w-full text-center">You</span>
-                          </div>
-                          <div className="flex flex-col items-center justify-center gap-1 w-[40%]">
-                            <Badge className="bg-secondary text-[10px] font-black border-border shadow-sm tracking-widest px-2 py-0.5">VS</Badge>
-                          </div>
-                          <div className="flex flex-col items-center gap-1.5 w-[30%]">
-                            <Avatar p={biggestRival} size={36} />
-                            <span className="text-[10px] font-bold truncate w-full text-center">{biggestRival.name}</span>
-                          </div>
-                        </div>
-                        {/* Animated Ratio Bar */}
-                        <div className="flex flex-col gap-1.5 w-full mt-1">
-                          <div className="flex justify-between text-[10px] font-bold">
-                            <span className="text-green-500">{rivalStats.w}W</span>
-                            <span className="text-red-500">{rivalStats.l}L</span>
-                          </div>
-                          <div className="h-1.5 rounded-full bg-secondary overflow-hidden flex w-full relative">
-                            <motion.div 
-                              initial={{ width: 0 }}
-                              animate={!shouldReduceMotion ? { width: `${(rivalStats.w / ((rivalStats.w + rivalStats.l) || 1)) * 100}%` } : { width: `${(rivalStats.w / ((rivalStats.w + rivalStats.l) || 1)) * 100}%` }}
-                              transition={{ duration: 1, type: "spring", bounce: 0, delay: 0.5 }}
-                              className="h-full bg-green-500 rounded-l-full relative z-10" 
-                            />
-                            <motion.div 
-                              initial={{ width: 0 }}
-                              animate={!shouldReduceMotion ? { width: `${(rivalStats.l / ((rivalStats.w + rivalStats.l) || 1)) * 100}%` } : { width: `${(rivalStats.l / ((rivalStats.w + rivalStats.l) || 1)) * 100}%` }}
-                              transition={{ duration: 1, type: "spring", bounce: 0, delay: 0.5 }}
-                              className="absolute right-0 top-0 bottom-0 bg-red-500 rounded-r-full" 
-                            />
-                          </div>
-                        </div>
                       </div>
-                    </motion.div>
-                  )}
+                    </div>
+
+                    {/* Right Column */}
+                    <div className="flex flex-col w-full">
+                      {/* Biggest Rival (Mini Versus Card) */}
+                      {biggestRival && rivalStats && (
+                        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.45 }} className="w-full">
+                          <div 
+                            onClick={() => onH2HClick(biggestRival.id)} 
+                            className="bg-card border border-border/50 rounded-2xl p-4 shadow-sm hover:bg-secondary/50 transition-colors cursor-pointer w-full flex flex-col gap-3"
+                          >
+                            <div className="flex items-center justify-between">
+                              <span className="text-[9px] uppercase font-bold text-muted-foreground tracking-widest flex items-center gap-1.5"><Swords size={12}/> Biggest Rival</span>
+                              <span className="text-[10px] text-muted-foreground font-semibold flex items-center justify-center min-h-[44px] min-w-[44px]">View H2H <ArrowRight size={10} className="inline ml-1"/></span>
+                            </div>
+                            <div className="flex items-center justify-between px-2">
+                              <div className="flex flex-col items-center gap-1.5 w-[30%]">
+                                <Avatar p={me} size={36} />
+                                <span className="text-[10px] font-bold truncate w-full text-center">You</span>
+                              </div>
+                              <div className="flex flex-col items-center justify-center gap-1 w-[40%]">
+                                <Badge className="bg-secondary text-[10px] font-black border-border shadow-sm tracking-widest px-2 py-0.5">VS</Badge>
+                              </div>
+                              <div className="flex flex-col items-center gap-1.5 w-[30%]">
+                                <Avatar p={biggestRival} size={36} />
+                                <span className="text-[10px] font-bold truncate w-full text-center">{biggestRival.name}</span>
+                              </div>
+                            </div>
+                            {/* Animated Ratio Bar */}
+                            <div className="flex flex-col gap-1.5 w-full mt-1">
+                              <div className="flex justify-between text-[10px] font-bold">
+                                <span className="text-green-500">{rivalStats.w}W</span>
+                                <span className="text-red-500">{rivalStats.l}L</span>
+                              </div>
+                              <div className="h-1.5 rounded-full bg-secondary overflow-hidden flex w-full relative">
+                                <motion.div 
+                                  initial={{ width: 0 }}
+                                  animate={!shouldReduceMotion ? { width: `${(rivalStats.w / ((rivalStats.w + rivalStats.l) || 1)) * 100}%` } : { width: `${(rivalStats.w / ((rivalStats.w + rivalStats.l) || 1)) * 100}%` }}
+                                  transition={{ duration: 1, type: "spring", bounce: 0, delay: 0.5 }}
+                                  className="h-full bg-green-500 rounded-l-full relative z-10" 
+                                />
+                                <motion.div 
+                                  initial={{ width: 0 }}
+                                  animate={!shouldReduceMotion ? { width: `${(rivalStats.l / ((rivalStats.w + rivalStats.l) || 1)) * 100}%` } : { width: `${(rivalStats.l / ((rivalStats.w + rivalStats.l) || 1)) * 100}%` }}
+                                  transition={{ duration: 1, type: "spring", bounce: 0, delay: 0.5 }}
+                                  className="absolute right-0 top-0 bottom-0 bg-red-500 rounded-r-full" 
+                                />
+                              </div>
+                            </div>
+                          </div>
+                        </motion.div>
+                      )}
+                    </div>
+                  </div>
                 </div>
               </div>
 
@@ -563,7 +570,7 @@ export function PlayerDashboard({ me, activeSeason, seasons = [], matches, playe
 
                 {/* Edit Profile Button */}
                 {!viewOnly && (
-                  <Btn variant="outline" onClick={() => setTab('settings')} className="gap-2 rounded-xl border-border/50 text-xs shadow-sm bg-background hover:bg-secondary w-full md:w-auto mt-1 h-10 md:h-8">
+                  <Btn variant="outline" onClick={() => setTab('settings')} className="gap-2 rounded-xl border-border/50 text-xs shadow-sm bg-background hover:bg-secondary w-full md:w-auto mt-1 h-11 md:h-9">
                     <Pen size={14} /> Edit Profile
                   </Btn>
                 )}

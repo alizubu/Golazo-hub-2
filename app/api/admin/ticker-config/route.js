@@ -26,6 +26,10 @@ export async function GET() {
         showStats: false,
         showHighlights: false,
         showStreaks: false,
+        customHighlights: [],
+        playerToWatch: { active: false, playerId: '' },
+        epicMoment: { active: false, playerId: '', text: '' },
+        replayTrigger: null
       }
     });
   }

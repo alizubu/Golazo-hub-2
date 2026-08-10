@@ -161,9 +161,13 @@ model TickerConfig {
   theme          String   @default("classic")
   breakingNews   String   @default("")            // Custom breaking news text
   showStats      Boolean  @default(false)         // Stats Ticker Mode
-  showHighlights Boolean  @default(false)         // Highlight Reel after FT
-  showStreaks    Boolean  @default(false)          // Player streak alerts
-  updatedAt      DateTime @updatedAt
+  showHighlights  Boolean  @default(false)         // Highlight Reel after FT
+  showStreaks     Boolean  @default(false)          // Player streak alerts
+  customHighlights Json?                             // Array of Breaking News Alerts
+  playerToWatch   Json?                              // Spotlight player config
+  epicMoment      Json?                              // Epic moment config
+  replayTrigger   Json?                              // Replay trigger state
+  updatedAt       DateTime @updatedAt
 }
 
 
