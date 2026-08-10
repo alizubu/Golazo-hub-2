@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Trophy, ChevronDown } from 'lucide-react';
+import { Trophy, ChevronDown, Star } from 'lucide-react';
 import { toTitleCase, Avatar } from '@/app/components/shared/UI';
+import { BorderBeam } from '@/app/components/magicui/BorderBeam';
 
 const statDefinitions = [
   { key: 'possession', label: 'BALL POSSESSION', format: 'percent' },
@@ -29,67 +30,52 @@ function StatBar({ label, valueA, valueB, colorA, colorB, format = 'number', ind
   const displayA = format === 'percent' ? `${valA}%` : valA;
   const displayB = format === 'percent' ? `${valB}%` : valB;
 
+  const aWinning = valA > valB;
+  const bWinning = valB > valA;
+
   return (
     <motion.div 
       className="flex flex-col mb-4 last:mb-0"
-      initial={{ opacity: 0, x: -10 }}
-      animate={{ opacity: 1, x: 0 }}
-      transition={{ delay: 0.1 + index * 0.03 }}
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: 0.15 + index * 0.04, type: 'spring', stiffness: 300, damping: 25 }}
     >
       <div className="flex items-center justify-between mb-1.5">
-        <div className="w-10 text-left text-sm font-bold font-score text-emerald-500 dark:text-[#29C179]">{displayA}</div>
-        <div className="text-center text-[10px] sm:text-[11px] tracking-[0.1em] text-slate-500 dark:text-muted-foreground uppercase font-bold px-2 truncate">
+        <motion.div 
+          className={`w-10 text-left text-sm font-bold font-score ${aWinning ? 'text-emerald-400' : 'text-muted-foreground/60'}`}
+          initial={{ scale: 0.5, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          transition={{ delay: 0.3 + index * 0.04, type: 'spring', stiffness: 400 }}
+        >
+          {displayA}
+        </motion.div>
+        <div className="text-center text-[10px] sm:text-[11px] tracking-[0.15em] text-muted-foreground/50 uppercase font-bold px-2 truncate">
           {label}
         </div>
-        <div className="w-10 text-right text-sm font-bold font-score text-rose-500 dark:text-[#B23A48]">{displayB}</div>
-      </div>
-      <div className="flex w-full h-2 bg-slate-200 dark:bg-zinc-900 rounded-full overflow-hidden shadow-inner ring-1 ring-slate-300 dark:ring-white/5">
         <motion.div 
-          className="h-full rounded-r-full shadow-[inset_0_1px_0_rgba(255,255,255,0.15)] bg-emerald-500 dark:bg-[#29C179]" 
+          className={`w-10 text-right text-sm font-bold font-score ${bWinning ? 'text-emerald-400' : 'text-muted-foreground/60'}`}
+          initial={{ scale: 0.5, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          transition={{ delay: 0.3 + index * 0.04, type: 'spring', stiffness: 400 }}
+        >
+          {displayB}
+        </motion.div>
+      </div>
+      <div className="flex w-full h-[6px] bg-white/[0.03] rounded-full overflow-hidden ring-1 ring-white/[0.04]">
+        <motion.div 
+          className={`h-full rounded-r-full ${aWinning ? 'bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.4)]' : 'bg-muted-foreground/20'}`}
           initial={{ width: '0%' }}
           animate={{ width: `${pctA}%` }}
-          transition={{ duration: 1.2, type: 'spring', bounce: 0.2, delay: 0.2 + index * 0.03 }}
+          transition={{ duration: 1, type: 'spring', bounce: 0.15, delay: 0.25 + index * 0.04 }}
         />
         <motion.div 
-          className="h-full rounded-l-full shadow-[inset_0_1px_0_rgba(255,255,255,0.15)] bg-rose-500 dark:bg-[#B23A48]" 
+          className={`h-full rounded-l-full ${bWinning ? 'bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.4)]' : 'bg-muted-foreground/20'}`}
           initial={{ width: '0%' }}
           animate={{ width: `${pctB}%` }}
-          transition={{ duration: 1.2, type: 'spring', bounce: 0.2, delay: 0.2 + index * 0.03 }}
+          transition={{ duration: 1, type: 'spring', bounce: 0.15, delay: 0.25 + index * 0.04 }}
         />
       </div>
     </motion.div>
-  );
-}
-
-function PlayerRow({ player, isWinner, isLoser, isTbd }) {
-  return (
-    <div className={`flex items-center gap-3 p-2 rounded-xl transition-colors
-      ${isWinner ? 'bg-green-50 dark:bg-green-500/10 border-l-4 border-green-500' : 'border-l-4 border-transparent'}
-      ${!isWinner && !isLoser && !isTbd ? 'bg-slate-50 dark:bg-secondary/40' : ''}
-      ${isTbd ? 'bg-slate-50 dark:bg-secondary/20 border-dashed border border-slate-200 dark:border-border/50' : ''}
-    `}>
-      {isTbd ? (
-        <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-slate-200 dark:bg-secondary/50 animate-pulse shrink-0" />
-      ) : (
-        <Avatar p={player} size={40} ring="#0f1117" className="w-8 h-8 sm:w-10 sm:h-10 shrink-0" />
-      )}
-      
-      <div className="flex-1 min-w-0 flex items-center">
-        {isTbd ? (
-          <span className="text-sm font-semibold text-slate-400 dark:text-muted-foreground/50 animate-pulse uppercase tracking-wider">TBD</span>
-        ) : (
-          <span className={`font-bold font-heading text-sm sm:text-base break-words ${isWinner ? 'text-green-800 dark:text-green-400' : isLoser ? 'text-slate-400 dark:text-muted-foreground' : 'text-slate-900 dark:text-foreground'}`}>
-            {toTitleCase(player?.name)}
-          </span>
-        )}
-      </div>
-
-      {isWinner && (
-        <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} className="shrink-0 mr-1">
-          <Trophy className="text-green-600 dark:text-green-500" size={16} />
-        </motion.div>
-      )}
-    </div>
   );
 }
 
@@ -106,8 +92,6 @@ function MatchCard({ m, players, onClick }) {
 
   const homeWon = isCompleted && m.homeScore > m.awayScore;
   const awayWon = isCompleted && m.awayScore > m.homeScore;
-  const homeLost = isCompleted && m.homeScore < m.awayScore;
-  const awayLost = isCompleted && m.awayScore < m.homeScore;
 
   const formatKickoff = (dateStr) => {
     if (!dateStr) return 'TBD';
@@ -119,141 +103,236 @@ function MatchCard({ m, players, onClick }) {
     if (isCompleted && hasStats) {
       setIsExpanded(!isExpanded);
     } else if (isCompleted && onClick && !hasStats) {
-      // Fallback for matches without full stats (maybe still open modal or do nothing)
       onClick(m.id);
     }
   };
 
   return (
     <motion.div 
-      whileHover={isCompleted ? { scale: 1.01 } : {}}
-      whileTap={isCompleted ? { scale: 0.99 } : {}}
+      whileHover={isCompleted ? { scale: 1.005 } : {}}
+      whileTap={isCompleted ? { scale: 0.995 } : {}}
       onClick={handleCardClick}
       className={`
-        relative w-full min-w-[14rem] sm:min-w-[16rem] rounded-2xl transition-all duration-300 overflow-hidden bg-white dark:bg-secondary/80
-        ${isCompleted ? 'cursor-pointer hover:border-green-500/50 hover:bg-slate-50 dark:hover:bg-secondary border border-slate-200 dark:border-border/50 shadow-sm' : ''}
-        ${!isCompleted && !isLive ? 'border border-slate-200 dark:border-border/50 shadow-sm' : ''}
-        ${isLive ? 'shadow-[0_0_20px_rgba(220,38,38,0.3)]' : ''}
+        relative w-full rounded-2xl overflow-hidden transition-all duration-300
+        ${isCompleted ? 'cursor-pointer' : ''}
+        ${isLive ? 'shadow-[0_0_30px_rgba(220,38,38,0.15)]' : ''}
       `}
     >
-      {/* Shimmer Border for LIVE matches */}
-      {isLive && (
-        <div className="absolute inset-0 z-0 bg-[linear-gradient(45deg,transparent_25%,rgba(220,38,38,0.5)_50%,transparent_75%)] bg-[length:250%_250%] animate-shimmer" />
-      )}
-      
-      {/* Inner Content Wrapper */}
-      <div className={`relative z-10 flex flex-col gap-2 p-3 sm:p-4 m-[1px] rounded-[15px] ${isLive ? 'bg-white/95 dark:bg-[#0f1117]/95 backdrop-blur-sm' : 'bg-white dark:bg-background/50'} ${isExpanded ? 'rounded-b-none border-b border-slate-200 dark:border-border/30' : ''}`}>
-        
-        {/* Status Badge (Top Right) */}
-        <div className="absolute top-3 right-3 flex items-center justify-end z-20 pointer-events-none">
-          {isCompleted && !hasStats && <span className="text-[10px] font-bold text-slate-500 dark:text-muted-foreground uppercase tracking-widest bg-slate-100 dark:bg-secondary/80 px-2 py-0.5 rounded-md">FT</span>}
-          {isCompleted && hasStats && (
-            <motion.div animate={{ rotate: isExpanded ? 180 : 0 }} className="text-slate-500 dark:text-muted-foreground bg-slate-100 dark:bg-secondary/80 rounded-md p-1">
-              <ChevronDown size={14} />
-            </motion.div>
-          )}
-          {isLive && (
-            <motion.div 
-              animate={{ opacity: [1, 0.5, 1] }} 
-              transition={{ repeat: Infinity, duration: 1.5 }}
-              className="flex items-center gap-1.5 bg-red-600/90 backdrop-blur-sm px-2 py-0.5 rounded-full shadow-[0_0_8px_rgba(220,38,38,0.8)]"
-            >
-              <div className="w-1.5 h-1.5 rounded-full bg-white" />
-              <span className="text-[9px] text-foreground font-bold tracking-widest">LIVE</span>
-            </motion.div>
-          )}
-          {!isCompleted && !isLive && !isTbd && (
-            <span className="text-[10px] font-bold text-slate-500 dark:text-muted-foreground uppercase tracking-widest bg-slate-100 dark:bg-secondary/80 px-2 py-0.5 rounded-md">
-              {formatKickoff(m.scheduledAt)}
+      {/* Outer Card Shell */}
+      <div className={`
+        relative rounded-2xl overflow-hidden
+        bg-gradient-to-br from-[#181a20] to-[#12141a]
+        border transition-all duration-300
+        ${homeWon || awayWon ? 'border-white/[0.06] hover:border-white/[0.12]' : 'border-white/[0.04] hover:border-white/[0.08]'}
+        ${isLive ? 'border-red-500/30' : ''}
+      `}>
+        {/* LIVE BorderBeam */}
+        {isLive && (
+          <BorderBeam size={120} duration={4} delay={0} colorFrom="#ef4444" colorTo="transparent" />
+        )}
+
+        {/* Main Scorecard Content */}
+        <div className="relative z-10 p-4 sm:p-5">
+          {/* Top Row: Matchday + Status */}
+          <div className="flex items-center justify-between mb-4">
+            <span className="text-[10px] font-bold text-muted-foreground/40 uppercase tracking-[0.2em] font-score">
+              {m.matchday ? `Matchday ${m.matchday}` : m.round === 'league' ? 'League' : toTitleCase(m.round || '')}
             </span>
-          )}
-        </div>
 
-        {/* Home Player */}
-        <PlayerRow player={h} isWinner={homeWon} isLoser={homeLost} isTbd={!h} />
-
-        {/* Center Score */}
-        <div className="flex items-center justify-center gap-6 py-1 relative">
-          {isCompleted || isLive ? (
-             <div className="flex items-center gap-4">
-               <motion.span key={`h-${m.homeScore}`} initial={{ scale: 1.2 }} animate={{ scale: 1 }} className={`text-2xl font-bold font-score ${homeWon ? 'text-green-600 dark:text-green-400' : isLive ? 'text-slate-900 dark:text-foreground' : 'text-slate-900 dark:text-foreground/70'}`}>
-                 {m.homeScore ?? 0}
-               </motion.span>
-               <span className="text-slate-300 dark:text-muted-foreground/40 font-medium text-sm">—</span>
-               <motion.span key={`a-${m.awayScore}`} initial={{ scale: 1.2 }} animate={{ scale: 1 }} className={`text-2xl font-bold font-score ${awayWon ? 'text-green-600 dark:text-green-400' : isLive ? 'text-slate-900 dark:text-foreground' : 'text-slate-900 dark:text-foreground/70'}`}>
-                 {m.awayScore ?? 0}
-               </motion.span>
-             </div>
-          ) : (
-             <span className="text-sm font-bold text-slate-400 dark:text-muted-foreground/30 uppercase tracking-widest">VS</span>
-          )}
-        </div>
-
-        {/* Away Player */}
-        <PlayerRow player={a} isWinner={awayWon} isLoser={awayLost} isTbd={!a} />
-        
-      </div>
-
-      {/* Expanded Stats Section */}
-      <AnimatePresence>
-        {isExpanded && hasStats && (
-          <motion.div
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: "auto", opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
-            transition={{ duration: 0.3, ease: "easeInOut" }}
-            className="overflow-hidden bg-slate-50 dark:bg-[#0a0c10] border-t border-slate-200 dark:border-border/30 shadow-[inset_0_5px_15px_rgba(0,0,0,0.03)] dark:shadow-[inset_0_5px_15px_rgba(0,0,0,0.4)]"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="p-4 sm:p-5 flex flex-col">
-              
-              {/* MOTM Spotlight */}
-              {m.stats.motm && m.stats.motm !== 'none' && (
+            <div className="flex items-center gap-2">
+              {isCompleted && hasStats && (
                 <motion.div 
-                  initial={{ opacity: 0, y: -10 }} 
-                  animate={{ opacity: 1, y: 0 }} 
-                  transition={{ delay: 0.3 }}
-                  className="mb-6 p-3 rounded-xl bg-gradient-to-r from-amber-500/10 via-amber-500/5 to-transparent border border-amber-500/20 flex items-center gap-3 relative overflow-hidden"
+                  animate={{ rotate: isExpanded ? 180 : 0 }} 
+                  transition={{ type: 'spring', stiffness: 300, damping: 20 }}
+                  className="text-muted-foreground/30 hover:text-muted-foreground/60 transition-colors bg-white/[0.03] rounded-lg p-1"
                 >
-                  <div className="absolute top-0 left-0 w-1 h-full bg-amber-500" />
-                  <div className="w-8 h-8 rounded-full bg-amber-500/20 flex items-center justify-center shrink-0 shadow-[0_0_10px_rgba(245,158,11,0.2)]">
-                    <Trophy size={14} className="text-amber-500" />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="text-[9px] uppercase tracking-wider text-amber-500/80 font-bold">Man of the Match</div>
-                    <div className="text-sm font-bold text-foreground truncate">
-                      {m.stats.motm === 'home' ? h?.name : a?.name}
-                    </div>
-                  </div>
-                  {m.stats.ratings && m.stats.ratings[m.stats.motm === 'home' ? 'a' : 'b'] && (
-                    <div className="text-sm font-bold text-amber-500 font-score shrink-0 pr-2">
-                      ⭐ {m.stats.ratings[m.stats.motm === 'home' ? 'a' : 'b']}
-                    </div>
-                  )}
+                  <ChevronDown size={14} />
                 </motion.div>
               )}
+              {isCompleted && !hasStats && (
+                <span className="text-[10px] font-bold text-muted-foreground/30 uppercase tracking-[0.15em] font-score bg-white/[0.03] px-2.5 py-1 rounded-lg">FT</span>
+              )}
+              {isLive && (
+                <motion.div 
+                  animate={{ opacity: [1, 0.5, 1] }} 
+                  transition={{ repeat: Infinity, duration: 1.5 }}
+                  className="flex items-center gap-1.5 bg-red-600/90 backdrop-blur-sm px-2.5 py-1 rounded-full shadow-[0_0_12px_rgba(220,38,38,0.6)]"
+                >
+                  <div className="w-1.5 h-1.5 rounded-full bg-white" />
+                  <span className="text-[9px] text-white font-bold tracking-[0.15em]">LIVE</span>
+                </motion.div>
+              )}
+              {!isCompleted && !isLive && !isTbd && (
+                <span className="text-[10px] font-bold text-muted-foreground/30 uppercase tracking-[0.15em] font-score bg-white/[0.03] px-2.5 py-1 rounded-lg">
+                  {formatKickoff(m.scheduledAt)}
+                </span>
+              )}
+            </div>
+          </div>
 
-              {/* Categorized Stats (or just split into two columns for wide screens) */}
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-x-8">
-                <div className="flex flex-col">
-                  {statDefinitions.slice(0, 7).map((def, i) => {
-                    const valA = m.stats[def.key]?.a ?? 0;
-                    const valB = m.stats[def.key]?.b ?? 0;
-                    return <StatBar key={def.key} index={i} label={def.label} valueA={valA} valueB={valB} format={def.format} />;
-                  })}
+          {/* Center Row: Player A — Score — Player B */}
+          <div className="flex items-center justify-between gap-2 sm:gap-4">
+            
+            {/* Home Player (Left) */}
+            <div className={`flex items-center gap-2.5 sm:gap-3 flex-1 min-w-0 ${homeWon ? '' : 'opacity-70'}`}>
+              {isTbd || !h ? (
+                <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-white/[0.04] animate-pulse shrink-0" />
+              ) : (
+                <div className="relative shrink-0">
+                  <Avatar p={h} size={48} className={`w-10 h-10 sm:w-12 sm:h-12 border-2 transition-colors ${homeWon ? 'border-emerald-500/50 shadow-[0_0_12px_rgba(16,185,129,0.2)]' : 'border-white/[0.06]'}`} />
+                  {homeWon && (
+                    <motion.div 
+                      initial={{ scale: 0, rotate: -45 }} 
+                      animate={{ scale: 1, rotate: 0 }} 
+                      transition={{ type: 'spring', stiffness: 400, damping: 15, delay: 0.2 }}
+                      className="absolute -top-1.5 -right-1.5"
+                    >
+                      <Trophy size={14} className="text-emerald-500 drop-shadow-[0_0_4px_rgba(16,185,129,0.6)]" />
+                    </motion.div>
+                  )}
                 </div>
-                <div className="flex flex-col">
-                  {statDefinitions.slice(7).map((def, i) => {
-                    const valA = m.stats[def.key]?.a ?? 0;
-                    const valB = m.stats[def.key]?.b ?? 0;
-                    return <StatBar key={def.key} index={i + 7} label={def.label} valueA={valA} valueB={valB} format={def.format} />;
-                  })}
-                </div>
+              )}
+              <div className="flex flex-col min-w-0">
+                <span className={`font-bold text-sm sm:text-[15px] truncate leading-tight ${homeWon ? 'text-foreground' : 'text-muted-foreground/60'}`} style={{ fontFamily: "'Sora', sans-serif" }}>
+                  {isTbd || !h ? 'TBD' : toTitleCase(h?.name)}
+                </span>
               </div>
             </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+
+            {/* Score Center */}
+            <div className="flex items-center gap-3 sm:gap-4 shrink-0 px-2 sm:px-4">
+              {isCompleted || isLive ? (
+                <>
+                  <motion.span 
+                    key={`h-${m.homeScore}`} 
+                    initial={{ scale: 1.3, opacity: 0 }} 
+                    animate={{ scale: 1, opacity: 1 }} 
+                    className={`text-2xl sm:text-3xl font-black font-score tabular-nums ${homeWon ? 'text-foreground' : 'text-muted-foreground/40'}`}
+                  >
+                    {m.homeScore ?? 0}
+                  </motion.span>
+                  <span className="text-muted-foreground/20 font-light text-lg">—</span>
+                  <motion.span 
+                    key={`a-${m.awayScore}`} 
+                    initial={{ scale: 1.3, opacity: 0 }} 
+                    animate={{ scale: 1, opacity: 1 }} 
+                    className={`text-2xl sm:text-3xl font-black font-score tabular-nums ${awayWon ? 'text-foreground' : 'text-muted-foreground/40'}`}
+                  >
+                    {m.awayScore ?? 0}
+                  </motion.span>
+                </>
+              ) : (
+                <span className="text-sm font-bold text-muted-foreground/20 uppercase tracking-[0.2em] font-score">VS</span>
+              )}
+            </div>
+
+            {/* Away Player (Right) */}
+            <div className={`flex items-center gap-2.5 sm:gap-3 flex-1 min-w-0 justify-end ${awayWon ? '' : 'opacity-70'}`}>
+              <div className="flex flex-col min-w-0 items-end">
+                <span className={`font-bold text-sm sm:text-[15px] truncate leading-tight text-right ${awayWon ? 'text-foreground' : 'text-muted-foreground/60'}`} style={{ fontFamily: "'Sora', sans-serif" }}>
+                  {isTbd || !a ? 'TBD' : toTitleCase(a?.name)}
+                </span>
+              </div>
+              {isTbd || !a ? (
+                <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-white/[0.04] animate-pulse shrink-0" />
+              ) : (
+                <div className="relative shrink-0">
+                  <Avatar p={a} size={48} className={`w-10 h-10 sm:w-12 sm:h-12 border-2 transition-colors ${awayWon ? 'border-emerald-500/50 shadow-[0_0_12px_rgba(16,185,129,0.2)]' : 'border-white/[0.06]'}`} />
+                  {awayWon && (
+                    <motion.div 
+                      initial={{ scale: 0, rotate: 45 }} 
+                      animate={{ scale: 1, rotate: 0 }} 
+                      transition={{ type: 'spring', stiffness: 400, damping: 15, delay: 0.2 }}
+                      className="absolute -top-1.5 -left-1.5"
+                    >
+                      <Trophy size={14} className="text-emerald-500 drop-shadow-[0_0_4px_rgba(16,185,129,0.6)]" />
+                    </motion.div>
+                  )}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* Expanded Stats Section */}
+        <AnimatePresence>
+          {isExpanded && hasStats && (
+            <motion.div
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: "auto", opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              transition={{ duration: 0.4, ease: [0.25, 0.46, 0.45, 0.94] }}
+              className="overflow-hidden"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {/* Animated Divider */}
+              <div className="relative h-[1px] mx-5">
+                <motion.div 
+                  className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent"
+                  initial={{ scaleX: 0 }}
+                  animate={{ scaleX: 1 }}
+                  transition={{ duration: 0.6, delay: 0.1 }}
+                />
+              </div>
+
+              <div className="p-5 sm:p-6">
+                {/* MOTM Spotlight */}
+                {m.stats.motm && m.stats.motm !== 'none' && (
+                  <motion.div 
+                    initial={{ opacity: 0, scale: 0.9 }} 
+                    animate={{ opacity: 1, scale: 1 }} 
+                    transition={{ delay: 0.2, type: 'spring', stiffness: 300 }}
+                    className="mb-6 p-3.5 rounded-xl bg-gradient-to-r from-amber-500/10 via-amber-500/5 to-transparent border border-amber-500/15 flex items-center gap-3 relative overflow-hidden"
+                  >
+                    <div className="absolute top-0 left-0 w-1 h-full bg-gradient-to-b from-amber-400 to-amber-600" />
+                    <motion.div 
+                      className="w-9 h-9 rounded-full bg-amber-500/15 flex items-center justify-center shrink-0 shadow-[0_0_15px_rgba(245,158,11,0.15)]"
+                      animate={{ rotate: [0, 5, -5, 0] }}
+                      transition={{ repeat: Infinity, duration: 3, ease: 'easeInOut' }}
+                    >
+                      <Star size={16} className="text-amber-500 fill-amber-500" />
+                    </motion.div>
+                    <div className="flex-1 min-w-0">
+                      <div className="text-[9px] uppercase tracking-[0.15em] text-amber-500/70 font-bold">Man of the Match</div>
+                      <div className="text-sm font-bold text-foreground truncate" style={{ fontFamily: "'Sora', sans-serif" }}>
+                        {m.stats.motm === 'home' ? h?.name : a?.name}
+                      </div>
+                    </div>
+                    {m.stats.ratings && m.stats.ratings[m.stats.motm === 'home' ? 'a' : 'b'] && (
+                      <motion.div 
+                        className="text-sm font-bold text-amber-400 font-score shrink-0 pr-2 drop-shadow-[0_0_6px_rgba(245,158,11,0.4)]"
+                        initial={{ scale: 0 }}
+                        animate={{ scale: 1 }}
+                        transition={{ delay: 0.4, type: 'spring', stiffness: 500 }}
+                      >
+                        ⭐ {m.stats.ratings[m.stats.motm === 'home' ? 'a' : 'b']}
+                      </motion.div>
+                    )}
+                  </motion.div>
+                )}
+
+                {/* Stats Grid with staggered animations */}
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-x-10">
+                  <div className="flex flex-col">
+                    {statDefinitions.slice(0, 7).map((def, i) => {
+                      const valA = m.stats[def.key]?.a ?? 0;
+                      const valB = m.stats[def.key]?.b ?? 0;
+                      return <StatBar key={def.key} index={i} label={def.label} valueA={valA} valueB={valB} format={def.format} />;
+                    })}
+                  </div>
+                  <div className="flex flex-col">
+                    {statDefinitions.slice(7).map((def, i) => {
+                      const valA = m.stats[def.key]?.a ?? 0;
+                      const valB = m.stats[def.key]?.b ?? 0;
+                      return <StatBar key={def.key} index={i + 7} label={def.label} valueA={valA} valueB={valB} format={def.format} />;
+                    })}
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
     </motion.div>
   );
 }
