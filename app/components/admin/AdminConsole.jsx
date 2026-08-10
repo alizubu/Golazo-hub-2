@@ -386,19 +386,23 @@ export function AdminMatches({ matches, activeSeason, players, showToast, setTab
 function AdminMatchControl({ m, players, showToast, setTab, isPlayoff = false }) {
   const byId = Object.fromEntries(players.map((p) => [p.id, p]));
   const h = byId[m.homeId], a = byId[m.awayId];
-  const [loading, setLoading] = useState(false);
   const [optHome, setOptHome] = useState(m.homeScore || 0);
   const [optAway, setOptAway] = useState(m.awayScore || 0);
+  const [optStatus, setOptStatus] = useState(m.status);
 
-  const [prevScores, setPrevScores] = useState({ home: m.homeScore, away: m.awayScore });
-  if (m.homeScore !== prevScores.home || m.awayScore !== prevScores.away) {
-    setPrevScores({ home: m.homeScore, away: m.awayScore });
+  const [prevScores, setPrevScores] = useState({ home: m.homeScore, away: m.awayScore, status: m.status });
+  if (m.homeScore !== prevScores.home || m.awayScore !== prevScores.away || m.status !== prevScores.status) {
+    setPrevScores({ home: m.homeScore, away: m.awayScore, status: m.status });
     setOptHome(m.homeScore || 0);
     setOptAway(m.awayScore || 0);
+    setOptStatus(m.status);
   }
 
   const update = async (data) => {
     setLoading(true);
+    if (data.status) setOptStatus(data.status);
+    if (data.homeScore !== undefined) setOptHome(data.homeScore);
+    if (data.awayScore !== undefined) setOptAway(data.awayScore);
     
     // Optimistically broadcast to all clients immediately
     const optMatch = { ...m, ...data };
@@ -411,6 +415,9 @@ function AdminMatchControl({ m, players, showToast, setTab, isPlayoff = false })
     const res = await updateMatchStatus(m.id, data);
     if (res.error) {
       showToast(res.error);
+      setOptStatus(m.status);
+      setOptHome(m.homeScore || 0);
+      setOptAway(m.awayScore || 0);
       // Revert broadcast on error
       supabase.channel('league-events').send({
         type: 'broadcast',
@@ -467,11 +474,11 @@ function AdminMatchControl({ m, players, showToast, setTab, isPlayoff = false })
   };
   const finishMatch = () => update({ status: "completed", liveState: null });
 
-  if (m.status === "completed") {
+  if (optStatus === "completed") {
     return <CompletedMatchCard m={m} h={h} a={a} players={players} showToast={showToast} isPlayoff={isPlayoff} />;
   }
 
-  if (m.status === "scheduled") {
+  if (optStatus === "scheduled") {
     const hFlagUrl = nationalTeamsData.find(nt => nt.name === h?.flag)?.flag_url;
     const aFlagUrl = nationalTeamsData.find(nt => nt.name === a?.flag)?.flag_url;
 
