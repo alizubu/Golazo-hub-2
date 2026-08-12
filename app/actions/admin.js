@@ -14,6 +14,8 @@ export async function createAnnouncement(data) {
         content: data.content,
       },
     });
+    revalidatePath('/');
+    revalidatePath('/admin');
     return { announcement };
   } catch (error) {
     return { error: 'Failed to create announcement.' };
@@ -25,6 +27,8 @@ export async function deleteAnnouncement(id) {
   if (!auth.authorized) return { error: auth.error };
   try {
     await prisma.announcement.delete({ where: { id } });
+    revalidatePath('/');
+    revalidatePath('/admin');
     return { success: true };
   } catch (error) {
     return { error: 'Failed to delete announcement.' };

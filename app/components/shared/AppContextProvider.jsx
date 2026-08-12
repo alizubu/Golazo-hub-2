@@ -4,6 +4,9 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabaseClient';
 import { AnimatePresence, motion } from 'framer-motion';
 import { ThemeProvider } from 'next-themes';
+import useSWR from 'swr';
+
+const fetcher = (url) => fetch(url).then((res) => res.json());
 
 const AppContext = createContext();
 
@@ -17,6 +20,37 @@ export function AppProvider({ children, initialMatches = [] }) {
     setPrevInitial(initialMatches);
     setMatches(initialMatches);
   }
+
+  // SWR Fallback Polling (Every 5 seconds)
+  const { data: liveData } = useSWR('/api/live', fetcher, { 
+    refreshInterval: 5000,
+    revalidateOnFocus: true,
+  });
+
+  useEffect(() => {
+    if (liveData?.matches) {
+      setMatches(prev => {
+        let updated = [...prev];
+        let hasChanges = false;
+        
+        liveData.matches.forEach(liveMatch => {
+          const idx = updated.findIndex(m => m.id === liveMatch.id);
+          if (idx !== -1) {
+            // Simple stringify comparison to avoid unnecessary re-renders
+            if (JSON.stringify(updated[idx]) !== JSON.stringify(liveMatch)) {
+              updated[idx] = { ...updated[idx], ...liveMatch };
+              hasChanges = true;
+            }
+          } else {
+            updated.push(liveMatch);
+            hasChanges = true;
+          }
+        });
+        
+        return hasChanges ? updated : prev;
+      });
+    }
+  }, [liveData]);
 
   useEffect(() => {
     const channel = supabase.channel('league-events')

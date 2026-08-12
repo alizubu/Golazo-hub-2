@@ -246,6 +246,8 @@ export async function updateMatchStatus(matchId, data) {
     }
 
     broadcastEvent('match_update', match);
+    revalidatePath('/');
+    revalidatePath('/admin');
     return { match };
   } catch (error) {
     return { error: 'Failed to update match status' };
