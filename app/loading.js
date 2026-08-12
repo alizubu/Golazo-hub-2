@@ -1,58 +1,98 @@
 'use client';
 
 import React from 'react';
-import { Trophy, Activity, Zap } from 'lucide-react';
+import { Hexagon, Sparkles } from 'lucide-react';
+import { motion } from 'framer-motion';
 
 export default function GlobalLoading() {
   return (
-    <div className="fixed inset-0 z-[9999] bg-[#f0f9ff] dark:bg-[#050505] flex flex-col items-center justify-center overflow-hidden transition-colors duration-700">
+    <div className="fixed inset-0 z-[9999] bg-[#020202] flex flex-col items-center justify-center overflow-hidden">
       
-      {/* Dark Mode Specific Background Effects */}
-      <div className="absolute inset-0 hidden dark:block">
-        {/* Deep grid lines */}
-        <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.03)_1px,transparent_1px)] bg-[size:40px_40px] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_50%,#000_20%,transparent_100%)]" />
-        
-        {/* Radar sweeping effect */}
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full border border-amber-500/10 animate-[ping_4s_linear_infinite]" />
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[400px] h-[400px] rounded-full border border-amber-500/20" />
-        <div className="absolute top-1/2 left-1/2 w-[300px] h-[300px] origin-top-left animate-[spin_3s_linear_infinite] bg-gradient-to-br from-amber-500/10 to-transparent blur-3xl" />
-        
-        {/* Vignette */}
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_0%,#050505_100%)]" />
+      {/* ─── STADIUM FLOODLIGHTS (Cinematic Sweeping Beams) ─── */}
+      <div className="absolute inset-0 pointer-events-none overflow-hidden flex justify-center">
+        {/* Left Floodlight */}
+        <motion.div 
+          className="absolute -top-32 -left-32 w-[300px] h-[150vh] bg-gradient-to-b from-amber-200/20 via-amber-500/5 to-transparent blur-[80px] origin-top"
+          animate={{ rotate: [-20, 10, -20], opacity: [0.3, 0.7, 0.3] }}
+          transition={{ duration: 6, ease: "easeInOut", repeat: Infinity }}
+        />
+        {/* Right Floodlight */}
+        <motion.div 
+          className="absolute -top-32 -right-32 w-[300px] h-[150vh] bg-gradient-to-b from-amber-200/20 via-amber-500/5 to-transparent blur-[80px] origin-top"
+          animate={{ rotate: [20, -10, 20], opacity: [0.5, 0.8, 0.5] }}
+          transition={{ duration: 7, ease: "easeInOut", repeat: Infinity, delay: 1 }}
+        />
+        {/* Center Spotlight */}
+        <motion.div 
+          className="absolute -top-10 w-[400px] h-[100vh] bg-gradient-to-b from-white/10 via-amber-500/10 to-transparent blur-[100px]"
+          animate={{ opacity: [0.2, 0.5, 0.2] }}
+          transition={{ duration: 4, ease: "easeInOut", repeat: Infinity }}
+        />
       </div>
 
-      {/* Light Mode Specific Background Effects */}
-      <div className="absolute inset-0 dark:hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-[#f0f9ff] via-white to-[#dcfce7]" />
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_60%_50%_at_50%_50%,rgba(41,193,121,0.25)_0%,transparent_100%)] pointer-events-none" />
-      </div>
+      {/* ─── AMBIENT PITCH GRID ─── */}
+      <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:60px_60px] [mask-image:radial-gradient(ellipse_70%_70%_at_50%_50%,#000_10%,transparent_100%)]" />
 
-      {/* Central Loader */}
+      {/* ─── 3D WIREFRAME BALL ─── */}
       <div className="relative z-10 flex flex-col items-center">
         <div className="relative w-32 h-32 flex items-center justify-center">
-          {/* Hexagon rotating */}
-          <div className="absolute inset-0 border-2 border-emerald-500/30 dark:border-amber-500/30 rounded-3xl rotate-45 animate-[spin_8s_linear_infinite]" />
-          <div className="absolute inset-2 border-2 border-dashed border-emerald-500/50 dark:border-amber-500/50 rounded-2xl -rotate-45 animate-[spin_6s_linear_infinite_reverse]" />
           
-          <div className="relative bg-white/50 dark:bg-black/50 backdrop-blur-xl border border-white/40 dark:border-white/10 p-5 rounded-2xl shadow-[0_0_40px_rgba(16,185,129,0.3)] dark:shadow-[0_0_50px_rgba(245,158,11,0.25)]">
-            <Trophy className="text-emerald-600 dark:text-amber-500 w-12 h-12 animate-pulse" />
-          </div>
+          {/* Outer Orbit */}
+          <motion.div 
+            className="absolute inset-0 border border-amber-500/30 rounded-full"
+            animate={{ rotateX: [0, 360], rotateY: [0, 360] }}
+            transition={{ duration: 8, ease: "linear", repeat: Infinity }}
+            style={{ transformStyle: "preserve-3d" }}
+          />
+          
+          {/* Inner Orbit (Dashed) */}
+          <motion.div 
+            className="absolute inset-2 border-2 border-dashed border-amber-500/40 rounded-full"
+            animate={{ rotateX: [360, 0], rotateZ: [0, 360] }}
+            transition={{ duration: 6, ease: "linear", repeat: Infinity }}
+            style={{ transformStyle: "preserve-3d" }}
+          />
+
+          {/* The Core Hexagon (Football panel) */}
+          <motion.div 
+            className="relative bg-black/50 backdrop-blur-md p-4 rounded-full shadow-[0_0_50px_rgba(245,158,11,0.4)] border border-amber-500/20"
+            animate={{ scale: [1, 1.1, 1] }}
+            transition={{ duration: 2, ease: "easeInOut", repeat: Infinity }}
+          >
+            <Hexagon className="text-amber-500 w-10 h-10" strokeWidth={1.5} />
+            <Sparkles className="absolute top-2 right-2 text-white/50 w-3 h-3 animate-ping" />
+          </motion.div>
         </div>
 
-        <div className="mt-10 flex flex-col items-center gap-3">
-          <h2 className="text-xl font-black tracking-[0.3em] uppercase text-slate-800 dark:text-white flex items-center gap-2">
-            <Activity className="w-5 h-5 text-emerald-500 dark:text-amber-500 animate-pulse" />
-            Golazo Hub
-            <Zap className="w-5 h-5 text-emerald-500 dark:text-amber-500 animate-pulse" />
-          </h2>
+        {/* ─── TYPOGRAPHY ─── */}
+        <div className="mt-12 flex flex-col items-center gap-4">
+          <motion.div 
+            className="flex items-center gap-3 text-2xl font-black tracking-[0.4em] text-white/90 drop-shadow-[0_0_10px_rgba(255,255,255,0.3)]"
+          >
+            {['G','O','L','A','Z','O'].map((letter, i) => (
+              <motion.span 
+                key={i}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: i * 0.1, repeat: Infinity, repeatDelay: 3 }}
+              >
+                {letter}
+              </motion.span>
+            ))}
+          </motion.div>
           
-          {/* Cyberpunk Loading Bar for dark mode */}
-          <div className="w-48 h-1.5 mt-2 bg-slate-200 dark:bg-slate-800/80 rounded-full overflow-hidden relative shadow-inner">
-            <div className="absolute inset-y-0 left-0 bg-emerald-500 dark:bg-amber-500 w-[40%] rounded-full animate-[ping_1.5s_ease-in-out_infinite] opacity-50" />
-            <div className="absolute inset-y-0 left-0 bg-gradient-to-r from-emerald-400 to-emerald-600 dark:from-amber-400 dark:to-orange-500 w-[60%] rounded-full animate-[pulse_1s_ease-in-out_infinite] shadow-[0_0_10px_rgba(245,158,11,0.8)]" />
+          {/* ─── THE BURNING FUSE PROGRESS BAR ─── */}
+          <div className="w-64 h-1 bg-white/5 rounded-full relative overflow-hidden mt-2">
+            <motion.div 
+              className="absolute top-0 left-0 h-full bg-gradient-to-r from-amber-600 via-amber-400 to-white shadow-[0_0_20px_rgba(245,158,11,1)]"
+              initial={{ width: "0%", x: "-100%" }}
+              animate={{ width: "50%", x: "200%" }}
+              transition={{ duration: 1.5, ease: "easeInOut", repeat: Infinity }}
+            />
           </div>
         </div>
       </div>
+
     </div>
   );
 }
