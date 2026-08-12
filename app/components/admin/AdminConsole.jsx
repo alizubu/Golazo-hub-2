@@ -1529,7 +1529,6 @@ export function AdminAnnouncements({ announcements, showToast }) {
 
 
 export function AdminSeason({ activeSeason, seasons = [], matches = [], players = [], showToast, setTab }) {
-  const [viewMode, setViewMode] = useState('active');
   const [name, setName] = useState("");
   const [seasonType, setSeasonType] = useState("League (Single)");
   const [startDate, setStartDate] = useState(() => new Date().toISOString().split('T')[0]);
@@ -1648,33 +1647,7 @@ export function AdminSeason({ activeSeason, seasons = [], matches = [], players 
     setLoading(false);
   };
 
-  const toggleUI = (
-    <div className="flex justify-center mb-6 w-full relative z-10 animate-in fade-in slide-in-from-top-4 duration-500">
-      <div className="inline-flex bg-secondary/30 p-1.5 rounded-2xl border border-border/50 shadow-sm">
-        <button 
-          onClick={() => setViewMode('active')} 
-          className={`px-6 md:px-8 py-2 md:py-2.5 rounded-xl text-sm font-bold transition-all duration-300 ${viewMode === 'active' ? 'bg-pitch text-background shadow-md' : 'text-muted-foreground hover:text-foreground'}`}
-        >
-          Active Season
-        </button>
-        <button 
-          onClick={() => setViewMode('archived')} 
-          className={`px-6 md:px-8 py-2 md:py-2.5 rounded-xl text-sm font-bold transition-all duration-300 ${viewMode === 'archived' ? 'bg-amber-500 text-background shadow-[0_0_15px_rgba(245,158,11,0.4)]' : 'text-muted-foreground hover:text-amber-500/80'}`}
-        >
-          Archived Seasons
-        </button>
-      </div>
-    </div>
-  );
 
-  if (viewMode === 'archived') {
-    return (
-      <div className="flex flex-col w-full h-full">
-        {toggleUI}
-        <AdminHistory seasons={seasons} matches={matches} players={players} showToast={showToast} />
-      </div>
-    );
-  }
 
   if (!activeSeason) {
     const formats = [
@@ -1696,7 +1669,6 @@ export function AdminSeason({ activeSeason, seasons = [], matches = [], players 
     
     return (
       <div className="flex flex-col w-full h-full">
-        {toggleUI}
         <Card className="flex flex-col md:flex-row overflow-hidden border-pitch-bright/20 shadow-2xl">
         <div className="md:w-1/3 bg-gradient-to-br from-pitch-dark to-pitch p-8 flex flex-col justify-center items-center text-center border-b md:border-b-0 md:border-r border-border/50">
           <div className="relative">
@@ -1894,8 +1866,6 @@ export function AdminSeason({ activeSeason, seasons = [], matches = [], players 
 
   return (
     <div className="flex flex-col w-full h-full gap-6">
-      {toggleUI}
-
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <MagicCard className="p-5 flex flex-col items-center justify-center gap-3 hover:bg-secondary/80 cursor-pointer transition-colors group" onClick={!hasFixtures ? handleGenerateFixtures : () => showToast("Fixtures already exist")}>
           <div className={`p-3 rounded-full ${!hasFixtures ? 'bg-gold/20 text-gold' : 'bg-secondary text-muted-foreground opacity-50'}`}>

@@ -12,6 +12,7 @@ import AdminSidebar from '@/app/components/admin/AdminSidebar';
 import AdminTopBar from '@/app/components/admin/AdminTopBar';
 import PlayerProfileDrawer from '@/app/components/user/PlayerProfileDrawer';
 import AdminBroadcast from '@/app/components/admin/AdminBroadcast';
+import AdminHistory from '@/app/components/admin/AdminHistory';
 
 export default function AppShell({ 
   initialTab, 
@@ -184,6 +185,8 @@ export default function AppShell({
                 )
               ) : currentTab === 'admin/settings' ? (
                 <div className="pt-2"><AdminSettings {...adminProps} /></div>
+              ) : currentTab === 'admin/history' ? (
+                <div className="pt-2"><AdminHistory {...adminProps} /></div>
               ) : (
                 <AdminOverviewDashboard {...adminProps} />
               )}
