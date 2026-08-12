@@ -350,8 +350,8 @@ export function PlayerDashboard({ me, activeSeason, seasons = [], matches, playe
               </motion.div>
             </div>
             
-            {/* Glassmorphic Overlay Header (Floats at bottom of cover) */}
-            <div className="absolute bottom-0 left-0 right-0 bg-background/40 backdrop-blur-md border-t border-white/10 px-6 py-4 flex flex-col md:flex-row items-center justify-between gap-4 z-20">
+            {/* Gradient Overlay Header (Floats at bottom of cover) */}
+            <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent pt-16 px-6 py-4 flex flex-col md:flex-row items-center justify-between gap-4 z-20">
               {/* Left: Identity */}
               <div className="flex items-center gap-5 w-full md:w-auto">
                 <div className="relative -mt-16 shrink-0">
@@ -370,13 +370,13 @@ export function PlayerDashboard({ me, activeSeason, seasons = [], matches, playe
                 </div>
                 <div className="flex flex-col min-w-0">
                   <div className="flex items-center gap-2">
-                    <h1 className="text-2xl md:text-3xl font-black font-heading tracking-tight truncate text-white drop-shadow-md">
+                    <h1 className="text-2xl md:text-3xl font-black font-heading tracking-tight truncate text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">
                       {me.name}
                     </h1>
                     {myRank === 1 && <BadgeCheck size={20} className="text-blue-400 shrink-0 drop-shadow-md" title="Top Ranked Player" />}
                   </div>
                   <div className="flex items-center gap-2 mt-0.5">
-                    <span className="text-white/70 font-score text-sm drop-shadow-sm">@{me.username}</span>
+                    <span className="text-white/80 font-score text-sm drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)] font-medium">@{me.username}</span>
                     <PlayStyleBadge style={me.playStyle} showLabel={false} size="sm" />
                   </div>
                 </div>
@@ -492,23 +492,23 @@ export function PlayerDashboard({ me, activeSeason, seasons = [], matches, playe
               {/* Club Top Half */}
               <div className="flex-1 p-5 flex items-center gap-4 border-b border-border/50 relative overflow-hidden bg-secondary/20">
                 <div className="absolute right-0 top-0 bottom-0 w-32 bg-gradient-to-l from-current opacity-5" style={{ color: selectedClub && CLUB_COLORS[selectedClub.name] ? CLUB_COLORS[selectedClub.name].primary : 'transparent' }} />
-                <div className="shrink-0 bg-background p-2 rounded-xl border border-border shadow-sm z-10">
-                  {selectedClub ? <ClubLogo club={selectedClub} size={32} /> : <Shield size={32} className="text-muted-foreground opacity-30" />}
+                <div className="shrink-0 bg-background/50 backdrop-blur p-2 rounded-xl border border-border shadow-sm z-10">
+                  {selectedClub ? <ClubLogo club={selectedClub} size={48} /> : <Shield size={48} className="text-muted-foreground opacity-30" />}
                 </div>
                 <div className="flex flex-col z-10">
-                  <span className="text-[9px] uppercase font-bold text-muted-foreground tracking-widest mb-0.5">Favorite Club</span>
-                  <span className="text-sm font-black truncate">{selectedClub ? selectedClub.name : 'Not set'}</span>
+                  <span className="text-[10px] uppercase font-bold text-muted-foreground tracking-widest mb-0.5">Favorite Club</span>
+                  <span className="text-lg font-black truncate">{selectedClub ? selectedClub.name : 'Not set'}</span>
                 </div>
               </div>
               {/* Nation Bottom Half */}
               <div className="flex-1 p-5 flex items-center gap-4 relative overflow-hidden bg-secondary/10">
                 <div className="absolute right-0 top-0 bottom-0 w-32 bg-gradient-to-l from-gold opacity-5" />
-                <div className="shrink-0 bg-background p-2 rounded-xl border border-border shadow-sm z-10">
-                  {selectedNationalTeam ? <WavingFlag url={selectedNationalTeam.flag_url} size="md" /> : <WavingFlag code="UN" size="md" />}
+                <div className="shrink-0 bg-background/50 backdrop-blur p-2 rounded-xl border border-border shadow-sm z-10">
+                  {selectedNationalTeam ? <WavingFlag url={selectedNationalTeam.flag_url} size="lg" /> : <WavingFlag code="UN" size="lg" />}
                 </div>
                 <div className="flex flex-col z-10">
-                  <span className="text-[9px] uppercase font-bold text-muted-foreground tracking-widest mb-0.5">National Team</span>
-                  <span className="text-sm font-black truncate">{selectedNationalTeam ? selectedNationalTeam.name : 'Not set'}</span>
+                  <span className="text-[10px] uppercase font-bold text-muted-foreground tracking-widest mb-0.5">National Team</span>
+                  <span className="text-lg font-black truncate">{selectedNationalTeam ? selectedNationalTeam.name : 'Not set'}</span>
                 </div>
               </div>
             </motion.div>

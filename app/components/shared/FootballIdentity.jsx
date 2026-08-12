@@ -31,7 +31,7 @@ function ItemIcon({ item, isClub }) {
   if (isClub) {
     return <ClubLogo club={item} size={24} />;
   }
-  return <div className="shrink-0"><WavingFlag code={item.isoCode} size="sm" /></div>;
+  return <div className="shrink-0"><WavingFlag url={item.flag_url} size="sm" /></div>;
 }
 
 export function TeamCombobox({ type, selectedValue, onSelect }) {
@@ -43,9 +43,7 @@ export function TeamCombobox({ type, selectedValue, onSelect }) {
   const emptyText = isClub ? "No clubs found." : "No teams found.";
   const addLabel = isClub ? "Add favorite club" : "Add national team";
 
-  const selectedItem = data.find(item => 
-    isClub ? item.name === selectedValue : item.isoCode === selectedValue
-  );
+  const selectedItem = data.find(item => item.name === selectedValue);
 
   const groups = React.useMemo(() => {
     const map = new Map();
@@ -81,7 +79,7 @@ export function TeamCombobox({ type, selectedValue, onSelect }) {
                     key={item.id}
                     value={item.name}
                     onSelect={() => {
-                      onSelect(isClub ? item.name : item.isoCode);
+                      onSelect(item.name);
                       setOpen(false);
                     }}
                     style={{ '--club-color': clubPrimary }}
@@ -94,7 +92,7 @@ export function TeamCombobox({ type, selectedValue, onSelect }) {
                     <Check
                       className={cn(
                         "h-4 w-4 shrink-0 transition-opacity",
-                        (isClub ? item.name === selectedValue : item.isoCode === selectedValue) ? "opacity-100 text-[color:var(--club-color)]" : "opacity-0"
+                        item.name === selectedValue ? "opacity-100 text-[color:var(--club-color)]" : "opacity-0"
                       )}
                     />
                   </CommandItem>
@@ -120,22 +118,18 @@ export function TeamCombobox({ type, selectedValue, onSelect }) {
           </div>
         </div>
         <div className="flex items-center gap-2">
-          <Button variant="ghost" size="sm" onClick={() => setOpen(true)} className="h-8 text-xs font-semibold px-3">
-            Change
-          </Button>
+          <Popover open={open} onOpenChange={setOpen}>
+            <PopoverTrigger asChild>
+              <Button variant="ghost" size="sm" className="h-8 text-xs font-semibold px-3">
+                Change
+              </Button>
+            </PopoverTrigger>
+            {renderPopoverContent()}
+          </Popover>
           <Button variant="ghost" size="icon" onClick={() => onSelect(null)} className="h-8 w-8 text-muted-foreground hover:text-destructive">
             <X size={14} />
           </Button>
         </div>
-
-        {open && (
-          <Popover open={open} onOpenChange={setOpen}>
-            <PopoverTrigger asChild>
-               <div className="hidden"></div>
-            </PopoverTrigger>
-            {renderPopoverContent()}
-          </Popover>
-        )}
       </div>
     );
   }
@@ -209,13 +203,15 @@ export function AvatarWithBadge({ player, size = 100, isOnFire = false }) {
       badgeIcon = <ClubLogo club={club} size={48} className="scale-[0.8]" />;
     }
   } else if (badgePref === 'nation' && player.flag) {
-    badgeIcon = <div className="w-[120%] h-[120%]"><WavingFlag code={player.flag} size="md" className="!w-full !h-full rounded-full" /></div>;
+    const nt = NATIONAL_TEAMS.find(n => n.name === player.flag);
+    badgeIcon = <div className="w-[120%] h-[120%]"><WavingFlag url={nt?.flag_url} size="md" className="!w-full !h-full rounded-full" /></div>;
   }
 
   // Fallback
   if (!badgeIcon) {
     if (badgePref === 'club' && player.flag) {
-        badgeIcon = <div className="w-[120%] h-[120%]"><WavingFlag code={player.flag} size="md" className="!w-full !h-full rounded-full" /></div>;
+        const nt = NATIONAL_TEAMS.find(n => n.name === player.flag);
+        badgeIcon = <div className="w-[120%] h-[120%]"><WavingFlag url={nt?.flag_url} size="md" className="!w-full !h-full rounded-full" /></div>;
     } else if (badgePref === 'nation' && player.favoriteClub) {
         const club = CLUBS.find(c => c.name === player.favoriteClub);
         if (club) {
