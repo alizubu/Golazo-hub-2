@@ -3,7 +3,8 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Trophy, Info, TrendingUp, TrendingDown, Minus, Medal } from 'lucide-react';
-import { Avatar, PageHeader } from '@/app/components/shared/UI';
+import { Avatar } from '@/app/components/shared/UI';
+import { PageHeader } from '@/app/components/shared/PageHeader';
 import { PlayStyleBadge } from '@/app/components/shared/UI';
 
 export default function PlayerRankingView({ players, matches, setTab }) {

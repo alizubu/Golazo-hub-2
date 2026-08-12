@@ -1,3 +1,4 @@
+import {
   Home, Calendar, Users, History as HistoryIcon, Star, Bell,
   Trophy, Megaphone, TrendingUp
 } from 'lucide-react';
