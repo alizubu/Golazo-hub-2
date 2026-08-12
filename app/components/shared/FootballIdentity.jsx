@@ -31,7 +31,7 @@ function ItemIcon({ item, isClub }) {
   if (isClub) {
     return <ClubLogo club={item} size={24} />;
   }
-  return <div className="shrink-0"><WavingFlag url={item.flag_url} size="sm" /></div>;
+  return <div className="shrink-0"><WavingFlag code={item.isoCode} size="sm" /></div>;
 }
 
 export function TeamCombobox({ type, selectedValue, onSelect }) {
@@ -57,7 +57,7 @@ export function TeamCombobox({ type, selectedValue, onSelect }) {
 
   const renderPopoverContent = () => (
     <PopoverContent 
-      className="w-[300px] sm:w-[350px] p-0 max-md:fixed max-md:inset-0 max-md:w-screen max-md:h-screen max-md:max-w-none max-md:border-none max-md:rounded-none max-md:bg-background max-md:z-[100] max-md:flex max-md:flex-col shadow-2xl" 
+      className="w-[300px] sm:w-[350px] p-0 bg-card border border-border shadow-2xl max-md:fixed max-md:inset-0 max-md:w-screen max-md:h-screen max-md:max-w-none max-md:border-none max-md:rounded-none max-md:bg-background max-md:z-[100] max-md:flex max-md:flex-col" 
       align="start" 
       sideOffset={10}
     >
@@ -204,14 +204,14 @@ export function AvatarWithBadge({ player, size = 100, isOnFire = false }) {
     }
   } else if (badgePref === 'nation' && player.flag) {
     const nt = NATIONAL_TEAMS.find(n => n.name === player.flag);
-    badgeIcon = <div className="w-[120%] h-[120%]"><WavingFlag url={nt?.flag_url} size="md" className="!w-full !h-full rounded-full" /></div>;
+    if (nt) badgeIcon = <div className="w-[120%] h-[120%]"><WavingFlag code={nt.isoCode} size="md" className="!w-full !h-full rounded-full" /></div>;
   }
 
   // Fallback
   if (!badgeIcon) {
     if (badgePref === 'club' && player.flag) {
         const nt = NATIONAL_TEAMS.find(n => n.name === player.flag);
-        badgeIcon = <div className="w-[120%] h-[120%]"><WavingFlag url={nt?.flag_url} size="md" className="!w-full !h-full rounded-full" /></div>;
+        if (nt) badgeIcon = <div className="w-[120%] h-[120%]"><WavingFlag code={nt.isoCode} size="md" className="!w-full !h-full rounded-full" /></div>;
     } else if (badgePref === 'nation' && player.favoriteClub) {
         const club = CLUBS.find(c => c.name === player.favoriteClub);
         if (club) {

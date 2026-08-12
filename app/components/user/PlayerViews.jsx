@@ -504,7 +504,7 @@ export function PlayerDashboard({ me, activeSeason, seasons = [], matches, playe
               <div className="flex-1 p-5 flex items-center gap-4 relative overflow-hidden bg-secondary/10">
                 <div className="absolute right-0 top-0 bottom-0 w-32 bg-gradient-to-l from-gold opacity-5" />
                 <div className="shrink-0 bg-background/50 backdrop-blur p-2 rounded-xl border border-border shadow-sm z-10">
-                  {selectedNationalTeam ? <WavingFlag url={selectedNationalTeam.flag_url} size="lg" /> : <WavingFlag code="UN" size="lg" />}
+                  {selectedNationalTeam ? <WavingFlag code={selectedNationalTeam.isoCode} size="lg" /> : <WavingFlag code="UN" size="lg" />}
                 </div>
                 <div className="flex flex-col z-10">
                   <span className="text-[10px] uppercase font-bold text-muted-foreground tracking-widest mb-0.5">National Team</span>
