@@ -10,15 +10,13 @@ import { Label, Btn } from '@/app/components/shared/UI';
 import dynamic from 'next/dynamic';
 
 import { TeamCombobox, DisplayBadgeToggle, AvatarWithBadge, KitCard } from '@/app/components/shared/FootballIdentity';
-import AvatarUpload from '@/app/components/shared/AvatarUpload';
+import ProfileIdCard from '@/app/components/shared/ProfileIdCard';
 import { ClubLogo } from '@/app/components/shared/ClubLogo';
 import { WavingFlag } from '@/app/components/shared/UI';
 import { MagicCard } from '@/app/components/magicui/MagicCard';
 import { Card, CardContent, CardHeader, CardTitle } from '@/app/components/ui/card';
 import { Input } from '@/app/components/ui/input';
-import { Textarea } from '@/app/components/ui/textarea';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/app/components/ui/tabs';
-import { Progress } from '@/app/components/ui/progress';
 import { updatePlayerProfile, changePlayerPassword } from '@/app/actions/player';
 import { clearAuthCookie } from '@/app/actions/auth';
 import { updateAppTheme } from '@/pwa/components/AppThemeProvider';
@@ -51,7 +49,6 @@ export default function SettingsView({ me, showToast }) {
   const [showPwd2, setShowPwd2] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [pwdError, setPwdError] = useState(false);
-  const [coverFailedUrl, setCoverFailedUrl] = useState(null);
   const [appTheme, setAppTheme] = useState('default');
   const [pushEnabled, setPushEnabled] = useState(false);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
@@ -162,60 +159,6 @@ export default function SettingsView({ me, showToast }) {
     else { showToast("Password updated ✓"); setPwd(""); setPwd2(""); }
   };
 
-  const handleCoverUpload = async (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      setCoverUploading(true);
-      setCoverProgress(0);
-      
-      const interval = setInterval(() => {
-        setCoverProgress(prev => (prev >= 90 ? 90 : prev + 15));
-      }, 100);
-
-      try {
-        const base64String = await new Promise((resolve, reject) => {
-          const reader = new FileReader();
-          reader.readAsDataURL(file);
-          reader.onload = (event) => {
-            const img = new Image();
-            img.src = event.target.result;
-            img.onload = () => {
-              const canvas = document.createElement('canvas');
-              const MAX_WIDTH = 1200;
-              const MAX_HEIGHT = 400;
-              let width = img.width;
-              let height = img.height;
-              if (width > height) {
-                if (width > MAX_WIDTH) { height = Math.round((height *= MAX_WIDTH / width)); width = MAX_WIDTH; }
-              } else {
-                if (height > MAX_HEIGHT) { width = Math.round((width *= MAX_HEIGHT / height)); height = MAX_HEIGHT; }
-              }
-              canvas.width = width;
-              canvas.height = height;
-              const ctx = canvas.getContext('2d');
-              ctx.drawImage(img, 0, 0, width, height);
-              resolve(canvas.toDataURL('image/jpeg', 0.8));
-            };
-            img.onerror = (err) => reject(err);
-          };
-          reader.onerror = (err) => reject(err);
-        });
-
-        clearInterval(interval);
-        setCoverProgress(100);
-        
-        const updateRes = await updatePlayerProfile(me.id, { coverBanner: base64String });
-        if (updateRes.error) throw new Error(updateRes.error);
-        
-        setForm({ ...form, coverBanner: base64String });
-      } catch (err) {
-        clearInterval(interval);
-        showToast(err.message || 'Cover upload failed');
-      } finally {
-        setTimeout(() => setCoverUploading(false), 500);
-      }
-    }
-  };
 
   const getPwdStrength = () => {
     if (!pwd) return 0;
@@ -245,85 +188,9 @@ export default function SettingsView({ me, showToast }) {
           <TabsTrigger value="preferences">Preferences</TabsTrigger>
         </TabsList>
 
-        <TabsContent value="profile" className="space-y-6">
-          <MagicCard>
-            <Card className="bg-transparent border-none shadow-none">
-              <CardHeader className="pb-4 border-b border-border/30">
-                <CardTitle className="text-lg flex items-center gap-2"><CheckCircle2 className="text-pitch-bright" size={18}/> Personal Information</CardTitle>
-              </CardHeader>
-              <CardContent className="pt-6 flex flex-col gap-8">
-                
-                <div className="flex flex-col md:flex-row gap-8 items-start">
-                  <div className="flex flex-col items-center gap-2">
-                    <Label className="mb-1 text-sm opacity-70">Avatar</Label>
-                    <AvatarUpload me={me} form={form} setForm={setForm} showToast={showToast} />
-                    <div className="flex items-center justify-center gap-4 mt-3">
-                      {form.favoriteClub && (
-                         <div className="flex items-center gap-2 px-3 py-1.5 bg-secondary/30 rounded-xl border border-border/30 shadow-sm backdrop-blur-sm">
-                           <ClubLogo club={form.favoriteClub} size={24} />
-                           <span className="text-xs font-bold text-foreground/80">{form.favoriteClub.name}</span>
-                         </div>
-                       )}
-                       {form.flag && (
-                         <div className="flex items-center gap-2 px-3 py-1.5 bg-secondary/30 rounded-xl border border-border/30 shadow-sm backdrop-blur-sm">
-                           <WavingFlag code={form.flag} size="md" />
-                           <span className="text-xs font-bold text-foreground/80">National Team</span>
-                         </div>
-                       )}
-                    </div>
-                  </div>
+        <TabsContent value="profile" className="space-y-8">
+          <ProfileIdCard me={me} form={form} setForm={setForm} showToast={showToast} />
 
-                  <div className="flex-1 w-full space-y-4">
-                    <div className="space-y-1.5">
-                      <Label className="text-xs opacity-70">Cover Photo</Label>
-                      <div className="relative h-32 w-full rounded-xl overflow-hidden bg-secondary/50 border border-dashed border-border/50 group flex items-center justify-center">
-                        {form.coverBanner && coverFailedUrl !== form.coverBanner ? (
-                          <Image src={form.coverBanner} alt="Cover Banner" fill className="object-cover" onError={() => setCoverFailedUrl(form.coverBanner)} />
-                        ) : (
-                          <div className="text-xs text-muted-foreground">No cover photo set</div>
-                        )}
-                        
-                        <div className="absolute inset-0 bg-secondary/70 dark:bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center z-10 backdrop-blur-sm">
-                          {coverUploading ? (
-                            <div className="w-3/4 flex flex-col items-center gap-2">
-                              <Progress value={coverProgress} className="h-2 w-full bg-secondary" />
-                              <span className="text-[10px] text-foreground font-bold">{coverProgress}%</span>
-                            </div>
-                          ) : (
-                            <Btn variant="secondary" onClick={() => fileInputRef.current?.click()} className="flex items-center gap-2 font-semibold">
-                              <Camera size={16} /> {form.coverBanner ? 'Change Cover' : 'Upload Cover'}
-                            </Btn>
-                          )}
-                        </div>
-                        <input type="file" ref={fileInputRef} accept="image/*" className="hidden" onChange={handleCoverUpload} />
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                  <div className="space-y-2">
-                    <Label className="text-sm">Display Name</Label>
-                    <Input value={form.name} onChange={e => setForm({...form, name: e.target.value})} className="h-12 text-lg focus-visible:ring-pitch-bright bg-background/50 shadow-sm" />
-                  </div>
-                  <div className="space-y-2">
-                    <Label className="text-sm">Username</Label>
-                    <Input value={me.username} disabled className="h-12 text-lg opacity-50 cursor-not-allowed font-score bg-secondary/30 shadow-sm" />
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                  <div className="space-y-1.5">
-                    <div className="flex justify-between">
-                      <Label>Bio</Label>
-                      <span className="text-[10px] text-muted-foreground">{form.bio.length}/150</span>
-                    </div>
-                    <Textarea value={form.bio} onChange={e => setForm({...form, bio: e.target.value.substring(0, 150)})} placeholder="Tell us about your playstyle..." className="min-h-[100px] resize-none focus-visible:ring-pitch-bright bg-background/50" />
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </MagicCard>
 
           <MagicCard gradientColor={`${(CLUB_COLORS && form.favoriteClub ? (CLUB_COLORS[clubsData.find(c => c.name === form.favoriteClub)?.slug]?.primary || 'rgba(56, 189, 248, 0.15)') : 'rgba(56, 189, 248, 0.1)')}`}>
             <Card className="bg-transparent border-none shadow-none">
