@@ -248,6 +248,27 @@ export async function adminUpdateRankingPoints(playerId, points) {
   }
 }
 
+export async function adminBulkUpdateRankingPoints(playerIds, pointsAdjustment) {
+  const auth = await checkSessionPermission('canManagePlayers');
+  if (!auth.authorized) return { error: auth.error };
+  try {
+    await prisma.player.updateMany({
+      where: { id: { in: playerIds } },
+      data: {
+        rankingPoints: {
+          increment: pointsAdjustment
+        }
+      }
+    });
+    revalidatePath('/admin');
+    revalidatePath('/');
+    return { success: true };
+  } catch (error) {
+    console.error("Bulk update error:", error);
+    return { error: 'Failed to bulk update ranking points.' };
+  }
+}
+
 export async function createCustomNotification(text, type = 'info') {
   try {
     const notification = await prisma.notification.create({

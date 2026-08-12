@@ -13,6 +13,7 @@ import AdminTopBar from '@/app/components/admin/AdminTopBar';
 import PlayerProfileDrawer from '@/app/components/user/PlayerProfileDrawer';
 import AdminBroadcast from '@/app/components/admin/AdminBroadcast';
 import AdminHistory from '@/app/components/admin/AdminHistory';
+import AdminRankings from '@/app/components/admin/AdminRankings';
 
 export default function AppShell({ 
   initialTab, 
@@ -146,6 +147,12 @@ export default function AppShell({
                   <div className="pt-2"><AdminPlayers {...adminProps} /></div>
                 ) : (
                   <div className="p-8 text-center text-muted-foreground">Access Denied: You do not have permission to manage players.</div>
+                )
+              ) : currentTab === 'admin/rankings' ? (
+                (session?.role === 'admin' || managerPermissions?.canManagePlayers) ? (
+                  <div className="pt-2"><AdminRankings {...adminProps} /></div>
+                ) : (
+                  <div className="p-8 text-center text-muted-foreground">Access Denied: You do not have permission to manage rankings.</div>
                 )
               ) : currentTab === 'admin/season' ? (
                 (session?.role === 'admin' || managerPermissions?.canManageSeason) ? (

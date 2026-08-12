@@ -4,13 +4,14 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Home, Users, Trophy, Calendar, Star, Megaphone, Radio,
-  Settings, LogOut, X, ChevronRight, ChevronLeft, Loader2, ShieldAlert, History
+  Settings, LogOut, X, ChevronRight, ChevronLeft, Loader2, ShieldAlert, History, TrendingUp
 } from 'lucide-react';
 import { clearAuthCookie } from '@/app/actions/auth';
 
 const NAV_ITEMS = [
   { tab: 'admin',               label: 'Dashboard',       icon: Home,      matchExact: true },
   { tab: 'admin/players',       label: 'Players',        icon: Users },
+  { tab: 'admin/rankings',      label: 'Rankings',       icon: TrendingUp },
   { tab: 'admin/season',        label: 'Tournament',     icon: Trophy },
   { tab: 'admin/history',       label: 'History',        icon: History },
   { tab: 'admin/matches',       label: 'Matches',        icon: Calendar,  liveIndicator: true },
