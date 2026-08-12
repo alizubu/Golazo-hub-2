@@ -1,7 +1,7 @@
 import React from 'react';
 import Image from 'next/image';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Check, ChevronsUpDown, X, Plus } from 'lucide-react';
+import { motion, AnimatePresence, useMotionValue, useTransform, useSpring } from 'framer-motion';
+import { Check, ChevronsUpDown, X, Plus, Shield, Globe } from 'lucide-react';
 
 import { cn } from '@/lib/utils';
 import { Button } from '@/app/components/ui/button';
@@ -22,7 +22,7 @@ import {
 import { CLUBS } from '@/lib/data/clubs';
 import { NATIONAL_TEAMS } from '@/lib/data/national-teams';
 import { CLUB_COLORS } from '@/lib/data/club-colors';
-import { WavingFlag, Avatar, OnFireAvatar } from '@/app/components/shared/UI';
+import { WavingFlag, Avatar, OnFireAvatar, Label } from '@/app/components/shared/UI';
 import { ClubLogo } from '@/app/components/shared/ClubLogo';
 
 // ─── TEAM COMBOBOX ─────────────────────────────────────────────────────────
@@ -238,6 +238,195 @@ export function AvatarWithBadge({ player, size = 100, isOnFire = false }) {
           {badgeIcon}
         </div>
       )}
+    </div>
+  );
+}
+
+// ─── KIT CARD ──────────────────────────────────────────────────────────────
+
+export function KitCard({ form, setForm }) {
+  const mouseX = useMotionValue(0);
+  const mouseY = useMotionValue(0);
+
+  const rotateX = useTransform(mouseY, [-0.5, 0.5], [7, -7]);
+  const rotateY = useTransform(mouseX, [-0.5, 0.5], [-7, 7]);
+  const springRotateX = useSpring(rotateX, { stiffness: 120, damping: 20 });
+  const springRotateY = useSpring(rotateY, { stiffness: 120, damping: 20 });
+
+  const selectedClub = CLUBS.find(c => c.name === form.favoriteClub);
+  const selectedNation = NATIONAL_TEAMS.find(n => n.name === form.flag);
+  const clubColors = selectedClub ? (CLUB_COLORS[selectedClub.slug] || null) : null;
+  const primaryColor = clubColors?.primary || '#22c55e';
+  const secondaryColor = clubColors?.secondary || '#15803d';
+
+  const handleMouseMove = (e) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    mouseX.set((e.clientX - rect.left) / rect.width - 0.5);
+    mouseY.set((e.clientY - rect.top) / rect.height - 0.5);
+  };
+
+  const handleMouseLeave = () => {
+    mouseX.set(0);
+    mouseY.set(0);
+  };
+
+  const previewPlayer = {
+    avatar: form.avatar,
+    avatarImage: form.avatarImage,
+    flag: form.flag,
+    favoriteClub: form.favoriteClub,
+    displayBadgePreference: form.displayBadgePreference,
+  };
+
+  return (
+    <div className="space-y-5">
+      {/* ── THE HOLOGRAPHIC CARD ── */}
+      <div style={{ perspective: '1200px' }}>
+        <motion.div
+          style={{ rotateX: springRotateX, rotateY: springRotateY, transformStyle: 'preserve-3d' }}
+          onMouseMove={handleMouseMove}
+          onMouseLeave={handleMouseLeave}
+          initial={{ opacity: 0, y: 40, scale: 0.95 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          transition={{ type: 'spring', damping: 22, stiffness: 180, delay: 0.1 }}
+          className="relative rounded-[2rem] overflow-hidden shadow-[0_20px_60px_-10px_rgba(0,0,0,0.8)] border border-white/10 cursor-pointer select-none"
+        >
+          {/* Dynamic club color top stripe */}
+          <motion.div
+            className="absolute top-0 left-0 right-0 h-1.5 z-30"
+            animate={{ background: `linear-gradient(90deg, ${primaryColor}, ${secondaryColor}, ${primaryColor})` }}
+            transition={{ duration: 0.8 }}
+          />
+
+          {/* Background gradient */}
+          <motion.div
+            className="absolute inset-0 z-0"
+            animate={{ background: `linear-gradient(135deg, ${primaryColor}22 0%, #0c0c10 45%, ${secondaryColor}10 100%)` }}
+            transition={{ duration: 0.8 }}
+          />
+
+          {/* Holographic shimmer sweep */}
+          <motion.div
+            className="absolute inset-0 z-10 pointer-events-none"
+            animate={{ backgroundPositionX: ['200%', '-100%'] }}
+            transition={{ duration: 3.5, repeat: Infinity, ease: 'linear', repeatDelay: 1 }}
+            style={{
+              background: 'linear-gradient(105deg, transparent 35%, rgba(255,255,255,0.07) 50%, transparent 65%)',
+              backgroundSize: '300% 100%',
+            }}
+          />
+
+          {/* Card Content */}
+          <div className="relative z-20 p-6 sm:p-8 space-y-6">
+
+            {/* Top Row: Club crest + Name (left) | Avatar (right) */}
+            <div className="flex items-center justify-between gap-4">
+              {/* Club identity */}
+              <div className="flex items-center gap-4 min-w-0">
+                <motion.div
+                  animate={{ filter: selectedClub ? `drop-shadow(0 0 14px ${primaryColor}90)` : 'none' }}
+                  transition={{ duration: 0.8 }}
+                  className="shrink-0"
+                >
+                  {selectedClub ? (
+                    <ClubLogo club={selectedClub} size={64} />
+                  ) : (
+                    <div className="w-16 h-16 rounded-2xl border-2 border-dashed border-white/15 flex items-center justify-center bg-white/5">
+                      <Shield size={28} className="text-white/25" />
+                    </div>
+                  )}
+                </motion.div>
+                <div className="min-w-0">
+                  <p className="text-[10px] uppercase tracking-[0.2em] text-white/35 font-bold mb-0.5">Favorite Club</p>
+                  <p className="text-xl sm:text-2xl font-black text-white truncate leading-tight">
+                    {selectedClub?.name || <span className="text-white/30 font-medium text-base">Not set</span>}
+                  </p>
+                  {selectedClub && (
+                    <p className="text-xs text-white/40 mt-0.5 font-medium">{selectedClub.league}</p>
+                  )}
+                </div>
+              </div>
+
+              {/* Avatar with glowing ring */}
+              <div className="shrink-0">
+                <motion.div
+                  animate={{ boxShadow: `0 0 0 3px ${primaryColor}, 0 0 24px ${primaryColor}70, 0 0 50px ${primaryColor}30` }}
+                  transition={{ duration: 0.8 }}
+                  className="rounded-full bg-card p-[3px]"
+                >
+                  <AvatarWithBadge player={previewPlayer} size={80} />
+                </motion.div>
+              </div>
+            </div>
+
+            {/* National Team Flag Strip */}
+            <motion.div
+              className="relative rounded-xl overflow-hidden border border-white/10"
+              initial={{ opacity: 0, scaleX: 0.95 }}
+              animate={{ opacity: 1, scaleX: 1 }}
+              transition={{ delay: 0.3 }}
+            >
+              {/* Blurred flag background */}
+              {selectedNation && (
+                <div className="absolute inset-0 overflow-hidden opacity-15">
+                  <WavingFlag code={selectedNation.isoCode} size="lg" className="!w-full !h-full scale-110" />
+                </div>
+              )}
+              <div className="relative z-10 flex items-center gap-3 bg-white/5 px-4 py-3">
+                <div className="shrink-0">
+                  {selectedNation ? (
+                    <WavingFlag code={selectedNation.isoCode} size="md" />
+                  ) : (
+                    <div className="w-10 h-[30px] rounded-sm border border-dashed border-white/20 flex items-center justify-center">
+                      <Globe size={14} className="text-white/25" />
+                    </div>
+                  )}
+                </div>
+                <div>
+                  <p className="text-[10px] uppercase tracking-[0.2em] text-white/35 font-bold">National Team</p>
+                  <p className="text-base font-black text-white">
+                    {selectedNation?.name || <span className="text-white/30 font-medium text-sm">Not set</span>}
+                  </p>
+                </div>
+              </div>
+            </motion.div>
+
+            {/* Badge Toggle */}
+            <div className="space-y-2.5">
+              <p className="text-[10px] uppercase tracking-[0.2em] text-white/35 font-bold">Display Badge on Avatar</p>
+              <DisplayBadgeToggle
+                value={form.displayBadgePreference}
+                onChange={(val) => setForm({ ...form, displayBadgePreference: val })}
+                disabledOption={!form.favoriteClub ? 'club' : !form.flag ? 'nation' : null}
+              />
+              <p className="text-[11px] text-white/25">Shown on your public profile avatar.</p>
+            </div>
+          </div>
+
+          {/* Inset shine ring */}
+          <div className="absolute inset-0 rounded-[2rem] ring-1 ring-inset ring-white/10 pointer-events-none z-30" />
+        </motion.div>
+      </div>
+
+      {/* ── SELECTION BUTTONS BELOW CARD ── */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div className="space-y-1.5">
+          <Label className="text-xs uppercase tracking-[0.15em] text-muted-foreground font-bold">Change Club</Label>
+          <TeamCombobox
+            type="club"
+            selectedValue={form.favoriteClub}
+            onSelect={(val) => setForm({ ...form, favoriteClub: val })}
+          />
+        </div>
+        <div className="space-y-1.5">
+          <Label className="text-xs uppercase tracking-[0.15em] text-muted-foreground font-bold">Change National Team</Label>
+          <TeamCombobox
+            type="nation"
+            selectedValue={form.flag}
+            onSelect={(val) => setForm({ ...form, flag: val })}
+          />
+        </div>
+      </div>
     </div>
   );
 }

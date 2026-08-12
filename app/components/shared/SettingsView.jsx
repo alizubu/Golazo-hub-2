@@ -9,7 +9,7 @@ import { motion } from 'framer-motion';
 import { Label, Btn } from '@/app/components/shared/UI';
 import dynamic from 'next/dynamic';
 
-import { TeamCombobox, DisplayBadgeToggle, AvatarWithBadge } from '@/app/components/shared/FootballIdentity';
+import { TeamCombobox, DisplayBadgeToggle, AvatarWithBadge, KitCard } from '@/app/components/shared/FootballIdentity';
 import AvatarUpload from '@/app/components/shared/AvatarUpload';
 import { ClubLogo } from '@/app/components/shared/ClubLogo';
 import { WavingFlag } from '@/app/components/shared/UI';
@@ -25,6 +25,7 @@ import { updateAppTheme } from '@/pwa/components/AppThemeProvider';
 
 import clubsData from '@/lib/data/clubs.json';
 import nationalTeamsData from '@/lib/data/national_teams.json';
+import { CLUB_COLORS } from '@/lib/data/club-colors';
 
 const clubs = clubsData.map(c => ({ ...c, subtitle: `${c.league}, ${c.country}` }));
 const nationalTeams = nationalTeamsData.map(nt => ({ ...nt, subtitle: nt.confederation }));
@@ -324,72 +325,14 @@ export default function SettingsView({ me, showToast }) {
             </Card>
           </MagicCard>
 
-          <MagicCard gradientColor="rgba(56, 189, 248, 0.1)">
+          <MagicCard gradientColor={`${(CLUB_COLORS && form.favoriteClub ? (CLUB_COLORS[clubsData.find(c => c.name === form.favoriteClub)?.slug]?.primary || 'rgba(56, 189, 248, 0.15)') : 'rgba(56, 189, 248, 0.1)')}`}>
             <Card className="bg-transparent border-none shadow-none">
                <CardHeader className="pb-4 border-b border-border/30">
                  <CardTitle className="text-xl flex items-center gap-2"><Shield className="text-sky-500" size={20}/> Football Identity</CardTitle>
                  <p className="text-sm text-muted-foreground mt-1">Select your favorite real-world teams to show them off on your profile.</p>
                </CardHeader>
                <CardContent className="pt-6">
-                 <div className="flex flex-col md:flex-row gap-6 relative p-1 rounded-2xl bg-gradient-to-br from-secondary/30 to-background border border-border/20 shadow-sm">
-                   <div className="flex-1 space-y-6 z-10 p-2 md:p-4">
-                     <div className="space-y-2">
-                       <Label>Favorite Club</Label>
-                       <TeamCombobox 
-                         type="club" 
-                         selectedValue={form.favoriteClub} 
-                         onSelect={(val) => setForm({...form, favoriteClub: val})} 
-                       />
-                     </div>
-                     <div className="space-y-2">
-                       <Label>Favorite National Team</Label>
-                       <TeamCombobox 
-                         type="nation" 
-                         selectedValue={form.flag} 
-                         onSelect={(val) => setForm({...form, flag: val})} 
-                       />
-                     </div>
-                     <div className="space-y-2 pt-4 border-t border-border/30">
-                       <Label>Display Badge</Label>
-                       <DisplayBadgeToggle 
-                         value={form.displayBadgePreference} 
-                         onChange={(val) => setForm({...form, displayBadgePreference: val})} 
-                         disabledOption={!form.favoriteClub ? 'club' : !form.flag ? 'nation' : null} 
-                       />
-                       <p className="text-xs text-muted-foreground mt-1">Choose which badge displays on your public profile avatar.</p>
-                     </div>
-                     
-                     {/* Mobile Live Preview Strip */}
-                     <div className="md:hidden flex items-center justify-between p-4 mt-6 rounded-xl border border-border/50 bg-background/50 shadow-inner">
-                        <span className="text-sm font-bold text-muted-foreground uppercase tracking-wider">Preview</span>
-                        <AvatarWithBadge 
-                          player={{ 
-                            avatar: form.avatar, 
-                            avatarImage: form.avatarImage, 
-                            flag: form.flag, 
-                            favoriteClub: form.favoriteClub, 
-                            displayBadgePreference: form.displayBadgePreference 
-                          }} 
-                          size={64} 
-                        />
-                     </div>
-                   </div>
-
-                   {/* Desktop Docked Preview */}
-                   <div className="hidden md:flex shrink-0 flex-col items-center justify-center p-8 bg-background/60 rounded-xl border-l border-border/30 backdrop-blur-md self-stretch min-w-[240px]">
-                     <Label className="text-center w-full mb-8 text-xs uppercase tracking-widest opacity-60">Live Preview</Label>
-                     <AvatarWithBadge 
-                       player={{ 
-                         avatar: form.avatar, 
-                         avatarImage: form.avatarImage, 
-                         flag: form.flag, 
-                         favoriteClub: form.favoriteClub, 
-                         displayBadgePreference: form.displayBadgePreference 
-                       }} 
-                       size={112} 
-                     />
-                   </div>
-                 </div>
+                 <KitCard form={form} setForm={setForm} />
                </CardContent>
             </Card>
           </MagicCard>
