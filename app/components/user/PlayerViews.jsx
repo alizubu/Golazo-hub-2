@@ -20,6 +20,7 @@ import HeadToHeadModal from '@/app/components/shared/HeadToHeadModal';
 import StatChip from '@/app/components/shared/StatChip';
 import { SeasonStats } from '@/app/components/user/SeasonStats';
 import SeasonSummaryDashboard from '@/app/components/user/SeasonSummaryDashboard';
+import PlayerRankingView from '@/app/components/user/PlayerRankingView';
 import { BorderBeam } from '@/app/components/magicui/BorderBeam';
 import { markNotificationsRead } from '@/app/actions/player';
 import { Skeleton } from '@/app/components/ui/skeleton';
@@ -55,6 +56,7 @@ export default function PlayerViews(props) {
       {tab === "matches" && <><PageHeader title="Matches" onBack={() => props.setTab('dashboard')} /><div className="p-4 sm:p-8"><MatchesPage {...newProps} /></div></>}
       {tab === "players" && <RosterView {...newProps} />}
       {tab === "history" && <HistoryView {...newProps} />}
+      {tab === "ranking" && <PlayerRankingView {...newProps} />}
       {tab === "notifications" && <NotificationsView {...newProps} />}
       {tab === "settings" && <SettingsView {...newProps} />}
 
@@ -637,7 +639,7 @@ export function PlayerDashboard({ me, activeSeason, seasons = [], matches, playe
                 <>
                   <div className="pb-3 pt-5 px-5 sm:px-6 flex flex-row items-center justify-between gap-4 relative border-b border-border/40 dark:border-white/[0.06]">
                     <div className="text-xl sm:text-2xl font-bold flex items-center gap-2.5 text-foreground" style={{ fontFamily: "'Sora', sans-serif", fontWeight: 700 }}>
-                      <Trophy className="text-amber-500 dark:text-amber-400" size={24} /> Cabinet & Badges
+                      <Trophy className="text-amber-500 dark:text-amber-400" size={24} /> The Trophy Room
                     </div>
                     <div className="flex items-center gap-2">
                       <Badge variant="gold" className="px-2.5 py-1 font-score text-[10px] sm:text-xs font-bold bg-amber-500/15 text-amber-600 dark:text-amber-300 border border-amber-500/30">
@@ -646,11 +648,15 @@ export function PlayerDashboard({ me, activeSeason, seasons = [], matches, playe
                     </div>
                   </div>
 
-                  <div className="pt-5 pb-6 px-5 sm:px-6 relative">
-                    <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black/20 pointer-events-none rounded-b-2xl" />
+                  {/* 3D Glass Display Cabinet */}
+                  <div className="relative w-full overflow-hidden bg-[#0A0A0C] border-x border-b border-white/[0.05] rounded-b-2xl p-6 sm:p-10 shadow-[inset_0_20px_50px_rgba(0,0,0,0.8)]">
+                    {/* Ambient Cabinet Lighting */}
+                    <div className="absolute top-0 left-1/2 -translate-x-1/2 w-3/4 h-24 bg-amber-500/10 blur-[80px] pointer-events-none" />
+                    <div className="absolute inset-0 bg-[url('/assets/noise.png')] opacity-20 mix-blend-overlay pointer-events-none" />
+
                     <motion.div
-                      className="grid grid-cols-2 md:grid-cols-3 gap-4 sm:gap-5 lg:gap-6 w-full min-w-0 relative z-10 grid-flow-dense auto-rows-fr"
-                      variants={{ hidden: { opacity: 0 }, show: { opacity: 1, transition: { staggerChildren: 0.06 } } }}
+                      className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-6 gap-y-12 relative z-10 w-full"
+                      variants={{ hidden: { opacity: 0 }, show: { opacity: 1, transition: { staggerChildren: 0.1 } } }}
                       initial="hidden"
                       whileInView="show"
                       viewport={{ once: true }}
@@ -659,26 +665,24 @@ export function PlayerDashboard({ me, activeSeason, seasons = [], matches, playe
                         const isUnlocked = tr.isBadge || myTrophies.some(t => t.title === tr.name || t.id === tr.id);
                         const instances = tr.isBadge ? [{ id: tr.id, title: tr.name }] : myTrophies.filter(t => t.title === tr.name || t.id === tr.id);
                         const count = tr.isBadge ? 1 : instances.length;
-                        const isBentoHero = index === 0;
 
                         return (
-                          <TrophyCard
-                            className={isBentoHero ? "md:col-span-2 md:row-span-2" : ""}
-                            isBentoHero={isBentoHero}
-                            key={tr.id}
-                            trophy={tr}
-                            unlocked={isUnlocked}
-                            count={count}
-                            instances={instances}
-                            requirement={tr.requirement}
-                            onSelect={() => setSelectedTrophy({
-                              trophy: tr,
-                              unlocked: isUnlocked,
-                              count: count,
-                              instances,
-                              requirement: tr.requirement
-                            })}
-                          />
+                          <div key={tr.id} className="relative flex justify-center pb-2 border-b-2 border-white/[0.04] shadow-[0_4px_15px_rgba(0,0,0,0.6)] before:content-[''] before:absolute before:inset-x-0 before:-bottom-[2px] before:h-[2px] before:bg-gradient-to-r before:from-transparent before:via-white/[0.1] before:to-transparent">
+                            <TrophyCard
+                              trophy={tr}
+                              unlocked={isUnlocked}
+                              count={count}
+                              instances={instances}
+                              requirement={tr.requirement}
+                              onSelect={() => setSelectedTrophy({
+                                trophy: tr,
+                                unlocked: isUnlocked,
+                                count: count,
+                                instances,
+                                requirement: tr.requirement
+                              })}
+                            />
+                          </div>
                         );
                       })}
                     </motion.div>
@@ -1090,25 +1094,22 @@ function NotificationsView({ notifications, me }) {
 }
 
 
-function TrophyCard({ trophy, unlocked, count = 0, instances = [], requirement, onSelect, className = "", isBentoHero = false }) {
+function TrophyCard({ trophy, unlocked, count = 0, instances = [], requirement, onSelect, className = "" }) {
   const [imgLoaded, setImgLoaded] = React.useState(false);
   const showDuplicate = count > 1;
 
   return (
     <motion.div
-      variants={{ hidden: { opacity: 0, y: 20 }, show: { opacity: 1, y: 0 } }}
+      variants={{ hidden: { opacity: 0, scale: 0.8 }, show: { opacity: 1, scale: 1 } }}
+      whileHover={unlocked ? { y: -15, scale: 1.15, rotateY: 10, rotateX: 5 } : { y: -5, scale: 1.05 }}
+      transition={{ type: 'spring', stiffness: 300, damping: 20 }}
       onClick={() => onSelect && onSelect()}
-      className={`relative flex flex-col items-center p-5 rounded-[24px] text-center cursor-pointer transition-all duration-300 group overflow-hidden w-full h-full min-h-[240px] ${className} ${unlocked
-        ? 'bg-gradient-to-b from-[#1a1c23] to-[#12141a] border border-amber-500/30 shadow-[0_8px_30px_rgb(0,0,0,0.4)] hover:-translate-y-2 hover:shadow-[0_15px_40px_rgba(245,158,11,0.15)] hover:border-amber-400/60 z-10'
-        : 'bg-[#181a20]/60 backdrop-blur-md border border-white/[0.06] hover:border-white/15 hover:-translate-y-1'
-        }`}
+      className={`relative flex flex-col items-center p-2 text-center cursor-pointer transition-colors duration-500 group w-full h-full min-h-[200px] ${className} ${unlocked ? 'z-20' : 'opacity-60'}`}
+      style={{ perspective: 1000 }}
     >
-      {/* Dynamic Background Glow for Unlocked */}
+      {/* Background Hover Glow */}
       {unlocked && (
-        <>
-          <div className="absolute top-0 inset-x-0 h-1/2 bg-amber-500/15 blur-3xl rounded-full opacity-60 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
-          <BorderBeam size={100} duration={8} delay={0} colorFrom="#E8B34C" colorTo="transparent" />
-        </>
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[120%] h-[120%] bg-amber-500/0 blur-[40px] rounded-full group-hover:bg-amber-500/20 transition-all duration-700 pointer-events-none z-0" />
       )}
 
       {/* Duplicate count badge */}
@@ -1117,27 +1118,25 @@ function TrophyCard({ trophy, unlocked, count = 0, instances = [], requirement, 
           initial={{ scale: 0, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
           transition={{ type: 'spring', stiffness: 500, damping: 20, delay: 0.15 }}
-          className="absolute top-3 right-3 z-20 flex items-center justify-center"
+          className="absolute -top-2 right-2 z-30 flex items-center justify-center"
         >
-          <span className="absolute w-7 h-7 rounded-full bg-amber-400/40 animate-ping" />
-          <span className="relative flex items-center justify-center w-7 h-7 rounded-full bg-gradient-to-br from-amber-300 to-amber-500 text-black text-[11px] font-black shadow-lg shadow-amber-500/40 border border-amber-200">
+          <span className="absolute w-6 h-6 rounded-full bg-amber-400/40 animate-ping" />
+          <span className="relative flex items-center justify-center w-6 h-6 rounded-full bg-gradient-to-br from-amber-300 to-amber-500 text-black text-[10px] font-black shadow-lg shadow-amber-500/40 border border-amber-200">
             ×{count}
           </span>
         </motion.div>
       )}
 
       {/* Top: Trophy Artwork */}
-      <div className={`mt-2 mb-4 relative flex items-center justify-center shrink-0 ${isBentoHero ? 'w-48 h-48 md:w-80 md:h-80' : 'w-24 h-24 sm:w-28 sm:h-28'}`}>
+      <div className="mt-2 mb-4 relative flex items-center justify-center shrink-0 w-28 h-28 sm:w-32 sm:h-32 z-10">
         <motion.img
           src={trophy.image || trophy.icon}
           alt={trophy.name}
           className={`w-full h-full object-contain z-10 transition-all duration-500 ${imgLoaded ? 'opacity-100' : 'opacity-0'} ${
             unlocked 
-              ? 'drop-shadow-[0_0_15px_rgba(245,158,11,0.3)] group-hover:scale-110 group-hover:drop-shadow-[0_0_25px_rgba(245,158,11,0.5)]' 
-              : 'grayscale opacity-[0.65] group-hover:opacity-100 group-hover:scale-105 blur-[0.5px] group-hover:blur-none drop-shadow-md'
+              ? 'drop-shadow-[0_15px_15px_rgba(0,0,0,0.6)] group-hover:drop-shadow-[0_25px_25px_rgba(245,158,11,0.4)]' 
+              : 'grayscale opacity-[0.5] brightness-75 group-hover:opacity-[0.8] group-hover:grayscale-0 drop-shadow-md'
           }`}
-          whileHover={{ rotate: unlocked ? [-2, 2, -2, 2, 0] : [-1, 1, -1, 1, 0] }}
-          transition={{ type: 'spring', stiffness: 300, damping: 10 }}
           onLoad={() => setImgLoaded(true)}
           onError={(e) => {
             e.target.style.display = 'none';
@@ -1145,35 +1144,31 @@ function TrophyCard({ trophy, unlocked, count = 0, instances = [], requirement, 
             if (e.target.nextSibling) e.target.nextSibling.style.display = 'flex';
           }}
         />
-
-        {/* 3D Glass Shelf base */}
-        <div className={`absolute w-3/4 h-2 rounded-[100%] blur-[2px] transition-all duration-300 pointer-events-none ${unlocked ? 'bg-amber-500/40 group-hover:bg-amber-500/70 group-hover:w-4/5 shadow-[0_0_10px_rgba(245,158,11,0.5)]' : 'bg-white/10 group-hover:w-4/5'}`} style={{ bottom: '-5px' }} />
+        
+        {/* Subtle physical pedestal reflection on the glass shelf */}
+        <div className={`absolute w-[80%] h-3 rounded-[100%] blur-[4px] transition-all duration-500 pointer-events-none -bottom-4 z-0 ${unlocked ? 'bg-amber-500/30 group-hover:bg-amber-500/60 shadow-[0_0_15px_rgba(245,158,11,0.5)]' : 'bg-white/10 group-hover:bg-white/20'}`} />
       </div>
 
       {/* Middle: Trophy Name */}
-      <div className="w-full mt-3 flex flex-col items-center justify-center flex-1 z-10">
-        <h4 className={`font-black leading-tight line-clamp-2 px-1 relative z-10 transition-colors ${isBentoHero ? 'text-[15px] md:text-xl' : 'text-[13px] sm:text-[15px]'} ${unlocked ? 'text-amber-50 drop-shadow-md' : 'text-muted-foreground/60'}`} style={{ fontFamily: "'Sora', sans-serif" }} title={trophy.name}>
+      <div className="w-full mt-4 flex flex-col items-center justify-center z-10">
+        <h4 className={`font-black leading-tight line-clamp-2 px-1 relative transition-colors text-sm sm:text-base ${unlocked ? 'text-amber-50 drop-shadow-md group-hover:text-amber-300' : 'text-muted-foreground/50'}`} style={{ fontFamily: "'Sora', sans-serif" }} title={trophy.name}>
           {trophy.name}
         </h4>
       </div>
 
       {/* Bottom: Achievement State System */}
-      <div className="w-full mt-4 pt-0 z-10">
+      <div className="w-full mt-2 z-10 flex justify-center">
         {unlocked ? (
-          <div className="flex flex-col items-center gap-0.5 bg-gradient-to-b from-amber-500/20 to-amber-500/5 py-2 rounded-xl border border-amber-500/30 backdrop-blur-sm shadow-inner">
-            <span className="text-[9px] text-amber-400 uppercase tracking-widest font-black font-score drop-shadow-sm">
-              {count > 1 ? `WON ×${count}` : 'UNLOCKED'}
-            </span>
-            <span className="text-[10px] text-amber-200/80 font-score truncate max-w-full px-2">
-              {instances[0]?.createdAt ? new Date(instances[0].createdAt).toLocaleDateString(undefined, { month: 'short', year: 'numeric' }) : 'Champion'}
+          <div className="flex flex-col items-center px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/20 backdrop-blur-md">
+            <span className="text-[9px] text-amber-400 uppercase tracking-widest font-black font-score">
+              {instances[0]?.createdAt ? new Date(instances[0].createdAt).getFullYear() : 'Earned'}
             </span>
           </div>
         ) : (
-          /* Locked State */
-          <div className="w-full flex flex-col items-center justify-center gap-1.5 text-[9px] font-medium text-muted-foreground/40 bg-black/40 py-2 rounded-xl border border-white/[0.03] backdrop-blur-sm">
-            <Lock size={12} className="shrink-0 text-muted-foreground/30" />
-            <span className="truncate w-full px-3 text-center" title={requirement || "Locked"}>
-              {requirement || "Locked"}
+          <div className="flex items-center justify-center gap-1.5 px-3 py-1 rounded-full bg-white/5 border border-white/10 backdrop-blur-md">
+            <Lock size={10} className="shrink-0 text-muted-foreground/40" />
+            <span className="text-[9px] font-medium text-muted-foreground/60 uppercase tracking-widest truncate max-w-[100px]" title={requirement || "Locked"}>
+              LOCKED
             </span>
           </div>
         )}

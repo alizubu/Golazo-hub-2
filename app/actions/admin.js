@@ -55,6 +55,19 @@ export async function awardTrophy(data) {
       }
     });
 
+    // Update Ranking Points based on Trophy
+    let pointsToAdd = 0;
+    if (data.title.includes('Golden Boot')) pointsToAdd = 2;
+    else if (data.title.includes('BB Championship')) pointsToAdd = 6;
+    else if (data.title.includes("Ballon d'Or")) pointsToAdd = 10;
+
+    if (pointsToAdd > 0) {
+      await prisma.player.update({
+        where: { id: data.playerId },
+        data: { rankingPoints: { increment: pointsToAdd } }
+      });
+    }
+
     revalidatePath('/admin');
     revalidatePath('/');
     return { trophy };
@@ -216,6 +229,22 @@ export async function updateSystemSettings(data) {
     return { settings };
   } catch (error) {
     return { error: 'Failed to update system settings' };
+  }
+}
+
+export async function adminUpdateRankingPoints(playerId, points) {
+  const auth = await checkSessionPermission('canManagePlayers');
+  if (!auth.authorized) return { error: auth.error };
+  try {
+    const player = await prisma.player.update({
+      where: { id: playerId },
+      data: { rankingPoints: points }
+    });
+    revalidatePath('/admin');
+    revalidatePath('/');
+    return { success: true, player };
+  } catch (error) {
+    return { error: 'Failed to update ranking points.' };
   }
 }
 

@@ -175,6 +175,7 @@ export async function adminUpdatePlayer(id, data) {
       displayBadgePreference: data.displayBadgePreference,
       playStyle: data.playStyle,
       badges: data.badges,
+      rankingPoints: data.rankingPoints !== undefined ? Number(data.rankingPoints) : undefined,
     };
 
     if (data.password && data.password.length >= 4) {

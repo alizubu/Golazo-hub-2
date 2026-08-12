@@ -8,7 +8,7 @@ import PlayerTag from '@/app/components/shared/PlayerTag';
 import { motion, AnimatePresence } from 'framer-motion';
 
 import { generateFixtures, generatePlayoffs, updateMatchStatus, updateMatchScore, adminTriggerBracketProgress } from '@/app/actions/match';
-import { awardTrophy, removeTrophy, updateTrophy, createAnnouncement, deleteAnnouncement, endCelebration, retriggerCelebration, getCelebrations, getSystemSettings, updateSystemSettings, createCustomNotification, deleteCustomNotification, clearAllNotifications } from '@/app/actions/admin';
+import { awardTrophy, removeTrophy, updateTrophy, createAnnouncement, deleteAnnouncement, endCelebration, retriggerCelebration, getCelebrations, getSystemSettings, updateSystemSettings, createCustomNotification, deleteCustomNotification, clearAllNotifications, adminUpdateRankingPoints } from '@/app/actions/admin';
 
 import { startSeason, updateSeason, completeSeason, updateSeasonAwards } from '@/app/actions/season';
 import { signUpPlayer, adminUpdatePlayer, adminDeletePlayer } from '@/app/actions/player';
@@ -253,7 +253,10 @@ export function AdminPlayers({ players, showToast, session, managerPermissions }
                       <div className="md:col-span-2"><Label>Email</Label><Input value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} placeholder="email" /></div>
                       <div className="md:col-span-2"><Label>{editing === "new" ? "Temporary password" : "Reset password (leave blank to keep)"}</Label><Input type="password" value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} placeholder="4+ characters" /></div>
                       {editing !== "new" && (
-                        <div><Label>Short Initials</Label><Input value={form.avatar || ""} onChange={(e) => setForm({ ...form, avatar: e.target.value.toUpperCase() })} placeholder="e.g. MES" maxLength={3} /></div>
+                        <>
+                          <div><Label>Short Initials</Label><Input value={form.avatar || ""} onChange={(e) => setForm({ ...form, avatar: e.target.value.toUpperCase() })} placeholder="e.g. MES" maxLength={3} /></div>
+                          <div><Label>Ranking Points</Label><Input type="number" value={form.rankingPoints !== undefined ? form.rankingPoints : 1000} onChange={(e) => setForm({ ...form, rankingPoints: e.target.value })} placeholder="1000" /></div>
+                        </>
                       )}
                     </div>
                   </TabsContent>
@@ -1115,15 +1118,24 @@ export function AdminTrophies({ players, trophies = [], seasons, showToast }) {
   return (
     <div className="flex flex-col gap-6">
       <Tabs defaultValue="award" className="w-full">
-        <TabsList className="mb-6 bg-secondary/50 rounded-xl p-1 flex flex-wrap overflow-x-auto hide-scrollbar">
-          <TabsTrigger value="award" className="rounded-lg data-[state=active]:bg-card data-[state=active]:text-foreground">
-            <Plus size={14} className="mr-1.5" /> Trophy Forge
+        <TabsList className="mb-6 w-full md:w-auto flex md:inline-flex bg-[#181a20]/80 backdrop-blur-xl border border-white/5 rounded-2xl p-1.5 shadow-[inset_0_2px_10px_rgba(0,0,0,0.5)] overflow-x-auto hide-scrollbar">
+          <TabsTrigger 
+            value="award" 
+            className="flex-1 md:flex-none transition-all duration-300 rounded-xl px-4 py-2.5 text-[11px] sm:text-sm font-semibold whitespace-nowrap data-[state=active]:bg-gradient-to-r data-[state=active]:from-amber-500/20 data-[state=active]:to-amber-500/5 data-[state=active]:text-amber-400 data-[state=active]:shadow-lg data-[state=active]:border data-[state=active]:border-amber-500/30 text-muted-foreground hover:text-foreground"
+          >
+            <Plus size={16} className="mr-1.5" /> Trophy Forge
           </TabsTrigger>
-          <TabsTrigger value="history" className="rounded-lg data-[state=active]:bg-card data-[state=active]:text-foreground">
-            <History size={14} className="mr-1.5" /> Award History
+          <TabsTrigger 
+            value="history" 
+            className="flex-1 md:flex-none transition-all duration-300 rounded-xl px-4 py-2.5 text-[11px] sm:text-sm font-semibold whitespace-nowrap data-[state=active]:bg-gradient-to-r data-[state=active]:from-amber-500/20 data-[state=active]:to-amber-500/5 data-[state=active]:text-amber-400 data-[state=active]:shadow-lg data-[state=active]:border data-[state=active]:border-amber-500/30 text-muted-foreground hover:text-foreground"
+          >
+            <History size={16} className="mr-1.5" /> Award History
           </TabsTrigger>
-          <TabsTrigger value="celebrations" className="rounded-lg data-[state=active]:bg-card data-[state=active]:text-foreground">
-            <Megaphone size={14} className="mr-1.5" /> Live Celebrations
+          <TabsTrigger 
+            value="celebrations" 
+            className="flex-1 md:flex-none transition-all duration-300 rounded-xl px-4 py-2.5 text-[11px] sm:text-sm font-semibold whitespace-nowrap data-[state=active]:bg-gradient-to-r data-[state=active]:from-amber-500/20 data-[state=active]:to-amber-500/5 data-[state=active]:text-amber-400 data-[state=active]:shadow-lg data-[state=active]:border data-[state=active]:border-amber-500/30 text-muted-foreground hover:text-foreground"
+          >
+            <Megaphone size={16} className="mr-1.5" /> Live Celebrations
           </TabsTrigger>
         </TabsList>
 

@@ -33,6 +33,7 @@ model Player {
   onlineStatus           String    @default("online")
   assists                Int       @default(0)
   elo                    Int       @default(1200)
+  rankingPoints          Int       @default(1000)
   careerGoals            Int       @default(0)
   careerWins             Int       @default(0)
   careerDraws            Int       @default(0)

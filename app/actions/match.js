@@ -124,6 +124,32 @@ export async function updateMatchStatus(matchId, data) {
       const home = await prisma.player.findUnique({ where: { id: match.homeId }});
       const away = await prisma.player.findUnique({ where: { id: match.awayId }});
       
+      // Update Ranking Points
+      if (home && away && match.homeScore !== null && match.awayScore !== null) {
+        let homePointsDiff = 0;
+        let awayPointsDiff = 0;
+
+        if (match.homeScore > match.awayScore) {
+          homePointsDiff = 3;
+        } else if (match.awayScore > match.homeScore) {
+          awayPointsDiff = 3;
+        } else {
+          if (match.penaltyWinner === 'home') homePointsDiff = 3;
+          else if (match.penaltyWinner === 'away') awayPointsDiff = 3;
+          else {
+            homePointsDiff = 1;
+            awayPointsDiff = 1;
+          }
+        }
+
+        if (homePointsDiff > 0) {
+          await prisma.player.update({ where: { id: home.id }, data: { rankingPoints: { increment: homePointsDiff } } });
+        }
+        if (awayPointsDiff > 0) {
+          await prisma.player.update({ where: { id: away.id }, data: { rankingPoints: { increment: awayPointsDiff } } });
+        }
+      }
+      
       const pens = match.penaltyWinner ? ` (${match.penaltyHome}-${match.penaltyAway} pens)` : '';
       await sendAutoNotification(
         `Result: ${home?.name} ${match.homeScore}-${match.awayScore} ${away?.name}${pens}`,
