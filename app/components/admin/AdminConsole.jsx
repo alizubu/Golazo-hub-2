@@ -14,6 +14,7 @@ import { startSeason, updateSeason, completeSeason, updateSeasonAwards } from '@
 import { signUpPlayer, adminUpdatePlayer, adminDeletePlayer } from '@/app/actions/player';
 import { uploadImage } from '@/app/actions/upload';
 import { supabase } from '@/lib/supabaseClient';
+import Image from 'next/image';
 import PlayoffBracket from '@/app/components/shared/PlayoffBracket';
 import { getCode } from 'country-list';
 import Cropper from 'react-easy-crop';
@@ -63,14 +64,13 @@ import {
   PopoverTrigger,
 } from '@/app/components/ui/popover';
 
-// Trophy template data — the 6 official trophies
-const TROPHY_TEMPLATES = [
-  { id: 'bb-champion', name: 'BB Champion', image: '/assets/trophies/BB-Champion.png', icon: '/assets/trophies/BB-Champion.png', defaultDesc: 'Champion of the BB League season.' },
-  { id: 'world-cup', name: 'World Cup Winner', image: '/assets/trophies/World-Cup-Winner-Trophy.png', icon: '/assets/trophies/World-Cup-Winner-Trophy.png', defaultDesc: 'Won the World Cup season.' },
-  { id: 'golden-boot', name: 'Golden Boot', image: '/assets/trophies/Golden-boot.png', icon: '/assets/trophies/Golden-boot.png', defaultDesc: 'Top goalscorer of the season.' },
-  { id: 'mvp', name: 'MVP', image: '/assets/trophies/MVP.png', icon: '/assets/trophies/MVP.png', defaultDesc: 'Most Valuable Player of the season.' },
-  { id: 'la-liga', name: 'La Liga Champion', image: '/assets/trophies/La-Liga-trophy.png', icon: '/assets/trophies/La-Liga-trophy.png', defaultDesc: 'La Liga season champion.' },
-  { id: 'premier-league', name: 'Premier League Champion', image: '/assets/trophies/Premier-League.png', icon: '/assets/trophies/Premier-League.png', defaultDesc: 'Premier League season champion.' },
+// Trophy template data — the 5 official premium trophies
+export const TROPHY_TEMPLATES = [
+  { id: 'bb-championship', name: 'BB Championship', image: '/assets/trophies/BB-Champion.png', icon: '/assets/trophies/BB-Champion.png', defaultDesc: 'The ultimate prize. Crowned Champion of the BB League.', colorTheme: 'from-amber-400 to-yellow-600' },
+  { id: 'ballon-dor', name: "Ballon d'Or", image: '/assets/trophies/BalanDor.png', icon: '/assets/trophies/BalanDor.png', defaultDesc: 'Awarded to the absolute best player in the world.', colorTheme: 'from-yellow-300 to-amber-500' },
+  { id: 'golden-boot', name: 'Golden Boot', image: '/assets/trophies/Golden-boot.png', icon: '/assets/trophies/Golden-boot.png', defaultDesc: 'Awarded for scoring the most goals in the season.', colorTheme: 'from-yellow-500 to-orange-500' },
+  { id: 'most-successful-pass', name: 'Pass Master', image: '/assets/trophies/MostPasses.png', icon: '/assets/trophies/MostPasses.png', defaultDesc: 'Awarded to the ultimate playmaker with the highest pass accuracy.', colorTheme: 'from-blue-400 to-cyan-600' },
+  { id: 'mvp', name: 'Tournament MVP', image: '/assets/trophies/MVP.png', icon: '/assets/trophies/MVP.png', defaultDesc: 'Most Valuable Player. Voted for dominating the pitch.', colorTheme: 'from-purple-400 to-pink-600' }
 ];
 import AdminHistory from '@/app/components/admin/AdminHistory';
 import AdminNotifications from '@/app/components/admin/AdminNotifications';
@@ -1521,7 +1521,7 @@ export function AdminSeason({ activeSeason, seasons = [], matches = [], players 
   const [name, setName] = useState("");
   const [seasonType, setSeasonType] = useState("League (Single)");
   const [startDate, setStartDate] = useState(() => new Date().toISOString().split('T')[0]);
-  const [customRules, setCustomRules] = useState({ win: 3, draw: 1, loss: 0, goalsFor: 0, goalsAgainst: 0 });
+  const [customRules, setCustomRules] = useState({ win: 3, draw: 1, loss: 0, goalsFor: 0, goalsAgainst: 0, squadType: 'None' });
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [rename, setRename] = useState("");
   const [loading, setLoading] = useState(false);
@@ -1542,6 +1542,54 @@ export function AdminSeason({ activeSeason, seasons = [], matches = [], players 
   const [showEditDialog, setShowEditDialog] = useState(false);
   const [editName, setEditName] = useState("");
   const [editType, setEditType] = useState("");
+
+  const [showAwardsCeremony, setShowAwardsCeremony] = useState(false);
+  const [awardSelections, setAwardSelections] = useState({});
+
+  const handleIssueAwardsAndEndSeason = async () => {
+    // 1. Validate all trophies have a player selected
+    for (const t of TROPHY_TEMPLATES) {
+      if (!awardSelections[t.id]) {
+        return showToast(`Please select a player for ${t.name}`);
+      }
+    }
+
+    if (!confirm("Are you sure you want to issue these awards and archive the season?")) return;
+    setLoading(true);
+
+    try {
+      const trophiesToCreate = TROPHY_TEMPLATES.map(t => ({
+        playerId: awardSelections[t.id],
+        title: t.name,
+        season: activeSeason.name,
+        description: t.defaultDesc,
+        icon: t.image
+      }));
+
+      for (const trophyData of trophiesToCreate) {
+        await awardTrophy(trophyData);
+      }
+
+      const championId = standings[0]?.id;
+      const runnerUpId = standings[1]?.id;
+      const thirdId = standings[2]?.id;
+      const mvpId = awardSelections['mvp']; 
+
+      const res = await completeSeason(activeSeason.id, {
+          championId, runnerUpId, thirdId, mvpId, championName: standings[0]?.name, trophies: []
+      });
+
+      if (res.error) showToast(res.error);
+      else { 
+        showToast("Awards Issued & Season Archived!"); 
+        setTab("admin-overview"); 
+        setShowAwardsCeremony(false);
+      }
+    } catch (err) {
+      showToast("Error ending season.");
+    }
+    setLoading(false);
+  };
 
   const handleUpdateSeason = async () => {
     if (!editName.trim()) return showToast("Enter a season name");
@@ -1621,7 +1669,17 @@ export function AdminSeason({ activeSeason, seasons = [], matches = [], players 
       { id: 'League (Single)', title: 'League', icon: '🏆', desc: 'Standard Round-Robin' },
       { id: 'League (Double)', title: 'Double League', icon: '⚔️', desc: 'Home & Away' },
       { id: 'League + Playoffs (Single)', title: 'League + Playoffs', icon: '🔥', desc: 'Top 4 to Knockouts' },
+      { id: 'Single Elimination', title: 'Single Elim Bracket', icon: '⚡', desc: 'Straight Knockout' },
       { id: 'Double Elimination', title: 'Double Elim Bracket', icon: '🛡️', desc: 'Upper & Lower Bracket' },
+    ];
+    
+    const squadTypes = [
+      { id: 'None', title: 'Standard', desc: 'Any squad allowed' },
+      { id: 'MAX Squad', title: 'MAX Squad', desc: 'No restrictions, ultimate teams' },
+      { id: 'FREE EPIC Squad', title: 'FREE EPIC', desc: 'Only free epic players' },
+      { id: 'AUTHENTIC Squad', title: 'AUTHENTIC', desc: 'Real-life default teams' },
+      { id: 'NATIONAL Squad', title: 'NATIONAL', desc: 'Single nation teams' },
+      { id: 'LIMIT Squad', title: 'LIMIT Squad', desc: 'Rating capped teams' },
     ];
     
     return (
@@ -1664,6 +1722,24 @@ export function AdminSeason({ activeSeason, seasons = [], matches = [], players 
             </div>
           </div>
           
+          <div className="space-y-3">
+            <Label className="text-muted-foreground uppercase text-xs font-bold tracking-widest">Squad Requirement</Label>
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+              {squadTypes.map(st => (
+                <div 
+                  key={st.id}
+                  onClick={() => setCustomRules({...customRules, squadType: st.id})}
+                  className={`p-2 rounded-lg border cursor-pointer transition-all flex flex-col justify-center items-center text-center gap-1 ${
+                    customRules.squadType === st.id ? 'border-pitch-bright bg-pitch-bright/10 shadow-sm' : 'border-border/50 bg-secondary/20 hover:border-border'
+                  }`}
+                >
+                  <span className="font-bold text-xs">{st.title}</span>
+                  <span className="text-[9px] text-muted-foreground leading-tight">{st.desc}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+
           <div className="flex items-center gap-4">
             <div className="space-y-1.5 flex-1">
               <Label className="text-muted-foreground uppercase text-xs font-bold tracking-widest">Start Date</Label>
@@ -1711,6 +1787,7 @@ export function AdminSeason({ activeSeason, seasons = [], matches = [], players 
           </ShinyButton>
         </div>
       </Card>
+      </div>
     );
   }
 
@@ -1859,21 +1936,18 @@ export function AdminSeason({ activeSeason, seasons = [], matches = [], players 
               if (incompletePlayoffs.length > 0) return showToast("Finish all playoff matches first.");
             }
 
-            if (!confirm("Are you sure you want to end this season? This will automatically calculate standings and archive the season.")) return;
-             
-            const championId = standings[0]?.id;
-            const runnerUpId = standings[1]?.id;
-            const thirdId = standings[2]?.id;
-            const mvpId = standings[0]?.id; // Default MVP to Champion
-             
-            const trophies = [];
+            if (!confirm("Are you ready to begin the Awards Ceremony?")) return;
+            
+            // Pre-fill selections
+            const prefilled = {};
+            if (standings.length > 0) prefilled['bb-championship'] = standings[0].id;
+            
+            // Calculate Golden Boot based on goals (rough estimate from standings)
+            const topScorer = [...standings].sort((a,b) => b.gf - a.gf)[0];
+            if (topScorer) prefilled['golden-boot'] = topScorer.id;
 
-            const res = await completeSeason(activeSeason.id, {
-                championId, runnerUpId, thirdId, mvpId, championName: standings[0]?.name, trophies
-            });
-             
-            if (res.error) showToast(res.error);
-            else { showToast("Season archived!"); setTab("admin-overview"); }
+            setAwardSelections(prefilled);
+            setShowAwardsCeremony(true);
         }}>
           <div className="p-3 rounded-full bg-muted-foreground/20 text-muted-foreground">
              <Archive size={24} />
@@ -2131,6 +2205,7 @@ export function AdminSeason({ activeSeason, seasons = [], matches = [], players 
                   <option value="League (Single)">League (Single)</option>
                   <option value="League (Double)">Double League</option>
                   <option value="League + Playoffs (Single)">League + Playoffs (Single)</option>
+                  <option value="Single Elimination">Single Elimination</option>
                   <option value="Double Elimination">Double Elimination</option>
                 </select>
               </div>
@@ -2142,6 +2217,61 @@ export function AdminSeason({ activeSeason, seasons = [], matches = [], players 
           </div>
         </div>
       )}
+
+      <Dialog open={showAwardsCeremony} onOpenChange={setShowAwardsCeremony}>
+        <DialogContent className="sm:max-w-2xl bg-secondary/95 border border-border/50 backdrop-blur-md">
+          <DialogHeader className="text-center pb-4 border-b border-border/30">
+            <div className="mx-auto w-16 h-16 bg-gold/20 rounded-full flex items-center justify-center mb-4">
+              <Trophy size={32} className="text-gold" />
+            </div>
+            <DialogTitle className="font-heading text-3xl text-gold font-black tracking-widest uppercase">
+              The Awards Ceremony
+            </DialogTitle>
+            <DialogDescription className="text-muted-foreground">
+              Select the winners for this season&apos;s official premium trophies.
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="py-6 space-y-6 max-h-[60vh] overflow-y-auto px-2">
+            {TROPHY_TEMPLATES.map(t => (
+              <div key={t.id} className="flex flex-col sm:flex-row gap-4 items-center bg-background/50 p-4 rounded-xl border border-border/30 shadow-sm relative overflow-hidden">
+                <div className={`absolute top-0 left-0 w-1 h-full bg-gradient-to-b ${t.colorTheme}`}></div>
+                <div className="w-16 h-16 shrink-0 relative">
+                   <div className={`absolute inset-0 bg-gradient-to-br ${t.colorTheme} blur-lg opacity-20 rounded-full`}></div>
+                   <Image src={t.image} alt={t.name} fill sizes="64px" className="object-contain relative z-10 drop-shadow-md" />
+                </div>
+                <div className="flex-1 text-center sm:text-left">
+                   <h4 className="font-heading font-bold text-lg">{t.name}</h4>
+                   <p className="text-xs text-muted-foreground">{t.defaultDesc}</p>
+                </div>
+                <div className="w-full sm:w-48 shrink-0">
+                   <select 
+                     className="w-full h-10 px-3 bg-background border border-border rounded-md text-sm focus:border-pitch-bright focus:outline-none"
+                     value={awardSelections[t.id] || ""}
+                     onChange={(e) => setAwardSelections({...awardSelections, [t.id]: e.target.value})}
+                   >
+                     <option value="" disabled>Select Winner...</option>
+                     {players.map(p => (
+                       <option key={p.id} value={p.id}>{p.name}</option>
+                     ))}
+                   </select>
+                </div>
+              </div>
+            ))}
+          </div>
+          
+          <DialogFooter className="pt-4 border-t border-border/30">
+            <DialogClose asChild><Btn variant="outline" disabled={loading}>Cancel</Btn></DialogClose>
+            <ShinyButton 
+              onClick={handleIssueAwardsAndEndSeason} 
+              className="px-8 shadow-[0_0_15px_rgba(255,215,0,0.3)] bg-gradient-to-r from-gold to-yellow-500 text-black border-0"
+              loading={loading}
+            >
+              Issue Awards & Archive Season
+            </ShinyButton>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

@@ -210,8 +210,8 @@ export async function updateMatchStatus(matchId, data) {
       
       if (match.seasonId) {
         const season = await prisma.season.findUnique({ where: { id: match.seasonId } });
-        if (season && season.type === 'Double Elimination') {
-          await progressDoubleElimination(matchId);
+        if (season && (season.type === 'Double Elimination' || season.type === 'Single Elimination')) {
+          await progressDynamicBracket(matchId);
         } else {
           // Check and progress playoff bracket if applicable
           await progressPlayoffBracket(matchId);
@@ -240,10 +240,11 @@ const matchLoserId = (m) => {
   return w === m.homeId ? m.awayId : m.homeId;
 };
 
-async function progressDoubleElimination(matchId) {
+async function progressDynamicBracket(matchId) {
   try {
     const match = await prisma.match.findUnique({ where: { id: matchId }, include: { season: true } });
-    if (!match || match.status !== 'completed' || match.season?.type !== 'Double Elimination') return;
+    if (!match || match.status !== 'completed') return;
+    if (match.season?.type !== 'Double Elimination' && match.season?.type !== 'Single Elimination') return;
 
     const winnerId = matchWinnerId(match);
     const loserId = matchLoserId(match);

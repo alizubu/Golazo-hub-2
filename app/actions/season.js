@@ -27,26 +27,29 @@ export async function startSeason(name, type, startDate, config = {}) {
     if (players.length < 2) return { error: 'Need at least 2 players to start a season' };
 
     let isDoubleElim = type === 'Double Elimination';
-    if (isDoubleElim && (players.length < 4 || players.length > 8)) {
-      return { error: 'Double Elimination requires 4 to 8 players' };
+    let isSingleElim = type === 'Single Elimination';
+    if ((isDoubleElim || isSingleElim) && (players.length < 4 || players.length > 8)) {
+      return { error: `${type} requires 4 to 8 players` };
     }
 
     let rounds = [];
     let bracketConfig = null;
     let matchCreates = [];
 
-    if (isDoubleElim) {
+    if (isDoubleElim || isSingleElim) {
       // Import the dynamic bracket generator
-      const { generateDoubleEliminationBracket } = require('@/lib/brackets');
+      const { generateDoubleEliminationBracket, generateSingleEliminationBracket } = require('@/lib/brackets');
       
       // Randomize players for seeding, or sort by ELO if we preferred that.
       // User said "Random ok" so we randomize:
       players = players.sort(() => Math.random() - 0.5);
       
-      const bracketMatches = generateDoubleEliminationBracket(players);
+      const bracketMatches = isDoubleElim 
+        ? generateDoubleEliminationBracket(players)
+        : generateSingleEliminationBracket(players);
       bracketConfig = bracketMatches;
       
-      // We don't save 'rounds' for DE, just bracket
+      // We don't save 'rounds' for DE/SE, just bracket
       bracketMatches.forEach(m => {
         matchCreates.push({
           id: undefined, // Prisma will generate CUID
@@ -56,6 +59,7 @@ export async function startSeason(name, type, startDate, config = {}) {
           awayId: m.awayId,
           status: 'scheduled',
           label: m.label,
+          decisive: true, // Knocout matches are decisive
           liveState: { key: m.key } // We store the bracket key here temporarily so we know which match is which
         });
       });

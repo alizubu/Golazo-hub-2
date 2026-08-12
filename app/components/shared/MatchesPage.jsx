@@ -5,6 +5,7 @@ import MatchCard from '@/app/components/shared/MatchCard';
 import StandingsTable from '@/app/components/shared/StandingsTable';
 import PlayoffBracket from '@/app/components/shared/PlayoffBracket';
 import DoubleElimBracket from '@/app/components/shared/DoubleElimBracket';
+import SingleElimBracket from '@/app/components/shared/SingleElimBracket';
 import { Calendar, ListOrdered, Swords } from 'lucide-react';
 import { supabase } from '@/lib/supabaseClient';
 
@@ -40,6 +41,11 @@ export default function MatchesPage({ activeSeason, matches, players, me, onMatc
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <h2 className="text-2xl font-bold font-heading flex items-center gap-2">
           <Calendar className="text-pitch-bright" /> All Matches
+          {activeSeason.config?.squadType && activeSeason.config.squadType !== 'None' && (
+            <span className="ml-2 px-2 py-0.5 text-[10px] uppercase tracking-widest font-bold bg-pitch-bright/20 text-pitch-bright rounded-md border border-pitch-bright/30 shadow-sm">
+              {activeSeason.config.squadType}
+            </span>
+          )}
         </h2>
 
         <Tabs value={view} onValueChange={setView} className="w-full sm:w-auto">
@@ -100,6 +106,8 @@ export default function MatchesPage({ activeSeason, matches, players, me, onMatc
             <div className="bg-card p-2 sm:p-5 rounded-2xl border border-border shadow-sm">
               {activeSeason.type === 'Double Elimination' ? (
                 <DoubleElimBracket matches={playoffMatches} players={players} onMatchClick={onMatchClick} />
+              ) : activeSeason.type === 'Single Elimination' ? (
+                <SingleElimBracket matches={playoffMatches} players={players} onMatchClick={onMatchClick} />
               ) : (
                 <PlayoffBracket matches={playoffMatches} players={players} onMatchClick={onMatchClick} />
               )}
