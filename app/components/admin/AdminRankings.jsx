@@ -8,9 +8,8 @@ import {
 } from 'lucide-react';
 import { Btn, SectionTitle, Avatar, MagicCard } from '@/app/components/shared/UI';
 import { adminUpdateRankingPoints, adminBulkUpdateRankingPoints } from '@/app/actions/admin';
-import { toast } from 'sonner';
 
-export default function AdminRankings({ players = [] }) {
+export default function AdminRankings({ players = [], showToast }) {
   const [searchQuery, setSearchQuery] = useState('');
   const [isMassEditMode, setIsMassEditMode] = useState(false);
   const [selectedPlayerIds, setSelectedPlayerIds] = useState(new Set());
@@ -45,17 +44,17 @@ export default function AdminRankings({ players = [] }) {
 
   const handleBulkSubmit = async () => {
     const adjustment = parseInt(bulkAdjustment, 10);
-    if (selectedPlayerIds.size === 0) return toast.error("Select at least one player.");
-    if (isNaN(adjustment) || adjustment === 0) return toast.error("Enter a valid adjustment amount.");
+    if (selectedPlayerIds.size === 0) return showToast("Select at least one player.");
+    if (isNaN(adjustment) || adjustment === 0) return showToast("Enter a valid adjustment amount.");
 
     setIsSubmitting(true);
     const result = await adminBulkUpdateRankingPoints(Array.from(selectedPlayerIds), adjustment);
     setIsSubmitting(false);
 
     if (result.error) {
-      toast.error(result.error);
+      showToast(result.error);
     } else {
-      toast.success(`Successfully adjusted points for ${selectedPlayerIds.size} players!`);
+      showToast(`Successfully adjusted points for ${selectedPlayerIds.size} players!`);
       toggleMassEditMode();
     }
   };
@@ -74,9 +73,9 @@ export default function AdminRankings({ players = [] }) {
     setIsSubmitting(false);
 
     if (result.error) {
-      toast.error(result.error);
+      showToast(result.error);
     } else {
-      toast.success(`${player.name}'s points updated by ${adjustment > 0 ? '+' : ''}${adjustment}`);
+      showToast(`${player.name}'s points updated by ${adjustment > 0 ? '+' : ''}${adjustment}`);
       setEditingPlayerId(null);
     }
   };
