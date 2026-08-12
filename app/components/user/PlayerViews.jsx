@@ -1148,7 +1148,7 @@ function BentoTrophyTile({ trophy, unlocked, count = 0, instances = [], isLarge,
           className={`w-full h-full object-contain z-10 transition-all duration-500 ${imgLoaded ? 'opacity-100' : 'opacity-0'} ${
             unlocked 
               ? 'drop-shadow-[0_15px_15px_rgba(0,0,0,0.6)] group-hover:drop-shadow-[0_25px_25px_rgba(245,158,11,0.5)]' 
-              : 'brightness-0 opacity-40 drop-shadow-none'
+              : 'grayscale opacity-40 drop-shadow-none'
           }`}
           onLoad={() => setImgLoaded(true)}
           onError={(e) => {
@@ -1158,7 +1158,7 @@ function BentoTrophyTile({ trophy, unlocked, count = 0, instances = [], isLarge,
           }}
         />
         {/* Fallback Icon */}
-        <span style={{ display: 'none' }} className={`text-5xl md:text-7xl drop-shadow-2xl absolute inset-0 items-center justify-center filter ${unlocked ? '' : 'brightness-0 opacity-40'}`}>{trophy.icon}</span>
+        <span style={{ display: 'none' }} className={`text-5xl md:text-7xl drop-shadow-2xl absolute inset-0 items-center justify-center filter ${unlocked ? '' : 'grayscale opacity-40'}`}>{trophy.icon}</span>
         
         {/* Pedestal Glow */}
         <div className={`absolute w-[80%] h-4 rounded-[100%] blur-[8px] transition-all duration-500 pointer-events-none -bottom-6 z-0 ${unlocked ? 'bg-amber-500/40 group-hover:bg-amber-500/80 shadow-[0_0_20px_rgba(245,158,11,0.6)]' : 'bg-black/80'}`} />
