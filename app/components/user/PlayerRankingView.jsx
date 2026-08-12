@@ -60,7 +60,7 @@ export default function PlayerRankingView({ players, matches, setTab }) {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.5 + (i * 0.05) }}
                   key={p.id}
-                  className="flex items-center gap-4 bg-secondary/30 border border-white/5 rounded-2xl p-4 hover:bg-secondary/50 transition-colors"
+                  className="flex items-center gap-4 bg-secondary/40 backdrop-blur-md border-t border-white/10 shadow-lg shadow-black/20 rounded-2xl p-4 hover:bg-secondary/60 transition-colors relative overflow-hidden"
                 >
                   <div className="w-8 text-center font-score font-bold text-muted-foreground">{rank}</div>
                   <Avatar p={p} size={48} className="shrink-0" />
@@ -101,9 +101,9 @@ function PodiumStep({ player, rank, height, trend, delay }) {
   const TrendIcon = trend.icon;
   const isFirst = rank === 1;
   const rankColors = {
-    1: 'from-amber-400 to-yellow-600 border-yellow-500/50 shadow-[0_0_40px_rgba(255,215,0,0.3)]',
-    2: 'from-slate-300 to-gray-500 border-slate-400/50',
-    3: 'from-orange-400 to-amber-700 border-orange-500/50'
+    1: 'bg-gradient-to-b from-amber-400/90 to-yellow-600/90 border-t border-yellow-300 shadow-[0_0_50px_rgba(255,215,0,0.4)] backdrop-blur-md',
+    2: 'bg-gradient-to-b from-slate-300/80 to-gray-500/80 border-t border-white/50 backdrop-blur-md',
+    3: 'bg-gradient-to-b from-orange-400/80 to-amber-700/80 border-t border-orange-300/50 backdrop-blur-md'
   };
   const medalColors = {
     1: 'text-yellow-400',
@@ -120,32 +120,38 @@ function PodiumStep({ player, rank, height, trend, delay }) {
     >
       {isFirst && (
         <motion.div 
-          initial={{ scale: 0, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          transition={{ delay: delay + 0.4, type: 'spring' }}
-          className="absolute -top-10 text-yellow-400 drop-shadow-[0_0_15px_rgba(255,215,0,0.8)] z-20"
+          initial={{ scale: 0, opacity: 0, y: 10 }}
+          animate={{ scale: 1, opacity: 1, y: [0, -8, 0] }}
+          transition={{ 
+            delay: delay + 0.4, 
+            scale: { type: 'spring' },
+            y: { repeat: Infinity, duration: 3, ease: "easeInOut" } 
+          }}
+          className="absolute -top-12 text-yellow-400 drop-shadow-[0_0_20px_rgba(255,215,0,0.9)] z-20"
         >
-          <Trophy size={48} strokeWidth={1.5} />
+          <svg width="56" height="56" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+            <path d="M5 16L3 5L8.5 10L12 4L15.5 10L21 5L19 16H5ZM19 19C19 19.5523 18.5523 20 18 20H6C5.44772 20 5 19.5523 5 19V18H19V19Z" />
+          </svg>
         </motion.div>
       )}
 
       <div className={`relative z-10 flex flex-col items-center gap-2 mb-4 ${isFirst ? 'scale-110' : ''}`}>
         <div className="relative">
-          <Avatar p={player} size={isFirst ? 80 : 64} className={`border-4 border-background shadow-2xl ${isFirst ? 'ring-4 ring-yellow-500/50' : ''}`} />
-          <div className={`absolute -bottom-2 -right-2 w-8 h-8 rounded-full bg-background flex items-center justify-center border-2 border-border/50 shadow-lg ${medalColors[rank]}`}>
+          <Avatar p={player} size={isFirst ? 88 : 56} className={`border-4 border-background shadow-2xl ${isFirst ? 'ring-4 ring-yellow-500/70' : ''}`} />
+          <div className={`absolute -bottom-1 -right-1 w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-background flex items-center justify-center border-2 border-border/50 shadow-lg ${medalColors[rank]}`}>
             <Medal size={16} strokeWidth={2.5} />
           </div>
         </div>
-        <div className="text-center px-1">
-          <div className="font-bold text-sm sm:text-base truncate w-full" title={player.name}>{player.name}</div>
-          <div className="text-[10px] sm:text-xs text-muted-foreground flex items-center justify-center gap-1 mt-0.5">
-            <span className="font-score font-bold text-foreground">{player.rankingPoints ?? 1000} pts</span>
+        <div className="text-center px-1 flex flex-col items-center w-full">
+          <div className="font-bold text-sm sm:text-base truncate w-full px-2" title={player.name}>{player.name}</div>
+          <div className="mt-1 bg-background/90 backdrop-blur-sm border border-border/50 px-2.5 py-0.5 rounded-full flex items-center justify-center shadow-lg relative z-20">
+            <span className={`font-score text-[10px] sm:text-xs font-bold ${isFirst ? 'text-yellow-400 drop-shadow-sm' : 'text-foreground'}`}>{player.rankingPoints ?? 1000} pts</span>
           </div>
         </div>
       </div>
 
       <div 
-        className={`w-full rounded-t-2xl sm:rounded-t-3xl bg-gradient-to-b ${rankColors[rank]} relative overflow-hidden flex flex-col items-center justify-start pt-4 sm:pt-6`}
+        className={`w-full rounded-t-2xl sm:rounded-t-3xl ${rankColors[rank]} relative overflow-hidden flex flex-col items-center justify-start pt-4 sm:pt-6`}
         style={{ height: `${height}px` }}
       >
         <div className="absolute inset-0 bg-black/20 mix-blend-overlay"></div>

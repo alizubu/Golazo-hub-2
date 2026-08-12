@@ -119,15 +119,20 @@ export const TopBar = ({ session, me, items, pathname, handleNav, unreadCount, i
           {/* 1px Gradient Bottom Border */}
           <div className="absolute bottom-0 inset-x-0 h-[1px] bg-brand-gradient" />
 
-          {/* Logo */}
-          <Link href="/dashboard" onClick={(e) => handleNav(e, "/dashboard")} className="flex items-center gap-2 z-10 outline-none">
-            <div className="flex items-center justify-center w-7 h-7 rounded-full bg-amber-500/10">
-              <Trophy size={14} className="text-amber-400" />
+          {/* Left side spacer to balance the centered logo */}
+          <div className="flex-1 hidden sm:block"></div>
+
+          {/* Centered Logo with Glowing Trophy */}
+          <Link href="/dashboard" onClick={(e) => handleNav(e, "/dashboard")} className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 flex items-center gap-2 z-10 outline-none">
+            <div className="relative flex items-center justify-center w-8 h-8 rounded-full bg-amber-500/10 border border-amber-500/40 shadow-[0_0_12px_rgba(251,191,36,0.6)]">
+              <div className="absolute inset-0 rounded-full animate-ping bg-amber-400/20" style={{ animationDuration: '3s' }}></div>
+              <Trophy size={16} className="text-amber-400 drop-shadow-[0_0_6px_rgba(251,191,36,0.8)] relative z-10" />
             </div>
-            <span className="font-heading text-sm font-bold tracking-tight text-foreground">GOLAZO HUB</span>
+            <span className="font-heading text-sm font-bold tracking-tight text-foreground drop-shadow-md">GOLAZO HUB</span>
           </Link>
           
-          <div className="flex items-center gap-4 z-10">
+          {/* Right Actions */}
+          <div className="flex items-center gap-3 z-10 ml-auto">
             {me && (
               <>
                 <ThemeToggle />

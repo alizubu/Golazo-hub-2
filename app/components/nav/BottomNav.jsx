@@ -16,13 +16,13 @@ export const BottomNav = ({ items, pathname, isActive, handleNav, hasLiveMatch }
 
   return (
     <motion.div 
-      initial={shouldReduceMotion ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
+      initial={shouldReduceMotion ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5, ease: "easeOut" }}
-      className="md:hidden fixed bottom-0 inset-x-0 z-50 px-4 pb-[calc(env(safe-area-inset-bottom)+16px)] pointer-events-none flex justify-center"
+      transition={{ duration: 0.5, ease: "easeOut", type: "spring", damping: 25 }}
+      className="md:hidden fixed bottom-5 inset-x-0 z-50 px-4 pb-[env(safe-area-inset-bottom)] pointer-events-none flex justify-center"
     >
-      {/* Floating Dark Glassmorphic Capsule */}
-      <div className="relative w-full max-w-[420px] h-[72px] bg-background/85 backdrop-blur-xl border border-border rounded-[2rem] shadow-2xl pointer-events-auto flex items-center px-2">
+      {/* Floating Glassmorphic Island */}
+      <div className="relative w-full max-w-[420px] h-[72px] bg-background/75 backdrop-blur-2xl border border-border/60 rounded-full shadow-[0_15px_40px_-10px_rgba(0,0,0,0.4)] dark:shadow-[0_15px_40px_-10px_rgba(0,0,0,0.8)] pointer-events-auto flex items-center px-2">
         
         {/* Luminous top border reflection */}
         <div className="absolute inset-x-8 top-0 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent" />
