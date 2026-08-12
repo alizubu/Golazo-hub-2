@@ -34,11 +34,11 @@ const clubs = clubsData.map(c => ({ ...c, subtitle: `${c.league}, ${c.country}` 
 const nationalTeams = nationalTeamsData.map(nt => ({ ...nt, subtitle: nt.confederation }));
 
 const BENTO_TROPHIES = [
-  { id: 'bb-championship', name: 'BB Championship', requirement: 'Win the ultimate BB League title.', image: '/assets/trophies/bb_champ.png', icon: '🏆' },
-  { id: 'ballon-dor', name: "Ballon d'Or", requirement: 'Voted the absolute best player in the world.', image: '/assets/trophies/ballon_dor.png', icon: '🥇' },
+  { id: 'bb-championship', name: 'BB Championship', requirement: 'Win the ultimate BB League title.', image: '/assets/trophies/BB-Champion.png', icon: '🏆' },
+  { id: 'ballon-dor', name: "Ballon d'Or", requirement: 'Voted the absolute best player in the world.', image: '/assets/trophies/BalanDor.png', icon: '🥇' },
   { id: 'golden-boot', name: 'Golden Boot', requirement: 'Score the most goals in the season.', image: '/assets/trophies/Golden-boot.png', icon: '👟' },
-  { id: 'most-successful-pass', name: 'Pass Master', requirement: 'Achieve the highest pass accuracy.', image: '/assets/trophies/pass_master.png', icon: '🎯' },
-  { id: 'mvp', name: 'Tournament MVP', requirement: 'Dominate the pitch and earn MVP honors.', image: '/assets/trophies/mvp.png', icon: '⭐' }
+  { id: 'most-successful-pass', name: 'Pass Master', requirement: 'Achieve the highest pass accuracy.', image: '/assets/trophies/MostPasses.png', icon: '🎯' },
+  { id: 'mvp', name: 'Tournament MVP', requirement: 'Dominate the pitch and earn MVP honors.', image: '/assets/trophies/MVP.png', icon: '⭐' }
 ];
 
 export default function PlayerViews(props) {
@@ -647,7 +647,7 @@ export function PlayerDashboard({ me, activeSeason, seasons = [], matches, playe
                 <>
                   <div className="pb-3 pt-5 px-5 sm:px-6 flex flex-row items-center justify-between gap-4 relative border-b border-border/40 dark:border-white/[0.06]">
                     <div className="text-xl sm:text-2xl font-bold flex items-center gap-2.5 text-foreground" style={{ fontFamily: "'Sora', sans-serif", fontWeight: 700 }}>
-                      <Trophy className="text-amber-500 dark:text-amber-400" size={24} /> The Trophy Room
+                      <Trophy className="text-amber-500 dark:text-amber-400" size={24} /> Trophy Cabinet
                     </div>
                     <div className="flex items-center gap-2">
                       <Badge variant="gold" className="px-3 py-1.5 font-score text-[10px] sm:text-xs font-black tracking-widest bg-amber-500/10 text-amber-500 border border-amber-500/30">
@@ -1112,7 +1112,7 @@ function BentoTrophyTile({ trophy, unlocked, count = 0, instances = [], isLarge,
       onClick={() => onSelect && onSelect()}
       whileHover={unlocked ? { scale: 1.02 } : { scale: 1.01 }}
       className={`relative flex flex-col items-center justify-center p-6 text-center cursor-pointer transition-all duration-500 group w-full h-full min-h-[220px] rounded-3xl overflow-hidden shadow-[0_10px_30px_rgba(0,0,0,0.5)] ${
-        unlocked ? 'bg-gradient-to-br from-[#1a1306] to-[#0A0A0C] border border-amber-500/30' : 'bg-black/60 backdrop-blur-md border border-white/5'
+        unlocked ? 'bg-gradient-to-br from-[#1a1306] to-[#0A0A0C] border border-amber-500/30' : 'bg-secondary/40 backdrop-blur-md border border-white/10'
       }`}
       style={{ perspective: 1000 }}
     >
@@ -1136,11 +1136,11 @@ function BentoTrophyTile({ trophy, unlocked, count = 0, instances = [], isLarge,
         </div>
       )}
 
-      {/* Trophy Artwork with 3D Spin */}
       <motion.div 
         className={`relative flex items-center justify-center shrink-0 z-10 ${isLarge ? 'w-32 h-32 md:w-48 md:h-48 mb-6' : 'w-24 h-24 sm:w-28 sm:h-28 mb-4'}`}
-        whileHover={unlocked ? { rotateY: 360 } : {}}
-        transition={{ duration: 0.8, ease: "easeInOut" }}
+        whileHover={unlocked ? { rotateY: 360, scale: 1.1 } : { scale: 1.05 }}
+        animate={unlocked ? { y: [0, -8, 0] } : {}}
+        transition={unlocked ? { duration: 3, repeat: Infinity, ease: "easeInOut" } : { duration: 0.8, ease: "easeInOut" }}
       >
         <img
           src={trophy.image}

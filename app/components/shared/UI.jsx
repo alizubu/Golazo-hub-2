@@ -161,7 +161,8 @@ export const WavingFlag = ({ code, size = "md", className = "" }) => {
   const dims = size === "lg" ? "w-16 h-12" : size === "sm" ? "w-6 h-[18px]" : "w-10 h-[30px]";
   return (
     <div className={`relative overflow-hidden rounded-sm shadow-md ${dims} ${className} group`} style={{ transformStyle: 'preserve-3d', perspective: '200px' }}>
-      <img src={url} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 origin-left" style={{
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img src={url} alt={`${code} flag`} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 origin-left" style={{
          animation: "wave 3s ease-in-out infinite",
          transformOrigin: "left center"
       }} />
