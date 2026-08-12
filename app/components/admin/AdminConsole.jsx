@@ -1115,27 +1115,33 @@ export function AdminTrophies({ players, trophies = [], seasons, showToast }) {
     setForm(prev => ({ ...prev, title: award.name, icon: award.icon, description: award.defaultDesc || award.description }));
   };
 
+  const handleRetrigger = async (id) => {
+    const res = await retriggerCelebration(id);
+    if (res.error) showToast(res.error);
+    else showToast("✨ Sparkles triggered!");
+  };
+
   return (
     <div className="flex flex-col gap-6">
       <Tabs defaultValue="award" className="w-full">
-        <TabsList className="mb-6 w-full md:w-auto flex md:inline-flex bg-[#181a20]/80 backdrop-blur-xl border border-white/5 rounded-2xl p-1.5 shadow-[inset_0_2px_10px_rgba(0,0,0,0.5)] overflow-x-auto hide-scrollbar">
+        <TabsList className="mb-6 w-full md:w-auto mx-auto flex md:inline-flex bg-[#0f1115]/90 backdrop-blur-2xl border border-white/10 rounded-2xl p-1.5 shadow-[inset_0_2px_15px_rgba(255,255,255,0.05),0_10px_30px_rgba(0,0,0,0.5)] overflow-x-auto hide-scrollbar">
           <TabsTrigger 
             value="award" 
-            className="flex-1 md:flex-none transition-all duration-300 rounded-xl px-4 py-2.5 text-[11px] sm:text-sm font-semibold whitespace-nowrap data-[state=active]:bg-gradient-to-r data-[state=active]:from-amber-500/20 data-[state=active]:to-amber-500/5 data-[state=active]:text-amber-400 data-[state=active]:shadow-lg data-[state=active]:border data-[state=active]:border-amber-500/30 text-muted-foreground hover:text-foreground"
+            className="flex-1 md:flex-none transition-all duration-300 rounded-xl px-5 py-3 text-[11px] sm:text-sm font-bold whitespace-nowrap data-[state=active]:bg-gradient-to-r data-[state=active]:from-amber-600/30 data-[state=active]:to-amber-500/10 data-[state=active]:text-amber-400 data-[state=active]:shadow-[0_0_20px_rgba(245,158,11,0.2)] data-[state=active]:border data-[state=active]:border-amber-500/50 text-muted-foreground hover:text-foreground"
           >
-            <Plus size={16} className="mr-1.5" /> Trophy Forge
-          </TabsTrigger>
-          <TabsTrigger 
-            value="history" 
-            className="flex-1 md:flex-none transition-all duration-300 rounded-xl px-4 py-2.5 text-[11px] sm:text-sm font-semibold whitespace-nowrap data-[state=active]:bg-gradient-to-r data-[state=active]:from-amber-500/20 data-[state=active]:to-amber-500/5 data-[state=active]:text-amber-400 data-[state=active]:shadow-lg data-[state=active]:border data-[state=active]:border-amber-500/30 text-muted-foreground hover:text-foreground"
-          >
-            <History size={16} className="mr-1.5" /> Award History
+            🛠️ The Forge
           </TabsTrigger>
           <TabsTrigger 
             value="celebrations" 
-            className="flex-1 md:flex-none transition-all duration-300 rounded-xl px-4 py-2.5 text-[11px] sm:text-sm font-semibold whitespace-nowrap data-[state=active]:bg-gradient-to-r data-[state=active]:from-amber-500/20 data-[state=active]:to-amber-500/5 data-[state=active]:text-amber-400 data-[state=active]:shadow-lg data-[state=active]:border data-[state=active]:border-amber-500/30 text-muted-foreground hover:text-foreground"
+            className="flex-1 md:flex-none transition-all duration-300 rounded-xl px-5 py-3 text-[11px] sm:text-sm font-bold whitespace-nowrap data-[state=active]:bg-gradient-to-r data-[state=active]:from-red-600/30 data-[state=active]:to-red-500/10 data-[state=active]:text-red-400 data-[state=active]:shadow-[0_0_20px_rgba(239,68,68,0.2)] data-[state=active]:border data-[state=active]:border-red-500/50 text-muted-foreground hover:text-foreground"
           >
-            <Megaphone size={16} className="mr-1.5" /> Live Celebrations
+            🔴 Live Control
+          </TabsTrigger>
+          <TabsTrigger 
+            value="history" 
+            className="flex-1 md:flex-none transition-all duration-300 rounded-xl px-5 py-3 text-[11px] sm:text-sm font-bold whitespace-nowrap data-[state=active]:bg-gradient-to-r data-[state=active]:from-amber-600/30 data-[state=active]:to-amber-500/10 data-[state=active]:text-amber-400 data-[state=active]:shadow-[0_0_20px_rgba(245,158,11,0.2)] data-[state=active]:border data-[state=active]:border-amber-500/50 text-muted-foreground hover:text-foreground"
+          >
+            📜 Legacy
           </TabsTrigger>
         </TabsList>
 
@@ -1201,18 +1207,33 @@ export function AdminTrophies({ players, trophies = [], seasons, showToast }) {
               <button
                 onClick={handleAward}
                 disabled={isAwarding || isCelebrating}
-                className={`mt-4 w-full py-5 rounded-xl font-black uppercase tracking-widest text-lg transition-all ${
-                  isAwarding || isCelebrating ? 'bg-secondary dark:bg-zinc-800 text-muted-foreground cursor-not-allowed' : 'bg-gradient-to-r from-amber-500 to-amber-600 text-black hover:shadow-[0_0_30px_rgba(245,158,11,0.5)] hover:scale-[1.02]'
+                className={`mt-4 w-full py-6 rounded-xl font-black uppercase tracking-[0.2em] text-lg sm:text-xl transition-all relative overflow-hidden group ${
+                  isAwarding || isCelebrating ? 'bg-secondary text-muted-foreground cursor-not-allowed' : 'bg-gradient-to-r from-amber-500 via-yellow-500 to-amber-600 text-black hover:scale-[1.02] shadow-[0_0_40px_rgba(245,158,11,0.4)] hover:shadow-[0_0_60px_rgba(245,158,11,0.6)]'
                 }`}
               >
-                {isAwarding ? 'Minting...' : isCelebrating ? 'Success!' : '🏆 Award Trophy'}
+                {!(isAwarding || isCelebrating) && (
+                  <div className="absolute inset-0 w-full h-full bg-white/30 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000 ease-in-out" />
+                )}
+                {isAwarding ? 'INITIALIZING...' : isCelebrating ? 'TRANSMITTING!' : '🚀 LAUNCH BROADCAST'}
               </button>
             </div>
 
             {/* Live Preview Section */}
-            <div className="lg:col-span-5 flex flex-col items-center justify-center sticky lg:top-24 h-max min-h-[300px] sm:min-h-[400px]">
-              <div className="absolute inset-0 bg-gradient-to-b from-amber-500/5 to-transparent rounded-2xl pointer-events-none" />
+            <div className="lg:col-span-5 flex flex-col items-center justify-center sticky lg:top-24 h-max min-h-[350px] sm:min-h-[450px] bg-black/40 rounded-2xl border border-white/5 p-6 overflow-hidden relative">
+              <div className="absolute top-4 left-4 flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse"></span>
+                <span className="text-[10px] font-black tracking-widest text-muted-foreground uppercase">Broadcast Preview</span>
+              </div>
               
+              <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(245,158,11,0.15),transparent_70%)] rounded-2xl pointer-events-none" />
+              
+              {/* Fake particles for broadcast vibe */}
+              <div className="absolute inset-0 opacity-30 pointer-events-none overflow-hidden">
+                 {[...Array(6)].map((_, i) => (
+                    <div key={i} className={`absolute w-1.5 h-1.5 bg-amber-400 rounded-full animate-float-${(i%3)+1}`} style={{ left: `${Math.random()*100}%`, top: `${Math.random()*100}%`, animationDelay: `${i*0.5}s` }} />
+                 ))}
+              </div>
+
               <AnimatePresence>
                 {isCelebrating && (
                   <>
@@ -1236,83 +1257,102 @@ export function AdminTrophies({ players, trophies = [], seasons, showToast }) {
               </AnimatePresence>
 
               <motion.div 
-                className="relative z-10 w-full max-w-[320px] perspective-1000"
+                className="relative z-10 w-full max-w-[320px] perspective-1000 mt-6"
                 animate={isCelebrating ? { 
                   scale: [1, 1.15, 1], 
                   rotateY: [0, 15, -15, 0],
                   rotateX: [0, 10, -10, 0]
                 } : {
                   rotateY: [-5, 5, -5],
-                  rotateX: [2, -2, 2]
+                  rotateX: [2, -2, 2],
+                  y: [-5, 5, -5]
                 }}
                 transition={isCelebrating ? { duration: 1.5, ease: "easeInOut" } : { duration: 6, repeat: Infinity, ease: "easeInOut" }}
               >
                 <BorderBeam size={150} duration={8} delay={0} colorFrom="#f59e0b" colorTo="transparent" className="rounded-2xl z-40 opacity-70 pointer-events-none" />
-                <TrophyTradingCard 
-                  trophy={{ 
-                    ...form, 
-                    title: form.title || 'Legendary Award',
-                    season: form.season || 'Season X',
-                    icon: form.icon || '🏆',
-                    player: players.find(p => p.id === form.playerId) || { name: 'Player Name', avatar: '' }
-                  }} 
-                  hideActions={true}
-                />
+                <div className="shadow-[0_20px_50px_rgba(0,0,0,0.5)] rounded-2xl">
+                  <TrophyTradingCard 
+                    trophy={{ 
+                      ...form, 
+                      title: form.title || 'Legendary Award',
+                      season: form.season || 'Season X',
+                      icon: form.icon || '🏆',
+                      player: players.find(p => p.id === form.playerId) || { name: 'Player Name', avatar: '' }
+                    }} 
+                    hideActions={true}
+                  />
+                </div>
               </motion.div>
             </div>
           </div>
         </TabsContent>
 
         <TabsContent value="history" className="space-y-6">
-          <Card className="p-6">
-            <SectionTitle icon={History}>Award Vault</SectionTitle>
-            <p className="text-sm text-muted-foreground mb-6">
-              Browse all permanent trophies awarded to players.
+          <div className="bg-[#0f1115]/80 p-6 rounded-3xl border border-white/10 shadow-[0_20px_50px_rgba(0,0,0,0.5)] relative overflow-hidden">
+            {/* Museum lighting effect */}
+            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-3/4 h-32 bg-amber-500/10 blur-[100px] pointer-events-none" />
+            
+            <SectionTitle icon={History}>Legacy Vault</SectionTitle>
+            <p className="text-sm text-muted-foreground mb-8">
+              A museum of all permanent trophies awarded throughout history.
             </p>
             {trophies.length === 0 ? (
               <EmptyState text="No trophies awarded yet." />
             ) : (
-              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-4">
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 sm:gap-6">
                 {trophies.map((t, i) => (
                   <motion.div
                     key={t.id}
-                    initial={{ opacity: 0, scale: 0.9, y: 10 }}
+                    initial={{ opacity: 0, scale: 0.9, y: 20 }}
                     animate={{ opacity: 1, scale: 1, y: 0 }}
-                    transition={{ delay: i * 0.04, type: 'spring' }}
+                    transition={{ delay: i * 0.05, type: 'spring', damping: 20 }}
+                    whileHover={{ y: -10, scale: 1.05 }}
+                    className="relative group cursor-pointer perspective-1000"
                   >
-                    <TrophyTradingCard
-                      trophy={{ ...t, player: t.player || players.find(p => p.id === t.playerId) }}
-                      onEdit={(trophyData) => setEditTarget(trophyData)}
-                      onRevoke={(trophyData) => setRevokeTarget(trophyData)}
-                    />
+                    {/* Pedestal shadow */}
+                    <div className="absolute -bottom-4 left-1/2 -translate-x-1/2 w-3/4 h-8 bg-black/50 blur-xl rounded-[100%] transition-opacity group-hover:opacity-100 opacity-50" />
+                    
+                    {/* Glass case border */}
+                    <div className="absolute inset-0 rounded-2xl border-2 border-white/5 group-hover:border-amber-500/50 transition-colors z-20 pointer-events-none mix-blend-overlay" />
+                    
+                    <div className="shadow-2xl rounded-2xl overflow-hidden bg-black/50 backdrop-blur-sm">
+                      <TrophyTradingCard
+                        trophy={{ ...t, player: t.player || players.find(p => p.id === t.playerId) }}
+                        onEdit={(trophyData) => setEditTarget(trophyData)}
+                        onRevoke={(trophyData) => setRevokeTarget(trophyData)}
+                      />
+                    </div>
                   </motion.div>
                 ))}
               </div>
             )}
-          </Card>
+          </div>
         </TabsContent>
 
         <TabsContent value="celebrations" className="space-y-6">
-          <Card className="p-6 overflow-hidden bg-background border-red-500/20 shadow-[0_4px_30px_rgba(0,0,0,0.5)]">
-            <div className="flex items-center justify-between mb-6 pb-4 border-b border-border">
-              <SectionTitle icon={Megaphone}>Live Broadcasts</SectionTitle>
-              <div className="flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold bg-red-500/10 text-red-400 border border-red-500/30 shadow-[0_0_10px_rgba(239,68,68,0.2)]">
-                <div className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse" />
-                ON AIR
+          <div className="bg-[#0f1115]/90 rounded-3xl p-6 border border-red-500/20 shadow-[0_20px_50px_rgba(239,68,68,0.1)] relative overflow-hidden">
+            {/* Control Room Red Scanner Effect */}
+            <div className="absolute top-0 left-0 w-full h-[2px] bg-red-500/50 shadow-[0_0_20px_rgba(239,68,68,1)] animate-scan pointer-events-none" />
+            
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-8 pb-4 border-b border-red-500/20">
+              <SectionTitle icon={Megaphone} className="text-red-100">Live Broadcast Control</SectionTitle>
+              <div className="flex items-center gap-2 px-4 py-1.5 mt-4 sm:mt-0 rounded-full text-xs font-black tracking-widest bg-red-500/10 text-red-400 border border-red-500/30 shadow-[0_0_15px_rgba(239,68,68,0.3)]">
+                <div className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
+                SYSTEM ACTIVE
               </div>
             </div>
             
-            <p className="text-sm text-muted-foreground mb-6">
-              Manage active 24-hour celebration banners appearing on player dashboards.
+            <p className="text-sm text-red-200/60 mb-6 font-mono">
+              Monitor and override active 24-hour celebration banners appearing on player dashboards.
             </p>
 
             {celebrations.length === 0 ? (
-              <div className="flex flex-col items-center justify-center py-12 border border-dashed border-border rounded-2xl bg-white/5">
-                <span className="text-4xl mb-3 opacity-50">📡</span>
-                <p className="text-muted-foreground font-medium">No active broadcasts.</p>
+              <div className="flex flex-col items-center justify-center py-16 border-2 border-dashed border-red-500/20 rounded-2xl bg-black/40">
+                <span className="text-4xl mb-3 opacity-30 drop-shadow-[0_0_15px_rgba(239,68,68,0.5)]">📡</span>
+                <p className="text-red-400/50 font-black tracking-widest uppercase">No Active Transmissions</p>
               </div>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {celebrations.map((c, i) => {
                   const expiry = new Date(c.expiresAt);
                   const isActive = c.status === 'active' && expiry > now;
@@ -1324,58 +1364,68 @@ export function AdminTrophies({ players, trophies = [], seasons, showToast }) {
                   return (
                     <motion.div
                       key={c.id}
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
+                      initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                      animate={{ opacity: 1, y: 0, scale: 1 }}
                       transition={{ delay: i * 0.05 }}
-                      className={`relative p-5 rounded-2xl border transition-all ${
-                        isActive ? 'bg-black border-red-500/40 shadow-[0_0_20px_rgba(239,68,68,0.15)]' : 'bg-white/5 border-border opacity-60'
+                      className={`relative p-5 rounded-2xl border-2 transition-all overflow-hidden ${
+                        isActive ? 'bg-black/80 border-red-500/50 shadow-[0_0_30px_rgba(239,68,68,0.2)]' : 'bg-black/40 border-white/5 opacity-50'
                       }`}
                     >
                       {isActive && (
-                        <div className="absolute top-0 right-0 px-3 py-1 bg-red-500 text-foreground text-[9px] font-black tracking-widest rounded-bl-xl rounded-tr-xl">
-                          LIVE
+                        <div className="absolute top-0 right-0 px-4 py-1.5 bg-red-600 text-white text-[10px] font-black tracking-widest rounded-bl-2xl shadow-[0_0_15px_rgba(239,68,68,0.8)]">
+                          TRANSMITTING
                         </div>
                       )}
                       
-                      <div className="flex items-center gap-3 mb-4">
-                        <div className="w-12 h-12 rounded-xl bg-white/5 flex items-center justify-center text-2xl border border-border">
+                      <div className="flex items-center gap-4 mb-5 mt-2">
+                        <div className="w-14 h-14 rounded-xl bg-white/5 flex items-center justify-center text-3xl border border-white/10 shadow-inner">
                           {c.trophy.icon && (c.trophy.icon.startsWith('/') || c.trophy.icon.startsWith('http')) ? (
-                            <img src={c.trophy.icon} className="w-8 h-8 object-contain" alt="" />
+                            <img src={c.trophy.icon} className="w-9 h-9 object-contain filter drop-shadow-md" alt="" />
                           ) : (
                             <span>{c.trophy.icon || '🏆'}</span>
                           )}
                         </div>
                         <div>
-                          <h4 className="font-bold text-foreground text-sm leading-tight">{c.trophy.title}</h4>
-                          <div className="flex items-center gap-1.5 mt-1">
-                            <Avatar p={c.trophy.player} size={14} />
-                            <span className="text-xs text-muted-foreground font-medium">{c.trophy.player.name}</span>
+                          <h4 className="font-black text-red-50 text-base leading-tight tracking-wide">{c.trophy.title}</h4>
+                          <div className="flex items-center gap-2 mt-1.5 bg-white/5 px-2 py-1 rounded-md w-max">
+                            <Avatar p={c.trophy.player} size={16} />
+                            <span className="text-xs text-red-200/80 font-bold uppercase tracking-wider">{c.trophy.player.name}</span>
                           </div>
                         </div>
                       </div>
 
-                      <div className="flex flex-col xs:flex-row items-start xs:items-center justify-between gap-3 mt-6 pt-4 border-t border-border">
+                      <div className="flex flex-col gap-4 mt-6 pt-5 border-t border-red-500/20">
                         {isActive ? (
-                          <div className="flex flex-col">
-                            <span className="text-[9px] font-bold text-muted-foreground uppercase tracking-wider mb-1">Time Remaining</span>
-                            <span className="font-mono text-red-400 font-bold text-sm tracking-wider">
+                          <div className="flex items-center justify-between bg-red-950/30 px-3 py-2 rounded-lg border border-red-500/10">
+                            <span className="text-[10px] font-black text-red-400 uppercase tracking-widest">Time Remaining</span>
+                            <span className="font-mono text-red-400 font-bold text-sm tracking-widest drop-shadow-[0_0_5px_rgba(239,68,68,0.8)]">
                               {String(hLeft).padStart(2,'0')}:{String(mLeft).padStart(2,'0')}:{String(sLeft).padStart(2,'0')}
                             </span>
                           </div>
                         ) : (
-                          <span className="text-xs font-bold text-muted-foreground uppercase tracking-widest">
-                            {c.status === 'ended_early' ? 'KILLED' : 'EXPIRED'}
-                          </span>
+                          <div className="bg-white/5 px-3 py-2 rounded-lg text-center">
+                            <span className="text-xs font-black text-white/40 uppercase tracking-widest">
+                              {c.status === 'ended_early' ? 'TERMINATED' : 'EXPIRED'}
+                            </span>
+                          </div>
                         )}
 
                         {isActive && (
-                          <button
-                            onClick={() => handleEndCelebration(c.id)}
-                            className="px-3 py-1.5 bg-red-950 hover:bg-red-900 border border-red-800 text-red-400 rounded-lg text-[10px] font-black uppercase tracking-widest transition-colors flex items-center gap-1"
-                          >
-                            <span className="w-1.5 h-1.5 bg-red-500 rounded-full" />
-                            Kill Switch
-                          </button>
+                          <div className="flex gap-2">
+                            <button
+                              onClick={() => handleEndCelebration(c.id)}
+                              className="flex-1 py-2.5 bg-red-950 hover:bg-red-600 border border-red-800 hover:border-red-500 text-red-400 hover:text-white rounded-xl text-[10px] font-black uppercase tracking-widest transition-all flex items-center justify-center gap-2 shadow-[inset_0_2px_10px_rgba(0,0,0,0.5)] group"
+                            >
+                              <div className="w-2 h-2 bg-red-500 group-hover:bg-white rounded-full shadow-[0_0_8px_rgba(239,68,68,1)]" />
+                              Kill Switch
+                            </button>
+                            <button
+                              onClick={() => handleRetrigger(c.id)}
+                              className="flex-1 py-2.5 bg-amber-950/50 hover:bg-amber-600 border border-amber-800/50 hover:border-amber-500 text-amber-500 hover:text-white rounded-xl text-[10px] font-black uppercase tracking-widest transition-all flex items-center justify-center gap-2"
+                            >
+                              ✨ Trigger Sparkles
+                            </button>
+                          </div>
                         )}
                       </div>
                     </motion.div>
@@ -1383,7 +1433,7 @@ export function AdminTrophies({ players, trophies = [], seasons, showToast }) {
                 })}
               </div>
             )}
-          </Card>
+          </div>
         </TabsContent>
       </Tabs>
 
