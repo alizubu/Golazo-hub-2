@@ -1001,9 +1001,6 @@ function HistoryView({ history, players, matches, setTab }) {
       <PageHeader title="History" onBack={() => setTab('dashboard')} />
 
       {history.map((t, i) => {
-        const champ = players.find((p) => p.id === t.championId);
-        const runner = players.find((p) => p.id === t.runnerUpId);
-        const third = players.find((p) => p.id === t.thirdId);
         const mvp = players.find((p) => p.id === t.mvpId);
         // Use season's included matches if available, otherwise filter from all matches
         const seasonMatches = t.matches && t.matches.length > 0 ? t.matches : matches.filter(m => m.seasonId === t.id);
@@ -1017,23 +1014,7 @@ function HistoryView({ history, players, matches, setTab }) {
                   {t.completedAt ? new Date(t.completedAt).toLocaleDateString() : 'N/A'}
                 </span>
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-3 text-center">
-                <div className="p-4 rounded-xl bg-gold/10 border border-gold/20">
-                  <Trophy size={24} className="mx-auto mb-2 text-gold" />
-                  <div className="text-sm font-bold font-heading tracking-wide">{champ?.name || "—"}</div>
-                  <div className="text-[10px] uppercase tracking-widest text-muted-foreground mt-1">Champion</div>
-                </div>
-                <div className="p-4 rounded-xl bg-secondary dark:bg-zinc-400/10 border border-border dark:border-zinc-400/20">
-                  <Trophy size={24} className="mx-auto mb-2 text-muted-foreground" />
-                  <div className="text-sm font-bold font-heading tracking-wide">{runner?.name || "—"}</div>
-                  <div className="text-[10px] uppercase tracking-widest text-muted-foreground mt-1">Runner-up</div>
-                </div>
-                <div className="p-4 rounded-xl bg-[#CD7F32]/10 border border-[#CD7F32]/20">
-                  <Trophy size={24} className="mx-auto mb-2 text-[#CD7F32]" />
-                  <div className="text-sm font-bold font-heading tracking-wide">{third?.name || "—"}</div>
-                  <div className="text-[10px] uppercase tracking-widest text-muted-foreground mt-1">Third place</div>
-                </div>
-              </div>
+
               {mvp && (
                 <div className="mt-4 text-sm flex items-center gap-2 justify-center text-pitch-bright font-medium">
                   <Trophy size={16} /> MVP of the season: <strong className="font-bold">{mvp.name}</strong>
