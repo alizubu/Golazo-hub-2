@@ -155,14 +155,14 @@ export const PlayStyleBadge = ({ style, showLabel = false, size = "md" }) => {
   );
 };
 
-export const WavingFlag = ({ code, size = "md", className = "" }) => {
-  if (!code) return null;
-  const url = `https://flagcdn.com/w160/${code.toLowerCase()}.png`;
+export const WavingFlag = ({ code, url, size = "md", className = "" }) => {
+  if (!code && !url) return null;
+  const finalUrl = url || `https://flagcdn.com/w160/${code?.toLowerCase()}.png`;
   const dims = size === "lg" ? "w-16 h-12" : size === "sm" ? "w-6 h-[18px]" : "w-10 h-[30px]";
   return (
     <div className={`relative overflow-hidden rounded-sm shadow-md ${dims} ${className} group`} style={{ transformStyle: 'preserve-3d', perspective: '200px' }}>
       {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src={url} alt={`${code} flag`} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 origin-left" style={{
+      <img src={finalUrl} alt={`${code || 'custom'} flag`} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 origin-left" style={{
          animation: "wave 3s ease-in-out infinite",
          transformOrigin: "left center"
       }} />

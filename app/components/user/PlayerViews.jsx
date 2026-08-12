@@ -354,8 +354,8 @@ export function PlayerDashboard({ me, activeSeason, seasons = [], matches, playe
             <div className="absolute bottom-0 left-0 right-0 bg-background/40 backdrop-blur-md border-t border-white/10 px-6 py-4 flex flex-col md:flex-row items-center justify-between gap-4 z-20">
               {/* Left: Identity */}
               <div className="flex items-center gap-5 w-full md:w-auto">
-                <div className="relative -mt-10 shrink-0">
-                  <div className="absolute -inset-1 rounded-full blur-[2px]"
+                <div className="relative -mt-16 shrink-0">
+                  <div className="absolute -inset-2 rounded-full blur-[10px] animate-pulse"
                     style={{
                       background: selectedClub && CLUB_COLORS[selectedClub.name]
                         ? `linear-gradient(135deg, ${CLUB_COLORS[selectedClub.name].primary}, ${CLUB_COLORS[selectedClub.name].secondary})`
@@ -364,8 +364,8 @@ export function PlayerDashboard({ me, activeSeason, seasons = [], matches, playe
                           : `linear-gradient(135deg, var(--pitch-bright), var(--pitch))`
                     }}
                   />
-                  <div className="relative rounded-full p-1 bg-card shadow-xl">
-                    <AvatarWithBadge player={me} size={80} isOnFire={isOnFire} />
+                  <div className="relative rounded-full p-1.5 bg-card shadow-2xl ring-4 ring-background/50">
+                    <AvatarWithBadge player={me} size={160} isOnFire={isOnFire} />
                   </div>
                 </div>
                 <div className="flex flex-col min-w-0">
@@ -504,7 +504,7 @@ export function PlayerDashboard({ me, activeSeason, seasons = [], matches, playe
               <div className="flex-1 p-5 flex items-center gap-4 relative overflow-hidden bg-secondary/10">
                 <div className="absolute right-0 top-0 bottom-0 w-32 bg-gradient-to-l from-gold opacity-5" />
                 <div className="shrink-0 bg-background p-2 rounded-xl border border-border shadow-sm z-10">
-                  {selectedNationalTeam ? <WavingFlag code={selectedNationalTeam.isoCode} size="md" /> : <WavingFlag code="UN" size="md" />}
+                  {selectedNationalTeam ? <WavingFlag url={selectedNationalTeam.flag_url} size="md" /> : <WavingFlag code="UN" size="md" />}
                 </div>
                 <div className="flex flex-col z-10">
                   <span className="text-[9px] uppercase font-bold text-muted-foreground tracking-widest mb-0.5">National Team</span>

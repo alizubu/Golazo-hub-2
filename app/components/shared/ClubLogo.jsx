@@ -14,9 +14,9 @@ export function ClubLogo({ club, size = 40, className = "" }) {
       className={`relative flex-shrink-0 flex items-center justify-center ${className}`}
       style={{ width: size, height: size }}
     >
-      {!error && club.crestPath ? (
+      {!error && (club.logo_url || club.crestPath) ? (
         <Image 
-          src={club.crestPath} 
+          src={club.logo_url || club.crestPath} 
           alt={club.name} 
           width={size} 
           height={size} 
