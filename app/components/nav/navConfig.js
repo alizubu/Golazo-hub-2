@@ -8,6 +8,7 @@ export const playerTabs = [
   { id: 'roster', label: 'Roster', href: '/players', icon: Users },
   { id: 'dashboard', label: 'Dashboard', href: '/dashboard', icon: Home, matchRoot: true }, // FAB
   { id: 'history', label: 'History', href: '/history', icon: HistoryIcon },
+  { id: 'ranking', label: 'Ranking', href: '/ranking', icon: TrendingUp },
   { id: 'hall-of-fame', label: 'Hall of Fame', href: '/hall-of-fame', icon: Star, variant: 'gold' },
 ];
 

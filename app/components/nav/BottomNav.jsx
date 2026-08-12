@@ -6,9 +6,10 @@ import Link from 'next/link';
 export const BottomNav = ({ items, pathname, isActive, handleNav, hasLiveMatch }) => {
   const shouldReduceMotion = useReducedMotion();
 
-  // Find the Dashboard (FAB) item and the side items
-  const fabItem = items.find(item => item.id === 'dashboard');
-  const otherItems = items.filter(item => item.id !== 'dashboard');
+  // Find the Dashboard (FAB) item and the side items (excluding ranking for mobile)
+  const mobileItems = items.filter(item => item.id !== 'ranking');
+  const fabItem = mobileItems.find(item => item.id === 'dashboard');
+  const otherItems = mobileItems.filter(item => item.id !== 'dashboard');
   
   // Split into left (2) and right (2)
   const leftItems = otherItems.slice(0, 2);

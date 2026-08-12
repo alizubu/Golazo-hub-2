@@ -114,7 +114,7 @@ export const TopBar = ({ session, me, items, pathname, handleNav, unreadCount, i
       </div>
 
       {/* --- MOBILE HEADER (DYNAMIC ISLAND) --- */}
-      <div className="md:hidden fixed top-2 inset-x-0 z-[60] flex justify-center px-4 pointer-events-none" style={{ paddingTop: 'env(safe-area-inset-top)' }}>
+      <div className="md:hidden fixed top-12 inset-x-0 z-[60] flex justify-center px-4 pointer-events-none" style={{ paddingTop: 'env(safe-area-inset-top)' }}>
         <motion.div 
           layout
           initial={{ borderRadius: 32 }}
@@ -130,7 +130,7 @@ export const TopBar = ({ session, me, items, pathname, handleNav, unreadCount, i
           </motion.div>
 
           {/* Spacer when collapsed */}
-          {!isMobileExpanded && <motion.div layout className="w-16" />}
+          {!isMobileExpanded && <motion.div layout className="w-4" />}
 
           {/* Expanded Items */}
           <AnimatePresence>
@@ -142,12 +142,6 @@ export const TopBar = ({ session, me, items, pathname, handleNav, unreadCount, i
                 exit={{ opacity: 0, width: 0 }}
                 className="flex items-center gap-1.5 overflow-hidden whitespace-nowrap"
               >
-                {/* Glowing Ranking Button */}
-                <Link href="/ranking" onClick={(e) => { handleNav(e, "/ranking"); setIsMobileExpanded(false); }} className="relative flex items-center justify-center w-8 h-8 rounded-full bg-gradient-to-tr from-amber-500 to-yellow-400 shadow-[0_0_12px_rgba(251,191,36,0.7)] outline-none flex-shrink-0 mx-1">
-                  <div className="absolute inset-0 rounded-full animate-ping bg-amber-400/40" style={{ animationDuration: '2s' }}></div>
-                  <Trophy size={14} className="text-zinc-950 relative z-10" strokeWidth={2.5} />
-                </Link>
-
                 <ThemeToggle />
 
                 <button 
@@ -162,8 +156,13 @@ export const TopBar = ({ session, me, items, pathname, handleNav, unreadCount, i
             )}
           </AnimatePresence>
 
-          {/* Right: Triggers */}
-          <motion.div layout className="flex items-center gap-1.5">
+          {/* Right: Triggers (Always Visible) */}
+          <motion.div layout className="flex items-center gap-1.5 ml-auto">
+            {/* Glowing Ranking Button */}
+            <Link href="/ranking" onClick={(e) => { handleNav(e, "/ranking"); setIsMobileExpanded(false); }} className="relative flex items-center justify-center w-9 h-9 rounded-full bg-gradient-to-tr from-amber-500 to-yellow-400 shadow-[0_0_12px_rgba(251,191,36,0.7)] outline-none flex-shrink-0 mx-0.5">
+              <div className="absolute inset-0 rounded-full animate-ping bg-amber-400/40" style={{ animationDuration: '2s' }}></div>
+              <Trophy size={16} className="text-zinc-950 relative z-10" strokeWidth={2.5} />
+            </Link>
             {!isMobileExpanded && (
               <Link href="/notifications" onClick={(e) => { handleNav(e, "/notifications"); setIsMobileExpanded(false); }} className="relative flex items-center justify-center w-10 h-10 rounded-full text-muted-foreground hover:text-foreground active:bg-secondary/50 outline-none transition-colors">
                 <Bell size={18} />

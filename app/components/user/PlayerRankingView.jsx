@@ -35,7 +35,7 @@ export default function PlayerRankingView({ players, matches, setTab }) {
       <div className="flex-1 max-w-5xl w-full mx-auto p-4 sm:p-6 lg:p-8 flex flex-col gap-12 mt-4">
         {/* Cinematic Podium for Top 3 */}
         {top3.length > 0 && (
-          <div className="relative pt-12 pb-8 flex justify-center items-end gap-2 sm:gap-6 h-[400px]">
+          <div className="relative pt-28 pb-8 flex justify-center items-end gap-2 sm:gap-6 h-[400px]">
             {/* 2nd Place */}
             {top3[1] && <PodiumStep player={top3[1]} rank={2} height={200} trend={getPlayerTrend(top3[1].id)} delay={0.2} />}
             
