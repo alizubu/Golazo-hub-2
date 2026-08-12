@@ -1,13 +1,14 @@
 'use client';
-import React from 'react';
+import React, { useState } from 'react';
 import Link from 'next/link';
-import { motion, useReducedMotion } from 'framer-motion';
+import { motion, useReducedMotion, AnimatePresence } from 'framer-motion';
 import { LogOut, Settings, Bell, Trophy, Loader2 } from 'lucide-react';
 import { Avatar } from '@/app/components/shared/UI';
 import ThemeToggle from '@/app/components/shared/ThemeToggle';
 
 export const TopBar = ({ session, me, items, pathname, handleNav, unreadCount, isLoggingOut, handleLogout }) => {
   const shouldReduceMotion = useReducedMotion();
+  const [isMobileExpanded, setIsMobileExpanded] = useState(false);
 
   // Desktop header is retained but updated to use the unified gradient border approach if needed,
   // but the prompt focused heavily on the mobile experience. We will update both.
@@ -112,77 +113,74 @@ export const TopBar = ({ session, me, items, pathname, handleNav, unreadCount, i
         </div>
       </div>
 
-      {/* --- MOBILE HEADER --- */}
-      <div className="md:hidden sticky top-0 z-[60] w-full bg-background/90 backdrop-blur-2xl" style={{ paddingTop: 'env(safe-area-inset-top)' }}>
-        <div className="w-full flex items-center justify-between px-4 h-14 relative">
-          
-          {/* 1px Gradient Bottom Border */}
-          <div className="absolute bottom-0 inset-x-0 h-[1px] bg-brand-gradient" />
-
-          {/* Left side spacer to balance the centered logo */}
-          <div className="flex-1 hidden sm:block"></div>
-
-          {/* Centered Logo */}
-          <Link href="/dashboard" onClick={(e) => handleNav(e, "/dashboard")} className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 flex items-center gap-2 z-10 outline-none">
-            <span className="font-heading text-base font-black tracking-widest text-foreground drop-shadow-md">GOLAZO HUB</span>
-          </Link>
-          
-          {/* Right Actions */}
-          <div className="flex items-center gap-3 z-10 ml-auto">
-            {/* Glowing Ranking Button */}
-            <Link href="/ranking" onClick={(e) => handleNav(e, "/ranking")} className="relative flex items-center justify-center w-8 h-8 rounded-full bg-gradient-to-tr from-amber-500 to-yellow-400 shadow-[0_0_12px_rgba(251,191,36,0.7)] outline-none">
-              <div className="absolute inset-0 rounded-full animate-ping bg-amber-400/40" style={{ animationDuration: '2s' }}></div>
-              <Trophy size={14} className="text-zinc-950 relative z-10" strokeWidth={2.5} />
+      {/* --- MOBILE HEADER (DYNAMIC ISLAND) --- */}
+      <div className="md:hidden fixed top-2 inset-x-0 z-[60] flex justify-center px-4 pointer-events-none" style={{ paddingTop: 'env(safe-area-inset-top)' }}>
+        <motion.div 
+          layout
+          initial={{ borderRadius: 32 }}
+          className="bg-background/75 backdrop-blur-3xl border border-border/60 shadow-[0_15px_40px_-10px_rgba(0,0,0,0.5)] flex items-center h-[52px] pointer-events-auto overflow-hidden px-1.5 gap-1.5"
+        >
+          {/* Left: Logo Icon */}
+          <motion.div layout>
+            <Link href="/dashboard" onClick={(e) => { handleNav(e, "/dashboard"); setIsMobileExpanded(false); }} className="flex items-center justify-center w-10 h-10 rounded-full flex-shrink-0 outline-none hover:bg-white/5 active:bg-white/10 transition-colors">
+              <div className="flex items-center justify-center w-8 h-8 rounded-full bg-amber-500/10">
+                <Trophy size={16} className="text-amber-400" />
+              </div>
             </Link>
+          </motion.div>
 
-            {me && (
-              <>
+          {/* Spacer when collapsed */}
+          {!isMobileExpanded && <motion.div layout className="w-16" />}
+
+          {/* Expanded Items */}
+          <AnimatePresence>
+            {isMobileExpanded && (
+              <motion.div 
+                layout
+                initial={{ opacity: 0, width: 0 }}
+                animate={{ opacity: 1, width: 'auto' }}
+                exit={{ opacity: 0, width: 0 }}
+                className="flex items-center gap-1.5 overflow-hidden whitespace-nowrap"
+              >
+                {/* Glowing Ranking Button */}
+                <Link href="/ranking" onClick={(e) => { handleNav(e, "/ranking"); setIsMobileExpanded(false); }} className="relative flex items-center justify-center w-8 h-8 rounded-full bg-gradient-to-tr from-amber-500 to-yellow-400 shadow-[0_0_12px_rgba(251,191,36,0.7)] outline-none flex-shrink-0 mx-1">
+                  <div className="absolute inset-0 rounded-full animate-ping bg-amber-400/40" style={{ animationDuration: '2s' }}></div>
+                  <Trophy size={14} className="text-zinc-950 relative z-10" strokeWidth={2.5} />
+                </Link>
+
                 <ThemeToggle />
-                <Link href="/notifications" onClick={(e) => handleNav(e, "/notifications")} className="relative flex items-center justify-center w-8 h-8 rounded-full text-muted-foreground hover:text-foreground active:bg-secondary/50 transition-colors outline-none">
-                  <motion.div
-                    key={`bell-m-${unreadCount}`}
-                    initial={{ rotate: 0 }}
-                    animate={unreadCount > 0 && !shouldReduceMotion ? { rotate: [0, -15, 15, -15, 15, 0] } : { rotate: 0 }}
-                    transition={{ duration: 0.6, type: "spring" }}
-                  >
-                    <Bell size={18} />
-                  </motion.div>
-                  {unreadCount > 0 && (
-                    <motion.div 
-                      key={`badge-m-${unreadCount}`}
-                      initial={{ scale: 0.6, opacity: 0 }}
-                      animate={{ scale: 1, opacity: 1 }}
-                      transition={{ type: "spring", stiffness: 400, damping: 12 }}
-                      className="absolute -top-1 -right-1 flex items-center justify-center"
-                    >
-                      {!shouldReduceMotion && (
-                        <span className="absolute w-4 h-4 rounded-full bg-rose-500 opacity-75 animate-ping" style={{ animationDuration: '2s' }} />
-                      )}
-                      <span className="relative flex items-center justify-center w-4 h-4 rounded-full bg-gradient-to-br from-rose-500 to-red-600 text-foreground text-[9px] font-bold border-[1.5px] border-zinc-950">
-                        {unreadCount > 9 ? '9+' : unreadCount}
-                      </span>
-                    </motion.div>
-                  )}
-                </Link>
 
-                <Link href="/settings" onClick={(e) => handleNav(e, "/settings")} className="relative p-[2px] rounded-full outline-none" style={{ background: 'conic-gradient(from 180deg, #38BDF8, #34D399, #38BDF8)' }}>
-                  <div className="bg-background rounded-full p-[1px]">
-                    <Avatar p={me} size={28} />
-                  </div>
-                  <span className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-emerald-400 border-[1.5px] border-background rounded-full" />
-                </Link>
-              </>
+                <button 
+                  onClick={() => { handleLogout(); setIsMobileExpanded(false); }} 
+                  disabled={isLoggingOut} 
+                  className="flex items-center justify-center w-9 h-9 rounded-full text-muted-foreground hover:text-rose-500 active:bg-rose-500/10 transition-colors outline-none flex-shrink-0"
+                >
+                  {isLoggingOut ? <Loader2 size={18} className="animate-spin text-foreground" /> : <LogOut size={18} />}
+                </button>
+                <div className="w-1" />
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          {/* Right: Triggers */}
+          <motion.div layout className="flex items-center gap-1.5">
+            {!isMobileExpanded && (
+              <Link href="/notifications" onClick={(e) => { handleNav(e, "/notifications"); setIsMobileExpanded(false); }} className="relative flex items-center justify-center w-10 h-10 rounded-full text-muted-foreground hover:text-foreground active:bg-secondary/50 outline-none transition-colors">
+                <Bell size={18} />
+                {unreadCount > 0 && (
+                  <span className="absolute top-2.5 right-2.5 w-2.5 h-2.5 bg-rose-500 rounded-full border-[1.5px] border-background" />
+                )}
+              </Link>
             )}
             
-            <button 
-              onClick={handleLogout} 
-              disabled={isLoggingOut} 
-              className="flex items-center justify-center text-muted-foreground hover:text-foreground active:scale-95 transition-all outline-none"
-            >
-              {isLoggingOut ? <Loader2 size={18} className="animate-spin text-foreground" /> : <LogOut size={18} />}
+            <button onClick={() => setIsMobileExpanded(!isMobileExpanded)} className="relative p-[2px] rounded-full outline-none flex-shrink-0 transition-transform active:scale-95 mx-0.5" style={{ background: 'conic-gradient(from 180deg, #38BDF8, #34D399, #38BDF8)' }}>
+              <div className="bg-background rounded-full p-[1px]">
+                <Avatar p={me} size={28} />
+              </div>
+              <span className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-emerald-400 border-[1.5px] border-background rounded-full" />
             </button>
-          </div>
-        </div>
+          </motion.div>
+        </motion.div>
       </div>
     </>
   );
