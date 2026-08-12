@@ -733,10 +733,6 @@ export default function AdminBroadcast({ matches = [], players = [], announcemen
 
           {/* ─── SECTION 2: News Content ─── */}
           <div className="mb-8">
-            <Label className="text-muted-foreground text-[11px] font-bold uppercase tracking-widest mb-3 flex items-center gap-2 block">
-              <span className="flex items-center justify-center w-5 h-5 rounded-full bg-amber-500/20 text-amber-500 text-[10px] font-black">2</span>
-              Breaking News Text
-            </Label>
             <div className="relative">
               <input
                 type="text"
@@ -752,7 +748,7 @@ export default function AdminBroadcast({ matches = [], players = [], announcemen
           {/* ─── SECTION 3: Text Styling Studio ─── */}
           <div className="mb-8">
             <Label className="text-muted-foreground text-[11px] font-bold uppercase tracking-widest mb-4 flex items-center gap-2 block">
-              <span className="flex items-center justify-center w-5 h-5 rounded-full bg-amber-500/20 text-amber-500 text-[10px] font-black">3</span>
+              <span className="flex items-center justify-center w-5 h-5 rounded-full bg-amber-500/20 text-amber-500 text-[10px] font-black">2</span>
               Text Styling Studio
             </Label>
             
