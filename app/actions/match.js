@@ -84,13 +84,14 @@ export async function generateFixtures(seasonId, playerIds, doubleRound) {
 
   try {
     await prisma.match.createMany({
-      data: legs.map(leg => ({
+      data: legs.map((leg, index) => ({
         seasonId,
         round: 'league',
         homeId: leg.homeId,
         awayId: leg.awayId,
         status: 'scheduled',
-        decisive: false
+        decisive: false,
+        scheduledAt: new Date(Date.now() + index * 60000) // Stagger by 1 minute to preserve order
       }))
     });
 

@@ -370,12 +370,39 @@ export function AdminPlayers({ players, showToast, session, managerPermissions }
 }
 
 export function AdminMatches({ matches, activeSeason, players, showToast, setTab }) {
+  const [isExporting, setIsExporting] = React.useState(false);
+  const captureRef = React.useRef(null);
+
   if (!activeSeason) return <EmptyState text="Start a season first." />;
   const tMatches = matches.filter((m) => m.seasonId === activeSeason.id);
   const unplayedMatches = tMatches.filter(m => m.status === 'scheduled');
   
+  const handleExport = async () => {
+    if (!captureRef.current) return;
+    setIsExporting(true);
+    try {
+      const htmlToImage = await import('html-to-image');
+      const download = (await import('downloadjs')).default;
+      const filter = (node) => !node.classList?.contains('hide-in-export');
+      
+      const dataUrl = await htmlToImage.toPng(captureRef.current, {
+        quality: 1,
+        backgroundColor: '#0a0c10',
+        filter: filter,
+        style: { transform: 'scale(1)', transformOrigin: 'top left' }
+      });
+      download(dataUrl, 'golazo-full-fixtures.png');
+      showToast("Fixtures graphic downloaded!");
+    } catch (err) {
+      console.error('Failed to export image', err);
+      showToast("Failed to generate image.");
+    } finally {
+      setIsExporting(false);
+    }
+  };
+
   return (
-    <Card className="p-0 overflow-hidden flex-1 flex flex-col w-full border-border/50 bg-background shadow-2xl rounded-3xl relative">
+    <Card innerRef={captureRef} className="p-0 overflow-hidden flex-1 flex flex-col w-full border-border/50 bg-background shadow-2xl rounded-3xl relative">
       <div className="relative p-6 sm:p-8 bg-gradient-to-br from-secondary/50 via-background to-background border-b border-white/5">
         <div className="absolute top-0 right-0 p-32 bg-primary/5 blur-[100px] rounded-full pointer-events-none"></div>
         <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-5 relative z-10">
@@ -383,7 +410,7 @@ export function AdminMatches({ matches, activeSeason, players, showToast, setTab
             <SectionTitle icon={Radio} className="mb-0 text-xl sm:text-2xl font-black tracking-tight">Full Fixtures Control</SectionTitle>
             <p className="text-xs sm:text-sm text-muted-foreground mt-1.5 font-medium">Manage and review all matches for the current season.</p>
           </div>
-          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full sm:w-auto shrink-0">
+          <div className="flex flex-col lg:flex-row items-stretch lg:items-center gap-3 w-full lg:w-auto shrink-0 hide-in-export">
             {unplayedMatches.length > 0 && (
               <Btn 
                 onClick={() => {
@@ -395,9 +422,9 @@ export function AdminMatches({ matches, activeSeason, players, showToast, setTab
                   navigator.clipboard.writeText(text);
                   showToast("Unplayed fixtures copied!");
                 }}
-                className="flex-1 sm:flex-none flex items-center justify-center gap-2 bg-secondary/80 hover:bg-secondary text-foreground text-xs sm:text-sm font-bold px-4 py-2.5 rounded-xl border border-white/5 shadow-sm active:scale-95 transition-all whitespace-nowrap"
+                className="flex-1 lg:flex-none flex items-center justify-center gap-2 bg-secondary/80 hover:bg-secondary text-foreground text-[11px] sm:text-xs font-bold px-3 py-2 rounded-xl border border-white/5 shadow-sm active:scale-95 transition-all whitespace-nowrap"
               >
-                <Copy size={16} /> Copy Unplayed
+                <Copy size={14} /> Copy Unplayed
               </Btn>
             )}
             <Btn 
@@ -410,9 +437,17 @@ export function AdminMatches({ matches, activeSeason, players, showToast, setTab
                   navigator.clipboard.writeText(text);
                   showToast("All fixtures copied!");
                 }}
-                className="flex-1 sm:flex-none flex items-center justify-center gap-2 bg-primary/20 hover:bg-primary/30 text-primary text-xs sm:text-sm font-bold px-4 py-2.5 rounded-xl border border-primary/20 shadow-sm active:scale-95 transition-all whitespace-nowrap"
+                className="flex-1 lg:flex-none flex items-center justify-center gap-2 bg-primary/20 hover:bg-primary/30 text-primary text-[11px] sm:text-xs font-bold px-3 py-2 rounded-xl border border-primary/20 shadow-sm active:scale-95 transition-all whitespace-nowrap"
               >
-                <Copy size={16} /> Copy All
+                <Copy size={14} /> Copy All
+            </Btn>
+            <Btn 
+              onClick={handleExport}
+              disabled={isExporting}
+              className="flex-1 lg:flex-none flex items-center justify-center gap-2 bg-amber-500/20 hover:bg-amber-500/30 text-amber-500 text-[11px] sm:text-xs font-bold px-3 py-2 rounded-xl border border-amber-500/20 shadow-sm active:scale-95 transition-all whitespace-nowrap disabled:opacity-50"
+            >
+              {isExporting ? <Radio size={14} className="animate-spin" /> : <Download size={14} />}
+              Share Graphic
             </Btn>
           </div>
         </div>
