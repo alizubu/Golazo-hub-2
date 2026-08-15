@@ -531,27 +531,34 @@ function AdminMatchControl({ m, players, showToast, setTab, isPlayoff = false })
     const aFlagUrl = nationalTeamsData.find(nt => nt.name === a?.flag)?.flag_url;
 
     return (
-      <div className="group relative flex flex-col sm:flex-row items-center justify-between p-4 sm:p-5 rounded-2xl bg-background border border-white/5 shadow-sm hover:shadow-xl hover:border-primary/20 transition-all duration-300 overflow-hidden">
-        <div className="flex items-center w-full gap-2 relative z-10">
+      <div className="group relative flex flex-col p-4 sm:p-5 rounded-2xl bg-background border border-white/5 shadow-sm hover:shadow-xl hover:border-primary/20 transition-all duration-300 overflow-hidden">
+        <div className="flex justify-between items-center w-full gap-2 relative z-10">
           {/* Home Team */}
-          <div className="flex items-center justify-end flex-1 min-w-0 gap-2 sm:gap-3">
-             <span className="font-bold text-xs sm:text-sm text-right truncate w-full px-1">{h?.name || 'TBD'}</span>
-             {hFlagUrl && <img src={hFlagUrl} alt={h?.flag} className="hidden sm:block w-4 h-3 sm:w-6 sm:h-4 object-cover rounded shadow-sm shrink-0" />}
-             <Avatar p={h} size={48} className="w-10 h-10 sm:w-12 sm:h-12 border-2 border-secondary shadow-sm shrink-0" />
+          <div className="flex flex-col items-center flex-1 min-w-0 gap-2">
+             <Avatar p={h} size={48} className="w-12 h-12 sm:w-14 sm:h-14 border-2 border-secondary shadow-sm" />
+             <div className="flex flex-col sm:flex-row items-center gap-1 sm:gap-1.5 justify-center w-full px-1">
+               {hFlagUrl && <img src={hFlagUrl} alt={h?.flag} className="w-4 h-3 sm:w-5 sm:h-3.5 object-cover rounded-[2px] shadow-sm shrink-0" />}
+               <span className="font-bold text-[10px] xs:text-xs sm:text-sm text-center line-clamp-2 leading-tight">{toTitleCase(h?.name) || 'TBD'}</span>
+             </div>
           </div>
           
           {/* VS Badge / Start Button */}
-          <div className="flex flex-col items-center justify-center px-2 sm:px-4 shrink-0">
-             <ShinyButton onClick={startMatch} loading={loading} className="px-3 py-1.5 sm:px-4 sm:py-2 text-[10px] sm:text-xs min-w-max shadow-lg shadow-primary/20">
-               <Radio size={12} className="mr-1.5 animate-pulse hidden xs:inline-block"/> Start
+          <div className="flex flex-col items-center justify-center px-1 sm:px-4 shrink-0 gap-2.5">
+             <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-secondary/80 flex items-center justify-center border border-white/5 shadow-inner group-hover:scale-110 transition-transform">
+               <span className="text-[9px] sm:text-[10px] font-black text-muted-foreground uppercase tracking-widest">VS</span>
+             </div>
+             <ShinyButton onClick={startMatch} loading={loading} className="px-3 py-1.5 sm:px-4 sm:py-2 text-[10px] sm:text-xs min-w-[70px] shadow-lg shadow-primary/20 rounded-full">
+               Start
              </ShinyButton>
           </div>
           
           {/* Away Team */}
-          <div className="flex items-center justify-start flex-1 min-w-0 gap-2 sm:gap-3">
-             <Avatar p={a} size={48} className="w-10 h-10 sm:w-12 sm:h-12 border-2 border-secondary shadow-sm shrink-0" />
-             {aFlagUrl && <img src={aFlagUrl} alt={a?.flag} className="hidden sm:block w-4 h-3 sm:w-6 sm:h-4 object-cover rounded shadow-sm shrink-0" />}
-             <span className="font-bold text-xs sm:text-sm text-left truncate w-full px-1">{a?.name || 'TBD'}</span>
+          <div className="flex flex-col items-center flex-1 min-w-0 gap-2">
+             <Avatar p={a} size={48} className="w-12 h-12 sm:w-14 sm:h-14 border-2 border-secondary shadow-sm" />
+             <div className="flex flex-col sm:flex-row items-center gap-1 sm:gap-1.5 justify-center w-full px-1">
+               {aFlagUrl && <img src={aFlagUrl} alt={a?.flag} className="w-4 h-3 sm:w-5 sm:h-3.5 object-cover rounded-[2px] shadow-sm shrink-0" />}
+               <span className="font-bold text-[10px] xs:text-xs sm:text-sm text-center line-clamp-2 leading-tight">{toTitleCase(a?.name) || 'TBD'}</span>
+             </div>
           </div>
         </div>
       </div>
@@ -1271,7 +1278,7 @@ export function AdminTrophies({ players, trophies = [], seasons, showToast }) {
               {/* Fake particles for broadcast vibe */}
               <div className="absolute inset-0 opacity-30 pointer-events-none overflow-hidden">
                  {[...Array(6)].map((_, i) => (
-                    <div key={i} className={`absolute w-1.5 h-1.5 bg-amber-400 rounded-full animate-float-${(i%3)+1}`} style={{ left: `${Math.random()*100}%`, top: `${Math.random()*100}%`, animationDelay: `${i*0.5}s` }} />
+                    <div key={i} className={`absolute w-1.5 h-1.5 bg-amber-400 rounded-full animate-float-${(i%3)+1}`} style={{ left: `${(i * 37 + 15) % 100}%`, top: `${(i * 73 + 25) % 100}%`, animationDelay: `${i*0.5}s` }} />
                  ))}
               </div>
 
