@@ -402,9 +402,10 @@ export function AdminMatches({ matches, activeSeason, players, showToast, setTab
   };
 
   return (
-    <Card innerRef={captureRef} className="p-0 overflow-hidden flex-1 flex flex-col w-full border-border/50 bg-background shadow-2xl rounded-3xl relative">
-      <div className="relative p-6 sm:p-8 bg-gradient-to-br from-secondary/50 via-background to-background border-b border-white/5">
-        <div className="absolute top-0 right-0 p-32 bg-primary/5 blur-[100px] rounded-full pointer-events-none"></div>
+    <div ref={captureRef} className="flex-1 flex flex-col w-full bg-background/50 rounded-3xl p-1">
+      <Card className="p-0 overflow-hidden flex-1 flex flex-col w-full border-border/50 bg-background shadow-2xl rounded-3xl relative">
+        <div className="relative p-6 sm:p-8 bg-gradient-to-br from-secondary/50 via-background to-background border-b border-white/5">
+          <div className="absolute top-0 right-0 p-32 bg-primary/5 blur-[100px] rounded-full pointer-events-none"></div>
         <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-5 relative z-10">
           <div>
             <SectionTitle icon={Radio} className="mb-0 text-xl sm:text-2xl font-black tracking-tight">Full Fixtures Control</SectionTitle>
@@ -463,6 +464,7 @@ export function AdminMatches({ matches, activeSeason, players, showToast, setTab
         </div>
       </div>
     </Card>
+    </div>
   );
 }
 
