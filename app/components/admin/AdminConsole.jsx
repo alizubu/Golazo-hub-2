@@ -392,6 +392,7 @@ function AdminMatchControl({ m, players, showToast, setTab, isPlayoff = false })
   const [optHome, setOptHome] = useState(m.homeScore || 0);
   const [optAway, setOptAway] = useState(m.awayScore || 0);
   const [optStatus, setOptStatus] = useState(m.status);
+  const [loading, setLoading] = useState(false);
 
   const [prevScores, setPrevScores] = useState({ home: m.homeScore, away: m.awayScore, status: m.status });
   if (m.homeScore !== prevScores.home || m.awayScore !== prevScores.away || m.status !== prevScores.status) {

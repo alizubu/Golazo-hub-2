@@ -144,6 +144,18 @@ export async function completeSeason(id, data) {
   const auth = await checkSessionPermission('canManageSeason');
   if (!auth.authorized) return { error: auth.error };
   try {
+    const season = await prisma.season.findUnique({ where: { id } });
+    let pointsToAdd = 3;
+    if (season) {
+      const squadType = season.config?.squadType || '';
+      const nameLower = season.name.toLowerCase();
+      if (squadType === 'AUTHENTIC Squad' || nameLower.includes('authentic')) {
+        pointsToAdd = 8;
+      } else if (squadType === 'MAX Squad' || nameLower.includes('max squad')) {
+        pointsToAdd = 5;
+      }
+    }
+
     await prisma.season.update({
       where: { id },
       data: {
@@ -156,6 +168,13 @@ export async function completeSeason(id, data) {
         mvpId: data.mvpId || null
       }
     });
+
+    if (data.championId) {
+      await prisma.player.update({
+        where: { id: data.championId },
+        data: { rankingPoints: { increment: pointsToAdd } }
+      });
+    }
     
     // Automatically issue trophies if passed
     if (data.trophies && data.trophies.length > 0) {
