@@ -371,18 +371,62 @@ export function AdminPlayers({ players, showToast, session, managerPermissions }
 export function AdminMatches({ matches, activeSeason, players, showToast, setTab }) {
   if (!activeSeason) return <EmptyState text="Start a season first." />;
   const tMatches = matches.filter((m) => m.seasonId === activeSeason.id);
+  const unplayedMatches = tMatches.filter(m => m.status === 'scheduled');
   
   return (
-    <div className="flex flex-col gap-6">
-      <SectionTitle icon={Radio}>Match Control</SectionTitle>
-      <div className="grid gap-4">
-        {tMatches.map((m, i) => (
-          <FadeIn key={m.id} delay={i * 0.05}>
-            <AdminMatchControl m={m} players={players} showToast={showToast} setTab={setTab} isPlayoff={false} />
-          </FadeIn>
-        ))}
+    <Card className="p-0 overflow-hidden flex-1 flex flex-col w-full border-border/50 bg-background shadow-2xl rounded-3xl relative">
+      <div className="relative p-6 sm:p-8 bg-gradient-to-br from-secondary/50 via-background to-background border-b border-white/5">
+        <div className="absolute top-0 right-0 p-32 bg-primary/5 blur-[100px] rounded-full pointer-events-none"></div>
+        <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-5 relative z-10">
+          <div>
+            <SectionTitle icon={Radio} className="mb-0 text-xl sm:text-2xl font-black tracking-tight">Full Fixtures Control</SectionTitle>
+            <p className="text-xs sm:text-sm text-muted-foreground mt-1.5 font-medium">Manage and review all matches for the current season.</p>
+          </div>
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full sm:w-auto shrink-0">
+            {unplayedMatches.length > 0 && (
+              <Btn 
+                onClick={() => {
+                  const text = unplayedMatches.map(m => {
+                    const h = players.find(p => p.id === m.homeId);
+                    const a = players.find(p => p.id === m.awayId);
+                    return `${h?.name || 'TBD'} vs ${a?.name || 'TBD'}`;
+                  }).join('\n');
+                  navigator.clipboard.writeText(text);
+                  showToast("Unplayed fixtures copied!");
+                }}
+                className="flex-1 sm:flex-none flex items-center justify-center gap-2 bg-secondary/80 hover:bg-secondary text-foreground text-xs sm:text-sm font-bold px-4 py-2.5 rounded-xl border border-white/5 shadow-sm active:scale-95 transition-all whitespace-nowrap"
+              >
+                <Copy size={16} /> Copy Unplayed
+              </Btn>
+            )}
+            <Btn 
+                onClick={() => {
+                  const text = tMatches.map(m => {
+                    const h = players.find(p => p.id === m.homeId);
+                    const a = players.find(p => p.id === m.awayId);
+                    return `${h?.name || 'TBD'} vs ${a?.name || 'TBD'}`;
+                  }).join('\n');
+                  navigator.clipboard.writeText(text);
+                  showToast("All fixtures copied!");
+                }}
+                className="flex-1 sm:flex-none flex items-center justify-center gap-2 bg-primary/20 hover:bg-primary/30 text-primary text-xs sm:text-sm font-bold px-4 py-2.5 rounded-xl border border-primary/20 shadow-sm active:scale-95 transition-all whitespace-nowrap"
+              >
+                <Copy size={16} /> Copy All
+            </Btn>
+          </div>
+        </div>
       </div>
-    </div>
+      
+      <div className="flex-1 flex flex-col p-4 sm:p-6 bg-secondary/10">
+        <div className="grid gap-4">
+          {tMatches.map((m, i) => (
+            <FadeIn key={m.id} delay={Math.min(i * 0.05, 0.5)}>
+              <AdminMatchControl m={m} players={players} showToast={showToast} setTab={setTab} isPlayoff={false} />
+            </FadeIn>
+          ))}
+        </div>
+      </div>
+    </Card>
   );
 }
 
@@ -487,34 +531,30 @@ function AdminMatchControl({ m, players, showToast, setTab, isPlayoff = false })
     const aFlagUrl = nationalTeamsData.find(nt => nt.name === a?.flag)?.flag_url;
 
     return (
-      <MagicCard className="group p-3 sm:p-4 bg-secondary/30 relative overflow-hidden">
-        <div className="flex items-center gap-2">
-          <div className="grid grid-cols-[1fr_auto_1fr] sm:grid-cols-3 gap-2 items-center w-full">
-            <div className="flex w-full items-center justify-end gap-1.5 sm:gap-3">
-              <span className="text-foreground text-[11px] sm:text-sm font-semibold truncate text-right" title={h?.name}>
-                {toTitleCase(h?.name)}
-              </span>
-              {hFlagUrl && <img src={hFlagUrl} alt={h?.flag} className="w-3.5 h-2.5 sm:w-5 sm:h-3.5 object-cover rounded-[2px] shadow-sm shrink-0" />}
-              <Avatar p={h} size={40} className="w-6 h-6 sm:w-10 sm:h-10 shrink-0 hidden xs:block" />
-            </div>
-
-            <div className="flex flex-col items-center justify-center px-2">
-              <span className="text-[9px] sm:text-xs text-muted-foreground font-score uppercase tracking-widest font-bold mb-1">vs</span>
-              <ShinyButton onClick={startMatch} loading={loading} className="px-2 py-0.5 sm:px-3 sm:py-1 text-[9px] sm:text-xs min-w-max">
-                <Radio size={10} className="mr-1 sm:mr-1.5 sm:w-3 sm:h-3"/> Start
-              </ShinyButton>
-            </div>
-
-            <div className="flex w-full items-center justify-start gap-1.5 sm:gap-3">
-              <Avatar p={a} size={40} className="w-6 h-6 sm:w-10 sm:h-10 shrink-0 hidden xs:block" />
-              {aFlagUrl && <img src={aFlagUrl} alt={a?.flag} className="w-3.5 h-2.5 sm:w-5 sm:h-3.5 object-cover rounded-[2px] shadow-sm shrink-0" />}
-              <span className="text-foreground text-[11px] sm:text-sm font-semibold truncate text-left" title={a?.name}>
-                {toTitleCase(a?.name)}
-              </span>
-            </div>
+      <div className="group relative flex flex-col sm:flex-row items-center justify-between p-4 sm:p-5 rounded-2xl bg-background border border-white/5 shadow-sm hover:shadow-xl hover:border-primary/20 transition-all duration-300 overflow-hidden">
+        <div className="flex items-center w-full gap-2 relative z-10">
+          {/* Home Team */}
+          <div className="flex items-center justify-end flex-1 min-w-0 gap-2 sm:gap-3">
+             <span className="font-bold text-xs sm:text-sm text-right truncate w-full px-1">{h?.name || 'TBD'}</span>
+             {hFlagUrl && <img src={hFlagUrl} alt={h?.flag} className="hidden sm:block w-4 h-3 sm:w-6 sm:h-4 object-cover rounded shadow-sm shrink-0" />}
+             <Avatar p={h} size={48} className="w-10 h-10 sm:w-12 sm:h-12 border-2 border-secondary shadow-sm shrink-0" />
+          </div>
+          
+          {/* VS Badge / Start Button */}
+          <div className="flex flex-col items-center justify-center px-2 sm:px-4 shrink-0">
+             <ShinyButton onClick={startMatch} loading={loading} className="px-3 py-1.5 sm:px-4 sm:py-2 text-[10px] sm:text-xs min-w-max shadow-lg shadow-primary/20">
+               <Radio size={12} className="mr-1.5 animate-pulse hidden xs:inline-block"/> Start
+             </ShinyButton>
+          </div>
+          
+          {/* Away Team */}
+          <div className="flex items-center justify-start flex-1 min-w-0 gap-2 sm:gap-3">
+             <Avatar p={a} size={48} className="w-10 h-10 sm:w-12 sm:h-12 border-2 border-secondary shadow-sm shrink-0" />
+             {aFlagUrl && <img src={aFlagUrl} alt={a?.flag} className="hidden sm:block w-4 h-3 sm:w-6 sm:h-4 object-cover rounded shadow-sm shrink-0" />}
+             <span className="font-bold text-xs sm:text-sm text-left truncate w-full px-1">{a?.name || 'TBD'}</span>
           </div>
         </div>
-      </MagicCard>
+      </div>
     );
   }
 
