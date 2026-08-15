@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Trophy, Calendar, Users, Radio, Clock, Check, Archive, Plus, Trash2, Settings, Swords, Edit2, ListOrdered, BarChart2, AlertTriangle, ArrowRight, Megaphone, ChevronDown, Package, MoreVertical, History, CheckCircle2, X, Camera } from 'lucide-react';
+import { Trophy, Calendar, Users, Radio, Clock, Check, Archive, Plus, Trash2, Settings, Swords, Edit2, ListOrdered, BarChart2, AlertTriangle, ArrowRight, Megaphone, ChevronDown, Package, MoreVertical, History, CheckCircle2, X, Camera, Copy } from 'lucide-react';
 import { BorderBeam } from '@/app/components/magicui/BorderBeam';
 import { Card, Btn, Input, Label, SectionTitle, EmptyState, MagicCard, FadeIn, ShinyButton, Badge, Avatar, toTitleCase } from '@/app/components/shared/UI';
 import PlayerTag from '@/app/components/shared/PlayerTag';
@@ -2045,33 +2045,95 @@ export function AdminSeason({ activeSeason, seasons = [], matches = [], players 
              </div>
            </Card>
 
-          <Card className="p-6 flex-1 flex flex-col w-full">
-            <div className="flex items-center justify-between mb-4">
-              <SectionTitle icon={Calendar}>Upcoming Fixtures</SectionTitle>
-              <Btn variant="ghost" className="text-xs p-1 h-auto" onClick={() => setTab && setTab("admin-matches")}>View all <ArrowRight size={14} className="ml-1"/></Btn>
+          <Card className="p-0 overflow-hidden flex-1 flex flex-col w-full border-border/50 bg-background shadow-2xl rounded-3xl relative">
+            {/* Header Area */}
+            <div className="relative p-6 sm:p-8 bg-gradient-to-br from-secondary/50 via-background to-background border-b border-white/5">
+              <div className="absolute top-0 right-0 p-32 bg-primary/5 blur-[100px] rounded-full pointer-events-none"></div>
+              
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-5 relative z-10">
+                <div>
+                  <SectionTitle icon={Calendar} className="mb-0 text-xl sm:text-2xl font-black tracking-tight">Upcoming Fixtures</SectionTitle>
+                  <p className="text-xs sm:text-sm text-muted-foreground mt-1.5 font-medium">Manage and review the next scheduled matches.</p>
+                </div>
+                <div className="flex items-center gap-3 w-full sm:w-auto shrink-0">
+                  {upcoming.length > 0 && (
+                    <Btn 
+                      onClick={() => {
+                        const text = upcoming.map(m => {
+                          const h = players.find(p => p.id === m.homeId);
+                          const a = players.find(p => p.id === m.awayId);
+                          return `${h?.name || 'TBD'} vs ${a?.name || 'TBD'}`;
+                        }).join('\n');
+                        navigator.clipboard.writeText(text);
+                        showToast("Fixtures copied to clipboard!");
+                      }}
+                      className="flex-1 sm:flex-none flex items-center justify-center gap-2 bg-secondary/80 hover:bg-secondary text-foreground text-xs sm:text-sm font-bold px-4 py-2.5 rounded-xl border border-white/5 shadow-sm active:scale-95 transition-all"
+                    >
+                      <Copy size={16} /> Copy Fixtures
+                    </Btn>
+                  )}
+                  <Btn variant="ghost" className="flex-1 sm:flex-none flex items-center justify-center gap-1.5 text-xs font-bold uppercase tracking-wider p-2.5 bg-background hover:bg-secondary/50 rounded-xl border border-white/5 transition-colors" onClick={() => setTab && setTab("admin-matches")}>
+                    View all <ArrowRight size={14} className="opacity-70"/>
+                  </Btn>
+                </div>
+              </div>
             </div>
             
-            <div className="flex-1 flex flex-col justify-center">
+            {/* Fixtures List */}
+            <div className="flex-1 flex flex-col p-4 sm:p-6 bg-secondary/10">
                {upcoming.length > 0 ? (
-                 <div className="flex flex-col gap-3">
+                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
                    {upcoming.map((m, i) => {
                      const h = players.find(p => p.id === m.homeId);
                      const a = players.find(p => p.id === m.awayId);
+                     
                      return (
-                       <div key={m.id} className="flex flex-col p-4 rounded-xl bg-secondary/30 border border-border/50 gap-2">
-                          <div className="flex justify-between items-center">
-                            <span className="font-bold text-sm truncate flex-1">{h?.name}</span>
-                            <span className="text-[10px] font-score text-muted-foreground px-3 py-1 bg-background rounded-full mx-2">VS</span>
-                            <span className="font-bold text-sm truncate flex-1 text-right">{a?.name}</span>
+                       <motion.div 
+                         initial={{ opacity: 0, y: 15 }} 
+                         animate={{ opacity: 1, y: 0 }} 
+                         transition={{ delay: Math.min(i * 0.05, 0.5) }} 
+                         key={m.id} 
+                         className="group relative flex flex-col p-4 sm:p-5 rounded-2xl bg-background border border-white/5 shadow-sm hover:shadow-xl hover:border-primary/20 transition-all duration-300 overflow-hidden"
+                       >
+                          {/* Live Indicator Accent */}
+                          {m.status === 'live' && <div className="absolute top-0 left-0 w-full h-1 bg-claret/80"></div>}
+                          
+                          <div className="flex justify-between items-center w-full gap-2 relative z-10">
+                            {/* Home Team */}
+                            <div className="flex flex-col items-center flex-1 min-w-0 gap-2">
+                               <Avatar p={h} size={48} className="w-12 h-12 sm:w-14 sm:h-14 border-2 border-secondary shadow-sm" />
+                               <span className="font-bold text-xs sm:text-sm text-center truncate w-full px-1">{h?.name || 'TBD'}</span>
+                            </div>
+                            
+                            {/* VS Badge */}
+                            <div className="flex flex-col items-center justify-center px-1 shrink-0">
+                               <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-secondary/80 flex items-center justify-center border border-white/5 shadow-inner group-hover:scale-110 transition-transform">
+                                 <span className="text-[9px] sm:text-[10px] font-black text-muted-foreground uppercase tracking-widest">VS</span>
+                               </div>
+                               {m.status === 'live' && (
+                                 <div className="mt-2 text-[9px] text-claret font-black tracking-widest uppercase flex items-center justify-center gap-1.5 bg-claret/10 px-2 py-0.5 rounded-full border border-claret/20 animate-pulse">
+                                   <span className="w-1.5 h-1.5 rounded-full bg-claret"></span> Live
+                                 </div>
+                               )}
+                            </div>
+                            
+                            {/* Away Team */}
+                            <div className="flex flex-col items-center flex-1 min-w-0 gap-2">
+                               <Avatar p={a} size={48} className="w-12 h-12 sm:w-14 sm:h-14 border-2 border-secondary shadow-sm" />
+                               <span className="font-bold text-xs sm:text-sm text-center truncate w-full px-1">{a?.name || 'TBD'}</span>
+                            </div>
                           </div>
-                          {m.status === 'live' && <div className="mt-2 text-[10px] text-claret font-bold text-center tracking-widest uppercase bg-claret/10 py-1.5 rounded flex items-center justify-center gap-1"><span className="w-1.5 h-1.5 rounded-full bg-claret animate-pulse"></span> Match Live</div>}
-                       </div>
+                       </motion.div>
                      );
                    })}
                  </div>
                ) : (
-                 <div className="py-8">
-                    <EmptyState text={hasFixtures ? "All league matches completed" : "No fixtures generated yet"} />
+                 <div className="flex flex-col items-center justify-center py-16 text-center h-full">
+                    <div className="w-16 h-16 rounded-2xl bg-secondary/50 flex items-center justify-center mb-4 border border-white/5 shadow-inner">
+                      <Calendar size={32} className="text-muted-foreground opacity-50" />
+                    </div>
+                    <h3 className="text-lg font-bold mb-1">{hasFixtures ? "All Matches Completed" : "No Fixtures"}</h3>
+                    <p className="text-sm text-muted-foreground max-w-[250px]">{hasFixtures ? "The league has been fully played out." : "Generate fixtures to populate the match schedule."}</p>
                  </div>
                )}
             </div>
