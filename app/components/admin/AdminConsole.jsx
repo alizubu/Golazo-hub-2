@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { Trophy, Calendar, Users, Radio, Clock, Check, Archive, Plus, Trash2, Settings, Swords, Edit2, ListOrdered, BarChart2, AlertTriangle, ArrowRight, Megaphone, ChevronDown, Package, MoreVertical, History, CheckCircle2, X, Camera, Copy, Download } from 'lucide-react';
 import { BorderBeam } from '@/app/components/magicui/BorderBeam';
 import { Card, Btn, Input, Label, SectionTitle, EmptyState, MagicCard, FadeIn, ShinyButton, Badge, Avatar, toTitleCase } from '@/app/components/shared/UI';
-import PlayerTag from '@/app/components/shared/PlayerTag';
+
 import { motion, AnimatePresence } from 'framer-motion';
 
 import { generateFixtures, generatePlayoffs, updateMatchStatus, updateMatchScore, adminTriggerBracketProgress } from '@/app/actions/match';
@@ -15,8 +15,7 @@ import { signUpPlayer, adminUpdatePlayer, adminDeletePlayer } from '@/app/action
 import { uploadImage } from '@/app/actions/upload';
 import { supabase } from '@/lib/supabaseClient';
 import Image from 'next/image';
-import PlayoffBracket from '@/app/components/shared/PlayoffBracket';
-import { getCode } from 'country-list';
+
 import Cropper from 'react-easy-crop';
 import { getCroppedImgBase64 } from '@/app/utils/cropUtils';
 import { PlayStyleBadge } from '@/app/components/shared/UI';
@@ -402,68 +401,68 @@ export function AdminMatches({ matches, activeSeason, players, showToast, setTab
   };
 
   return (
-    <div ref={captureRef} className="flex-1 flex flex-col w-full bg-background/50 rounded-3xl p-1">
+    <div ref={captureRef} className="flex-1 flex flex-col w-full bg-background rounded-3xl">
       <Card className="p-0 overflow-hidden flex-1 flex flex-col w-full border-border/50 bg-background shadow-2xl rounded-3xl relative">
         <div className="relative p-6 sm:p-8 bg-gradient-to-br from-secondary/50 via-background to-background border-b border-white/5">
           <div className="absolute top-0 right-0 p-32 bg-primary/5 blur-[100px] rounded-full pointer-events-none"></div>
-        <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-5 relative z-10">
-          <div>
-            <SectionTitle icon={Radio} className="mb-0 text-xl sm:text-2xl font-black tracking-tight">Full Fixtures Control</SectionTitle>
-            <p className="text-xs sm:text-sm text-muted-foreground mt-1.5 font-medium">Manage and review all matches for the current season.</p>
-          </div>
-          <div className="flex flex-col lg:flex-row items-stretch lg:items-center gap-3 w-full lg:w-auto shrink-0 hide-in-export">
-            {unplayedMatches.length > 0 && (
+          <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-5 relative z-10">
+            <div>
+              <SectionTitle icon={Radio} className="mb-0 text-xl sm:text-2xl font-black tracking-tight">Full Fixtures Control</SectionTitle>
+              <p className="text-xs sm:text-sm text-muted-foreground mt-1.5 font-medium">Manage and review all matches for the current season.</p>
+            </div>
+            <div className="flex flex-col lg:flex-row items-stretch lg:items-center gap-3 w-full lg:w-auto shrink-0 hide-in-export">
+              {unplayedMatches.length > 0 && (
+                <Btn 
+                  onClick={() => {
+                    const text = unplayedMatches.map(m => {
+                      const h = players.find(p => p.id === m.homeId);
+                      const a = players.find(p => p.id === m.awayId);
+                      return `${h?.name || 'TBD'} vs ${a?.name || 'TBD'}`;
+                    }).join('\n');
+                    navigator.clipboard.writeText(text);
+                    showToast("Unplayed fixtures copied!");
+                  }}
+                  className="flex-1 lg:flex-none flex items-center justify-center gap-2 bg-secondary/80 hover:bg-secondary text-foreground text-[11px] sm:text-xs font-bold px-3 py-2 rounded-xl border border-white/5 shadow-sm active:scale-95 transition-all whitespace-nowrap"
+                >
+                  <Copy size={14} /> Copy Unplayed
+                </Btn>
+              )}
               <Btn 
-                onClick={() => {
-                  const text = unplayedMatches.map(m => {
-                    const h = players.find(p => p.id === m.homeId);
-                    const a = players.find(p => p.id === m.awayId);
-                    return `${h?.name || 'TBD'} vs ${a?.name || 'TBD'}`;
-                  }).join('\n');
-                  navigator.clipboard.writeText(text);
-                  showToast("Unplayed fixtures copied!");
-                }}
-                className="flex-1 lg:flex-none flex items-center justify-center gap-2 bg-secondary/80 hover:bg-secondary text-foreground text-[11px] sm:text-xs font-bold px-3 py-2 rounded-xl border border-white/5 shadow-sm active:scale-95 transition-all whitespace-nowrap"
-              >
-                <Copy size={14} /> Copy Unplayed
+                  onClick={() => {
+                    const text = tMatches.map(m => {
+                      const h = players.find(p => p.id === m.homeId);
+                      const a = players.find(p => p.id === m.awayId);
+                      return `${h?.name || 'TBD'} vs ${a?.name || 'TBD'}`;
+                    }).join('\n');
+                    navigator.clipboard.writeText(text);
+                    showToast("All fixtures copied!");
+                  }}
+                  className="flex-1 lg:flex-none flex items-center justify-center gap-2 bg-primary/20 hover:bg-primary/30 text-primary text-[11px] sm:text-xs font-bold px-3 py-2 rounded-xl border border-primary/20 shadow-sm active:scale-95 transition-all whitespace-nowrap"
+                >
+                  <Copy size={14} /> Copy All
               </Btn>
-            )}
-            <Btn 
-                onClick={() => {
-                  const text = tMatches.map(m => {
-                    const h = players.find(p => p.id === m.homeId);
-                    const a = players.find(p => p.id === m.awayId);
-                    return `${h?.name || 'TBD'} vs ${a?.name || 'TBD'}`;
-                  }).join('\n');
-                  navigator.clipboard.writeText(text);
-                  showToast("All fixtures copied!");
-                }}
-                className="flex-1 lg:flex-none flex items-center justify-center gap-2 bg-primary/20 hover:bg-primary/30 text-primary text-[11px] sm:text-xs font-bold px-3 py-2 rounded-xl border border-primary/20 shadow-sm active:scale-95 transition-all whitespace-nowrap"
+              <Btn 
+                onClick={handleExport}
+                disabled={isExporting}
+                className="flex-1 lg:flex-none flex items-center justify-center gap-2 bg-amber-500/20 hover:bg-amber-500/30 text-amber-500 text-[11px] sm:text-xs font-bold px-3 py-2 rounded-xl border border-amber-500/20 shadow-sm active:scale-95 transition-all whitespace-nowrap disabled:opacity-50"
               >
-                <Copy size={14} /> Copy All
-            </Btn>
-            <Btn 
-              onClick={handleExport}
-              disabled={isExporting}
-              className="flex-1 lg:flex-none flex items-center justify-center gap-2 bg-amber-500/20 hover:bg-amber-500/30 text-amber-500 text-[11px] sm:text-xs font-bold px-3 py-2 rounded-xl border border-amber-500/20 shadow-sm active:scale-95 transition-all whitespace-nowrap disabled:opacity-50"
-            >
-              {isExporting ? <Radio size={14} className="animate-spin" /> : <Download size={14} />}
-              Share Graphic
-            </Btn>
+                {isExporting ? <Radio size={14} className="animate-spin" /> : <Download size={14} />}
+                Share Graphic
+              </Btn>
+            </div>
           </div>
         </div>
-      </div>
-      
-      <div className="flex-1 flex flex-col p-4 sm:p-6 bg-secondary/10">
-        <div className="grid gap-4">
-          {tMatches.map((m, i) => (
-            <FadeIn key={m.id} delay={Math.min(i * 0.05, 0.5)}>
-              <AdminMatchControl m={m} players={players} showToast={showToast} setTab={setTab} isPlayoff={false} />
-            </FadeIn>
-          ))}
+        
+        <div className="flex-1 flex flex-col p-4 sm:p-6 bg-secondary/10">
+          <div className="grid gap-4">
+            {tMatches.map((m, i) => (
+              <FadeIn key={m.id} delay={Math.min(i * 0.05, 0.5)}>
+                <AdminMatchControl m={m} players={players} showToast={showToast} setTab={setTab} isPlayoff={false} />
+              </FadeIn>
+            ))}
+          </div>
         </div>
-      </div>
-    </Card>
+      </Card>
     </div>
   );
 }
