@@ -113,73 +113,29 @@ export const TopBar = ({ session, me, items, pathname, handleNav, unreadCount, i
         </div>
       </div>
 
-      {/* --- MOBILE HEADER (DYNAMIC ISLAND) --- */}
-      <div className="md:hidden fixed top-12 inset-x-0 z-[60] flex justify-center px-4 pointer-events-none" style={{ paddingTop: 'env(safe-area-inset-top)' }}>
-        <motion.div 
-          layout
-          initial={{ borderRadius: 32 }}
-          className="bg-background/75 backdrop-blur-3xl border border-border/60 shadow-[0_15px_40px_-10px_rgba(0,0,0,0.5)] flex items-center h-[52px] pointer-events-auto overflow-hidden px-1.5 gap-1.5"
-        >
-          {/* Left: Logo Icon */}
-          <motion.div layout>
-            <Link href="/dashboard" onClick={(e) => { handleNav(e, "/dashboard"); setIsMobileExpanded(false); }} className="flex items-center justify-center w-10 h-10 rounded-full flex-shrink-0 outline-none hover:bg-white/5 active:bg-white/10 transition-colors">
-              <div className="flex items-center justify-center w-8 h-8 rounded-full bg-amber-500/10">
-                <Trophy size={16} className="text-amber-400" />
-              </div>
-            </Link>
-          </motion.div>
+      {/* --- MOBILE HEADER (FULL WIDTH) --- */}
+      <div className="md:hidden sticky top-0 inset-x-0 z-[60] bg-background/80 backdrop-blur-xl border-b border-border shadow-sm">
+        <div className="flex items-center justify-between h-14 px-4">
+          {/* Logo / Left */}
+          <Link href="/dashboard" onClick={(e) => handleNav(e, "/dashboard")} className="flex items-center justify-center w-8 h-8 rounded-lg bg-primary/10 text-primary hover:bg-primary/20 transition-colors active:scale-95 outline-none">
+            <Trophy size={16} strokeWidth={2.5} />
+          </Link>
 
-          {/* Spacer when collapsed */}
-          {!isMobileExpanded && <motion.div layout className="w-4" />}
-
-          {/* Expanded Items */}
-          <AnimatePresence>
-            {isMobileExpanded && (
-              <motion.div 
-                layout
-                initial={{ opacity: 0, width: 0 }}
-                animate={{ opacity: 1, width: 'auto' }}
-                exit={{ opacity: 0, width: 0 }}
-                className="flex items-center gap-1.5 overflow-hidden whitespace-nowrap"
-              >
-                <ThemeToggle />
-
-                <button 
-                  onClick={() => { handleLogout(); setIsMobileExpanded(false); }} 
-                  disabled={isLoggingOut} 
-                  className="flex items-center justify-center w-9 h-9 rounded-full text-muted-foreground hover:text-rose-500 active:bg-rose-500/10 transition-colors outline-none flex-shrink-0"
-                >
-                  {isLoggingOut ? <Loader2 size={18} className="animate-spin text-foreground" /> : <LogOut size={18} />}
-                </button>
-                <div className="w-1" />
-              </motion.div>
-            )}
-          </AnimatePresence>
-
-          {/* Right: Triggers (Always Visible) */}
-          <motion.div layout className="flex items-center gap-1.5 ml-auto">
-            {/* Glowing Ranking Button */}
-            <Link href="/ranking" onClick={(e) => { handleNav(e, "/ranking"); setIsMobileExpanded(false); }} className="relative flex items-center justify-center w-9 h-9 rounded-full bg-gradient-to-tr from-amber-500 to-yellow-400 shadow-[0_0_12px_rgba(251,191,36,0.7)] outline-none flex-shrink-0 mx-0.5">
-              <div className="absolute inset-0 rounded-full animate-ping bg-amber-400/40" style={{ animationDuration: '2s' }}></div>
-              <Trophy size={16} className="text-zinc-950 relative z-10" strokeWidth={2.5} />
-            </Link>
-            {!isMobileExpanded && (
-              <Link href="/notifications" onClick={(e) => { handleNav(e, "/notifications"); setIsMobileExpanded(false); }} className="relative flex items-center justify-center w-10 h-10 rounded-full text-muted-foreground hover:text-foreground active:bg-secondary/50 outline-none transition-colors">
-                <Bell size={18} />
-                {unreadCount > 0 && (
-                  <span className="absolute top-2.5 right-2.5 w-2.5 h-2.5 bg-rose-500 rounded-full border-[1.5px] border-background" />
-                )}
-              </Link>
-            )}
-            
-            <button onClick={() => setIsMobileExpanded(!isMobileExpanded)} className="relative p-[2px] rounded-full outline-none flex-shrink-0 transition-transform active:scale-95 mx-0.5" style={{ background: 'conic-gradient(from 180deg, #38BDF8, #34D399, #38BDF8)' }}>
-              <div className="bg-background rounded-full p-[1px]">
-                <Avatar p={me} size={28} />
-              </div>
-              <span className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-emerald-400 border-[1.5px] border-background rounded-full" />
-            </button>
-          </motion.div>
-        </motion.div>
+          {/* Right Actions */}
+          <div className="flex items-center gap-2">
+             <Link href="/ranking" onClick={(e) => handleNav(e, "/ranking")} className="w-9 h-9 flex items-center justify-center rounded-lg text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors active:scale-95 outline-none">
+               <Trophy size={18} />
+             </Link>
+             <Link href="/notifications" onClick={(e) => handleNav(e, "/notifications")} className="relative w-9 h-9 flex items-center justify-center rounded-lg text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors active:scale-95 outline-none">
+               <Bell size={18} />
+               {unreadCount > 0 && <span className="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full border-[1.5px] border-background" />}
+             </Link>
+             <ThemeToggle />
+             <div className="relative rounded-full ml-1 border border-border shadow-sm">
+                <Avatar p={me} size={30} />
+             </div>
+          </div>
+        </div>
       </div>
     </>
   );

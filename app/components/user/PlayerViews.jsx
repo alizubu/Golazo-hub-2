@@ -332,10 +332,10 @@ export function PlayerDashboard({ me, activeSeason, seasons = [], matches, playe
       <FadeIn delay={0.1}>
         <div className="relative w-full mb-10 flex flex-col gap-4">
           
-          {/* 1. Cover Banner & Glass Header */}
-          <div className="relative rounded-3xl overflow-hidden shadow-2xl border border-border/50">
+          {/* 1. Cover Banner & Sharp Header */}
+          <div className="relative rounded-none sm:rounded-3xl overflow-hidden border-b sm:border border-border shadow-sm bg-card mb-4">
             {/* Cover Image */}
-            <div className="h-56 md:h-72 w-full relative bg-secondary/50 overflow-hidden">
+            <div className="h-48 md:h-64 w-full relative bg-secondary overflow-hidden">
               <motion.div 
                 style={{ y: shouldReduceMotion ? 0 : coverY }} 
                 className="w-full h-[120%] -top-[10%] absolute"
@@ -343,82 +343,65 @@ export function PlayerDashboard({ me, activeSeason, seasons = [], matches, playe
                 {me.coverBanner && failedCoverUrl !== me.coverBanner ? (
                   <img src={me.coverBanner} alt="Cover Banner" className="w-full h-full object-cover" onError={() => setFailedCoverUrl(me.coverBanner)} />
                 ) : (
-                  <div className="w-full h-full bg-gradient-to-tr from-pitch/80 via-claret/60 to-gold/40 flex items-center justify-center">
-                    <span className="text-6xl drop-shadow-2xl opacity-50">⚽</span>
+                  <div className="w-full h-full bg-slate-200 dark:bg-zinc-800 flex items-center justify-center">
+                    <span className="text-6xl opacity-30">⚽</span>
                   </div>
                 )}
               </motion.div>
             </div>
             
-            {/* Gradient Overlay Header (Floats at bottom of cover) */}
-            <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent pt-16 px-6 py-4 flex flex-col md:flex-row items-center justify-between gap-4 z-20">
+            {/* Identity Card Block */}
+            <div className="px-5 py-5 sm:px-8 sm:py-6 flex flex-col md:flex-row items-center md:items-start justify-between gap-6 relative z-20">
               {/* Left: Identity */}
-              <div className="flex items-center gap-5 w-full md:w-auto">
-                <div className="relative -mt-16 shrink-0">
-                  <div className="absolute -inset-2 rounded-full blur-[10px] animate-pulse"
-                    style={{
-                      background: selectedClub && CLUB_COLORS[selectedClub.name]
-                        ? `linear-gradient(135deg, ${CLUB_COLORS[selectedClub.name].primary}, ${CLUB_COLORS[selectedClub.name].secondary})`
-                        : selectedNationalTeam
-                          ? `linear-gradient(135deg, var(--gold), var(--claret))`
-                          : `linear-gradient(135deg, var(--pitch-bright), var(--pitch))`
-                    }}
-                  />
-                  <div className="relative rounded-full p-1.5 bg-card shadow-2xl ring-4 ring-background/50">
-                    <AvatarWithBadge player={me} size={160} isOnFire={isOnFire} />
+              <div className="flex flex-col sm:flex-row items-center sm:items-start gap-5 w-full md:w-auto text-center sm:text-left">
+                <div className="relative -mt-16 sm:-mt-20 shrink-0">
+                  <div className="relative rounded-full p-1 bg-card shadow-md ring-4 ring-card border-none">
+                    <AvatarWithBadge player={me} size={120} isOnFire={isOnFire} />
                   </div>
                 </div>
-                <div className="flex flex-col min-w-0">
-                  <div className="flex items-center gap-2">
-                    <h1 className="text-2xl md:text-3xl font-black font-heading tracking-tight truncate text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">
+                <div className="flex flex-col min-w-0 mt-2 sm:mt-0">
+                  <div className="flex items-center justify-center sm:justify-start gap-2">
+                    <h1 className="text-2xl md:text-3xl font-black tracking-tight truncate text-foreground">
                       {me.name}
                     </h1>
-                    {myRank === 1 && <BadgeCheck size={20} className="text-blue-400 shrink-0 drop-shadow-md" title="Top Ranked Player" />}
+                    {myRank === 1 && <BadgeCheck size={20} className="text-blue-500 shrink-0" title="Top Ranked Player" />}
                   </div>
-                  <div className="flex items-center gap-2 mt-0.5">
-                    <span className="text-white/80 font-score text-sm drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)] font-medium">@{me.username}</span>
+                  <div className="flex items-center justify-center sm:justify-start gap-2 mt-1">
+                    <span className="text-muted-foreground font-medium text-sm">@{me.username}</span>
                     <PlayStyleBadge style={me.playStyle} showLabel={false} size="sm" />
+                  </div>
+                  
+                  {/* Actions inside Left block for mobile flow */}
+                  <div className="flex flex-wrap items-center justify-center sm:justify-start gap-3 mt-4">
+                    {!viewOnly && (
+                      <button onClick={() => setTab('settings')} className="px-4 py-2 bg-secondary hover:bg-secondary/80 text-foreground text-sm font-bold rounded-lg transition-colors border border-border flex items-center gap-2 shadow-sm active:scale-95 outline-none">
+                        <Pen size={14} /> Edit
+                      </button>
+                    )}
+                    {!viewOnly && (
+                      <div className="px-4 py-2 bg-green-500/10 text-green-600 dark:text-green-400 text-sm font-bold rounded-lg border border-green-500/20 flex items-center gap-2">
+                        <div className="w-2 h-2 rounded-full bg-green-500" /> Online
+                      </div>
+                    )}
+                    {tMatches.some(m => m.round !== 'league' && m.round !== 'friendly') && (
+                      <button onClick={() => setTab('matches')} className="px-4 py-2 bg-amber-500 hover:bg-amber-600 text-white text-sm font-bold rounded-lg transition-colors shadow-sm flex items-center gap-2 active:scale-95 outline-none">
+                        <Trophy size={14} /> Playoffs
+                      </button>
+                    )}
                   </div>
                 </div>
               </div>
 
               {/* Right: Actions & Status */}
-              <div className="flex items-center gap-4 shrink-0 w-full md:w-auto justify-end">
-                {tMatches.some(m => m.round !== 'league' && m.round !== 'friendly') && (
-                  <Btn variant="primary" onClick={() => setTab('matches')} className="gap-2 rounded-full border-amber-500/50 shadow-[0_0_15px_rgba(245,158,11,0.3)] bg-gradient-to-r from-amber-600 to-amber-500 text-white backdrop-blur h-9 px-4">
-                    <Trophy size={14} /> Playoffs
-                  </Btn>
-                )}
-                {form.length > 0 && (
-                  <div className="flex items-center gap-1 bg-black/40 px-3 py-1.5 rounded-full border border-white/10 shadow-inner">
-                    {form.map((r, i) => (
-                      <motion.div
-                        key={i}
-                        initial={{ scale: 0 }}
-                        animate={{ scale: 1 }}
-                        transition={{ delay: 0.3 + (i * 0.05), type: 'spring' }}
-                        title={r === 'W' ? 'Win' : r === 'L' ? 'Loss' : 'Draw'}
-                        className={`w-2.5 h-6 rounded-full shadow-[0_0_10px_rgba(0,0,0,0.5)] ${
-                          r === 'W' ? 'bg-green-500 shadow-green-500/50' : r === 'L' ? 'bg-red-500 shadow-red-500/50' : 'bg-amber-400 shadow-amber-400/50'
-                        }`}
-                      />
-                    ))}
+              <div className="flex flex-row md:flex-col items-center md:items-end justify-center gap-4 md:gap-3 w-full md:w-auto border-t md:border-t-0 border-border pt-5 md:pt-0">
+                <div className="flex items-center gap-2">
+                  <span className="text-[10px] uppercase font-bold text-muted-foreground tracking-widest hidden md:block">Form</span>
+                  <div className="flex items-center gap-1 bg-secondary px-2.5 py-1.5 rounded-lg border border-border shadow-sm">
+                    {form.length > 0 ? form.map((r, i) => (
+                      <span key={i} title={r === 'W' ? 'Win' : r === 'L' ? 'Loss' : 'Draw'} className={`w-2.5 h-4 rounded-sm ${r === 'W' ? 'bg-green-500' : r === 'L' ? 'bg-red-500' : 'bg-amber-400'}`} />
+                    )) : <span className="text-xs font-bold text-muted-foreground px-1">No matches</span>}
                   </div>
-                )}
-                {!viewOnly && (
-                  <Btn variant="outline" onClick={() => setTab('settings')} className="gap-2 rounded-full border-white/20 text-xs shadow-sm bg-black/50 hover:bg-white/20 text-white backdrop-blur h-9">
-                    <Pen size={14} /> Edit
-                  </Btn>
-                )}
-                {!viewOnly && (
-                  <div className="flex items-center gap-1.5 text-xs text-green-400 font-semibold bg-black/40 px-3 py-1.5 rounded-full border border-green-400/20">
-                    <span className="relative flex h-2 w-2">
-                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75" />
-                      <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500" />
-                    </span>
-                    Online
-                  </div>
-                )}
+                </div>
               </div>
             </div>
           </div>
