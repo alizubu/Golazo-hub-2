@@ -60,25 +60,25 @@ export default function PlayerRankingView({ players, matches, setTab }) {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.5 + (i * 0.05) }}
                   key={p.id}
-                  className="flex items-center gap-4 bg-secondary/40 backdrop-blur-md border-t border-white/10 shadow-lg shadow-black/20 rounded-2xl p-4 hover:bg-secondary/60 transition-colors relative overflow-hidden"
+                  className="flex items-center gap-3 sm:gap-4 bg-secondary/40 backdrop-blur-md border border-white/5 shadow-lg shadow-black/20 rounded-2xl p-3 sm:p-4 hover:bg-secondary/60 transition-colors relative overflow-hidden"
                 >
-                  <div className="w-8 text-center font-score font-bold text-muted-foreground">{rank}</div>
+                  <div className="w-6 sm:w-8 text-center font-score font-bold text-muted-foreground text-sm sm:text-base">{rank}</div>
                   <Avatar p={p} size={48} className="shrink-0" />
                   <div className="flex-1 min-w-0">
-                    <div className="font-bold text-lg truncate flex items-center gap-2">
-                      {p.name}
+                    <div className="font-bold text-base sm:text-lg flex flex-wrap items-center gap-1.5 leading-tight">
+                      <span className="break-words break-all sm:break-normal">{p.name}</span>
                       {p.playStyle && <PlayStyleBadge style={p.playStyle} showLabel={false} size="sm" />}
                     </div>
-                    <div className="text-xs text-muted-foreground truncate">
-                      {p.teamName ? `${p.teamName} · ` : ''}@{p.username}
+                    <div className="text-[11px] sm:text-xs text-muted-foreground leading-snug mt-0.5 break-words">
+                      {p.teamName ? <span className="font-medium text-foreground/80">{p.teamName}</span> : ''} {p.teamName && '· '} @{p.username}
                     </div>
                   </div>
-                  <div className="flex flex-col items-end gap-1 shrink-0">
-                    <div className="text-xl font-score font-black text-pitch-bright">
-                      {p.rankingPoints ?? 1000} <span className="text-xs text-muted-foreground font-normal">pts</span>
+                  <div className="flex flex-col items-end gap-1 shrink-0 ml-2">
+                    <div className="text-lg sm:text-xl font-score font-black text-pitch-bright whitespace-nowrap">
+                      {p.rankingPoints ?? 1000} <span className="text-[10px] sm:text-xs text-muted-foreground font-normal">pts</span>
                     </div>
-                    <div className={`flex items-center gap-1 text-[10px] uppercase tracking-widest font-bold ${trend.color}`}>
-                      <TrendIcon size={12} strokeWidth={3} /> Form
+                    <div className={`flex items-center gap-1 text-[9px] sm:text-[10px] uppercase tracking-widest font-bold ${trend.color}`}>
+                      <TrendIcon size={10} strokeWidth={3} /> Form
                     </div>
                   </div>
                 </motion.div>
@@ -127,11 +127,9 @@ function PodiumStep({ player, rank, height, trend, delay }) {
             scale: { type: 'spring' },
             y: { repeat: Infinity, duration: 3, ease: "easeInOut" } 
           }}
-          className="absolute -top-12 text-yellow-400 drop-shadow-[0_0_20px_rgba(255,215,0,0.9)] z-20"
+          className="absolute -top-10 sm:-top-12 z-50 drop-shadow-xl text-3xl sm:text-4xl"
         >
-          <svg width="56" height="56" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-            <path d="M5 16L3 5L8.5 10L12 4L15.5 10L21 5L19 16H5ZM19 19C19 19.5523 18.5523 20 18 20H6C5.44772 20 5 19.5523 5 19V18H19V19Z" />
-          </svg>
+          👑
         </motion.div>
       )}
 

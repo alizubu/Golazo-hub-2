@@ -114,25 +114,33 @@ export const TopBar = ({ session, me, items, pathname, handleNav, unreadCount, i
       </div>
 
       {/* --- MOBILE HEADER (FULL WIDTH) --- */}
-      <div className="md:hidden sticky top-0 inset-x-0 z-[60] bg-background/80 backdrop-blur-xl border-b border-border shadow-sm">
-        <div className="flex items-center justify-between h-14 px-4">
+      <div className="md:hidden sticky top-0 inset-x-0 z-[60] bg-background/90 backdrop-blur-xl border-b border-border shadow-sm">
+        <div className="flex items-center justify-between h-14 px-4 relative">
           {/* Logo / Left */}
           <Link href="/dashboard" onClick={(e) => handleNav(e, "/dashboard")} className="flex items-center justify-center w-8 h-8 rounded-lg bg-primary/10 text-primary hover:bg-primary/20 transition-colors active:scale-95 outline-none">
             <Trophy size={16} strokeWidth={2.5} />
           </Link>
 
+          {/* Middle: Glowing Ranking Trophy */}
+          <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
+            <Link href="/ranking" onClick={(e) => handleNav(e, "/ranking")} className="relative flex items-center justify-center w-10 h-10 rounded-full bg-gradient-to-tr from-amber-500 to-yellow-400 shadow-[0_0_15px_rgba(251,191,36,0.4)] outline-none active:scale-95 transition-transform">
+              <div className="absolute inset-0 rounded-full animate-ping bg-amber-400/50" style={{ animationDuration: '2s' }}></div>
+              <Trophy size={18} className="text-zinc-950 relative z-10" strokeWidth={2.5} />
+            </Link>
+          </div>
+
           {/* Right Actions */}
-          <div className="flex items-center gap-2">
-             <Link href="/ranking" onClick={(e) => handleNav(e, "/ranking")} className="w-9 h-9 flex items-center justify-center rounded-lg text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors active:scale-95 outline-none">
-               <Trophy size={18} />
-             </Link>
-             <Link href="/notifications" onClick={(e) => handleNav(e, "/notifications")} className="relative w-9 h-9 flex items-center justify-center rounded-lg text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors active:scale-95 outline-none">
+          <div className="flex items-center gap-1.5">
+             <Link href="/notifications" onClick={(e) => handleNav(e, "/notifications")} className="relative w-8 h-8 flex items-center justify-center rounded-lg text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors active:scale-95 outline-none">
                <Bell size={18} />
-               {unreadCount > 0 && <span className="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full border-[1.5px] border-background" />}
+               {unreadCount > 0 && <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full border-[1.5px] border-background" />}
              </Link>
              <ThemeToggle />
+             <button onClick={handleLogout} disabled={isLoggingOut} className="w-8 h-8 flex items-center justify-center rounded-lg text-muted-foreground hover:text-rose-500 hover:bg-rose-500/10 transition-colors active:scale-95 outline-none">
+               {isLoggingOut ? <Loader2 size={16} className="animate-spin text-foreground" /> : <LogOut size={16} />}
+             </button>
              <div className="relative rounded-full ml-1 border border-border shadow-sm">
-                <Avatar p={me} size={30} />
+                <Avatar p={me} size={28} />
              </div>
           </div>
         </div>
