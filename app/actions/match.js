@@ -22,15 +22,65 @@ export async function generateFixtures(seasonId, playerIds, doubleRound) {
   if (!auth.authorized) return { error: auth.error };
   if (playerIds.length < 2) return { error: 'Need at least 2 players' };
 
-  const legs = [];
+  let allLegs = [];
   for (let i = 0; i < playerIds.length; i++) {
     for (let j = i + 1; j < playerIds.length; j++) {
-      legs.push({ homeId: playerIds[i], awayId: playerIds[j] });
+      allLegs.push({ homeId: playerIds[i], awayId: playerIds[j] });
       if (doubleRound) {
-        legs.push({ homeId: playerIds[j], awayId: playerIds[i] });
+        allLegs.push({ homeId: playerIds[j], awayId: playerIds[i] });
       }
     }
   }
+
+  let bestLegs = [];
+  let fewestBackToBacks = Infinity;
+
+  // Monte Carlo approach: Try 50 random shuffles to find a schedule with minimal back-to-backs
+  for (let attempt = 0; attempt < 50; attempt++) {
+    let tempAllLegs = [...allLegs];
+    
+    // Fisher-Yates shuffle
+    for (let i = tempAllLegs.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [tempAllLegs[i], tempAllLegs[j]] = [tempAllLegs[j], tempAllLegs[i]];
+    }
+
+    const currentLegs = [];
+    let backToBackCount = 0;
+    
+    while (tempAllLegs.length > 0) {
+      let selectedIdx = -1;
+      for (let i = 0; i < tempAllLegs.length; i++) {
+        const match = tempAllLegs[i];
+        if (currentLegs.length === 0) {
+          selectedIdx = i;
+          break;
+        }
+        const lastMatch = currentLegs[currentLegs.length - 1];
+        if (
+          match.homeId !== lastMatch.homeId && match.homeId !== lastMatch.awayId &&
+          match.awayId !== lastMatch.homeId && match.awayId !== lastMatch.awayId
+        ) {
+          selectedIdx = i;
+          break;
+        }
+      }
+      
+      if (selectedIdx === -1) {
+        selectedIdx = 0; // Forced to take a back-to-back
+        backToBackCount++;
+      }
+      currentLegs.push(tempAllLegs.splice(selectedIdx, 1)[0]);
+    }
+
+    if (backToBackCount < fewestBackToBacks) {
+      fewestBackToBacks = backToBackCount;
+      bestLegs = currentLegs;
+      if (backToBackCount === 0) break; // Perfect schedule found
+    }
+  }
+
+  const legs = bestLegs;
 
   try {
     await prisma.match.createMany({

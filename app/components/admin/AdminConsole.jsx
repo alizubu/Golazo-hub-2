@@ -220,6 +220,7 @@ export function AdminPlayers({ players, showToast, session, managerPermissions }
               <div className="flex flex-col items-center justify-center gap-4 w-full md:w-64 mt-2">
                 <label className={`group relative w-56 h-56 md:w-64 md:h-64 rounded-full overflow-hidden border-4 border-secondary/50 hover:border-gold cursor-pointer transition-all shadow-2xl flex items-center justify-center bg-secondary/30 ${uploading ? 'opacity-50 pointer-events-none' : ''}`}>
                   {form.avatarImage ? (
+                    /* eslint-disable-next-line @next/next/no-img-element */
                     <img src={form.avatarImage} alt="Avatar" className="w-full h-full object-cover" />
                   ) : form.avatar ? (
                     <span className="font-heading font-black text-6xl md:text-7xl text-muted-foreground">{form.avatar}</span>
@@ -537,7 +538,10 @@ function AdminMatchControl({ m, players, showToast, setTab, isPlayoff = false })
           <div className="flex flex-col items-center flex-1 min-w-0 gap-2">
              <Avatar p={h} size={48} className="w-12 h-12 sm:w-14 sm:h-14 border-2 border-secondary shadow-sm" />
              <div className="flex flex-col sm:flex-row items-center gap-1 sm:gap-1.5 justify-center w-full px-1">
-               {hFlagUrl && <img src={hFlagUrl} alt={h?.flag} className="w-4 h-3 sm:w-5 sm:h-3.5 object-cover rounded-[2px] shadow-sm shrink-0" />}
+               {hFlagUrl && (
+                 /* eslint-disable-next-line @next/next/no-img-element */
+                 <img src={hFlagUrl} alt={h?.flag} className="w-4 h-3 sm:w-5 sm:h-3.5 object-cover rounded-[2px] shadow-sm shrink-0" />
+               )}
                <span className="font-bold text-[10px] xs:text-xs sm:text-sm text-center line-clamp-2 leading-tight">{toTitleCase(h?.name) || 'TBD'}</span>
              </div>
           </div>
@@ -556,7 +560,10 @@ function AdminMatchControl({ m, players, showToast, setTab, isPlayoff = false })
           <div className="flex flex-col items-center flex-1 min-w-0 gap-2">
              <Avatar p={a} size={48} className="w-12 h-12 sm:w-14 sm:h-14 border-2 border-secondary shadow-sm" />
              <div className="flex flex-col sm:flex-row items-center gap-1 sm:gap-1.5 justify-center w-full px-1">
-               {aFlagUrl && <img src={aFlagUrl} alt={a?.flag} className="w-4 h-3 sm:w-5 sm:h-3.5 object-cover rounded-[2px] shadow-sm shrink-0" />}
+               {aFlagUrl && (
+                 /* eslint-disable-next-line @next/next/no-img-element */
+                 <img src={aFlagUrl} alt={a?.flag} className="w-4 h-3 sm:w-5 sm:h-3.5 object-cover rounded-[2px] shadow-sm shrink-0" />
+               )}
                <span className="font-bold text-[10px] xs:text-xs sm:text-sm text-center line-clamp-2 leading-tight">{toTitleCase(a?.name) || 'TBD'}</span>
              </div>
           </div>
@@ -673,7 +680,10 @@ function CompletedMatchCard({ m, h, a, players, showToast, isPlayoff = false }) 
               <span className="text-foreground text-[11px] sm:text-sm font-semibold truncate text-right" title={h?.name}>
                 {toTitleCase(h?.name)}
               </span>
-              {hFlagUrl && <img src={hFlagUrl} alt={h?.flag} className="w-3.5 h-2.5 sm:w-5 sm:h-3.5 object-cover rounded-[2px] shadow-sm shrink-0" />}
+              {hFlagUrl && (
+                /* eslint-disable-next-line @next/next/no-img-element */
+                <img src={hFlagUrl} alt={h?.flag} className="w-3.5 h-2.5 sm:w-5 sm:h-3.5 object-cover rounded-[2px] shadow-sm shrink-0" />
+              )}
               <Avatar p={h} size={40} className="w-6 h-6 sm:w-10 sm:h-10 shrink-0 hidden xs:block" />
             </div>
 
@@ -687,7 +697,10 @@ function CompletedMatchCard({ m, h, a, players, showToast, isPlayoff = false }) 
 
             <div className="flex w-full items-center justify-start gap-1.5 sm:gap-3">
               <Avatar p={a} size={40} className="w-6 h-6 sm:w-10 sm:h-10 shrink-0 hidden xs:block" />
-              {aFlagUrl && <img src={aFlagUrl} alt={a?.flag} className="w-3.5 h-2.5 sm:w-5 sm:h-3.5 object-cover rounded-[2px] shadow-sm shrink-0" />}
+              {aFlagUrl && (
+                /* eslint-disable-next-line @next/next/no-img-element */
+                <img src={aFlagUrl} alt={a?.flag} className="w-3.5 h-2.5 sm:w-5 sm:h-3.5 object-cover rounded-[2px] shadow-sm shrink-0" />
+              )}
               <span className="text-foreground text-[11px] sm:text-sm font-semibold truncate text-left" title={a?.name}>
                 {toTitleCase(a?.name)}
               </span>
@@ -807,6 +820,7 @@ function PlayerCombobox({ players, value, onChange }) {
           className="flex items-center justify-between w-full bg-secondary text-foreground p-3 rounded-lg border border-border/50 hover:bg-secondary/70 transition-colors text-sm"
           role="combobox"
           aria-expanded={open}
+          aria-controls="player-listbox"
         >
           {selected ? (
             <span className="flex items-center gap-2">
@@ -1218,6 +1232,7 @@ export function AdminTrophies({ players, trophies = [], seasons, showToast }) {
                     >
                       <span className="w-6 h-6 flex items-center justify-center group-hover:scale-110 transition-transform">
                         {a.icon && (a.icon.startsWith('/') || a.icon.startsWith('http')) ? (
+                          /* eslint-disable-next-line @next/next/no-img-element */
                           <img src={a.icon} alt={a.name} className="w-full h-full object-contain" />
                         ) : (
                           <span className="text-xl">{a.icon}</span>
@@ -1428,6 +1443,7 @@ export function AdminTrophies({ players, trophies = [], seasons, showToast }) {
                       <div className="flex items-center gap-4 mb-5 mt-2">
                         <div className="w-14 h-14 rounded-xl bg-white/5 flex items-center justify-center text-3xl border border-white/10 shadow-inner">
                           {c.trophy.icon && (c.trophy.icon.startsWith('/') || c.trophy.icon.startsWith('http')) ? (
+                            /* eslint-disable-next-line @next/next/no-img-element */
                             <img src={c.trophy.icon} className="w-9 h-9 object-contain filter drop-shadow-md" alt="" />
                           ) : (
                             <span>{c.trophy.icon || '🏆'}</span>
