@@ -4,20 +4,21 @@ import { Sora, Chakra_Petch, Plus_Jakarta_Sans } from 'next/font/google';
 
 const sora = Sora({ 
   subsets: ['latin'],
-  weight: ['600', '700'],
   variable: '--font-sora',
+  display: 'swap',
 });
 
 const chakra = Chakra_Petch({ 
   subsets: ['latin'],
   weight: ['700'],
   variable: '--font-chakra',
+  display: 'swap',
 });
 
 const jakarta = Plus_Jakarta_Sans({ 
   subsets: ['latin'],
-  weight: ['400', '500', '600'],
   variable: '--font-jakarta',
+  display: 'swap',
 });
 
 export const metadata = {
