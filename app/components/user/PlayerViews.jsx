@@ -5,6 +5,7 @@ import { PageHeader } from '@/app/components/shared/PageHeader';
 import { Trophy, Clock, ListOrdered, Calendar, Swords, Megaphone, Bell, Pen, Target, Handshake, Shield, Activity, Lock, Flame, BadgeCheck, TrendingUp, Users, ArrowRight } from 'lucide-react';
 import { Btn, Badge, Avatar, PlayerChip, SectionTitle, EmptyState, MagicCard, FadeIn, ShinyButton, Label, WavingFlag, PlayStyleBadge, OnFireAvatar } from '@/app/components/shared/UI';
 import { AvatarWithBadge } from '@/app/components/shared/FootballIdentity';
+import { getPlayerIdentityBadgeUrl } from '@/lib/identityUtils';
 import { ClubLogo } from '@/app/components/shared/ClubLogo';
 import { Card, CardHeader, CardTitle, CardContent } from '@/app/components/ui/card';
 import { NumberTicker } from '@/app/components/ui/number-ticker';
@@ -84,19 +85,25 @@ function LiveScoreboard({ m, players }) {
         <Badge color="var(--claret)" pulse>LIVE</Badge>
       </div>
       <div className="flex items-center justify-between gap-4">
-        <div className="flex-1 flex flex-col items-center gap-2 min-w-0">
-          <Avatar p={h} size={56} />
-          <span className="text-sm font-semibold truncate text-center">{h?.name}</span>
-        </div>
+          <div className="flex-1 flex flex-col items-center gap-2 min-w-0">
+            <Avatar p={h} size={56} />
+            <div className="flex items-center gap-1.5 justify-center w-full px-1">
+              {getPlayerIdentityBadgeUrl(h) && <img src={getPlayerIdentityBadgeUrl(h)} alt="badge" className="w-7 h-7 object-contain drop-shadow-sm shrink-0" />}
+              <span className="text-sm font-semibold truncate text-center">{h?.name}</span>
+            </div>
+          </div>
         <div className="flex items-center gap-3 shrink-0 px-2">
           <NumberTicker value={m.homeScore ?? 0} className="text-5xl font-bold font-score text-foreground" />
           <span className="text-3xl opacity-40 font-score">-</span>
           <NumberTicker value={m.awayScore ?? 0} className="text-5xl font-bold font-score text-foreground" />
         </div>
-        <div className="flex-1 flex flex-col items-center gap-2 min-w-0">
-          <Avatar p={a} size={56} />
-          <span className="text-sm font-semibold truncate text-center">{a?.name}</span>
-        </div>
+          <div className="flex-1 flex flex-col items-center gap-2 min-w-0">
+            <Avatar p={a} size={56} />
+            <div className="flex items-center gap-1.5 justify-center w-full px-1">
+              {getPlayerIdentityBadgeUrl(a) && <img src={getPlayerIdentityBadgeUrl(a)} alt="badge" className="w-7 h-7 object-contain drop-shadow-sm shrink-0" />}
+              <span className="text-sm font-semibold truncate text-center">{a?.name}</span>
+            </div>
+          </div>
       </div>
     </MagicCard>
   );
@@ -838,8 +845,8 @@ function StandingsView({ activeSeason, matches, players, me }) {
                   </td>
                   <td className="p-3 flex items-center gap-2">
                     <Avatar p={s} size={24} />
+                    {getPlayerIdentityBadgeUrl(s) && <img src={getPlayerIdentityBadgeUrl(s)} alt="badge" className="w-4 h-4 object-contain drop-shadow-sm shrink-0" />}
                     <span className="font-semibold">{s.name}</span>
-                    <span className="text-lg">{s.flag}</span>
                   </td>
                   <td className="p-3 text-center">{s.played}</td>
                   <td className="p-3 text-center text-muted-foreground">{s.won}</td>

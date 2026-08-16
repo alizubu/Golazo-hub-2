@@ -22,6 +22,7 @@ import { getCroppedImgBase64 } from '@/app/utils/cropUtils';
 import { PlayStyleBadge } from '@/app/components/shared/UI';
 import nationalTeamsData from '@/lib/data/national_teams.json';
 import { CLUBS } from '@/lib/data/clubs';
+import { getPlayerIdentityBadgeUrl } from '@/lib/identityUtils';
 import { useRouter } from 'next/navigation';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/app/components/ui/tabs';
 import {
@@ -340,23 +341,6 @@ export function AdminPlayers({ players, showToast, session, managerPermissions }
   );
 }
 
-export const getPlayerIdentityBadgeUrl = (player) => {
-  if (!player) return null;
-  const pref = player.displayBadgePreference || 'club';
-  if (pref === 'club' && player.favoriteClub) {
-    const club = CLUBS.find(c => c.name === player.favoriteClub);
-    if (club) return club.crestPath;
-  }
-  if (pref === 'nation' && player.flag) {
-    const nt = nationalTeamsData.find(n => n.name === player.flag);
-    if (nt) return nt.flag_url;
-  }
-  if (player.flag) {
-    const nt = nationalTeamsData.find(n => n.name === player.flag);
-    if (nt) return nt.flag_url;
-  }
-  return null;
-};
 
 export function AdminMatches({ matches, activeSeason, players, showToast, setTab }) {
   const [isExporting, setIsExporting] = React.useState(false);
@@ -566,7 +550,7 @@ function AdminMatchControl({ m, players, showToast, setTab, isPlayoff = false })
              <div className="flex flex-col sm:flex-row items-center gap-1 sm:gap-1.5 justify-center w-full px-1">
                {hFlagUrl && (
                  /* eslint-disable-next-line @next/next/no-img-element */
-                 <img src={hFlagUrl} alt={h?.flag} className="w-4 h-3 sm:w-5 sm:h-3.5 object-cover rounded-[2px] shadow-sm shrink-0" />
+                 <img src={hFlagUrl} alt={h?.flag} className="w-6 h-6 sm:w-7 sm:h-7 object-contain drop-shadow-sm shrink-0" />
                )}
                <span className="font-bold text-[10px] xs:text-xs sm:text-sm text-center line-clamp-2 leading-tight">{toTitleCase(h?.name) || 'TBD'}</span>
              </div>
@@ -588,7 +572,7 @@ function AdminMatchControl({ m, players, showToast, setTab, isPlayoff = false })
              <div className="flex flex-col sm:flex-row items-center gap-1 sm:gap-1.5 justify-center w-full px-1">
                {aFlagUrl && (
                  /* eslint-disable-next-line @next/next/no-img-element */
-                 <img src={aFlagUrl} alt={a?.flag} className="w-4 h-3 sm:w-5 sm:h-3.5 object-cover rounded-[2px] shadow-sm shrink-0" />
+                 <img src={aFlagUrl} alt={a?.flag} className="w-6 h-6 sm:w-7 sm:h-7 object-contain drop-shadow-sm shrink-0" />
                )}
                <span className="font-bold text-[10px] xs:text-xs sm:text-sm text-center line-clamp-2 leading-tight">{toTitleCase(a?.name) || 'TBD'}</span>
              </div>
@@ -708,7 +692,7 @@ function CompletedMatchCard({ m, h, a, players, showToast, isPlayoff = false }) 
               </span>
               {hFlagUrl && (
                 /* eslint-disable-next-line @next/next/no-img-element */
-                <img src={hFlagUrl} alt={h?.flag} className="w-3.5 h-2.5 sm:w-5 sm:h-3.5 object-cover rounded-[2px] shadow-sm shrink-0" />
+                <img src={hFlagUrl} alt={h?.flag} className="w-4 h-4 sm:w-5 sm:h-5 object-contain drop-shadow-sm shrink-0" />
               )}
               <Avatar p={h} size={40} className="w-6 h-6 sm:w-10 sm:h-10 shrink-0 hidden xs:block" />
             </div>
@@ -725,7 +709,7 @@ function CompletedMatchCard({ m, h, a, players, showToast, isPlayoff = false }) 
               <Avatar p={a} size={40} className="w-6 h-6 sm:w-10 sm:h-10 shrink-0 hidden xs:block" />
               {aFlagUrl && (
                 /* eslint-disable-next-line @next/next/no-img-element */
-                <img src={aFlagUrl} alt={a?.flag} className="w-3.5 h-2.5 sm:w-5 sm:h-3.5 object-cover rounded-[2px] shadow-sm shrink-0" />
+                <img src={aFlagUrl} alt={a?.flag} className="w-4 h-4 sm:w-5 sm:h-5 object-contain drop-shadow-sm shrink-0" />
               )}
               <span className="text-foreground text-[11px] sm:text-sm font-semibold truncate text-left" title={a?.name}>
                 {toTitleCase(a?.name)}
@@ -2111,7 +2095,7 @@ export function AdminSeason({ activeSeason, seasons = [], matches = [], players 
                        <td className="px-4 py-4 font-bold text-base flex items-center gap-2">
                          {getPlayerIdentityBadgeUrl(row.player) && (
                            /* eslint-disable-next-line @next/next/no-img-element */
-                           <img src={getPlayerIdentityBadgeUrl(row.player)} alt={row.name} className="w-4 h-3 sm:w-5 sm:h-3.5 object-cover rounded-[2px] shadow-sm shrink-0" />
+                           <img src={getPlayerIdentityBadgeUrl(row.player)} alt={row.name} className="w-6 h-6 sm:w-7 sm:h-7 object-contain drop-shadow-sm shrink-0" />
                          )}
                          {row.name}
                        </td>
@@ -2564,3 +2548,5 @@ export function AdminRoles({ showToast }) {
     </div>
   );
 }
+
+
