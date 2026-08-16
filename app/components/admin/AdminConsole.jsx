@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { Trophy, Calendar, Users, Radio, Clock, Check, Archive, Plus, Trash2, Settings, Swords, Edit2, ListOrdered, BarChart2, AlertTriangle, ArrowRight, Megaphone, ChevronDown, Package, MoreVertical, History, CheckCircle2, X, Camera, Copy, Download } from 'lucide-react';
 import { BorderBeam } from '@/app/components/magicui/BorderBeam';
+import { Ripple } from '@/app/components/magicui/Ripple';
 import { Card, Btn, Input, Label, SectionTitle, EmptyState, MagicCard, FadeIn, ShinyButton, Badge, Avatar, toTitleCase } from '@/app/components/shared/UI';
 import { TeamCombobox, DisplayBadgeToggle } from '@/app/components/shared/FootballIdentity';
 
@@ -571,22 +572,11 @@ function AdminMatchControl({ m, players, showToast, setTab, isPlayoff = false })
         <div className="absolute inset-y-0 left-0 w-2/3 bg-gradient-to-r from-red-500/30 to-transparent pointer-events-none opacity-60 group-hover:opacity-100 transition-opacity duration-700 blur-2xl" />
         <div className="absolute inset-y-0 right-0 w-2/3 bg-gradient-to-l from-emerald-500/30 to-transparent pointer-events-none opacity-60 group-hover:opacity-100 transition-opacity duration-700 blur-2xl" />
         
-        {/* Layer 2: Micro-Dot Cyber Grid */}
-        <div 
-          className="absolute inset-0 pointer-events-none opacity-40 group-hover:opacity-80 transition-opacity duration-700"
-          style={{ 
-            backgroundImage: "radial-gradient(circle, rgba(255, 255, 255, 0.6) 1.5px, transparent 1.5px)",
-            backgroundSize: "24px 24px",
-            maskImage: "linear-gradient(to right, black 5%, transparent 45%, transparent 55%, black 95%)",
-            WebkitMaskImage: "linear-gradient(to right, black 5%, transparent 45%, transparent 55%, black 95%)"
-          }} 
-        />
+        {/* Layer 2: Magic UI Shine Border */}
+        <BorderBeam size={300} duration={12} delay={9} colorFrom="#ef4444" colorTo="#10b981" />
 
         {/* Layer 3: Glassmorphic Sweep */}
         <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/[0.03] to-transparent -translate-x-[150%] group-hover:translate-x-[150%] transition-transform duration-1000 ease-in-out pointer-events-none" />
-
-        {/* Card Border Hover Sheen */}
-        <div className="absolute -inset-[1px] rounded-3xl bg-gradient-to-r from-red-500/0 via-red-500/10 to-emerald-500/0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
 
         <div className="flex flex-col sm:flex-row items-center justify-between gap-4 w-full relative z-10">
           
@@ -602,7 +592,7 @@ function AdminMatchControl({ m, players, showToast, setTab, isPlayoff = false })
               </div>
             </div>
             <div className="flex flex-col items-center sm:items-start min-w-0">
-              <span className="font-black text-xl sm:text-2xl text-white truncate text-center sm:text-left drop-shadow-lg tracking-tight" style={{ fontFamily: "'Sora', sans-serif" }}>
+              <span className="font-black text-xl sm:text-2xl truncate text-center sm:text-left tracking-tight animate-gradient bg-gradient-to-r from-red-200 via-white to-red-200 bg-[length:200%_auto] text-transparent bg-clip-text drop-shadow-[0_0_15px_rgba(239,68,68,0.3)]" style={{ fontFamily: "'Sora', sans-serif" }}>
                 {toTitleCase(h?.name) || 'TBD'}
               </span>
               <div className="flex items-center gap-3 mt-1.5 text-slate-300">
@@ -614,7 +604,8 @@ function AdminMatchControl({ m, players, showToast, setTab, isPlayoff = false })
           
           {/* VS Badge / Start Button */}
           <div className="flex flex-col items-center justify-center shrink-0 min-w-[100px] relative order-2 gap-3 py-4 sm:py-0">
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[150%] h-[1px] bg-gradient-to-r from-transparent via-white/20 to-transparent hidden sm:block" />
+            <Ripple mainCircleSize={50} numCircles={6} mainCircleOpacity={0.15} className="z-0" />
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[150%] h-[1px] bg-gradient-to-r from-transparent via-white/20 to-transparent hidden sm:block z-0" />
             
             <div className="relative z-10 flex flex-col items-center justify-center w-16 h-16 sm:w-20 sm:h-20">
               <svg viewBox="0 0 100 100" className="absolute inset-0 w-full h-full drop-shadow-[0_0_15px_rgba(255,255,255,0.1)]">
@@ -631,7 +622,7 @@ function AdminMatchControl({ m, players, showToast, setTab, isPlayoff = false })
           {/* Away Team */}
           <div className="flex flex-col sm:flex-row items-center gap-5 flex-1 w-full justify-end order-3">
             <div className="flex flex-col items-center sm:items-end min-w-0 order-2 sm:order-1">
-              <span className="font-black text-xl sm:text-2xl text-white truncate text-center sm:text-right drop-shadow-lg tracking-tight" style={{ fontFamily: "'Sora', sans-serif" }}>
+              <span className="font-black text-xl sm:text-2xl truncate text-center sm:text-right tracking-tight animate-gradient bg-gradient-to-r from-emerald-200 via-white to-emerald-200 bg-[length:200%_auto] text-transparent bg-clip-text drop-shadow-[0_0_15px_rgba(16,185,129,0.3)]" style={{ fontFamily: "'Sora', sans-serif" }}>
                 {toTitleCase(a?.name) || 'TBD'}
               </span>
               <div className="flex items-center gap-3 mt-1.5 text-slate-300">
