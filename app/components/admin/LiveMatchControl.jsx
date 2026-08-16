@@ -1,7 +1,7 @@
 import React, { useState, useMemo, useRef, useEffect } from "react";
 import {
   Plus, Minus, Play, Pause, Square, SkipForward, Check, X, ChevronDown,
-  Timer, Calendar, Upload, Loader2, RotateCcw, Copy, ArrowLeftRight
+  Timer, Calendar, Upload, Loader2, RotateCcw, Copy, ArrowLeftRight, ArrowLeft, Download, Clock
 } from "lucide-react";
 import { updateMatchStatus, updateMatchScore } from '@/app/actions/match';
 import { supabase } from '@/lib/supabaseClient';
@@ -13,19 +13,17 @@ import { motion, AnimatePresence } from 'framer-motion';
 // Stat fields
 // ---------------------------------------------------------------------------
 const STAT_FIELDS = [
-  { key: "possession", label: "Possession", percent: true },
-  { key: "shots", label: "Shots" },
-  { key: "shotsOnTarget", label: "Shots on Target" },
-  { key: "fouls", label: "Fouls" },
-  { key: "offsides", label: "Offsides" },
-  { key: "corners", label: "Corner kicks" },
-  { key: "freeKicks", label: "Free kicks" },
-  { key: "passes", label: "Passes" },
-  { key: "successfulPasses", label: "Successful Passes" },
-  { key: "crosses", label: "Crosses" },
-  { key: "interceptions", label: "Interceptions" },
-  { key: "tackles", label: "Tackles" },
-  { key: "saves", label: "Saves" },
+  { key: "possession", label: "BALL POSSESSION", format: "percent", icon: "⚽" },
+  { key: "shots", label: "TOTAL SHOTS", format: "number", icon: "🥅" },
+  { key: "shotsOnTarget", label: "SHOTS ON TARGET", format: "number", icon: "🎯" },
+  { key: "fouls", label: "FOULS", format: "number", icon: "🚩" },
+  { key: "corners", label: "CORNER KICKS", format: "number", icon: "🏁" },
+  { key: "freeKicks", label: "FREE KICKS", format: "number", icon: "👥" },
+  { key: "passes", label: "PASSES", format: "number", icon: "🔗" },
+  { key: "successfulPasses", label: "SUCCESSFUL PASSES", format: "number", icon: "✅" },
+  { key: "interceptions", label: "INTERCEPTIONS", format: "number", icon: "🎯" },
+  { key: "tackles", label: "TACKLES", format: "number", icon: "🛡" },
+  { key: "saves", label: "SAVES", format: "number", icon: "🧤" },
 ];
 
 // ---------------------------------------------------------------------------
@@ -407,19 +405,42 @@ function ImageImport({ onApply }) {
 }
 
 // ---------------------------------------------------------------------------
-// Stats entry
+// Stats entry  ← redesigned to match the pro design mockup
 // ---------------------------------------------------------------------------
-const StatsRow = ({ f, stats, update }) => (
-  <div className="flex items-center justify-between gap-3 p-3 sm:p-4 hover:bg-secondary/40 transition-colors border-b border-border/40 last:border-0 group">
-    <input type="number" inputMode="numeric" value={stats.home[f.key]} onChange={(e) => update("home", f.key, e.target.value)}
-      className="font-score w-16 h-12 rounded-xl text-center font-black text-lg tabular-nums bg-background/50 border border-border/50 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all shadow-inner hover:border-primary/50 focus:bg-background" />
-    <span className="font-sans text-[10px] text-center text-muted-foreground font-bold uppercase tracking-widest flex-1 truncate group-hover:text-foreground transition-colors">{f.label}{f.percent ? " (%)" : ""}</span>
-    <input type="number" inputMode="numeric" value={stats.away[f.key]} onChange={(e) => update("away", f.key, e.target.value)}
-      className="font-score w-16 h-12 rounded-xl text-center font-black text-lg tabular-nums bg-background/50 border border-border/50 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all shadow-inner hover:border-primary/50 focus:bg-background" />
+const ProStatRow = ({ f, stats, update }) => (
+  <div className="flex items-center gap-2 sm:gap-3 py-2.5 sm:py-3 border-b border-white/[0.04] last:border-0">
+    {/* Home value */}
+    <div className="relative shrink-0">
+      <input
+        type="number"
+        inputMode="numeric"
+        value={stats.home[f.key]}
+        onChange={(e) => update("home", f.key, e.target.value)}
+        className="w-[52px] sm:w-16 h-10 sm:h-11 rounded-lg text-center font-score font-black text-sm sm:text-base tabular-nums text-white bg-transparent border border-violet-500/60 focus:border-violet-400 focus:ring-1 focus:ring-violet-400/40 outline-none transition-all"
+        style={{ boxShadow: '0 0 8px rgba(139,92,246,0.2)' }}
+      />
+    </div>
+    {/* Home Icon */}
+    <span className="text-violet-400 text-sm sm:text-base shrink-0">{f.icon}</span>
+    {/* Label */}
+    <span className="flex-1 text-center text-[9px] sm:text-[10px] font-bold uppercase tracking-[0.15em] text-slate-300 truncate">{f.label}</span>
+    {/* Away Icon */}
+    <span className="text-blue-400 text-sm sm:text-base shrink-0">{f.icon}</span>
+    {/* Away value */}
+    <div className="relative shrink-0">
+      <input
+        type="number"
+        inputMode="numeric"
+        value={stats.away[f.key]}
+        onChange={(e) => update("away", f.key, e.target.value)}
+        className="w-[52px] sm:w-16 h-10 sm:h-11 rounded-lg text-center font-score font-black text-sm sm:text-base tabular-nums text-white bg-transparent border border-blue-500/60 focus:border-blue-400 focus:ring-1 focus:ring-blue-400/40 outline-none transition-all"
+        style={{ boxShadow: '0 0 8px rgba(59,130,246,0.2)' }}
+      />
+    </div>
   </div>
 );
 
-function StatsEntry({ stats, setStats, onSave, onSkip, busy }) {
+function StatsEntry({ stats, setStats, onSave, onSkip, busy, homeObj, awayObj, homeScore, awayScore }) {
   const update = (side, key, val) => {
     const num = val === "" ? "" : Math.max(0, Number(val));
     setStats((s) => ({ ...s, [side]: { ...s[side], [key]: num } }));
@@ -438,31 +459,127 @@ function StatsEntry({ stats, setStats, onSave, onSkip, busy }) {
     setStats(prev => ({ home: { ...prev.away }, away: { ...prev.home } }));
   };
 
-  const half = Math.ceil(STAT_FIELDS.length / 2);
-  const columns = [STAT_FIELDS.slice(0, half), STAT_FIELDS.slice(half)];
+  const hWon = homeScore > awayScore;
+  const aWon = awayScore > homeScore;
 
   return (
-    <div className="p-4 sm:p-6 lg:p-8 max-w-5xl mx-auto">
-      <ImageImport onApply={handleImportApply} />
+    <div className="flex flex-col h-full bg-[#0c0d12] font-sans">
+      {/* Header */}
+      <div className="sticky top-0 z-20 bg-[#0c0d12] px-4 sm:px-6 pt-4 pb-3 border-b border-white/[0.04]">
+        <div className="flex items-center justify-between mb-3">
+          <h2 className="text-sm sm:text-base font-black uppercase tracking-widest text-white">MATCH STATS</h2>
+          <button onClick={handleSwapStats} className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-xs font-bold text-muted-foreground uppercase tracking-wider transition-colors">
+            <ArrowLeftRight size={12} /> Swap
+          </button>
+        </div>
 
-      <div className="flex items-center justify-between mb-4 bg-card p-3 sm:p-4 rounded-xl border border-border shadow-sm">
-        <h3 className="font-bold text-sm uppercase tracking-wider">Match Stats</h3>
-        <button onClick={handleSwapStats} className="flex items-center gap-2 px-3 py-1.5 text-xs font-bold uppercase bg-secondary hover:bg-secondary/80 rounded-md transition-colors border border-border">
-          <ArrowLeftRight size={14} /> Swap
-        </button>
+        {/* FINISHED pill */}
+        <div className="flex justify-center mb-3">
+          <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/20 border border-emerald-500/30">
+            <span className="w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_6px_rgba(52,211,153,0.8)]" />
+            <span className="text-[10px] font-black uppercase tracking-widest text-emerald-400">FINISHED</span>
+          </div>
+        </div>
+
+        {/* Player Score Header */}
+        <div className="flex items-center justify-between gap-2 px-1">
+          {/* Home player */}
+          <div className="flex items-center gap-2 sm:gap-3 flex-1 min-w-0">
+            <div className="relative shrink-0">
+              <div className="absolute -inset-1 bg-violet-500/40 rounded-full blur-[6px]" />
+              <div className="relative w-10 h-10 sm:w-14 sm:h-14 rounded-full border-2 border-violet-500/70 overflow-hidden">
+                <Avatar p={homeObj} size={56} className="w-full h-full object-cover" />
+              </div>
+            </div>
+            {homeObj?.favoriteClub && (
+              <div className="hidden sm:flex items-center">
+                <span className="text-lg">🏟</span>
+              </div>
+            )}
+            <div className="flex flex-col min-w-0">
+              <span className={`text-xs sm:text-sm font-black truncate ${hWon ? 'text-white' : 'text-slate-400'}`} style={{ fontFamily: "'Sora', sans-serif" }}>
+                {homeObj?.name || 'Home'}
+              </span>
+              <span className="text-[9px] text-slate-500 truncate">{homeObj?.favoriteClub || ''}</span>
+            </div>
+          </div>
+
+          {/* Score */}
+          <div className="flex items-center gap-2 sm:gap-4 shrink-0">
+            <span className={`text-3xl sm:text-4xl font-score font-black tabular-nums ${hWon ? 'text-white' : 'text-slate-500'}`}>{homeScore}</span>
+            <span className="text-slate-600 font-score text-xl">-</span>
+            <span className={`text-3xl sm:text-4xl font-score font-black tabular-nums ${aWon ? 'text-emerald-400' : 'text-slate-500'}`}>{awayScore}</span>
+          </div>
+
+          {/* Away player */}
+          <div className="flex items-center gap-2 sm:gap-3 flex-1 min-w-0 justify-end">
+            <div className="flex flex-col min-w-0 items-end">
+              <span className={`text-xs sm:text-sm font-black truncate text-right ${aWon ? 'text-white' : 'text-slate-400'}`} style={{ fontFamily: "'Sora', sans-serif" }}>
+                {awayObj?.name || 'Away'}
+              </span>
+              <span className="text-[9px] text-slate-500 truncate">{awayObj?.favoriteClub || ''}</span>
+            </div>
+            {awayObj?.favoriteClub && (
+              <div className="hidden sm:flex items-center">
+                <span className="text-lg">🏟</span>
+              </div>
+            )}
+            <div className="relative shrink-0">
+              <div className="absolute -inset-1 bg-blue-500/40 rounded-full blur-[6px]" />
+              <div className="relative w-10 h-10 sm:w-14 sm:h-14 rounded-full border-2 border-blue-500/70 overflow-hidden">
+                <Avatar p={awayObj} size={56} className="w-full h-full object-cover" />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Clock */}
+        <div className="flex justify-center mt-2">
+          <div className="flex items-center gap-1 text-slate-500 text-[10px] font-bold">
+            <Clock size={10} />
+            <span>90:00</span>
+          </div>
+        </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 mb-6 sm:mb-8">
-        {columns.map((col, ci) => (
-          <div key={ci} className="bg-card rounded-xl border border-border shadow-sm overflow-hidden">
-            {col.map((f) => <StatsRow key={f.key} f={f} stats={stats} update={update} />)}
-          </div>
+      {/* Image Import */}
+      <div className="px-4 sm:px-6 pt-4">
+        <ImageImport onApply={handleImportApply} />
+      </div>
+
+      {/* Stats Section Header */}
+      <div className="px-4 sm:px-6 pt-2 pb-1">
+        <div className="flex items-center gap-3">
+          <div className="flex-1 h-[1px] bg-gradient-to-r from-transparent via-violet-500/50 to-transparent" />
+          <span className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">MATCH STATS</span>
+          <div className="flex-1 h-[1px] bg-gradient-to-r from-transparent via-violet-500/50 to-transparent" />
+        </div>
+      </div>
+
+      {/* Stats Rows */}
+      <div className="px-4 sm:px-6 flex-1 overflow-y-auto pb-36">
+        {STAT_FIELDS.map((f) => (
+          <ProStatRow key={f.key} f={f} stats={stats} update={update} />
         ))}
       </div>
 
-      <div className="flex flex-col sm:flex-row gap-3">
-        <ActionButton icon={SkipForward} label="Skip Stats" onClick={onSkip} variant="secondary" />
-        <ActionButton icon={Check} label="Save & Publish" onClick={onSave} variant="primary" />
+      {/* Sticky Bottom Bar */}
+      <div className="fixed bottom-0 left-0 right-0 z-50 bg-[#0c0d12]/90 backdrop-blur-xl border-t border-white/[0.05] px-4 sm:px-6 py-3 flex gap-2 sm:gap-3">
+        <button
+          onClick={onSkip}
+          disabled={busy}
+          className="flex-1 h-12 sm:h-14 flex items-center justify-center gap-2 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-white font-bold text-xs sm:text-sm uppercase tracking-wider transition-all active:scale-95"
+        >
+          <ArrowLeft size={16} /> Back to Fixtures
+        </button>
+        <button
+          onClick={onSave}
+          disabled={busy}
+          className="flex-1 sm:flex-[2] h-12 sm:h-14 flex items-center justify-center gap-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-white font-black text-xs sm:text-sm uppercase tracking-wider transition-all shadow-[0_0_20px_rgba(52,211,153,0.4)] hover:shadow-[0_0_30px_rgba(52,211,153,0.6)] active:scale-95 disabled:opacity-60"
+        >
+          {busy ? <Loader2 size={18} className="animate-spin" /> : <Check size={18} strokeWidth={3} />}
+          Finish Match
+        </button>
       </div>
     </div>
   );
@@ -730,7 +847,7 @@ export default function LiveMatchControl({ matches, players, activeSeason, showT
             {phase === "live" && <LiveControl state={state} setState={handleSetState} onTogglePause={handleTogglePause} onFinish={handleFinishFullTime} onUndoStart={handleUndoStart} />}
             {phase === "extra_time" && <ExtraTime state={state} setState={handleSetState} etHalf={etHalf} setEtHalf={setEtHalf} onDone={handleEndExtraTime} />}
             {phase === "shootout" && <Shootout home={state.home} away={state.away} kicks={kicks} setKicks={setKicks} onDecided={handleShootoutDecided} />}
-            {phase === "stats" && <StatsEntry stats={stats} setStats={setStats} busy={saving} onSave={() => finalizeMatch(false)} onSkip={() => finalizeMatch(true)} />}
+            {phase === "stats" && <StatsEntry stats={stats} setStats={setStats} busy={saving} onSave={() => finalizeMatch(false)} onSkip={() => finalizeMatch(true)} homeObj={byId[liveMatch?.homeId || finishedDataCache?.match?.homeId]} awayObj={byId[liveMatch?.awayId || finishedDataCache?.match?.awayId]} homeScore={state.home.goals} awayScore={state.away.goals} />}
             {phase === "done" && <Published state={state} stats={stats} resultType={resultType} shootoutWinner={shootoutWinner} onClose={() => { setPhase("live"); setOptLiveMatch(null); setFinishedDataCache(null); }} />}
           </motion.div>
         </AnimatePresence>
