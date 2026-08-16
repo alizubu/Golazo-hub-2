@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { Trophy, Calendar, Users, Radio, Clock, Check, Archive, Plus, Trash2, Settings, Swords, Edit2, ListOrdered, BarChart2, AlertTriangle, ArrowRight, Megaphone, ChevronDown, Package, MoreVertical, History, CheckCircle2, X, Camera, Copy, Download } from 'lucide-react';
 import { BorderBeam } from '@/app/components/magicui/BorderBeam';
-import { Ripple } from '@/app/components/magicui/Ripple';
+import { FlickeringGrid } from '@/app/components/magicui/FlickeringGrid';
 import { Card, Btn, Input, Label, SectionTitle, EmptyState, MagicCard, FadeIn, ShinyButton, Badge, Avatar, toTitleCase } from '@/app/components/shared/UI';
 import { TeamCombobox, DisplayBadgeToggle } from '@/app/components/shared/FootballIdentity';
 
@@ -581,10 +581,13 @@ function AdminMatchControl({ m, players, showToast, setTab, isPlayoff = false })
     return (
       <div className="relative flex flex-col p-5 sm:p-6 rounded-3xl bg-[#0a0b10] border border-white/5 shadow-2xl overflow-hidden group transition-all duration-500 hover:scale-[1.01]">
         {/* Layer 1: Tactical Auroras */}
-        <div className="absolute inset-y-0 left-0 w-2/3 bg-gradient-to-r from-red-500/30 to-transparent pointer-events-none opacity-60 group-hover:opacity-100 transition-opacity duration-700 blur-2xl" />
-        <div className="absolute inset-y-0 right-0 w-2/3 bg-gradient-to-l from-emerald-500/30 to-transparent pointer-events-none opacity-60 group-hover:opacity-100 transition-opacity duration-700 blur-2xl" />
+        <div className="absolute inset-y-0 left-0 w-2/3 bg-gradient-to-r from-red-500/10 to-transparent pointer-events-none opacity-40 group-hover:opacity-70 transition-opacity duration-700 blur-3xl" />
+        <div className="absolute inset-y-0 right-0 w-2/3 bg-gradient-to-l from-emerald-500/10 to-transparent pointer-events-none opacity-40 group-hover:opacity-70 transition-opacity duration-700 blur-3xl" />
         
-        {/* Layer 2: Magic UI Shine Border */}
+        {/* Layer 2: Flickering Grid */}
+        <FlickeringGrid className="z-0 absolute inset-0 [mask-image:radial-gradient(circle_at_center,white,transparent_80%)]" color="#ffffff" maxOpacity={0.1} flickerSpeed={0.5} gridSize={24} />
+
+        {/* Layer 3: Magic UI Shine Border */}
         <BorderBeam size={300} duration={12} delay={9} colorFrom="#ef4444" colorTo="#10b981" />
 
         {/* Layer 3: Glassmorphic Sweep */}
@@ -595,8 +598,8 @@ function AdminMatchControl({ m, players, showToast, setTab, isPlayoff = false })
           {/* Home Team */}
           <div className="flex flex-col sm:flex-row items-center gap-2 sm:gap-5 flex-1 w-full justify-start order-1">
             <div className="relative shrink-0 scale-75 sm:scale-100 origin-center sm:origin-left">
-              <div className="absolute -inset-1 bg-gradient-to-br from-red-600 to-rose-600 rounded-full blur-md opacity-40 group-hover:opacity-60 transition-opacity" />
-              <div className="relative rounded-full ring-4 ring-red-500 shadow-[0_0_20px_rgba(220,38,38,0.7)]">
+              <div className="absolute -inset-1 bg-gradient-to-br from-red-600 to-rose-600 rounded-full blur-md opacity-20 group-hover:opacity-40 transition-opacity" />
+              <div className="relative rounded-full ring-2 ring-red-500/50 shadow-[0_0_15px_rgba(220,38,38,0.3)]">
                 <div className="relative rounded-full overflow-hidden">
                   <Avatar p={h} size={80} className="rounded-full !border-0" />
                   <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/30 to-transparent -translate-x-[150%] group-hover:translate-x-[150%] transition-transform duration-1000 ease-in-out pointer-events-none" />
@@ -616,7 +619,6 @@ function AdminMatchControl({ m, players, showToast, setTab, isPlayoff = false })
           
           {/* VS Badge / Start Button */}
           <div className="flex flex-col items-center justify-center shrink-0 min-w-[50px] sm:min-w-[100px] relative order-2 gap-2 sm:gap-3 py-2 sm:py-0">
-            <Ripple mainCircleSize={isMobile ? 30 : 50} numCircles={isMobile ? 4 : 6} mainCircleOpacity={0.8} className="z-0" />
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[150%] h-[1px] bg-gradient-to-r from-transparent via-white/20 to-transparent hidden sm:block z-0" />
             
             <div className="relative z-10 flex flex-col items-center justify-center w-10 h-10 sm:w-20 sm:h-20">
@@ -643,8 +645,8 @@ function AdminMatchControl({ m, players, showToast, setTab, isPlayoff = false })
               </div>
             </div>
             <div className="relative shrink-0 order-1 sm:order-2 scale-75 sm:scale-100 origin-center sm:origin-right">
-              <div className="absolute -inset-1 bg-gradient-to-br from-emerald-600 to-teal-600 rounded-full blur-md opacity-40 group-hover:opacity-60 transition-opacity" />
-              <div className="relative rounded-full ring-4 ring-emerald-500 shadow-[0_0_20px_rgba(16,185,129,0.7)]">
+              <div className="absolute -inset-1 bg-gradient-to-br from-emerald-600 to-teal-600 rounded-full blur-md opacity-20 group-hover:opacity-40 transition-opacity" />
+              <div className="relative rounded-full ring-2 ring-emerald-500/50 shadow-[0_0_15px_rgba(16,185,129,0.3)]">
                 <div className="relative rounded-full overflow-hidden">
                   <Avatar p={a} size={80} className="rounded-full !border-0" />
                   <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/30 to-transparent -translate-x-[150%] group-hover:translate-x-[150%] transition-transform duration-1000 ease-in-out pointer-events-none" />
