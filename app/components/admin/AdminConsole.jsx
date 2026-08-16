@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { Trophy, Calendar, Users, Radio, Clock, Check, Archive, Plus, Trash2, Settings, Swords, Edit2, ListOrdered, BarChart2, AlertTriangle, ArrowRight, Megaphone, ChevronDown, Package, MoreVertical, History, CheckCircle2, X, Camera, Copy, Download } from 'lucide-react';
 import { BorderBeam } from '@/app/components/magicui/BorderBeam';
 import { Card, Btn, Input, Label, SectionTitle, EmptyState, MagicCard, FadeIn, ShinyButton, Badge, Avatar, toTitleCase } from '@/app/components/shared/UI';
+import { TeamCombobox, DisplayBadgeToggle } from '@/app/components/shared/FootballIdentity';
 
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -90,7 +91,7 @@ export function AdminPlayers({ players, showToast, session, managerPermissions }
   const [zoom, setZoom] = useState(1);
   const [croppedAreaPixels, setCroppedAreaPixels] = useState(null);
   
-  const blank = { name: "", username: "", email: "", avatar: null, avatarImage: null, flag: null, teamName: "", teamLogo: null, password: "", playStyle: "", badges: [] };
+  const blank = { name: "", username: "", email: "", avatar: null, avatarImage: null, flag: null, favoriteClub: null, displayBadgePreference: "club", teamName: "", teamLogo: null, password: "", playStyle: "", badges: [], rankingPoints: 1000 };
   const [form, setForm] = useState(blank);
   const startNew = () => { setForm(blank); setEditing("new"); };
   const startEdit = (p) => { 
@@ -267,6 +268,20 @@ export function AdminPlayers({ players, showToast, session, managerPermissions }
                           <div className="space-y-1.5 mt-2">
                             <Label className="text-muted-foreground font-semibold text-[10px] uppercase tracking-widest pl-1">Ranking Points</Label>
                             <Input type="number" value={form.rankingPoints !== undefined ? form.rankingPoints : 1000} onChange={(e) => setForm({ ...form, rankingPoints: e.target.value })} placeholder="1000" className="bg-background/40 focus-visible:ring-gold/50 border-border/40 transition-colors h-11" />
+                          </div>
+                          
+                          {/* Identity Setup */}
+                          <div className="sm:col-span-2 space-y-1.5 mt-4 pt-4 border-t border-border/30">
+                            <Label className="text-muted-foreground font-semibold text-[10px] uppercase tracking-widest pl-1">National Team (Flag)</Label>
+                            <TeamCombobox type="national" selectedValue={form.flag} onSelect={(val) => setForm({ ...form, flag: val })} />
+                          </div>
+                          <div className="sm:col-span-2 space-y-1.5 mt-2">
+                            <Label className="text-muted-foreground font-semibold text-[10px] uppercase tracking-widest pl-1">Favorite Club</Label>
+                            <TeamCombobox type="club" selectedValue={form.favoriteClub} onSelect={(val) => setForm({ ...form, favoriteClub: val })} />
+                          </div>
+                          <div className="sm:col-span-2 space-y-1.5 mt-2">
+                            <Label className="text-muted-foreground font-semibold text-[10px] uppercase tracking-widest pl-1">Badge Display Preference</Label>
+                            <DisplayBadgeToggle value={form.displayBadgePreference || 'club'} onChange={(val) => setForm({ ...form, displayBadgePreference: val })} disabledOption={!form.flag ? 'national' : (!form.favoriteClub ? 'club' : null)} />
                           </div>
                         </>
                       )}
