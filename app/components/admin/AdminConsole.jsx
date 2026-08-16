@@ -561,17 +561,8 @@ function AdminMatchControl({ m, players, showToast, setTab, isPlayoff = false })
         <div className="absolute inset-y-0 left-0 w-1/2 bg-gradient-to-r from-red-600/10 via-red-600/5 to-transparent pointer-events-none opacity-50 group-hover:opacity-80 transition-opacity duration-500" />
         <div className="absolute inset-y-0 right-0 w-1/2 bg-gradient-to-l from-emerald-600/10 via-emerald-600/5 to-transparent pointer-events-none opacity-50 group-hover:opacity-80 transition-opacity duration-500" />
         
-        {/* Crest Watermarks */}
-        {hFlagUrl && (
-          <div className="absolute inset-y-0 left-0 w-1/2 overflow-hidden pointer-events-none rounded-l-3xl" style={{ WebkitMaskImage: 'linear-gradient(to right, black 20%, transparent 80%)', maskImage: 'linear-gradient(to right, black 20%, transparent 80%)' }}>
-            <img src={hFlagUrl} alt="" className="absolute top-1/2 -translate-y-1/2 -left-12 w-[300px] h-[300px] object-contain opacity-[0.03] grayscale group-hover:opacity-[0.05] transition-opacity duration-500" />
-          </div>
-        )}
-        {aFlagUrl && (
-          <div className="absolute inset-y-0 right-0 w-1/2 overflow-hidden pointer-events-none rounded-r-3xl" style={{ WebkitMaskImage: 'linear-gradient(to left, black 20%, transparent 80%)', maskImage: 'linear-gradient(to left, black 20%, transparent 80%)' }}>
-            <img src={aFlagUrl} alt="" className="absolute top-1/2 -translate-y-1/2 -right-12 w-[300px] h-[300px] object-contain opacity-[0.03] grayscale group-hover:opacity-[0.05] transition-opacity duration-500" />
-          </div>
-        )}
+        {/* Frosted Glass Noise Texture */}
+        <div className="absolute inset-0 pointer-events-none opacity-[0.04] group-hover:opacity-[0.06] transition-opacity duration-500 mix-blend-overlay" style={{ backgroundImage: "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E\")" }} />
 
         <div className="absolute -inset-[1px] rounded-3xl bg-gradient-to-r from-red-500/0 via-red-500/10 to-emerald-500/0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
 
