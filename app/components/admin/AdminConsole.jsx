@@ -714,9 +714,9 @@ function CompletedMatchCard({ m, h, a, players, showToast, isPlayoff = false }) 
 
         {/* FINISHED pill */}
         <div className="flex justify-center mb-3">
-          <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/20 border border-emerald-500/30">
-            <span className="w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_6px_rgba(52,211,153,0.8)]" />
-            <span className="text-[10px] font-black uppercase tracking-widest text-emerald-400">FINISHED</span>
+          <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-rose-500/20 border border-rose-500/30">
+            <span className="w-2 h-2 rounded-full bg-rose-400 shadow-[0_0_6px_rgba(244,63,94,0.8)]" />
+            <span className="text-[10px] font-black uppercase tracking-widest text-rose-400">FINISHED</span>
           </div>
         </div>
 
@@ -725,8 +725,8 @@ function CompletedMatchCard({ m, h, a, players, showToast, isPlayoff = false }) 
           {/* Home player */}
           <div className="flex items-center gap-2 sm:gap-3 flex-1 min-w-0">
             <div className="relative shrink-0">
-              <div className="absolute -inset-1.5 bg-violet-500/40 rounded-full blur-[8px]" />
-              <div className="relative w-10 h-10 sm:w-14 sm:h-14 rounded-full border-2 border-violet-500/70 overflow-hidden">
+              <div className="absolute -inset-1.5 bg-rose-500/40 rounded-full blur-[8px]" />
+              <div className="relative w-10 h-10 sm:w-14 sm:h-14 rounded-full border-2 border-rose-500/70 overflow-hidden">
                 <Avatar p={h} size={56} className="w-full h-full object-cover" />
               </div>
             </div>
@@ -743,7 +743,7 @@ function CompletedMatchCard({ m, h, a, players, showToast, isPlayoff = false }) 
           <div className="flex items-center gap-2 sm:gap-4 shrink-0">
             <span className={`text-3xl sm:text-4xl font-score font-black tabular-nums ${hWon ? 'text-white' : 'text-slate-500'}`}>{hScore}</span>
             <span className="text-slate-600 font-score text-xl">-</span>
-            <span className={`text-3xl sm:text-4xl font-score font-black tabular-nums ${aWon ? 'text-emerald-400' : 'text-slate-500'}`}>{aScore}</span>
+            <span className={`text-3xl sm:text-4xl font-score font-black tabular-nums ${aWon ? 'text-rose-400' : 'text-slate-500'}`}>{aScore}</span>
           </div>
 
           {/* Away player */}
@@ -756,8 +756,8 @@ function CompletedMatchCard({ m, h, a, players, showToast, isPlayoff = false }) 
             </div>
             {aFlagUrl && <img src={aFlagUrl} alt="" className="w-6 h-6 object-contain shrink-0 hidden sm:block" />}
             <div className="relative shrink-0">
-              <div className="absolute -inset-1.5 bg-blue-500/40 rounded-full blur-[8px]" />
-              <div className="relative w-10 h-10 sm:w-14 sm:h-14 rounded-full border-2 border-blue-500/70 overflow-hidden">
+              <div className="absolute -inset-1.5 bg-rose-500/40 rounded-full blur-[8px]" />
+              <div className="relative w-10 h-10 sm:w-14 sm:h-14 rounded-full border-2 border-rose-500/70 overflow-hidden">
                 <Avatar p={a} size={56} className="w-full h-full object-cover" />
               </div>
             </div>
@@ -768,7 +768,7 @@ function CompletedMatchCard({ m, h, a, players, showToast, isPlayoff = false }) 
         <div className="absolute right-3 top-3 z-10" onClick={e => e.stopPropagation()}>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <button className="opacity-60 hover:opacity-100 transition-opacity p-1.5 rounded-lg hover:bg-white/10 text-muted-foreground">
+              <button className="opacity-100 p-1.5 rounded-lg hover:bg-white/10 text-slate-400 hover:text-white transition-colors">
                 <MoreVertical size={16} />
               </button>
             </DropdownMenuTrigger>
@@ -776,7 +776,7 @@ function CompletedMatchCard({ m, h, a, players, showToast, isPlayoff = false }) 
               {isPlayoff ? (
                 <>
                   <DropdownMenuItem className="cursor-pointer rounded-lg py-2" onSelect={() => setIsEditingStats(!isEditingStats)}>
-                    <BarChart2 size={14} className="mr-2 text-green-400" /> {isEditingStats ? 'Close Stats' : 'Edit Stats'}
+                    <BarChart2 size={14} className="mr-2 text-rose-400" /> {isEditingStats ? 'Close Stats' : 'Edit Stats'}
                   </DropdownMenuItem>
                   <DropdownMenuItem className="cursor-pointer rounded-lg py-2" onSelect={(e) => { e.preventDefault(); handleReset(); }}>
                     <Clock size={14} className="mr-2" /> Postpone
@@ -791,7 +791,7 @@ function CompletedMatchCard({ m, h, a, players, showToast, isPlayoff = false }) 
                     <CheckCircle2 size={14} className="mr-2 text-muted-foreground" /> View Match
                   </DropdownMenuItem>
                   <DropdownMenuItem className="cursor-pointer rounded-lg py-2" onSelect={() => setIsEditingStats(!isEditingStats)}>
-                    <BarChart2 size={14} className="mr-2 text-green-400" /> {isEditingStats ? 'Close Stats' : 'Edit Stats'}
+                    <BarChart2 size={14} className="mr-2 text-rose-400" /> {isEditingStats ? 'Close Stats' : 'Edit Stats'}
                   </DropdownMenuItem>
                   <DropdownMenuItem className="cursor-pointer rounded-lg py-2 text-destructive focus:text-destructive" onSelect={(e) => { e.preventDefault(); if (window.confirm('Are you sure you want to undo this match result? This will remove the score and revert it to scheduled.')) handleReset(); }}>
                     <AlertTriangle size={14} className="mr-2" /> Undo Result
@@ -811,14 +811,14 @@ function CompletedMatchCard({ m, h, a, players, showToast, isPlayoff = false }) 
             animate={{ height: "auto", opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
             transition={{ duration: 0.3 }}
-            className="overflow-hidden bg-[#0c0d12] border border-violet-500/20 border-t-0 rounded-b-3xl shadow-2xl"
+            className="overflow-hidden bg-[#0c0d12] border border-rose-500/20 border-t-0 rounded-b-3xl shadow-2xl"
           >
             {/* Stats header divider */}
             <div className="px-4 sm:px-6 pt-4 pb-2">
               <div className="flex items-center gap-3">
-                <div className="flex-1 h-[1px] bg-gradient-to-r from-transparent via-violet-500/50 to-transparent" />
+                <div className="flex-1 h-[1px] bg-gradient-to-r from-transparent via-rose-500/50 to-transparent" />
                 <span className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">MATCH STATS</span>
-                <div className="flex-1 h-[1px] bg-gradient-to-r from-transparent via-violet-500/50 to-transparent" />
+                <div className="flex-1 h-[1px] bg-gradient-to-r from-transparent via-rose-500/50 to-transparent" />
               </div>
             </div>
 
@@ -840,18 +840,18 @@ function CompletedMatchCard({ m, h, a, players, showToast, isPlayoff = false }) 
                       type="number"
                       value={valA}
                       onChange={e => handleStatChange(def.key, 'a', e.target.value)}
-                      className="w-14 sm:w-16 h-10 sm:h-11 text-center font-score font-black text-sm tabular-nums text-white bg-transparent border-violet-500/60 focus:border-violet-400 focus:ring-violet-400/30"
-                      style={{ boxShadow: '0 0 8px rgba(139,92,246,0.2)' }}
+                      className="w-14 sm:w-16 h-10 sm:h-11 text-center font-score font-black text-sm tabular-nums text-white bg-transparent border-rose-500/60 focus:border-rose-400 focus:ring-rose-400/30"
+                      style={{ boxShadow: '0 0 8px rgba(244,63,94,0.2)' }}
                     />
-                    <span className="text-violet-400 text-sm shrink-0">{icon}</span>
+                    <span className="text-rose-400 text-sm shrink-0">{icon}</span>
                     <span className="flex-1 text-center text-[9px] sm:text-[10px] font-bold uppercase tracking-[0.15em] text-slate-300 truncate">{def.label}</span>
-                    <span className="text-blue-400 text-sm shrink-0">{icon}</span>
+                    <span className="text-rose-400 text-sm shrink-0">{icon}</span>
                     <Input
                       type="number"
                       value={valB}
                       onChange={e => handleStatChange(def.key, 'b', e.target.value)}
-                      className="w-14 sm:w-16 h-10 sm:h-11 text-center font-score font-black text-sm tabular-nums text-white bg-transparent border-blue-500/60 focus:border-blue-400 focus:ring-blue-400/30"
-                      style={{ boxShadow: '0 0 8px rgba(59,130,246,0.2)' }}
+                      className="w-14 sm:w-16 h-10 sm:h-11 text-center font-score font-black text-sm tabular-nums text-white bg-transparent border-rose-500/60 focus:border-rose-400 focus:ring-rose-400/30"
+                      style={{ boxShadow: '0 0 8px rgba(244,63,94,0.2)' }}
                     />
                   </div>
                 );
@@ -863,7 +863,7 @@ function CompletedMatchCard({ m, h, a, players, showToast, isPlayoff = false }) 
               <Btn variant="ghost" onClick={() => setIsEditingStats(false)} disabled={saving} className="flex-1 h-11 rounded-xl border border-white/10 text-muted-foreground hover:text-white hover:bg-white/5">
                 Cancel
               </Btn>
-              <ShinyButton onClick={saveStats} loading={saving} className="flex-[2] h-11 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-white font-black text-sm shadow-[0_0_20px_rgba(52,211,153,0.3)]">
+              <ShinyButton onClick={saveStats} loading={saving} className="flex-[2] h-11 rounded-xl bg-rose-500 hover:bg-rose-400 text-white font-black text-sm shadow-[0_0_20px_rgba(244,63,94,0.3)]">
                 <Check size={16} className="mr-2" /> Save Stats
               </ShinyButton>
             </div>
