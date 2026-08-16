@@ -10,6 +10,8 @@ import { THEMES, SEPARATORS, CyberNeonBadge, GoldStandardBadge, FrostGlassBadge,
 import { Slider } from '@/app/components/ui/slider';
 import { Toggle as ShadcnToggle } from '@/app/components/ui/toggle';
 import { Popover, PopoverTrigger, PopoverContent } from '@/app/components/ui/popover';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/app/components/ui/tabs';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/app/components/ui/dialog';
 import { HexColorPicker } from 'react-colorful';
 
 const COLOR_SWATCHES = [
@@ -238,6 +240,7 @@ export default function AdminBroadcast({ matches = [], players = [], announcemen
   const [newNewsLetterSpacing, setNewNewsLetterSpacing] = useState(0);
   const [newPriority, setNewPriority] = useState('NORMAL');
   const [editingAlertId, setEditingAlertId] = useState(null);
+  const [isAlertModalOpen, setIsAlertModalOpen] = useState(false);
 
   // Theme Gallery state
   const [themeQuery, setThemeQuery] = useState('');
@@ -306,6 +309,7 @@ export default function AdminBroadcast({ matches = [], players = [], announcemen
       setNewNewsFontSize(item.style.fontSize || 16);
       setNewNewsLetterSpacing(item.style.letterSpacing || 0);
     }
+    setIsAlertModalOpen(true);
   };
 
   const handleSaveAlert = () => {
@@ -350,6 +354,7 @@ export default function AdminBroadcast({ matches = [], players = [], announcemen
     setNewCustomHighlight('');
     setNewBadgeLabel('');
     setNewPriority('NORMAL');
+    setIsAlertModalOpen(false);
   };
 
   const cancelEdit = () => {
@@ -357,6 +362,7 @@ export default function AdminBroadcast({ matches = [], players = [], announcemen
     setNewCustomHighlight('');
     setNewBadgeLabel('');
     setNewPriority('NORMAL');
+    setIsAlertModalOpen(false);
   };
 
   if (loading) {
@@ -431,8 +437,27 @@ export default function AdminBroadcast({ matches = [], players = [], announcemen
         </Card>
       </div>
 
-      {/* ── Master Controls ─────────────────────────────────────────────────── */}
-      <FadeIn delay={0.05}>
+      {/* ── Tabs Container ──────────────────────────────────────────────────── */}
+      <Tabs defaultValue="feed" className="w-full">
+        <TabsList className="mb-6 w-full justify-start overflow-x-auto bg-transparent border-b border-border/50 rounded-none pb-0 h-auto">
+          <TabsTrigger value="feed" className="gap-2 rounded-t-lg rounded-b-none data-[state=active]:bg-secondary/50 data-[state=active]:border-b-amber-500 data-[state=active]:border-b-2 py-3 px-6 text-sm"><Radio size={16} className="text-amber-500" /> Feed & Content</TabsTrigger>
+          <TabsTrigger value="themes" className="gap-2 rounded-t-lg rounded-b-none data-[state=active]:bg-secondary/50 data-[state=active]:border-b-amber-500 data-[state=active]:border-b-2 py-3 px-6 text-sm"><Palette size={16} className="text-blue-400" /> Themes & Visuals</TabsTrigger>
+          <TabsTrigger value="alerts" className="gap-2 rounded-t-lg rounded-b-none data-[state=active]:bg-secondary/50 data-[state=active]:border-b-amber-500 data-[state=active]:border-b-2 py-3 px-6 text-sm"><Megaphone size={16} className="text-red-400" /> Alert Studio</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="feed" className="space-y-6 mt-0">
+          
+      {/* ── Tabs Container ──────────────────────────────────────────────────── */}
+      <Tabs defaultValue="feed" className="w-full mt-6">
+        <TabsList className="mb-6 w-full justify-start overflow-x-auto bg-transparent border-b border-border/50 rounded-none pb-0 h-auto custom-scrollbar">
+          <TabsTrigger value="feed" className="gap-2 rounded-t-lg rounded-b-none data-[state=active]:bg-secondary/50 data-[state=active]:border-b-amber-500 data-[state=active]:border-b-2 py-3 px-6 text-sm transition-all"><Radio size={16} className="text-amber-500" /> Feed & Content</TabsTrigger>
+          <TabsTrigger value="themes" className="gap-2 rounded-t-lg rounded-b-none data-[state=active]:bg-secondary/50 data-[state=active]:border-b-amber-500 data-[state=active]:border-b-2 py-3 px-6 text-sm transition-all"><Palette size={16} className="text-blue-400" /> Themes & Visuals</TabsTrigger>
+          <TabsTrigger value="alerts" className="gap-2 rounded-t-lg rounded-b-none data-[state=active]:bg-secondary/50 data-[state=active]:border-b-amber-500 data-[state=active]:border-b-2 py-3 px-6 text-sm transition-all"><Megaphone size={16} className="text-red-400" /> Alert Studio</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="feed" className="space-y-6 mt-0">
+{/* ── Master Controls ─────────────────────────────────────────────────── */}
+          <FadeIn delay={0.05}>
         <Card className="p-4 sm:p-6">
           <SectionTitle icon={Activity}>Master Controls</SectionTitle>
           <div className="mt-4 flex flex-col gap-5">
@@ -548,7 +573,53 @@ export default function AdminBroadcast({ matches = [], players = [], announcemen
         </Card>
       </FadeIn>
 
-      {/* ── Theme Gallery ───────────────────────────────────────────────────── */}
+      
+      {draft.source === 'running_season' && (
+        <div className="border-t border-border/50 pt-6 mt-6">
+{/* ── Smart Content ───────────────────────────────────────────────────── */}
+      <FadeIn delay={0.3}>
+        <Card className="p-4 sm:p-6 border-pitch-bright/10">
+          <SectionTitle icon={Zap}>Smart Content</SectionTitle>
+          <p className="text-xs text-muted-foreground mt-1 mb-4">Auto-generated ticker items based on match data. These update in real-time.</p>
+          <div className="flex flex-col gap-3">
+            <div className="p-4 rounded-xl bg-white/5 border border-border/50">
+              <Toggle
+                checked={draft.showStats}
+                onChange={v => update('showStats', v)}
+                label="📊 Stats Ticker Mode"
+                desc="Show top scorer, league leader, and match count"
+              />
+            </div>
+            <div className="p-4 rounded-xl bg-white/5 border border-border/50">
+              <Toggle
+                checked={draft.showHighlights}
+                onChange={v => update('showHighlights', v)}
+                label="⚡ Highlight Reel"
+                desc="Biggest win margin, total goals from recent matches"
+              />
+            </div>
+            <div className="p-4 rounded-xl bg-white/5 border border-border/50">
+              <Toggle
+                checked={draft.showStreaks}
+                onChange={v => update('showStreaks', v)}
+                label="🔥 Player Streak Alerts"
+                desc="Auto-detect 3+ game win/loss streaks and alert viewers"
+              />
+            </div>
+          </div>
+        </Card>
+      </FadeIn>
+
+      
+      
+        </div>
+      )}
+
+        </TabsContent>
+
+        <TabsContent value="themes" className="space-y-6 mt-0">
+
+{/* ── Theme Gallery ───────────────────────────────────────────────────── */}
       <FadeIn delay={0.2}>
         <Card className="p-4 sm:p-6">
           <SectionTitle icon={Eye}>Theme Gallery</SectionTitle>
@@ -584,11 +655,11 @@ export default function AdminBroadcast({ matches = [], players = [], announcemen
             ))}
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
+          <div className="flex overflow-x-auto snap-x gap-3 pb-4 custom-scrollbar">
             <AnimatePresence mode="popLayout">
               {filteredThemes.length ? (
                 filteredThemes.map(t => (
-                  <ThemeCard key={t.id} theme={t} isSelected={draft.theme === t.id} onSelect={v => update('theme', v)} />
+                  <div key={t.id} className="snap-start shrink-0 w-[240px]"><ThemeCard theme={t} isSelected={draft.theme === t.id} onSelect={v => update('theme', v)} /></div>
                 ))
               ) : (
                 <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="col-span-full py-8 text-center text-muted-foreground text-sm">
@@ -636,44 +707,39 @@ export default function AdminBroadcast({ matches = [], players = [], announcemen
         </Card>
       </FadeIn>
 
-      {/* ── Smart Content ───────────────────────────────────────────────────── */}
-      <FadeIn delay={0.3}>
-        <Card className="p-4 sm:p-6 border-pitch-bright/10">
-          <SectionTitle icon={Zap}>Smart Content</SectionTitle>
-          <p className="text-xs text-muted-foreground mt-1 mb-4">Auto-generated ticker items based on match data. These update in real-time.</p>
-          <div className="flex flex-col gap-3">
-            <div className="p-4 rounded-xl bg-white/5 border border-border/50">
-              <Toggle
-                checked={draft.showStats}
-                onChange={v => update('showStats', v)}
-                label="📊 Stats Ticker Mode"
-                desc="Show top scorer, league leader, and match count"
-              />
-            </div>
-            <div className="p-4 rounded-xl bg-white/5 border border-border/50">
-              <Toggle
-                checked={draft.showHighlights}
-                onChange={v => update('showHighlights', v)}
-                label="⚡ Highlight Reel"
-                desc="Biggest win margin, total goals from recent matches"
-              />
-            </div>
-            <div className="p-4 rounded-xl bg-white/5 border border-border/50">
-              <Toggle
-                checked={draft.showStreaks}
-                onChange={v => update('showStreaks', v)}
-                label="🔥 Player Streak Alerts"
-                desc="Auto-detect 3+ game win/loss streaks and alert viewers"
-              />
-            </div>
-          </div>
-        </Card>
-      </FadeIn>
-
       
-      {/* ── Breaking News / Custom Marquee ────────────────────────────── */}
-      <FadeIn delay={0.35}>
-        <Card className="p-5 sm:p-7 border-amber-500/20 dark:bg-gradient-to-br dark:from-zinc-950 dark:to-amber-950/10 bg-white dark:bg-transparent overflow-hidden relative">
+        </TabsContent>
+
+        <TabsContent value="alerts" className="space-y-6 mt-0">
+
+
+      {/* ── Alert Studio (Tab 3) ────────────────────────────── */}
+      <FadeIn delay={0.1}>
+        <Card className="p-5 sm:p-7 border-amber-500/20 dark:bg-gradient-to-br dark:from-zinc-950 dark:to-amber-950/10 overflow-hidden relative">
+          <div className="absolute -top-20 -right-20 w-72 h-72 bg-amber-500/[0.04] rounded-full blur-3xl pointer-events-none" />
+          <div className="absolute -bottom-16 -left-16 w-52 h-52 bg-red-500/[0.03] rounded-full blur-3xl pointer-events-none" />
+          
+          <div className="flex items-center justify-between mb-8 relative z-10">
+            <div>
+              <SectionTitle icon={Megaphone} className="text-amber-500 mb-0">Breaking News Alerts</SectionTitle>
+              <p className="text-xs text-amber-600 dark:text-amber-500/70 mt-1">Manage your active marquee alerts.</p>
+            </div>
+            <Dialog open={isAlertModalOpen} onOpenChange={setIsAlertModalOpen}>
+              <DialogTrigger asChild>
+                <ShinyButton className="shadow-amber-500/20 px-6">
+                  <Plus size={16} className="mr-2" /> Create Custom Alert
+                </ShinyButton>
+              </DialogTrigger>
+              <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto custom-scrollbar border-amber-500/20 bg-background/95 backdrop-blur-xl">
+                <DialogHeader>
+                  <DialogTitle className="text-amber-500 font-bold flex items-center gap-2">
+                    <Megaphone size={18} /> Alert Studio
+                  </DialogTitle>
+                </DialogHeader>
+                <div className="mt-4">
+                  {/* ── Breaking News / Custom Marquee ────────────────────────────── */}
+      
+        
           <div className="absolute -top-20 -right-20 w-72 h-72 bg-amber-500/[0.04] rounded-full blur-3xl pointer-events-none" />
           <div className="absolute -bottom-16 -left-16 w-52 h-52 bg-red-500/[0.03] rounded-full blur-3xl pointer-events-none" />
           
@@ -1046,7 +1112,14 @@ export default function AdminBroadcast({ matches = [], players = [], announcemen
             </div>
           </div>
 
-          {/* ─── Active Alerts List ─── */}
+          
+                </div>
+              </DialogContent>
+            </Dialog>
+          </div>
+
+          <div className="relative z-10">
+            {/* ─── Active Alerts List ─── */}
           <div className="pt-6 border-t border-border/30">
             <Label className="text-muted-foreground text-[11px] font-bold uppercase tracking-widest mb-3 flex items-center gap-2 block">
               Active Alerts ({(draft.customHighlights || []).length})
@@ -1129,10 +1202,18 @@ export default function AdminBroadcast({ matches = [], players = [], announcemen
               )}
             </div>
           </div>
+        
+      
+
+      
+          </div>
         </Card>
       </FadeIn>
 
-      {/* ── Save Button ─────────────────────────────────────────────────────── */}
+        </TabsContent>
+      </Tabs>
+
+{/* ── Save Button ─────────────────────────────────────────────────────── */}
       <div className="sticky bottom-0 -mx-4 md:mx-0 p-4 md:p-0 md:pt-2 md:pb-4 bg-background/90 backdrop-blur-md md:bg-transparent border-t border-border/50 md:border-t-0 z-40 flex justify-end mt-4">
         <ShinyButton className="w-full sm:w-auto shadow-lg md:shadow-none" onClick={handleSave} loading={saving} disabled={saving}>
           💾 Save Broadcast Settings
