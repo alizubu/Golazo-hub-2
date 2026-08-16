@@ -21,6 +21,7 @@ import Cropper from 'react-easy-crop';
 import { getCroppedImgBase64 } from '@/app/utils/cropUtils';
 import { PlayStyleBadge } from '@/app/components/shared/UI';
 import nationalTeamsData from '@/lib/data/national_teams.json';
+import { CLUBS } from '@/lib/data/clubs';
 import { useRouter } from 'next/navigation';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/app/components/ui/tabs';
 import {
@@ -339,6 +340,24 @@ export function AdminPlayers({ players, showToast, session, managerPermissions }
   );
 }
 
+export const getPlayerIdentityBadgeUrl = (player) => {
+  if (!player) return null;
+  const pref = player.displayBadgePreference || 'club';
+  if (pref === 'club' && player.favoriteClub) {
+    const club = CLUBS.find(c => c.name === player.favoriteClub);
+    if (club) return club.crestPath;
+  }
+  if (pref === 'nation' && player.flag) {
+    const nt = nationalTeamsData.find(n => n.name === player.flag);
+    if (nt) return nt.flag_url;
+  }
+  if (player.flag) {
+    const nt = nationalTeamsData.find(n => n.name === player.flag);
+    if (nt) return nt.flag_url;
+  }
+  return null;
+};
+
 export function AdminMatches({ matches, activeSeason, players, showToast, setTab }) {
   const [isExporting, setIsExporting] = React.useState(false);
   const captureRef = React.useRef(null);
@@ -535,8 +554,8 @@ function AdminMatchControl({ m, players, showToast, setTab, isPlayoff = false })
   }
 
   if (optStatus === "scheduled") {
-    const hFlagUrl = nationalTeamsData.find(nt => nt.name === h?.flag)?.flag_url;
-    const aFlagUrl = nationalTeamsData.find(nt => nt.name === a?.flag)?.flag_url;
+    const hFlagUrl = getPlayerIdentityBadgeUrl(h);
+    const aFlagUrl = getPlayerIdentityBadgeUrl(a);
 
     return (
       <div className="group relative flex flex-col p-4 sm:p-5 rounded-2xl bg-background border border-white/5 shadow-sm hover:shadow-xl hover:border-primary/20 transition-all duration-300 overflow-hidden">
@@ -635,8 +654,8 @@ function CompletedMatchCard({ m, h, a, players, showToast, isPlayoff = false }) 
   const hWon = hScore > aScore;
   const aWon = aScore > hScore;
   
-  const hFlagUrl = nationalTeamsData.find(nt => nt.name === h?.flag)?.flag_url;
-  const aFlagUrl = nationalTeamsData.find(nt => nt.name === a?.flag)?.flag_url;
+  const hFlagUrl = getPlayerIdentityBadgeUrl(h);
+  const aFlagUrl = getPlayerIdentityBadgeUrl(a);
 
   const router = useRouter();
 
@@ -1909,7 +1928,7 @@ export function AdminSeason({ activeSeason, seasons = [], matches = [], players 
   const upcoming = scheduledMatches.slice(0, 3);
   
   const table = {};
-  players.forEach(p => table[p.id] = { id: p.id, name: p.name, flag: p.flag, p: 0, w: 0, d: 0, l: 0, gf: 0, ga: 0, gd: 0, pts: 0 });
+  players.forEach(p => table[p.id] = { id: p.id, name: p.name, player: p, p: 0, w: 0, d: 0, l: 0, gf: 0, ga: 0, gd: 0, pts: 0 });
   
   completedMatches.forEach(m => {
     const h = table[m.homeId];
@@ -2090,7 +2109,11 @@ export function AdminSeason({ activeSeason, seasons = [], matches = [], players 
                          {idx === 0 ? "🥇" : idx === 1 ? "🥈" : idx === 2 ? "🥉" : <span className="text-muted-foreground">{idx + 1}</span>}
                        </td>
                        <td className="px-4 py-4 font-bold text-base flex items-center gap-2">
-                         {row.name} {row.flag}
+                         {getPlayerIdentityBadgeUrl(row.player) && (
+                           /* eslint-disable-next-line @next/next/no-img-element */
+                           <img src={getPlayerIdentityBadgeUrl(row.player)} alt={row.name} className="w-4 h-3 sm:w-5 sm:h-3.5 object-cover rounded-[2px] shadow-sm shrink-0" />
+                         )}
+                         {row.name}
                        </td>
                        <td className="px-3 py-4 text-center font-score text-muted-foreground">{row.p}</td>
                        <td className="px-3 py-4 text-center font-score text-muted-foreground">{row.w}</td>
