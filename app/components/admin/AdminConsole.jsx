@@ -293,26 +293,29 @@ export function AdminPlayers({ players, showToast, session, managerPermissions }
                 </div>
               </div>
               
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <button className="p-2 -mr-2 text-muted-foreground hover:text-foreground md:opacity-0 group-hover:opacity-100 hover:bg-white/10 rounded-full transition-all active:bg-white/20 active:scale-95 outline-none">
-                    <MoreVertical size={18} />
+              
+                <div className="flex items-center gap-1.5 sm:gap-2 ml-auto">
+                  <button 
+                    onClick={() => startEdit(p)}
+                    disabled={loading}
+                    className="flex items-center justify-center w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-secondary/50 hover:bg-gold/20 text-muted-foreground hover:text-gold transition-all active:scale-95 disabled:opacity-50"
+                    title="Edit Player"
+                  >
+                    <Edit2 size={16} />
                   </button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-44 bg-card border-border/50 shadow-2xl rounded-xl z-50">
-                  <DropdownMenuItem className="cursor-pointer py-2.5 rounded-lg" onSelect={() => startEdit(p)} disabled={loading}>
-                    <Edit2 size={15} className="mr-2.5 text-muted-foreground" /> Edit Profile
-                  </DropdownMenuItem>
+                  
                   {(session?.role === 'admin' || managerPermissions?.canManagePlayers) && (
-                    <>
-                      <DropdownMenuSeparator className="bg-border/30 my-1" />
-                      <DropdownMenuItem className="cursor-pointer py-2.5 rounded-lg text-destructive focus:text-destructive focus:bg-destructive/10" onSelect={() => remove(p.id)} disabled={loading}>
-                        <Trash2 size={15} className="mr-2.5" /> Remove Player
-                      </DropdownMenuItem>
-                    </>
+                    <button 
+                      onClick={() => remove(p.id)}
+                      disabled={loading}
+                      className="flex items-center justify-center w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-secondary/50 hover:bg-red-500/20 text-muted-foreground hover:text-red-500 transition-all active:scale-95 disabled:opacity-50"
+                      title="Remove Player"
+                    >
+                      <Trash2 size={16} />
+                    </button>
                   )}
-                </DropdownMenuContent>
-              </DropdownMenu>
+                </div>
+
             </div>
           </FadeIn>
         ))}
