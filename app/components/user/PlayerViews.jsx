@@ -14,6 +14,7 @@ import { useRouter } from 'next/navigation';
 import SettingsView from '@/app/components/shared/SettingsView';
 import MatchesPage from '@/app/components/shared/MatchesPage';
 import MatchCard from '@/app/components/shared/MatchCard';
+import { ProMatchFixtureCard } from '@/app/components/shared/ProMatchFixtureCard';
 
 import TrophyDetailModal from '@/app/components/shared/TrophyDetailModal';
 import HeadToHeadModal from '@/app/components/shared/HeadToHeadModal';
@@ -231,8 +232,13 @@ export function PlayerDashboard({ me, activeSeason, seasons = [], matches, playe
   const myMatches = tMatches.filter((m) => (m.homeId === me.id || m.awayId === me.id) && m.status === 'completed');
   const myLive = tMatches.filter((m) => m.status === "live" && (m.homeId === me.id || m.awayId === me.id));
   const upcoming = tMatches.filter((m) => m.status === "scheduled" && (m.homeId === me.id || m.awayId === me.id)).slice(0, 1);
-  const nextMatch = upcoming[0];
   const recent = [...myMatches].sort((a, b) => new Date(b.completedAt || 0) - new Date(a.completedAt || 0)).slice(0, 5);
+
+  const getPlayerStats = (id) => {
+    const row = standings.find(s => s.id === id);
+    const rank = standings.findIndex(s => s.id === id) + 1;
+    return { rank: rank > 0 ? rank : '-', wins: row ? row.won : 0 };
+  };
 
   const allMyCompletedMatches = matches.filter(m => (m.homeId === me.id || m.awayId === me.id) && m.status === 'completed');
   allMyCompletedMatches.sort((a, b) => new Date(b.completedAt || 0) - new Date(a.completedAt || 0));
@@ -695,7 +701,15 @@ export function PlayerDashboard({ me, activeSeason, seasons = [], matches, playe
         {/* Live Matches */}
         {myLive.map((m, i) => (
           <FadeIn key={m.id} delay={0.3} className="col-span-12">
-            <MatchCard m={m} players={players} onClick={onMatchClick} />
+            <ProMatchFixtureCard 
+              m={m} 
+              h={players.find(p => p.id === m.homeId)} 
+              a={players.find(p => p.id === m.awayId)} 
+              hStats={getPlayerStats(m.homeId)}
+              aStats={getPlayerStats(m.awayId)}
+              index={tMatches.findIndex(tm => tm.id === m.id) >= 0 ? tMatches.findIndex(tm => tm.id === m.id) : i}
+              onClick={() => onMatchClick(m)} 
+            />
           </FadeIn>
         ))}
 
@@ -879,16 +893,36 @@ function StandingsView({ activeSeason, matches, players, me }) {
 function MatchesView({ activeSeason, matches, players, onMatchClick }) {
   if (!activeSeason) return <EmptyState text="No active season yet." />;
   const tMatches = matches.filter((m) => m.seasonId === activeSeason.id && m.round === "league");
+  const standings = computeStandings(tMatches, players, activeSeason.id);
+
+  const getStats = (id) => {
+    const row = standings.find(s => s.id === id);
+    const rank = standings.findIndex(s => s.id === id) + 1;
+    return { rank: rank > 0 ? rank : '-', wins: row ? row.won : 0 };
+  };
+
   return (
     <FadeIn delay={0.1}>
       <Card className="p-5">
         <SectionTitle icon={Calendar}>All Matches</SectionTitle>
         <div className="flex flex-col gap-3">
-          {tMatches.map((m, i) => (
-            <motion.div key={m.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.03 }}>
-              <MatchCard onClick={onMatchClick} m={m} players={players} />
-            </motion.div>
-          ))}
+          {tMatches.map((m, i) => {
+            const h = players.find(p => p.id === m.homeId);
+            const a = players.find(p => p.id === m.awayId);
+            return (
+              <motion.div key={m.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.03 }}>
+                <ProMatchFixtureCard 
+                  m={m} 
+                  h={h} 
+                  a={a} 
+                  hStats={getStats(m.homeId)}
+                  aStats={getStats(m.awayId)}
+                  index={i}
+                  onClick={() => onMatchClick(m)} 
+                />
+              </motion.div>
+            );
+          })}
         </div>
       </Card>
     </FadeIn>
