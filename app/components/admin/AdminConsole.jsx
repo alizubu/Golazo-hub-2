@@ -825,34 +825,87 @@ function CompletedMatchCard({ m, h, a, players, showToast, isPlayoff = false }) 
             {/* Stat rows */}
             <div className="px-4 sm:px-6 pb-4">
               {statDefinitions.map(def => {
-                const valA = statsForm[def.key]?.a ?? 0;
-                const valB = statsForm[def.key]?.b ?? 0;
+                const valA = Number(statsForm[def.key]?.a) || 0;
+                const valB = Number(statsForm[def.key]?.b) || 0;
+                
+                // Sync icons with LiveMatchControl
                 const icon = {
                   possession: '⚽', shots: '🥅', shotsOnTarget: '🎯', fouls: '🚩',
-                  offsides: '🏃', corners: '🏁', freeKicks: '👥', passes: '🔗',
-                  successfulPasses: '✅', crosses: '🔀', interceptions: '🎯', tackles: '🛡', saves: '🧤'
+                  offsides: '🏳️', corners: '🏁', freeKicks: '👥', passes: '🔗',
+                  successfulPasses: '✅', crosses: '↪️', interceptions: '✋', tackles: '🛡', saves: '🧤'
                 }[def.key] || '📊';
+                
+                const displayLabel = def.key === 'successfulPasses' ? 'ACCURATE PASSES' : (def.key === 'corners' ? 'CORNERS' : def.label);
+
+                const total = valA + valB;
+                const homePercent = total > 0 ? (valA / total) * 100 : 50;
+                const awayPercent = total > 0 ? (valB / total) * 100 : 50;
+              
+                const isAccuratePasses = def.key === "successfulPasses";
+                const isPercent = def.format === "percent";
+              
+                let homeAccuracyStr = "";
+                let awayAccuracyStr = "";
+                if (isAccuratePasses) {
+                  const homeTotalPasses = Number(statsForm.passes?.a) || 0;
+                  const awayTotalPasses = Number(statsForm.passes?.b) || 0;
+                  const hAcc = homeTotalPasses > 0 ? Math.round((valA / homeTotalPasses) * 100) : 0;
+                  const aAcc = awayTotalPasses > 0 ? Math.round((valB / awayTotalPasses) * 100) : 0;
+                  homeAccuracyStr = ` (${hAcc}%)`;
+                  awayAccuracyStr = ` (${aAcc}%)`;
+                }
+              
+                const boxWidthClasses = isAccuratePasses ? "w-20 sm:w-[96px]" : "w-14 sm:w-[72px]";
 
                 return (
-                  <div key={def.key} className="flex items-center gap-2 sm:gap-3 py-2.5 border-b border-white/[0.04] last:border-0">
+                  <div key={def.key} className="flex items-center gap-3 sm:gap-4 py-3 sm:py-4 border-b border-white/[0.04] last:border-0 group">
                     {/* Home value */}
-                    <Input
-                      type="number"
-                      value={valA}
-                      onChange={e => handleStatChange(def.key, 'a', e.target.value)}
-                      className="w-14 sm:w-16 h-10 sm:h-11 text-center font-score font-black text-sm tabular-nums text-white bg-transparent border-rose-500/60 focus:border-rose-400 focus:ring-rose-400/30"
-                      style={{ boxShadow: '0 0 8px rgba(244,63,94,0.2)' }}
-                    />
-                    <span className="text-rose-400 text-sm shrink-0">{icon}</span>
-                    <span className="flex-1 text-center text-[9px] sm:text-[10px] font-bold uppercase tracking-[0.15em] text-slate-300 truncate">{def.label}</span>
-                    <span className="text-rose-400 text-sm shrink-0">{icon}</span>
-                    <Input
-                      type="number"
-                      value={valB}
-                      onChange={e => handleStatChange(def.key, 'b', e.target.value)}
-                      className="w-14 sm:w-16 h-10 sm:h-11 text-center font-score font-black text-sm tabular-nums text-white bg-transparent border-rose-500/60 focus:border-rose-400 focus:ring-rose-400/30"
-                      style={{ boxShadow: '0 0 8px rgba(244,63,94,0.2)' }}
-                    />
+                    <div className={`relative shrink-0 flex items-center justify-center rounded-[10px] bg-[#0a0c14]/50 border border-emerald-500/40 shadow-[0_0_10px_rgba(34,197,94,0.05)] focus-within:border-emerald-400 focus-within:ring-1 focus-within:ring-emerald-400/40 transition-all ${boxWidthClasses} h-10 sm:h-12`}>
+                      <input
+                        type="number"
+                        inputMode="numeric"
+                        value={statsForm[def.key]?.a === undefined ? "" : statsForm[def.key]?.a}
+                        onChange={e => handleStatChange(def.key, 'a', e.target.value)}
+                        className={`w-full h-full bg-transparent outline-none font-score font-bold text-sm sm:text-base tabular-nums text-emerald-400 ${isAccuratePasses || isPercent ? 'text-right pr-1' : 'text-center'}`}
+                      />
+                      {(isAccuratePasses || isPercent) && (
+                        <span className="font-score font-bold text-[9px] sm:text-[11px] tabular-nums text-emerald-400 pr-2 whitespace-nowrap">
+                          {isPercent ? '%' : homeAccuracyStr}
+                        </span>
+                      )}
+                    </div>
+              
+                    {/* Center Area */}
+                    <div className="flex-1 flex flex-col gap-2 sm:gap-2.5 min-w-0">
+                      {/* Icons and Label */}
+                      <div className="flex items-center justify-between px-1">
+                        <span className="text-slate-400 text-sm sm:text-base shrink-0 opacity-70">{icon}</span>
+                        <span className="flex-1 text-center text-[10px] sm:text-xs font-bold uppercase tracking-[0.1em] text-slate-300 truncate px-2 font-sans">{displayLabel}</span>
+                        <span className="text-slate-400 text-sm sm:text-base shrink-0 opacity-70">{icon}</span>
+                      </div>
+                      
+                      {/* Dual-color Progress Bar */}
+                      <div className="flex items-center h-1.5 sm:h-2 w-full gap-1 rounded-full overflow-hidden">
+                        <div className="h-full bg-emerald-500 transition-all duration-500 ease-out rounded-l-full" style={{ width: `${homePercent}%` }} />
+                        <div className="h-full bg-rose-600 transition-all duration-500 ease-out rounded-r-full" style={{ width: `${awayPercent}%` }} />
+                      </div>
+                    </div>
+              
+                    {/* Away value */}
+                    <div className={`relative shrink-0 flex items-center justify-center rounded-[10px] bg-[#0a0c14]/50 border border-rose-500/40 shadow-[0_0_10px_rgba(225,29,72,0.05)] focus-within:border-rose-400 focus-within:ring-1 focus-within:ring-rose-400/40 transition-all ${boxWidthClasses} h-10 sm:h-12`}>
+                      <input
+                        type="number"
+                        inputMode="numeric"
+                        value={statsForm[def.key]?.b === undefined ? "" : statsForm[def.key]?.b}
+                        onChange={e => handleStatChange(def.key, 'b', e.target.value)}
+                        className={`w-full h-full bg-transparent outline-none font-score font-bold text-sm sm:text-base tabular-nums text-rose-400 ${isAccuratePasses || isPercent ? 'text-right pr-1' : 'text-center'}`}
+                      />
+                      {(isAccuratePasses || isPercent) && (
+                        <span className="font-score font-bold text-[9px] sm:text-[11px] tabular-nums text-rose-400 pr-2 whitespace-nowrap">
+                          {isPercent ? '%' : awayAccuracyStr}
+                        </span>
+                      )}
+                    </div>
                   </div>
                 );
               })}
