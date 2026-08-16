@@ -593,63 +593,63 @@ function AdminMatchControl({ m, players, showToast, setTab, isPlayoff = false })
         {/* Layer 3: Glassmorphic Sweep */}
         <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/[0.03] to-transparent -translate-x-[150%] group-hover:translate-x-[150%] transition-transform duration-1000 ease-in-out pointer-events-none" />
 
-        <div className="grid grid-cols-[1fr_auto_1fr] sm:flex sm:flex-row items-center justify-between gap-2 sm:gap-4 w-full relative z-10">
+        <div className="flex flex-row items-center justify-between gap-1 sm:gap-4 w-full relative z-10">
           
           {/* Home Team */}
-          <div className="flex flex-col sm:flex-row items-center gap-2 sm:gap-5 flex-1 w-full justify-start order-1">
-            <div className="relative shrink-0 scale-75 sm:scale-100 origin-center sm:origin-left">
+          <div className="flex flex-col sm:flex-row items-center gap-1.5 sm:gap-5 flex-1 min-w-0 justify-center sm:justify-start order-1">
+            <div className="relative shrink-0">
               <div className="absolute -inset-1 bg-gradient-to-br from-red-600 to-rose-600 rounded-full blur-md opacity-30 group-hover:opacity-50 transition-opacity" />
               <div className="relative rounded-full ring-2 ring-red-500 shadow-[0_0_20px_rgba(220,38,38,0.5)]">
                 <div className="relative rounded-full overflow-hidden">
-                  <Avatar p={h} size={80} className="rounded-full !border-0" />
+                  <Avatar p={h} className="!w-12 !h-12 sm:!w-20 sm:!h-20 rounded-full !border-0" />
                   <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/30 to-transparent -translate-x-[150%] group-hover:translate-x-[150%] transition-transform duration-1000 ease-in-out pointer-events-none" />
                 </div>
               </div>
             </div>
-            <div className="flex flex-col items-center sm:items-start min-w-0 text-center sm:text-left">
-              <span className="font-black text-sm sm:text-2xl truncate tracking-tight animate-gradient bg-gradient-to-r from-red-200 via-white to-red-200 bg-[length:200%_auto] text-transparent bg-clip-text drop-shadow-[0_0_15px_rgba(239,68,68,0.3)]" style={{ fontFamily: "'Sora', sans-serif" }}>
+            <div className="flex flex-col items-center sm:items-start min-w-0 w-full text-center sm:text-left">
+              <span className="font-black text-[11px] sm:text-2xl truncate w-full tracking-tight animate-gradient bg-gradient-to-r from-red-200 via-white to-red-200 bg-[length:200%_auto] text-transparent bg-clip-text drop-shadow-[0_0_15px_rgba(239,68,68,0.3)]" style={{ fontFamily: "'Sora', sans-serif" }}>
                 {toTitleCase(h?.name) || 'TBD'}
               </span>
-              <div className="flex items-center gap-1 sm:gap-3 mt-0.5 sm:mt-1.5 text-slate-300">
-                {hFlagUrl && <img src={hFlagUrl} alt="badge" className="w-5 h-5 sm:w-10 sm:h-10 object-contain drop-shadow-md" />}
-                <span className="text-[10px] sm:text-base font-bold truncate max-w-[60px] sm:max-w-none">{h?.favoriteClub || 'TBD'}</span>
+              <div className="flex flex-col sm:flex-row items-center gap-0.5 sm:gap-3 mt-0.5 sm:mt-1.5 text-slate-300 w-full justify-center sm:justify-start">
+                {hFlagUrl && <img src={hFlagUrl} alt="badge" className="hidden sm:block w-5 h-5 sm:w-10 sm:h-10 object-contain drop-shadow-md" />}
+                <span className="text-[9px] sm:text-base font-bold truncate w-full opacity-70 sm:opacity-100">{h?.favoriteClub || 'TBD'}</span>
               </div>
             </div>
           </div>
           
           {/* VS Badge / Start Button */}
-          <div className="flex flex-col items-center justify-center shrink-0 min-w-[50px] sm:min-w-[100px] relative order-2 gap-2 sm:gap-3 py-2 sm:py-0">
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[150%] h-[1px] bg-gradient-to-r from-transparent via-white/20 to-transparent hidden sm:block z-0" />
+          <div className="flex flex-col items-center justify-center shrink-0 px-1 sm:px-6 relative order-2 z-20">
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[200%] h-[1px] bg-gradient-to-r from-transparent via-white/20 to-transparent hidden sm:block z-0" />
             
-            <div className="relative z-10 flex flex-col items-center justify-center w-12 h-12 sm:w-24 sm:h-24">
-              <div className="absolute inset-0 bg-amber-500/20 rounded-full blur-xl animate-pulse" />
-              <svg viewBox="0 0 100 100" className="absolute inset-0 w-full h-full drop-shadow-[0_0_20px_rgba(245,158,11,0.5)]">
+            <div className="relative z-10 flex flex-col items-center justify-center w-10 h-10 sm:w-24 sm:h-24">
+              <div className="absolute inset-0 bg-amber-500/20 rounded-full blur-lg sm:blur-xl animate-pulse" />
+              <svg viewBox="0 0 100 100" className="absolute inset-0 w-full h-full drop-shadow-[0_0_10px_rgba(245,158,11,0.5)] sm:drop-shadow-[0_0_20px_rgba(245,158,11,0.5)]">
                 <polygon points="50,5 90,25 90,75 50,95 10,75 10,25" fill="rgba(245,158,11,0.1)" stroke="rgba(245,158,11,0.5)" strokeWidth="2" />
               </svg>
-              <span className="text-sm sm:text-3xl font-black text-amber-400 relative z-20 font-score tracking-widest drop-shadow-[0_0_10px_rgba(245,158,11,1)]" style={{ fontFamily: "'Chakra Petch', sans-serif" }}>VS</span>
+              <span className="text-[10px] sm:text-3xl font-black text-amber-400 relative z-20 font-score tracking-widest drop-shadow-[0_0_10px_rgba(245,158,11,1)]" style={{ fontFamily: "'Chakra Petch', sans-serif" }}>VS</span>
             </div>
 
-            <ShinyButton onClick={startMatch} loading={loading} className="relative z-20 px-4 sm:px-6 py-1.5 sm:py-2.5 text-[10px] sm:text-xs font-black shadow-[0_0_20px_rgba(16,185,129,0.4)] hover:shadow-[0_0_40px_rgba(16,185,129,0.8)] rounded-full border border-emerald-400/60 bg-gradient-to-b from-emerald-500/20 to-emerald-900/40 text-emerald-300 backdrop-blur-xl scale-90 sm:scale-100 uppercase tracking-widest hover:scale-[1.05] transition-all duration-300">
+            <ShinyButton onClick={startMatch} loading={loading} className="relative z-20 mt-1.5 sm:mt-0 px-3 sm:px-6 py-1 sm:py-2.5 text-[9px] sm:text-xs font-black shadow-[0_0_15px_rgba(16,185,129,0.4)] sm:shadow-[0_0_20px_rgba(16,185,129,0.4)] hover:shadow-[0_0_40px_rgba(16,185,129,0.8)] rounded-full border border-emerald-400/60 bg-gradient-to-b from-emerald-500/20 to-emerald-900/40 text-emerald-300 backdrop-blur-xl uppercase tracking-widest hover:scale-[1.05] transition-all duration-300">
               Start
             </ShinyButton>
           </div>
           
           {/* Away Team */}
-          <div className="flex flex-col sm:flex-row items-center gap-2 sm:gap-5 flex-1 w-full justify-end order-3">
-            <div className="flex flex-col items-center sm:items-end min-w-0 order-2 sm:order-1 text-center sm:text-right">
-              <span className="font-black text-sm sm:text-2xl truncate tracking-tight animate-gradient bg-gradient-to-r from-emerald-200 via-white to-emerald-200 bg-[length:200%_auto] text-transparent bg-clip-text drop-shadow-[0_0_15px_rgba(16,185,129,0.3)]" style={{ fontFamily: "'Sora', sans-serif" }}>
+          <div className="flex flex-col sm:flex-row items-center gap-1.5 sm:gap-5 flex-1 min-w-0 justify-center sm:justify-end order-3">
+            <div className="flex flex-col items-center sm:items-end min-w-0 w-full text-center sm:text-right order-2 sm:order-1">
+              <span className="font-black text-[11px] sm:text-2xl truncate w-full tracking-tight animate-gradient bg-gradient-to-r from-emerald-200 via-white to-emerald-200 bg-[length:200%_auto] text-transparent bg-clip-text drop-shadow-[0_0_15px_rgba(16,185,129,0.3)]" style={{ fontFamily: "'Sora', sans-serif" }}>
                 {toTitleCase(a?.name) || 'TBD'}
               </span>
-              <div className="flex items-center gap-1 sm:gap-3 mt-0.5 sm:mt-1.5 text-slate-300">
-                <span className="text-[10px] sm:text-base font-bold truncate max-w-[60px] sm:max-w-none order-2 sm:order-1">{a?.favoriteClub || 'TBD'}</span>
-                {aFlagUrl && <img src={aFlagUrl} alt="badge" className="w-5 h-5 sm:w-10 sm:h-10 object-contain drop-shadow-md order-1 sm:order-2" />}
+              <div className="flex flex-col sm:flex-row items-center gap-0.5 sm:gap-3 mt-0.5 sm:mt-1.5 text-slate-300 w-full justify-center sm:justify-end">
+                <span className="text-[9px] sm:text-base font-bold truncate w-full opacity-70 sm:opacity-100 order-2 sm:order-1">{a?.favoriteClub || 'TBD'}</span>
+                {aFlagUrl && <img src={aFlagUrl} alt="badge" className="hidden sm:block w-5 h-5 sm:w-10 sm:h-10 object-contain drop-shadow-md order-1 sm:order-2" />}
               </div>
             </div>
-            <div className="relative shrink-0 order-1 sm:order-2 scale-75 sm:scale-100 origin-center sm:origin-right">
+            <div className="relative shrink-0 order-1 sm:order-2">
               <div className="absolute -inset-1 bg-gradient-to-br from-emerald-600 to-teal-600 rounded-full blur-md opacity-30 group-hover:opacity-50 transition-opacity" />
               <div className="relative rounded-full ring-2 ring-emerald-500 shadow-[0_0_20px_rgba(16,185,129,0.5)]">
                 <div className="relative rounded-full overflow-hidden">
-                  <Avatar p={a} size={80} className="rounded-full !border-0" />
+                  <Avatar p={a} className="!w-12 !h-12 sm:!w-20 sm:!h-20 rounded-full !border-0" />
                   <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/30 to-transparent -translate-x-[150%] group-hover:translate-x-[150%] transition-transform duration-1000 ease-in-out pointer-events-none" />
                 </div>
               </div>
