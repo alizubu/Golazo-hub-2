@@ -676,38 +676,55 @@ function ImageImport({ onApply }) {
 // ---------------------------------------------------------------------------
 // Stats entry  ← redesigned to match the pro design mockup
 // ---------------------------------------------------------------------------
-const ProStatRow = ({ f, stats, update }) => (
-  <div className="flex items-center gap-2 sm:gap-3 py-2.5 sm:py-3 border-b border-white/[0.04] last:border-0">
-    {/* Home value */}
-    <div className="relative shrink-0">
-      <input
-        type="number"
-        inputMode="numeric"
-        value={stats.home[f.key]}
-        onChange={(e) => update("home", f.key, e.target.value)}
-        className="w-[52px] sm:w-16 h-10 sm:h-11 rounded-lg text-center font-score font-black text-sm sm:text-base tabular-nums text-white bg-transparent border border-violet-500/60 focus:border-violet-400 focus:ring-1 focus:ring-violet-400/40 outline-none transition-all"
-        style={{ boxShadow: '0 0 8px rgba(139,92,246,0.2)' }}
-      />
+const ProStatRow = ({ f, stats, update }) => {
+  const homeVal = Number(stats.home[f.key]) || 0;
+  const awayVal = Number(stats.away[f.key]) || 0;
+  const total = homeVal + awayVal;
+  const homePercent = total > 0 ? (homeVal / total) * 100 : 50;
+  const awayPercent = total > 0 ? (awayVal / total) * 100 : 50;
+
+  return (
+    <div className="flex items-center gap-3 sm:gap-4 py-3 sm:py-4 border-b border-white/[0.04] last:border-0 group">
+      {/* Home value */}
+      <div className="relative shrink-0">
+        <input
+          type="number"
+          inputMode="numeric"
+          value={stats.home[f.key]}
+          onChange={(e) => update("home", f.key, e.target.value)}
+          className="w-14 sm:w-[72px] h-10 sm:h-12 rounded-[10px] text-center font-score font-bold text-sm sm:text-base tabular-nums text-emerald-400 bg-[#0a0c14]/50 border border-emerald-500/40 focus:border-emerald-400 focus:ring-1 focus:ring-emerald-400/40 outline-none transition-all shadow-[0_0_10px_rgba(34,197,94,0.05)]"
+        />
+      </div>
+
+      {/* Center Area */}
+      <div className="flex-1 flex flex-col gap-2 sm:gap-2.5 min-w-0">
+        {/* Icons and Label */}
+        <div className="flex items-center justify-between px-1">
+          <span className="text-slate-400 text-sm sm:text-base shrink-0 opacity-70">{f.icon}</span>
+          <span className="flex-1 text-center text-[10px] sm:text-xs font-bold uppercase tracking-[0.1em] text-slate-300 truncate px-2 font-sans">{f.label}</span>
+          <span className="text-slate-400 text-sm sm:text-base shrink-0 opacity-70">{f.icon}</span>
+        </div>
+        
+        {/* Dual-color Progress Bar */}
+        <div className="flex items-center h-1.5 sm:h-2 w-full gap-1 rounded-full overflow-hidden">
+          <div className="h-full bg-emerald-500 transition-all duration-500 ease-out rounded-l-full" style={{ width: `${homePercent}%` }} />
+          <div className="h-full bg-rose-600 transition-all duration-500 ease-out rounded-r-full" style={{ width: `${awayPercent}%` }} />
+        </div>
+      </div>
+
+      {/* Away value */}
+      <div className="relative shrink-0">
+        <input
+          type="number"
+          inputMode="numeric"
+          value={stats.away[f.key]}
+          onChange={(e) => update("away", f.key, e.target.value)}
+          className="w-14 sm:w-[72px] h-10 sm:h-12 rounded-[10px] text-center font-score font-bold text-sm sm:text-base tabular-nums text-rose-400 bg-[#0a0c14]/50 border border-rose-500/40 focus:border-rose-400 focus:ring-1 focus:ring-rose-400/40 outline-none transition-all shadow-[0_0_10px_rgba(225,29,72,0.05)]"
+        />
+      </div>
     </div>
-    {/* Home Icon */}
-    <span className="text-violet-400 text-sm sm:text-base shrink-0">{f.icon}</span>
-    {/* Label */}
-    <span className="flex-1 text-center text-[9px] sm:text-[10px] font-bold uppercase tracking-[0.15em] text-slate-300 truncate">{f.label}</span>
-    {/* Away Icon */}
-    <span className="text-blue-400 text-sm sm:text-base shrink-0">{f.icon}</span>
-    {/* Away value */}
-    <div className="relative shrink-0">
-      <input
-        type="number"
-        inputMode="numeric"
-        value={stats.away[f.key]}
-        onChange={(e) => update("away", f.key, e.target.value)}
-        className="w-[52px] sm:w-16 h-10 sm:h-11 rounded-lg text-center font-score font-black text-sm sm:text-base tabular-nums text-white bg-transparent border border-blue-500/60 focus:border-blue-400 focus:ring-1 focus:ring-blue-400/40 outline-none transition-all"
-        style={{ boxShadow: '0 0 8px rgba(59,130,246,0.2)' }}
-      />
-    </div>
-  </div>
-);
+  );
+};
 
 function StatsEntry({ stats, setStats, onSave, onSkip, busy, homeObj, awayObj, homeScore, awayScore }) {
   const update = (side, key, val) => {
@@ -728,126 +745,91 @@ function StatsEntry({ stats, setStats, onSave, onSkip, busy, homeObj, awayObj, h
     setStats(prev => ({ home: { ...prev.away }, away: { ...prev.home } }));
   };
 
-  const hWon = homeScore > awayScore;
-  const aWon = awayScore > homeScore;
-
   return (
-    <div className="flex flex-col h-full bg-[#0c0d12] font-sans">
-      {/* Header */}
-      <div className="sticky top-0 z-20 bg-[#0c0d12] px-4 sm:px-6 pt-4 pb-3 border-b border-white/[0.04]">
-        <div className="flex items-center justify-between mb-3">
-          <h2 className="text-sm sm:text-base font-black uppercase tracking-widest text-white">MATCH STATS</h2>
-          <button onClick={handleSwapStats} className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-xs font-bold text-muted-foreground uppercase tracking-wider transition-colors cursor-pointer">
-            <ArrowLeftRight size={12} /> Swap
+    <div className="flex flex-col h-full bg-[#0a0c14] font-sans">
+      {/* Premium Header */}
+      <div className="sticky top-0 z-20 bg-[#0a0c14]/95 backdrop-blur-xl px-4 sm:px-8 pt-6 pb-6 border-b border-white/[0.04]">
+        {/* Top Bar */}
+        <div className="flex items-center justify-between mb-8">
+          <h2 className="text-lg sm:text-xl font-black uppercase tracking-wider text-emerald-400">MATCH STATS</h2>
+          <button onClick={handleSwapStats} className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-[#0d1117] hover:bg-white/[0.05] border border-white/[0.08] text-xs font-bold text-slate-300 uppercase tracking-widest transition-all cursor-pointer">
+            <ArrowLeftRight size={14} /> SWAP SIDES
           </button>
         </div>
 
-        {/* FINISHED pill */}
-        <div className="flex justify-center mb-3">
-          <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/20 border border-emerald-500/30">
-            <span className="w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_6px_rgba(52,211,153,0.8)]" />
-            <span className="text-[10px] font-black uppercase tracking-widest text-emerald-400">FINISHED</span>
-          </div>
-        </div>
-
-        {/* Player Score Header */}
-        <div className="flex items-center justify-between gap-2 px-1">
+        {/* Player Header Bar */}
+        <div className="flex items-center justify-between gap-4">
           {/* Home player */}
-          <div className="flex items-center gap-2 sm:gap-3 flex-1 min-w-0">
+          <div className="flex items-center gap-3 sm:gap-4 flex-1 min-w-0">
             <div className="relative shrink-0">
-              <div className="absolute -inset-1 bg-violet-500/40 rounded-full blur-[6px]" />
-              <div className="relative w-10 h-10 sm:w-14 sm:h-14 rounded-full border-2 border-violet-500/70 overflow-hidden">
-                <Avatar p={homeObj} size={56} className="w-full h-full object-cover" />
+              <div className="relative w-12 h-12 sm:w-16 sm:h-16 rounded-full border border-white/[0.1] overflow-hidden bg-[#0d1117]">
+                <Avatar p={homeObj} size={64} className="w-full h-full object-cover" />
               </div>
             </div>
-            {homeObj?.favoriteClub && (
-              <div className="hidden sm:flex items-center">
-                <span className="text-lg">🏟</span>
-              </div>
-            )}
+            <div className="w-2.5 h-2.5 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(34,197,94,0.6)] shrink-0" />
             <div className="flex flex-col min-w-0">
-              <span className={`text-xs sm:text-sm font-black truncate ${hWon ? 'text-white' : 'text-slate-400'}`} style={{ fontFamily: "'Sora', sans-serif" }}>
+              <span className="text-sm sm:text-base font-black truncate text-white uppercase tracking-wide" style={{ fontFamily: "'Sora', sans-serif" }}>
                 {homeObj?.name || 'Home'}
               </span>
-              <span className="text-[9px] text-slate-500 truncate">{homeObj?.favoriteClub || ''}</span>
+              <span className="text-[10px] sm:text-xs text-slate-500 truncate">{homeObj?.favoriteClub || ''}</span>
             </div>
           </div>
 
-          {/* Score */}
-          <div className="flex items-center gap-2 sm:gap-4 shrink-0">
-            <span className={`text-3xl sm:text-4xl font-score font-black tabular-nums ${hWon ? 'text-white' : 'text-slate-500'}`}>{homeScore}</span>
-            <span className="text-slate-600 font-score text-xl">-</span>
-            <span className={`text-3xl sm:text-4xl font-score font-black tabular-nums ${aWon ? 'text-emerald-400' : 'text-slate-500'}`}>{awayScore}</span>
+          {/* Center STATISTIC text */}
+          <div className="shrink-0 px-2 sm:px-4 text-center">
+            <span className="text-[10px] sm:text-xs font-bold uppercase tracking-[0.2em] text-slate-400">STATISTIC</span>
           </div>
 
           {/* Away player */}
-          <div className="flex items-center gap-2 sm:gap-3 flex-1 min-w-0 justify-end">
+          <div className="flex items-center gap-3 sm:gap-4 flex-1 min-w-0 justify-end">
             <div className="flex flex-col min-w-0 items-end">
-              <span className={`text-xs sm:text-sm font-black truncate text-right ${aWon ? 'text-white' : 'text-slate-400'}`} style={{ fontFamily: "'Sora', sans-serif" }}>
+              <span className="text-sm sm:text-base font-black truncate text-right text-white uppercase tracking-wide" style={{ fontFamily: "'Sora', sans-serif" }}>
                 {awayObj?.name || 'Away'}
               </span>
-              <span className="text-[9px] text-slate-500 truncate">{awayObj?.favoriteClub || ''}</span>
+              <span className="text-[10px] sm:text-xs text-rose-500/70 truncate">{awayObj?.favoriteClub || ''}</span>
             </div>
-            {awayObj?.favoriteClub && (
-              <div className="hidden sm:flex items-center">
-                <span className="text-lg">🏟</span>
-              </div>
-            )}
+            <div className="w-2.5 h-2.5 rounded-full bg-rose-600 shadow-[0_0_8px_rgba(225,29,72,0.6)] shrink-0" />
             <div className="relative shrink-0">
-              <div className="absolute -inset-1 bg-blue-500/40 rounded-full blur-[6px]" />
-              <div className="relative w-10 h-10 sm:w-14 sm:h-14 rounded-full border-2 border-blue-500/70 overflow-hidden">
-                <Avatar p={awayObj} size={56} className="w-full h-full object-cover" />
+              <div className="relative w-12 h-12 sm:w-16 sm:h-16 rounded-full border border-white/[0.1] overflow-hidden bg-[#0d1117]">
+                <Avatar p={awayObj} size={64} className="w-full h-full object-cover" />
               </div>
             </div>
           </div>
         </div>
+      </div>
 
-        {/* Clock */}
-        <div className="flex justify-center mt-2">
-          <div className="flex items-center gap-1 text-slate-500 text-[10px] font-bold">
-            <Clock size={10} />
-            <span>90:00</span>
-          </div>
+      {/* Main Content Area */}
+      <div className="px-4 sm:px-8 flex-1 overflow-y-auto pb-36 bg-[#0a0c14]">
+        {/* Image Import (above stats) */}
+        <div className="py-6">
+          <ImageImport onApply={handleImportApply} />
+        </div>
+
+        {/* Stats Rows List */}
+        <div className="flex flex-col">
+          {STAT_FIELDS.map((f) => (
+            <ProStatRow key={f.key} f={f} stats={stats} update={update} />
+          ))}
         </div>
       </div>
 
-      {/* Image Import */}
-      <div className="px-4 sm:px-6 pt-4">
-        <ImageImport onApply={handleImportApply} />
-      </div>
-
-      {/* Stats Section Header */}
-      <div className="px-4 sm:px-6 pt-2 pb-1">
-        <div className="flex items-center gap-3">
-          <div className="flex-1 h-[1px] bg-gradient-to-r from-transparent via-violet-500/50 to-transparent" />
-          <span className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">MATCH STATS</span>
-          <div className="flex-1 h-[1px] bg-gradient-to-r from-transparent via-violet-500/50 to-transparent" />
-        </div>
-      </div>
-
-      {/* Stats Rows */}
-      <div className="px-4 sm:px-6 flex-1 overflow-y-auto pb-36">
-        {STAT_FIELDS.map((f) => (
-          <ProStatRow key={f.key} f={f} stats={stats} update={update} />
-        ))}
-      </div>
-
-      {/* Sticky Bottom Bar */}
-      <div className="fixed bottom-0 left-0 right-0 z-50 bg-[#0c0d12]/90 backdrop-blur-xl border-t border-white/[0.05] px-4 sm:px-6 py-3 flex gap-2 sm:gap-3">
+      {/* Sticky Bottom Bar - Centered Action */}
+      <div className="fixed bottom-0 left-0 right-0 z-50 bg-[#0a0c14]/95 backdrop-blur-xl border-t border-white/[0.05] px-4 sm:px-8 py-4 sm:py-5 flex flex-col sm:flex-row items-center justify-center gap-3">
+        {/* We keep both buttons but style them cleanly */}
         <button
           onClick={onSkip}
           disabled={busy}
-          className="flex-1 h-12 sm:h-14 flex items-center justify-center gap-2 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-white font-bold text-xs sm:text-sm uppercase tracking-wider transition-all active:scale-95 cursor-pointer"
+          className="w-full sm:w-auto min-w-[200px] h-12 sm:h-14 flex items-center justify-center gap-2 rounded-xl bg-[#0d1117] hover:bg-white/[0.05] border border-emerald-500/30 text-emerald-400 font-bold text-xs sm:text-sm uppercase tracking-[0.1em] transition-all active:scale-95 cursor-pointer shadow-[0_0_15px_rgba(34,197,94,0.1)]"
         >
-          <ArrowLeft size={16} /> Back to Fixtures
+          <ArrowLeft size={16} /> BACK TO MATCH
         </button>
         <button
           onClick={onSave}
           disabled={busy}
-          className="flex-1 sm:flex-[2] h-12 sm:h-14 flex items-center justify-center gap-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-white font-black text-xs sm:text-sm uppercase tracking-wider transition-all shadow-[0_0_20px_rgba(52,211,153,0.4)] hover:shadow-[0_0_30px_rgba(52,211,153,0.6)] active:scale-95 disabled:opacity-60 cursor-pointer"
+          className="w-full sm:w-auto min-w-[200px] h-12 sm:h-14 flex items-center justify-center gap-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-white font-black text-xs sm:text-sm uppercase tracking-[0.1em] transition-all shadow-[0_0_20px_rgba(52,211,153,0.4)] hover:shadow-[0_0_30px_rgba(52,211,153,0.6)] active:scale-95 disabled:opacity-60 cursor-pointer"
         >
           {busy ? <Loader2 size={18} className="animate-spin" /> : <Check size={18} strokeWidth={3} />}
-          Finish Match
+          FINISH MATCH
         </button>
       </div>
     </div>
