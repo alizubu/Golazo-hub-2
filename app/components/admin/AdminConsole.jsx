@@ -585,7 +585,7 @@ function AdminMatchControl({ m, players, showToast, setTab, isPlayoff = false })
         <div className="absolute inset-y-0 right-0 w-2/3 bg-gradient-to-l from-emerald-500/20 to-transparent pointer-events-none opacity-50 group-hover:opacity-85 transition-opacity duration-700 blur-2xl" />
         
         {/* Layer 2: Flickering Grid */}
-        <FlickeringGrid className="z-0 absolute inset-0 [mask-image:radial-gradient(circle_at_center,white,transparent_80%)]" color="#ffffff" maxOpacity={0.1} flickerSpeed={0.5} gridSize={12} />
+        <FlickeringGrid className="z-0 absolute inset-0 [mask-image:radial-gradient(circle_at_center,white,transparent_80%)]" color="#3b82f6" maxOpacity={0.2} flickerSpeed={0.5} gridSize={12} />
 
         {/* Layer 3: Magic UI Shine Border */}
         <BorderBeam size={300} duration={12} delay={9} colorFrom="#ef4444" colorTo="#10b981" />
@@ -621,14 +621,15 @@ function AdminMatchControl({ m, players, showToast, setTab, isPlayoff = false })
           <div className="flex flex-col items-center justify-center shrink-0 min-w-[50px] sm:min-w-[100px] relative order-2 gap-2 sm:gap-3 py-2 sm:py-0">
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[150%] h-[1px] bg-gradient-to-r from-transparent via-white/20 to-transparent hidden sm:block z-0" />
             
-            <div className="relative z-10 flex flex-col items-center justify-center w-10 h-10 sm:w-20 sm:h-20">
-              <svg viewBox="0 0 100 100" className="absolute inset-0 w-full h-full drop-shadow-[0_0_15px_rgba(255,255,255,0.1)]">
-                <polygon points="50,5 90,25 90,75 50,95 10,75 10,25" fill="rgba(255,255,255,0.02)" stroke="rgba(255,255,255,0.1)" strokeWidth="1" />
+            <div className="relative z-10 flex flex-col items-center justify-center w-12 h-12 sm:w-24 sm:h-24">
+              <div className="absolute inset-0 bg-amber-500/20 rounded-full blur-xl animate-pulse" />
+              <svg viewBox="0 0 100 100" className="absolute inset-0 w-full h-full drop-shadow-[0_0_20px_rgba(245,158,11,0.5)]">
+                <polygon points="50,5 90,25 90,75 50,95 10,75 10,25" fill="rgba(245,158,11,0.1)" stroke="rgba(245,158,11,0.5)" strokeWidth="2" />
               </svg>
-              <span className="text-xs sm:text-2xl font-bold text-white relative z-20 font-score tracking-wider">VS</span>
+              <span className="text-sm sm:text-3xl font-black text-amber-400 relative z-20 font-score tracking-widest drop-shadow-[0_0_10px_rgba(245,158,11,1)]" style={{ fontFamily: "'Chakra Petch', sans-serif" }}>VS</span>
             </div>
 
-            <ShinyButton onClick={startMatch} loading={loading} className="relative z-20 px-3 sm:px-5 py-1 sm:py-2 text-[10px] sm:text-xs font-bold shadow-[0_0_20px_rgba(34,197,94,0.3)] hover:shadow-[0_0_30px_rgba(34,197,94,0.5)] rounded-full border border-emerald-500/50 bg-emerald-500/10 text-emerald-400 backdrop-blur-md scale-90 sm:scale-100">
+            <ShinyButton onClick={startMatch} loading={loading} className="relative z-20 px-4 sm:px-6 py-1.5 sm:py-2.5 text-[10px] sm:text-xs font-black shadow-[0_0_20px_rgba(16,185,129,0.4)] hover:shadow-[0_0_40px_rgba(16,185,129,0.8)] rounded-full border border-emerald-400/60 bg-gradient-to-b from-emerald-500/20 to-emerald-900/40 text-emerald-300 backdrop-blur-xl scale-90 sm:scale-100 uppercase tracking-widest hover:scale-[1.05] transition-all duration-300">
               Start
             </ShinyButton>
           </div>
