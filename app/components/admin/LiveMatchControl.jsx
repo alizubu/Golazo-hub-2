@@ -33,11 +33,15 @@ const STAT_FIELDS = [
 // ---------------------------------------------------------------------------
 
 function CardHeader({ title, status, onCopyFixture }) {
+  const isLive = status.includes("LIVE");
   return (
-    <div className="flex flex-col sm:flex-row sm:items-center justify-between p-4 border-b border-border bg-card">
+    <div className="flex flex-col sm:flex-row sm:items-center justify-between p-4 border-b border-border bg-card relative z-20">
       <div className="flex items-center justify-between w-full sm:w-auto mb-3 sm:mb-0">
-        <h1 className="text-lg font-extrabold text-foreground tracking-tight">{title}</h1>
-        <div className="sm:hidden flex items-center px-2 py-1 rounded bg-secondary text-[11px] font-bold uppercase tracking-wider text-muted-foreground">{status}</div>
+        <h1 className="font-heading text-lg font-extrabold text-foreground tracking-tight">{title}</h1>
+        <div className="sm:hidden flex items-center px-2 py-1 rounded bg-secondary font-sans text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
+          {isLive && <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse mr-1.5" />}
+          {status}
+        </div>
       </div>
       <div className="flex items-center gap-2 w-full sm:w-auto">
         <button 
@@ -46,7 +50,13 @@ function CardHeader({ title, status, onCopyFixture }) {
         >
           <Copy size={16} /> Copy Fixture
         </button>
-        <div className="hidden sm:flex items-center px-3 py-2.5 rounded-lg bg-secondary text-xs font-bold uppercase tracking-wider text-muted-foreground border border-border">{status}</div>
+        <div className="hidden sm:flex relative items-center justify-center p-[1px] rounded-lg overflow-hidden">
+          {isLive && <div className="absolute inset-0 bg-[conic-gradient(from_0deg,transparent,rgba(52,211,153,0.8),transparent)] animate-spin-around" />}
+          <div className="relative z-10 px-3 py-2.5 rounded-[7px] bg-secondary font-sans text-[10px] font-bold uppercase tracking-widest text-muted-foreground border border-border/50 flex items-center gap-1.5">
+            {isLive && <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />}
+            {status}
+          </div>
+        </div>
       </div>
     </div>
   );
@@ -54,20 +64,31 @@ function CardHeader({ title, status, onCopyFixture }) {
 
 function ScoreRow({ home, away, homeScore, awayScore, homeObj, awayObj }) {
   return (
-    <div className="bg-background px-4 py-6 border-b border-border shadow-sm z-10 relative">
-      <div className="max-w-2xl mx-auto flex items-center justify-between">
-        <div className="flex flex-col items-center flex-1 gap-2">
-          <Avatar p={homeObj} size={56} className="w-14 h-14 sm:w-16 sm:h-16 rounded-full border-2 border-border shadow-md bg-card object-cover" />
-          <span className="text-sm sm:text-base font-bold text-center leading-tight truncate w-full px-1">{home}</span>
+    <div className="bg-background/50 backdrop-blur-md px-4 py-8 border-b border-border/50 shadow-sm z-10 relative overflow-hidden">
+      <div className="absolute inset-0 bg-gradient-to-b from-primary/5 to-transparent pointer-events-none" />
+      <div className="max-w-2xl mx-auto flex items-center justify-between relative z-10">
+        <div className="flex flex-col items-center flex-1 gap-3">
+          <div className="relative">
+             <div className="absolute inset-0 bg-primary/20 blur-xl rounded-full animate-pulse" />
+             <Avatar p={homeObj} size={64} className="w-16 h-16 sm:w-20 sm:h-20 rounded-full border-2 border-border shadow-lg bg-card object-cover relative z-10" />
+          </div>
+          <span className="font-heading text-sm sm:text-lg font-extrabold text-center tracking-tight leading-tight truncate w-full px-1">{home}</span>
         </div>
-        <div className="flex items-center justify-center gap-4 sm:gap-8 flex-[1.5]">
-          <motion.div key={homeScore} initial={{ scale: 1.5, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="text-5xl sm:text-6xl font-black tabular-nums tracking-tighter text-pitch-bright">{homeScore}</motion.div>
-          <div className="text-2xl sm:text-3xl font-bold text-muted-foreground opacity-50">-</div>
-          <motion.div key={awayScore} initial={{ scale: 1.5, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="text-5xl sm:text-6xl font-black tabular-nums tracking-tighter text-claret">{awayScore}</motion.div>
+        <div className="flex items-center justify-center gap-4 sm:gap-10 flex-[1.5]">
+          <motion.div key={homeScore} initial={{ scale: 1.5, opacity: 0, filter: "brightness(2)" }} animate={{ scale: 1, opacity: 1, filter: "brightness(1)" }} className="font-score text-6xl sm:text-7xl font-black tabular-nums tracking-tighter text-pitch-bright drop-shadow-[0_0_15px_rgba(34,197,94,0.4)] relative">
+            {homeScore}
+          </motion.div>
+          <div className="text-2xl sm:text-4xl font-black text-muted-foreground/30">-</div>
+          <motion.div key={awayScore} initial={{ scale: 1.5, opacity: 0, filter: "brightness(2)" }} animate={{ scale: 1, opacity: 1, filter: "brightness(1)" }} className="font-score text-6xl sm:text-7xl font-black tabular-nums tracking-tighter text-claret drop-shadow-[0_0_15px_rgba(225,29,72,0.4)] relative">
+            {awayScore}
+          </motion.div>
         </div>
-        <div className="flex flex-col items-center flex-1 gap-2">
-          <Avatar p={awayObj} size={56} className="w-14 h-14 sm:w-16 sm:h-16 rounded-full border-2 border-border shadow-md bg-card object-cover" />
-          <span className="text-sm sm:text-base font-bold text-center leading-tight truncate w-full px-1">{away}</span>
+        <div className="flex flex-col items-center flex-1 gap-3">
+          <div className="relative">
+             <div className="absolute inset-0 bg-destructive/20 blur-xl rounded-full animate-pulse" />
+             <Avatar p={awayObj} size={64} className="w-16 h-16 sm:w-20 sm:h-20 rounded-full border-2 border-border shadow-lg bg-card object-cover relative z-10" />
+          </div>
+          <span className="font-heading text-sm sm:text-lg font-extrabold text-center tracking-tight leading-tight truncate w-full px-1">{away}</span>
         </div>
       </div>
     </div>
@@ -86,24 +107,28 @@ function StepIndicator({ phase }) {
   const currentIdx = order.indexOf(phase);
 
   return (
-    <div className="w-full bg-card border-b border-border px-4 py-3 overflow-x-auto no-scrollbar">
-      <div className="flex items-center justify-between min-w-[400px] max-w-2xl mx-auto gap-2">
+    <div className="w-full bg-card/50 backdrop-blur-md border-b border-border/50 px-4 py-4 overflow-x-auto no-scrollbar relative z-10 snap-x snap-mandatory">
+      <div className="flex items-center justify-between min-w-[400px] max-w-2xl mx-auto gap-2 px-2">
         {steps.map((s, i) => {
           const idx = order.indexOf(s.key);
           const active = idx === currentIdx;
           const done = idx < currentIdx;
           
-          let stateClass = "bg-secondary text-muted-foreground border-transparent";
-          if (active) stateClass = "bg-primary text-primary-foreground border-primary shadow-md font-bold";
-          else if (done) stateClass = "bg-primary/10 text-primary border-primary/20 font-medium";
+          let stateClass = "bg-secondary/50 text-muted-foreground border-transparent";
+          if (active) stateClass = "bg-primary text-primary-foreground border-primary/50 shadow-[0_0_15px_rgba(34,197,94,0.3)] font-black scale-105 transform transition-all";
+          else if (done) stateClass = "bg-primary/20 text-primary border-primary/30 font-bold";
 
           return (
-            <div key={s.key} className="flex items-center gap-2 flex-1">
-              <div className={`flex-1 flex items-center justify-center gap-1.5 py-1.5 px-2 rounded-md border text-[10px] sm:text-xs uppercase tracking-wider transition-colors ${stateClass}`}>
-                {done && <Check size={12} />}
+            <div key={s.key} className="flex items-center gap-2 flex-1 snap-center">
+              <div className={`flex-1 flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl border font-sans text-[10px] uppercase tracking-widest transition-all duration-300 ${stateClass}`}>
+                {done && <Check size={14} className="text-primary" />}
                 <span className="truncate">{s.label}</span>
               </div>
-              {i < steps.length - 1 && <div className="w-2 sm:w-4 h-px bg-border flex-none" />}
+              {i < steps.length - 1 && (
+                <div className="w-2 sm:w-4 h-1 rounded-full flex-none overflow-hidden bg-secondary">
+                  {done && <motion.div initial={{ width: 0 }} animate={{ width: "100%" }} className="h-full bg-primary" />}
+                </div>
+              )}
             </div>
           );
         })}
@@ -115,12 +140,13 @@ function StepIndicator({ phase }) {
 function StepperRow({ label, count, onInc, onDec, isMuted }) {
   if (isMuted) return null;
   return (
-    <div className="flex flex-col bg-card border border-border rounded-2xl p-4 sm:p-5 shadow-sm">
-      <span className="text-xs font-bold uppercase tracking-widest text-muted-foreground mb-3 sm:mb-4 text-center">{label}</span>
-      <div className="flex items-center justify-between gap-3">
-        <button onClick={onDec} className="w-14 h-14 sm:w-16 sm:h-16 rounded-xl bg-secondary hover:bg-secondary/80 flex items-center justify-center text-foreground active:scale-95 transition-all shadow-sm border border-border"><Minus size={24} /></button>
-        <div className="text-5xl sm:text-6xl font-black tabular-nums tracking-tighter">{count}</div>
-        <button onClick={onInc} className="w-14 h-14 sm:w-16 sm:h-16 rounded-xl bg-foreground hover:bg-foreground/90 flex items-center justify-center text-background active:scale-95 transition-all shadow-md"><Plus size={24} /></button>
+    <div className="flex flex-col bg-card/80 backdrop-blur-sm border border-border/50 rounded-2xl p-4 sm:p-6 shadow-lg relative overflow-hidden group">
+      <div className="absolute inset-0 bg-gradient-to-b from-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
+      <span className="font-sans text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-4 text-center relative z-10">{label}</span>
+      <div className="flex items-center justify-between gap-4 relative z-10">
+        <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} onClick={onDec} className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-secondary hover:bg-secondary/80 flex items-center justify-center text-foreground transition-all shadow-sm border border-border/50 hover:border-border active:scale-95"><Minus size={24} /></motion.button>
+        <div className="font-score text-6xl sm:text-7xl font-black tabular-nums tracking-tighter drop-shadow-md">{count}</div>
+        <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} onClick={onInc} className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-gradient-to-br from-foreground to-foreground/80 flex items-center justify-center text-background transition-all shadow-[0_0_15px_rgba(255,255,255,0.1)] hover:shadow-[0_0_25px_rgba(255,255,255,0.2)] border border-white/10 active:scale-95"><Plus size={24} /></motion.button>
       </div>
     </div>
   );
@@ -138,18 +164,21 @@ function TeamStatCard({ side, data, bump, phase }) {
 
 function ActionButton({ icon: Icon, label, onClick, variant = 'primary' }) {
   const variants = {
-    primary: "bg-primary text-primary-foreground hover:bg-primary/90 shadow-md",
-    secondary: "bg-secondary text-foreground hover:bg-secondary/80 border border-border shadow-sm",
-    destructive: "bg-destructive text-destructive-foreground hover:bg-destructive/90 shadow-md",
+    primary: "bg-gradient-to-r from-primary to-emerald-500 text-primary-foreground shadow-[0_0_15px_rgba(34,197,94,0.3)] hover:shadow-[0_0_25px_rgba(34,197,94,0.5)] border border-primary/50",
+    secondary: "bg-secondary/50 backdrop-blur-md text-foreground hover:bg-secondary/80 border border-border/50 hover:border-primary/50 shadow-sm",
+    destructive: "bg-gradient-to-r from-destructive to-rose-500 text-destructive-foreground shadow-[0_0_15px_rgba(225,29,72,0.3)] hover:shadow-[0_0_25px_rgba(225,29,72,0.5)] border border-destructive/50",
   };
   return (
-    <button 
+    <motion.button 
+      whileHover={{ scale: 1.02, y: -2 }}
+      whileTap={{ scale: 0.98 }}
       onClick={onClick}
-      className={`h-14 w-full rounded-xl flex items-center justify-center gap-2.5 font-bold text-sm sm:text-base transition-all active:scale-95 ${variants[variant]}`}
+      className={`relative h-14 w-full rounded-xl flex items-center justify-center gap-2.5 font-bold text-sm sm:text-base transition-all overflow-hidden group ${variants[variant]}`}
     >
-      {Icon && <Icon size={20} />}
-      {label}
-    </button>
+      <div className="absolute inset-0 w-full h-full bg-white/0 group-hover:bg-white/10 transition-colors" />
+      {Icon && <Icon size={20} className="relative z-10" />}
+      <span className="relative z-10">{label}</span>
+    </motion.button>
   );
 }
 
@@ -169,7 +198,7 @@ function LiveControl({ state, setState, onFinish, onTogglePause, onUndoStart }) 
           <TeamStatCard side="away" data={away} bump={bump} phase="live" />
         </div>
       </div>
-      <div className="flex flex-col sm:flex-row gap-3">
+      <div className="fixed bottom-0 left-0 right-0 p-4 sm:static sm:p-0 bg-background/80 sm:bg-transparent backdrop-blur-xl sm:backdrop-blur-none border-t border-border/50 sm:border-0 z-50 flex flex-col sm:flex-row gap-3 shadow-[0_-10px_40px_rgba(0,0,0,0.1)] sm:shadow-none pb-safe">
         {canUndo && <ActionButton icon={RotateCcw} label="Undo Start" onClick={onUndoStart} variant="secondary" />}
         <ActionButton icon={paused ? Play : Pause} label={paused ? "Resume Match" : "Pause Match"} onClick={onTogglePause} variant="secondary" />
         <ActionButton icon={Square} label="Finish Match" onClick={onFinish} variant="destructive" />
@@ -196,7 +225,7 @@ function ExtraTime({ state, setState, etHalf, setEtHalf, onDone }) {
           <TeamStatCard side="away" data={away} bump={bump} phase="extra_time" />
         </div>
       </div>
-      <div className="flex flex-col gap-3 max-w-md mx-auto">
+      <div className="fixed bottom-0 left-0 right-0 p-4 sm:static sm:p-0 bg-background/80 sm:bg-transparent backdrop-blur-xl sm:backdrop-blur-none border-t border-border/50 sm:border-0 z-50 flex flex-col gap-3 shadow-[0_-10px_40px_rgba(0,0,0,0.1)] sm:shadow-none sm:max-w-md sm:mx-auto pb-safe">
         {etHalf === 1 ? (
           <ActionButton label="Start 2nd Half of Extra Time" onClick={() => setEtHalf(2)} variant="primary" />
         ) : (
@@ -269,22 +298,22 @@ function Shootout({ home, away, kicks, setKicks, onDecided }) {
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 mb-8">
         <div className={`rounded-2xl p-5 bg-card border ${kicker === "home" && !decided ? 'border-primary ring-2 ring-primary/20' : 'border-border'} shadow-sm transition-all`}>
           <div className="flex items-center justify-between border-b border-border pb-3 mb-3">
-            <span className="font-bold text-foreground truncate text-lg">{home.name}</span>
-            <span className="text-3xl font-black tabular-nums text-primary">{homeScore}</span>
+            <span className="font-heading font-extrabold tracking-tight text-foreground truncate text-lg">{home.name}</span>
+            <span className="font-score text-4xl font-black tabular-nums text-primary">{homeScore}</span>
           </div>
           <KickTrack list={homeKicks} />
         </div>
         <div className={`rounded-2xl p-5 bg-card border ${kicker === "away" && !decided ? 'border-primary ring-2 ring-primary/20' : 'border-border'} shadow-sm transition-all`}>
           <div className="flex items-center justify-between border-b border-border pb-3 mb-3">
-            <span className="font-bold text-foreground truncate text-lg">{away.name}</span>
-            <span className="text-3xl font-black tabular-nums text-primary">{awayScore}</span>
+            <span className="font-heading font-extrabold tracking-tight text-foreground truncate text-lg">{away.name}</span>
+            <span className="font-score text-4xl font-black tabular-nums text-primary">{awayScore}</span>
           </div>
           <KickTrack list={awayKicks} />
         </div>
       </div>
 
       {!decided ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-lg mx-auto">
+        <div className="fixed bottom-0 left-0 right-0 p-4 sm:static sm:p-0 bg-background/80 sm:bg-transparent backdrop-blur-xl sm:backdrop-blur-none border-t border-border/50 sm:border-0 z-50 grid grid-cols-2 gap-3 shadow-[0_-10px_40px_rgba(0,0,0,0.1)] sm:shadow-none sm:max-w-lg sm:mx-auto pb-safe">
           <button onClick={() => record("scored")} className="h-16 rounded-xl flex items-center justify-center gap-3 font-bold text-lg bg-emerald-500 hover:bg-emerald-600 text-white shadow-md active:scale-95 transition-all">
             <Check size={24} strokeWidth={3} /> Scored
           </button>
@@ -381,12 +410,12 @@ function ImageImport({ onApply }) {
 // Stats entry
 // ---------------------------------------------------------------------------
 const StatsRow = ({ f, stats, update }) => (
-  <div className="flex items-center justify-between gap-2 p-2 sm:p-3 hover:bg-secondary/30 transition-colors border-b border-border/50 last:border-0">
+  <div className="flex items-center justify-between gap-3 p-3 sm:p-4 hover:bg-secondary/40 transition-colors border-b border-border/40 last:border-0 group">
     <input type="number" inputMode="numeric" value={stats.home[f.key]} onChange={(e) => update("home", f.key, e.target.value)}
-      className="w-16 h-10 rounded-lg text-center font-black tabular-nums bg-background border border-border focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all shadow-sm" />
-    <span className="text-[10px] sm:text-xs text-center text-muted-foreground font-bold uppercase tracking-wider flex-1 truncate">{f.label}{f.percent ? " (%)" : ""}</span>
+      className="font-score w-16 h-12 rounded-xl text-center font-black text-lg tabular-nums bg-background/50 border border-border/50 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all shadow-inner hover:border-primary/50 focus:bg-background" />
+    <span className="font-sans text-[10px] text-center text-muted-foreground font-bold uppercase tracking-widest flex-1 truncate group-hover:text-foreground transition-colors">{f.label}{f.percent ? " (%)" : ""}</span>
     <input type="number" inputMode="numeric" value={stats.away[f.key]} onChange={(e) => update("away", f.key, e.target.value)}
-      className="w-16 h-10 rounded-lg text-center font-black tabular-nums bg-background border border-border focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all shadow-sm" />
+      className="font-score w-16 h-12 rounded-xl text-center font-black text-lg tabular-nums bg-background/50 border border-border/50 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all shadow-inner hover:border-primary/50 focus:bg-background" />
   </div>
 );
 
@@ -449,18 +478,24 @@ function StatRow({ label, value, percent }) {
   const homeWins = h > a;
   const awayWins = a > h;
   return (
-    <div className="flex flex-col gap-1.5 mb-4 last:mb-0">
+    <div className="flex flex-col gap-2 mb-5 last:mb-0 group">
       <div className="flex items-center justify-between">
-        <span className={`text-sm font-black tabular-nums ${homeWins ? 'text-foreground' : 'text-muted-foreground'}`}>{h}{percent && "%"}</span>
-        <span className="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-muted-foreground">{label}</span>
-        <span className={`text-sm font-black tabular-nums ${awayWins ? 'text-foreground' : 'text-muted-foreground'}`}>{a}{percent && "%"}</span>
+        <span className={`font-score text-base sm:text-lg font-black tabular-nums transition-colors ${homeWins ? 'text-primary drop-shadow-[0_0_8px_rgba(34,197,94,0.5)]' : 'text-muted-foreground'}`}>{h}{percent && "%"}</span>
+        <span className="font-sans text-[10px] font-bold uppercase tracking-widest text-muted-foreground group-hover:text-foreground transition-colors">{label}</span>
+        <span className={`font-score text-base sm:text-lg font-black tabular-nums transition-colors ${awayWins ? 'text-primary drop-shadow-[0_0_8px_rgba(34,197,94,0.5)]' : 'text-muted-foreground'}`}>{a}{percent && "%"}</span>
       </div>
-      <div className="h-1.5 w-full rounded-full bg-secondary overflow-hidden flex">
-        {total > 0 && (
+      <div className="h-2 w-full rounded-full bg-secondary/50 overflow-hidden flex shadow-inner relative border border-border/30">
+        {total > 0 ? (
           <>
-            <div className={`h-full ${homeWins || (!homeWins && !awayWins) ? 'bg-primary' : 'bg-primary/40'}`} style={{ width: `${homeWidth}%` }} />
-            <div className={`h-full ${awayWins || (!homeWins && !awayWins) ? 'bg-primary' : 'bg-primary/40'}`} style={{ width: `${100 - homeWidth}%` }} />
+            <motion.div initial={{ width: 0 }} whileInView={{ width: `${homeWidth}%` }} viewport={{ once: true }} transition={{ duration: 1, ease: "easeOut" }} className={`h-full relative ${homeWins || (!homeWins && !awayWins) ? 'bg-gradient-to-r from-primary/60 to-primary' : 'bg-primary/30'}`}>
+              {(homeWins || (!homeWins && !awayWins)) && <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/40 to-transparent w-[200%] h-full animate-shimmer" />}
+            </motion.div>
+            <motion.div initial={{ width: 0 }} whileInView={{ width: `${100 - homeWidth}%` }} viewport={{ once: true }} transition={{ duration: 1, ease: "easeOut" }} className={`h-full relative ${awayWins || (!homeWins && !awayWins) ? 'bg-gradient-to-l from-primary/60 to-primary' : 'bg-primary/30'}`}>
+              {(awayWins || (!homeWins && !awayWins)) && <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/40 to-transparent w-[200%] h-full animate-shimmer" />}
+            </motion.div>
           </>
+        ) : (
+          <div className="w-full h-full bg-secondary/50" />
         )}
       </div>
     </div>
@@ -664,13 +699,20 @@ export default function LiveMatchControl({ matches, players, activeSeason, showT
   const h = headerFor();
 
   return (
-    <div className="w-full bg-background mb-8 rounded-2xl sm:rounded-3xl border border-border shadow-md overflow-hidden font-sans">
-      <CardHeader title={h.title} status={h.status} onCopyFixture={handleCopyFixture} />
+    <div className="relative w-full mb-8 font-sans group mt-2">
+      {/* Animated Glowing Gradient Border */}
+      <div className="absolute -inset-[2px] bg-gradient-to-r from-primary via-purple-500 to-emerald-500 rounded-2xl sm:rounded-[24px] opacity-30 group-hover:opacity-60 blur-md transition-opacity duration-700 animate-pulse" />
+      <div className="absolute -inset-[1px] bg-gradient-to-r from-primary via-purple-500 to-emerald-500 rounded-2xl sm:rounded-[24px] opacity-40 z-0" />
       
-      <ScoreRow home={state.home.name} away={state.away.name} homeScore={state.home.goals} awayScore={state.away.goals} homeObj={state.home} awayObj={state.away} />
-      <StepIndicator phase={phase} />
+      <div className="relative z-10 w-full bg-background/95 backdrop-blur-xl rounded-2xl sm:rounded-[23px] overflow-hidden border border-background shadow-2xl">
+        <CardHeader title={h.title} status={h.status} onCopyFixture={handleCopyFixture} />
+        
+        <ScoreRow home={state.home.name} away={state.away.name} homeScore={state.home.goals} awayScore={state.away.goals} homeObj={state.home} awayObj={state.away} />
+        <StepIndicator phase={phase} />
 
-      <main className="relative bg-secondary/10">
+        <main className="relative bg-secondary/5 min-h-[400px]">
+          {/* Subtle Glowing Gradient Background inside main */}
+          <div className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full max-w-lg max-h-[32rem] rounded-full blur-[100px] pointer-events-none transition-colors duration-1000 ${["extra_time", "shootout"].includes(phase) ? 'bg-brand-gradient animate-gradient opacity-20' : 'bg-primary/5'}`} />
         {showDrawDecision && (
           <div className="absolute inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-background/80 backdrop-blur-sm rounded-b-2xl sm:rounded-b-3xl">
             <div className="bg-card border border-border rounded-2xl p-6 sm:p-8 w-full max-w-sm flex flex-col items-center text-center shadow-2xl">
@@ -695,10 +737,11 @@ export default function LiveMatchControl({ matches, players, activeSeason, showT
       </main>
 
       {!["live", "done"].includes(phase) && (
-        <div className="px-6 pb-6 pt-2 flex justify-center bg-secondary/10">
+        <div className="px-6 pb-6 pt-2 flex justify-center bg-secondary/5 relative z-10">
           <button onClick={() => { setPhase("live"); setKicks([]); setShootoutWinner(null); setResultType(null); }} className="text-xs font-bold tracking-wider uppercase text-muted-foreground hover:text-foreground transition-colors py-2 px-4 rounded-lg bg-background border border-border shadow-sm">← Back to Match</button>
         </div>
       )}
+      </div>
     </div>
   );
 }
