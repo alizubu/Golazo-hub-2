@@ -616,7 +616,7 @@ function AdminMatchControl({ m, players, showToast, setTab, isPlayoff = false })
           
           {/* VS Badge / Start Button */}
           <div className="flex flex-col items-center justify-center shrink-0 min-w-[50px] sm:min-w-[100px] relative order-2 gap-2 sm:gap-3 py-2 sm:py-0">
-            <Ripple mainCircleSize={isMobile ? 30 : 50} numCircles={isMobile ? 4 : 6} mainCircleOpacity={0.15} className="z-0" />
+            <Ripple mainCircleSize={isMobile ? 30 : 50} numCircles={isMobile ? 4 : 6} mainCircleOpacity={0.8} className="z-0" />
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[150%] h-[1px] bg-gradient-to-r from-transparent via-white/20 to-transparent hidden sm:block z-0" />
             
             <div className="relative z-10 flex flex-col items-center justify-center w-10 h-10 sm:w-20 sm:h-20">

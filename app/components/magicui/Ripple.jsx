@@ -27,15 +27,15 @@ export const Ripple = React.memo(function Ripple({
       `}</style>
       {Array.from({ length: numCircles }, (_, i) => {
         const size = mainCircleSize + i * 70;
-        const opacity = Math.max(0, mainCircleOpacity - i * 0.03);
+        const opacity = Math.max(0, mainCircleOpacity - i * 0.05);
         const animationDelay = `${i * 0.06}s`;
         const borderStyle = i === numCircles - 1 ? "dashed" : "solid";
-        const borderOpacity = Math.min(100, 5 + i * 5);
+        const borderOpacity = Math.min(100, 15 + i * 15);
 
         return (
           <div
             key={i}
-            className={`absolute animate-ripple rounded-full border bg-white/5 shadow-xl`}
+            className={`absolute animate-ripple rounded-full border bg-white/10 shadow-xl`}
             style={{
               width: `${size}px`,
               height: `${size}px`,

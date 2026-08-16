@@ -143,7 +143,12 @@ module.exports = {
         },
         "gradient": {
           to: {
-            backgroundPosition: "var(--bg-size) 0",
+            backgroundPosition: "var(--bg-size, 200%) 0",
+          },
+        },
+        "border-beam": {
+          "100%": {
+            "offset-distance": "100%",
           },
         },
         "spin-around": {
@@ -175,6 +180,7 @@ module.exports = {
         "shine": "shine var(--duration) infinite linear",
         "meteor-effect": "meteor-effect 5s linear infinite",
         "gradient": "gradient 8s linear infinite",
+        "border-beam": "border-beam calc(var(--duration)*1s) infinite linear",
         "spin-around": "spin-around calc(var(--speed) * 2) infinite linear",
         "slide": "slide var(--speed) ease-in-out infinite alternate",
       },
