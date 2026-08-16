@@ -542,40 +542,65 @@ function AdminMatchControl({ m, players, showToast, setTab, isPlayoff = false })
     const aFlagUrl = getPlayerIdentityBadgeUrl(a);
 
     return (
-      <div className="group relative flex flex-col p-4 sm:p-5 rounded-2xl bg-background border border-white/5 shadow-sm hover:shadow-xl hover:border-primary/20 transition-all duration-300 overflow-hidden">
-        <div className="flex justify-between items-center w-full gap-2 relative z-10">
+      <div className="relative flex flex-col p-5 sm:p-6 rounded-3xl bg-[#0a0b10] border border-white/5 shadow-2xl overflow-hidden group transition-all duration-500 hover:scale-[1.01]">
+        {/* Background Glow */}
+        <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 via-transparent to-blue-500/5 opacity-50 pointer-events-none" />
+        <div className="absolute -inset-[1px] rounded-3xl bg-gradient-to-r from-purple-500/0 via-purple-500/10 to-blue-500/0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
+
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 w-full relative z-10">
+          
           {/* Home Team */}
-          <div className="flex flex-col items-center flex-1 min-w-0 gap-2">
-             <Avatar p={h} size={48} className="w-12 h-12 sm:w-14 sm:h-14 border-2 border-secondary shadow-sm" />
-             <div className="flex flex-col sm:flex-row items-center gap-1 sm:gap-1.5 justify-center w-full px-1">
-               {hFlagUrl && (
-                 /* eslint-disable-next-line @next/next/no-img-element */
-                 <img src={hFlagUrl} alt={h?.flag} className="w-6 h-6 sm:w-7 sm:h-7 object-contain drop-shadow-sm shrink-0" />
-               )}
-               <span className="font-bold text-[10px] xs:text-xs sm:text-sm text-center line-clamp-2 leading-tight">{toTitleCase(h?.name) || 'TBD'}</span>
-             </div>
+          <div className="flex flex-col sm:flex-row items-center gap-4 flex-1 w-full justify-start order-1">
+            <div className="relative shrink-0">
+              <div className="absolute -inset-2 bg-gradient-to-br from-purple-600 to-fuchsia-600 rounded-full blur-[10px] opacity-40 group-hover:opacity-60 transition-opacity" />
+              <div className="relative p-1 rounded-full bg-black">
+                <Avatar p={h} size={56} className="rounded-full ring-2 ring-purple-500/50" />
+              </div>
+            </div>
+            <div className="flex flex-col items-center sm:items-start min-w-0">
+              <span className="font-bold text-base sm:text-lg text-white truncate text-center sm:text-left drop-shadow-md" style={{ fontFamily: "'Sora', sans-serif" }}>
+                {toTitleCase(h?.name) || 'TBD'}
+              </span>
+              <div className="flex items-center gap-2 mt-1 text-slate-400">
+                {hFlagUrl && <img src={hFlagUrl} alt="badge" className="w-5 h-5 object-contain" />}
+                <span className="text-sm font-semibold">{h?.favoriteClub || 'TBD'}</span>
+              </div>
+            </div>
           </div>
           
           {/* VS Badge / Start Button */}
-          <div className="flex flex-col items-center justify-center px-1 sm:px-4 shrink-0 gap-2.5">
-             <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-secondary/80 flex items-center justify-center border border-white/5 shadow-inner group-hover:scale-110 transition-transform">
-               <span className="text-[9px] sm:text-[10px] font-black text-muted-foreground uppercase tracking-widest">VS</span>
-             </div>
-             <ShinyButton onClick={startMatch} loading={loading} className="px-3 py-1.5 sm:px-4 sm:py-2 text-[10px] sm:text-xs min-w-[70px] shadow-lg shadow-primary/20 rounded-full">
-               Start
-             </ShinyButton>
+          <div className="flex flex-col items-center justify-center shrink-0 min-w-[100px] relative order-2 gap-3 py-4 sm:py-0">
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[150%] h-[1px] bg-gradient-to-r from-transparent via-white/20 to-transparent hidden sm:block" />
+            
+            <div className="relative z-10 flex flex-col items-center justify-center w-16 h-16 sm:w-20 sm:h-20">
+              <svg viewBox="0 0 100 100" className="absolute inset-0 w-full h-full drop-shadow-[0_0_15px_rgba(255,255,255,0.1)]">
+                <polygon points="50,5 90,25 90,75 50,95 10,75 10,25" fill="rgba(255,255,255,0.02)" stroke="rgba(255,255,255,0.1)" strokeWidth="1" />
+              </svg>
+              <span className="text-xl sm:text-2xl font-bold text-white relative z-20 font-score tracking-wider">VS</span>
+            </div>
+
+            <ShinyButton onClick={startMatch} loading={loading} className="relative z-20 px-5 py-2 text-xs font-bold shadow-[0_0_20px_rgba(34,197,94,0.3)] hover:shadow-[0_0_30px_rgba(34,197,94,0.5)] rounded-full border border-emerald-500/50 bg-emerald-500/10 text-emerald-400 backdrop-blur-md">
+              Start
+            </ShinyButton>
           </div>
           
           {/* Away Team */}
-          <div className="flex flex-col items-center flex-1 min-w-0 gap-2">
-             <Avatar p={a} size={48} className="w-12 h-12 sm:w-14 sm:h-14 border-2 border-secondary shadow-sm" />
-             <div className="flex flex-col sm:flex-row items-center gap-1 sm:gap-1.5 justify-center w-full px-1">
-               {aFlagUrl && (
-                 /* eslint-disable-next-line @next/next/no-img-element */
-                 <img src={aFlagUrl} alt={a?.flag} className="w-6 h-6 sm:w-7 sm:h-7 object-contain drop-shadow-sm shrink-0" />
-               )}
-               <span className="font-bold text-[10px] xs:text-xs sm:text-sm text-center line-clamp-2 leading-tight">{toTitleCase(a?.name) || 'TBD'}</span>
-             </div>
+          <div className="flex flex-col sm:flex-row items-center gap-4 flex-1 w-full justify-end order-3">
+            <div className="flex flex-col items-center sm:items-end min-w-0 order-2 sm:order-1">
+              <span className="font-bold text-base sm:text-lg text-white truncate text-center sm:text-right drop-shadow-md" style={{ fontFamily: "'Sora', sans-serif" }}>
+                {toTitleCase(a?.name) || 'TBD'}
+              </span>
+              <div className="flex items-center gap-2 mt-1 text-slate-400">
+                <span className="text-sm font-semibold">{a?.favoriteClub || 'TBD'}</span>
+                {aFlagUrl && <img src={aFlagUrl} alt="badge" className="w-5 h-5 object-contain" />}
+              </div>
+            </div>
+            <div className="relative shrink-0 order-1 sm:order-2">
+              <div className="absolute -inset-2 bg-gradient-to-br from-blue-600 to-cyan-600 rounded-full blur-[10px] opacity-40 group-hover:opacity-60 transition-opacity" />
+              <div className="relative p-1 rounded-full bg-black">
+                <Avatar p={a} size={56} className="rounded-full ring-2 ring-blue-500/50" />
+              </div>
+            </div>
           </div>
         </div>
       </div>
