@@ -6,7 +6,7 @@ import { BorderBeam } from '@/app/components/magicui/BorderBeam';
 import { Card, Btn, Input, Label, SectionTitle, EmptyState, MagicCard, FadeIn, ShinyButton, Badge, Avatar, toTitleCase } from '@/app/components/shared/UI';
 import { TeamCombobox, DisplayBadgeToggle } from '@/app/components/shared/FootballIdentity';
 
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence, Reorder } from 'framer-motion';
 
 import { generateFixtures, generatePlayoffs, updateMatchStatus, updateMatchScore, adminTriggerBracketProgress } from '@/app/actions/match';
 import { awardTrophy, removeTrophy, updateTrophy, createAnnouncement, deleteAnnouncement, endCelebration, retriggerCelebration, getCelebrations, getSystemSettings, updateSystemSettings, createCustomNotification, deleteCustomNotification, clearAllNotifications, adminUpdateRankingPoints } from '@/app/actions/admin';
@@ -345,10 +345,22 @@ export function AdminPlayers({ players, showToast, session, managerPermissions }
 export function AdminMatches({ matches, activeSeason, players, showToast, setTab }) {
   const [isExporting, setIsExporting] = React.useState(false);
   const captureRef = React.useRef(null);
+  const [orderedMatches, setOrderedMatches] = React.useState([]);
+
+  React.useEffect(() => {
+    if (activeSeason) {
+      const tMatches = matches.filter((m) => m.seasonId === activeSeason.id);
+      setOrderedMatches(prev => {
+        if (prev.length === 0 || prev.length !== tMatches.length) return tMatches;
+        const byId = Object.fromEntries(tMatches.map(m => [m.id, m]));
+        return prev.map(m => byId[m.id]).filter(Boolean);
+      });
+    }
+  }, [matches, activeSeason]);
 
   if (!activeSeason) return <EmptyState text="Start a season first." />;
-  const tMatches = matches.filter((m) => m.seasonId === activeSeason.id);
-  const unplayedMatches = tMatches.filter(m => m.status === 'scheduled');
+  const unplayedMatches = orderedMatches.filter(m => m.status === 'scheduled');
+  const tMatches = orderedMatches;
   
   const handleExport = async () => {
     if (!captureRef.current) return;
@@ -428,13 +440,15 @@ export function AdminMatches({ matches, activeSeason, players, showToast, setTab
         </div>
         
         <div className="flex-1 flex flex-col p-4 sm:p-6 bg-secondary/10">
-          <div className="grid gap-4">
-            {tMatches.map((m, i) => (
-              <FadeIn key={m.id} delay={Math.min(i * 0.05, 0.5)}>
-                <AdminMatchControl m={m} players={players} showToast={showToast} setTab={setTab} isPlayoff={false} />
-              </FadeIn>
+          <Reorder.Group axis="y" values={orderedMatches} onReorder={setOrderedMatches} className="grid gap-4">
+            {orderedMatches.map((m, i) => (
+              <Reorder.Item key={m.id} value={m} className="cursor-grab active:cursor-grabbing relative">
+                <FadeIn delay={Math.min(i * 0.05, 0.5)}>
+                  <AdminMatchControl m={m} players={players} showToast={showToast} setTab={setTab} isPlayoff={false} />
+                </FadeIn>
+              </Reorder.Item>
             ))}
-          </div>
+          </Reorder.Group>
         </div>
       </Card>
     </div>
@@ -552,10 +566,10 @@ function AdminMatchControl({ m, players, showToast, setTab, isPlayoff = false })
           {/* Home Team */}
           <div className="flex flex-col sm:flex-row items-center gap-5 flex-1 w-full justify-start order-1">
             <div className="relative shrink-0">
-              <div className="absolute -inset-1 bg-gradient-to-br from-purple-600 to-fuchsia-600 rounded-full blur-md opacity-20 group-hover:opacity-40 transition-opacity" />
+              <div className="absolute -inset-1 bg-gradient-to-br from-red-600 to-rose-600 rounded-full blur-md opacity-40 group-hover:opacity-60 transition-opacity" />
               <div className="relative p-1 rounded-full bg-black">
                 <div className="relative rounded-full overflow-hidden">
-                  <Avatar p={h} size={112} className="rounded-full ring-1 ring-purple-500/40" />
+                  <Avatar p={h} size={112} className="rounded-full ring-2 ring-red-500/80 shadow-[0_0_20px_rgba(220,38,38,0.5)]" />
                   <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/30 to-transparent -translate-x-[150%] group-hover:translate-x-[150%] transition-transform duration-1000 ease-in-out pointer-events-none" />
                 </div>
               </div>
@@ -599,10 +613,10 @@ function AdminMatchControl({ m, players, showToast, setTab, isPlayoff = false })
               </div>
             </div>
             <div className="relative shrink-0 order-1 sm:order-2">
-              <div className="absolute -inset-1 bg-gradient-to-br from-blue-600 to-cyan-600 rounded-full blur-md opacity-20 group-hover:opacity-40 transition-opacity" />
+              <div className="absolute -inset-1 bg-gradient-to-br from-emerald-600 to-teal-600 rounded-full blur-md opacity-40 group-hover:opacity-60 transition-opacity" />
               <div className="relative p-1 rounded-full bg-black">
                 <div className="relative rounded-full overflow-hidden">
-                  <Avatar p={a} size={112} className="rounded-full ring-1 ring-blue-500/40" />
+                  <Avatar p={a} size={112} className="rounded-full ring-2 ring-emerald-500/80 shadow-[0_0_20px_rgba(16,185,129,0.5)]" />
                   <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/30 to-transparent -translate-x-[150%] group-hover:translate-x-[150%] transition-transform duration-1000 ease-in-out pointer-events-none" />
                 </div>
               </div>
