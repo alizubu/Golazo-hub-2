@@ -242,14 +242,7 @@ export default function AdminBroadcast({ matches = [], players = [], announcemen
   const [editingAlertId, setEditingAlertId] = useState(null);
   const [isAlertModalOpen, setIsAlertModalOpen] = useState(false);
 
-  // Theme Gallery state
-  const [themeQuery, setThemeQuery] = useState('');
-  const [activeThemeTag, setActiveThemeTag] = useState(null);
-  const allTags = [...new Set(THEMES.flatMap(t => t.tags || []))].sort();
-  const filteredThemes = THEMES.filter(t => 
-    (!activeThemeTag || (t.tags && t.tags.includes(activeThemeTag))) &&
-    t.name.toLowerCase().includes(themeQuery.toLowerCase())
-  );
+  // Theme Gallery state (removed per user request)
   
   const selectedThemeObj = THEMES.find(t => t.id === draft.theme) || THEMES[0];
   const isLightMode = selectedThemeObj?.page === 'light';
@@ -613,47 +606,11 @@ export default function AdminBroadcast({ matches = [], players = [], announcemen
           <SectionTitle icon={Eye}>Theme Gallery</SectionTitle>
           <p className="text-xs text-muted-foreground mt-1 mb-4">Choose a visual theme for your broadcast ticker. Each theme has unique badge animations.</p>
           
-          <div className="flex flex-col sm:flex-row gap-3 mb-4">
-            <div className="relative flex-1">
-              <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-muted-foreground" />
-              <input
-                value={themeQuery}
-                onChange={(e) => setThemeQuery(e.target.value)}
-                placeholder="Search styles… e.g. glass, neon, retro"
-                className="w-full rounded-xl pl-10 pr-4 py-2.5 text-sm outline-none bg-secondary dark:bg-zinc-900 border border-border dark:border-zinc-800 text-foreground focus:border-amber-500/50"
-              />
-            </div>
-          </div>
-          
-          <div className="flex flex-wrap gap-2 mb-6">
-            <button
-              onClick={() => setActiveThemeTag(null)}
-              className={`rounded-full px-3 py-1.5 text-xs font-bold tracking-wide transition-colors ${activeThemeTag === null ? 'bg-amber-500 text-black' : 'bg-secondary dark:bg-zinc-900 text-muted-foreground hover:bg-white/10'}`}
-            >
-              All
-            </button>
-            {allTags.map((tag) => (
-              <button
-                key={tag}
-                onClick={() => setActiveThemeTag(activeThemeTag === tag ? null : tag)}
-                className={`rounded-full px-3 py-1.5 text-xs font-bold tracking-wide capitalize transition-colors ${activeThemeTag === tag ? 'bg-amber-500 text-black' : 'bg-secondary dark:bg-zinc-900 text-muted-foreground hover:bg-white/10'}`}
-              >
-                {tag}
-              </button>
-            ))}
-          </div>
-
           <div className="flex overflow-x-auto snap-x gap-3 pb-4 custom-scrollbar">
             <AnimatePresence mode="popLayout">
-              {filteredThemes.length ? (
-                filteredThemes.map(t => (
-                  <div key={t.id} className="snap-start shrink-0 w-[240px]"><ThemeCard theme={t} isSelected={draft.theme === t.id} onSelect={v => update('theme', v)} /></div>
-                ))
-              ) : (
-                <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="col-span-full py-8 text-center text-muted-foreground text-sm">
-                  No themes match your search.
-                </motion.div>
-              )}
+              {THEMES.map(t => (
+                <div key={t.id} className="snap-start shrink-0 w-[240px]"><ThemeCard theme={t} isSelected={draft.theme === t.id} onSelect={v => update('theme', v)} /></div>
+              ))}
             </AnimatePresence>
           </div>
         </Card>
