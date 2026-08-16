@@ -1,17 +1,17 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Activity, CheckCircle2, Megaphone, Radio, Zap, TrendingUp, Flame, Eye, EyeOff, Type, Minus, Maximize2, Minimize2, X, Plus, Search, Star, User, Bold, Italic, CaseSensitive, Pipette, Palette, Edit3, Save, GripVertical, ArrowUpLeft, ArrowUp, ArrowUpRight, ArrowLeft, Circle, ArrowRight, ArrowDownLeft, ArrowDown, ArrowDownRight, ChevronDown } from 'lucide-react';
+import { Activity, CheckCircle2, Megaphone, Radio, Zap, TrendingUp, Flame, Eye, EyeOff, Type, Minus, Maximize2, Minimize2, X, Plus, Search, Star, User, Bold, Italic, CaseSensitive, Pipette, Palette, Edit3, Save, GripVertical, ArrowUpLeft, ArrowUp, ArrowUpRight, ArrowLeft, Circle, ArrowRight, ArrowDownLeft, ArrowDown, ArrowDownRight } from 'lucide-react';
 import { Card, Label, SectionTitle, FadeIn, ShinyButton, Badge } from '@/app/components/shared/UI';
 import { AnimatePresence, motion } from 'framer-motion';
 import { saveTickerConfig } from '@/app/actions/admin';
 import SportsTicker from '@/app/components/shared/SportsTicker';
 import { THEMES, SEPARATORS, CyberNeonBadge, GoldStandardBadge, FrostGlassBadge, HolographicBadge, MatrixGreenBadge, LavaFlowBadge, ElectricPurpleBadge, SunriseBurstBadge, LiquidChromeBadge, NeonPopBadge, InfernoBadge, AbsoluteZeroBadge, ToxicFormBadge, RoyalMomentumBadge, VelocityBadge } from '@/app/components/shared/SportsTickerBadges';
 import { Slider } from '@/app/components/ui/slider';
-import { Toggle as ShadcnToggle } from '@/app/components/ui/toggle';
-import { Popover, PopoverTrigger, PopoverContent } from '@/app/components/ui/popover';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/app/components/ui/tabs';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/app/components/ui/dialog';
+import { Toggle as ShadcnToggle } from '@/app/components/ui/toggle';
+import { Popover, PopoverTrigger, PopoverContent } from '@/app/components/ui/popover';
 import { HexColorPicker } from 'react-colorful';
 
 const COLOR_SWATCHES = [
@@ -240,7 +240,6 @@ export default function AdminBroadcast({ matches = [], players = [], announcemen
   const [newNewsLetterSpacing, setNewNewsLetterSpacing] = useState(0);
   const [newPriority, setNewPriority] = useState('NORMAL');
   const [editingAlertId, setEditingAlertId] = useState(null);
-  const [isAlertModalOpen, setIsAlertModalOpen] = useState(false);
 
   // Theme Gallery state
   const [themeQuery, setThemeQuery] = useState('');
@@ -309,7 +308,6 @@ export default function AdminBroadcast({ matches = [], players = [], announcemen
       setNewNewsFontSize(item.style.fontSize || 16);
       setNewNewsLetterSpacing(item.style.letterSpacing || 0);
     }
-    setIsAlertModalOpen(true);
   };
 
   const handleSaveAlert = () => {
@@ -354,7 +352,6 @@ export default function AdminBroadcast({ matches = [], players = [], announcemen
     setNewCustomHighlight('');
     setNewBadgeLabel('');
     setNewPriority('NORMAL');
-    setIsAlertModalOpen(false);
   };
 
   const cancelEdit = () => {
@@ -362,7 +359,6 @@ export default function AdminBroadcast({ matches = [], players = [], announcemen
     setNewCustomHighlight('');
     setNewBadgeLabel('');
     setNewPriority('NORMAL');
-    setIsAlertModalOpen(false);
   };
 
   if (loading) {
@@ -437,17 +433,8 @@ export default function AdminBroadcast({ matches = [], players = [], announcemen
         </Card>
       </div>
 
-      {/* ── Tabs Container ──────────────────────────────────────────────────── */}
-      <Tabs defaultValue="feed" className="w-full">
-        <TabsList className="mb-6 w-full justify-start overflow-x-auto bg-transparent border-b border-border/50 rounded-none pb-0 h-auto">
-          <TabsTrigger value="feed" className="gap-2 rounded-t-lg rounded-b-none data-[state=active]:bg-secondary/50 data-[state=active]:border-b-amber-500 data-[state=active]:border-b-2 py-3 px-6 text-sm"><Radio size={16} className="text-amber-500" /> Feed & Content</TabsTrigger>
-          <TabsTrigger value="themes" className="gap-2 rounded-t-lg rounded-b-none data-[state=active]:bg-secondary/50 data-[state=active]:border-b-amber-500 data-[state=active]:border-b-2 py-3 px-6 text-sm"><Palette size={16} className="text-blue-400" /> Themes & Visuals</TabsTrigger>
-          <TabsTrigger value="alerts" className="gap-2 rounded-t-lg rounded-b-none data-[state=active]:bg-secondary/50 data-[state=active]:border-b-amber-500 data-[state=active]:border-b-2 py-3 px-6 text-sm"><Megaphone size={16} className="text-red-400" /> Alert Studio</TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="feed" className="space-y-6 mt-0">
-          
-      {/* ── Tabs Container ──────────────────────────────────────────────────── */}
+      
+      {/* ── Tabs Container ── */}
       <Tabs defaultValue="feed" className="w-full mt-6">
         <TabsList className="mb-6 w-full justify-start overflow-x-auto bg-transparent border-b border-border/50 rounded-none pb-0 h-auto custom-scrollbar">
           <TabsTrigger value="feed" className="gap-2 rounded-t-lg rounded-b-none data-[state=active]:bg-secondary/50 data-[state=active]:border-b-amber-500 data-[state=active]:border-b-2 py-3 px-6 text-sm transition-all"><Radio size={16} className="text-amber-500" /> Feed & Content</TabsTrigger>
@@ -457,7 +444,7 @@ export default function AdminBroadcast({ matches = [], players = [], announcemen
 
         <TabsContent value="feed" className="space-y-6 mt-0">
 {/* ── Master Controls ─────────────────────────────────────────────────── */}
-          <FadeIn delay={0.05}>
+      <FadeIn delay={0.05}>
         <Card className="p-4 sm:p-6">
           <SectionTitle icon={Activity}>Master Controls</SectionTitle>
           <div className="mt-4 flex flex-col gap-5">
@@ -713,7 +700,7 @@ export default function AdminBroadcast({ matches = [], players = [], announcemen
         <TabsContent value="alerts" className="space-y-6 mt-0">
 
 
-      {/* ── Alert Studio (Tab 3) ────────────────────────────── */}
+      {/* ── Alert Studio (Tab 3) ── */}
       <FadeIn delay={0.1}>
         <Card className="p-5 sm:p-7 border-amber-500/20 dark:bg-gradient-to-br dark:from-zinc-950 dark:to-amber-950/10 overflow-hidden relative">
           <div className="absolute -top-20 -right-20 w-72 h-72 bg-amber-500/[0.04] rounded-full blur-3xl pointer-events-none" />
@@ -739,7 +726,6 @@ export default function AdminBroadcast({ matches = [], players = [], announcemen
                 <div className="mt-4">
                   {/* ── Breaking News / Custom Marquee ────────────────────────────── */}
       
-        
           <div className="absolute -top-20 -right-20 w-72 h-72 bg-amber-500/[0.04] rounded-full blur-3xl pointer-events-none" />
           <div className="absolute -bottom-16 -left-16 w-52 h-52 bg-red-500/[0.03] rounded-full blur-3xl pointer-events-none" />
           
@@ -1203,7 +1189,6 @@ export default function AdminBroadcast({ matches = [], players = [], announcemen
             </div>
           </div>
         
-      
 
       
           </div>
