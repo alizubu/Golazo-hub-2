@@ -208,9 +208,9 @@ function SizePicker({ current, onChange }) {
 // ══════════════════════════════════════════════════════════════════════════════
 // MAIN COMPONENT
 // ══════════════════════════════════════════════════════════════════════════════
-export default function AdminBroadcast({ matches = [], players = [], announcements = [], showToast, onTickerConfigSaved }) {
+export default function AdminBroadcast({ matches = [], players = [], announcements = [], seasons = [], showToast, onTickerConfigSaved }) {
   const DEFAULT_TICKER = {
-    enabled: true, source: 'live_recent', customMatchIds: [], speed: 50,
+    enabled: true, source: 'live_recent', customMatchIds: [], selectedSeasonId: '', speed: 50,
     showAvatars: true, pauseOnHover: true, theme: 'classic',
     size: 'normal', separator: 'dot', breakingNews: '',
     showStats: false, showHighlights: false, showStreaks: false,
@@ -520,6 +520,27 @@ export default function AdminBroadcast({ matches = [], players = [], announcemen
                     );
                   })}
                   {matches.length === 0 && <p className="text-sm text-muted-foreground p-2 col-span-2">No matches found.</p>}
+                </div>
+              </div>
+            </FadeIn>
+          )}
+
+          {draft.source === 'running_season' && (
+            <FadeIn>
+              <div className="mt-4">
+                <Label className="text-muted-foreground mb-2 block">Select Running Season</Label>
+                <div className="relative max-w-sm">
+                  <select
+                    value={draft.selectedSeasonId || ''}
+                    onChange={(e) => update('selectedSeasonId', e.target.value)}
+                    className="w-full bg-secondary dark:bg-zinc-900 border border-border/50 text-foreground text-sm font-semibold rounded-xl px-4 py-3 appearance-none focus:outline-none focus:ring-2 focus:ring-amber-500/50 transition-all cursor-pointer"
+                  >
+                    <option value="" disabled>Choose a season...</option>
+                    {seasons.filter(s => !s.isArchived).map(s => (
+                      <option key={s.id} value={s.id}>{s.name}</option>
+                    ))}
+                  </select>
+                  <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
                 </div>
               </div>
             </FadeIn>

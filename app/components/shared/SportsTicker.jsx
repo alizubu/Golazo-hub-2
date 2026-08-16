@@ -92,10 +92,17 @@ export default function SportsTicker({ matches = [], announcements = [], players
     }
   }, [cfg.replayTrigger]);
 
+  // ── Enhanced Smart Content: Base Filtering ────────────────────────────────
+  const relevantMatches = useMemo(() => {
+    return (cfg.source === 'running_season' && cfg.selectedSeasonId)
+      ? matches.filter(m => m.seasonId === cfg.selectedSeasonId)
+      : matches;
+  }, [matches, cfg.source, cfg.selectedSeasonId]);
+
   // ── Enhanced Smart Content: Stats ─────────────────────────────────────────
   const statsItems = useMemo(() => {
     if (!cfg.showStats) return [];
-    const completed = matches.filter(m => m.status === 'completed');
+    const completed = relevantMatches.filter(m => m.status === 'completed');
     if (completed.length === 0) return [];
 
     const playerStats = {};
@@ -127,12 +134,12 @@ export default function SportsTicker({ matches = [], announcements = [], players
     result.push(`LEAGUE UPDATE: ${completed.length} Matches Officially Completed.`);
     
     return result;
-  }, [cfg.showStats, matches, players]);
+  }, [cfg.showStats, relevantMatches, players]);
 
   // ── Enhanced Smart Content: Highlights ────────────────────────────────────
   const highlightItems = useMemo(() => {
     if (!cfg.showHighlights) return [];
-    const completed = matches.filter(m => m.status === 'completed').sort((a, b) => new Date(b.completedAt) - new Date(a.completedAt));
+    const completed = relevantMatches.filter(m => m.status === 'completed').sort((a, b) => new Date(b.completedAt) - new Date(a.completedAt));
     if (completed.length === 0) return [];
     const result = [];
     
@@ -156,12 +163,12 @@ export default function SportsTicker({ matches = [], announcements = [], players
     }
     if (totalGoals > 0) result.push(`GOAL FEST: ${totalGoals} goals scored in the last ${recent.length} games!`);
     return result;
-  }, [cfg.showHighlights, matches, getPlayer]);
+  }, [cfg.showHighlights, relevantMatches, getPlayer]);
 
   // ── Enhanced Smart Content: Streaks ───────────────────────────────────────
   const streakItems = useMemo(() => {
     if (!cfg.showStreaks) return [];
-    const completed = matches.filter(m => m.status === 'completed').sort((a, b) => new Date(b.completedAt) - new Date(a.completedAt));
+    const completed = relevantMatches.filter(m => m.status === 'completed').sort((a, b) => new Date(b.completedAt) - new Date(a.completedAt));
     if (completed.length < 3) return [];
     const result = [];
 
@@ -190,7 +197,7 @@ export default function SportsTicker({ matches = [], announcements = [], players
     });
 
     return result.slice(0, 3);
-  }, [cfg.showStreaks, matches, players]);
+  }, [cfg.showStreaks, relevantMatches, players]);
 
   useEffect(() => {
     // Inject fonts needed for the themes if they don't exist
@@ -207,7 +214,10 @@ export default function SportsTicker({ matches = [], announcements = [], players
   const duration = speedToDuration(cfg.speed);
 
   // ── Build match lists ─────────────────────────────────────────────────────
-  const liveMatches = matches.filter(m => m.status === 'live');
+  const liveMatches = (cfg.source === 'running_season' && cfg.selectedSeasonId)
+    ? matches.filter(m => m.status === 'live' && m.seasonId === cfg.selectedSeasonId)
+    : matches.filter(m => m.status === 'live');
+    
   const isToday = m => {
     const d = new Date(m.completedAt || m.scheduledAt || '');
     return d.toDateString() === new Date().toDateString();
@@ -220,6 +230,8 @@ export default function SportsTicker({ matches = [], announcements = [], players
     recentCompleted = matches.filter(m => m.status === 'completed' && isToday(m));
   } else if (cfg.source === 'custom' && cfg.customMatchIds?.length) {
     recentCompleted = matches.filter(m => cfg.customMatchIds.includes(m.id));
+  } else if (cfg.source === 'running_season' && cfg.selectedSeasonId) {
+    recentCompleted = matches.filter(m => m.status === 'completed' && m.seasonId === cfg.selectedSeasonId).sort((a, b) => new Date(b.completedAt) - new Date(a.completedAt)).slice(0, 10);
   }
 
   const items = [];
