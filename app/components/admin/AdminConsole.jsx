@@ -581,11 +581,11 @@ function AdminMatchControl({ m, players, showToast, setTab, isPlayoff = false })
     return (
       <div className="relative flex flex-col p-5 sm:p-6 rounded-3xl bg-[#0a0b10] border border-white/5 shadow-2xl overflow-hidden group transition-all duration-500 hover:scale-[1.01]">
         {/* Layer 1: Tactical Auroras */}
-        <div className="absolute inset-y-0 left-0 w-2/3 bg-gradient-to-r from-red-500/10 to-transparent pointer-events-none opacity-40 group-hover:opacity-70 transition-opacity duration-700 blur-3xl" />
-        <div className="absolute inset-y-0 right-0 w-2/3 bg-gradient-to-l from-emerald-500/10 to-transparent pointer-events-none opacity-40 group-hover:opacity-70 transition-opacity duration-700 blur-3xl" />
+        <div className="absolute inset-y-0 left-0 w-2/3 bg-gradient-to-r from-red-500/20 to-transparent pointer-events-none opacity-50 group-hover:opacity-85 transition-opacity duration-700 blur-2xl" />
+        <div className="absolute inset-y-0 right-0 w-2/3 bg-gradient-to-l from-emerald-500/20 to-transparent pointer-events-none opacity-50 group-hover:opacity-85 transition-opacity duration-700 blur-2xl" />
         
         {/* Layer 2: Flickering Grid */}
-        <FlickeringGrid className="z-0 absolute inset-0 [mask-image:radial-gradient(circle_at_center,white,transparent_80%)]" color="#ffffff" maxOpacity={0.1} flickerSpeed={0.5} gridSize={24} />
+        <FlickeringGrid className="z-0 absolute inset-0 [mask-image:radial-gradient(circle_at_center,white,transparent_80%)]" color="#ffffff" maxOpacity={0.1} flickerSpeed={0.5} gridSize={12} />
 
         {/* Layer 3: Magic UI Shine Border */}
         <BorderBeam size={300} duration={12} delay={9} colorFrom="#ef4444" colorTo="#10b981" />
@@ -598,8 +598,8 @@ function AdminMatchControl({ m, players, showToast, setTab, isPlayoff = false })
           {/* Home Team */}
           <div className="flex flex-col sm:flex-row items-center gap-2 sm:gap-5 flex-1 w-full justify-start order-1">
             <div className="relative shrink-0 scale-75 sm:scale-100 origin-center sm:origin-left">
-              <div className="absolute -inset-1 bg-gradient-to-br from-red-600 to-rose-600 rounded-full blur-md opacity-20 group-hover:opacity-40 transition-opacity" />
-              <div className="relative rounded-full ring-2 ring-red-500/50 shadow-[0_0_15px_rgba(220,38,38,0.3)]">
+              <div className="absolute -inset-1 bg-gradient-to-br from-red-600 to-rose-600 rounded-full blur-md opacity-30 group-hover:opacity-50 transition-opacity" />
+              <div className="relative rounded-full ring-2 ring-red-500 shadow-[0_0_20px_rgba(220,38,38,0.5)]">
                 <div className="relative rounded-full overflow-hidden">
                   <Avatar p={h} size={80} className="rounded-full !border-0" />
                   <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/30 to-transparent -translate-x-[150%] group-hover:translate-x-[150%] transition-transform duration-1000 ease-in-out pointer-events-none" />
@@ -645,8 +645,8 @@ function AdminMatchControl({ m, players, showToast, setTab, isPlayoff = false })
               </div>
             </div>
             <div className="relative shrink-0 order-1 sm:order-2 scale-75 sm:scale-100 origin-center sm:origin-right">
-              <div className="absolute -inset-1 bg-gradient-to-br from-emerald-600 to-teal-600 rounded-full blur-md opacity-20 group-hover:opacity-40 transition-opacity" />
-              <div className="relative rounded-full ring-2 ring-emerald-500/50 shadow-[0_0_15px_rgba(16,185,129,0.3)]">
+              <div className="absolute -inset-1 bg-gradient-to-br from-emerald-600 to-teal-600 rounded-full blur-md opacity-30 group-hover:opacity-50 transition-opacity" />
+              <div className="relative rounded-full ring-2 ring-emerald-500 shadow-[0_0_20px_rgba(16,185,129,0.5)]">
                 <div className="relative rounded-full overflow-hidden">
                   <Avatar p={a} size={80} className="rounded-full !border-0" />
                   <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/30 to-transparent -translate-x-[150%] group-hover:translate-x-[150%] transition-transform duration-1000 ease-in-out pointer-events-none" />
