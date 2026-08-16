@@ -342,8 +342,19 @@ export function AdminPlayers({ players, showToast, session, managerPermissions }
   );
 }
 
+function useIsMobile() {
+  const [isMobile, setIsMobile] = React.useState(false);
+  React.useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth < 768);
+    check();
+    window.addEventListener('resize', check);
+    return () => window.removeEventListener('resize', check);
+  }, []);
+  return isMobile;
+}
 
 export function AdminMatches({ matches, activeSeason, players, showToast, setTab }) {
+  const isMobile = useIsMobile();
   const [isExporting, setIsExporting] = React.useState(false);
   const captureRef = React.useRef(null);
   const [orderedMatches, setOrderedMatches] = React.useState(() => {
@@ -453,7 +464,7 @@ export function AdminMatches({ matches, activeSeason, players, showToast, setTab
         <div className="flex-1 flex flex-col p-4 sm:p-6 bg-secondary/10">
           <Reorder.Group axis="y" values={orderedMatches} onReorder={setOrderedMatches} className="grid gap-4">
             {orderedMatches.map((m, i) => (
-              <Reorder.Item key={m.id} value={m} className="cursor-grab active:cursor-grabbing relative">
+              <Reorder.Item key={m.id} value={m} dragListener={!isMobile} className={`relative ${!isMobile ? 'cursor-grab active:cursor-grabbing' : ''}`}>
                 <FadeIn delay={Math.min(i * 0.05, 0.5)}>
                   <AdminMatchControl m={m} players={players} showToast={showToast} setTab={setTab} isPlayoff={false} />
                 </FadeIn>
@@ -467,6 +478,7 @@ export function AdminMatches({ matches, activeSeason, players, showToast, setTab
 }
 
 function AdminMatchControl({ m, players, showToast, setTab, isPlayoff = false }) {
+  const isMobile = useIsMobile();
   const byId = Object.fromEntries(players.map((p) => [p.id, p]));
   const h = byId[m.homeId], a = byId[m.awayId];
   const [optHome, setOptHome] = useState(m.homeScore || 0);
@@ -578,11 +590,11 @@ function AdminMatchControl({ m, players, showToast, setTab, isPlayoff = false })
         {/* Layer 3: Glassmorphic Sweep */}
         <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/[0.03] to-transparent -translate-x-[150%] group-hover:translate-x-[150%] transition-transform duration-1000 ease-in-out pointer-events-none" />
 
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 w-full relative z-10">
+        <div className="grid grid-cols-[1fr_auto_1fr] sm:flex sm:flex-row items-center justify-between gap-2 sm:gap-4 w-full relative z-10">
           
           {/* Home Team */}
-          <div className="flex flex-col sm:flex-row items-center gap-5 flex-1 w-full justify-start order-1">
-            <div className="relative shrink-0">
+          <div className="flex flex-col sm:flex-row items-center gap-2 sm:gap-5 flex-1 w-full justify-start order-1">
+            <div className="relative shrink-0 scale-75 sm:scale-100 origin-center sm:origin-left">
               <div className="absolute -inset-1 bg-gradient-to-br from-red-600 to-rose-600 rounded-full blur-md opacity-40 group-hover:opacity-60 transition-opacity" />
               <div className="relative rounded-full ring-4 ring-red-500 shadow-[0_0_20px_rgba(220,38,38,0.7)]">
                 <div className="relative rounded-full overflow-hidden">
@@ -591,46 +603,46 @@ function AdminMatchControl({ m, players, showToast, setTab, isPlayoff = false })
                 </div>
               </div>
             </div>
-            <div className="flex flex-col items-center sm:items-start min-w-0">
-              <span className="font-black text-xl sm:text-2xl truncate text-center sm:text-left tracking-tight animate-gradient bg-gradient-to-r from-red-200 via-white to-red-200 bg-[length:200%_auto] text-transparent bg-clip-text drop-shadow-[0_0_15px_rgba(239,68,68,0.3)]" style={{ fontFamily: "'Sora', sans-serif" }}>
+            <div className="flex flex-col items-center sm:items-start min-w-0 text-center sm:text-left">
+              <span className="font-black text-sm sm:text-2xl truncate tracking-tight animate-gradient bg-gradient-to-r from-red-200 via-white to-red-200 bg-[length:200%_auto] text-transparent bg-clip-text drop-shadow-[0_0_15px_rgba(239,68,68,0.3)]" style={{ fontFamily: "'Sora', sans-serif" }}>
                 {toTitleCase(h?.name) || 'TBD'}
               </span>
-              <div className="flex items-center gap-3 mt-1.5 text-slate-300">
-                {hFlagUrl && <img src={hFlagUrl} alt="badge" className="w-10 h-10 object-contain drop-shadow-md" />}
-                <span className="text-base font-bold">{h?.favoriteClub || 'TBD'}</span>
+              <div className="flex items-center gap-1 sm:gap-3 mt-0.5 sm:mt-1.5 text-slate-300">
+                {hFlagUrl && <img src={hFlagUrl} alt="badge" className="w-5 h-5 sm:w-10 sm:h-10 object-contain drop-shadow-md" />}
+                <span className="text-[10px] sm:text-base font-bold truncate max-w-[60px] sm:max-w-none">{h?.favoriteClub || 'TBD'}</span>
               </div>
             </div>
           </div>
           
           {/* VS Badge / Start Button */}
-          <div className="flex flex-col items-center justify-center shrink-0 min-w-[100px] relative order-2 gap-3 py-4 sm:py-0">
-            <Ripple mainCircleSize={50} numCircles={6} mainCircleOpacity={0.15} className="z-0" />
+          <div className="flex flex-col items-center justify-center shrink-0 min-w-[50px] sm:min-w-[100px] relative order-2 gap-2 sm:gap-3 py-2 sm:py-0">
+            <Ripple mainCircleSize={isMobile ? 30 : 50} numCircles={isMobile ? 4 : 6} mainCircleOpacity={0.15} className="z-0" />
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[150%] h-[1px] bg-gradient-to-r from-transparent via-white/20 to-transparent hidden sm:block z-0" />
             
-            <div className="relative z-10 flex flex-col items-center justify-center w-16 h-16 sm:w-20 sm:h-20">
+            <div className="relative z-10 flex flex-col items-center justify-center w-10 h-10 sm:w-20 sm:h-20">
               <svg viewBox="0 0 100 100" className="absolute inset-0 w-full h-full drop-shadow-[0_0_15px_rgba(255,255,255,0.1)]">
                 <polygon points="50,5 90,25 90,75 50,95 10,75 10,25" fill="rgba(255,255,255,0.02)" stroke="rgba(255,255,255,0.1)" strokeWidth="1" />
               </svg>
-              <span className="text-xl sm:text-2xl font-bold text-white relative z-20 font-score tracking-wider">VS</span>
+              <span className="text-xs sm:text-2xl font-bold text-white relative z-20 font-score tracking-wider">VS</span>
             </div>
 
-            <ShinyButton onClick={startMatch} loading={loading} className="relative z-20 px-5 py-2 text-xs font-bold shadow-[0_0_20px_rgba(34,197,94,0.3)] hover:shadow-[0_0_30px_rgba(34,197,94,0.5)] rounded-full border border-emerald-500/50 bg-emerald-500/10 text-emerald-400 backdrop-blur-md">
+            <ShinyButton onClick={startMatch} loading={loading} className="relative z-20 px-3 sm:px-5 py-1 sm:py-2 text-[10px] sm:text-xs font-bold shadow-[0_0_20px_rgba(34,197,94,0.3)] hover:shadow-[0_0_30px_rgba(34,197,94,0.5)] rounded-full border border-emerald-500/50 bg-emerald-500/10 text-emerald-400 backdrop-blur-md scale-90 sm:scale-100">
               Start
             </ShinyButton>
           </div>
           
           {/* Away Team */}
-          <div className="flex flex-col sm:flex-row items-center gap-5 flex-1 w-full justify-end order-3">
-            <div className="flex flex-col items-center sm:items-end min-w-0 order-2 sm:order-1">
-              <span className="font-black text-xl sm:text-2xl truncate text-center sm:text-right tracking-tight animate-gradient bg-gradient-to-r from-emerald-200 via-white to-emerald-200 bg-[length:200%_auto] text-transparent bg-clip-text drop-shadow-[0_0_15px_rgba(16,185,129,0.3)]" style={{ fontFamily: "'Sora', sans-serif" }}>
+          <div className="flex flex-col sm:flex-row items-center gap-2 sm:gap-5 flex-1 w-full justify-end order-3">
+            <div className="flex flex-col items-center sm:items-end min-w-0 order-2 sm:order-1 text-center sm:text-right">
+              <span className="font-black text-sm sm:text-2xl truncate tracking-tight animate-gradient bg-gradient-to-r from-emerald-200 via-white to-emerald-200 bg-[length:200%_auto] text-transparent bg-clip-text drop-shadow-[0_0_15px_rgba(16,185,129,0.3)]" style={{ fontFamily: "'Sora', sans-serif" }}>
                 {toTitleCase(a?.name) || 'TBD'}
               </span>
-              <div className="flex items-center gap-3 mt-1.5 text-slate-300">
-                <span className="text-base font-bold">{a?.favoriteClub || 'TBD'}</span>
-                {aFlagUrl && <img src={aFlagUrl} alt="badge" className="w-10 h-10 object-contain drop-shadow-md" />}
+              <div className="flex items-center gap-1 sm:gap-3 mt-0.5 sm:mt-1.5 text-slate-300">
+                <span className="text-[10px] sm:text-base font-bold truncate max-w-[60px] sm:max-w-none order-2 sm:order-1">{a?.favoriteClub || 'TBD'}</span>
+                {aFlagUrl && <img src={aFlagUrl} alt="badge" className="w-5 h-5 sm:w-10 sm:h-10 object-contain drop-shadow-md order-1 sm:order-2" />}
               </div>
             </div>
-            <div className="relative shrink-0 order-1 sm:order-2">
+            <div className="relative shrink-0 order-1 sm:order-2 scale-75 sm:scale-100 origin-center sm:origin-right">
               <div className="absolute -inset-1 bg-gradient-to-br from-emerald-600 to-teal-600 rounded-full blur-md opacity-40 group-hover:opacity-60 transition-opacity" />
               <div className="relative rounded-full ring-4 ring-emerald-500 shadow-[0_0_20px_rgba(16,185,129,0.7)]">
                 <div className="relative rounded-full overflow-hidden">
