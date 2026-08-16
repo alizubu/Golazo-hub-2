@@ -568,17 +568,17 @@ function AdminMatchControl({ m, players, showToast, setTab, isPlayoff = false })
     return (
       <div className="relative flex flex-col p-5 sm:p-6 rounded-3xl bg-[#0a0b10] border border-white/5 shadow-2xl overflow-hidden group transition-all duration-500 hover:scale-[1.01]">
         {/* Layer 1: Tactical Auroras */}
-        <div className="absolute inset-y-0 left-0 w-2/3 bg-gradient-to-r from-red-600/20 via-red-600/5 to-transparent pointer-events-none opacity-40 group-hover:opacity-70 transition-opacity duration-700 blur-xl" />
-        <div className="absolute inset-y-0 right-0 w-2/3 bg-gradient-to-l from-emerald-600/20 via-emerald-600/5 to-transparent pointer-events-none opacity-40 group-hover:opacity-70 transition-opacity duration-700 blur-xl" />
+        <div className="absolute inset-y-0 left-0 w-2/3 bg-gradient-to-r from-red-500/30 to-transparent pointer-events-none opacity-60 group-hover:opacity-100 transition-opacity duration-700 blur-2xl" />
+        <div className="absolute inset-y-0 right-0 w-2/3 bg-gradient-to-l from-emerald-500/30 to-transparent pointer-events-none opacity-60 group-hover:opacity-100 transition-opacity duration-700 blur-2xl" />
         
         {/* Layer 2: Micro-Dot Cyber Grid */}
         <div 
-          className="absolute inset-0 pointer-events-none mix-blend-overlay opacity-40 group-hover:opacity-80 transition-opacity duration-700"
+          className="absolute inset-0 pointer-events-none opacity-40 group-hover:opacity-80 transition-opacity duration-700"
           style={{ 
-            backgroundImage: "radial-gradient(rgba(255, 255, 255, 0.4) 1px, transparent 1px)",
-            backgroundSize: "16px 16px",
-            maskImage: "linear-gradient(to right, black 10%, transparent 45%, transparent 55%, black 90%)",
-            WebkitMaskImage: "linear-gradient(to right, black 10%, transparent 45%, transparent 55%, black 90%)"
+            backgroundImage: "radial-gradient(circle, rgba(255, 255, 255, 0.6) 1.5px, transparent 1.5px)",
+            backgroundSize: "24px 24px",
+            maskImage: "linear-gradient(to right, black 5%, transparent 45%, transparent 55%, black 95%)",
+            WebkitMaskImage: "linear-gradient(to right, black 5%, transparent 45%, transparent 55%, black 95%)"
           }} 
         />
 
