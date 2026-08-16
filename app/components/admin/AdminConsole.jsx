@@ -550,20 +550,23 @@ function AdminMatchControl({ m, players, showToast, setTab, isPlayoff = false })
         <div className="flex flex-col sm:flex-row items-center justify-between gap-4 w-full relative z-10">
           
           {/* Home Team */}
-          <div className="flex flex-col sm:flex-row items-center gap-4 flex-1 w-full justify-start order-1">
+          <div className="flex flex-col sm:flex-row items-center gap-5 flex-1 w-full justify-start order-1">
             <div className="relative shrink-0">
-              <div className="absolute -inset-2 bg-gradient-to-br from-purple-600 to-fuchsia-600 rounded-full blur-[10px] opacity-40 group-hover:opacity-60 transition-opacity" />
+              <div className="absolute -inset-1 bg-gradient-to-br from-purple-600 to-fuchsia-600 rounded-full blur-md opacity-20 group-hover:opacity-40 transition-opacity" />
               <div className="relative p-1 rounded-full bg-black">
-                <Avatar p={h} size={56} className="rounded-full ring-2 ring-purple-500/50" />
+                <div className="relative rounded-full overflow-hidden">
+                  <Avatar p={h} size={112} className="rounded-full ring-1 ring-purple-500/40" />
+                  <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/30 to-transparent -translate-x-[150%] group-hover:translate-x-[150%] transition-transform duration-1000 ease-in-out pointer-events-none" />
+                </div>
               </div>
             </div>
             <div className="flex flex-col items-center sm:items-start min-w-0">
-              <span className="font-bold text-base sm:text-lg text-white truncate text-center sm:text-left drop-shadow-md" style={{ fontFamily: "'Sora', sans-serif" }}>
+              <span className="font-black text-xl sm:text-2xl text-white truncate text-center sm:text-left drop-shadow-lg tracking-tight" style={{ fontFamily: "'Sora', sans-serif" }}>
                 {toTitleCase(h?.name) || 'TBD'}
               </span>
-              <div className="flex items-center gap-2 mt-1 text-slate-400">
-                {hFlagUrl && <img src={hFlagUrl} alt="badge" className="w-5 h-5 object-contain" />}
-                <span className="text-sm font-semibold">{h?.favoriteClub || 'TBD'}</span>
+              <div className="flex items-center gap-3 mt-1.5 text-slate-300">
+                {hFlagUrl && <img src={hFlagUrl} alt="badge" className="w-10 h-10 object-contain drop-shadow-md" />}
+                <span className="text-base font-bold">{h?.favoriteClub || 'TBD'}</span>
               </div>
             </div>
           </div>
@@ -585,20 +588,23 @@ function AdminMatchControl({ m, players, showToast, setTab, isPlayoff = false })
           </div>
           
           {/* Away Team */}
-          <div className="flex flex-col sm:flex-row items-center gap-4 flex-1 w-full justify-end order-3">
+          <div className="flex flex-col sm:flex-row items-center gap-5 flex-1 w-full justify-end order-3">
             <div className="flex flex-col items-center sm:items-end min-w-0 order-2 sm:order-1">
-              <span className="font-bold text-base sm:text-lg text-white truncate text-center sm:text-right drop-shadow-md" style={{ fontFamily: "'Sora', sans-serif" }}>
+              <span className="font-black text-xl sm:text-2xl text-white truncate text-center sm:text-right drop-shadow-lg tracking-tight" style={{ fontFamily: "'Sora', sans-serif" }}>
                 {toTitleCase(a?.name) || 'TBD'}
               </span>
-              <div className="flex items-center gap-2 mt-1 text-slate-400">
-                <span className="text-sm font-semibold">{a?.favoriteClub || 'TBD'}</span>
-                {aFlagUrl && <img src={aFlagUrl} alt="badge" className="w-5 h-5 object-contain" />}
+              <div className="flex items-center gap-3 mt-1.5 text-slate-300">
+                <span className="text-base font-bold">{a?.favoriteClub || 'TBD'}</span>
+                {aFlagUrl && <img src={aFlagUrl} alt="badge" className="w-10 h-10 object-contain drop-shadow-md" />}
               </div>
             </div>
             <div className="relative shrink-0 order-1 sm:order-2">
-              <div className="absolute -inset-2 bg-gradient-to-br from-blue-600 to-cyan-600 rounded-full blur-[10px] opacity-40 group-hover:opacity-60 transition-opacity" />
+              <div className="absolute -inset-1 bg-gradient-to-br from-blue-600 to-cyan-600 rounded-full blur-md opacity-20 group-hover:opacity-40 transition-opacity" />
               <div className="relative p-1 rounded-full bg-black">
-                <Avatar p={a} size={56} className="rounded-full ring-2 ring-blue-500/50" />
+                <div className="relative rounded-full overflow-hidden">
+                  <Avatar p={a} size={112} className="rounded-full ring-1 ring-blue-500/40" />
+                  <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/30 to-transparent -translate-x-[150%] group-hover:translate-x-[150%] transition-transform duration-1000 ease-in-out pointer-events-none" />
+                </div>
               </div>
             </div>
           </div>

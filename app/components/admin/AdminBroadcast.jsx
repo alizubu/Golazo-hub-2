@@ -240,6 +240,7 @@ export default function AdminBroadcast({ matches = [], players = [], announcemen
   const [newNewsLetterSpacing, setNewNewsLetterSpacing] = useState(0);
   const [newPriority, setNewPriority] = useState('NORMAL');
   const [editingAlertId, setEditingAlertId] = useState(null);
+  const [isAlertModalOpen, setIsAlertModalOpen] = useState(false);
 
   // Theme Gallery state
   const [themeQuery, setThemeQuery] = useState('');
