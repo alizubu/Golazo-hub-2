@@ -52,4 +52,29 @@ export const CLUBS: Club[] = [
   { id: 'c-ll-18', name: 'Sevilla', league: 'La Liga', country: 'Spain', slug: 'sevilla', crestPath: 'https://media.api-sports.io/football/teams/536.png' },
   { id: 'c-ll-19', name: 'Valencia', league: 'La Liga', country: 'Spain', slug: 'valencia', crestPath: 'https://media.api-sports.io/football/teams/532.png' },
   { id: 'c-ll-20', name: 'Villarreal', league: 'La Liga', country: 'Spain', slug: 'villarreal', crestPath: 'https://media.api-sports.io/football/teams/533.png' }, // Villarreal is actually 533?
+  // Bundesliga (Germany)
+  { id: 'c-bl-1', name: 'Bayern Munich', league: 'Bundesliga', country: 'Germany', slug: 'bayern-munich', crestPath: 'https://media.api-sports.io/football/teams/157.png' },
+  { id: 'c-bl-2', name: 'Borussia Dortmund', league: 'Bundesliga', country: 'Germany', slug: 'borussia-dortmund', crestPath: 'https://media.api-sports.io/football/teams/165.png' },
+  { id: 'c-bl-3', name: 'Bayer Leverkusen', league: 'Bundesliga', country: 'Germany', slug: 'bayer-leverkusen', crestPath: 'https://media.api-sports.io/football/teams/168.png' },
+  { id: 'c-bl-4', name: 'RB Leipzig', league: 'Bundesliga', country: 'Germany', slug: 'rb-leipzig', crestPath: 'https://media.api-sports.io/football/teams/173.png' },
+  { id: 'c-bl-5', name: 'Eintracht Frankfurt', league: 'Bundesliga', country: 'Germany', slug: 'eintracht-frankfurt', crestPath: 'https://media.api-sports.io/football/teams/169.png' },
+  { id: 'c-bl-6', name: 'VfB Stuttgart', league: 'Bundesliga', country: 'Germany', slug: 'vfb-stuttgart', crestPath: 'https://media.api-sports.io/football/teams/172.png' },
+
+  // Serie A (Italy)
+  { id: 'c-sa-1', name: 'Inter Milan', league: 'Serie A', country: 'Italy', slug: 'inter-milan', crestPath: 'https://media.api-sports.io/football/teams/505.png' },
+  { id: 'c-sa-2', name: 'AC Milan', league: 'Serie A', country: 'Italy', slug: 'ac-milan', crestPath: 'https://media.api-sports.io/football/teams/489.png' },
+  { id: 'c-sa-3', name: 'Juventus', league: 'Serie A', country: 'Italy', slug: 'juventus', crestPath: 'https://media.api-sports.io/football/teams/496.png' },
+  { id: 'c-sa-4', name: 'Napoli', league: 'Serie A', country: 'Italy', slug: 'napoli', crestPath: 'https://media.api-sports.io/football/teams/492.png' },
+  { id: 'c-sa-5', name: 'Roma', league: 'Serie A', country: 'Italy', slug: 'roma', crestPath: 'https://media.api-sports.io/football/teams/497.png' },
+  { id: 'c-sa-6', name: 'Lazio', league: 'Serie A', country: 'Italy', slug: 'lazio', crestPath: 'https://media.api-sports.io/football/teams/487.png' },
+  { id: 'c-sa-7', name: 'Atalanta', league: 'Serie A', country: 'Italy', slug: 'atalanta', crestPath: 'https://media.api-sports.io/football/teams/499.png' },
+  { id: 'c-sa-8', name: 'Fiorentina', league: 'Serie A', country: 'Italy', slug: 'fiorentina', crestPath: 'https://media.api-sports.io/football/teams/502.png' },
+
+  // Ligue 1 (France)
+  { id: 'c-l1-1', name: 'Paris Saint-Germain', league: 'Ligue 1', country: 'France', slug: 'paris-saint-germain', crestPath: 'https://media.api-sports.io/football/teams/85.png' },
+  { id: 'c-l1-2', name: 'Marseille', league: 'Ligue 1', country: 'France', slug: 'marseille', crestPath: 'https://media.api-sports.io/football/teams/81.png' },
+  { id: 'c-l1-3', name: 'Lyon', league: 'Ligue 1', country: 'France', slug: 'lyon', crestPath: 'https://media.api-sports.io/football/teams/80.png' },
+  { id: 'c-l1-4', name: 'Monaco', league: 'Ligue 1', country: 'France', slug: 'monaco', crestPath: 'https://media.api-sports.io/football/teams/79.png' },
+  { id: 'c-l1-5', name: 'Lille', league: 'Ligue 1', country: 'France', slug: 'lille', crestPath: 'https://media.api-sports.io/football/teams/77.png' },
+  { id: 'c-l1-6', name: 'Nice', league: 'Ligue 1', country: 'France', slug: 'nice', crestPath: 'https://media.api-sports.io/football/teams/84.png' }
 ];
