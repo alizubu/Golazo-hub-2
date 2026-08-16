@@ -21,10 +21,10 @@ const STAT_FIELDS = [
   { key: "shotsOnTarget", label: "SHOTS ON TARGET", format: "number", icon: "🎯" },
   { key: "fouls", label: "FOULS", format: "number", icon: "🚩" },
   { key: "offsides", label: "OFFSIDES", format: "number", icon: "🏳️" },
-  { key: "corners", label: "CORNER KICKS", format: "number", icon: "🏁" },
+  { key: "corners", label: "CORNERS", format: "number", icon: "🏁" },
   { key: "freeKicks", label: "FREE KICKS", format: "number", icon: "👥" },
   { key: "passes", label: "PASSES", format: "number", icon: "🔗" },
-  { key: "successfulPasses", label: "SUCCESSFUL PASSES", format: "number", icon: "✅" },
+  { key: "successfulPasses", label: "ACCURATE PASSES", format: "number", icon: "✅" },
   { key: "crosses", label: "CROSSES", format: "number", icon: "↪️" },
   { key: "interceptions", label: "INTERCEPTIONS", format: "number", icon: "✋" },
   { key: "tackles", label: "TACKLES", format: "number", icon: "🛡" },
@@ -681,21 +681,43 @@ function ImageImport({ onApply }) {
 const ProStatRow = ({ f, stats, update }) => {
   const homeVal = Number(stats.home[f.key]) || 0;
   const awayVal = Number(stats.away[f.key]) || 0;
+  
   const total = homeVal + awayVal;
   const homePercent = total > 0 ? (homeVal / total) * 100 : 50;
   const awayPercent = total > 0 ? (awayVal / total) * 100 : 50;
 
+  const isAccuratePasses = f.key === "successfulPasses";
+  const isPercent = f.format === "percent";
+
+  let homeAccuracyStr = "";
+  let awayAccuracyStr = "";
+  if (isAccuratePasses) {
+    const homeTotalPasses = Number(stats.home.passes) || 0;
+    const awayTotalPasses = Number(stats.away.passes) || 0;
+    const hAcc = homeTotalPasses > 0 ? Math.round((homeVal / homeTotalPasses) * 100) : 0;
+    const aAcc = awayTotalPasses > 0 ? Math.round((awayVal / awayTotalPasses) * 100) : 0;
+    homeAccuracyStr = ` (${hAcc}%)`;
+    awayAccuracyStr = ` (${aAcc}%)`;
+  }
+
+  const boxWidthClasses = isAccuratePasses ? "w-20 sm:w-[96px]" : "w-14 sm:w-[72px]";
+
   return (
     <div className="flex items-center gap-3 sm:gap-4 py-3 sm:py-4 border-b border-white/[0.04] last:border-0 group">
       {/* Home value */}
-      <div className="relative shrink-0">
+      <div className={`relative shrink-0 flex items-center justify-center rounded-[10px] bg-[#0a0c14]/50 border border-emerald-500/40 shadow-[0_0_10px_rgba(34,197,94,0.05)] focus-within:border-emerald-400 focus-within:ring-1 focus-within:ring-emerald-400/40 transition-all ${boxWidthClasses} h-10 sm:h-12`}>
         <input
           type="number"
           inputMode="numeric"
           value={stats.home[f.key]}
           onChange={(e) => update("home", f.key, e.target.value)}
-          className="w-14 sm:w-[72px] h-10 sm:h-12 rounded-[10px] text-center font-score font-bold text-sm sm:text-base tabular-nums text-emerald-400 bg-[#0a0c14]/50 border border-emerald-500/40 focus:border-emerald-400 focus:ring-1 focus:ring-emerald-400/40 outline-none transition-all shadow-[0_0_10px_rgba(34,197,94,0.05)]"
+          className={`w-full h-full bg-transparent outline-none font-score font-bold text-sm sm:text-base tabular-nums text-emerald-400 ${isAccuratePasses || isPercent ? 'text-right pr-1' : 'text-center'}`}
         />
+        {(isAccuratePasses || isPercent) && (
+          <span className="font-score font-bold text-[9px] sm:text-[11px] tabular-nums text-emerald-400 pr-2 whitespace-nowrap">
+            {isPercent ? '%' : homeAccuracyStr}
+          </span>
+        )}
       </div>
 
       {/* Center Area */}
@@ -715,14 +737,19 @@ const ProStatRow = ({ f, stats, update }) => {
       </div>
 
       {/* Away value */}
-      <div className="relative shrink-0">
+      <div className={`relative shrink-0 flex items-center justify-center rounded-[10px] bg-[#0a0c14]/50 border border-rose-500/40 shadow-[0_0_10px_rgba(225,29,72,0.05)] focus-within:border-rose-400 focus-within:ring-1 focus-within:ring-rose-400/40 transition-all ${boxWidthClasses} h-10 sm:h-12`}>
         <input
           type="number"
           inputMode="numeric"
           value={stats.away[f.key]}
           onChange={(e) => update("away", f.key, e.target.value)}
-          className="w-14 sm:w-[72px] h-10 sm:h-12 rounded-[10px] text-center font-score font-bold text-sm sm:text-base tabular-nums text-rose-400 bg-[#0a0c14]/50 border border-rose-500/40 focus:border-rose-400 focus:ring-1 focus:ring-rose-400/40 outline-none transition-all shadow-[0_0_10px_rgba(225,29,72,0.05)]"
+          className={`w-full h-full bg-transparent outline-none font-score font-bold text-sm sm:text-base tabular-nums text-rose-400 ${isAccuratePasses || isPercent ? 'text-right pr-1' : 'text-center'}`}
         />
+        {(isAccuratePasses || isPercent) && (
+          <span className="font-score font-bold text-[9px] sm:text-[11px] tabular-nums text-rose-400 pr-2 whitespace-nowrap">
+            {isPercent ? '%' : awayAccuracyStr}
+          </span>
+        )}
       </div>
     </div>
   );
