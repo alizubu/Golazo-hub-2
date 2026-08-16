@@ -872,27 +872,34 @@ function StatRow({ label, value, percent }) {
   const [h, a] = value;
   const total = h + a;
   const homeWidth = total > 0 ? (h / total) * 100 : 50;
+  const awayWidth = total > 0 ? (a / total) * 100 : 50;
+  
   const homeWins = h > a;
   const awayWins = a > h;
+  const isDraw = h === a;
+  const bothZero = h === 0 && a === 0;
+
+  const hTextColor = homeWins ? 'text-emerald-400 drop-shadow-[0_0_8px_rgba(34,197,94,0.3)]' : 'text-slate-500';
+  const aTextColor = awayWins ? 'text-emerald-400 drop-shadow-[0_0_8px_rgba(34,197,94,0.3)]' : 'text-slate-500';
+  
+  const hBarColor = homeWins || (isDraw && !bothZero) ? 'bg-emerald-400 shadow-[0_0_8px_rgba(34,197,94,0.4)]' : 'bg-[#0f2e22]'; 
+  const aBarColor = awayWins || (isDraw && !bothZero) ? 'bg-emerald-400 shadow-[0_0_8px_rgba(34,197,94,0.4)]' : 'bg-[#0f2e22]'; 
+
   return (
-    <div className="flex flex-col gap-2 mb-5 last:mb-0 group">
-      <div className="flex items-center justify-between">
-        <span className={`font-score text-base sm:text-lg font-black tabular-nums transition-colors ${homeWins ? 'text-emerald-400 drop-shadow-[0_0_8px_rgba(34,197,94,0.5)]' : 'text-slate-500'}`}>{h}{percent && "%"}</span>
-        <span className="font-sans text-[10px] font-bold uppercase tracking-widest text-slate-500 group-hover:text-slate-300 transition-colors">{label}</span>
-        <span className={`font-score text-base sm:text-lg font-black tabular-nums transition-colors ${awayWins ? 'text-emerald-400 drop-shadow-[0_0_8px_rgba(34,197,94,0.5)]' : 'text-slate-500'}`}>{a}{percent && "%"}</span>
+    <div className="flex flex-col gap-2 mb-6 last:mb-0 group">
+      <div className="flex items-center justify-between px-1">
+        <span className={`font-score text-base sm:text-lg font-black tabular-nums transition-colors w-12 text-left ${hTextColor}`}>{h}{percent && "%"}</span>
+        <span className="flex-1 text-center font-sans text-[9px] sm:text-[10px] font-bold uppercase tracking-widest text-slate-300">{label}</span>
+        <span className={`font-score text-base sm:text-lg font-black tabular-nums transition-colors w-12 text-right ${aTextColor}`}>{a}{percent && "%"}</span>
       </div>
-      <div className="h-2 w-full rounded-full bg-white/[0.04] overflow-hidden flex shadow-inner relative border border-white/[0.04]">
-        {total > 0 ? (
-          <>
-            <motion.div initial={{ width: 0 }} whileInView={{ width: `${homeWidth}%` }} viewport={{ once: true }} transition={{ duration: 1, ease: "easeOut" }} className={`h-full relative ${homeWins || (!homeWins && !awayWins) ? 'bg-gradient-to-r from-emerald-600/60 to-emerald-500' : 'bg-emerald-500/20'}`}>
-              {(homeWins || (!homeWins && !awayWins)) && <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/40 to-transparent w-[200%] h-full animate-shimmer" />}
-            </motion.div>
-            <motion.div initial={{ width: 0 }} whileInView={{ width: `${100 - homeWidth}%` }} viewport={{ once: true }} transition={{ duration: 1, ease: "easeOut" }} className={`h-full relative ${awayWins || (!homeWins && !awayWins) ? 'bg-gradient-to-l from-emerald-600/60 to-emerald-500' : 'bg-emerald-500/20'}`}>
-              {(awayWins || (!homeWins && !awayWins)) && <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/40 to-transparent w-[200%] h-full animate-shimmer" />}
-            </motion.div>
-          </>
+      <div className="flex items-center h-1.5 w-full gap-1 rounded-full overflow-hidden">
+        {bothZero ? (
+          <div className="w-full h-full bg-[#0f2e22]" />
         ) : (
-          <div className="w-full h-full bg-white/[0.04]" />
+          <>
+            <motion.div initial={{ width: 0 }} whileInView={{ width: `${homeWidth}%` }} viewport={{ once: true }} transition={{ duration: 1, ease: "easeOut" }} className={`h-full rounded-l-full ${hBarColor}`} />
+            <motion.div initial={{ width: 0 }} whileInView={{ width: `${awayWidth}%` }} viewport={{ once: true }} transition={{ duration: 1, ease: "easeOut" }} className={`h-full rounded-r-full ${aBarColor}`} />
+          </>
         )}
       </div>
     </div>
