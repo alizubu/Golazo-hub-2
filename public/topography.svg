@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="600" height="600">
+  <defs>
+    <pattern id="topography" width="100" height="100" patternUnits="userSpaceOnUse">
+      <path d="M 0 50 Q 25 75 50 50 T 100 50" fill="none" stroke="#ffffff" stroke-width="0.5" opacity="0.5" />
+      <path d="M 0 30 Q 25 55 50 30 T 100 30" fill="none" stroke="#ffffff" stroke-width="0.5" opacity="0.3" />
+      <path d="M 0 70 Q 25 95 50 70 T 100 70" fill="none" stroke="#ffffff" stroke-width="0.5" opacity="0.3" />
+      <path d="M 0 10 Q 25 35 50 10 T 100 10" fill="none" stroke="#ffffff" stroke-width="0.5" opacity="0.2" />
+      <path d="M 0 90 Q 25 115 50 90 T 100 90" fill="none" stroke="#ffffff" stroke-width="0.5" opacity="0.2" />
+      
+      <!-- Cross contour lines -->
+      <path d="M 50 0 Q 75 25 50 50 T 50 100" fill="none" stroke="#ffffff" stroke-width="0.5" opacity="0.4" />
+      <path d="M 30 0 Q 55 25 30 50 T 30 100" fill="none" stroke="#ffffff" stroke-width="0.5" opacity="0.2" />
+      <path d="M 70 0 Q 95 25 70 50 T 70 100" fill="none" stroke="#ffffff" stroke-width="0.5" opacity="0.2" />
+      <path d="M 10 0 Q 35 25 10 50 T 10 100" fill="none" stroke="#ffffff" stroke-width="0.5" opacity="0.1" />
+      <path d="M 90 0 Q 115 25 90 50 T 90 100" fill="none" stroke="#ffffff" stroke-width="0.5" opacity="0.1" />
+      
+      <!-- Circles for peaks -->
+      <circle cx="25" cy="25" r="5" fill="none" stroke="#ffffff" stroke-width="0.5" opacity="0.6" />
+      <circle cx="25" cy="25" r="10" fill="none" stroke="#ffffff" stroke-width="0.5" opacity="0.4" />
+      <circle cx="75" cy="75" r="5" fill="none" stroke="#ffffff" stroke-width="0.5" opacity="0.6" />
+      <circle cx="75" cy="75" r="10" fill="none" stroke="#ffffff" stroke-width="0.5" opacity="0.4" />
+      <circle cx="75" cy="25" r="8" fill="none" stroke="#ffffff" stroke-width="0.5" opacity="0.5" />
+      <circle cx="25" cy="75" r="8" fill="none" stroke="#ffffff" stroke-width="0.5" opacity="0.5" />
+    </pattern>
+  </defs>
+  <rect width="100%" height="100%" fill="url(#topography)" />
+</svg>
