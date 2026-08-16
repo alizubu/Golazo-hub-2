@@ -95,12 +95,7 @@ export function speedToDuration(speed) {
   return `${Math.round(120 - (s / 100) * 112)}s`;
 }
 
-// ── Size → classes ───────────────────────────────────────────────────────────
-export const SIZE_CLASSES = {
-  compact: { container: 'h-[44px]', text: 'text-[11px]', badge: 'text-[9px] px-2 py-0.5', avatar: 18, gap: 'gap-1.5 mr-6', paddingY: 'py-0.5' },
-  normal:  { container: 'h-[56px]', text: 'text-[13px]', badge: 'text-[10px] px-2.5 py-1', avatar: 24, gap: 'gap-2.5 mr-10', paddingY: 'py-1' },
-  large:   { container: 'h-[72px]', text: 'text-base', badge: 'text-[11px] px-3 py-1.5', avatar: 30, gap: 'gap-3 mr-12', paddingY: 'py-1.5' },
-};
+
 
 export function getThemeStyles(themeId) {
   return THEMES.find(t => t.id === themeId) || THEMES[0];

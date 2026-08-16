@@ -67,7 +67,7 @@ import {
 } from '@/app/components/ui/popover';
 
 // Trophy template data — the 5 official premium trophies
-export const TROPHY_TEMPLATES = [
+const TROPHY_TEMPLATES = [
   { id: 'bb-championship', name: 'BB Championship', image: '/assets/trophies/BB-Champion.png', icon: '/assets/trophies/BB-Champion.png', defaultDesc: 'The ultimate prize. Crowned Champion of the BB League.', colorTheme: 'from-amber-400 to-yellow-600' },
   { id: 'ballon-dor', name: "Ballon d'Or", image: '/assets/trophies/BalanDor.png', icon: '/assets/trophies/BalanDor.png', defaultDesc: 'Awarded to the absolute best player in the world.', colorTheme: 'from-yellow-300 to-amber-500' },
   { id: 'golden-boot', name: 'Golden Boot', image: '/assets/trophies/Golden-boot.png', icon: '/assets/trophies/Golden-boot.png', defaultDesc: 'Awarded for scoring the most goals in the season.', colorTheme: 'from-yellow-500 to-orange-500' },
