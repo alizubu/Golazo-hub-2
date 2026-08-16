@@ -39,7 +39,11 @@ function MatchChip({ match, home, away, theme, isLive, onClick, showAvatars, pre
       {showtimeGoals && isLive && <div className="absolute inset-0 pointer-events-none shiny z-10" />}
 
       <div className="relative z-10 flex items-center gap-2.5">
-        {showAvatars && <Avatar p={home} size={22} />}
+        {showAvatars && (
+          <div className="relative rounded-full p-[2px] bg-black ring-1 ring-red-500 shadow-[0_0_8px_rgba(220,38,38,0.7)]">
+            <Avatar p={home} size={22} className="rounded-full" />
+          </div>
+        )}
         <span className="text-[12px] font-bold tracking-wide" style={{ color: theme.team }}>{home.name}</span>
         
         <div className="flex flex-col items-center">
@@ -53,7 +57,11 @@ function MatchChip({ match, home, away, theme, isLive, onClick, showAvatars, pre
         </div>
 
         <span className="text-[12px] font-bold tracking-wide" style={{ color: theme.team }}>{away.name}</span>
-        {showAvatars && <Avatar p={away} size={22} />}
+        {showAvatars && (
+          <div className="relative rounded-full p-[2px] bg-black ring-1 ring-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.7)]">
+            <Avatar p={away} size={22} className="rounded-full" />
+          </div>
+        )}
       </div>
       <div className="relative z-10 ml-1">
         <StatusTag status={isLive ? "LIVE" : "FT"} time={isLive ? (match.liveState?.clock ? `${Math.floor(match.liveState.clock / 60)}'` : "LIVE") : "FT"} theme={theme} />
