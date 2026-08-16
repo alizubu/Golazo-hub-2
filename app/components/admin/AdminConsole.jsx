@@ -585,7 +585,7 @@ function AdminMatchControl({ m, players, showToast, setTab, isPlayoff = false })
         <div className="absolute inset-y-0 right-0 w-2/3 bg-gradient-to-l from-emerald-500/20 to-transparent pointer-events-none opacity-50 group-hover:opacity-85 transition-opacity duration-700 blur-2xl" />
         
         {/* Layer 2: Flickering Grid */}
-        <FlickeringGrid className="z-0 absolute inset-0 [mask-image:radial-gradient(circle_at_center,white,transparent_80%)]" color="#ef4444" colorTo="#10b981" maxOpacity={0.2} flickerSpeed={0.5} gridSize={12} />
+        <FlickeringGrid className="z-0 absolute inset-0 [mask-image:radial-gradient(circle_at_center,white,transparent_80%)]" color="#ef4444" colorTo="#10b981" maxOpacity={0.12} flickerSpeed={0.5} gridSize={12} />
 
         {/* Layer 3: Magic UI Shine Border */}
         <BorderBeam size={300} duration={12} delay={9} colorFrom="#ef4444" colorTo="#10b981" />
