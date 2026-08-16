@@ -40,7 +40,7 @@ function MatchChip({ match, home, away, theme, isLive, onClick, showAvatars, pre
 
       <div className="relative z-10 flex items-center gap-2.5">
         {showAvatars && (
-          <div className="relative rounded-full ring-1 ring-red-500 shadow-[0_0_8px_rgba(220,38,38,0.7)]">
+          <div className="relative rounded-full ring-2 ring-red-500 shadow-[0_0_8px_rgba(220,38,38,0.7)]">
             <Avatar p={home} size={22} className="rounded-full !border-0" />
           </div>
         )}
@@ -58,7 +58,7 @@ function MatchChip({ match, home, away, theme, isLive, onClick, showAvatars, pre
 
         <span className="text-[12px] font-bold tracking-wide" style={{ color: theme.team }}>{away.name}</span>
         {showAvatars && (
-          <div className="relative rounded-full ring-1 ring-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.7)]">
+          <div className="relative rounded-full ring-2 ring-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.7)]">
             <Avatar p={away} size={22} className="rounded-full !border-0" />
           </div>
         )}

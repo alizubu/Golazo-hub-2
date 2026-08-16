@@ -567,20 +567,25 @@ function AdminMatchControl({ m, players, showToast, setTab, isPlayoff = false })
 
     return (
       <div className="relative flex flex-col p-5 sm:p-6 rounded-3xl bg-[#0a0b10] border border-white/5 shadow-2xl overflow-hidden group transition-all duration-500 hover:scale-[1.01]">
-        {/* Dual-Tone Aurora Glows */}
-        <div className="absolute inset-y-0 left-0 w-1/2 bg-gradient-to-r from-red-600/10 via-red-600/5 to-transparent pointer-events-none opacity-50 group-hover:opacity-80 transition-opacity duration-500" />
-        <div className="absolute inset-y-0 right-0 w-1/2 bg-gradient-to-l from-emerald-600/10 via-emerald-600/5 to-transparent pointer-events-none opacity-50 group-hover:opacity-80 transition-opacity duration-500" />
+        {/* Layer 1: Tactical Auroras */}
+        <div className="absolute inset-y-0 left-0 w-2/3 bg-gradient-to-r from-red-600/20 via-red-600/5 to-transparent pointer-events-none opacity-40 group-hover:opacity-70 transition-opacity duration-700 blur-xl" />
+        <div className="absolute inset-y-0 right-0 w-2/3 bg-gradient-to-l from-emerald-600/20 via-emerald-600/5 to-transparent pointer-events-none opacity-40 group-hover:opacity-70 transition-opacity duration-700 blur-xl" />
         
-        {/* Topographic Lines Background */}
+        {/* Layer 2: Micro-Dot Cyber Grid */}
         <div 
-          className="absolute inset-0 pointer-events-none opacity-20 mix-blend-screen rounded-3xl group-hover:opacity-30 transition-opacity duration-500"
+          className="absolute inset-0 pointer-events-none mix-blend-overlay opacity-40 group-hover:opacity-80 transition-opacity duration-700"
           style={{ 
-            backgroundImage: "url('/topography.svg')",
-            backgroundSize: "200px 200px",
-            backgroundPosition: "center center"
+            backgroundImage: "radial-gradient(rgba(255, 255, 255, 0.4) 1px, transparent 1px)",
+            backgroundSize: "16px 16px",
+            maskImage: "linear-gradient(to right, black 10%, transparent 45%, transparent 55%, black 90%)",
+            WebkitMaskImage: "linear-gradient(to right, black 10%, transparent 45%, transparent 55%, black 90%)"
           }} 
         />
 
+        {/* Layer 3: Glassmorphic Sweep */}
+        <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/[0.03] to-transparent -translate-x-[150%] group-hover:translate-x-[150%] transition-transform duration-1000 ease-in-out pointer-events-none" />
+
+        {/* Card Border Hover Sheen */}
         <div className="absolute -inset-[1px] rounded-3xl bg-gradient-to-r from-red-500/0 via-red-500/10 to-emerald-500/0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
 
         <div className="flex flex-col sm:flex-row items-center justify-between gap-4 w-full relative z-10">
@@ -589,7 +594,7 @@ function AdminMatchControl({ m, players, showToast, setTab, isPlayoff = false })
           <div className="flex flex-col sm:flex-row items-center gap-5 flex-1 w-full justify-start order-1">
             <div className="relative shrink-0">
               <div className="absolute -inset-1 bg-gradient-to-br from-red-600 to-rose-600 rounded-full blur-md opacity-40 group-hover:opacity-60 transition-opacity" />
-              <div className="relative rounded-full ring-2 ring-red-500 shadow-[0_0_20px_rgba(220,38,38,0.7)]">
+              <div className="relative rounded-full ring-4 ring-red-500 shadow-[0_0_20px_rgba(220,38,38,0.7)]">
                 <div className="relative rounded-full overflow-hidden">
                   <Avatar p={h} size={80} className="rounded-full !border-0" />
                   <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/30 to-transparent -translate-x-[150%] group-hover:translate-x-[150%] transition-transform duration-1000 ease-in-out pointer-events-none" />
@@ -636,7 +641,7 @@ function AdminMatchControl({ m, players, showToast, setTab, isPlayoff = false })
             </div>
             <div className="relative shrink-0 order-1 sm:order-2">
               <div className="absolute -inset-1 bg-gradient-to-br from-emerald-600 to-teal-600 rounded-full blur-md opacity-40 group-hover:opacity-60 transition-opacity" />
-              <div className="relative rounded-full ring-2 ring-emerald-500 shadow-[0_0_20px_rgba(16,185,129,0.7)]">
+              <div className="relative rounded-full ring-4 ring-emerald-500 shadow-[0_0_20px_rgba(16,185,129,0.7)]">
                 <div className="relative rounded-full overflow-hidden">
                   <Avatar p={a} size={80} className="rounded-full !border-0" />
                   <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/30 to-transparent -translate-x-[150%] group-hover:translate-x-[150%] transition-transform duration-1000 ease-in-out pointer-events-none" />
