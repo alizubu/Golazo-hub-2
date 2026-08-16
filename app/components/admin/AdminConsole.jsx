@@ -345,18 +345,28 @@ export function AdminPlayers({ players, showToast, session, managerPermissions }
 export function AdminMatches({ matches, activeSeason, players, showToast, setTab }) {
   const [isExporting, setIsExporting] = React.useState(false);
   const captureRef = React.useRef(null);
-  const [orderedMatches, setOrderedMatches] = React.useState([]);
+  const [orderedMatches, setOrderedMatches] = React.useState(() => {
+    return activeSeason ? matches.filter(m => m.seasonId === activeSeason.id) : [];
+  });
+  const [prevMatches, setPrevMatches] = React.useState(matches);
+  const [prevSeasonId, setPrevSeasonId] = React.useState(activeSeason?.id);
 
-  React.useEffect(() => {
+  // Sync external matches prop into local reorderable state during render (avoids cascading effect renders)
+  if (matches !== prevMatches || activeSeason?.id !== prevSeasonId) {
+    setPrevMatches(matches);
+    setPrevSeasonId(activeSeason?.id);
     if (activeSeason) {
       const tMatches = matches.filter((m) => m.seasonId === activeSeason.id);
-      setOrderedMatches(prev => {
-        if (prev.length === 0 || prev.length !== tMatches.length) return tMatches;
+      if (orderedMatches.length === 0 || orderedMatches.length !== tMatches.length) {
+        setOrderedMatches(tMatches);
+      } else {
         const byId = Object.fromEntries(tMatches.map(m => [m.id, m]));
-        return prev.map(m => byId[m.id]).filter(Boolean);
-      });
+        setOrderedMatches(orderedMatches.map(m => byId[m.id]).filter(Boolean));
+      }
+    } else {
+      setOrderedMatches([]);
     }
-  }, [matches, activeSeason]);
+  }
 
   if (!activeSeason) return <EmptyState text="Start a season first." />;
   const unplayedMatches = orderedMatches.filter(m => m.status === 'scheduled');
