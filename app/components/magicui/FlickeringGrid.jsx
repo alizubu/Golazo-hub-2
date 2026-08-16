@@ -7,6 +7,7 @@ export const FlickeringGrid = ({
   className,
   gridSize = 24,
   color = "#ffffff",
+  colorTo = null,
   flickerSpeed = 0.5,
   maxOpacity = 0.15,
 }) => {
@@ -38,7 +39,8 @@ export const FlickeringGrid = ({
         : { r: 255, g: 255, b: 255 };
     };
 
-    const rgb = hexToRgb(color);
+    const rgbFrom = hexToRgb(color);
+    const rgbTo = colorTo ? hexToRgb(colorTo) : rgbFrom;
 
     const init = () => {
       width = canvas.offsetWidth;
@@ -76,8 +78,19 @@ export const FlickeringGrid = ({
         const x = (i % cols) * gridSize;
         const y = Math.floor(i / cols) * gridSize;
 
+        let currentR = rgbFrom.r;
+        let currentG = rgbFrom.g;
+        let currentB = rgbFrom.b;
+
+        if (colorTo) {
+          const ratio = x / width;
+          currentR = Math.round(rgbFrom.r * (1 - ratio) + rgbTo.r * ratio);
+          currentG = Math.round(rgbFrom.g * (1 - ratio) + rgbTo.g * ratio);
+          currentB = Math.round(rgbFrom.b * (1 - ratio) + rgbTo.b * ratio);
+        }
+
         const currentOpacity = grid[i] * maxOpacity;
-        ctx.fillStyle = `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, ${currentOpacity})`;
+        ctx.fillStyle = `rgba(${currentR}, ${currentG}, ${currentB}, ${currentOpacity})`;
         // Subtract 1 from gridSize for the gap between squares
         ctx.fillRect(x, y, gridSize - 1, gridSize - 1);
       }
@@ -91,7 +104,7 @@ export const FlickeringGrid = ({
       cancelAnimationFrame(animationFrameId);
       resizeObserver.disconnect();
     };
-  }, [gridSize, color, flickerSpeed, maxOpacity]);
+  }, [gridSize, color, colorTo, flickerSpeed, maxOpacity]);
 
   return (
     <canvas
