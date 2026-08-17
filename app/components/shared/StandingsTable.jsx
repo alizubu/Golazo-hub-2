@@ -130,7 +130,7 @@ const FormDots = ({ form }) => {
 };
 
 
-export default function StandingsTable({ matches, players, seasonId, me, onPlayerClick, onH2HClick, config = {} }) {
+export default function StandingsTable({ matches, players, seasonId, me, onPlayerClick, onH2HClick, config = {}, headerLeft }) {
   const standings = computeStandings(matches, players, seasonId, config);
   const tableRef = useRef(null);
   const [isExporting, setIsExporting] = useState(false);
@@ -164,13 +164,14 @@ export default function StandingsTable({ matches, players, seasonId, me, onPlaye
   };
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-2">
       {/* Action Bar */}
-      <div className="flex justify-end">
+      <div className="flex justify-between items-center mb-1">
+        <div className="flex-1">{headerLeft}</div>
         <button 
           onClick={handleExport}
           disabled={isExporting}
-          className="flex items-center gap-2 px-4 py-2 rounded-lg bg-pitch/20 text-pitch-bright hover:bg-pitch/30 transition-colors border border-pitch/30 text-xs font-bold uppercase tracking-wider disabled:opacity-50"
+          className="flex items-center gap-2 px-4 py-2 rounded-lg bg-pitch/20 text-pitch-bright hover:bg-pitch/30 transition-colors border border-pitch/30 text-xs font-bold uppercase tracking-wider disabled:opacity-50 shadow-sm"
         >
           {isExporting ? <Loader2 size={14} className="animate-spin" /> : <Download size={14} />}
           Share Graphic
@@ -181,7 +182,7 @@ export default function StandingsTable({ matches, players, seasonId, me, onPlaye
       <div ref={tableRef} className="overflow-x-auto rounded-xl border border-border/40 bg-card shadow-[0_8px_30px_rgb(0,0,0,0.12)]">
         <table className="w-full text-left border-collapse text-sm">
           <thead>
-            <tr className="border-b-2 border-border/50 bg-secondary/80 font-heading uppercase tracking-widest text-[10px] text-muted-foreground">
+            <tr className="border-b-2 border-border/50 bg-secondary/80 font-heading uppercase tracking-widest text-[11px] text-muted-foreground">
               <th className="py-4 px-2 w-16 text-center">#</th>
               <th className="py-4 px-2">Player</th>
               <th className="py-4 px-2 text-center w-12">P</th>
@@ -191,7 +192,7 @@ export default function StandingsTable({ matches, players, seasonId, me, onPlaye
               <th className="py-4 px-2 text-center w-12">GF</th>
               <th className="py-4 px-2 text-center w-12">GA</th>
               <th className="py-4 px-2 text-center w-12">GD</th>
-              <th className="py-4 px-2 text-center font-bold text-foreground text-[11px] tracking-[0.2em]">PTS</th>
+              <th className="py-4 px-2 text-center font-bold text-foreground text-xs tracking-[0.2em]">PTS</th>
               <th className="py-4 px-2 text-center w-36">Form</th>
             </tr>
           </thead>
@@ -234,26 +235,26 @@ export default function StandingsTable({ matches, players, seasonId, me, onPlaye
                           transition={{ type: "spring", stiffness: 300 }}
                           style={{ perspective: 1000 }}
                         >
-                          <Avatar p={s} size={28} />
+                          <Avatar p={s} size={32} />
                           {badgeUrl && (
                             <div className="absolute -bottom-1 -right-1 bg-transparent rounded-full p-0.5">
-                              <img src={badgeUrl} alt="badge" className="w-4 h-4 object-contain drop-shadow-md" />
+                              <img src={badgeUrl} alt="badge" className="w-5 h-5 object-contain drop-shadow-md" />
                             </div>
                           )}
                         </motion.div>
-                        <span className="font-bold text-foreground font-heading text-[13px] group-hover:underline">{s.name}</span>
+                        <span className="font-bold text-foreground font-heading text-[15px] group-hover:underline">{s.name}</span>
                       </div>
                     </td>
-                    <td className="py-5 px-2 text-center font-score text-muted-foreground font-semibold text-[13px]">{s.played}</td>
-                    <td className="py-5 px-2 text-center font-score text-muted-foreground font-semibold text-[13px]">{s.won}</td>
-                    <td className="py-5 px-2 text-center font-score text-muted-foreground font-semibold text-[13px]">{s.drawn}</td>
-                    <td className="py-5 px-2 text-center font-score text-muted-foreground font-semibold text-[13px]">{s.lost}</td>
-                    <td className="py-5 px-2 text-center font-score text-muted-foreground font-semibold text-[13px]">{s.gf}</td>
-                    <td className="py-5 px-2 text-center font-score text-muted-foreground font-semibold text-[13px]">{s.ga}</td>
-                    <td className={`py-5 px-2 text-center font-score font-bold text-[13px] ${s.gd > 0 ? 'text-emerald-500' : s.gd < 0 ? 'text-red-500' : 'text-muted-foreground'}`}>
+                    <td className="py-5 px-2 text-center font-score text-muted-foreground font-semibold text-[15px]">{s.played}</td>
+                    <td className="py-5 px-2 text-center font-score text-muted-foreground font-semibold text-[15px]">{s.won}</td>
+                    <td className="py-5 px-2 text-center font-score text-muted-foreground font-semibold text-[15px]">{s.drawn}</td>
+                    <td className="py-5 px-2 text-center font-score text-muted-foreground font-semibold text-[15px]">{s.lost}</td>
+                    <td className="py-5 px-2 text-center font-score text-muted-foreground font-semibold text-[15px]">{s.gf}</td>
+                    <td className="py-5 px-2 text-center font-score text-muted-foreground font-semibold text-[15px]">{s.ga}</td>
+                    <td className={`py-5 px-2 text-center font-score font-bold text-[15px] ${s.gd > 0 ? 'text-emerald-500' : s.gd < 0 ? 'text-red-500' : 'text-muted-foreground'}`}>
                       {s.gd > 0 ? `+${s.gd}` : s.gd}
                     </td>
-                    <td className="py-5 px-2 text-center font-score font-bold text-pitch-bright text-xl drop-shadow-[0_0_8px_rgba(255,255,255,0.15)]">{s.pts}</td>
+                    <td className="py-5 px-2 text-center font-score font-bold text-pitch-bright text-2xl drop-shadow-[0_0_8px_rgba(255,255,255,0.15)]">{s.pts}</td>
                     <td className="py-5 px-2 text-center">
                       <FormDots form={s.form} />
                     </td>

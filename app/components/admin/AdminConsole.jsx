@@ -2241,16 +2241,22 @@ export function AdminSeason({ activeSeason, seasons = [], matches = [], players 
 
       <div className="flex flex-col gap-6">
            <Card className="p-6 flex-1 w-full">
-             <div className="flex items-center justify-between mb-6">
-                <SectionTitle icon={ListOrdered}>League Standings</SectionTitle>
-                <div className="text-xs font-score text-muted-foreground flex items-center gap-2">
-                   <div className="w-2 h-2 rounded-full bg-success"></div> Top 4 Qualify
-                </div>
-             </div>
-             
              <div className="overflow-x-auto">
                <div className="hidden md:block">
-                 <StandingsTable matches={matches} players={players} seasonId={activeSeason.id} config={activeSeason.config} />
+                 <StandingsTable 
+                   matches={matches} 
+                   players={players} 
+                   seasonId={activeSeason.id} 
+                   config={activeSeason.config} 
+                   headerLeft={
+                     <div className="flex flex-col gap-1 px-2">
+                       <SectionTitle icon={ListOrdered} className="mb-0">League Standings</SectionTitle>
+                       <div className="text-[11px] font-score text-muted-foreground flex items-center gap-2 uppercase tracking-widest font-bold">
+                          <div className="w-1.5 h-1.5 rounded-full bg-success"></div> Top 4 Qualify
+                       </div>
+                     </div>
+                   }
+                 />
                </div>
                
                {/* Mobile Card View */}
