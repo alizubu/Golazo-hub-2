@@ -461,8 +461,8 @@ export function AdminMatches({ matches, activeSeason, players, showToast, setTab
           </div>
         </div>
         
-        <div className="flex-1 flex flex-col p-2 sm:p-6 bg-secondary/10">
-          <Reorder.Group axis="y" values={orderedMatches} onReorder={setOrderedMatches} className="grid gap-2 sm:gap-4">
+        <div className="flex-1 flex flex-col px-0 py-2 sm:p-6 bg-secondary/10">
+          <Reorder.Group axis="y" values={orderedMatches} onReorder={setOrderedMatches} className="grid gap-2 sm:gap-4 px-0 sm:px-0">
             {orderedMatches.map((m, i) => (
               <Reorder.Item key={m.id} value={m} dragListener={!isMobile} className={`relative ${!isMobile ? 'cursor-grab active:cursor-grabbing' : ''}`}>
                 <FadeIn delay={Math.min(i * 0.05, 0.5)}>
@@ -579,16 +579,13 @@ function AdminMatchControl({ m, players, showToast, setTab, isPlayoff = false })
     const aFlagUrl = getPlayerIdentityBadgeUrl(a);
 
     return (
-      <div className="relative flex flex-col p-3 sm:p-6 rounded-3xl bg-[#0a0b10] border border-white/5 shadow-2xl overflow-hidden group transition-all duration-500 hover:scale-[1.01]">
+      <div className="relative flex flex-col px-1.5 py-3 sm:p-6 rounded-2xl sm:rounded-3xl bg-[#0a0b10] border border-white/5 shadow-2xl overflow-hidden group transition-all duration-500 hover:scale-[1.01]">
         {/* Layer 1: Tactical Auroras */}
         <div className="absolute inset-y-0 left-0 w-2/3 bg-gradient-to-r from-red-500/20 to-transparent pointer-events-none opacity-50 group-hover:opacity-85 transition-opacity duration-700 blur-2xl" />
         <div className="absolute inset-y-0 right-0 w-2/3 bg-gradient-to-l from-emerald-500/20 to-transparent pointer-events-none opacity-50 group-hover:opacity-85 transition-opacity duration-700 blur-2xl" />
         
         {/* Layer 2: Flickering Grid */}
         <FlickeringGrid className="z-0 absolute inset-0 [mask-image:radial-gradient(circle_at_center,white,transparent_80%)]" color="#ef4444" colorTo="#10b981" maxOpacity={0.12} flickerSpeed={0.5} gridSize={12} />
-
-        {/* Layer 3: Magic UI Shine Border */}
-        <BorderBeam size={300} duration={12} delay={9} colorFrom="#ef4444" colorTo="#10b981" />
 
         {/* Layer 3: Glassmorphic Sweep */}
         <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/[0.03] to-transparent -translate-x-[150%] group-hover:translate-x-[150%] transition-transform duration-1000 ease-in-out pointer-events-none" />
