@@ -65,15 +65,6 @@ export default function TournamentControlPanel({ season, showToast, session, man
 
   const controls = [
     {
-      id: 'reset-standings',
-      label: 'Reset Standings',
-      desc: 'Wipes all match scores to 0-0 but keeps the fixture schedule.',
-      icon: RotateCcw,
-      action: () => handleAction(adminResetStandings, 'Standings reset!'),
-      color: 'text-yellow-500',
-      bg: 'bg-yellow-500/10'
-    },
-    {
       id: 'restart-season',
       label: 'Season Restart',
       desc: 'Deletes playoffs and wipes league standings back to Week 1.',
@@ -81,15 +72,6 @@ export default function TournamentControlPanel({ season, showToast, session, man
       action: () => handleAction(adminRestartSeason, 'Season restarted!'),
       color: 'text-blue-500',
       bg: 'bg-blue-500/10'
-    },
-    {
-      id: 'reset-fixtures',
-      label: 'Reset Fixture',
-      desc: 'Deletes all matches and regenerates the league schedule with current players.',
-      icon: Shuffle,
-      action: () => handleAction(adminResetFixtures, 'Fixtures regenerated!'),
-      color: 'text-purple-500',
-      bg: 'bg-purple-500/10'
     },
     {
       id: 'force-end',
@@ -125,56 +107,37 @@ export default function TournamentControlPanel({ season, showToast, session, man
       <div className="flex items-center justify-between">
         <SectionTitle icon={AlertTriangle} className="text-red-400">Tournament Controls</SectionTitle>
       </div>
-      {/* Desktop Grid View */}
-      <div className="hidden md:grid grid-cols-2 lg:grid-cols-3 gap-4">
+      {/* Compact Danger Zone List */}
+      <div className="flex flex-col border border-red-500/20 bg-red-500/[0.02] rounded-2xl overflow-hidden divide-y divide-red-500/10">
         {controls.map((ctrl, i) => (
-          <FadeIn key={ctrl.id} delay={i * 0.1}>
-            <MagicCard className={`p-4 flex flex-col justify-between h-full border transition-colors ${ctrl.id === 'rename-season' ? 'border-border hover:border-slate-500/30' : 'border-red-500/10 hover:border-red-500/30'}`}>
-              <div>
-                <div className="flex items-center gap-3 mb-2">
-                  <div className={`p-2 rounded-lg ${ctrl.bg}`}>
-                    <ctrl.icon className={ctrl.color} size={20} />
-                  </div>
-                  <h3 className="font-bold">{ctrl.label}</h3>
-                </div>
-                <p className="text-xs text-muted-foreground mb-4">{ctrl.desc}</p>
-              </div>
-              
-              {ctrl.id === 'edit-season' ? (
-                <Btn variant="outline" className="w-full text-xs" onClick={ctrl.action}>
+          <FadeIn key={ctrl.id} delay={i * 0.05} className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 sm:px-5 hover:bg-white/[0.02] transition-colors group">
+            <div className="flex items-center gap-3.5">
+               <div className={`p-2.5 rounded-xl shrink-0 transition-transform group-hover:scale-105 ${ctrl.bg}`}>
+                 <ctrl.icon className={ctrl.color} size={18} />
+               </div>
+               <div>
+                  <h3 className="font-bold text-sm text-foreground leading-tight mb-0.5">{ctrl.label}</h3>
+                  <p className="text-xs text-muted-foreground">{ctrl.desc}</p>
+               </div>
+            </div>
+            
+            <div className="shrink-0 flex sm:justify-end ml-11 sm:ml-0">
+              {ctrl.id === 'edit-season' || ctrl.id === 'rename-season' ? (
+                <Btn variant="outline" className="text-xs py-2 px-5 bg-background border-white/10 hover:bg-secondary/50" onClick={ctrl.action}>
                   {ctrl.label}
                 </Btn>
               ) : (
                 <Btn 
                   variant={ctrl.id === 'delete-season' ? 'danger' : 'outline'} 
-                  className="w-full text-xs" 
+                  className={`text-xs py-2 px-5 ${ctrl.id !== 'delete-season' ? 'bg-background border-white/10 hover:bg-secondary/50' : ''}`} 
                   disabled={loading}
                   onClick={() => setActiveDialog(ctrl.id)}
                 >
                   {ctrl.label}
                 </Btn>
               )}
-            </MagicCard>
+            </div>
           </FadeIn>
-        ))}
-      </div>
-
-      {/* Mobile iOS-style Action List */}
-      <div className="md:hidden flex flex-col bg-secondary/20 border border-border/50 rounded-2xl overflow-hidden divide-y divide-border/40">
-        {controls.map((ctrl, i) => (
-          <button 
-            key={ctrl.id}
-            onClick={() => ctrl.id === 'edit-season' ? ctrl.action() : setActiveDialog(ctrl.id)}
-            className="flex items-center gap-4 p-4 text-left active:bg-white/5 transition-colors group"
-          >
-            <div className={`p-2.5 rounded-xl shrink-0 transition-colors ${ctrl.bg} group-active:scale-95`}>
-              <ctrl.icon className={ctrl.color} size={18} />
-            </div>
-            <div className="flex-1 min-w-0 pr-4">
-              <h3 className="font-bold text-[15px] text-foreground leading-tight mb-0.5">{ctrl.label}</h3>
-              <p className="text-[11px] text-muted-foreground leading-snug line-clamp-2">{ctrl.desc}</p>
-            </div>
-          </button>
         ))}
       </div>
       
