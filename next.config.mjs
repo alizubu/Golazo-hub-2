@@ -11,6 +11,7 @@ const nextConfig = {
       },
     ],
   },
+  serverExternalPackages: ['sharp'],
 };
 
 const withPWA = withPWAInit({
