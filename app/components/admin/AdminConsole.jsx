@@ -2168,12 +2168,12 @@ export function AdminSeason({ activeSeason, seasons = [], matches = [], players 
   return (
     <div className="flex flex-col w-full h-full gap-6">
       {/* Quick Actions Bar */}
-      <div className="flex flex-wrap items-center gap-3 bg-secondary/10 p-2 rounded-2xl border border-white/5 w-fit">
+      <div className="flex flex-wrap items-center gap-3 bg-secondary/10 p-2 rounded-2xl border border-white/5 w-full">
         <button 
           onClick={!hasFixtures ? handleGenerateFixtures : () => showToast("Fixtures already exist")}
-          className={`flex items-center gap-2 px-4 py-2.5 rounded-xl transition-all border border-transparent hover:border-white/10 ${!hasFixtures ? 'bg-gold/10 hover:bg-gold/20 text-foreground' : 'bg-secondary/20 hover:bg-secondary/30 text-muted-foreground opacity-60'}`}
+          className={`flex items-center gap-2 px-4 py-2.5 rounded-xl transition-all border ${!hasFixtures ? 'bg-gold/10 hover:bg-gold/20 text-foreground border-transparent hover:border-gold/20' : 'bg-gold/5 text-gold/60 border-gold/5 cursor-not-allowed hover:bg-gold/10'}`}
         >
-          <Calendar size={16} className={!hasFixtures ? 'text-gold' : 'text-muted-foreground'} />
+          <Calendar size={16} className={!hasFixtures ? 'text-gold' : 'text-gold/60'} />
           <span className="text-xs sm:text-sm font-bold tracking-wide">Generate Fixtures</span>
         </button>
         
