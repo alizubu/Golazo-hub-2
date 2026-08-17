@@ -2167,76 +2167,82 @@ export function AdminSeason({ activeSeason, seasons = [], matches = [], players 
 
   return (
     <div className="flex flex-col w-full h-full gap-6">
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <MagicCard className="p-5 flex flex-col items-center justify-center gap-3 hover:bg-secondary/80 cursor-pointer transition-colors group" onClick={!hasFixtures ? handleGenerateFixtures : () => showToast("Fixtures already exist")}>
-          <div className={`p-3 rounded-full ${!hasFixtures ? 'bg-gold/20 text-gold' : 'bg-secondary text-muted-foreground opacity-50'}`}>
-             <Calendar size={24} />
-          </div>
-          <span className="text-sm font-bold tracking-wide">Generate Fixtures</span>
-        </MagicCard>
+      {/* Quick Actions Bar */}
+      <div className="flex flex-wrap items-center gap-3 bg-secondary/10 p-2 rounded-2xl border border-white/5 w-fit">
+        <button 
+          onClick={!hasFixtures ? handleGenerateFixtures : () => showToast("Fixtures already exist")}
+          className={`flex items-center gap-2 px-4 py-2.5 rounded-xl transition-all border border-transparent hover:border-white/10 ${!hasFixtures ? 'bg-gold/10 hover:bg-gold/20 text-foreground' : 'bg-secondary/20 hover:bg-secondary/30 text-muted-foreground opacity-60'}`}
+        >
+          <Calendar size={16} className={!hasFixtures ? 'text-gold' : 'text-muted-foreground'} />
+          <span className="text-xs sm:text-sm font-bold tracking-wide">Generate Fixtures</span>
+        </button>
         
-        <MagicCard className="p-5 flex flex-col items-center justify-center gap-3 hover:bg-secondary/80 cursor-pointer transition-colors group" onClick={() => {
+        <button 
+          onClick={() => {
             setEditName(activeSeason.name);
             setEditType(activeSeason.type || "League (Single)");
             setShowEditDialog(true);
-        }}>
-          <div className="p-3 rounded-full bg-pitch-bright/20 text-pitch-bright">
-             <Edit2 size={24} />
-          </div>
-          <span className="text-sm font-bold tracking-wide">Edit Season</span>
-        </MagicCard>
+          }}
+          className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-pitch-bright/10 hover:bg-pitch-bright/20 border border-transparent hover:border-pitch-bright/20 text-foreground transition-all"
+        >
+          <Edit2 size={16} className="text-pitch-bright" />
+          <span className="text-xs sm:text-sm font-bold tracking-wide">Edit Season</span>
+        </button>
         
-        <MagicCard className="p-5 flex flex-col items-center justify-center gap-3 hover:bg-secondary/80 cursor-pointer transition-colors group" onClick={() => setTab && setTab("admin/matches")}>
-          <div className="p-3 rounded-full bg-claret/20 text-claret">
-             <Swords size={24} />
-          </div>
-          <span className="text-sm font-bold tracking-wide">Manage Playoffs</span>
-        </MagicCard>
+        <button 
+          onClick={() => setTab && setTab("admin/matches")}
+          className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-claret/10 hover:bg-claret/20 border border-transparent hover:border-claret/20 text-foreground transition-all"
+        >
+          <Swords size={16} className="text-claret" />
+          <span className="text-xs sm:text-sm font-bold tracking-wide">Manage Playoffs</span>
+        </button>
 
         {activeSeason.type?.includes("Playoffs") && isCompleted && (
-          <MagicCard className="p-5 flex flex-col items-center justify-center gap-3 hover:bg-secondary/80 cursor-pointer transition-colors group" onClick={async () => {
-             const tMatches = matches.filter((m) => m.seasonId === activeSeason.id && m.round === "league" && m.status === "completed");
-             const top4 = standings.slice(0, 4).map(s => s.id);
-             if (top4.length < 4) return showToast("Not enough players for playoffs (need 4)");
-             
-             const res = await generatePlayoffs(activeSeason.id, top4);
-             if (res.error) showToast(res.error);
-             else { showToast("Playoff bracket generated!"); setTab("admin/matches"); }
-          }}>
-            <div className="p-3 rounded-full bg-gold/20 text-gold">
-               <Swords size={24} />
-            </div>
-            <span className="text-sm font-bold tracking-wide">Start Playoffs</span>
-          </MagicCard>
+          <button 
+            onClick={async () => {
+               const tMatches = matches.filter((m) => m.seasonId === activeSeason.id && m.round === "league" && m.status === "completed");
+               const top4 = standings.slice(0, 4).map(s => s.id);
+               if (top4.length < 4) return showToast("Not enough players for playoffs (need 4)");
+               
+               const res = await generatePlayoffs(activeSeason.id, top4);
+               if (res.error) showToast(res.error);
+               else { showToast("Playoff bracket generated!"); setTab("admin/matches"); }
+            }}
+            className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gold/10 hover:bg-gold/20 border border-transparent hover:border-gold/20 text-foreground transition-all"
+          >
+            <Swords size={16} className="text-gold" />
+            <span className="text-xs sm:text-sm font-bold tracking-wide">Start Playoffs</span>
+          </button>
         )}
         
-        <MagicCard className="p-5 flex flex-col items-center justify-center gap-3 hover:bg-secondary/80 cursor-pointer transition-colors group" onClick={async () => {
-            if (!isCompleted && !confirm("League phase is not 100% complete. End and archive anyway?")) return;
-            if (activeSeason.type?.includes("Playoffs")) {
-              const playoffMatches = matches.filter(m => m.seasonId === activeSeason.id && m.round !== "league");
-              const incompletePlayoffs = playoffMatches.filter(m => m.status !== "completed");
-              if (playoffMatches.length === 0) return showToast("Please start and finish playoffs first.");
-              if (incompletePlayoffs.length > 0) return showToast("Finish all playoff matches first.");
-            }
+        <button 
+          onClick={async () => {
+              if (!isCompleted && !confirm("League phase is not 100% complete. End and archive anyway?")) return;
+              if (activeSeason.type?.includes("Playoffs")) {
+                const playoffMatches = matches.filter(m => m.seasonId === activeSeason.id && m.round !== "league");
+                const incompletePlayoffs = playoffMatches.filter(m => m.status !== "completed");
+                if (playoffMatches.length === 0) return showToast("Please start and finish playoffs first.");
+                if (incompletePlayoffs.length > 0) return showToast("Finish all playoff matches first.");
+              }
 
-            if (!confirm("Are you ready to begin the Awards Ceremony?")) return;
-            
-            // Pre-fill selections
-            const prefilled = {};
-            if (standings.length > 0) prefilled['bb-championship'] = standings[0].id;
-            
-            // Calculate Golden Boot based on goals (rough estimate from standings)
-            const topScorer = [...standings].sort((a,b) => b.gf - a.gf)[0];
-            if (topScorer) prefilled['golden-boot'] = topScorer.id;
+              if (!confirm("Are you ready to begin the Awards Ceremony?")) return;
+              
+              // Pre-fill selections
+              const prefilled = {};
+              if (standings.length > 0) prefilled['bb-championship'] = standings[0].id;
+              
+              // Calculate Golden Boot based on goals (rough estimate from standings)
+              const topScorer = [...standings].sort((a,b) => b.gf - a.gf)[0];
+              if (topScorer) prefilled['golden-boot'] = topScorer.id;
 
-            setAwardSelections(prefilled);
-            setShowAwardsCeremony(true);
-        }}>
-          <div className="p-3 rounded-full bg-muted-foreground/20 text-muted-foreground">
-             <Archive size={24} />
-          </div>
-          <span className="text-sm font-bold tracking-wide">End Season</span>
-        </MagicCard>
+              setAwardSelections(prefilled);
+              setShowAwardsCeremony(true);
+          }}
+          className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-muted-foreground/10 hover:bg-muted-foreground/20 border border-transparent hover:border-white/10 text-foreground transition-all ml-auto"
+        >
+          <Archive size={16} className="text-muted-foreground" />
+          <span className="text-xs sm:text-sm font-bold tracking-wide">End Season</span>
+        </button>
       </div>
 
       <div className="flex flex-col gap-6">
