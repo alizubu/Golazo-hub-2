@@ -475,105 +475,7 @@ function TopPlayersHorizontal({ matches, players, activeSeason }) {
   );
 }
 
-// 10. Dashboard Stats
-function DashboardStatistics({ matches, activeSeason }) {
-  if (!activeSeason) return null;
-  const completed = matches.filter(m => m.seasonId === activeSeason.id && m.status === 'completed');
-  const totalGoals = completed.reduce((acc, m) => acc + (m.homeScore || 0) + (m.awayScore || 0), 0);
-  
-  let totalCards = 0;
-  let totalPoss = 0, possCount = 0;
-  let totalRating = 0, ratingCount = 0;
 
-  completed.forEach(m => {
-    if (m.stats?.yellowCards?.a) totalCards += Number(m.stats.yellowCards.a);
-    if (m.stats?.yellowCards?.b) totalCards += Number(m.stats.yellowCards.b);
-    if (m.stats?.redCards?.a) totalCards += Number(m.stats.redCards.a);
-    if (m.stats?.redCards?.b) totalCards += Number(m.stats.redCards.b);
-
-    if (m.stats?.possession?.a) { totalPoss += Number(m.stats.possession.a); possCount++; }
-    if (m.stats?.possession?.b) { totalPoss += Number(m.stats.possession.b); possCount++; }
-
-    if (m.stats?.ratings?.a) { totalRating += parseFloat(m.stats.ratings.a); ratingCount++; }
-    if (m.stats?.ratings?.b) { totalRating += parseFloat(m.stats.ratings.b); ratingCount++; }
-  });
-
-  const avgRatingStr = ratingCount > 0 ? (totalRating / ratingCount).toFixed(1) : "7.0";
-  const maxPossStr = possCount > 0 ? `${Math.round(totalPoss / possCount)}%` : "50%";
-
-  const stats = [
-    { label: "Total Goals", value: totalGoals },
-    { label: "Total Cards", value: totalCards },
-    { label: "Average Rating", value: avgRatingStr },
-    { label: "Avg Possession", value: maxPossStr }
-  ];
-
-  return (
-    <Card className="p-6 h-full">
-      <SectionTitle icon={BarChart2}>Season Statistics</SectionTitle>
-      <div className="grid grid-cols-2 gap-4 mt-4 h-full pb-4">
-        {stats.map((s, i) => (
-          <div key={i} className="flex flex-col items-center justify-center text-center p-4 bg-secondary/10 border border-border/30 rounded-lg">
-            <div className="text-2xl font-bold font-score text-foreground mb-1">{s.value}</div>
-            <div className="text-[10px] uppercase tracking-widest text-muted-foreground font-semibold">{s.label}</div>
-          </div>
-        ))}
-      </div>
-    </Card>
-  );
-}
-
-// 11. Timeline
-function DashboardTimeline({ activeSeason, matches }) {
-  if (!activeSeason) return null;
-  const tMatches = matches.filter(m => m.seasonId === activeSeason.id);
-  const hasFixtures = tMatches.length > 0;
-  const completedCount = tMatches.filter(m => m.status === 'completed').length;
-  const hasPlayoffs = tMatches.some(m => m.round !== 'league');
-  const isArchived = activeSeason.isArchived || activeSeason.status === 'Archived';
-
-  const steps = [
-    { label: "Season Created", active: true, desc: "Tournament initialized" },
-    { label: "Fixtures Generated", active: hasFixtures, desc: "Schedule ready" },
-    { label: "League Running", active: hasFixtures && completedCount > 0, desc: "Matches in progress" },
-    { label: "Playoffs / Finals", active: hasPlayoffs || isArchived, desc: "Championship stage" }
-  ];
-
-  return (
-    <Card className="p-6 h-full flex flex-col justify-center">
-      <SectionTitle icon={Activity}>Season Timeline</SectionTitle>
-      <div className="mt-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6 sm:gap-2 relative w-full">
-        {/* Horizontal line for Desktop */}
-        <div className="hidden sm:block absolute top-3 left-[12%] right-[12%] h-0.5 bg-border/60 z-0">
-          <div className="h-full bg-pitch transition-all duration-1000 shadow-[0_0_10px_rgba(41,193,121,0.5)]" style={{ width: `${(steps.filter(s => s.active).length - 1) / (steps.length - 1) * 100}%` }} />
-        </div>
-        
-        {/* Vertical line for Mobile */}
-        <div className="sm:hidden absolute top-3 bottom-3 left-3 w-0.5 bg-border/60 z-0">
-          <div className="w-full bg-pitch transition-all duration-1000 shadow-[0_0_10px_rgba(41,193,121,0.5)]" style={{ height: `${(steps.filter(s => s.active).length - 1) / (steps.length - 1) * 100}%` }} />
-        </div>
-
-        {steps.map((s, i) => (
-          <div key={i} className="flex sm:flex-col items-start sm:items-center gap-4 sm:gap-2 flex-1 relative z-10 w-full sm:w-auto">
-            <div className={`w-6 h-6 mt-0.5 sm:mt-0 shrink-0 rounded-full flex items-center justify-center border-2 transition-all ${
-              s.active ? 'bg-pitch border-pitch text-background shadow-lg shadow-pitch/30 ring-4 ring-pitch/20' : 'bg-background border-border/80 text-muted-foreground'
-            }`}>
-              {s.active ? <CheckCircle2 size={12} className="text-background" /> : <span className="text-[10px] font-bold">{i + 1}</span>}
-            </div>
-            <div className="flex flex-col sm:items-center text-left sm:text-center min-w-0 flex-1 sm:w-full sm:px-1">
-              <span className={`text-sm sm:text-xs font-bold font-heading leading-tight break-words ${s.active ? 'text-foreground' : 'text-muted-foreground'}`}>
-                {s.label}
-              </span>
-              <span className="text-[11px] sm:text-[10px] text-muted-foreground mt-1 sm:mt-0.5 leading-tight">
-                {s.desc}
-              </span>
-            </div>
-          </div>
-        ))}
-      </div>
-    </Card>
-  );
-}
 
 // 12. Mini Calendar
 function MiniCalendar({ matches, players, activeSeason }) {
@@ -765,10 +667,7 @@ export default function AdminOverviewDashboard({ players = [], activeSeason, mat
         <SeasonSummaryDashboard season={activeSeason} matches={liveMatches} players={players} />
       </div>
       
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <DashboardStatistics matches={liveMatches} activeSeason={activeSeason} />
-        <DashboardTimeline activeSeason={activeSeason} matches={liveMatches} />
-      </div>
+
 
       <TournamentControlPanel season={activeSeason} showToast={showToast} session={session} managerPermissions={managerPermissions} />
     </div>
