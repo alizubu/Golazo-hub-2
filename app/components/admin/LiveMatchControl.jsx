@@ -125,35 +125,43 @@ function ScoreRow({ home, away, homeScore, awayScore, homeObj, awayObj }) {
           </div>
 
           {/* Center Score */}
-          <div className="flex items-center gap-2 sm:gap-4 shrink-0">
-            {/* Home Score Container */}
-            <motion.div
-              key={`h-${homeScore}`}
-              initial={{ scale: 1.4, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              className="score-container w-16 h-20 sm:w-24 sm:h-28 bg-gradient-to-b from-emerald-900/40 via-emerald-950/30 to-emerald-900/20 border border-emerald-500/30 flex items-center justify-center neon-glow-green relative"
-            >
-              <span className="font-score text-4xl sm:text-6xl font-black text-white tabular-nums drop-shadow-[0_0_20px_rgba(34,197,94,0.6)]">
-                {homeScore}
-              </span>
-            </motion.div>
-
-            {/* VS Badge */}
-            <div className="flex flex-col items-center gap-1">
-              <span className="font-heading text-base sm:text-xl font-black text-slate-500 tracking-widest">VS</span>
+          <div className="flex flex-col items-center justify-center shrink-0 relative mt-3 sm:mt-0">
+            {/* "LIVE" top center */}
+            <div className="absolute -top-7 sm:-top-8 left-1/2 -translate-x-1/2 flex items-center gap-1.5 bg-emerald-500/10 px-3 py-1 rounded-full border border-emerald-500/30">
+              <span className="w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_6px_rgba(52,211,153,0.8)] animate-pulse" />
+              <span className="text-[10px] font-black text-emerald-400 uppercase tracking-widest">LIVE</span>
             </div>
 
-            {/* Away Score Container */}
-            <motion.div
-              key={`a-${awayScore}`}
-              initial={{ scale: 1.4, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              className="score-container w-16 h-20 sm:w-24 sm:h-28 bg-gradient-to-b from-rose-900/40 via-rose-950/30 to-rose-900/20 border border-rose-500/30 flex items-center justify-center neon-glow-red relative"
-            >
-              <span className="font-score text-4xl sm:text-6xl font-black text-white tabular-nums drop-shadow-[0_0_20px_rgba(225,29,72,0.6)]">
-                {awayScore}
-              </span>
-            </motion.div>
+            <div className="flex items-center gap-2 sm:gap-4 mt-4 sm:mt-0">
+              {/* Home Score Container */}
+              <motion.div
+                key={`h-${homeScore}`}
+                initial={{ scale: 1.4, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                className="score-container w-14 h-16 sm:w-24 sm:h-28 bg-gradient-to-b from-emerald-900/40 via-emerald-950/30 to-emerald-900/20 border border-emerald-500/30 flex items-center justify-center neon-glow-green relative"
+              >
+                <span className="font-score text-3xl sm:text-6xl font-black text-white tabular-nums drop-shadow-[0_0_20px_rgba(34,197,94,0.6)]">
+                  {homeScore}
+                </span>
+              </motion.div>
+
+              {/* MATCH STATUS text */}
+              <div className="flex flex-col items-center gap-1 px-1 sm:px-2">
+                <span className="text-[8px] sm:text-[9px] font-bold uppercase tracking-[0.2em] text-slate-500 text-center leading-tight">MATCH<br/>STATUS</span>
+              </div>
+
+              {/* Away Score Container */}
+              <motion.div
+                key={`a-${awayScore}`}
+                initial={{ scale: 1.4, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                className="score-container w-14 h-16 sm:w-24 sm:h-28 bg-gradient-to-b from-rose-900/40 via-rose-950/30 to-rose-900/20 border border-rose-500/30 flex items-center justify-center neon-glow-red relative"
+              >
+                <span className="font-score text-3xl sm:text-6xl font-black text-white tabular-nums drop-shadow-[0_0_20px_rgba(225,29,72,0.6)]">
+                  {awayScore}
+                </span>
+              </motion.div>
+            </div>
           </div>
 
           {/* Away Player */}
@@ -192,15 +200,6 @@ function ScoreRow({ home, away, homeScore, awayScore, homeObj, awayObj }) {
             ) : (
               <span className="text-[10px] text-slate-600 font-bold uppercase tracking-wider">No Club</span>
             )}
-          </div>
-
-          {/* Center Match Status */}
-          <div className="flex flex-col items-center gap-1">
-            <span className="text-[8px] sm:text-[9px] font-bold uppercase tracking-[0.2em] text-slate-500">MATCH STATUS</span>
-            <div className="flex items-center gap-1.5">
-              <span className="w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_6px_rgba(52,211,153,0.8)] animate-pulse" />
-              <span className="text-[10px] sm:text-xs font-black text-emerald-400 uppercase tracking-widest">LIVE</span>
-            </div>
           </div>
 
           {/* Away Club */}
@@ -295,13 +294,13 @@ function StepperRow({ label, count, onInc, onDec, isMuted, accentColor = "emeral
           whileHover={{ scale: 1.08 }}
           whileTap={{ scale: 0.92 }}
           onClick={onDec}
-          className="w-11 h-11 sm:w-14 sm:h-14 rounded-lg bg-rose-500/15 hover:bg-rose-500/25 flex items-center justify-center text-rose-400 transition-all border border-rose-500/20 hover:border-rose-500/40 cursor-pointer shadow-[0_0_10px_rgba(225,29,72,0.1)]"
+          className="w-8 h-8 sm:w-14 sm:h-14 rounded-lg bg-rose-500/15 hover:bg-rose-500/25 flex items-center justify-center text-rose-400 transition-all border border-rose-500/20 hover:border-rose-500/40 cursor-pointer shadow-[0_0_10px_rgba(225,29,72,0.1)]"
         >
-          <Minus size={20} />
+          <Minus size={16} className="sm:w-5 sm:h-5" />
         </motion.button>
 
         {/* Score */}
-        <div className="font-score text-5xl sm:text-6xl font-black tabular-nums text-white drop-shadow-md">
+        <div className="font-score text-3xl sm:text-6xl font-black tabular-nums text-white drop-shadow-md">
           {count}
         </div>
 
@@ -310,13 +309,13 @@ function StepperRow({ label, count, onInc, onDec, isMuted, accentColor = "emeral
           whileHover={{ scale: 1.08 }}
           whileTap={{ scale: 0.92 }}
           onClick={onInc}
-          className={`w-11 h-11 sm:w-14 sm:h-14 rounded-lg flex items-center justify-center transition-all border cursor-pointer ${
+          className={`w-8 h-8 sm:w-14 sm:h-14 rounded-lg flex items-center justify-center transition-all border cursor-pointer ${
             isHome
               ? 'bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-400 border-emerald-500/20 hover:border-emerald-500/40 shadow-[0_0_10px_rgba(34,197,94,0.1)]'
               : 'bg-rose-500/15 hover:bg-rose-500/25 text-rose-400 border-rose-500/20 hover:border-rose-500/40 shadow-[0_0_10px_rgba(225,29,72,0.1)]'
           }`}
         >
-          <Plus size={20} />
+          <Plus size={16} className="sm:w-5 sm:h-5" />
         </motion.button>
       </div>
     </div>
@@ -779,51 +778,11 @@ function StatsEntry({ stats, setStats, onSave, onSkip, busy, homeObj, awayObj, h
       {/* Premium Header */}
       <div className="sticky top-0 z-20 bg-[#0a0c14]/95 backdrop-blur-xl px-4 sm:px-8 pt-6 pb-6 border-b border-white/[0.04]">
         {/* Top Bar */}
-        <div className="flex items-center justify-between mb-8">
+        <div className="flex items-center justify-between mb-2">
           <h2 className="text-lg sm:text-xl font-black uppercase tracking-wider text-emerald-400">MATCH STATS</h2>
-          <button onClick={handleSwapStats} className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-[#0d1117] hover:bg-white/[0.05] border border-white/[0.08] text-xs font-bold text-slate-300 uppercase tracking-widest transition-all cursor-pointer">
+          <button onClick={handleSwapStats} className="flex items-center gap-2 px-4 py-2 rounded-lg bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/30 text-xs font-bold text-emerald-400 uppercase tracking-widest transition-all cursor-pointer shadow-[0_0_15px_rgba(34,197,94,0.15)] active:scale-95">
             <ArrowLeftRight size={14} /> SWAP SIDES
           </button>
-        </div>
-
-        {/* Player Header Bar */}
-        <div className="flex items-center justify-between gap-4">
-          {/* Home player */}
-          <div className="flex items-center gap-3 sm:gap-4 flex-1 min-w-0">
-            <div className="relative shrink-0">
-              <div className="relative w-12 h-12 sm:w-16 sm:h-16 rounded-full border border-white/[0.1] overflow-hidden bg-[#0d1117]">
-                <Avatar p={homeObj} size={64} className="w-full h-full object-cover" />
-              </div>
-            </div>
-            <div className="w-2.5 h-2.5 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(34,197,94,0.6)] shrink-0" />
-            <div className="flex flex-col min-w-0">
-              <span className="text-sm sm:text-base font-black truncate text-white uppercase tracking-wide" style={{ fontFamily: "'Sora', sans-serif" }}>
-                {homeObj?.name || 'Home'}
-              </span>
-              <span className="text-[10px] sm:text-xs text-slate-500 truncate">{homeObj?.favoriteClub || ''}</span>
-            </div>
-          </div>
-
-          {/* Center STATISTIC text */}
-          <div className="shrink-0 px-2 sm:px-4 text-center">
-            <span className="text-[10px] sm:text-xs font-bold uppercase tracking-[0.2em] text-slate-400">STATISTIC</span>
-          </div>
-
-          {/* Away player */}
-          <div className="flex items-center gap-3 sm:gap-4 flex-1 min-w-0 justify-end">
-            <div className="flex flex-col min-w-0 items-end">
-              <span className="text-sm sm:text-base font-black truncate text-right text-white uppercase tracking-wide" style={{ fontFamily: "'Sora', sans-serif" }}>
-                {awayObj?.name || 'Away'}
-              </span>
-              <span className="text-[10px] sm:text-xs text-rose-500/70 truncate">{awayObj?.favoriteClub || ''}</span>
-            </div>
-            <div className="w-2.5 h-2.5 rounded-full bg-rose-600 shadow-[0_0_8px_rgba(225,29,72,0.6)] shrink-0" />
-            <div className="relative shrink-0">
-              <div className="relative w-12 h-12 sm:w-16 sm:h-16 rounded-full border border-white/[0.1] overflow-hidden bg-[#0d1117]">
-                <Avatar p={awayObj} size={64} className="w-full h-full object-cover" />
-              </div>
-            </div>
-          </div>
         </div>
       </div>
 
