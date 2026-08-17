@@ -418,7 +418,7 @@ export function AdminMatches({ matches, activeSeason, players, showToast, setTab
               <SectionTitle icon={Radio} className="mb-0 text-xl sm:text-2xl font-black tracking-tight">Full Fixtures Control</SectionTitle>
               <p className="text-xs sm:text-sm text-muted-foreground mt-1.5 font-medium">Manage and review all matches for the current season.</p>
             </div>
-            <div className="flex flex-col lg:flex-row items-stretch lg:items-center gap-3 w-full lg:w-auto shrink-0 hide-in-export">
+            <div className="flex flex-row flex-wrap sm:flex-nowrap items-center gap-2 w-full lg:w-auto shrink-0 hide-in-export">
               {unplayedMatches.length > 0 && (
                 <Btn 
                   onClick={() => {
@@ -430,9 +430,9 @@ export function AdminMatches({ matches, activeSeason, players, showToast, setTab
                     navigator.clipboard.writeText(text);
                     showToast("Unplayed fixtures copied!");
                   }}
-                  className="flex-1 lg:flex-none flex items-center justify-center gap-2 bg-secondary/80 hover:bg-secondary text-foreground text-[11px] sm:text-xs font-bold px-3 py-2 rounded-xl border border-white/5 shadow-sm active:scale-95 transition-all whitespace-nowrap"
+                  className="flex-1 lg:flex-none flex items-center justify-center gap-1.5 bg-secondary/80 hover:bg-secondary text-foreground text-[10px] sm:text-xs font-bold px-2.5 py-1.5 sm:px-3 sm:py-2 rounded-lg sm:rounded-xl border border-white/5 shadow-sm active:scale-95 transition-all whitespace-nowrap"
                 >
-                  <Copy size={14} /> Copy Unplayed
+                  <Copy size={12} className="sm:w-[14px] sm:h-[14px]" /> <span className="truncate">Unplayed</span>
                 </Btn>
               )}
               <Btn 
@@ -445,24 +445,24 @@ export function AdminMatches({ matches, activeSeason, players, showToast, setTab
                     navigator.clipboard.writeText(text);
                     showToast("All fixtures copied!");
                   }}
-                  className="flex-1 lg:flex-none flex items-center justify-center gap-2 bg-primary/20 hover:bg-primary/30 text-primary text-[11px] sm:text-xs font-bold px-3 py-2 rounded-xl border border-primary/20 shadow-sm active:scale-95 transition-all whitespace-nowrap"
+                  className="flex-1 lg:flex-none flex items-center justify-center gap-1.5 bg-primary/20 hover:bg-primary/30 text-primary text-[10px] sm:text-xs font-bold px-2.5 py-1.5 sm:px-3 sm:py-2 rounded-lg sm:rounded-xl border border-primary/20 shadow-sm active:scale-95 transition-all whitespace-nowrap"
                 >
-                  <Copy size={14} /> Copy All
+                  <Copy size={12} className="sm:w-[14px] sm:h-[14px]" /> <span className="truncate">Copy All</span>
               </Btn>
               <Btn 
                 onClick={handleExport}
                 disabled={isExporting}
-                className="flex-1 lg:flex-none flex items-center justify-center gap-2 bg-amber-500/20 hover:bg-amber-500/30 text-amber-500 text-[11px] sm:text-xs font-bold px-3 py-2 rounded-xl border border-amber-500/20 shadow-sm active:scale-95 transition-all whitespace-nowrap disabled:opacity-50"
+                className="flex-1 lg:flex-none flex items-center justify-center gap-1.5 bg-amber-500/20 hover:bg-amber-500/30 text-amber-500 text-[10px] sm:text-xs font-bold px-2.5 py-1.5 sm:px-3 sm:py-2 rounded-lg sm:rounded-xl border border-amber-500/20 shadow-sm active:scale-95 transition-all whitespace-nowrap disabled:opacity-50"
               >
-                {isExporting ? <Radio size={14} className="animate-spin" /> : <Download size={14} />}
-                Share Graphic
+                {isExporting ? <Radio size={12} className="animate-spin sm:w-[14px] sm:h-[14px]" /> : <Download size={12} className="sm:w-[14px] sm:h-[14px]" />}
+                <span className="truncate">Graphic</span>
               </Btn>
             </div>
           </div>
         </div>
         
-        <div className="flex-1 flex flex-col p-4 sm:p-6 bg-secondary/10">
-          <Reorder.Group axis="y" values={orderedMatches} onReorder={setOrderedMatches} className="grid gap-4">
+        <div className="flex-1 flex flex-col p-2 sm:p-6 bg-secondary/10">
+          <Reorder.Group axis="y" values={orderedMatches} onReorder={setOrderedMatches} className="grid gap-2 sm:gap-4">
             {orderedMatches.map((m, i) => (
               <Reorder.Item key={m.id} value={m} dragListener={!isMobile} className={`relative ${!isMobile ? 'cursor-grab active:cursor-grabbing' : ''}`}>
                 <FadeIn delay={Math.min(i * 0.05, 0.5)}>
@@ -579,7 +579,7 @@ function AdminMatchControl({ m, players, showToast, setTab, isPlayoff = false })
     const aFlagUrl = getPlayerIdentityBadgeUrl(a);
 
     return (
-      <div className="relative flex flex-col p-5 sm:p-6 rounded-3xl bg-[#0a0b10] border border-white/5 shadow-2xl overflow-hidden group transition-all duration-500 hover:scale-[1.01]">
+      <div className="relative flex flex-col p-3 sm:p-6 rounded-3xl bg-[#0a0b10] border border-white/5 shadow-2xl overflow-hidden group transition-all duration-500 hover:scale-[1.01]">
         {/* Layer 1: Tactical Auroras */}
         <div className="absolute inset-y-0 left-0 w-2/3 bg-gradient-to-r from-red-500/20 to-transparent pointer-events-none opacity-50 group-hover:opacity-85 transition-opacity duration-700 blur-2xl" />
         <div className="absolute inset-y-0 right-0 w-2/3 bg-gradient-to-l from-emerald-500/20 to-transparent pointer-events-none opacity-50 group-hover:opacity-85 transition-opacity duration-700 blur-2xl" />
@@ -600,18 +600,23 @@ function AdminMatchControl({ m, players, showToast, setTab, isPlayoff = false })
             <div className="relative shrink-0">
               <div className="absolute -inset-1 bg-gradient-to-br from-red-600 to-rose-600 rounded-full blur-md opacity-30 group-hover:opacity-50 transition-opacity" />
               <div className="relative rounded-full ring-2 ring-red-500 shadow-[0_0_20px_rgba(220,38,38,0.5)]">
-                <div className="relative rounded-full overflow-hidden">
+                <div className="relative rounded-full overflow-hidden bg-background">
                   <Avatar p={h} className="!w-12 !h-12 sm:!w-20 sm:!h-20 rounded-full !border-0" />
                   <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/30 to-transparent -translate-x-[150%] group-hover:translate-x-[150%] transition-transform duration-1000 ease-in-out pointer-events-none" />
                 </div>
               </div>
+              {/* Club Flag */}
+              {hFlagUrl && (
+                <div className="absolute -bottom-1 -right-1 sm:-bottom-2 sm:-right-2 bg-transparent rounded-full p-0.5">
+                  <img src={hFlagUrl} alt="badge" className="w-5 h-5 sm:w-8 sm:h-8 object-contain drop-shadow-md" />
+                </div>
+              )}
             </div>
             <div className="flex flex-col items-center sm:items-start min-w-0 w-full text-center sm:text-left">
               <span className="font-black text-[11px] sm:text-2xl truncate w-full tracking-tight animate-gradient bg-gradient-to-r from-red-200 via-white to-red-200 bg-[length:200%_auto] text-transparent bg-clip-text drop-shadow-[0_0_15px_rgba(239,68,68,0.3)]" style={{ fontFamily: "'Sora', sans-serif" }}>
                 {toTitleCase(h?.name) || 'TBD'}
               </span>
               <div className="flex flex-col sm:flex-row items-center gap-0.5 sm:gap-3 mt-0.5 sm:mt-1.5 text-slate-300 w-full justify-center sm:justify-start">
-                {hFlagUrl && <img src={hFlagUrl} alt="badge" className="hidden sm:block w-5 h-5 sm:w-10 sm:h-10 object-contain drop-shadow-md" />}
                 <span className="text-[9px] sm:text-base font-bold truncate w-full opacity-70 sm:opacity-100">{h?.favoriteClub || 'TBD'}</span>
               </div>
             </div>
@@ -642,17 +647,22 @@ function AdminMatchControl({ m, players, showToast, setTab, isPlayoff = false })
               </span>
               <div className="flex flex-col sm:flex-row items-center gap-0.5 sm:gap-3 mt-0.5 sm:mt-1.5 text-slate-300 w-full justify-center sm:justify-end">
                 <span className="text-[9px] sm:text-base font-bold truncate w-full opacity-70 sm:opacity-100 order-2 sm:order-1">{a?.favoriteClub || 'TBD'}</span>
-                {aFlagUrl && <img src={aFlagUrl} alt="badge" className="hidden sm:block w-5 h-5 sm:w-10 sm:h-10 object-contain drop-shadow-md order-1 sm:order-2" />}
               </div>
             </div>
             <div className="relative shrink-0 order-1 sm:order-2">
               <div className="absolute -inset-1 bg-gradient-to-br from-emerald-600 to-teal-600 rounded-full blur-md opacity-30 group-hover:opacity-50 transition-opacity" />
               <div className="relative rounded-full ring-2 ring-emerald-500 shadow-[0_0_20px_rgba(16,185,129,0.5)]">
-                <div className="relative rounded-full overflow-hidden">
+                <div className="relative rounded-full overflow-hidden bg-background">
                   <Avatar p={a} className="!w-12 !h-12 sm:!w-20 sm:!h-20 rounded-full !border-0" />
                   <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/30 to-transparent -translate-x-[150%] group-hover:translate-x-[150%] transition-transform duration-1000 ease-in-out pointer-events-none" />
                 </div>
               </div>
+              {/* Club Flag */}
+              {aFlagUrl && (
+                <div className="absolute -bottom-1 -left-1 sm:-bottom-2 sm:-left-2 bg-transparent rounded-full p-0.5">
+                  <img src={aFlagUrl} alt="badge" className="w-5 h-5 sm:w-8 sm:h-8 object-contain drop-shadow-md" />
+                </div>
+              )}
             </div>
           </div>
         </div>
