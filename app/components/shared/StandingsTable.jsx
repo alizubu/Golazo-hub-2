@@ -105,7 +105,7 @@ const FormDots = ({ form }) => {
             <HoverCardTrigger asChild>
               <div 
                 className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold text-foreground shadow-inner cursor-pointer
-                  ${res.result === 'W' ? 'bg-gradient-to-br from-emerald-400 to-emerald-600' : res.result === 'D' ? 'bg-gradient-to-br from-slate-400 to-slate-600' : 'bg-gradient-to-br from-red-400 to-red-600'}
+                  ${res.result === 'W' ? 'bg-gradient-to-br from-emerald-400 to-emerald-600 led-breathe-green' : res.result === 'D' ? 'bg-gradient-to-br from-slate-400 to-slate-600 shadow-[0_0_8px_rgba(148,163,184,0.4)]' : 'bg-gradient-to-br from-red-400 to-red-600 led-breathe-red'}
                   ${isLast ? 'ring-2 ring-white/20 ring-offset-1 ring-offset-[#12151b] drop-shadow-[0_0_6px_rgba(255,255,255,0.2)] scale-110 z-10' : ''}
                 `}
               >
@@ -182,17 +182,17 @@ export default function StandingsTable({ matches, players, seasonId, me, onPlaye
         <table className="w-full text-left border-collapse text-sm">
           <thead>
             <tr className="border-b-2 border-border/50 bg-secondary/80 font-heading uppercase tracking-widest text-[10px] text-muted-foreground">
-              <th className="p-3 w-16 text-center">#</th>
-              <th className="p-3">Player</th>
-              <th className="p-3 text-center">P</th>
-              <th className="p-3 text-center">W</th>
-              <th className="p-3 text-center">D</th>
-              <th className="p-3 text-center">L</th>
-              <th className="p-3 text-center">GF</th>
-              <th className="p-3 text-center">GA</th>
-              <th className="p-3 text-center">GD</th>
-              <th className="p-3 text-center font-bold text-foreground">PTS</th>
-              <th className="p-3 text-center w-40">Form</th>
+              <th className="py-4 px-2 w-16 text-center">#</th>
+              <th className="py-4 px-2">Player</th>
+              <th className="py-4 px-2 text-center w-12">P</th>
+              <th className="py-4 px-2 text-center w-12">W</th>
+              <th className="py-4 px-2 text-center w-12">D</th>
+              <th className="py-4 px-2 text-center w-12">L</th>
+              <th className="py-4 px-2 text-center w-12">GF</th>
+              <th className="py-4 px-2 text-center w-12">GA</th>
+              <th className="py-4 px-2 text-center w-12">GD</th>
+              <th className="py-4 px-2 text-center font-bold text-foreground text-[11px] tracking-[0.2em]">PTS</th>
+              <th className="py-4 px-2 text-center w-36">Form</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-border/20 text-xs">
@@ -205,8 +205,7 @@ export default function StandingsTable({ matches, players, seasonId, me, onPlaye
                 let rowClasses = i % 2 === 0 ? 'bg-transparent' : 'bg-white/[0.01]';
                 
                 let borderClasses = 'border-l-4 border-l-transparent';
-                if (isFirst) borderClasses = 'border-l-4 border-l-yellow-500';
-                else if (isMe) borderClasses = 'border-l-4 border-l-pitch';
+                if (isMe) borderClasses = 'border-l-4 border-l-pitch';
                 
                 if (isMe) {
                   rowClasses += ' bg-pitch/10 hover:bg-pitch/20';
@@ -223,33 +222,39 @@ export default function StandingsTable({ matches, players, seasonId, me, onPlaye
                     onClick={() => handleRowClick(s.username || s.id)}
                     className={`border-b border-border/30 last:border-0 hover:bg-white/[0.04] transition-colors cursor-pointer group ${rowClasses} ${borderClasses}`}
                   >
-                    <td className="p-3 text-center font-medium">
+                    <td className="relative py-5 px-2 text-center font-medium">
+                      {isFirst && <div className="absolute top-0 left-0 w-[4px] h-full bg-[linear-gradient(to_bottom,#FBBF24,#B45309,#f59e0b,#FBBF24)] bg-[length:100%_200%] animate-[bg-pan_2.5s_linear_infinite]" />}
                       <RankMedal rank={i + 1} />
                     </td>
-                    <td className="p-3">
+                    <td className="py-5 px-2">
                       <div className="flex items-center gap-3">
-                        <div className="relative flex-shrink-0">
+                        <motion.div 
+                          className="relative flex-shrink-0"
+                          whileHover={{ scale: 1.15, rotateX: 10, rotateY: -10 }}
+                          transition={{ type: "spring", stiffness: 300 }}
+                          style={{ perspective: 1000 }}
+                        >
                           <Avatar p={s} size={28} />
                           {badgeUrl && (
                             <div className="absolute -bottom-1 -right-1 bg-transparent rounded-full p-0.5">
                               <img src={badgeUrl} alt="badge" className="w-4 h-4 object-contain drop-shadow-md" />
                             </div>
                           )}
-                        </div>
+                        </motion.div>
                         <span className="font-bold text-foreground font-heading text-[13px] group-hover:underline">{s.name}</span>
                       </div>
                     </td>
-                    <td className="p-3 text-center font-score text-muted-foreground font-semibold text-[13px]">{s.played}</td>
-                    <td className="p-3 text-center font-score text-muted-foreground font-semibold text-[13px]">{s.won}</td>
-                    <td className="p-3 text-center font-score text-muted-foreground font-semibold text-[13px]">{s.drawn}</td>
-                    <td className="p-3 text-center font-score text-muted-foreground font-semibold text-[13px]">{s.lost}</td>
-                    <td className="p-3 text-center font-score text-muted-foreground font-semibold text-[13px]">{s.gf}</td>
-                    <td className="p-3 text-center font-score text-muted-foreground font-semibold text-[13px]">{s.ga}</td>
-                    <td className={`p-3 text-center font-score font-bold text-[13px] ${s.gd > 0 ? 'text-emerald-500' : s.gd < 0 ? 'text-red-500' : 'text-muted-foreground'}`}>
+                    <td className="py-5 px-2 text-center font-score text-muted-foreground font-semibold text-[13px]">{s.played}</td>
+                    <td className="py-5 px-2 text-center font-score text-muted-foreground font-semibold text-[13px]">{s.won}</td>
+                    <td className="py-5 px-2 text-center font-score text-muted-foreground font-semibold text-[13px]">{s.drawn}</td>
+                    <td className="py-5 px-2 text-center font-score text-muted-foreground font-semibold text-[13px]">{s.lost}</td>
+                    <td className="py-5 px-2 text-center font-score text-muted-foreground font-semibold text-[13px]">{s.gf}</td>
+                    <td className="py-5 px-2 text-center font-score text-muted-foreground font-semibold text-[13px]">{s.ga}</td>
+                    <td className={`py-5 px-2 text-center font-score font-bold text-[13px] ${s.gd > 0 ? 'text-emerald-500' : s.gd < 0 ? 'text-red-500' : 'text-muted-foreground'}`}>
                       {s.gd > 0 ? `+${s.gd}` : s.gd}
                     </td>
-                    <td className="p-3 text-center font-score font-bold text-pitch-bright text-base">{s.pts}</td>
-                    <td className="p-3 text-center">
+                    <td className="py-5 px-2 text-center font-score font-bold text-pitch-bright text-xl drop-shadow-[0_0_8px_rgba(255,255,255,0.15)]">{s.pts}</td>
+                    <td className="py-5 px-2 text-center">
                       <FormDots form={s.form} />
                     </td>
                   </motion.tr>
