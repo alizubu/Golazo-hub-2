@@ -2,9 +2,15 @@
 
 import { GoogleGenAI, Type, Schema } from '@google/genai';
 
-// Initialize the Google Gen AI SDK
-// It automatically picks up GEMINI_API_KEY from process.env
-const ai = new GoogleGenAI({});
+function getApiKeys() {
+  // Support both GEMINI_API_KEYS (comma separated) and GEMINI_API_KEY
+  const keysStr = process.env.GEMINI_API_KEYS || process.env.GEMINI_API_KEY || "";
+  const keys = keysStr.split(',').map(k => k.trim()).filter(k => k.length > 0);
+  if (keys.length === 0) {
+    throw new Error("No Gemini API keys found in environment.");
+  }
+  return keys;
+}
 
 export async function extractMatchStats(formData) {
   const file = formData.get('image');
@@ -47,40 +53,59 @@ export async function extractMatchStats(formData) {
       }
     `;
 
-    // Using the standard generateContent API for robust multimodal support
-    // Wrapped in a retry loop to handle 429 Free Tier rate limits
+    const apiKeys = getApiKeys();
     let responseText = "";
-    let retries = 3;
+    let success = false;
+    let lastError = null;
     
-    for (let i = 0; i < retries; i++) {
-      try {
-        const response = await ai.models.generateContent({
-          model: "gemini-3.6-flash",
-          contents: [
-            {
-              inlineData: {
-                data: base64Image,
-                mimeType: mimeType
-              }
-            },
-            promptText
-          ],
-          config: {
-            responseMimeType: "application/json"
+    // Key Rotation Loop
+    for (const key of apiKeys) {
+      if (success) break;
+      
+      const ai = new GoogleGenAI({ apiKey: key });
+      
+      // Retry Loop for the current key
+      for (let attempt = 0; attempt < 2; attempt++) {
+        try {
+          const response = await ai.models.generateContent({
+            model: "gemini-3.6-flash",
+            contents: [
+              {
+                inlineData: {
+                  data: base64Image,
+                  mimeType: mimeType
+                }
+              },
+              promptText
+            ],
+            config: {
+              responseMimeType: "application/json"
+            }
+          });
+          
+          responseText = response.text || "";
+          success = true;
+          break; // break retry loop on success
+        } catch (err) {
+          lastError = err;
+          // Check for 429 (Rate Limit) or 503 (Unavailable)
+          const isOverloaded = err?.status === 429 || err?.status === 503 || err?.code === 503 || err?.message?.includes('503') || err?.message?.includes('429');
+          
+          if (isOverloaded) {
+            console.warn(`Gemini API Overloaded (Key ${key.substring(0,4)}...). Attempt ${attempt + 1}/2.`);
+            if (attempt < 1) {
+              await new Promise(resolve => setTimeout(resolve, 2000)); // wait 2s before retrying same key
+            }
+          } else {
+            // Hard error (e.g., 400 Bad Request) - abort immediately
+            throw err;
           }
-        });
-        
-        responseText = response.text || "";
-        break; // Success, exit retry loop
-      } catch (err) {
-        // If it's a rate limit error and we have retries left
-        if (err?.status === 429 && i < retries - 1) {
-          console.warn(`Rate limited (429). Retrying in 10 seconds... (Attempt ${i + 1} of ${retries})`);
-          await new Promise(resolve => setTimeout(resolve, 10000));
-        } else {
-          throw err; // Throw if out of retries or it's a different error (like 400 or 404)
         }
       }
+    }
+    
+    if (!success) {
+      throw lastError || new Error("Failed to extract stats. All API keys exhausted or unavailable.");
     }
     
     // Parse the JSON safely (in case it still wrapped it in markdown)
