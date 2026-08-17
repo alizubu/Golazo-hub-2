@@ -78,6 +78,7 @@ const TROPHY_TEMPLATES = [
 import AdminHistory from '@/app/components/admin/AdminHistory';
 import AdminNotifications from '@/app/components/admin/AdminNotifications';
 import { MobileStandingsList } from '@/app/components/admin/AdminOverviewDashboard';
+import StandingsTable from '@/app/components/shared/StandingsTable';
 
 import dynamic from 'next/dynamic';
 import RichTextEditor from '@/app/components/shared/RichTextEditor';
@@ -2248,48 +2249,9 @@ export function AdminSeason({ activeSeason, seasons = [], matches = [], players 
              </div>
              
              <div className="overflow-x-auto">
-               {/* Desktop Table View */}
-               <table className="w-full text-sm text-left hidden md:table">
-                 <thead className="text-[11px] uppercase tracking-wider bg-secondary/50 text-muted-foreground">
-                   <tr>
-                     <th className="px-4 py-3 rounded-tl-lg w-10 text-center">Rank</th>
-                     <th className="px-4 py-3">Player</th>
-                     <th className="px-3 py-3 text-center">P</th>
-                     <th className="px-3 py-3 text-center">W</th>
-                     <th className="px-3 py-3 text-center">D</th>
-                     <th className="px-3 py-3 text-center">L</th>
-                     <th className="px-3 py-3 text-center">GD</th>
-                     <th className="px-4 py-3 text-center font-bold text-primary rounded-tr-lg">Pts</th>
-                   </tr>
-                 </thead>
-                 <tbody>
-                   {standings.map((row, idx) => (
-                     <tr key={row.id} className={`border-b border-border/30 last:border-0 hover:bg-secondary/20 transition-colors ${idx === 3 ? 'border-b-2 border-b-success/30' : ''}`}>
-                       <td className="px-4 py-4 text-center font-score font-bold text-lg">
-                         {idx === 0 ? "🥇" : idx === 1 ? "🥈" : idx === 2 ? "🥉" : <span className="text-muted-foreground">{idx + 1}</span>}
-                       </td>
-                       <td className="px-4 py-4 font-bold text-base flex items-center gap-2">
-                         {getPlayerIdentityBadgeUrl(row) && (
-                           /* eslint-disable-next-line @next/next/no-img-element */
-                           <img src={getPlayerIdentityBadgeUrl(row)} alt={row.name} className="w-6 h-6 sm:w-7 sm:h-7 object-contain drop-shadow-sm shrink-0" />
-                         )}
-                         {row.name}
-                       </td>
-                       <td className="px-3 py-4 text-center font-score text-muted-foreground">{row.p}</td>
-                       <td className="px-3 py-4 text-center font-score text-muted-foreground">{row.w}</td>
-                       <td className="px-3 py-4 text-center font-score text-muted-foreground">{row.d}</td>
-                       <td className="px-3 py-4 text-center font-score text-muted-foreground">{row.l}</td>
-                       <td className="px-3 py-4 text-center font-score">{row.gd > 0 ? `+${row.gd}` : row.gd}</td>
-                       <td className="px-4 py-4 text-center font-score font-bold text-xl text-primary">{row.pts}</td>
-                     </tr>
-                   ))}
-                   {standings.length === 0 && (
-                     <tr>
-                       <td colSpan={8} className="py-12 text-center text-muted-foreground">No matches played yet</td>
-                     </tr>
-                   )}
-                 </tbody>
-               </table>
+               <div className="hidden md:block">
+                 <StandingsTable matches={matches} players={players} seasonId={activeSeason.id} config={activeSeason.config} />
+               </div>
                
                {/* Mobile Card View */}
                <div className="block md:hidden mt-4">
