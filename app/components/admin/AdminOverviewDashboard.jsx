@@ -159,49 +159,6 @@ function AdminMetrics({ matches, activeSeason, notifications = [], setTab }) {
   );
 }
 
-function QuickActions({ setTab, showToast, session, managerPermissions }) {
-  const allActions = [
-    { label: "Start Match", category: "Match Logistics", icon: PlayCircle, bg: "bg-green-500/10 text-green-500", onClick: () => setTab ? setTab("admin/matches") : showToast?.("Go to Matches tab"), perm: 'canManageMatches' },
-    { label: "Generate Fixtures", category: "Match Logistics", icon: CalendarDays, bg: "bg-blue-500/10 text-blue-500", onClick: () => setTab ? setTab("admin/season") : showToast?.("Go to Season tab"), perm: 'canManageSeason' },
-    { label: "Edit Season", category: "Match Logistics", icon: Edit2, bg: "bg-orange-500/10 text-orange-500", onClick: () => setTab ? setTab("admin/season") : showToast?.("Go to Season tab"), perm: 'canManageSeason' },
-    { label: "Create Announcement", category: "Content & Trophies", icon: Megaphone, bg: "bg-purple-500/10 text-purple-500", onClick: () => setTab ? setTab("admin/announcements") : showToast?.("Go to Announcements tab"), perm: 'canEditBroadcast' },
-    { label: "Manage Trophies", category: "Content & Trophies", icon: Trophy, bg: "bg-gold/10 text-gold", onClick: () => setTab ? setTab("admin/trophies") : showToast?.("Go to Trophies tab"), perm: 'canManageSeason' },
-    { label: "Manage Players", category: "Player Management", icon: Users, bg: "bg-pink-500/10 text-pink-500", onClick: () => setTab ? setTab("admin/players") : showToast?.("Go to Players tab"), perm: ['canManagePlayers', 'canManageProfiles'] },
-    { label: "Role Manage", category: "Access Control", icon: ShieldAlert, bg: "bg-amber-500/10 text-amber-500", onClick: () => setTab ? setTab("admin/roles") : showToast?.("Go to Role Manage tab"), adminOnly: true }
-  ];
-
-  const actions = allActions.filter(act => {
-    if (session?.role === 'admin') return true;
-    if (act.adminOnly) return false;
-    if (act.perm && managerPermissions) {
-      if (Array.isArray(act.perm)) return act.perm.some(p => !!managerPermissions[p]);
-      return !!managerPermissions[act.perm];
-    }
-    return true;
-  });
-
-  return (
-    <Card className="p-4 md:p-6 overflow-hidden border-border/50 shadow-lg">
-      <SectionTitle icon={Zap}>Quick Actions</SectionTitle>
-      <div className="flex flex-col md:grid md:grid-cols-2 lg:grid-cols-3 gap-3 mt-4">
-        {actions.map((act, i) => (
-          <FadeIn key={act.label} delay={i * 0.05} className="h-full">
-            <button onClick={act.onClick} className="w-full h-full flex items-center justify-start gap-4 p-4 md:p-4 bg-secondary/20 border border-border/60 rounded-xl hover:bg-secondary/40 hover:border-border dark:border-white/20 transition-all group cursor-pointer shadow-sm relative">
-              <div className={`w-10 h-10 rounded-lg flex items-center justify-center shrink-0 ${act.bg} group-hover:scale-105 transition-transform`}>
-                <act.icon size={18} />
-              </div>
-              <div className="flex flex-col items-start gap-0.5">
-                <span className="text-sm font-bold text-left leading-snug text-foreground/90 group-hover:text-foreground">{act.label}</span>
-                <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">{act.category}</span>
-              </div>
-            </button>
-          </FadeIn>
-        ))}
-      </div>
-    </Card>
-  );
-}
-
 // 5. League Snapshot
 function LeagueSnapshot({ matches, players, activeSeason, setTab }) {
   if (!activeSeason) return null;
@@ -637,16 +594,26 @@ export default function AdminOverviewDashboard({ players = [], activeSeason, mat
       <HeroSeasonSummary activeSeason={activeSeason} players={players} matches={liveMatches} setTab={setTab} />
       <LiveMatchControl matches={liveMatches} players={players} activeSeason={activeSeason} showToast={showToast} />
       <AdminMetrics matches={liveMatches} activeSeason={activeSeason} notifications={notifications} setTab={setTab} />
-      <QuickActions setTab={setTab} showToast={showToast} session={session} managerPermissions={managerPermissions} />
+
 
       <div className="mb-6 w-full min-w-0">
-        <div className="flex items-center justify-between mb-4">
-          <SectionTitle icon={ListOrdered} className="mb-0">League Standings</SectionTitle>
-        </div>
         <div className="hidden md:block">
-          <StandingsTable matches={liveMatches} players={players} seasonId={activeSeason.id} config={activeSeason.config} />
+          <StandingsTable 
+            matches={liveMatches} 
+            players={players} 
+            seasonId={activeSeason.id} 
+            config={activeSeason.config}
+            headerLeft={
+              <div className="flex items-center gap-2 px-2">
+                <SectionTitle icon={ListOrdered} className="mb-0">League Standings</SectionTitle>
+              </div>
+            }
+          />
         </div>
         <div className="block md:hidden">
+          <div className="flex items-center justify-between mb-4">
+            <SectionTitle icon={ListOrdered} className="mb-0">League Standings</SectionTitle>
+          </div>
           <MobileStandingsList matches={liveMatches} players={players} activeSeason={activeSeason} />
         </div>
       </div>

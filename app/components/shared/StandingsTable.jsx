@@ -144,6 +144,7 @@ export default function StandingsTable({ matches, players, seasonId, me, onPlaye
       const download = (await import('downloadjs')).default;
       const dataUrl = await htmlToImage.toPng(tableRef.current, {
         quality: 1,
+        pixelRatio: 3,
         backgroundColor: '#0a0c10',
         style: { transform: 'scale(1)', transformOrigin: 'top left' }
       });
@@ -174,7 +175,7 @@ export default function StandingsTable({ matches, players, seasonId, me, onPlaye
           className="flex items-center gap-2 px-4 py-2 rounded-lg bg-pitch/20 text-pitch-bright hover:bg-pitch/30 transition-colors border border-pitch/30 text-xs font-bold uppercase tracking-wider disabled:opacity-50 shadow-sm"
         >
           {isExporting ? <Loader2 size={14} className="animate-spin" /> : <Download size={14} />}
-          Share Graphic
+          Snapshot
         </button>
       </div>
 
