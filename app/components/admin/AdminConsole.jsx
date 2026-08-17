@@ -579,7 +579,7 @@ function AdminMatchControl({ m, players, showToast, setTab, isPlayoff = false })
     const aFlagUrl = getPlayerIdentityBadgeUrl(a);
 
     return (
-      <div className="relative flex flex-col px-1.5 py-3 sm:p-6 rounded-2xl sm:rounded-3xl bg-[#0a0b10] border border-white/5 shadow-2xl overflow-hidden group transition-all duration-500 hover:scale-[1.01]">
+      <div className="relative flex flex-col px-1.5 py-3 sm:p-6 rounded-none sm:rounded-3xl bg-[#0a0b10] border-y sm:border border-white/5 shadow-2xl overflow-hidden group transition-all duration-500 hover:scale-[1.01]">
         {/* Layer 1: Tactical Auroras */}
         <div className="absolute inset-y-0 left-0 w-2/3 bg-gradient-to-r from-red-500/20 to-transparent pointer-events-none opacity-50 group-hover:opacity-85 transition-opacity duration-700 blur-2xl" />
         <div className="absolute inset-y-0 right-0 w-2/3 bg-gradient-to-l from-emerald-500/20 to-transparent pointer-events-none opacity-50 group-hover:opacity-85 transition-opacity duration-700 blur-2xl" />
