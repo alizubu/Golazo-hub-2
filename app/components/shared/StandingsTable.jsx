@@ -7,18 +7,7 @@ import { Download, Loader2, Medal, ChevronDown, ChevronUp } from 'lucide-react';
 import nationalTeamsData from '@/lib/data/national_teams.json';
 import clubsData from '@/lib/data/clubs.json';
 
-const getPlayerFlag = (player) => {
-  if (player?.flag) {
-    const nt = nationalTeamsData.find(n => n.name === player.flag);
-    if (nt && nt.flag_url) return nt.flag_url;
-  }
-  if (player?.favoriteClub) {
-    const club = clubsData.find(c => c.name === player.favoriteClub);
-    if (club && club.logo_url) return club.logo_url;
-  }
-  return null;
-};
-
+import { getPlayerIdentityBadgeUrl } from '@/lib/identityUtils';
 const RankMedal = ({ rank }) => {
   if (rank === 1) {
     return (
@@ -211,7 +200,7 @@ export default function StandingsTable({ matches, players, seasonId, me, onPlaye
               {standings.map((s, i) => {
                 const isFirst = i === 0;
                 const isMe = me && s.id === me.id;
-                const flagUrl = getPlayerFlag(s);
+                const badgeUrl = getPlayerIdentityBadgeUrl(s);
                 
                 let rowClasses = i % 2 === 0 ? 'bg-transparent' : 'bg-white/[0.01]';
                 
@@ -241,9 +230,9 @@ export default function StandingsTable({ matches, players, seasonId, me, onPlaye
                       <div className="flex items-center gap-3">
                         <div className="relative flex-shrink-0">
                           <Avatar p={s} size={28} />
-                          {flagUrl && (
-                            <div className="absolute -bottom-1 -right-1 w-[18px] h-[14px] bg-background dark:bg-[#12151b] rounded-sm overflow-hidden shadow-sm">
-                              <img src={flagUrl} alt="flag" className="w-full h-full object-cover" />
+                          {badgeUrl && (
+                            <div className="absolute -bottom-1 -right-1 bg-transparent rounded-full p-0.5">
+                              <img src={badgeUrl} alt="badge" className="w-4 h-4 object-contain drop-shadow-md" />
                             </div>
                           )}
                         </div>

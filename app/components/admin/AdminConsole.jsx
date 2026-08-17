@@ -2269,9 +2269,9 @@ export function AdminSeason({ activeSeason, seasons = [], matches = [], players 
                          {idx === 0 ? "🥇" : idx === 1 ? "🥈" : idx === 2 ? "🥉" : <span className="text-muted-foreground">{idx + 1}</span>}
                        </td>
                        <td className="px-4 py-4 font-bold text-base flex items-center gap-2">
-                         {getPlayerIdentityBadgeUrl(row.player) && (
+                         {getPlayerIdentityBadgeUrl(row) && (
                            /* eslint-disable-next-line @next/next/no-img-element */
-                           <img src={getPlayerIdentityBadgeUrl(row.player)} alt={row.name} className="w-6 h-6 sm:w-7 sm:h-7 object-contain drop-shadow-sm shrink-0" />
+                           <img src={getPlayerIdentityBadgeUrl(row)} alt={row.name} className="w-6 h-6 sm:w-7 sm:h-7 object-contain drop-shadow-sm shrink-0" />
                          )}
                          {row.name}
                        </td>

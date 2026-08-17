@@ -14,6 +14,7 @@ import { useRouter } from 'next/navigation';
 import TournamentControlPanel from '@/app/components/admin/TournamentControlPanel';
 import LiveMatchControl from '@/app/components/admin/LiveMatchControl';
 import SeasonSummaryDashboard from '@/app/components/user/SeasonSummaryDashboard';
+import { getPlayerIdentityBadgeUrl } from '@/lib/identityUtils';
 
 function formatName(name) {
   if (!name) return 'TBD';
@@ -607,81 +608,89 @@ function MiniCalendar({ matches, players, activeSeason }) {
 
 // Mobile-first Standings Cards
 export function MobileStandingsList({ matches, players, activeSeason }) {
-  const [expandedId, setExpandedId] = useState(null);
-  
   if (!activeSeason) return null;
   const standings = computeStandings(matches, players, activeSeason.id, activeSeason.config);
   
   if (standings.length === 0) return null;
 
   return (
-    <div className="flex flex-col gap-3">
-      <SectionTitle icon={ListOrdered}>League Standings</SectionTitle>
-      <div className="flex flex-col gap-2.5 mt-2">
-        {standings.map((s, i) => {
-          const isExpanded = expandedId === s.id;
-          const isTop3 = i < 3;
-          let borderClasses = "border-border/30";
-          if (i === 0) borderClasses = "border-amber-400/50 shadow-[0_0_15px_rgba(251,191,36,0.1)]";
-          else if (i === 1) borderClasses = "border-zinc-300/50";
-          else if (i === 2) borderClasses = "border-orange-400/50";
+    <div className="flex flex-col gap-2.5">
+      {standings.map((s, i) => {
+        const isTop3 = i < 3;
+        let borderClasses = "border-border/30";
+        if (i === 0) borderClasses = "border-amber-400/50 shadow-[0_0_15px_rgba(251,191,36,0.1)]";
+        else if (i === 1) borderClasses = "border-zinc-300/50";
+        else if (i === 2) borderClasses = "border-orange-400/50";
 
-          return (
-            <motion.div 
-              key={s.id}
-              layout
-              initial={{ borderRadius: 16 }}
-              className={`bg-secondary/20 border rounded-2xl overflow-hidden transition-all cursor-pointer ${borderClasses} ${isExpanded ? 'bg-secondary/40' : ''}`}
-              onClick={() => setExpandedId(isExpanded ? null : s.id)}
-            >
-              <div className="flex items-center gap-4 p-4">
-                <div className="w-6 text-center font-black text-muted-foreground font-score text-sm">{i + 1}</div>
-                <Avatar p={s} size={40} className={isTop3 ? 'ring-2 ring-white/10' : ''} />
-                <div className="flex-1 min-w-0">
-                  <div className="font-bold text-foreground text-[15px] truncate">{formatName(s.name)}</div>
-                  <div className="text-[11px] text-muted-foreground uppercase font-bold tracking-wider mt-0.5">Played: {s.played}</div>
+        const badgeUrl = getPlayerIdentityBadgeUrl(s);
+
+        return (
+          <motion.div
+            key={s.id}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: Math.min(i * 0.05, 0.5), duration: 0.3 }}
+            className={`bg-secondary/20 border rounded-xl p-3 sm:p-4 flex flex-col gap-3 ${borderClasses}`}
+          >
+            {/* Line 1 */}
+            <div className="flex items-center gap-3">
+              <div className="w-5 text-center font-black text-muted-foreground font-score text-xs">{i + 1}</div>
+              <div className="relative flex-shrink-0 cursor-pointer">
+                <Avatar p={s} size={32} className={isTop3 ? 'ring-2 ring-white/10' : ''} />
+                {badgeUrl && (
+                  <div className="absolute -bottom-1 -right-1 bg-transparent rounded-full p-0.5">
+                    <img src={badgeUrl} alt="badge" className="w-4 h-4 object-contain drop-shadow-md" />
+                  </div>
+                )}
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="font-bold text-foreground text-sm truncate">{formatName(s.name)}</div>
+              </div>
+              <div className="flex items-end justify-center gap-1">
+                <div className="text-xl font-black font-score text-pitch-bright">{s.pts}</div>
+                <div className="text-[9px] text-muted-foreground uppercase tracking-widest font-bold pb-1">PTS</div>
+              </div>
+            </div>
+            
+            {/* Line 2: Compact Stats & Form */}
+            <div className="flex items-center justify-between pl-8 sm:pl-11 pr-1">
+              <div className="flex gap-4 sm:gap-6">
+                <div className="flex flex-col">
+                  <span className="text-[11px] font-bold font-score text-foreground">{s.won}-{s.drawn}-{s.lost}</span>
+                  <span className="text-[8px] text-muted-foreground uppercase tracking-widest font-bold">W-D-L</span>
                 </div>
-                <div className="flex flex-col items-end justify-center">
-                  <div className="text-xl font-black font-score text-pitch-bright">{s.pts}</div>
-                  <div className="text-[9px] text-muted-foreground uppercase tracking-widest font-bold">PTS</div>
+                <div className="flex flex-col">
+                  <span className="text-[11px] font-bold font-score text-foreground">{s.gf}</span>
+                  <span className="text-[8px] text-muted-foreground uppercase tracking-widest font-bold">GF</span>
+                </div>
+                <div className="flex flex-col">
+                  <span className="text-[11px] font-bold font-score text-foreground">{s.ga}</span>
+                  <span className="text-[8px] text-muted-foreground uppercase tracking-widest font-bold">GA</span>
+                </div>
+                <div className="flex flex-col">
+                  <span className={`text-[11px] font-bold font-score ${s.gd > 0 ? 'text-emerald-400' : s.gd < 0 ? 'text-red-400' : 'text-foreground'}`}>
+                    {s.gd > 0 ? `+${s.gd}` : s.gd}
+                  </span>
+                  <span className="text-[8px] text-muted-foreground uppercase tracking-widest font-bold">GD</span>
                 </div>
               </div>
-
-              <AnimatePresence>
-                {isExpanded && (
-                  <motion.div
-                    initial={{ height: 0, opacity: 0 }}
-                    animate={{ height: 'auto', opacity: 1 }}
-                    exit={{ height: 0, opacity: 0 }}
-                    className="overflow-hidden bg-black/20 border-t border-border/50"
-                  >
-                    <div className="p-4 grid grid-cols-4 gap-4 text-center">
-                      <div className="flex flex-col">
-                        <span className="text-lg font-bold font-score text-foreground">{s.won}-{s.drawn}-{s.lost}</span>
-                        <span className="text-[9px] text-muted-foreground uppercase tracking-widest font-bold mt-1">W-D-L</span>
-                      </div>
-                      <div className="flex flex-col">
-                        <span className="text-lg font-bold font-score text-foreground">{s.gf}</span>
-                        <span className="text-[9px] text-muted-foreground uppercase tracking-widest font-bold mt-1">GF</span>
-                      </div>
-                      <div className="flex flex-col">
-                        <span className="text-lg font-bold font-score text-foreground">{s.ga}</span>
-                        <span className="text-[9px] text-muted-foreground uppercase tracking-widest font-bold mt-1">GA</span>
-                      </div>
-                      <div className="flex flex-col">
-                        <span className={`text-lg font-bold font-score ${s.gd > 0 ? 'text-emerald-400' : s.gd < 0 ? 'text-red-400' : 'text-foreground'}`}>
-                          {s.gd > 0 ? `+${s.gd}` : s.gd}
-                        </span>
-                        <span className="text-[9px] text-muted-foreground uppercase tracking-widest font-bold mt-1">GD</span>
-                      </div>
+              
+              <div className="flex gap-0.5">
+                {s.form.slice(-4).map((f, idx) => {
+                  let bg = "bg-zinc-500";
+                  if (f.result === 'W') bg = "bg-emerald-500";
+                  if (f.result === 'L') bg = "bg-red-500";
+                  return (
+                    <div key={idx} className={`w-3.5 h-3.5 rounded-full ${bg} flex items-center justify-center text-[7px] font-bold text-white shadow-sm`}>
+                      {f.result}
                     </div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </motion.div>
-          );
-        })}
-      </div>
+                  );
+                })}
+              </div>
+            </div>
+          </motion.div>
+        );
+      })}
     </div>
   );
 }
@@ -729,6 +738,9 @@ export default function AdminOverviewDashboard({ players = [], activeSeason, mat
       <QuickActions setTab={setTab} showToast={showToast} session={session} managerPermissions={managerPermissions} />
 
       <div className="mb-6 w-full min-w-0">
+        <div className="flex items-center justify-between mb-4">
+          <SectionTitle icon={ListOrdered} className="mb-0">League Standings</SectionTitle>
+        </div>
         <div className="hidden md:block">
           <StandingsTable matches={liveMatches} players={players} seasonId={activeSeason.id} config={activeSeason.config} />
         </div>
