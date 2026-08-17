@@ -1,6 +1,7 @@
 'use server';
 
 import { GoogleGenAI, Type, Schema } from '@google/genai';
+import sharp from 'sharp';
 
 function getApiKeys() {
   // Support both GEMINI_API_KEYS (comma separated) and GEMINI_API_KEY
@@ -25,9 +26,17 @@ export async function extractMatchStats(formData) {
 
   try {
     const arrayBuffer = await file.arrayBuffer();
-    const buffer = Buffer.from(arrayBuffer);
-    const base64Image = buffer.toString('base64');
-    const mimeType = file.type || 'image/jpeg';
+    const rawBuffer = Buffer.from(arrayBuffer);
+
+    // Compress & resize the image before sending to Gemini
+    // This dramatically reduces API processing time without losing OCR clarity
+    const compressedBuffer = await sharp(rawBuffer)
+      .resize({ width: 1024, withoutEnlargement: true })
+      .jpeg({ quality: 80 })
+      .toBuffer();
+
+    const base64Image = compressedBuffer.toString('base64');
+    const mimeType = 'image/jpeg'; // always jpeg after sharp conversion
 
     const promptText = `
       Analyze this football match stats screenshot. 
