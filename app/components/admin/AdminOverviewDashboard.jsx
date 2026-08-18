@@ -1,8 +1,8 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Trophy, Calendar, Users, Radio, Activity, ArrowRight, Shield, Flame, Swords, Target, Goal, TrendingUp, History, ListOrdered, Zap, PlusCircle, CheckCircle2, Megaphone, Clock, AlertTriangle, ChevronRight, BarChart2, Star, CalendarDays, PlayCircle, Edit2, Bell, MoreVertical, ShieldAlert } from 'lucide-react';
+import { Trophy, Calendar, Users, Radio, Activity, ArrowRight, Shield, Flame, Swords, Target, Goal, TrendingUp, History, ListOrdered, Zap, PlusCircle, CheckCircle2, Megaphone, Clock, AlertTriangle, ChevronRight, BarChart2, Star, CalendarDays, PlayCircle, Edit2, Bell, MoreVertical, ShieldAlert, Camera, Loader2 } from 'lucide-react';
 import { Card, SectionTitle, EmptyState, MagicCard, FadeIn, Badge, Btn, Avatar, toTitleCase } from '@/app/components/shared/UI';
 import { supabase } from '@/lib/supabaseClient';
 import { BorderBeam } from '@/app/components/magicui/BorderBeam';
@@ -600,6 +600,28 @@ export function MobileStandingsList({ matches, players, activeSeason }) {
 // Main Component
 export default function AdminOverviewDashboard({ players = [], activeSeason, matches = [], announcements = [], notifications = [], trophies = [], seasons = [], history = [], showToast, setTab, session, managerPermissions }) {
   const [realtimeOverrides, setRealtimeOverrides] = useState({});
+  const summarySnapshotRef = useRef(null);
+  const [isExportingSnapshot, setIsExportingSnapshot] = useState(false);
+
+  const handleExportSnapshot = async () => {
+    if (!summarySnapshotRef.current) return;
+    setIsExportingSnapshot(true);
+    try {
+      const htmlToImage = await import('html-to-image');
+      const download = (await import('downloadjs')).default;
+      const dataUrl = await htmlToImage.toPng(summarySnapshotRef.current, {
+        quality: 1,
+        pixelRatio: 3,
+        backgroundColor: '#0a0c10',
+        style: { transform: 'scale(1)', transformOrigin: 'top left', padding: '16px' }
+      });
+      download(dataUrl, 'golazo-season-summary.png');
+    } catch (err) {
+      console.error('Failed to export image', err);
+    } finally {
+      setIsExportingSnapshot(false);
+    }
+  };
 
   const liveMatches = React.useMemo(() => {
     if (!matches) return [];
@@ -667,15 +689,34 @@ export default function AdminOverviewDashboard({ players = [], activeSeason, mat
         <MatchCenter matches={liveMatches} players={players} activeSeason={activeSeason} showToast={showToast} setTab={setTab} />
       </div>
 
-      <TopPlayersHorizontal matches={liveMatches} players={players} activeSeason={activeSeason} />
-
-      {/* Season Summary Dashboard */}
-      <div className="w-full">
-        <div className="flex items-center gap-2 mb-3">
-          <BarChart2 size={18} className="text-muted-foreground" />
-          <h3 className="text-sm font-bold uppercase tracking-wider text-muted-foreground">Season Summary</h3>
+      {/* End of Season Stats (Top Players + Summary) */}
+      <div className="w-full relative bg-[#0a0c10]/40 border border-border/20 rounded-2xl p-4 sm:p-6 mb-6">
+        <div className="flex justify-between items-center mb-6 border-b border-border/30 pb-3">
+          <div className="flex items-center gap-2">
+            <Camera size={18} className="text-muted-foreground" />
+            <h3 className="text-sm font-bold uppercase tracking-wider text-muted-foreground">Season Wrap-up</h3>
+          </div>
+          <button 
+            onClick={handleExportSnapshot}
+            disabled={isExportingSnapshot}
+            className="flex items-center gap-1.5 px-3 py-1.5 text-[10px] sm:text-xs font-bold uppercase tracking-wider bg-zinc-800/80 hover:bg-zinc-700 text-white rounded-lg border border-zinc-700/50 transition-colors shadow-sm disabled:opacity-50"
+          >
+            {isExportingSnapshot ? <Loader2 size={12} className="animate-spin" /> : <Camera size={12} />}
+            {isExportingSnapshot ? 'Capturing...' : 'Snapshot'}
+          </button>
         </div>
-        <SeasonSummaryDashboard season={activeSeason} matches={liveMatches} players={players} />
+
+        <div ref={summarySnapshotRef} className="flex flex-col gap-6" style={{ background: isExportingSnapshot ? '#0a0c10' : 'transparent' }}>
+          <TopPlayersHorizontal matches={liveMatches} players={players} activeSeason={activeSeason} />
+
+          <div className="w-full">
+            <div className="flex items-center gap-2 mb-3">
+              <BarChart2 size={18} className="text-muted-foreground" />
+              <h3 className="text-sm font-bold uppercase tracking-wider text-muted-foreground">Season Summary</h3>
+            </div>
+            <SeasonSummaryDashboard season={activeSeason} matches={liveMatches} players={players} />
+          </div>
+        </div>
       </div>
 
 
