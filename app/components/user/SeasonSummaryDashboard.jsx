@@ -40,6 +40,10 @@ function computeSeasonSummary(matches, players, seasonId) {
 
   let totalGoals = 0;
 
+  let totalCleanSheets = 0;
+  let biggestWinDiff = 0;
+  let biggestWinScore = "0-0";
+
   completed.forEach(m => {
     const hs = Number(m.homeScore) || 0;
     const as = Number(m.awayScore) || 0;
@@ -53,8 +57,14 @@ function computeSeasonSummary(matches, players, seasonId) {
     h.goals += hs; a.goals += as;
     h.conceded += as; a.conceded += hs;
 
-    if (as === 0) h.cleanSheets++;
-    if (hs === 0) a.cleanSheets++;
+    if (as === 0) { h.cleanSheets++; totalCleanSheets++; }
+    if (hs === 0) { a.cleanSheets++; totalCleanSheets++; }
+
+    const diff = Math.abs(hs - as);
+    if (diff > biggestWinDiff) {
+      biggestWinDiff = diff;
+      biggestWinScore = hs > as ? `${hs}-${as}` : `${as}-${hs}`;
+    }
 
     if (hs > as) {
       h.wins++; a.losses++;
@@ -94,6 +104,8 @@ function computeSeasonSummary(matches, players, seasonId) {
     totalMatches: completed.length,
     totalGoals,
     avgGoals: (totalGoals / completed.length).toFixed(1),
+    totalCleanSheets,
+    biggestWinScore,
     topScorer: { ...topScorer, player: playerMap.get(topScorer.id) },
     mostWins: { ...mostWins, player: playerMap.get(mostWins.id) },
     longestStreak: { ...longestStreak, player: playerMap.get(longestStreak.id) },
@@ -123,23 +135,22 @@ export default function SeasonSummaryDashboard({ season, matches, players, compa
   const completed = matches.filter(m => m.seasonId === season?.id && m.status === 'completed' && m.round === 'league');
   const totalMatches = completed.length;
   
-  let totalPlayerWins = 0;
+  let decisiveMatches = 0;
   completed.forEach(m => {
     const hs = Number(m.homeScore) || 0;
     const as = Number(m.awayScore) || 0;
-    if (hs > as) totalPlayerWins++;
-    if (as > hs) totalPlayerWins++;
+    if (hs !== as) decisiveMatches++;
   });
   
-  const winRate = totalMatches > 0 ? Math.round((totalPlayerWins / (totalMatches * 2)) * 100) : 0;
+  const winRate = totalMatches > 0 ? Math.round((decisiveMatches / totalMatches) * 100) : 0;
 
   const primaryMetrics = [
     { label: "Matches", value: summary.totalMatches, icon: Swords, color: "text-purple-400" },
     { label: "Goals", value: summary.totalGoals, icon: Target, color: "text-amber-400" },
     { label: "Avg Goals", value: summary.avgGoals, icon: BarChart3, color: "text-green-400" },
-    { label: "For", value: summary.totalGoals, icon: Goal, color: "text-blue-400" },
-    { label: "Against", value: summary.totalGoals, icon: Shield, color: "text-rose-400" },
-    { label: "Win Rate", value: `${winRate}%`, icon: TrendingUp, color: "text-yellow-400" },
+    { label: "Clean Sheets", value: summary.totalCleanSheets, icon: Shield, color: "text-blue-400" },
+    { label: "Biggest Win", value: summary.biggestWinScore, icon: Zap, color: "text-rose-400" },
+    { label: "Decisive Rate", value: `${winRate}%`, icon: TrendingUp, color: "text-yellow-400" },
   ];
 
   const secondaryCards = [
@@ -148,9 +159,9 @@ export default function SeasonSummaryDashboard({ season, matches, players, compa
       player: summary.topScorer?.player,
       value: `${summary.topScorer?.goals || 0} Goals`,
       icon: Target,
-      color: "text-purple-400",
-      bgClass: "from-purple-500/10 to-transparent",
-      bgGraphic: "/assets/trophies/GoldenBoot.png" // using existing icons or just generic SVG
+      color: "text-amber-400",
+      bgClass: "from-amber-500/20 via-amber-500/5 to-transparent",
+      rank: "🥇"
     },
     {
       label: "Best Defense",
@@ -159,6 +170,7 @@ export default function SeasonSummaryDashboard({ season, matches, players, compa
       icon: Shield,
       color: "text-blue-400",
       bgClass: "from-blue-500/10 to-transparent",
+      rank: "#1"
     },
     {
       label: "Most Wins",
@@ -167,6 +179,7 @@ export default function SeasonSummaryDashboard({ season, matches, players, compa
       icon: Trophy,
       color: "text-green-400",
       bgClass: "from-green-500/10 to-transparent",
+      rank: "#1"
     },
     {
       label: "Win Streak",
@@ -175,6 +188,7 @@ export default function SeasonSummaryDashboard({ season, matches, players, compa
       icon: Flame,
       color: "text-rose-500",
       bgClass: "from-rose-500/10 to-transparent",
+      rank: "🔥"
     },
     {
       label: "Clean Sheets",
@@ -183,6 +197,7 @@ export default function SeasonSummaryDashboard({ season, matches, players, compa
       icon: Star,
       color: "text-indigo-400",
       bgClass: "from-indigo-500/10 to-transparent",
+      rank: "#1"
     },
     {
       label: "Most Decisive",
@@ -191,6 +206,7 @@ export default function SeasonSummaryDashboard({ season, matches, players, compa
       icon: Zap,
       color: "text-pink-500",
       bgClass: "from-pink-500/10 to-transparent",
+      rank: "⚡"
     }
   ];
 
@@ -228,7 +244,12 @@ export default function SeasonSummaryDashboard({ season, matches, players, compa
 
             {/* Content Header */}
             <div className="relative z-10 flex flex-col gap-1">
-              <span className={`text-[11px] font-bold uppercase tracking-[0.15em] ${card.color} opacity-90`}>{card.label}</span>
+              <div className="flex items-center justify-between gap-1.5 opacity-90 group-hover:opacity-100 transition-opacity">
+                <span className={`text-[11px] font-bold uppercase tracking-[0.15em] ${card.color}`}>{card.label}</span>
+                {card.rank && (
+                  <span className="text-[14px] opacity-90 drop-shadow-md">{card.rank}</span>
+                )}
+              </div>
               {card.player && (
                 <div className="font-bold text-[14px] truncate text-foreground group-hover:text-white transition-colors">
                   {card.player.name}
@@ -250,9 +271,10 @@ export default function SeasonSummaryDashboard({ season, matches, players, compa
       </div>
       
       {/* Legend Footer */}
-      <div className="flex items-center gap-4 text-[10px] text-muted-foreground font-semibold uppercase tracking-widest mt-2 px-1">
-        <div className="flex items-center gap-1.5"><Shield size={12} className="opacity-60"/> GA: Goals Against</div>
+      <div className="flex flex-wrap items-center gap-4 text-[10px] text-muted-foreground font-semibold uppercase tracking-widest mt-2 px-1">
+        <div className="flex items-center gap-1.5"><Shield size={12} className="opacity-60"/> GA: Goals Against / Matches</div>
         <div className="flex items-center gap-1.5"><Star size={12} className="opacity-60"/> CS: Clean Sheets</div>
+        <div className="flex items-center gap-1.5"><Zap size={12} className="opacity-60"/> BIG WINS: Wins by 3+ Goals</div>
       </div>
     </div>
   );
