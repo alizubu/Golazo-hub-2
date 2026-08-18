@@ -14,6 +14,7 @@ import { useRouter } from 'next/navigation';
 import TournamentControlPanel from '@/app/components/admin/TournamentControlPanel';
 import LiveMatchControl from '@/app/components/admin/LiveMatchControl';
 import SeasonSummaryDashboard from '@/app/components/user/SeasonSummaryDashboard';
+import LeagueHighlightsCarousel from '@/app/components/shared/LeagueHighlightsCarousel';
 import { getPlayerIdentityBadgeUrl } from '@/lib/identityUtils';
 
 function formatName(name) {
@@ -362,76 +363,6 @@ function NotificationCenter({ notifications = [], announcements = [], matches = 
 }
 
 // 9. Top Players
-function TopPlayersHorizontal({ matches, players, activeSeason }) {
-  if (!activeSeason) return null;
-  const standings = computeStandings(matches, players, activeSeason.id);
-  if (standings.length === 0) return null;
-
-  const completed = matches.filter(m => m.seasonId === activeSeason.id && m.status === 'completed');
-
-  const topScorer = [...standings].sort((a, b) => b.gf - a.gf)[0];
-  const mostWins = [...standings].sort((a, b) => b.won - a.won)[0];
-  const bestDefense = [...standings].filter(s => s.played > 0).sort((a, b) => (a.ga / a.played) - (b.ga / b.played))[0] || standings[0];
-  
-  const ratingsMap = {};
-  const countMap = {};
-  completed.forEach(m => {
-    if (m.stats?.ratings?.a) {
-      ratingsMap[m.homeId] = (ratingsMap[m.homeId] || 0) + parseFloat(m.stats.ratings.a);
-      countMap[m.homeId] = (countMap[m.homeId] || 0) + 1;
-    }
-    if (m.stats?.ratings?.b) {
-      ratingsMap[m.awayId] = (ratingsMap[m.awayId] || 0) + parseFloat(m.stats.ratings.b);
-      countMap[m.awayId] = (countMap[m.awayId] || 0) + 1;
-    }
-  });
-
-  let highestRatedPlayer = null;
-  let highestRatingVal = 0;
-  standings.forEach(s => {
-    if (countMap[s.id] > 0) {
-      const avg = (ratingsMap[s.id] / countMap[s.id]);
-      if (avg > highestRatingVal) {
-        highestRatingVal = avg;
-        highestRatedPlayer = s;
-      }
-    }
-  });
-  if (!highestRatedPlayer && standings.length > 0) {
-    highestRatedPlayer = [...standings].sort((a, b) => ((b.pts * 2 + b.gd) - (a.pts * 2 + a.gd)))[0];
-    highestRatingVal = 7.5;
-  }
-
-  const categories = [
-    { label: "Golden Boot", player: topScorer, stat: `${topScorer?.gf || 0} Goals`, icon: Target },
-    { label: "Highest Rating", player: highestRatedPlayer, stat: `⭐ ${highestRatingVal.toFixed(1)}`, icon: Star },
-    { label: "Most Wins", player: mostWins, stat: `${mostWins?.won || 0} Wins`, icon: Trophy },
-    { label: "Best Defense", player: bestDefense, stat: `${bestDefense?.ga || 0} Goals Conceded`, icon: Shield }
-  ];
-
-  return (
-    <Card className="p-6">
-      <SectionTitle icon={Flame}>Top Players</SectionTitle>
-      <div className="flex flex-col sm:grid sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mt-6">
-        {categories.map((cat, i) => (
-          <FadeIn key={cat.label} delay={i * 0.1} className="h-full">
-            <div className="flex items-center gap-3 sm:gap-4 p-3.5 sm:p-4 bg-secondary/30 rounded-xl border border-border/50 h-full group hover:bg-secondary/50 transition-colors">
-              <Avatar p={cat.player} size={42} className="ring-1 ring-border" />
-              <div className="min-w-0 flex-1 w-full">
-                <div className="text-[9px] text-muted-foreground uppercase tracking-widest font-bold mb-0.5 flex items-center gap-1">
-                  <cat.icon size={10} /> {cat.label}
-                </div>
-                <div className="font-bold text-sm truncate" title={cat.player?.name}>{formatName(cat.player?.name || "—")}</div>
-                <div className="text-xs font-score text-pitch-bright font-bold mt-1 truncate">{cat.stat}</div>
-              </div>
-            </div>
-          </FadeIn>
-        ))}
-      </div>
-    </Card>
-  );
-}
-
 
 
 // 12. Mini Calendar
@@ -623,16 +554,7 @@ export default function AdminOverviewDashboard({ players = [], activeSeason, mat
         <MatchCenter matches={liveMatches} players={players} activeSeason={activeSeason} showToast={showToast} setTab={setTab} />
       </div>
 
-      <TopPlayersHorizontal matches={liveMatches} players={players} activeSeason={activeSeason} />
-
-      {/* Season Summary Dashboard */}
-      <div className="w-full">
-        <div className="flex items-center gap-2 mb-3">
-          <BarChart2 size={18} className="text-muted-foreground" />
-          <h3 className="text-sm font-bold uppercase tracking-wider text-muted-foreground">Season Summary</h3>
-        </div>
-        <SeasonSummaryDashboard season={activeSeason} matches={liveMatches} players={players} />
-      </div>
+      <LeagueHighlightsCarousel matches={liveMatches} players={players} activeSeason={activeSeason} />
       
 
 
