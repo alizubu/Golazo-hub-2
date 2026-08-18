@@ -115,7 +115,14 @@ function computeSeasonSummary(matches, players, seasonId) {
   };
 }
 
-// ─── Main Component ─────────────────────────────────────────────────────────
+function formatName(name) {
+  if (!name) return "—";
+  const parts = name.split(' ');
+  if (parts.length === 1) return parts[0];
+  return `${parts[0]} ${parts[parts.length - 1].charAt(0)}.`;
+}
+
+// ─── Utility: Compute Season Stats ─────────────────────────────────────────────────────────
 
 export default function SeasonSummaryDashboard({ season, matches, players, compact = false }) {
   const summary = useMemo(
