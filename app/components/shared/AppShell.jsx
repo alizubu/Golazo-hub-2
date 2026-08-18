@@ -14,6 +14,7 @@ import PlayerProfileDrawer from '@/app/components/user/PlayerProfileDrawer';
 import AdminBroadcast from '@/app/components/admin/AdminBroadcast';
 import AdminHistory from '@/app/components/admin/AdminHistory';
 import AdminRankings from '@/app/components/admin/AdminRankings';
+import AdminNotifications from '@/app/components/admin/AdminNotifications';
 
 export default function AppShell({ 
   initialTab, 
@@ -196,6 +197,8 @@ export default function AppShell({
                 <div className="pt-2"><AdminSettings {...adminProps} /></div>
               ) : currentTab === 'admin/history' ? (
                 <div className="pt-2"><AdminHistory {...adminProps} /></div>
+              ) : currentTab === 'notifications' ? (
+                <div className="pt-2"><AdminNotifications {...adminProps} /></div>
               ) : (
                 <AdminOverviewDashboard {...adminProps} />
               )}
