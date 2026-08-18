@@ -3,8 +3,18 @@
 import React, { useRef, useMemo } from 'react';
 import { motion, useMotionValue, useTransform, useSpring } from 'framer-motion';
 import { Target, Star, Shield, Trophy, Zap, Flame } from 'lucide-react';
-import { Avatar, formatName, computeStandings } from '@/app/components/shared/UI';
+import { Avatar, toTitleCase } from '@/app/components/shared/UI';
+import { computeStandings } from '@/app/components/shared/StandingsTable';
 
+function formatName(name) {
+  if (!name) return 'TBD';
+  const titleCased = toTitleCase(name);
+  const parts = titleCased.trim().split(/\s+/);
+  if (parts.length > 1 && titleCased.length > 12) {
+    return `${parts[0]} ${parts[parts.length - 1][0]}.`;
+  }
+  return titleCased;
+}
 // --- Compute Combined Stats ---
 function computeHighlightStats(matches, players, activeSeasonId) {
   const standings = computeStandings(matches, players, activeSeasonId);
