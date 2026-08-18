@@ -3,8 +3,10 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Trophy, Calendar, Users, Radio, Activity, ArrowRight, Shield, Flame, Swords, Target, Goal, TrendingUp, History, ListOrdered, Zap, PlusCircle, CheckCircle2, Megaphone, Clock, AlertTriangle, ChevronRight, BarChart2, Star, CalendarDays, PlayCircle, Edit2, Bell, MoreVertical, ShieldAlert, Camera, Loader2 } from 'lucide-react';
-import { Card, SectionTitle, EmptyState, MagicCard, FadeIn, Badge, Btn, Avatar, toTitleCase } from '@/app/components/shared/UI';
+import { Card, SectionTitle, EmptyState, MagicCard, FadeIn, Badge, Btn, Avatar, toTitleCase, WavingFlag } from '@/app/components/shared/UI';
 import { supabase } from '@/lib/supabaseClient';
+import { CLUBS } from '@/lib/data/clubs';
+import { NATIONAL_TEAMS } from '@/lib/data/national-teams';
 import { BorderBeam } from '@/app/components/magicui/BorderBeam';
 import { NumberTicker } from '@/app/components/ui/number-ticker';
 import { computeStandings } from '@/app/components/shared/StandingsTable';
@@ -438,11 +440,19 @@ function TopPlayersHorizontal({ matches, players, activeSeason }) {
                       {cat.player?.name || "—"}
                     </span>
                     <div className="flex items-center gap-1.5 mt-1 opacity-90">
-                      {cat.player?.identity && (
+                      {(cat.player?.favoriteClub || cat.player?.flag) && (
                         <>
-                          {cat.player.identity.country && <span className="text-xs">{cat.player.identity.country}</span>}
-                          <img src={getPlayerIdentityBadgeUrl(cat.player)} alt="club" className="h-4 object-contain" />
-                          <span className="text-xs text-muted-foreground truncate">{cat.player.identity.club || 'Club'}</span>
+                          {cat.player.flag && (
+                            <div className="shrink-0">
+                              <WavingFlag code={NATIONAL_TEAMS.find(n => n.name === cat.player.flag)?.isoCode} size="sm" />
+                            </div>
+                          )}
+                          {cat.player.favoriteClub && (
+                            <>
+                              <img src={CLUBS.find(c => c.name === cat.player.favoriteClub)?.crestPath} alt="club" className="h-4 object-contain drop-shadow-md" />
+                              <span className="text-xs text-muted-foreground truncate font-semibold">{cat.player.favoriteClub}</span>
+                            </>
+                          )}
                         </>
                       )}
                     </div>
