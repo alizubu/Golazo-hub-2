@@ -463,23 +463,6 @@ export async function generatePlayoffs(seasonId, top4PlayerIds) {
   }
 }
 
-function matchWinnerId(m) {
-  if (!m || m.status !== 'completed') return null;
-  if (m.penaltyWinner) return m.penaltyWinner === 'home' ? m.homeId : m.awayId;
-  const h = m.homeScore || 0;
-  const a = m.awayScore || 0;
-  if (h > a) return m.homeId;
-  if (a > h) return m.awayId;
-  return null;
-}
-
-function matchLoserId(m) {
-  if (!m || m.status !== 'completed') return null;
-  const winner = matchWinnerId(m);
-  if (!winner) return null;
-  return winner === m.homeId ? m.awayId : m.homeId;
-}
-
 export async function progressPlayoffBracket(matchId) {
   try {
     const match = await prisma.match.findUnique({ where: { id: matchId } });
