@@ -3,7 +3,7 @@ import React, { useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Avatar } from '@/app/components/shared/UI';
 import { HoverCard, HoverCardTrigger, HoverCardContent } from '@/app/components/ui/hover-card';
-import { Download, Loader2, Medal, ChevronDown, ChevronUp } from 'lucide-react';
+import { Download, Loader2, Medal, ChevronDown, ChevronUp, Users, Calendar, CheckCircle2 } from 'lucide-react';
 import nationalTeamsData from '@/lib/data/national_teams.json';
 import clubsData from '@/lib/data/clubs.json';
 
@@ -13,17 +13,21 @@ const RankMedal = ({ rank }) => {
     return (
       <div className="relative flex items-center justify-center">
         <div className="absolute w-8 h-8 bg-yellow-500/20 rounded-full blur-md animate-pulse"></div>
-        <Medal className="text-yellow-400 drop-shadow-[0_0_8px_rgba(250,204,21,0.6)] relative z-10" size={24} strokeWidth={2.5} />
+        <Medal className="text-yellow-400 drop-shadow-[0_0_8px_rgba(250,204,21,0.6)] relative z-10" size={26} strokeWidth={2.5} />
       </div>
     );
   }
   if (rank === 2) {
-    return <Medal className="text-slate-300 drop-shadow-[0_0_4px_rgba(203,213,225,0.4)] mx-auto" size={22} strokeWidth={2} />;
+    return <Medal className="text-slate-300 drop-shadow-[0_0_4px_rgba(203,213,225,0.4)] mx-auto" size={24} strokeWidth={2} />;
   }
   if (rank === 3) {
-    return <Medal className="text-amber-600 drop-shadow-[0_0_4px_rgba(217,119,6,0.4)] mx-auto" size={22} strokeWidth={2} />;
+    return <Medal className="text-amber-600 drop-shadow-[0_0_4px_rgba(217,119,6,0.4)] mx-auto" size={24} strokeWidth={2} />;
   }
-  return <span className="font-bold font-score text-muted-foreground">{rank}</span>;
+  return (
+    <div className="w-[22px] h-[22px] rounded-full bg-black/40 border border-white/10 text-muted-foreground flex items-center justify-center text-[10px] font-bold mx-auto shadow-inner">
+      {rank}
+    </div>
+  );
 };
 
 export function computeStandings(matches, players, seasonId, config = {}) {
@@ -97,16 +101,16 @@ export function computeStandings(matches, players, seasonId, config = {}) {
 
 const FormDots = ({ form }) => {
   return (
-    <div className="flex items-center justify-center gap-1.5" onClick={(e) => e.stopPropagation()}>
+    <div className="flex items-center justify-center gap-[5px]" onClick={(e) => e.stopPropagation()}>
       {form.length > 0 ? form.map((res, idx) => {
         const isLast = idx === form.length - 1;
         return (
           <HoverCard key={idx} openDelay={100} closeDelay={100}>
             <HoverCardTrigger asChild>
               <div 
-                className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold text-foreground shadow-inner cursor-pointer
-                  ${res.result === 'W' ? 'bg-gradient-to-br from-emerald-400 to-emerald-600 led-breathe-green' : res.result === 'D' ? 'bg-gradient-to-br from-slate-400 to-slate-600 shadow-[0_0_8px_rgba(148,163,184,0.4)]' : 'bg-gradient-to-br from-red-400 to-red-600 led-breathe-red'}
-                  ${isLast ? 'ring-2 ring-white/20 ring-offset-1 ring-offset-[#12151b] drop-shadow-[0_0_6px_rgba(255,255,255,0.2)] scale-110 z-10' : ''}
+                className={`w-4 h-4 rounded-full flex items-center justify-center text-[9px] font-bold text-white shadow-sm cursor-pointer transition-transform
+                  ${res.result === 'W' ? 'bg-emerald-500' : res.result === 'D' ? 'bg-slate-400' : 'bg-red-500'}
+                  ${isLast ? 'ring-2 ring-white/20 ring-offset-1 ring-offset-[#12151b] scale-[1.15] z-10' : 'hover:scale-110'}
                 `}
               >
                 {res.result}
@@ -130,11 +134,15 @@ const FormDots = ({ form }) => {
 };
 
 
-export default function StandingsTable({ matches, players, seasonId, me, onPlayerClick, onH2HClick, config = {}, headerLeft }) {
+export default function StandingsTable({ matches, players, seasonId, me, onPlayerClick, onH2HClick, config = {}, headerLeft, seasonName }) {
   const standings = computeStandings(matches, players, seasonId, config);
   const tableRef = useRef(null);
   const [isExporting, setIsExporting] = useState(false);
-  const [expandedRow, setExpandedRow] = useState(null);
+  
+  // Calculate summary info
+  const completedCount = matches.filter(m => m.seasonId === seasonId && m.status === 'completed').length;
+  const totalMatchesCount = matches.filter(m => m.seasonId === seasonId).length;
+  const matchday = Math.floor(completedCount / (players.length / 2)) || 1;
 
   const handleExport = async () => {
     if (!tableRef.current) return;
@@ -180,86 +188,146 @@ export default function StandingsTable({ matches, players, seasonId, me, onPlaye
       </div>
 
       {/* Table View (Scrollable on Mobile) */}
-      <div ref={tableRef} className="overflow-x-auto rounded-xl border border-border/40 bg-card shadow-[0_8px_30px_rgb(0,0,0,0.12)]">
+      <div ref={tableRef} className="overflow-x-auto rounded-xl border border-border/40 bg-card shadow-[0_8px_30px_rgb(0,0,0,0.12)] pb-4 pt-2 px-2 bg-gradient-to-b from-[#0a0c10] to-[#12151b]">
+        
+        {/* Tournament Summary Header */}
+        <div className="px-4 py-3 flex flex-wrap items-center justify-between gap-4 border-b border-border/30 mb-2">
+          <div className="flex flex-col">
+            <h3 className="font-heading font-black text-lg tracking-tight uppercase bg-clip-text text-transparent bg-gradient-to-r from-white to-white/70">
+              {seasonName || "Premier League"}
+            </h3>
+            <span className="text-[10px] uppercase tracking-widest text-muted-foreground font-bold">
+              Matchday {matchday}
+            </span>
+          </div>
+          
+          <div className="flex items-center gap-4 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+            <div className="flex items-center gap-1.5"><Users size={14} className="text-pitch" /> {players.length} Players</div>
+            <div className="flex items-center gap-1.5"><Calendar size={14} className="text-blue-400" /> {totalMatchesCount} Matches</div>
+            <div className="flex items-center gap-1.5"><CheckCircle2 size={14} className="text-emerald-400" /> {completedCount} Completed</div>
+          </div>
+        </div>
+
         <table className="w-full text-left border-collapse text-sm">
           <thead>
-            <tr className="border-b-2 border-border/50 bg-secondary/80 font-heading uppercase tracking-widest text-[11px] text-muted-foreground">
-              <th className="py-4 px-2 w-16 text-center">#</th>
-              <th className="py-4 px-2">Player</th>
-              <th className="py-4 px-2 text-center w-12">P</th>
-              <th className="py-4 px-2 text-center w-12">W</th>
-              <th className="py-4 px-2 text-center w-12">D</th>
-              <th className="py-4 px-2 text-center w-12">L</th>
-              <th className="py-4 px-2 text-center w-12">GF</th>
-              <th className="py-4 px-2 text-center w-12">GA</th>
-              <th className="py-4 px-2 text-center w-12">GD</th>
-              <th className="py-4 px-2 text-center font-bold text-foreground text-xs tracking-[0.2em]">PTS</th>
-              <th className="py-4 px-2 text-center w-36">Form</th>
+            {/* Super Headers */}
+            <tr className="uppercase tracking-[0.15em] text-[10px] text-muted-foreground font-bold border-b border-border/10">
+              <th colSpan="2"></th>
+              <th colSpan="4" className="text-center py-2 pb-1 border-b-2 border-border/40">Record</th>
+              <th colSpan="3" className="text-center py-2 pb-1 border-b-2 border-border/40">Goals</th>
+              <th className="text-center py-2 pb-1 text-pitch-bright">PTS</th>
+              <th></th>
+            </tr>
+            {/* Sub Headers */}
+            <tr className="border-b-2 border-border/50 bg-secondary/20 font-heading uppercase tracking-widest text-[11px] text-muted-foreground">
+              <th className="py-3 px-2 w-14 text-center">#</th>
+              <th className="py-3 px-2">Player</th>
+              <th className="py-3 px-2 text-center w-12 text-foreground/60">P</th>
+              <th className="py-3 px-2 text-center w-12 text-foreground/60">W</th>
+              <th className="py-3 px-2 text-center w-12 text-foreground/60">D</th>
+              <th className="py-3 px-2 text-center w-12 text-foreground/60">L</th>
+              <th className="py-3 px-2 text-center w-12 text-foreground/60">GF</th>
+              <th className="py-3 px-2 text-center w-12 text-foreground/60">GA</th>
+              <th className="py-3 px-2 text-center w-12 text-foreground/60">GD</th>
+              <th className="py-3 px-2 text-center font-black text-pitch-bright text-xs tracking-[0.2em] drop-shadow-sm bg-pitch/5">PTS</th>
+              <th className="py-3 px-2 text-center w-36">Form</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-border/20 text-xs">
+          <tbody className="divide-y divide-white/[0.03] text-xs">
             <AnimatePresence>
               {standings.map((s, i) => {
                 const isFirst = i === 0;
                 const isMe = me && s.id === me.id;
                 const badgeUrl = getPlayerIdentityBadgeUrl(s);
+                const identityName = s.displayBadgePreference === 'nation' ? s.flag : (s.favoriteClub || s.flag);
                 
                 let rowClasses = i % 2 === 0 ? 'bg-transparent' : 'bg-white/[0.01]';
                 
-                let borderClasses = 'border-l-4 border-l-transparent';
-                if (isMe) borderClasses = 'border-l-4 border-l-pitch';
+                let borderClasses = 'border-l-[3px] border-l-transparent';
+                if (isMe) borderClasses = 'border-l-[3px] border-l-pitch';
                 
                 if (isMe) {
-                  rowClasses += ' bg-pitch/10 hover:bg-pitch/20';
+                  rowClasses += ' bg-pitch/10';
                 }
 
+                const isKnockoutZone = i === 3 && standings.length > 4;
+
                 return (
-                  <motion.tr 
-                    layout
-                    initial={{ opacity: 0, y: 10 }} 
-                    animate={{ opacity: 1, y: 0 }} 
-                    exit={{ opacity: 0 }}
-                    transition={{ delay: i * 0.03, duration: 0.3 }} 
-                    key={s.id} 
-                    onClick={() => handleRowClick(s.username || s.id)}
-                    className={`border-b border-border/30 last:border-0 hover:bg-white/[0.04] transition-colors cursor-pointer group ${rowClasses} ${borderClasses}`}
-                  >
-                    <td className="relative py-5 px-2 text-center font-medium">
-                      {isFirst && <div className="absolute top-0 left-0 w-[4px] h-full bg-[linear-gradient(to_bottom,#FBBF24,#B45309,#f59e0b,#FBBF24)] bg-[length:100%_200%] animate-[bg-pan_2.5s_linear_infinite]" />}
-                      <RankMedal rank={i + 1} />
-                    </td>
-                    <td className="py-5 px-2">
-                      <div className="flex items-center gap-3">
-                        <motion.div 
-                          className="relative flex-shrink-0"
-                          whileHover={{ scale: 1.15, rotateX: 10, rotateY: -10 }}
-                          transition={{ type: "spring", stiffness: 300 }}
-                          style={{ perspective: 1000 }}
-                        >
-                          <Avatar p={s} size={32} />
-                          {badgeUrl && (
-                            <div className="absolute -bottom-1 -right-1 bg-transparent rounded-full p-0.5">
-                              <img src={badgeUrl} alt="badge" className="w-5 h-5 object-contain drop-shadow-md" />
+                  <React.Fragment key={s.id}>
+                    <motion.tr 
+                      layout
+                      initial={{ opacity: 0, y: 10 }} 
+                      animate={{ opacity: 1, y: 0 }} 
+                      exit={{ opacity: 0 }}
+                      transition={{ delay: i * 0.03, duration: 0.3 }} 
+                      onClick={() => handleRowClick(s.username || s.id)}
+                      className={`group hover:bg-secondary/40 hover:border-l-[3px] hover:border-l-pitch/60 transition-all duration-200 cursor-pointer ${rowClasses} ${borderClasses}`}
+                    >
+                      <td className="relative py-4 px-2 text-center font-medium">
+                        {isFirst && <div className="absolute top-0 left-0 w-[3px] h-full bg-[linear-gradient(to_bottom,#FBBF24,#B45309,#f59e0b,#FBBF24)] bg-[length:100%_200%] animate-[bg-pan_2.5s_linear_infinite]" />}
+                        <RankMedal rank={i + 1} />
+                      </td>
+                      <td className="py-4 px-2">
+                        <div className="flex items-center gap-3.5">
+                          <motion.div 
+                            className="relative flex-shrink-0 group-hover:drop-shadow-[0_0_8px_rgba(255,255,255,0.2)] transition-all duration-300"
+                          >
+                            <Avatar p={s} size={40} className="border border-border/50" />
+                          </motion.div>
+                          <div className="flex flex-col justify-center min-w-0">
+                            <span className="font-black text-foreground font-heading text-[15px] uppercase tracking-wide group-hover:text-pitch-bright transition-colors truncate">
+                              {s.name}
+                            </span>
+                            {(badgeUrl || identityName) && (
+                              <span className="text-[10px] text-muted-foreground font-semibold truncate flex items-center gap-1.5 mt-[2px] uppercase tracking-wider">
+                                {badgeUrl && <img src={badgeUrl} alt="Club Badge" className="w-3.5 h-3.5 object-contain" />}
+                                {identityName}
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      </td>
+                      <td className="py-4 px-2 text-center font-score text-muted-foreground font-semibold text-[14px]">{s.played}</td>
+                      <td className="py-4 px-2 text-center font-score text-muted-foreground font-semibold text-[14px]">{s.won}</td>
+                      <td className="py-4 px-2 text-center font-score text-muted-foreground font-semibold text-[14px]">{s.drawn}</td>
+                      <td className="py-4 px-2 text-center font-score text-muted-foreground font-semibold text-[14px]">{s.lost}</td>
+                      <td className="py-4 px-2 text-center font-score text-muted-foreground font-semibold text-[14px]">{s.gf}</td>
+                      <td className="py-4 px-2 text-center font-score text-muted-foreground font-semibold text-[14px]">{s.ga}</td>
+                      <td className="py-4 px-2 text-center font-score font-bold text-[14px]">
+                        {s.gd > 0 ? (
+                          <span className="text-emerald-400 drop-shadow-[0_0_6px_rgba(52,211,153,0.3)]">+{s.gd}</span>
+                        ) : s.gd < 0 ? (
+                          <span className="text-red-400 drop-shadow-[0_0_6px_rgba(248,113,113,0.3)]">{s.gd}</span>
+                        ) : (
+                          <span className="text-muted-foreground">{s.gd}</span>
+                        )}
+                      </td>
+                      <td className="py-4 px-2 text-center bg-pitch/5 group-hover:bg-pitch/10 transition-colors">
+                        <span className="font-score font-black text-pitch-bright text-2xl tracking-tighter drop-shadow-[0_0_8px_rgba(255,255,255,0.15)] group-hover:drop-shadow-[0_0_12px_rgba(255,255,255,0.4)] transition-all">
+                          {s.pts}
+                        </span>
+                      </td>
+                      <td className="py-4 px-2 text-center">
+                        <FormDots form={s.form} />
+                      </td>
+                    </motion.tr>
+
+                    {/* Knockout Qualification Divider */}
+                    {isKnockoutZone && (
+                      <tr>
+                        <td colSpan="11" className="p-0 border-none">
+                          <div className="flex items-center justify-center w-full relative h-[18px]">
+                            <div className="absolute inset-0 flex items-center">
+                              <div className="w-full border-t border-dashed border-indigo-500/30"></div>
                             </div>
-                          )}
-                        </motion.div>
-                        <span className="font-bold text-foreground font-heading text-[15px] group-hover:underline">{s.name}</span>
-                      </div>
-                    </td>
-                    <td className="py-5 px-2 text-center font-score text-muted-foreground font-semibold text-[15px]">{s.played}</td>
-                    <td className="py-5 px-2 text-center font-score text-muted-foreground font-semibold text-[15px]">{s.won}</td>
-                    <td className="py-5 px-2 text-center font-score text-muted-foreground font-semibold text-[15px]">{s.drawn}</td>
-                    <td className="py-5 px-2 text-center font-score text-muted-foreground font-semibold text-[15px]">{s.lost}</td>
-                    <td className="py-5 px-2 text-center font-score text-muted-foreground font-semibold text-[15px]">{s.gf}</td>
-                    <td className="py-5 px-2 text-center font-score text-muted-foreground font-semibold text-[15px]">{s.ga}</td>
-                    <td className={`py-5 px-2 text-center font-score font-bold text-[15px] ${s.gd > 0 ? 'text-emerald-500' : s.gd < 0 ? 'text-red-500' : 'text-muted-foreground'}`}>
-                      {s.gd > 0 ? `+${s.gd}` : s.gd}
-                    </td>
-                    <td className="py-5 px-2 text-center font-score font-bold text-pitch-bright text-2xl drop-shadow-[0_0_8px_rgba(255,255,255,0.15)]">{s.pts}</td>
-                    <td className="py-5 px-2 text-center">
-                      <FormDots form={s.form} />
-                    </td>
-                  </motion.tr>
+                            <div className="relative flex justify-center text-[9px] uppercase tracking-[0.2em] font-bold text-indigo-400/80 bg-[#0c0e14] px-4 py-0.5 rounded-full border border-indigo-500/20 shadow-sm">
+                              Top 4 Qualify for Knockout Stage
+                            </div>
+                          </div>
+                        </td>
+                      </tr>
+                    )}
+                  </React.Fragment>
                 );
               })}
             </AnimatePresence>
