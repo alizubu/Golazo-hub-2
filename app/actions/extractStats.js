@@ -1,7 +1,6 @@
 'use server';
 
-import { GoogleGenAI, Type, Schema } from '@google/genai';
-import sharp from 'sharp';
+import { GoogleGenAI } from '@google/genai';
 
 function getApiKeys() {
   // Support both GEMINI_API_KEYS (comma separated) and GEMINI_API_KEY
@@ -14,29 +13,23 @@ function getApiKeys() {
 }
 
 export async function extractMatchStats(formData) {
-  const file = formData.get('image');
-  if (!file) {
-    throw new Error('No image provided');
-  }
-
-  const validTypes = ['image/jpeg', 'image/jpg', 'image/png'];
-  if (!validTypes.includes(file.type)) {
-    return { success: false, error: 'Invalid file type. Please upload a JPG, JPEG, or PNG image.' };
-  }
-
   try {
+    const file = formData.get('image');
+    if (!file) {
+      throw new Error('No image provided');
+    }
+
+    const validTypes = ['image/jpeg', 'image/jpg', 'image/png'];
+    if (!validTypes.includes(file.type)) {
+      throw new Error('Invalid file type. Please upload a JPG, JPEG, or PNG image.');
+    }
+
     const arrayBuffer = await file.arrayBuffer();
     const rawBuffer = Buffer.from(arrayBuffer);
 
-    // Compress & resize the image before sending to Gemini
-    // This dramatically reduces API processing time without losing OCR clarity
-    const compressedBuffer = await sharp(rawBuffer)
-      .resize({ width: 1024, withoutEnlargement: true })
-      .jpeg({ quality: 80 })
-      .toBuffer();
-
-    const base64Image = compressedBuffer.toString('base64');
-    const mimeType = 'image/jpeg'; // always jpeg after sharp conversion
+    // The image is already compressed client-side, so we just convert directly to base64
+    const base64Image = rawBuffer.toString('base64');
+    const mimeType = file.type;
 
     const promptText = `
       Analyze this football match stats screenshot. 
@@ -132,3 +125,4 @@ export async function extractMatchStats(formData) {
     return { success: false, error: error.message };
   }
 }
+

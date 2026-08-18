@@ -665,8 +665,43 @@ function ImageImport({ onApply }) {
     setLoading(true);
     setError(null);
     try {
+      // --- Client-side image compression using Canvas ---
+      const compressedFile = await new Promise((resolve, reject) => {
+        const img = new window.Image();
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          const MAX_WIDTH = 1024;
+          let width = img.width;
+          let height = img.height;
+
+          if (width > MAX_WIDTH) {
+            height = Math.floor((height * MAX_WIDTH) / width);
+            width = MAX_WIDTH;
+          }
+
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0, width, height);
+
+          canvas.toBlob((blob) => {
+            if (!blob) {
+              reject(new Error("Image compression failed"));
+              return;
+            }
+            const newFile = new File([blob], file.name, {
+              type: 'image/jpeg',
+              lastModified: Date.now(),
+            });
+            resolve(newFile);
+          }, 'image/jpeg', 0.8);
+        };
+        img.onerror = () => reject(new Error("Failed to load image"));
+        img.src = URL.createObjectURL(file);
+      });
+
       const formData = new FormData();
-      formData.append('image', file);
+      formData.append('image', compressedFile);
       const response = await extractMatchStats(formData);
 
       if (response.success) {
