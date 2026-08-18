@@ -432,34 +432,41 @@ function TopPlayersHorizontal({ matches, players, activeSeason }) {
               </div>
 
               {/* Player Info & Big Stat */}
-              <div className="flex flex-col justify-end relative z-10 mt-auto h-full gap-4">
-                <div className="flex items-center gap-4 group-hover:drop-shadow-[0_0_8px_rgba(255,255,255,0.2)] transition-all">
-                  <Avatar p={cat.player} size={64} className="border-2 border-border/50 shadow-sm rounded-full shrink-0" />
+              <div className="flex flex-col justify-end relative z-10 mt-auto h-full gap-3">
+                <div className="flex items-center gap-3 group-hover:drop-shadow-[0_0_8px_rgba(255,255,255,0.2)] transition-all">
+                  <Avatar p={cat.player} size={60} className="border-2 border-border/50 shadow-sm rounded-full shrink-0" />
                   <div className="flex flex-col min-w-0">
-                    <span className="font-semibold text-[17px] leading-tight truncate text-foreground group-hover:text-white transition-colors">
+                    <span className="font-semibold text-[15px] leading-tight text-foreground group-hover:text-white transition-colors line-clamp-2">
                       {cat.player?.name || "—"}
                     </span>
-                    <div className="flex items-center gap-2 mt-2 opacity-95">
-                      {(cat.player?.favoriteClub || cat.player?.flag) && (
-                        <>
-                          {cat.player.flag && (
+                    <div className="flex items-center gap-2 mt-1.5 opacity-95">
+                      {(() => {
+                        const badgePref = cat.player?.displayBadgePreference || 'club';
+                        let displayType = null;
+                        if (badgePref === 'club' && cat.player?.favoriteClub) displayType = 'club';
+                        else if (badgePref === 'nation' && cat.player?.flag) displayType = 'nation';
+                        else if (cat.player?.favoriteClub) displayType = 'club';
+                        else if (cat.player?.flag) displayType = 'nation';
+
+                        return displayType === 'club' ? (
+                          <>
+                            <img src={CLUBS.find(c => c.name === cat.player.favoriteClub)?.crestPath} alt="club" className="h-6 w-auto object-contain drop-shadow-md shrink-0" />
+                            <span className="text-[11px] leading-tight text-muted-foreground font-semibold line-clamp-2">{cat.player.favoriteClub}</span>
+                          </>
+                        ) : displayType === 'nation' ? (
+                          <>
                             <div className="shrink-0">
                               <WavingFlag code={NATIONAL_TEAMS.find(n => n.name === cat.player.flag)?.isoCode} size="md" />
                             </div>
-                          )}
-                          {cat.player.favoriteClub && (
-                            <>
-                              <img src={CLUBS.find(c => c.name === cat.player.favoriteClub)?.crestPath} alt="club" className="h-6 w-auto object-contain drop-shadow-md" />
-                              <span className="text-sm text-muted-foreground truncate font-semibold">{cat.player.favoriteClub}</span>
-                            </>
-                          )}
-                        </>
-                      )}
+                            <span className="text-[11px] leading-tight text-muted-foreground font-semibold line-clamp-2">{cat.player.flag}</span>
+                          </>
+                        ) : null;
+                      })()}
                     </div>
                   </div>
                 </div>
                 <div className="flex flex-col leading-none">
-                  <span className={`font-score font-bold text-[52px] ${cat.color} brightness-110 tracking-tighter drop-shadow-sm`}>{cat.stat}</span>
+                  <span className={`font-score font-bold text-[42px] ${cat.color} brightness-110 tracking-tighter drop-shadow-sm`}>{cat.stat}</span>
                   <span className="text-[11px] text-muted-foreground uppercase font-bold tracking-[0.2em] mt-1">{cat.statLabel}</span>
                 </div>
               </div>
