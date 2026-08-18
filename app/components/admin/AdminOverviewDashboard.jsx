@@ -439,18 +439,18 @@ function TopPlayersHorizontal({ matches, players, activeSeason }) {
                     <span className="font-semibold text-[17px] leading-tight truncate text-foreground group-hover:text-white transition-colors">
                       {cat.player?.name || "—"}
                     </span>
-                    <div className="flex items-center gap-1.5 mt-1 opacity-90">
+                    <div className="flex items-center gap-2 mt-2 opacity-95">
                       {(cat.player?.favoriteClub || cat.player?.flag) && (
                         <>
                           {cat.player.flag && (
                             <div className="shrink-0">
-                              <WavingFlag code={NATIONAL_TEAMS.find(n => n.name === cat.player.flag)?.isoCode} size="sm" />
+                              <WavingFlag code={NATIONAL_TEAMS.find(n => n.name === cat.player.flag)?.isoCode} size="md" />
                             </div>
                           )}
                           {cat.player.favoriteClub && (
                             <>
-                              <img src={CLUBS.find(c => c.name === cat.player.favoriteClub)?.crestPath} alt="club" className="h-4 object-contain drop-shadow-md" />
-                              <span className="text-xs text-muted-foreground truncate font-semibold">{cat.player.favoriteClub}</span>
+                              <img src={CLUBS.find(c => c.name === cat.player.favoriteClub)?.crestPath} alt="club" className="h-6 w-auto object-contain drop-shadow-md" />
+                              <span className="text-sm text-muted-foreground truncate font-semibold">{cat.player.favoriteClub}</span>
                             </>
                           )}
                         </>
