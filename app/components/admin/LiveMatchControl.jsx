@@ -83,7 +83,7 @@ function CardHeader({ title, status, onCopyFixture }) {
   );
 }
 
-function ScoreRow({ home, away, homeScore, awayScore, homeObj, awayObj }) {
+function ScoreRow({ home, away, homeScore, awayScore, homeObj, awayObj, onBump }) {
   const homeClub = getClubData(homeObj);
   const awayClub = getClubData(awayObj);
 
@@ -134,16 +134,28 @@ function ScoreRow({ home, away, homeScore, awayScore, homeObj, awayObj }) {
 
             <div className="flex items-center gap-2 sm:gap-4 mt-4 sm:mt-0">
               {/* Home Score Container */}
-              <motion.div
-                key={`h-${homeScore}`}
-                initial={{ scale: 1.4, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                className="score-container w-14 h-16 sm:w-24 sm:h-28 bg-gradient-to-b from-emerald-900/40 via-emerald-950/30 to-emerald-900/20 border border-emerald-500/30 flex items-center justify-center neon-glow-green relative"
-              >
-                <span className="font-score text-3xl sm:text-6xl font-black text-white tabular-nums drop-shadow-[0_0_20px_rgba(34,197,94,0.6)]">
-                  {homeScore}
-                </span>
-              </motion.div>
+              <div className="flex flex-col items-center">
+                <motion.div
+                  key={`h-${homeScore}`}
+                  initial={{ scale: 1.4, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  className="score-container w-14 h-16 sm:w-24 sm:h-28 bg-gradient-to-b from-emerald-900/40 via-emerald-950/30 to-emerald-900/20 border border-emerald-500/30 flex items-center justify-center neon-glow-green relative"
+                >
+                  <span className="font-score text-3xl sm:text-6xl font-black text-white tabular-nums drop-shadow-[0_0_20px_rgba(34,197,94,0.6)]">
+                    {homeScore}
+                  </span>
+                </motion.div>
+                {onBump && (
+                  <div className="flex items-center gap-1.5 sm:gap-2 mt-2 sm:mt-3">
+                    <button onClick={() => onBump("home", "goals", -1)} className="w-7 h-7 sm:w-9 sm:h-9 rounded-lg bg-emerald-500/10 hover:bg-emerald-500/25 border border-emerald-500/30 flex items-center justify-center text-emerald-400 transition-colors active:scale-95 shadow-[0_0_10px_rgba(34,197,94,0.15)] cursor-pointer">
+                      <Minus size={16} />
+                    </button>
+                    <button onClick={() => onBump("home", "goals", 1)} className="w-7 h-7 sm:w-9 sm:h-9 rounded-lg bg-emerald-500/10 hover:bg-emerald-500/25 border border-emerald-500/30 flex items-center justify-center text-emerald-400 transition-colors active:scale-95 shadow-[0_0_10px_rgba(34,197,94,0.15)] cursor-pointer">
+                      <Plus size={16} />
+                    </button>
+                  </div>
+                )}
+              </div>
 
               {/* MATCH STATUS text */}
               <div className="flex flex-col items-center gap-1 px-1 sm:px-2">
@@ -151,16 +163,28 @@ function ScoreRow({ home, away, homeScore, awayScore, homeObj, awayObj }) {
               </div>
 
               {/* Away Score Container */}
-              <motion.div
-                key={`a-${awayScore}`}
-                initial={{ scale: 1.4, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                className="score-container w-14 h-16 sm:w-24 sm:h-28 bg-gradient-to-b from-rose-900/40 via-rose-950/30 to-rose-900/20 border border-rose-500/30 flex items-center justify-center neon-glow-red relative"
-              >
-                <span className="font-score text-3xl sm:text-6xl font-black text-white tabular-nums drop-shadow-[0_0_20px_rgba(225,29,72,0.6)]">
-                  {awayScore}
-                </span>
-              </motion.div>
+              <div className="flex flex-col items-center">
+                <motion.div
+                  key={`a-${awayScore}`}
+                  initial={{ scale: 1.4, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  className="score-container w-14 h-16 sm:w-24 sm:h-28 bg-gradient-to-b from-rose-900/40 via-rose-950/30 to-rose-900/20 border border-rose-500/30 flex items-center justify-center neon-glow-red relative"
+                >
+                  <span className="font-score text-3xl sm:text-6xl font-black text-white tabular-nums drop-shadow-[0_0_20px_rgba(225,29,72,0.6)]">
+                    {awayScore}
+                  </span>
+                </motion.div>
+                {onBump && (
+                  <div className="flex items-center gap-1.5 sm:gap-2 mt-2 sm:mt-3">
+                    <button onClick={() => onBump("away", "goals", -1)} className="w-7 h-7 sm:w-9 sm:h-9 rounded-lg bg-rose-500/10 hover:bg-rose-500/25 border border-rose-500/30 flex items-center justify-center text-rose-400 transition-colors active:scale-95 shadow-[0_0_10px_rgba(225,29,72,0.15)] cursor-pointer">
+                      <Minus size={16} />
+                    </button>
+                    <button onClick={() => onBump("away", "goals", 1)} className="w-7 h-7 sm:w-9 sm:h-9 rounded-lg bg-rose-500/10 hover:bg-rose-500/25 border border-rose-500/30 flex items-center justify-center text-rose-400 transition-colors active:scale-95 shadow-[0_0_10px_rgba(225,29,72,0.15)] cursor-pointer">
+                      <Plus size={16} />
+                    </button>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
 
@@ -354,49 +378,81 @@ function ActionButton({ icon: Icon, label, onClick, variant = 'primary' }) {
 
 /* Status info card for the live control area */
 function StatusInfoCard({ icon: Icon, label, value, subtext, variant = "default" }) {
+  const isLive = value === "LIVE";
+  
   const colorMap = {
-    default: "text-slate-400",
-    live: "text-emerald-400",
-    connected: "text-emerald-400",
-    synced: "text-rose-400",
+    default: "text-slate-400 border-white/[0.06]",
+    live: "text-emerald-400 border-emerald-500/20 shadow-[inset_0_0_20px_rgba(34,197,94,0.05)]",
+    paused: "text-amber-400 border-amber-500/20 shadow-[inset_0_0_20px_rgba(251,191,36,0.05)]",
+    connected: "text-emerald-400 border-white/[0.06]",
+    synced: "text-cyan-400 border-white/[0.06]",
   };
+
+  const activeVariant = variant === "live" && !isLive ? "paused" : variant;
+
   return (
-    <div className="flex-1 flex items-center gap-3 bg-[#0d1117] border border-white/[0.06] rounded-xl px-3 sm:px-4 py-3 relative overflow-hidden">
-      <div className={`shrink-0 ${colorMap[variant] || colorMap.default}`}>
-        <Icon size={18} />
+    <div className={`flex-1 flex items-center gap-3 bg-[#0d1117] border rounded-xl px-4 py-3.5 relative overflow-hidden transition-all ${colorMap[activeVariant] || colorMap.default}`}>
+      {/* Background scanline overlay for diagnostic feel */}
+      <div className="absolute inset-0 scanline-overlay opacity-50 pointer-events-none" />
+      
+      {/* Left Icon Area */}
+      <div className="relative shrink-0 flex items-center justify-center w-10 h-10 rounded-full bg-[#0a0c14] border border-white/[0.05] shadow-[inset_0_2px_4px_rgba(0,0,0,0.4)]">
+        <Icon size={16} />
+        {activeVariant === "live" && (
+          <div className="absolute -top-1 -right-1 w-3.5 h-3.5 bg-[#0d1117] rounded-full flex items-center justify-center">
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse shadow-[0_0_5px_rgba(52,211,153,0.8)]" />
+          </div>
+        )}
+        {activeVariant === "paused" && (
+          <div className="absolute -top-1 -right-1 w-3.5 h-3.5 bg-[#0d1117] rounded-full flex items-center justify-center">
+            <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse shadow-[0_0_5px_rgba(251,191,36,0.8)]" />
+          </div>
+        )}
       </div>
-      <div className="flex flex-col min-w-0">
-        <span className="text-[8px] sm:text-[9px] font-bold uppercase tracking-[0.15em] text-slate-500">{label}</span>
-        <span className={`text-xs sm:text-sm font-black uppercase tracking-wide ${colorMap[variant] || 'text-white'}`}>{value}</span>
-        <span className="text-[8px] sm:text-[9px] font-bold text-slate-600 uppercase tracking-wider">{subtext}</span>
+
+      {/* Text Info */}
+      <div className="flex flex-col min-w-0 z-10">
+        <span className="text-[9px] font-bold uppercase tracking-[0.2em] text-slate-500 leading-none mb-1">{label}</span>
+        <span className="text-sm font-black uppercase tracking-wider leading-none mb-0.5">{value}</span>
+        <span className="text-[10px] font-medium text-slate-500 uppercase tracking-wide leading-none">{subtext}</span>
       </div>
-      {/* Mini football pitch icon for match status */}
-      {variant === "live" && (
-        <div className="ml-auto shrink-0 opacity-40">
-          <svg width="36" height="24" viewBox="0 0 36 24" fill="none" className="text-emerald-400">
-            <rect x="0.5" y="0.5" width="35" height="23" rx="2" stroke="currentColor" strokeWidth="0.8" fill="none" />
-            <line x1="18" y1="0" x2="18" y2="24" stroke="currentColor" strokeWidth="0.5" />
-            <circle cx="18" cy="12" r="4" stroke="currentColor" strokeWidth="0.5" fill="none" />
-            <rect x="0" y="6" width="6" height="12" rx="0" stroke="currentColor" strokeWidth="0.5" fill="none" />
-            <rect x="30" y="6" width="6" height="12" rx="0" stroke="currentColor" strokeWidth="0.5" fill="none" />
-          </svg>
-        </div>
-      )}
-      {/* Signal bars for connection */}
-      {variant === "connected" && (
-        <div className="ml-auto shrink-0 flex items-end gap-[2px] opacity-60">
-          <div className="w-[3px] h-[6px] bg-emerald-400 rounded-[1px]" />
-          <div className="w-[3px] h-[10px] bg-emerald-400 rounded-[1px]" />
-          <div className="w-[3px] h-[14px] bg-emerald-400 rounded-[1px]" />
-          <div className="w-[3px] h-[18px] bg-emerald-400 rounded-[1px]" />
-        </div>
-      )}
-      {/* Sync icon for last update */}
-      {variant === "synced" && (
-        <div className="ml-auto shrink-0 text-rose-400/50">
-          <RefreshCw size={18} className="sync-spin" />
-        </div>
-      )}
+
+      {/* Right Side Diagnostic Radars */}
+      <div className="ml-auto shrink-0 relative z-10 flex items-center justify-center w-10 h-10 opacity-80">
+        
+        {variant === "live" && (
+          <div className="relative w-full h-full flex items-center justify-center">
+             {/* Pulsing Concentric Circles */}
+             <div className={`absolute inset-0 rounded-full border border-current opacity-20 ${isLive ? 'animate-[ping_2s_cubic-bezier(0,0,0.2,1)_infinite]' : ''}`} />
+             <div className={`absolute inset-1.5 rounded-full border border-current opacity-40 ${isLive ? 'animate-[ping_2s_cubic-bezier(0,0,0.2,1)_infinite_0.5s]' : ''}`} />
+             <div className="w-2.5 h-2.5 rounded-full bg-current shadow-[0_0_8px_currentColor]" />
+          </div>
+        )}
+
+        {variant === "connected" && (
+          <div className="flex items-end justify-center gap-[3px] h-5">
+             {/* Animated Equalizer */}
+             <div className="w-[3px] bg-current rounded-[1px] animate-[pulse_1s_ease-in-out_infinite_alternate] h-2" style={{ animationDelay: '0ms' }} />
+             <div className="w-[3px] bg-current rounded-[1px] animate-[pulse_1.2s_ease-in-out_infinite_alternate] h-4" style={{ animationDelay: '200ms' }} />
+             <div className="w-[3px] bg-current rounded-[1px] animate-[pulse_0.8s_ease-in-out_infinite_alternate] h-3" style={{ animationDelay: '400ms' }} />
+             <div className="w-[3px] bg-current rounded-[1px] animate-[pulse_1.4s_ease-in-out_infinite_alternate] h-5" style={{ animationDelay: '600ms' }} />
+          </div>
+        )}
+
+        {variant === "synced" && (
+          <div className="relative w-7 h-7">
+            {/* Spinning Radar/Dial */}
+            <svg viewBox="0 0 24 24" fill="none" className="w-full h-full text-current opacity-80 animate-[spin_4s_linear_infinite]">
+              <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2" strokeDasharray="15 10 5 10" className="opacity-50" />
+              <path d="M12 2v4M12 18v4M2 12h4M18 12h4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+            </svg>
+            <div className="absolute inset-0 flex items-center justify-center">
+              <div className="w-2 h-2 rounded-full bg-current shadow-[0_0_5px_currentColor]" />
+            </div>
+          </div>
+        )}
+
+      </div>
     </div>
   );
 }
@@ -434,27 +490,28 @@ function MatchFooter() {
   );
 }
 
-function LiveControl({ state, setState, onFinish, onTogglePause, onUndoStart }) {
+function LiveControl({ state, onFinish, onTogglePause, onUndoStart }) {
   const { home, away, paused } = state;
   const canUndo = home.goals === 0 && away.goals === 0;
-  const bump = (side, field, delta) => setState((s) => ({ ...s, [side]: { ...s[side], [field]: Math.max(0, s[side][field] + delta) } }));
+  const [showFinishConfirm, setShowFinishConfirm] = useState(false);
+
   return (
-    <div className="p-4 sm:p-6 lg:p-8 max-w-4xl mx-auto">
-      {/* Goal Control Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 mb-6">
-        {/* Home Team Card */}
-        <div className="bg-[#0a0c14] border border-emerald-500/10 rounded-2xl p-4 sm:p-5 relative overflow-hidden">
-          <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-emerald-500/40 to-transparent" />
-          <div className="text-center font-heading font-bold text-xs sm:text-sm uppercase tracking-wider text-emerald-400 mb-3">{home.name}</div>
-          <TeamStatCard side="home" data={home} bump={bump} phase="live" accentColor="emerald" />
+    <div className="p-4 sm:p-6 lg:p-8 max-w-4xl mx-auto relative">
+      {/* Confirmation Modal Overlay */}
+      {showFinishConfirm && (
+        <div className="absolute inset-0 z-[60] flex items-center justify-center p-4 bg-[#0a0c14]/90 backdrop-blur-sm rounded-xl">
+          <div className="bg-[#0d1117] border border-rose-500/30 rounded-2xl p-6 w-full max-w-sm flex flex-col items-center text-center shadow-[0_0_40px_rgba(225,29,72,0.1)]">
+            <h3 className="text-xl font-black text-white mb-2">Finish this match?</h3>
+            <p className="text-sm text-slate-400 mb-6 leading-relaxed">
+              The current score will be locked in. Are you sure you want to proceed?
+            </p>
+            <div className="flex w-full gap-3">
+              <ActionButton label="Cancel" onClick={() => setShowFinishConfirm(false)} variant="secondary" />
+              <ActionButton label="Finish Match" onClick={() => { setShowFinishConfirm(false); onFinish(); }} variant="destructive" />
+            </div>
+          </div>
         </div>
-        {/* Away Team Card */}
-        <div className="bg-[#0a0c14] border border-rose-500/10 rounded-2xl p-4 sm:p-5 relative overflow-hidden">
-          <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-rose-500/40 to-transparent" />
-          <div className="text-center font-heading font-bold text-xs sm:text-sm uppercase tracking-wider text-rose-400 mb-3">{away.name}</div>
-          <TeamStatCard side="away" data={away} bump={bump} phase="live" accentColor="rose" />
-        </div>
-      </div>
+      )}
 
       {/* Status Info Cards */}
       <div className="flex flex-col sm:flex-row gap-3 mb-6">
@@ -467,32 +524,19 @@ function LiveControl({ state, setState, onFinish, onTogglePause, onUndoStart }) 
       <div className="fixed bottom-0 left-0 right-0 p-4 sm:static sm:p-0 bg-[#0a0c14]/90 sm:bg-transparent backdrop-blur-xl sm:backdrop-blur-none border-t border-white/[0.04] sm:border-0 z-50 flex flex-col sm:flex-row gap-3 shadow-[0_-10px_40px_rgba(0,0,0,0.3)] sm:shadow-none pb-safe">
         {canUndo && <ActionButton icon={RotateCcw} label="Undo Start" onClick={onUndoStart} variant="secondary" />}
         <ActionButton icon={paused ? Play : Pause} label={paused ? "Resume Match" : "Pause Match"} onClick={onTogglePause} variant="secondary" />
-        <ActionButton icon={Square} label="Finish Match" onClick={onFinish} variant="destructive" />
+        <ActionButton icon={Square} label="Finish Match" onClick={() => setShowFinishConfirm(true)} variant="destructive" />
       </div>
     </div>
   );
 }
 
-function ExtraTime({ state, setState, etHalf, setEtHalf, onDone }) {
-  const { home, away } = state;
-  const bump = (side, field, delta) => setState((s) => ({ ...s, [side]: { ...s[side], [field]: Math.max(0, s[side][field] + delta) } }));
+function ExtraTime({ etHalf, setEtHalf, onDone }) {
   return (
     <div className="p-4 sm:p-6 lg:p-8 max-w-4xl mx-auto">
       <div className="flex items-center justify-center gap-2 mb-6 bg-amber-500/10 text-amber-400 w-fit mx-auto px-4 py-2 rounded-lg font-bold text-sm uppercase tracking-wider border border-amber-500/20">
         <Timer size={18} className="animate-pulse" /> Extra Time — {etHalf === 1 ? "1st Half (15')" : "2nd Half (15')"}
       </div>
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 mb-8">
-        <div className="bg-[#0a0c14] border border-emerald-500/10 rounded-2xl p-4 sm:p-5 relative overflow-hidden">
-          <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-emerald-500/40 to-transparent" />
-          <div className="text-center font-heading font-bold text-xs sm:text-sm uppercase tracking-wider text-emerald-400 mb-3">{home.name}</div>
-          <TeamStatCard side="home" data={home} bump={bump} phase="extra_time" accentColor="emerald" />
-        </div>
-        <div className="bg-[#0a0c14] border border-rose-500/10 rounded-2xl p-4 sm:p-5 relative overflow-hidden">
-          <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-rose-500/40 to-transparent" />
-          <div className="text-center font-heading font-bold text-xs sm:text-sm uppercase tracking-wider text-rose-400 mb-3">{away.name}</div>
-          <TeamStatCard side="away" data={away} bump={bump} phase="extra_time" accentColor="rose" />
-        </div>
-      </div>
+      
       <div className="fixed bottom-0 left-0 right-0 p-4 sm:static sm:p-0 bg-[#0a0c14]/90 sm:bg-transparent backdrop-blur-xl sm:backdrop-blur-none border-t border-white/[0.04] sm:border-0 z-50 flex flex-col gap-3 shadow-[0_-10px_40px_rgba(0,0,0,0.3)] sm:shadow-none sm:max-w-md sm:mx-auto pb-safe">
         {etHalf === 1 ? (
           <ActionButton label="Start 2nd Half of Extra Time" onClick={() => setEtHalf(2)} variant="primary" />
@@ -999,6 +1043,10 @@ export default function LiveMatchControl({ matches, players, activeSeason, showT
     });
   };
 
+  const handleBump = (side, field, delta) => {
+    handleSetState((s) => ({ ...s, [side]: { ...s[side], [field]: Math.max(0, s[side][field] + delta) } }));
+  };
+
   const handleTogglePause = async () => {
     if (!liveMatch) return;
     const isPaused = !state.paused; handleSetState(s => ({ ...s, paused: isPaused }));
@@ -1078,7 +1126,15 @@ export default function LiveMatchControl({ matches, players, activeSeason, showT
       <div className="relative z-10 w-full bg-[#0a0c14] rounded-2xl sm:rounded-[23px] overflow-hidden border border-white/[0.06] shadow-2xl">
         <CardHeader title={h.title} status={h.status} onCopyFixture={handleCopyFixture} />
 
-        <ScoreRow home={state.home.name} away={state.away.name} homeScore={state.home.goals} awayScore={state.away.goals} homeObj={homePlayerObj} awayObj={awayPlayerObj} />
+        <ScoreRow 
+          home={state.home.name} 
+          away={state.away.name} 
+          homeScore={state.home.goals} 
+          awayScore={state.away.goals} 
+          homeObj={homePlayerObj} 
+          awayObj={awayPlayerObj} 
+          onBump={["live", "extra_time"].includes(phase) ? handleBump : null} 
+        />
         <StepIndicator phase={phase} />
 
         <main className="relative bg-[#080a10] min-h-[400px]">
@@ -1099,8 +1155,8 @@ export default function LiveMatchControl({ matches, players, activeSeason, showT
           )}
           <AnimatePresence mode="wait">
             <motion.div key={phase} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.2 }}>
-              {phase === "live" && <LiveControl state={state} setState={handleSetState} onTogglePause={handleTogglePause} onFinish={handleFinishFullTime} onUndoStart={handleUndoStart} />}
-              {phase === "extra_time" && <ExtraTime state={state} setState={handleSetState} etHalf={etHalf} setEtHalf={setEtHalf} onDone={handleEndExtraTime} />}
+              {phase === "live" && <LiveControl state={state} onTogglePause={handleTogglePause} onFinish={handleFinishFullTime} onUndoStart={handleUndoStart} />}
+              {phase === "extra_time" && <ExtraTime etHalf={etHalf} setEtHalf={setEtHalf} onDone={handleEndExtraTime} />}
               {phase === "shootout" && <Shootout home={state.home} away={state.away} kicks={kicks} setKicks={setKicks} onDecided={handleShootoutDecided} />}
               {phase === "stats" && <StatsEntry stats={stats} setStats={setStats} busy={saving} onSave={() => finalizeMatch(false)} onSkip={() => finalizeMatch(true)} homeObj={byId[liveMatch?.homeId || finishedDataCache?.match?.homeId]} awayObj={byId[liveMatch?.awayId || finishedDataCache?.match?.awayId]} homeScore={state.home.goals} awayScore={state.away.goals} />}
               {phase === "done" && <Published state={state} stats={stats} resultType={resultType} shootoutWinner={shootoutWinner} onClose={() => { setPhase("live"); setOptLiveMatch(null); setFinishedDataCache(null); }} />}
