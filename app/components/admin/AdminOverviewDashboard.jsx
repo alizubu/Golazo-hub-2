@@ -111,55 +111,6 @@ function HeroSeasonSummary({ activeSeason, players, matches, setTab }) {
   );
 }
 
-// 2. Metrics Ribbon
-function AdminMetrics({ matches, activeSeason, notifications = [], setTab }) {
-  if (!activeSeason) return null;
-  const tMatches = matches.filter(m => m.seasonId === activeSeason.id);
-  const liveMatchesCount = tMatches.filter(m => m.status === 'live').length;
-  const scheduledCount = tMatches.filter(m => m.status === 'scheduled').length;
-  const completedCount = tMatches.filter(m => m.status === 'completed').length;
-  const unreadNotifs = notifications.length;
-
-  const metrics = [
-    { label: "Live Matches", value: liveMatchesCount, icon: Radio, color: "text-destructive", bg: "bg-destructive/15", pulse: liveMatchesCount > 0, tab: "admin/matches" },
-    { label: "Upcoming Fixtures", value: scheduledCount, icon: Calendar, color: "text-sky-400", bg: "bg-sky-400/15", tab: "admin/matches" },
-    { label: "Completed Matches", value: completedCount, icon: CheckCircle2, color: "text-green-500", bg: "bg-green-500/15", tab: "admin/matches" },
-    { label: "System Alerts", value: unreadNotifs, icon: AlertTriangle, color: unreadNotifs > 0 ? "text-amber-500" : "text-muted-foreground", bg: unreadNotifs > 0 ? "bg-amber-500/15" : "bg-secondary/50", sub: unreadNotifs > 0 ? "Click to review alerts" : "System normal", tab: "notifications" }
-  ];
-
-  return (
-    <Card className="p-4 md:p-6 overflow-hidden border-border/50 shadow-lg">
-      <SectionTitle icon={Activity}>System Overview</SectionTitle>
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4 mt-4">
-        {metrics.map((m, i) => (
-          <FadeIn key={m.label} delay={i * 0.05} className="h-full">
-            <div 
-              onClick={() => m.tab && setTab && setTab(m.tab)}
-              className={`p-5 flex flex-col justify-between bg-secondary/20 border border-border/50 rounded-xl hover:bg-secondary/40 transition-all h-full ${m.tab ? 'cursor-pointer hover:border-border dark:border-white/20' : ''}`}
-            >
-              <div className="flex items-center justify-between w-full">
-                <span className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground truncate mr-2">
-                  {m.label}
-                </span>
-                <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${m.bg} ${m.color}`}>
-                  <m.icon size={20} className={m.pulse ? "animate-pulse" : ""} />
-                </div>
-              </div>
-              <div className="text-3xl font-heading font-black font-score text-foreground mt-3">
-                {m.value}
-              </div>
-              {m.sub && (
-                <div className={`text-[10px] font-semibold mt-1.5 ${m.color}`}>
-                  {m.sub}
-                </div>
-              )}
-            </div>
-          </FadeIn>
-        ))}
-      </div>
-    </Card>
-  );
-}
 
 // 5. League Snapshot
 function LeagueSnapshot({ matches, players, activeSeason, setTab }) {
@@ -668,7 +619,6 @@ export default function AdminOverviewDashboard({ players = [], activeSeason, mat
     <div className="flex flex-col gap-6 w-full min-w-0">
       <HeroSeasonSummary activeSeason={activeSeason} players={players} matches={liveMatches} setTab={setTab} />
       <LiveMatchControl matches={liveMatches} players={players} activeSeason={activeSeason} showToast={showToast} />
-      <AdminMetrics matches={liveMatches} activeSeason={activeSeason} notifications={notifications} setTab={setTab} />
 
 
       <div className="mb-6 w-full min-w-0">

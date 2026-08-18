@@ -123,6 +123,8 @@ export default function AppShell({
           <AdminTopBar
             currentTab={currentTab}
             activeSeason={activeSeason}
+            notifications={notifications}
+            setTab={setTab}
           />
 
           {/* Content wrapper */}

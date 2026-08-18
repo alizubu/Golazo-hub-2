@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { Menu } from 'lucide-react';
+import { Menu, AlertTriangle } from 'lucide-react';
 import ThemeToggle from '@/app/components/shared/ThemeToggle';
 
 const SECTION_LABELS = {
@@ -18,8 +18,9 @@ const SECTION_LABELS = {
   'hall-of-fame':         'Hall of Fame',
 };
 
-export default function AdminTopBar({ currentTab, activeSeason }) {
+export default function AdminTopBar({ currentTab, activeSeason, notifications = [], setTab }) {
   const label = SECTION_LABELS[currentTab] ?? 'Admin';
+  const unreadNotifs = notifications.length;
 
   const openSidebar = () =>
     window.dispatchEvent(new CustomEvent('admin-sidebar-toggle'));
@@ -49,8 +50,30 @@ export default function AdminTopBar({ currentTab, activeSeason }) {
         </div>
       </div>
 
-      {/* Right: season chip + admin badge + theme toggle */}
+      {/* Right: alerts + season chip + admin badge + theme toggle */}
       <div className="flex items-center gap-3">
+        {unreadNotifs > 0 ? (
+          <button
+            onClick={() => setTab && setTab('notifications')}
+            className="flex items-center justify-center w-8 h-8 rounded-full bg-amber-500/10 text-amber-500 hover:bg-amber-500/20 transition-colors relative outline-none"
+            title="System Alerts"
+          >
+            <AlertTriangle size={16} className="animate-pulse" />
+            <span className="absolute -top-1 -right-1 flex h-3.5 w-3.5">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-3.5 w-3.5 bg-amber-500 text-[8px] font-bold text-white items-center justify-center leading-none pb-[1px]">{unreadNotifs > 9 ? '9+' : unreadNotifs}</span>
+            </span>
+          </button>
+        ) : (
+          <button
+            onClick={() => setTab && setTab('notifications')}
+            className="flex items-center justify-center w-8 h-8 rounded-full bg-secondary/50 text-muted-foreground hover:text-foreground hover:bg-secondary/80 transition-colors outline-none"
+            title="No Alerts"
+          >
+            <AlertTriangle size={16} />
+          </button>
+        )}
+
         {activeSeason && (
           <span
             className="hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-full border border-pitch-bright/20 bg-pitch-bright/10 text-pitch-bright text-[10px] font-bold uppercase tracking-wider"
