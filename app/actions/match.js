@@ -494,16 +494,14 @@ export async function progressPlayoffBracket(matchId) {
         
         if (semiALoser && semiBWinner) {
           if (existingChallenger) {
-            // Update the existing placeholder
-            if (!existingChallenger.homeId || !existingChallenger.awayId) {
-              const updated = await prisma.match.update({
-                where: { id: existingChallenger.id },
-                data: { homeId: semiALoser, awayId: semiBWinner },
-                include: { home: true, away: true }
-              });
-              await sendAutoNotification(`Qualifier 2 auto-populated: ${updated.home.name} vs ${updated.away.name}`, 'info');
-              broadcastEvent('match_update', updated);
-            }
+            // Force update the placeholder with the correct advancing players
+            const updated = await prisma.match.update({
+              where: { id: existingChallenger.id },
+              data: { homeId: semiALoser, awayId: semiBWinner },
+              include: { home: true, away: true }
+            });
+            await sendAutoNotification(`Qualifier 2 auto-populated: ${updated.home?.name || 'TBD'} vs ${updated.away?.name || 'TBD'}`, 'info');
+            broadcastEvent('match_update', updated);
           } else {
             // Fallback create
             const challenger = await prisma.match.create({
@@ -537,15 +535,14 @@ export async function progressPlayoffBracket(matchId) {
       
       if (semiAWinner && challengerWinner) {
         if (existingFinal) {
-          if (!existingFinal.homeId || !existingFinal.awayId) {
-            const updated = await prisma.match.update({
-              where: { id: existingFinal.id },
-              data: { homeId: semiAWinner, awayId: challengerWinner },
-              include: { home: true, away: true }
-            });
-            await sendAutoNotification(`Grand Final auto-populated: ${updated.home.name} vs ${updated.away.name}`, 'info');
-            broadcastEvent('match_update', updated);
-          }
+          // Force update the final with the correct advancing players
+          const updated = await prisma.match.update({
+            where: { id: existingFinal.id },
+            data: { homeId: semiAWinner, awayId: challengerWinner },
+            include: { home: true, away: true }
+          });
+          await sendAutoNotification(`Grand Final auto-populated: ${updated.home?.name || 'TBD'} vs ${updated.away?.name || 'TBD'}`, 'info');
+          broadcastEvent('match_update', updated);
         } else {
           const finalMatch = await prisma.match.create({
             data: {
