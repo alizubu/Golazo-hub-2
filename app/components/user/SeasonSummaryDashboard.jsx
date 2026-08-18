@@ -117,9 +117,7 @@ function computeSeasonSummary(matches, players, seasonId) {
 
 function formatName(name) {
   if (!name) return "—";
-  const parts = name.split(' ');
-  if (parts.length === 1) return parts[0];
-  return `${parts[0]} ${parts[parts.length - 1].charAt(0)}.`;
+  return name;
 }
 
 // ─── Utility: Compute Season Stats ─────────────────────────────────────────────────────────
@@ -169,8 +167,8 @@ export default function SeasonSummaryDashboard({ season, matches, players, compa
       icon: Target,
       color: "text-[#9d4edd]",
       borderTop: "border-t-[#9d4edd]",
-      bgClass: "from-[#9d4edd]/20 via-[#9d4edd]/5 to-transparent",
-      shadow: "shadow-[0_-15px_30px_-15px_rgba(157,78,221,0.25)] hover:shadow-[0_-15px_30px_-15px_rgba(157,78,221,0.4)]"
+      bgClass: "from-[#9d4edd]/10 via-[#9d4edd]/5 to-transparent",
+      shadow: "shadow-[0_-10px_30px_-15px_rgba(157,78,221,0.15)] hover:shadow-[0_-15px_30px_-15px_rgba(157,78,221,0.25)]"
     },
     {
       label: "Best Defense",
@@ -179,8 +177,8 @@ export default function SeasonSummaryDashboard({ season, matches, players, compa
       icon: Shield,
       color: "text-[#00b4d8]",
       borderTop: "border-t-[#00b4d8]",
-      bgClass: "from-[#00b4d8]/20 via-[#00b4d8]/5 to-transparent",
-      shadow: "shadow-[0_-15px_30px_-15px_rgba(0,180,216,0.25)] hover:shadow-[0_-15px_30px_-15px_rgba(0,180,216,0.4)]"
+      bgClass: "from-[#00b4d8]/10 via-[#00b4d8]/5 to-transparent",
+      shadow: "shadow-[0_-10px_30px_-15px_rgba(0,180,216,0.15)] hover:shadow-[0_-15px_30px_-15px_rgba(0,180,216,0.25)]"
     },
     {
       label: "Most Wins",
@@ -189,8 +187,8 @@ export default function SeasonSummaryDashboard({ season, matches, players, compa
       icon: Trophy,
       color: "text-[#2dc653]",
       borderTop: "border-t-[#2dc653]",
-      bgClass: "from-[#2dc653]/20 via-[#2dc653]/5 to-transparent",
-      shadow: "shadow-[0_-15px_30px_-15px_rgba(45,198,83,0.25)] hover:shadow-[0_-15px_30px_-15px_rgba(45,198,83,0.4)]"
+      bgClass: "from-[#2dc653]/10 via-[#2dc653]/5 to-transparent",
+      shadow: "shadow-[0_-10px_30px_-15px_rgba(45,198,83,0.15)] hover:shadow-[0_-15px_30px_-15px_rgba(45,198,83,0.25)]"
     },
     {
       label: "Win Streak",
@@ -199,8 +197,8 @@ export default function SeasonSummaryDashboard({ season, matches, players, compa
       icon: Flame,
       color: "text-[#e63946]",
       borderTop: "border-t-[#e63946]",
-      bgClass: "from-[#e63946]/20 via-[#e63946]/5 to-transparent",
-      shadow: "shadow-[0_-15px_30px_-15px_rgba(230,57,70,0.25)] hover:shadow-[0_-15px_30px_-15px_rgba(230,57,70,0.4)]"
+      bgClass: "from-[#e63946]/10 via-[#e63946]/5 to-transparent",
+      shadow: "shadow-[0_-10px_30px_-15px_rgba(230,57,70,0.15)] hover:shadow-[0_-15px_30px_-15px_rgba(230,57,70,0.25)]"
     },
     {
       label: "Clean Sheets",
@@ -209,8 +207,8 @@ export default function SeasonSummaryDashboard({ season, matches, players, compa
       icon: Star,
       color: "text-[#7b2cbf]",
       borderTop: "border-t-[#7b2cbf]",
-      bgClass: "from-[#7b2cbf]/20 via-[#7b2cbf]/5 to-transparent",
-      shadow: "shadow-[0_-15px_30px_-15px_rgba(123,44,191,0.25)] hover:shadow-[0_-15px_30px_-15px_rgba(123,44,191,0.4)]"
+      bgClass: "from-[#7b2cbf]/10 via-[#7b2cbf]/5 to-transparent",
+      shadow: "shadow-[0_-10px_30px_-15px_rgba(123,44,191,0.15)] hover:shadow-[0_-15px_30px_-15px_rgba(123,44,191,0.25)]"
     },
     {
       label: "Most Decisive",
@@ -219,17 +217,17 @@ export default function SeasonSummaryDashboard({ season, matches, players, compa
       icon: Zap,
       color: "text-[#f72585]",
       borderTop: "border-t-[#f72585]",
-      bgClass: "from-[#f72585]/20 via-[#f72585]/5 to-transparent",
-      shadow: "shadow-[0_-15px_30px_-15px_rgba(247,37,133,0.25)] hover:shadow-[0_-15px_30px_-15px_rgba(247,37,133,0.4)]"
+      bgClass: "from-[#f72585]/10 via-[#f72585]/5 to-transparent",
+      shadow: "shadow-[0_-10px_30px_-15px_rgba(247,37,133,0.15)] hover:shadow-[0_-15px_30px_-15px_rgba(247,37,133,0.25)]"
     }
   ];
 
   return (
     <div className="w-full flex flex-col gap-6">
       {/* Primary Metrics Rail */}
-      <div className="flex flex-row items-center w-full bg-[#0c0e12] border border-border/20 rounded-[14px] overflow-x-auto scrollbar-none shadow-sm divide-x divide-border/20">
+      <div className="grid grid-cols-2 lg:grid-cols-6 w-full bg-[#0c0e12] border border-border/20 rounded-[14px] shadow-sm divide-y lg:divide-y-0 lg:divide-x divide-border/20">
         {primaryMetrics.map((metric, i) => (
-          <div key={metric.label} className="flex-1 min-w-[100px] p-4 sm:p-5 flex flex-col items-center justify-center relative overflow-hidden group hover:bg-white/[0.02] transition-colors">
+          <div key={metric.label} className={`flex-1 p-4 sm:p-5 flex flex-col items-center justify-center relative overflow-hidden group hover:bg-white/[0.02] transition-colors ${i % 2 !== 0 ? 'border-l border-border/20 lg:border-l-0' : ''}`}>
             <div className="flex items-center gap-2 mb-2">
               <div className={`p-1.5 rounded-full bg-white/[0.03] ${metric.color}`}>
                 <metric.icon size={16} strokeWidth={2} />
@@ -254,7 +252,7 @@ export default function SeasonSummaryDashboard({ season, matches, players, compa
             <div className={`absolute inset-0 bg-gradient-to-br ${card.bgClass} opacity-60 group-hover:opacity-100 transition-opacity pointer-events-none z-0`} />
             
             {/* Icon Graphic Background */}
-            <div className={`absolute -right-4 -bottom-4 opacity-[0.06] group-hover:opacity-[0.12] transition-opacity pointer-events-none z-0 rotate-[-15deg] ${card.color} group-hover:scale-110 duration-500`}>
+            <div className={`absolute -right-4 -bottom-4 opacity-[0.03] group-hover:opacity-[0.06] transition-opacity pointer-events-none z-0 rotate-[-15deg] ${card.color} group-hover:scale-110 duration-500`}>
               <card.icon size={130} strokeWidth={1} />
             </div>
 

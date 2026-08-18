@@ -373,19 +373,9 @@ function TopPlayersHorizontal({ matches, players, activeSeason }) {
   const mostWins = [...standings].sort((a, b) => b.won - a.won)[0];
   const bestDefense = [...standings].filter(s => s.played > 0).sort((a, b) => (a.ga / a.played) - (b.ga / b.played))[0] || standings[0];
   
-  const ratingsMap = {};
-  const countMap = {};
   const passesMap = {};
 
   completed.forEach(m => {
-    if (m.stats?.ratings?.a) {
-      ratingsMap[m.homeId] = (ratingsMap[m.homeId] || 0) + parseFloat(m.stats.ratings.a);
-      countMap[m.homeId] = (countMap[m.homeId] || 0) + 1;
-    }
-    if (m.stats?.ratings?.b) {
-      ratingsMap[m.awayId] = (ratingsMap[m.awayId] || 0) + parseFloat(m.stats.ratings.b);
-      countMap[m.awayId] = (countMap[m.awayId] || 0) + 1;
-    }
     if (m.stats?.successfulPasses?.a) {
       passesMap[m.homeId] = (passesMap[m.homeId] || 0) + parseInt(m.stats.successfulPasses.a, 10);
     }
@@ -394,93 +384,73 @@ function TopPlayersHorizontal({ matches, players, activeSeason }) {
     }
   });
 
-  let highestRatedPlayer = null;
-  let highestRatingVal = 0;
   let mostPassesPlayer = null;
   let highestPassesVal = 0;
 
   standings.forEach(s => {
-    if (countMap[s.id] > 0) {
-      const avg = (ratingsMap[s.id] / countMap[s.id]);
-      if (avg > highestRatingVal) {
-        highestRatingVal = avg;
-        highestRatedPlayer = s;
-      }
-    }
-    if ((passesMap[s.id] || 0) > highestPassesVal) {
-      highestPassesVal = passesMap[s.id];
+    if ((passesMap[s.id] || 0) >= highestPassesVal) {
+      highestPassesVal = passesMap[s.id] || 0;
       mostPassesPlayer = s;
     }
   });
 
-  if (!highestRatedPlayer && standings.length > 0) {
-    highestRatedPlayer = [...standings].sort((a, b) => ((b.pts * 2 + b.gd) - (a.pts * 2 + a.gd)))[0];
-    highestRatingVal = 7.5;
-  }
   if (!mostPassesPlayer && standings.length > 0) mostPassesPlayer = standings[0];
 
   const categories = [
-    { label: "Golden Boot", player: topScorer, stat: `${topScorer?.gf || 0}`, statLabel: "Goals", icon: Target, color: "text-[#ffb703]", borderTop: "border-t-[#ffb703]", glow: "from-[#ffb703]/20 via-[#ffb703]/5 to-transparent", shadow: "shadow-[0_-15px_30px_-15px_rgba(255,183,3,0.35)]", rankNum: "1", isHero: true },
-    { label: "Highest Rating", player: highestRatedPlayer, stat: `★ ${(highestRatingVal || 0).toFixed(1)}`, statLabel: "Rating", icon: Star, color: "text-[#9d4edd]", borderTop: "border-t-[#9d4edd]", glow: "from-[#9d4edd]/20 via-[#9d4edd]/5 to-transparent", shadow: "shadow-[0_-15px_30px_-15px_rgba(157,78,221,0.35)]", rankNum: "2" },
-    { label: "Most Wins", player: mostWins, stat: `${mostWins?.won || 0}`, statLabel: "Wins", icon: Trophy, color: "text-[#2dc653]", borderTop: "border-t-[#2dc653]", glow: "from-[#2dc653]/20 via-[#2dc653]/5 to-transparent", shadow: "shadow-[0_-15px_30px_-15px_rgba(45,198,83,0.35)]", rankNum: "3" },
-    { label: "Best Defense", player: bestDefense, stat: bestDefense && bestDefense.played > 0 ? (bestDefense.ga / bestDefense.played).toFixed(1) : "0.0", statLabel: "Goals Conceded", icon: Shield, color: "text-[#00b4d8]", borderTop: "border-t-[#00b4d8]", glow: "from-[#00b4d8]/20 via-[#00b4d8]/5 to-transparent", shadow: "shadow-[0_-15px_30px_-15px_rgba(0,180,216,0.35)]", rankNum: "4" },
-    { label: "Most Passes", player: mostPassesPlayer, stat: `${highestPassesVal}`, statLabel: "Successful Passes", icon: Zap, color: "text-[#f48c06]", borderTop: "border-t-[#f48c06]", glow: "from-[#f48c06]/20 via-[#f48c06]/5 to-transparent", shadow: "shadow-[0_-15px_30px_-15px_rgba(244,140,6,0.35)]", rankNum: "5" }
+    { label: "Golden Boot", player: topScorer, stat: `${topScorer?.gf || 0}`, statLabel: "Goals", icon: Target, color: "text-[#ffb703]", borderTop: "border-t-[#ffb703]", glow: "from-[#ffb703]/10 via-[#ffb703]/5 to-transparent", rankNum: "1" },
+    { label: "Most Wins", player: mostWins, stat: `${mostWins?.won || 0}`, statLabel: "Wins", icon: Trophy, color: "text-[#2dc653]", borderTop: "border-t-[#2dc653]", glow: "from-[#2dc653]/10 via-[#2dc653]/5 to-transparent", rankNum: "2" },
+    { label: "Best Defense", player: bestDefense, stat: bestDefense && bestDefense.played > 0 ? (bestDefense.ga / bestDefense.played).toFixed(1) : "0.0", statLabel: "Goals Conceded", icon: Shield, color: "text-[#00b4d8]", borderTop: "border-t-[#00b4d8]", glow: "from-[#00b4d8]/10 via-[#00b4d8]/5 to-transparent", rankNum: "3" },
+    { label: "Most Passes", player: mostPassesPlayer, stat: `${highestPassesVal}`, statLabel: "Successful Passes", icon: Zap, color: "text-[#f48c06]", borderTop: "border-t-[#f48c06]", glow: "from-[#f48c06]/10 via-[#f48c06]/5 to-transparent", rankNum: "4" }
   ];
 
   return (
     <div className="w-full flex flex-col mb-4 sm:mb-6">
-      {/* Compact Header */}
-      <div className="flex items-center justify-between mb-3 px-1">
-        <div className="flex items-center gap-2">
-          <Star size={16} className="text-pitch-bright" />
-          <h2 className="text-[14px] font-bold tracking-[0.04em] uppercase">Top Players</h2>
-        </div>
-        <button className="group text-[11px] font-bold text-muted-foreground hover:text-white hover:bg-white/5 px-2.5 py-1 rounded-full uppercase flex items-center gap-1 transition-all">
-          View All <ArrowRight size={12} className="opacity-70 group-hover:opacity-100 group-hover:translate-x-0.5 transition-all" />
-        </button>
-      </div>
-
-      {/* Grid / Carousel */}
-      <div className="flex overflow-x-auto lg:grid lg:grid-cols-5 md:grid-cols-3 sm:grid-cols-2 gap-3 sm:gap-4 pb-2 snap-x snap-mandatory scrollbar-none w-full" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
-        {categories.map((cat, i) => (
-          <div key={cat.label} className={`snap-start shrink-0 ${cat.isHero ? 'w-[280px]' : 'w-[260px]'} sm:w-auto h-full`}>
-            <div className={`relative flex flex-col p-4 rounded-[14px] bg-[#0c0e12] border border-border/20 border-t-2 ${cat.borderTop} transition-all duration-300 cursor-pointer h-[180px] justify-between group overflow-hidden ${cat.shadow} hover:-translate-y-1`}>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 w-full">
+        {categories.map((cat) => (
+          <div key={cat.label} className="w-full h-full">
+            <div className={`relative flex flex-col p-5 rounded-[16px] bg-[#0c0e12] border border-border/20 border-t-2 ${cat.borderTop} transition-all duration-300 cursor-pointer h-[240px] justify-between group overflow-hidden shadow-lg hover:-translate-y-1`}>
               
               {/* Subtle Gradient Glow */}
               <div className={`absolute inset-0 bg-gradient-to-b ${cat.glow} opacity-60 group-hover:opacity-100 transition-opacity pointer-events-none z-0`} />
 
               {/* Oversized Background Icon */}
-              <div className={`absolute -right-6 -bottom-6 opacity-[0.05] group-hover:opacity-[0.10] transition-opacity pointer-events-none z-0 rotate-[-15deg] ${cat.color} group-hover:scale-110 duration-500`}>
-                <cat.icon size={130} strokeWidth={1} />
+              <div className={`absolute -right-4 -bottom-4 opacity-[0.06] group-hover:opacity-[0.10] transition-opacity pointer-events-none z-0 rotate-[-15deg] ${cat.color} group-hover:scale-110 duration-500`}>
+                <cat.icon size={150} strokeWidth={1} />
               </div>
               
               {/* Category Header */}
-              <div className="flex items-center gap-3 mb-2 relative z-10">
+              <div className="flex items-center gap-3 mb-4 relative z-10">
                 <div className="relative flex items-center justify-center w-[24px] h-[26px]">
                   <svg viewBox="0 0 24 24" className={`absolute inset-0 w-full h-full ${cat.color}`} fill="none" stroke="currentColor" strokeWidth="2" strokeLinejoin="round">
                     <polygon points="12 2 22 8 22 16 12 22 2 16 2 8 12 2" />
                   </svg>
-                  <span className={`text-[11px] font-black z-10 text-white mt-px`}>{cat.rankNum}</span>
+                  <span className="text-[11px] font-black z-10 text-white mt-px">{cat.rankNum}</span>
                 </div>
                 <span className={`text-[12px] font-bold uppercase tracking-[0.15em] ${cat.color}`}>{cat.label}</span>
               </div>
 
               {/* Player Info & Big Stat */}
-              <div className="flex flex-col justify-end relative z-10 mt-auto h-full">
-                <div className="flex items-center gap-3 group-hover:drop-shadow-[0_0_8px_rgba(255,255,255,0.2)] transition-all mb-3">
-                  <Avatar p={cat.player} size={34} className="border border-border/50 shadow-sm rounded-full" />
-                  <div className="flex flex-col">
-                    <span className="font-bold text-[14px] leading-tight truncate text-foreground group-hover:text-white transition-colors">
-                      {formatName(cat.player?.name || "—")}
+              <div className="flex flex-col justify-end relative z-10 mt-auto h-full gap-4">
+                <div className="flex items-center gap-4 group-hover:drop-shadow-[0_0_8px_rgba(255,255,255,0.2)] transition-all">
+                  <Avatar p={cat.player} size={64} className="border-2 border-border/50 shadow-sm rounded-full shrink-0" />
+                  <div className="flex flex-col min-w-0">
+                    <span className="font-semibold text-[17px] leading-tight truncate text-foreground group-hover:text-white transition-colors">
+                      {cat.player?.name || "—"}
                     </span>
-                    {cat.player?.identity && (
-                      <img src={getPlayerIdentityBadgeUrl(cat.player)} alt="club" className="h-3.5 object-contain mt-0.5 opacity-90" />
-                    )}
+                    <div className="flex items-center gap-1.5 mt-1 opacity-90">
+                      {cat.player?.identity && (
+                        <>
+                          {cat.player.identity.country && <span className="text-xs">{cat.player.identity.country}</span>}
+                          <img src={getPlayerIdentityBadgeUrl(cat.player)} alt="club" className="h-4 object-contain" />
+                          <span className="text-xs text-muted-foreground truncate">{cat.player.identity.club || 'Club'}</span>
+                        </>
+                      )}
+                    </div>
                   </div>
                 </div>
                 <div className="flex flex-col leading-none">
-                  <span className={`font-score font-black text-4xl sm:text-[42px] ${cat.color} brightness-110 tracking-tighter drop-shadow-sm`}>{cat.stat}</span>
-                  <span className="text-[10px] text-muted-foreground uppercase font-bold tracking-[0.2em] mt-1.5">{cat.statLabel}</span>
+                  <span className={`font-score font-bold text-[52px] ${cat.color} brightness-110 tracking-tighter drop-shadow-sm`}>{cat.stat}</span>
+                  <span className="text-[11px] text-muted-foreground uppercase font-bold tracking-[0.2em] mt-1">{cat.statLabel}</span>
                 </div>
               </div>
 
@@ -622,6 +592,10 @@ export default function AdminOverviewDashboard({ players = [], activeSeason, mat
   const handleExportSnapshot = async () => {
     if (!summarySnapshotRef.current) return;
     setIsExportingSnapshot(true);
+    
+    // Allow a tick for React to re-render any responsive classes bound to isExportingSnapshot
+    await new Promise(r => setTimeout(r, 50));
+    
     try {
       const htmlToImage = await import('html-to-image');
       const download = (await import('downloadjs')).default;
@@ -709,45 +683,50 @@ export default function AdminOverviewDashboard({ players = [], activeSeason, mat
       </div>
 
       {/* End of Season Stats (Top Players + Summary) */}
-      <div className="w-full relative bg-[#0a0c10]/40 border border-border/20 rounded-2xl p-4 sm:p-6 mb-6">
-        <div className="flex flex-col md:flex-row md:justify-between md:items-start mb-6 border-b border-border/30 pb-4 gap-4">
-          <div className="flex flex-col gap-2">
-            <div className="flex items-center gap-3">
-              <div className="flex items-center gap-2">
-                <h3 className="text-[13px] sm:text-sm font-bold uppercase tracking-widest text-muted-foreground flex items-center gap-2">
-                  <Trophy size={14} className="text-emerald-500" />
-                  Season Wrap-up
-                </h3>
-              </div>
-              <div className="flex items-center gap-1.5 px-2 py-0.5 bg-emerald-500/10 border border-emerald-500/20 rounded-full shadow-sm">
+      <div id="season-wrap-up" ref={summarySnapshotRef} className="w-full relative bg-[#0a0c10] border border-border/20 rounded-[20px] p-6 mb-6" style={{ background: isExportingSnapshot ? '#0a0c10' : '#0a0c10' }}>
+        
+        {/* Background Texture */}
+        <div className="absolute inset-0 bg-[url('/img/stadium-texture.png')] bg-cover bg-center opacity-[0.02] pointer-events-none rounded-[20px]" />
+
+        <div className="relative z-10 flex flex-col md:flex-row md:justify-between md:items-start mb-8 pb-4 gap-4">
+          <div className="flex flex-col gap-3">
+            <div className="flex items-center gap-4">
+              <Trophy size={32} className="text-white opacity-80" />
+              <h2 className="text-3xl font-black font-heading tracking-tight uppercase text-white m-0 leading-none">
+                Season Wrap-Up
+              </h2>
+              <div className="flex items-center gap-1.5 px-2 py-0.5 bg-emerald-500/10 border border-emerald-500/20 rounded-full shadow-sm ml-2">
                 <span className="flex h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
-                <span className="text-[9px] sm:text-[10px] font-black text-emerald-400 uppercase tracking-widest">
+                <span className="text-[10px] font-black text-emerald-400 uppercase tracking-widest">
                   SEASON COMPLETE
                 </span>
               </div>
             </div>
-            <p className="text-xs text-muted-foreground font-medium pl-4 border-l-2 border-emerald-500/30">
-              {activeSeason?.name} &middot; {completedMatchesCount} Matches &middot; {players.length} Players
-            </p>
+            <div className="flex items-center gap-3 text-[13px] text-muted-foreground font-semibold pl-1">
+              <div className="flex items-center gap-1.5"><Calendar size={14} /> {completedMatchesCount} Matches</div>
+              <span className="opacity-40">•</span>
+              <div className="flex items-center gap-1.5"><Target size={14} /> {totalGoalsCount} Goals</div>
+              <span className="opacity-40">•</span>
+              <div className="flex items-center gap-1.5"><Users size={14} /> {players.length} Players</div>
+            </div>
           </div>
           
           <button 
             onClick={handleExportSnapshot}
             disabled={isExportingSnapshot}
-            className="flex items-center gap-1.5 px-3 py-1.5 text-[10px] sm:text-xs font-bold uppercase tracking-wider bg-zinc-800/80 hover:bg-zinc-700 text-white rounded-lg border border-zinc-700/50 transition-colors shadow-sm disabled:opacity-50 shrink-0"
+            className="flex items-center gap-2 px-4 py-2 text-xs font-bold uppercase tracking-wider bg-white/10 hover:bg-white/20 text-white rounded-xl border border-white/10 transition-colors shadow-sm disabled:opacity-50 shrink-0"
           >
-            {isExportingSnapshot ? <Loader2 size={12} className="animate-spin" /> : <Camera size={12} />}
+            {isExportingSnapshot ? <Loader2 size={14} className="animate-spin" /> : <Camera size={14} />}
             {isExportingSnapshot ? 'Capturing...' : 'Snapshot'}
           </button>
         </div>
 
-        <div ref={summarySnapshotRef} className="flex flex-col gap-6" style={{ background: isExportingSnapshot ? '#0a0c10' : 'transparent' }}>
+        <div className="relative z-10 flex flex-col gap-8">
           <TopPlayersHorizontal matches={liveMatches} players={players} activeSeason={activeSeason} />
 
           <div className="w-full">
-            <div className="flex items-center gap-2 mb-3">
-              <BarChart2 size={18} className="text-muted-foreground" />
-              <h3 className="text-sm font-bold uppercase tracking-wider text-muted-foreground">Season Summary</h3>
+            <div className="flex items-center gap-2 mb-4 pl-1">
+              <h3 className="text-[14px] font-bold uppercase tracking-[0.1em] text-white/80">Season Summary</h3>
             </div>
             <SeasonSummaryDashboard season={activeSeason} matches={liveMatches} players={players} />
           </div>
