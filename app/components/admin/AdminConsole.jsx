@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Trophy, Calendar, Users, Radio, Clock, Check, Archive, Plus, Trash2, Settings, Swords, Edit2, ListOrdered, BarChart2, AlertTriangle, ArrowRight, Megaphone, ChevronDown, Package, MoreVertical, History, CheckCircle2, X, Camera, Copy, Download } from 'lucide-react';
+import { Trophy, Calendar, Users, Radio, Clock, Check, Archive, Plus, Trash2, Settings, Swords, Edit2, ListOrdered, BarChart2, AlertTriangle, ArrowRight, Megaphone, ChevronDown, Package, MoreVertical, History, CheckCircle2, X, Camera, Copy, Download, RefreshCw } from 'lucide-react';
 import { BorderBeam } from '@/app/components/magicui/BorderBeam';
 import { FlickeringGrid } from '@/app/components/magicui/FlickeringGrid';
 import { Card, Btn, Input, Label, SectionTitle, EmptyState, MagicCard, FadeIn, ShinyButton, Badge, Avatar, toTitleCase } from '@/app/components/shared/UI';
@@ -2208,6 +2208,18 @@ export function AdminSeason({ activeSeason, seasons = [], matches = [], players 
         >
           <Swords size={16} className="text-claret" />
           <span className="text-xs sm:text-sm font-bold tracking-wide">Manage Playoffs</span>
+        </button>
+
+        <button 
+          onClick={async () => {
+            const res = await adminTriggerBracketProgress(activeSeason.id);
+            if (res.error) showToast(res.error);
+            else showToast("✅ Bracket Synced Successfully!");
+          }}
+          className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-emerald-500/10 hover:bg-emerald-500/20 border border-transparent hover:border-emerald-500/20 text-foreground transition-all"
+        >
+          <RefreshCw size={16} className="text-emerald-500" />
+          <span className="text-xs sm:text-sm font-bold tracking-wide text-emerald-500">Force Sync Bracket</span>
         </button>
 
         {activeSeason.type?.includes("Playoffs") && isCompleted && (
