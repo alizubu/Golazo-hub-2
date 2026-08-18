@@ -420,11 +420,11 @@ function TopPlayersHorizontal({ matches, players, activeSeason }) {
   if (!mostPassesPlayer && standings.length > 0) mostPassesPlayer = standings[0];
 
   const categories = [
-    { label: "Golden Boot", player: topScorer, stat: `${topScorer?.gf || 0}`, statLabel: "Goals", icon: Target, color: "text-amber-400", borderColor: "hover:border-amber-500/40", shadow: "hover:shadow-[0_8px_20px_-8px_rgba(251,191,36,0.2)]" },
-    { label: "Highest Rating", player: highestRatedPlayer, stat: `★ ${(highestRatingVal || 0).toFixed(1)}`, statLabel: "Rating", icon: Star, color: "text-purple-400", borderColor: "hover:border-purple-500/40", shadow: "hover:shadow-[0_8px_20px_-8px_rgba(192,132,252,0.2)]" },
-    { label: "Most Wins", player: mostWins, stat: `${mostWins?.won || 0}`, statLabel: "Wins", icon: Trophy, color: "text-green-400", borderColor: "hover:border-green-500/40", shadow: "hover:shadow-[0_8px_20px_-8px_rgba(74,222,128,0.2)]" },
-    { label: "Best Defense", player: bestDefense, stat: bestDefense && bestDefense.played > 0 ? (bestDefense.ga / bestDefense.played).toFixed(1) : "0.0", statLabel: "Goals Conceded", icon: Shield, color: "text-blue-400", borderColor: "hover:border-blue-500/40", shadow: "hover:shadow-[0_8px_20px_-8px_rgba(96,165,250,0.2)]" },
-    { label: "Most Passes", player: mostPassesPlayer, stat: `${highestPassesVal}`, statLabel: "Successful Passes", icon: Zap, color: "text-orange-400", borderColor: "hover:border-orange-500/40", shadow: "hover:shadow-[0_8px_20px_-8px_rgba(251,146,60,0.2)]" }
+    { label: "Golden Boot", player: topScorer, stat: `${topScorer?.gf || 0}`, statLabel: "Goals", icon: Target, color: "text-amber-400", borderColor: "hover:border-amber-500/50", glow: "from-amber-500/10 to-transparent", shadow: "hover:shadow-[0_8px_30px_-8px_rgba(251,191,36,0.25)]" },
+    { label: "Highest Rating", player: highestRatedPlayer, stat: `★ ${(highestRatingVal || 0).toFixed(1)}`, statLabel: "Rating", icon: Star, color: "text-purple-400", borderColor: "hover:border-purple-500/50", glow: "from-purple-500/10 to-transparent", shadow: "hover:shadow-[0_8px_30px_-8px_rgba(192,132,252,0.25)]" },
+    { label: "Most Wins", player: mostWins, stat: `${mostWins?.won || 0}`, statLabel: "Wins", icon: Trophy, color: "text-green-400", borderColor: "hover:border-green-500/50", glow: "from-green-500/10 to-transparent", shadow: "hover:shadow-[0_8px_30px_-8px_rgba(74,222,128,0.25)]" },
+    { label: "Best Defense", player: bestDefense, stat: bestDefense && bestDefense.played > 0 ? (bestDefense.ga / bestDefense.played).toFixed(1) : "0.0", statLabel: "Goals Conceded", icon: Shield, color: "text-blue-400", borderColor: "hover:border-blue-500/50", glow: "from-blue-500/10 to-transparent", shadow: "hover:shadow-[0_8px_30px_-8px_rgba(96,165,250,0.25)]" },
+    { label: "Most Passes", player: mostPassesPlayer, stat: `${highestPassesVal}`, statLabel: "Successful Passes", icon: Zap, color: "text-orange-400", borderColor: "hover:border-orange-500/50", glow: "from-orange-500/10 to-transparent", shadow: "hover:shadow-[0_8px_30px_-8px_rgba(251,146,60,0.25)]" }
   ];
 
   return (
@@ -444,27 +444,32 @@ function TopPlayersHorizontal({ matches, players, activeSeason }) {
       <div className="flex overflow-x-auto lg:grid lg:grid-cols-5 md:grid-cols-3 sm:grid-cols-2 gap-3 pb-2 snap-x snap-mandatory scrollbar-none w-full" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
         {categories.map((cat, i) => (
           <div key={cat.label} className="snap-start shrink-0 w-[240px] sm:w-auto h-full">
-            <div className={`flex flex-col p-3 rounded-2xl bg-card border border-border/40 transition-all duration-200 cursor-pointer h-[120px] justify-between group ${cat.borderColor} ${cat.shadow} hover:-translate-y-[2px]`}>
+            <div className={`relative flex flex-col p-4 rounded-2xl bg-[#101318] border border-border/30 transition-all duration-300 cursor-pointer h-[160px] justify-between group overflow-hidden ${cat.borderColor} ${cat.shadow} hover:-translate-y-1`}>
+              
+              {/* Subtle Gradient Glow */}
+              <div className={`absolute inset-0 bg-gradient-to-br ${cat.glow} opacity-60 group-hover:opacity-100 transition-opacity pointer-events-none z-0`} />
+
+              {/* Oversized Background Icon */}
+              <div className={`absolute -right-4 -bottom-4 opacity-[0.08] group-hover:opacity-[0.15] transition-opacity pointer-events-none z-0 rotate-[-15deg] ${cat.color}`}>
+                <cat.icon size={110} strokeWidth={1.5} />
+              </div>
               
               {/* Category Header */}
-              <div className="flex items-center gap-1.5 mb-1 opacity-70 group-hover:opacity-100 transition-opacity">
-                <cat.icon size={12} className={cat.color} />
-                <span className={`text-[10px] font-semibold uppercase tracking-[0.08em] ${cat.color}`}>{cat.label}</span>
+              <div className="flex flex-col gap-1.5 mb-2 opacity-80 group-hover:opacity-100 transition-opacity relative z-10">
+                <span className={`text-[11px] font-bold uppercase tracking-[0.15em] ${cat.color}`}>{cat.label}</span>
               </div>
 
-              {/* Player Info */}
-              <div className="flex items-center gap-3">
-                <div className="relative group-hover:drop-shadow-[0_0_6px_rgba(255,255,255,0.2)] transition-all">
-                  <Avatar p={cat.player} size={42} className="border border-border/50 shadow-sm" />
-                </div>
-                <div className="flex flex-col min-w-0">
-                  <div className="font-semibold text-[15px] truncate text-foreground group-hover:text-white transition-colors">
+              {/* Player Info & Big Stat */}
+              <div className="flex flex-col justify-end relative z-10 mt-auto h-full">
+                <div className="flex items-center gap-2 group-hover:drop-shadow-[0_0_8px_rgba(255,255,255,0.2)] transition-all mb-2">
+                  <Avatar p={cat.player} size={28} className="border border-border/50 shadow-sm" />
+                  <span className="font-bold text-[14px] truncate text-foreground group-hover:text-white transition-colors">
                     {formatName(cat.player?.name || "—")}
-                  </div>
-                  <div className="flex items-baseline gap-1 mt-0.5 truncate">
-                    <span className={`font-score font-bold text-lg leading-none ${cat.color} brightness-110`}>{cat.stat}</span>
-                    <span className="text-[10px] text-muted-foreground truncate uppercase">{cat.statLabel}</span>
-                  </div>
+                  </span>
+                </div>
+                <div className="flex flex-col leading-none">
+                  <span className={`font-score font-black text-3xl sm:text-4xl ${cat.color} brightness-110 tracking-tighter`}>{cat.stat}</span>
+                  <span className="text-[9px] text-muted-foreground uppercase font-bold tracking-[0.15em] mt-1">{cat.statLabel}</span>
                 </div>
               </div>
 
@@ -628,6 +633,9 @@ export default function AdminOverviewDashboard({ players = [], activeSeason, mat
     return matches.map(m => realtimeOverrides[m.id] ? { ...m, ...realtimeOverrides[m.id] } : m);
   }, [matches, realtimeOverrides]);
 
+  const completedMatchesCount = liveMatches.filter(m => m.seasonId === activeSeason?.id && m.status === 'completed' && m.round === 'league').length;
+  const totalGoalsCount = liveMatches.filter(m => m.seasonId === activeSeason?.id && m.status === 'completed' && m.round === 'league').reduce((acc, m) => acc + (Number(m.homeScore) || 0) + (Number(m.awayScore) || 0), 0);
+
   useEffect(() => {
     const channel = supabase.channel('league-events')
       .on('broadcast', { event: 'match_update' }, (payload) => {
@@ -691,15 +699,31 @@ export default function AdminOverviewDashboard({ players = [], activeSeason, mat
 
       {/* End of Season Stats (Top Players + Summary) */}
       <div className="w-full relative bg-[#0a0c10]/40 border border-border/20 rounded-2xl p-4 sm:p-6 mb-6">
-        <div className="flex justify-between items-center mb-6 border-b border-border/30 pb-3">
-          <div className="flex items-center gap-2">
-            <Camera size={18} className="text-muted-foreground" />
-            <h3 className="text-sm font-bold uppercase tracking-wider text-muted-foreground">Season Wrap-up</h3>
+        <div className="flex flex-col md:flex-row md:justify-between md:items-start mb-6 border-b border-border/30 pb-4 gap-4">
+          <div className="flex flex-col gap-2">
+            <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2">
+                <span className="flex h-2 w-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                <h3 className="text-sm font-bold uppercase tracking-wider text-muted-foreground">Season Wrap-up</h3>
+              </div>
+              <div className="flex items-center gap-2 px-2 py-0.5 bg-card border border-border/50 rounded-full shadow-sm">
+                <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">
+                  {activeSeason.name}
+                </span>
+                <span className="text-[10px] font-black text-emerald-400 bg-emerald-500/10 px-1.5 py-0.5 rounded-md uppercase tracking-wider">
+                  FINAL ✓
+                </span>
+              </div>
+            </div>
+            <p className="text-xs text-muted-foreground font-medium pl-4 border-l-2 border-emerald-500/30">
+              {completedMatchesCount} matches completed &middot; {totalGoalsCount} goals scored &middot; {players.length} players competing
+            </p>
           </div>
+          
           <button 
             onClick={handleExportSnapshot}
             disabled={isExportingSnapshot}
-            className="flex items-center gap-1.5 px-3 py-1.5 text-[10px] sm:text-xs font-bold uppercase tracking-wider bg-zinc-800/80 hover:bg-zinc-700 text-white rounded-lg border border-zinc-700/50 transition-colors shadow-sm disabled:opacity-50"
+            className="flex items-center gap-1.5 px-3 py-1.5 text-[10px] sm:text-xs font-bold uppercase tracking-wider bg-zinc-800/80 hover:bg-zinc-700 text-white rounded-lg border border-zinc-700/50 transition-colors shadow-sm disabled:opacity-50 shrink-0"
           >
             {isExportingSnapshot ? <Loader2 size={12} className="animate-spin" /> : <Camera size={12} />}
             {isExportingSnapshot ? 'Capturing...' : 'Snapshot'}

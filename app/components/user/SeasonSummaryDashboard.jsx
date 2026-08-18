@@ -134,12 +134,12 @@ export default function SeasonSummaryDashboard({ season, matches, players, compa
   const winRate = totalMatches > 0 ? Math.round((totalPlayerWins / (totalMatches * 2)) * 100) : 0;
 
   const primaryMetrics = [
-    { label: "Matches Played", value: summary.totalMatches, icon: Swords, color: "text-purple-400" },
-    { label: "Total Goals", value: summary.totalGoals, icon: Target, color: "text-amber-500" },
-    { label: "Avg Goals", value: summary.avgGoals, icon: BarChart3, color: "text-green-500" },
-    { label: "Goals For", value: summary.totalGoals, icon: Goal, color: "text-blue-400" },
-    { label: "Goals Against", value: summary.totalGoals, icon: Goal, color: "text-rose-400" },
-    { label: "Win Rate", value: `${winRate}%`, icon: TrendingUp, color: "text-yellow-500" },
+    { label: "Matches", value: summary.totalMatches, icon: Swords, color: "text-purple-400" },
+    { label: "Goals", value: summary.totalGoals, icon: Target, color: "text-amber-400" },
+    { label: "Avg Goals", value: summary.avgGoals, icon: BarChart3, color: "text-green-400" },
+    { label: "For", value: summary.totalGoals, icon: Goal, color: "text-blue-400" },
+    { label: "Against", value: summary.totalGoals, icon: Shield, color: "text-rose-400" },
+    { label: "Win Rate", value: `${winRate}%`, icon: TrendingUp, color: "text-yellow-400" },
   ];
 
   const secondaryCards = [
@@ -195,20 +195,20 @@ export default function SeasonSummaryDashboard({ season, matches, players, compa
   ];
 
   return (
-    <div className="w-full flex flex-col gap-4">
-      {/* Primary Metrics Strip */}
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4">
+    <div className="w-full flex flex-col gap-6">
+      {/* Primary Metrics Rail */}
+      <div className="flex flex-row items-center w-full bg-card border border-border/40 rounded-xl overflow-x-auto scrollbar-none shadow-sm divide-x divide-border/30">
         {primaryMetrics.map((metric, i) => (
-          <div key={metric.label} className="bg-card border border-border/40 rounded-xl p-4 flex flex-col justify-center h-[72px] sm:h-[86px] relative overflow-hidden group hover:border-border/80 transition-colors">
-            <div className="flex items-center justify-between relative z-10">
-              <div className="flex items-center gap-1.5 opacity-80">
-                <metric.icon size={12} className={metric.color} />
-                <span className="text-[9px] font-bold uppercase tracking-[0.08em] text-muted-foreground whitespace-nowrap">{metric.label}</span>
-              </div>
+          <div key={metric.label} className="flex-1 min-w-[90px] p-3 sm:p-4 flex flex-col items-center justify-center relative overflow-hidden group hover:bg-white/[0.02] transition-colors">
+            <div className="flex items-center gap-1.5 opacity-70 mb-2">
+              <metric.icon size={12} className={metric.color} />
+              <span className={`text-[20px] sm:text-[24px] font-score font-black tracking-tight ${metric.color}`}>
+                {metric.value}
+              </span>
             </div>
-            <div className={`text-xl sm:text-2xl font-score font-black mt-1 ${metric.color} relative z-10`}>
-              {metric.value}
-            </div>
+            <span className="text-[9px] font-bold uppercase tracking-[0.15em] text-muted-foreground whitespace-nowrap">
+              {metric.label}
+            </span>
           </div>
         ))}
       </div>
@@ -216,30 +216,34 @@ export default function SeasonSummaryDashboard({ season, matches, players, compa
       {/* Secondary Performance Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
         {secondaryCards.map((card, i) => (
-          <div key={card.label} className={`relative overflow-hidden rounded-xl bg-card border border-border/40 p-4 h-[120px] sm:h-[135px] flex flex-col justify-between group hover:border-border/80 transition-colors ${i >= 4 ? 'lg:col-span-2' : 'col-span-1'}`}>
+          <div key={card.label} className={`relative overflow-hidden rounded-xl bg-[#101318] border border-border/30 p-4 sm:p-5 h-[140px] flex flex-col justify-between group hover:border-border/60 transition-colors ${i >= 4 ? 'lg:col-span-2' : 'col-span-1'}`}>
             
             {/* Subtle Gradient Background */}
-            <div className={`absolute inset-0 bg-gradient-to-br ${card.bgClass} opacity-50 group-hover:opacity-100 transition-opacity pointer-events-none z-0`} />
+            <div className={`absolute inset-0 bg-gradient-to-br ${card.bgClass} opacity-60 group-hover:opacity-100 transition-opacity pointer-events-none z-0`} />
             
-            {/* Icon Graphic Background (if applicable, using Lucide icon heavily faded) */}
-            <div className={`absolute -right-4 -bottom-4 opacity-[0.04] group-hover:opacity-[0.08] transition-opacity pointer-events-none z-0 rotate-[-15deg] ${card.color}`}>
-              <card.icon size={100} />
+            {/* Icon Graphic Background */}
+            <div className={`absolute -right-4 -bottom-4 opacity-[0.12] group-hover:opacity-[0.20] transition-opacity pointer-events-none z-0 rotate-[-15deg] ${card.color}`}>
+              <card.icon size={100} strokeWidth={1.5} />
             </div>
 
-            {/* Content */}
-            <div className="relative z-10">
-              <span className={`text-[10px] font-bold uppercase tracking-[0.08em] ${card.color} opacity-90`}>{card.label}</span>
+            {/* Content Header */}
+            <div className="relative z-10 flex flex-col gap-1">
+              <span className={`text-[11px] font-bold uppercase tracking-[0.15em] ${card.color} opacity-90`}>{card.label}</span>
               {card.player && (
-                <div className="mt-2 font-bold text-sm sm:text-[15px] truncate text-foreground group-hover:text-white transition-colors">
+                <div className="font-bold text-[14px] truncate text-foreground group-hover:text-white transition-colors">
                   {card.player.name}
                 </div>
               )}
             </div>
 
-            <div className="relative z-10 mt-auto">
-              <div className={`text-2xl sm:text-3xl font-score font-black ${card.color} tracking-tight brightness-110`}>
-                {card.value.split(' ')[0]} <span className="text-xs sm:text-sm text-muted-foreground uppercase tracking-widest font-sans font-bold">{card.value.split(' ').slice(1).join(' ')}</span>
-              </div>
+            {/* Two-Level Stat */}
+            <div className="relative z-10 mt-auto flex flex-col leading-none">
+              <span className={`text-3xl sm:text-4xl font-score font-black ${card.color} tracking-tighter brightness-110 mb-1`}>
+                {card.value.split(' ')[0]}
+              </span>
+              <span className="text-[9px] text-muted-foreground uppercase tracking-[0.15em] font-bold">
+                {card.value.split(' ').slice(1).join(' ')}
+              </span>
             </div>
           </div>
         ))}
