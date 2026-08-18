@@ -580,7 +580,14 @@ function AdminMatchControl({ m, players, showToast, setTab, isPlayoff = false })
     const aFlagUrl = getPlayerIdentityBadgeUrl(a);
 
     return (
-      <div className="relative flex flex-col px-1.5 py-3 sm:p-6 rounded-none sm:rounded-3xl bg-[#0a0b10] border-y sm:border border-white/5 shadow-2xl overflow-hidden group transition-all duration-500 hover:scale-[1.01]">
+      <div className={`relative flex flex-col px-1.5 py-3 sm:p-6 rounded-none sm:rounded-3xl bg-[#0a0b10] border-y sm:border ${m.round === 'final' ? 'border-amber-500/50 shadow-[0_0_30px_rgba(245,158,11,0.2)]' : 'border-white/5 shadow-2xl'} overflow-hidden group transition-all duration-500 hover:scale-[1.01]`}>
+        
+        {m.round === 'final' && (
+          <div className="absolute top-0 left-1/2 -translate-x-1/2 bg-amber-500 text-black font-black text-[10px] sm:text-xs tracking-widest uppercase px-4 sm:px-8 py-0.5 sm:py-1 rounded-b-xl shadow-[0_0_20px_rgba(245,158,11,0.6)] z-30">
+            Grand Final
+          </div>
+        )}
+
         {/* Layer 1: Tactical Auroras */}
         <div className="absolute inset-y-0 left-0 w-2/3 bg-gradient-to-r from-red-500/20 to-transparent pointer-events-none opacity-50 group-hover:opacity-85 transition-opacity duration-700 blur-2xl" />
         <div className="absolute inset-y-0 right-0 w-2/3 bg-gradient-to-l from-emerald-500/20 to-transparent pointer-events-none opacity-50 group-hover:opacity-85 transition-opacity duration-700 blur-2xl" />
@@ -769,9 +776,15 @@ function CompletedMatchCard({ m, h, a, players, showToast, isPlayoff = false }) 
       {/* Compact summary row — click to toggle edit */}
       <div
         onClick={() => setIsEditingStats(!isEditingStats)}
-        className={`group relative flex flex-col p-4 sm:p-5 rounded-3xl bg-[#0a0b10] border shadow-2xl overflow-hidden cursor-pointer transition-all duration-500 hover:scale-[1.005] ${isEditingStats ? 'border-violet-500/40 rounded-b-none' : 'border-white/5'}`}
+        className={`group relative flex flex-col p-4 sm:p-5 rounded-3xl bg-[#0a0b10] border shadow-2xl overflow-hidden cursor-pointer transition-all duration-500 hover:scale-[1.005] ${isEditingStats ? 'border-violet-500/40 rounded-b-none' : m.round === 'final' ? 'border-amber-500/50 shadow-[0_0_30px_rgba(245,158,11,0.2)]' : 'border-white/5'}`}
       >
         <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 via-transparent to-blue-500/5 opacity-50 pointer-events-none" />
+
+        {m.round === 'final' && (
+          <div className="absolute top-0 left-1/2 -translate-x-1/2 bg-amber-500 text-black font-black text-[10px] sm:text-xs tracking-widest uppercase px-4 sm:px-8 py-0.5 sm:py-1 rounded-b-xl shadow-[0_0_20px_rgba(245,158,11,0.6)] z-30">
+            Grand Final
+          </div>
+        )}
 
         {/* FINISHED pill */}
         <div className="flex justify-center mb-3">
