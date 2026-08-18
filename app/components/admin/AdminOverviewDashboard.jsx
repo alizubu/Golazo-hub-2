@@ -375,6 +375,8 @@ function TopPlayersHorizontal({ matches, players, activeSeason }) {
   
   const ratingsMap = {};
   const countMap = {};
+  const passesMap = {};
+
   completed.forEach(m => {
     if (m.stats?.ratings?.a) {
       ratingsMap[m.homeId] = (ratingsMap[m.homeId] || 0) + parseFloat(m.stats.ratings.a);
@@ -384,10 +386,19 @@ function TopPlayersHorizontal({ matches, players, activeSeason }) {
       ratingsMap[m.awayId] = (ratingsMap[m.awayId] || 0) + parseFloat(m.stats.ratings.b);
       countMap[m.awayId] = (countMap[m.awayId] || 0) + 1;
     }
+    if (m.stats?.successfulPasses?.a) {
+      passesMap[m.homeId] = (passesMap[m.homeId] || 0) + parseInt(m.stats.successfulPasses.a, 10);
+    }
+    if (m.stats?.successfulPasses?.b) {
+      passesMap[m.awayId] = (passesMap[m.awayId] || 0) + parseInt(m.stats.successfulPasses.b, 10);
+    }
   });
 
   let highestRatedPlayer = null;
   let highestRatingVal = 0;
+  let mostPassesPlayer = null;
+  let highestPassesVal = 0;
+
   standings.forEach(s => {
     if (countMap[s.id] > 0) {
       const avg = (ratingsMap[s.id] / countMap[s.id]);
@@ -396,39 +407,72 @@ function TopPlayersHorizontal({ matches, players, activeSeason }) {
         highestRatedPlayer = s;
       }
     }
+    if ((passesMap[s.id] || 0) > highestPassesVal) {
+      highestPassesVal = passesMap[s.id];
+      mostPassesPlayer = s;
+    }
   });
+
   if (!highestRatedPlayer && standings.length > 0) {
     highestRatedPlayer = [...standings].sort((a, b) => ((b.pts * 2 + b.gd) - (a.pts * 2 + a.gd)))[0];
     highestRatingVal = 7.5;
   }
+  if (!mostPassesPlayer && standings.length > 0) mostPassesPlayer = standings[0];
 
   const categories = [
-    { label: "Golden Boot", player: topScorer, stat: `${topScorer?.gf || 0} Goals`, icon: Target },
-    { label: "Highest Rating", player: highestRatedPlayer, stat: `⭐ ${highestRatingVal.toFixed(1)}`, icon: Star },
-    { label: "Most Wins", player: mostWins, stat: `${mostWins?.won || 0} Wins`, icon: Trophy },
-    { label: "Best Defense", player: bestDefense, stat: `${bestDefense?.ga || 0} Goals Conceded`, icon: Shield }
+    { label: "Golden Boot", player: topScorer, stat: `${topScorer?.gf || 0}`, statLabel: "Goals", icon: Target, color: "text-amber-400", borderColor: "hover:border-amber-500/40", shadow: "hover:shadow-[0_8px_20px_-8px_rgba(251,191,36,0.2)]" },
+    { label: "Highest Rating", player: highestRatedPlayer, stat: `★ ${(highestRatingVal || 0).toFixed(1)}`, statLabel: "Rating", icon: Star, color: "text-purple-400", borderColor: "hover:border-purple-500/40", shadow: "hover:shadow-[0_8px_20px_-8px_rgba(192,132,252,0.2)]" },
+    { label: "Most Wins", player: mostWins, stat: `${mostWins?.won || 0}`, statLabel: "Wins", icon: Trophy, color: "text-green-400", borderColor: "hover:border-green-500/40", shadow: "hover:shadow-[0_8px_20px_-8px_rgba(74,222,128,0.2)]" },
+    { label: "Best Defense", player: bestDefense, stat: bestDefense && bestDefense.played > 0 ? (bestDefense.ga / bestDefense.played).toFixed(1) : "0.0", statLabel: "Goals Conceded", icon: Shield, color: "text-blue-400", borderColor: "hover:border-blue-500/40", shadow: "hover:shadow-[0_8px_20px_-8px_rgba(96,165,250,0.2)]" },
+    { label: "Most Passes", player: mostPassesPlayer, stat: `${highestPassesVal}`, statLabel: "Successful Passes", icon: Zap, color: "text-orange-400", borderColor: "hover:border-orange-500/40", shadow: "hover:shadow-[0_8px_20px_-8px_rgba(251,146,60,0.2)]" }
   ];
 
   return (
-    <Card className="p-6">
-      <SectionTitle icon={Flame}>Top Players</SectionTitle>
-      <div className="flex flex-col sm:grid sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mt-6">
+    <div className="w-full flex flex-col mb-4 sm:mb-6">
+      {/* Compact Header */}
+      <div className="flex items-center justify-between mb-3 px-1">
+        <div className="flex items-center gap-2">
+          <Star size={16} className="text-pitch-bright" />
+          <h2 className="text-[14px] font-bold tracking-[0.04em] uppercase">Top Players</h2>
+        </div>
+        <button className="text-[11px] font-bold text-muted-foreground hover:text-foreground uppercase flex items-center gap-1 transition-colors">
+          View All <ChevronRight size={14} />
+        </button>
+      </div>
+
+      {/* Grid / Carousel */}
+      <div className="flex overflow-x-auto lg:grid lg:grid-cols-5 md:grid-cols-3 sm:grid-cols-2 gap-3 pb-2 snap-x snap-mandatory scrollbar-none w-full" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
         {categories.map((cat, i) => (
-          <FadeIn key={cat.label} delay={i * 0.1} className="h-full">
-            <div className="flex items-center gap-3 sm:gap-4 p-3.5 sm:p-4 bg-secondary/30 rounded-xl border border-border/50 h-full group hover:bg-secondary/50 transition-colors">
-              <Avatar p={cat.player} size={42} className="ring-1 ring-border" />
-              <div className="min-w-0 flex-1 w-full">
-                <div className="text-[9px] text-muted-foreground uppercase tracking-widest font-bold mb-0.5 flex items-center gap-1">
-                  <cat.icon size={10} /> {cat.label}
-                </div>
-                <div className="font-bold text-sm truncate" title={cat.player?.name}>{formatName(cat.player?.name || "—")}</div>
-                <div className="text-xs font-score text-pitch-bright font-bold mt-1 truncate">{cat.stat}</div>
+          <div key={cat.label} className="snap-start shrink-0 w-[240px] sm:w-auto h-full">
+            <div className={`flex flex-col p-3 rounded-2xl bg-card border border-border/40 transition-all duration-200 cursor-pointer h-[120px] justify-between group ${cat.borderColor} ${cat.shadow} hover:-translate-y-[2px]`}>
+              
+              {/* Category Header */}
+              <div className="flex items-center gap-1.5 mb-1 opacity-70 group-hover:opacity-100 transition-opacity">
+                <cat.icon size={12} className={cat.color} />
+                <span className={`text-[10px] font-semibold uppercase tracking-[0.08em] ${cat.color}`}>{cat.label}</span>
               </div>
+
+              {/* Player Info */}
+              <div className="flex items-center gap-3">
+                <div className="relative group-hover:drop-shadow-[0_0_6px_rgba(255,255,255,0.2)] transition-all">
+                  <Avatar p={cat.player} size={42} className="border border-border/50 shadow-sm" />
+                </div>
+                <div className="flex flex-col min-w-0">
+                  <div className="font-semibold text-[15px] truncate text-foreground group-hover:text-white transition-colors">
+                    {formatName(cat.player?.name || "—")}
+                  </div>
+                  <div className="flex items-baseline gap-1 mt-0.5 truncate">
+                    <span className={`font-score font-bold text-lg leading-none ${cat.color} brightness-110`}>{cat.stat}</span>
+                    <span className="text-[10px] text-muted-foreground truncate uppercase">{cat.statLabel}</span>
+                  </div>
+                </div>
+              </div>
+
             </div>
-          </FadeIn>
+          </div>
         ))}
       </div>
-    </Card>
+    </div>
   );
 }
 

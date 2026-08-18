@@ -3,7 +3,7 @@
 import React, { useMemo } from 'react';
 import {
   Trophy, Target, Shield, Flame, Swords, TrendingUp,
-  Crown, Medal, Star, Zap, BarChart3
+  Crown, Medal, Star, Zap, BarChart3, Goal
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Avatar } from '@/app/components/shared/UI';
@@ -103,207 +103,153 @@ function computeSeasonSummary(matches, players, seasonId) {
   };
 }
 
-// ─── Animation Variants ─────────────────────────────────────────────────────
-const containerVariants = {
-  hidden: { opacity: 0 },
-  visible: {
-    opacity: 1,
-    transition: { staggerChildren: 0.1 }
-  },
-};
-
-const cardVariants = {
-  hidden: { opacity: 0, y: 20, scale: 0.95 },
-  visible: { opacity: 1, y: 0, scale: 1, transition: { type: 'spring', stiffness: 300, damping: 25 } },
-};
-
-// ─── Sub-components ─────────────────────────────────────────────────────────
-
-function Podium({ champion, runnerUp, thirdPlace }) {
-  if (!champion && !runnerUp && !thirdPlace) return null;
-
-  return (
-    <div className="relative pt-16 pb-4 flex items-end justify-center gap-1 sm:gap-4 w-full max-w-4xl mx-auto min-h-[250px] sm:min-h-[300px] mb-8">
-      {/* Third Place (Right) */}
-      {thirdPlace && (
-        <motion.div 
-          initial={{ opacity: 0, y: 50 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.6, duration: 0.8, type: 'spring' }}
-          className="flex flex-col items-center justify-end w-[30%] sm:w-36 order-3 z-10"
-        >
-          <div className="relative mb-3">
-            <Avatar p={thirdPlace} size={56} className="ring-4 ring-[#CD7F32]/40 relative z-10 shadow-lg shadow-[#CD7F32]/20 sm:w-[64px] sm:h-[64px]" />
-            <div className="absolute -bottom-2.5 left-1/2 -translate-x-1/2 bg-[#CD7F32] text-white text-[9px] sm:text-[10px] font-black px-2 py-0.5 rounded-full shadow-md z-20 whitespace-nowrap">
-              3RD PLACE
-            </div>
-          </div>
-          <div className="text-center w-full px-1">
-            <div className="text-xs sm:text-sm font-black truncate">{thirdPlace.name}</div>
-          </div>
-          <div className="w-full h-16 sm:h-24 bg-gradient-to-t from-[#CD7F32]/20 to-[#CD7F32]/5 mt-3 sm:mt-4 rounded-t-lg border-t-2 border-x border-[#CD7F32]/30 flex items-start justify-center pt-2 backdrop-blur-sm">
-            <span className="text-[#CD7F32] font-black text-xl sm:text-2xl opacity-50">3</span>
-          </div>
-        </motion.div>
-      )}
-
-      {/* Champion (Center) */}
-      {champion && (
-        <motion.div 
-          initial={{ opacity: 0, y: 50 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2, duration: 0.8, type: 'spring' }}
-          className="flex flex-col items-center justify-end w-[40%] sm:w-48 order-2 z-30"
-        >
-          <div className="relative mb-4">
-            <div className="absolute -inset-6 bg-yellow-500/20 blur-xl rounded-full animate-pulse z-0" />
-            <Avatar p={champion} size={72} className="ring-4 ring-yellow-400 relative z-10 shadow-[0_0_30px_rgba(250,204,21,0.4)] sm:w-[88px] sm:h-[88px]" />
-            <div className="absolute -top-4 sm:-top-5 left-1/2 -translate-x-1/2 z-20 text-yellow-400 drop-shadow-[0_0_10px_rgba(250,204,21,0.8)]">
-              <Crown size={28} className="sm:w-[32px] sm:h-[32px]" />
-            </div>
-            <div className="absolute -bottom-3 left-1/2 -translate-x-1/2 bg-gradient-to-r from-yellow-600 to-yellow-400 text-yellow-950 text-[10px] sm:text-[11px] font-black px-3 py-1 rounded-full shadow-lg z-20 whitespace-nowrap tracking-wider">
-              CHAMPION
-            </div>
-          </div>
-          <div className="text-center w-full px-1">
-            <div className="text-sm sm:text-lg font-black truncate text-foreground">{champion.name}</div>
-          </div>
-          <div className="w-full h-24 sm:h-36 bg-gradient-to-t from-yellow-500/30 to-yellow-500/10 mt-3 sm:mt-4 rounded-t-xl border-t-2 border-x border-yellow-500/50 flex items-start justify-center pt-2 backdrop-blur-md relative overflow-hidden">
-            <div className="absolute inset-0 bg-[url('/assets/noise.png')] opacity-10 mix-blend-overlay" />
-            <span className="text-yellow-500 font-black text-3xl sm:text-4xl opacity-50 relative z-10 drop-shadow-lg">1</span>
-          </div>
-        </motion.div>
-      )}
-
-      {/* Runner Up (Left) */}
-      {runnerUp && (
-        <motion.div 
-          initial={{ opacity: 0, y: 50 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4, duration: 0.8, type: 'spring' }}
-          className="flex flex-col items-center justify-end w-[30%] sm:w-36 order-1 z-20"
-        >
-          <div className="relative mb-3">
-            <Avatar p={runnerUp} size={64} className="ring-4 ring-slate-300/60 relative z-10 shadow-lg shadow-slate-300/20 sm:w-[72px] sm:h-[72px]" />
-            <div className="absolute -bottom-2.5 left-1/2 -translate-x-1/2 bg-slate-300 text-slate-900 text-[9px] sm:text-[10px] font-black px-2 py-0.5 rounded-full shadow-md z-20 whitespace-nowrap">
-              RUNNER-UP
-            </div>
-          </div>
-          <div className="text-center w-full px-1">
-            <div className="text-xs sm:text-sm font-black truncate">{runnerUp.name}</div>
-          </div>
-          <div className="w-full h-20 sm:h-28 bg-gradient-to-t from-slate-400/20 to-slate-400/5 mt-3 sm:mt-4 rounded-t-lg border-t-2 border-x border-slate-400/30 flex items-start justify-center pt-2 backdrop-blur-sm">
-            <span className="text-slate-400 font-black text-2xl sm:text-3xl opacity-50">2</span>
-          </div>
-        </motion.div>
-      )}
-    </div>
-  );
-}
-
-function BentoStatCard({ icon: Icon, label, playerName, value, accentFrom, className = "" }) {
-  return (
-    <motion.div variants={cardVariants} className={`relative group ${className}`}>
-      <div className="relative overflow-hidden rounded-3xl border border-border/50 dark:border-white/[0.06] bg-card/60 backdrop-blur-md p-5 sm:p-6 transition-all duration-500 hover:border-border/80 dark:hover:border-white/[0.15] hover:shadow-xl hover:-translate-y-1 h-full flex flex-col justify-between">
-        {/* Hover Glow */}
-        <div
-          className="absolute -inset-1 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none blur-2xl z-0"
-          style={{
-            background: `radial-gradient(circle at top right, ${accentFrom}15, transparent 60%)`,
-          }}
-        />
-
-        <div className="relative z-10 flex flex-col h-full gap-3 sm:gap-4">
-          <div className="flex items-center justify-between">
-            <span className="text-[10px] sm:text-[11px] font-bold uppercase tracking-[0.1em] sm:tracking-[0.2em] text-muted-foreground">{label}</span>
-            <div className="p-2 sm:p-2.5 rounded-xl bg-background/50 shadow-inner">
-              <Icon size={20} className="sm:w-[24px] sm:h-[24px]" style={{ color: accentFrom }} />
-            </div>
-          </div>
-          
-          <div className="mt-auto pt-2">
-            {playerName && (
-              <div className="text-xs sm:text-sm font-black text-foreground dark:text-zinc-100 truncate mb-1">{playerName}</div>
-            )}
-            <div className="text-xl sm:text-2xl lg:text-3xl font-black font-score tracking-tight" style={{ color: accentFrom }}>
-              {value}
-            </div>
-          </div>
-        </div>
-      </div>
-    </motion.div>
-  );
-}
-
 // ─── Main Component ─────────────────────────────────────────────────────────
 
 export default function SeasonSummaryDashboard({ season, matches, players, compact = false }) {
   const summary = useMemo(
-    () => computeSeasonSummary(matches, players, season.id),
-    [matches, players, season.id]
+    () => computeSeasonSummary(matches, players, season?.id),
+    [matches, players, season?.id]
   );
 
   if (!summary) {
     return (
-      <div className="text-center py-8 text-muted-foreground text-sm font-medium">
+      <div className="text-center py-8 text-muted-foreground text-sm font-medium border border-border/40 rounded-xl bg-card/40">
         No completed matches yet for this season.
       </div>
     );
   }
 
-  const champion = season.championId ? players.find(p => p.id === season.championId) : null;
-  const runnerUp = season.runnerUpId ? players.find(p => p.id === season.runnerUpId) : null;
-  const thirdPlace = season.thirdId ? players.find(p => p.id === season.thirdId) : null;
+  // Aggregate stats for the season
+  const completed = matches.filter(m => m.seasonId === season?.id && m.status === 'completed' && m.round === 'league');
+  const totalMatches = completed.length;
+  
+  let totalPlayerWins = 0;
+  completed.forEach(m => {
+    const hs = Number(m.homeScore) || 0;
+    const as = Number(m.awayScore) || 0;
+    if (hs > as) totalPlayerWins++;
+    if (as > hs) totalPlayerWins++;
+  });
+  
+  const winRate = totalMatches > 0 ? Math.round((totalPlayerWins / (totalMatches * 2)) * 100) : 0;
+
+  const primaryMetrics = [
+    { label: "Matches Played", value: summary.totalMatches, icon: Swords, color: "text-purple-400" },
+    { label: "Total Goals", value: summary.totalGoals, icon: Target, color: "text-amber-500" },
+    { label: "Avg Goals", value: summary.avgGoals, icon: BarChart3, color: "text-green-500" },
+    { label: "Goals For", value: summary.totalGoals, icon: Goal, color: "text-blue-400" },
+    { label: "Goals Against", value: summary.totalGoals, icon: Goal, color: "text-rose-400" },
+    { label: "Win Rate", value: `${winRate}%`, icon: TrendingUp, color: "text-yellow-500" },
+  ];
+
+  const secondaryCards = [
+    {
+      label: "Top Scorer",
+      player: summary.topScorer?.player,
+      value: `${summary.topScorer?.goals || 0} Goals`,
+      icon: Target,
+      color: "text-purple-400",
+      bgClass: "from-purple-500/10 to-transparent",
+      bgGraphic: "/assets/trophies/GoldenBoot.png" // using existing icons or just generic SVG
+    },
+    {
+      label: "Best Defense",
+      player: summary.bestDefense?.player,
+      value: `${summary.bestDefense?.avgConceded || "0.0"} GA`,
+      icon: Shield,
+      color: "text-blue-400",
+      bgClass: "from-blue-500/10 to-transparent",
+    },
+    {
+      label: "Most Wins",
+      player: summary.mostWins?.player,
+      value: `${summary.mostWins?.wins || 0} Wins`,
+      icon: Trophy,
+      color: "text-green-400",
+      bgClass: "from-green-500/10 to-transparent",
+    },
+    {
+      label: "Win Streak",
+      player: summary.longestStreak?.player,
+      value: `${summary.longestStreak?.bestStreak || 0} Streak`,
+      icon: Flame,
+      color: "text-rose-500",
+      bgClass: "from-rose-500/10 to-transparent",
+    },
+    {
+      label: "Clean Sheets",
+      player: summary.mostCleanSheets?.player,
+      value: `${summary.mostCleanSheets?.cleanSheets || 0} CS`,
+      icon: Star,
+      color: "text-indigo-400",
+      bgClass: "from-indigo-500/10 to-transparent",
+    },
+    {
+      label: "Most Decisive",
+      player: summary.mostDecisive?.player,
+      value: `${summary.mostDecisive?.bigWins || 0} Big Wins`,
+      icon: Zap,
+      color: "text-pink-500",
+      bgClass: "from-pink-500/10 to-transparent",
+    }
+  ];
 
   return (
-    <div className="w-full">
-      {/* The Podium */}
-      <Podium champion={champion} runnerUp={runnerUp} thirdPlace={thirdPlace} />
+    <div className="w-full flex flex-col gap-4">
+      {/* Primary Metrics Strip */}
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4">
+        {primaryMetrics.map((metric, i) => (
+          <div key={metric.label} className="bg-card border border-border/40 rounded-xl p-4 flex flex-col justify-center h-[72px] sm:h-[86px] relative overflow-hidden group hover:border-border/80 transition-colors">
+            <div className="flex items-center justify-between relative z-10">
+              <div className="flex items-center gap-1.5 opacity-80">
+                <metric.icon size={12} className={metric.color} />
+                <span className="text-[9px] font-bold uppercase tracking-[0.08em] text-muted-foreground whitespace-nowrap">{metric.label}</span>
+              </div>
+            </div>
+            <div className={`text-xl sm:text-2xl font-score font-black mt-1 ${metric.color} relative z-10`}>
+              {metric.value}
+            </div>
+          </div>
+        ))}
+      </div>
 
-      {/* The Bento Grid */}
-      <motion.div
-        variants={containerVariants}
-        initial="hidden"
-        whileInView="visible"
-        viewport={{ once: true, margin: "-50px" }}
-        className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 relative z-10"
-      >
-        {/* Global Match Stats */}
-        <BentoStatCard
-          icon={Swords} label="Matches Played" value={summary.totalMatches} accentFrom="#8b5cf6"
-          className="col-span-2 md:col-span-1"
-        />
-        <BentoStatCard
-          icon={Target} label="Total Goals" value={summary.totalGoals} accentFrom="#f59e0b"
-          className="col-span-1 md:col-span-2"
-        />
-        <BentoStatCard
-          icon={BarChart3} label="Avg Goals" value={summary.avgGoals} accentFrom="#22c55e"
-          className="col-span-1 md:col-span-1"
-        />
+      {/* Secondary Performance Grid */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+        {secondaryCards.map((card, i) => (
+          <div key={card.label} className={`relative overflow-hidden rounded-xl bg-card border border-border/40 p-4 h-[120px] sm:h-[135px] flex flex-col justify-between group hover:border-border/80 transition-colors ${i >= 4 ? 'lg:col-span-2' : 'col-span-1'}`}>
+            
+            {/* Subtle Gradient Background */}
+            <div className={`absolute inset-0 bg-gradient-to-br ${card.bgClass} opacity-50 group-hover:opacity-100 transition-opacity pointer-events-none z-0`} />
+            
+            {/* Icon Graphic Background (if applicable, using Lucide icon heavily faded) */}
+            <div className={`absolute -right-4 -bottom-4 opacity-[0.04] group-hover:opacity-[0.08] transition-opacity pointer-events-none z-0 rotate-[-15deg] ${card.color}`}>
+              <card.icon size={100} />
+            </div>
 
-        {/* Major Awards */}
-        <BentoStatCard
-          icon={Target} label="Top Scorer" playerName={summary.topScorer.player?.name} value={`${summary.topScorer.goals} Gls`} accentFrom="#f59e0b"
-          className="col-span-2 md:col-span-2"
-        />
-        <BentoStatCard
-          icon={Shield} label="Best Defense" playerName={summary.bestDefense.player?.name} value={`${summary.bestDefense.avgConceded} GA`} accentFrom="#3b82f6"
-          className="col-span-2 md:col-span-2"
-        />
-        
-        {/* Minor Awards */}
-        <BentoStatCard
-          icon={Trophy} label="Most Wins" playerName={summary.mostWins.player?.name} value={`${summary.mostWins.wins} Wins`} accentFrom="#22c55e"
-          className="col-span-1 md:col-span-2"
-        />
-        <BentoStatCard
-          icon={Flame} label="Win Streak" playerName={summary.longestStreak.player?.name} value={`${summary.longestStreak.bestStreak} Streak`} accentFrom="#ef4444"
-          className="col-span-1 md:col-span-1"
-        />
-        <BentoStatCard
-          icon={Star} label="Clean Sheets" playerName={summary.mostCleanSheets.player?.name} value={`${summary.mostCleanSheets.cleanSheets} CS`} accentFrom="#8b5cf6"
-          className="col-span-1 md:col-span-1"
-        />
-        <BentoStatCard
-          icon={Zap} label="Most Decisive" playerName={summary.mostDecisive.player?.name} value={`${summary.mostDecisive.bigWins} Big Wins`} accentFrom="#ec4899"
-          className="col-span-1 md:col-span-4" // spans full width on bottom to anchor
-        />
-      </motion.div>
+            {/* Content */}
+            <div className="relative z-10">
+              <span className={`text-[10px] font-bold uppercase tracking-[0.08em] ${card.color} opacity-90`}>{card.label}</span>
+              {card.player && (
+                <div className="mt-2 font-bold text-sm sm:text-[15px] truncate text-foreground group-hover:text-white transition-colors">
+                  {card.player.name}
+                </div>
+              )}
+            </div>
+
+            <div className="relative z-10 mt-auto">
+              <div className={`text-2xl sm:text-3xl font-score font-black ${card.color} tracking-tight brightness-110`}>
+                {card.value.split(' ')[0]} <span className="text-xs sm:text-sm text-muted-foreground uppercase tracking-widest font-sans font-bold">{card.value.split(' ').slice(1).join(' ')}</span>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+      
+      {/* Legend Footer */}
+      <div className="flex items-center gap-4 text-[10px] text-muted-foreground font-semibold uppercase tracking-widest mt-2 px-1">
+        <div className="flex items-center gap-1.5"><Shield size={12} className="opacity-60"/> GA: Goals Against</div>
+        <div className="flex items-center gap-1.5"><Star size={12} className="opacity-60"/> CS: Clean Sheets</div>
+      </div>
     </div>
   );
 }
