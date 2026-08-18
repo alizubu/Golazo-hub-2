@@ -1137,7 +1137,7 @@ export default function LiveMatchControl({ matches, players, activeSeason, showT
         />
         <StepIndicator phase={phase} />
 
-        <main className="relative bg-[#080a10] min-h-[400px]">
+        <main className="relative bg-[#080a10] min-h-[160px]">
           {/* Subtle background glow */}
           <div className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full max-w-lg max-h-[32rem] rounded-full blur-[100px] pointer-events-none transition-colors duration-1000 ${["extra_time", "shootout"].includes(phase) ? 'bg-gradient-to-br from-amber-500/10 to-rose-500/10 animate-pulse' : 'bg-emerald-500/[0.03]'}`} />
 
