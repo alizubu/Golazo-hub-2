@@ -11,7 +11,7 @@ import { Avatar } from '@/app/components/shared/UI';
 // ─── Utility: compute all season summary stats from raw match data ──────────
 function computeSeasonSummary(matches, players, seasonId) {
   const completed = matches
-    .filter(m => m.seasonId === seasonId && m.status === 'completed' && m.round === 'league')
+    .filter(m => m.seasonId === seasonId && m.status === 'completed')
     .sort((a, b) => new Date(a.completedAt || 0) - new Date(b.completedAt || 0));
 
   if (completed.length === 0) return null;
@@ -137,26 +137,23 @@ export default function SeasonSummaryDashboard({ season, matches, players, compa
   }
 
   // Aggregate stats for the season
-  const completed = matches.filter(m => m.seasonId === season?.id && m.status === 'completed' && m.round === 'league');
+  const completed = matches.filter(m => m.seasonId === season?.id && m.status === 'completed');
   const totalMatches = completed.length;
   
-  let totalPlayerWins = 0;
+  let totalDraws = 0;
   completed.forEach(m => {
     const hs = Number(m.homeScore) || 0;
     const as = Number(m.awayScore) || 0;
-    if (hs > as) totalPlayerWins++;
-    if (as > hs) totalPlayerWins++;
+    if (hs === as) totalDraws++;
   });
-  
-  const winRate = totalMatches > 0 ? Math.round((totalPlayerWins / (totalMatches * 2)) * 100) : 0;
 
   const primaryMetrics = [
     { label: "Matches", value: summary.totalMatches, icon: Swords, color: "text-[#9d4edd]" },
     { label: "Goals", value: summary.totalGoals, icon: Target, color: "text-[#ffb703]" },
     { label: "Avg Goals", value: summary.avgGoals, icon: BarChart3, color: "text-[#2dc653]" },
-    { label: "Goals For", value: summary.totalGoals, icon: Goal, color: "text-[#00b4d8]" },
-    { label: "Goals Against", value: summary.totalGoals, icon: Shield, color: "text-[#e63946]" },
-    { label: "Win Rate", value: `${winRate}%`, icon: TrendingUp, color: "text-[#ffb703]" },
+    { label: "Clean Sheets", value: summary.totalCleanSheets, icon: Shield, color: "text-[#00b4d8]" },
+    { label: "Biggest Win", value: summary.biggestWinScore, icon: Crown, color: "text-[#e63946]" },
+    { label: "Draws", value: totalDraws, icon: TrendingUp, color: "text-[#ffb703]" },
   ];
 
   const secondaryCards = [
