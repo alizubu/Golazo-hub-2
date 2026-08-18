@@ -420,11 +420,11 @@ function TopPlayersHorizontal({ matches, players, activeSeason }) {
   if (!mostPassesPlayer && standings.length > 0) mostPassesPlayer = standings[0];
 
   const categories = [
-    { label: "Golden Boot", player: topScorer, stat: `${topScorer?.gf || 0}`, statLabel: "Goals", icon: Target, color: "text-amber-400", borderColor: "border-amber-500/40 hover:border-amber-500/70", glow: "from-amber-500/20 via-amber-500/5 to-transparent", shadow: "shadow-[0_0_20px_-5px_rgba(251,191,36,0.2)] hover:shadow-[0_8px_30px_-8px_rgba(251,191,36,0.4)]", rank: "🥇", isHero: true },
-    { label: "Highest Rating", player: highestRatedPlayer, stat: `★ ${(highestRatingVal || 0).toFixed(1)}`, statLabel: "Rating", icon: Star, color: "text-purple-400", borderColor: "border-border/30 hover:border-purple-500/50", glow: "from-purple-500/10 to-transparent", shadow: "hover:shadow-[0_8px_30px_-8px_rgba(192,132,252,0.25)]" },
-    { label: "Most Wins", player: mostWins, stat: `${mostWins?.won || 0}`, statLabel: "Wins", icon: Trophy, color: "text-green-400", borderColor: "border-border/30 hover:border-green-500/50", glow: "from-green-500/10 to-transparent", shadow: "hover:shadow-[0_8px_30px_-8px_rgba(74,222,128,0.25)]" },
-    { label: "Best Defense", player: bestDefense, stat: bestDefense && bestDefense.played > 0 ? (bestDefense.ga / bestDefense.played).toFixed(1) : "0.0", statLabel: "Goals Conceded", icon: Shield, color: "text-blue-400", borderColor: "border-border/30 hover:border-blue-500/50", glow: "from-blue-500/10 to-transparent", shadow: "hover:shadow-[0_8px_30px_-8px_rgba(96,165,250,0.25)]" },
-    { label: "Most Passes", player: mostPassesPlayer, stat: `${highestPassesVal}`, statLabel: "Successful Passes", icon: Zap, color: "text-orange-400", borderColor: "border-border/30 hover:border-orange-500/50", glow: "from-orange-500/10 to-transparent", shadow: "hover:shadow-[0_8px_30px_-8px_rgba(251,146,60,0.25)]" }
+    { label: "Golden Boot", player: topScorer, stat: `${topScorer?.gf || 0}`, statLabel: "Goals", icon: Target, color: "text-[#ffb703]", borderTop: "border-t-[#ffb703]", glow: "from-[#ffb703]/20 via-[#ffb703]/5 to-transparent", shadow: "shadow-[0_-15px_30px_-15px_rgba(255,183,3,0.35)]", rankNum: "1", isHero: true },
+    { label: "Highest Rating", player: highestRatedPlayer, stat: `★ ${(highestRatingVal || 0).toFixed(1)}`, statLabel: "Rating", icon: Star, color: "text-[#9d4edd]", borderTop: "border-t-[#9d4edd]", glow: "from-[#9d4edd]/20 via-[#9d4edd]/5 to-transparent", shadow: "shadow-[0_-15px_30px_-15px_rgba(157,78,221,0.35)]", rankNum: "2" },
+    { label: "Most Wins", player: mostWins, stat: `${mostWins?.won || 0}`, statLabel: "Wins", icon: Trophy, color: "text-[#2dc653]", borderTop: "border-t-[#2dc653]", glow: "from-[#2dc653]/20 via-[#2dc653]/5 to-transparent", shadow: "shadow-[0_-15px_30px_-15px_rgba(45,198,83,0.35)]", rankNum: "3" },
+    { label: "Best Defense", player: bestDefense, stat: bestDefense && bestDefense.played > 0 ? (bestDefense.ga / bestDefense.played).toFixed(1) : "0.0", statLabel: "Goals Conceded", icon: Shield, color: "text-[#00b4d8]", borderTop: "border-t-[#00b4d8]", glow: "from-[#00b4d8]/20 via-[#00b4d8]/5 to-transparent", shadow: "shadow-[0_-15px_30px_-15px_rgba(0,180,216,0.35)]", rankNum: "4" },
+    { label: "Most Passes", player: mostPassesPlayer, stat: `${highestPassesVal}`, statLabel: "Successful Passes", icon: Zap, color: "text-[#f48c06]", borderTop: "border-t-[#f48c06]", glow: "from-[#f48c06]/20 via-[#f48c06]/5 to-transparent", shadow: "shadow-[0_-15px_30px_-15px_rgba(244,140,6,0.35)]", rankNum: "5" }
   ];
 
   return (
@@ -441,47 +441,46 @@ function TopPlayersHorizontal({ matches, players, activeSeason }) {
       </div>
 
       {/* Grid / Carousel */}
-      <div className="flex overflow-x-auto lg:grid lg:grid-cols-5 md:grid-cols-3 sm:grid-cols-2 gap-3 pb-2 snap-x snap-mandatory scrollbar-none w-full" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+      <div className="flex overflow-x-auto lg:grid lg:grid-cols-5 md:grid-cols-3 sm:grid-cols-2 gap-3 sm:gap-4 pb-2 snap-x snap-mandatory scrollbar-none w-full" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
         {categories.map((cat, i) => (
-          <div key={cat.label} className={`snap-start shrink-0 ${cat.isHero ? 'w-[260px]' : 'w-[240px]'} sm:w-auto h-full`}>
-            <div className={`relative flex flex-col p-4 rounded-2xl bg-[#101318] border transition-all duration-300 cursor-pointer h-[160px] justify-between group overflow-hidden ${cat.borderColor} ${cat.shadow} hover:-translate-y-1.5`}>
+          <div key={cat.label} className={`snap-start shrink-0 ${cat.isHero ? 'w-[280px]' : 'w-[260px]'} sm:w-auto h-full`}>
+            <div className={`relative flex flex-col p-4 rounded-[14px] bg-[#0c0e12] border border-border/20 border-t-2 ${cat.borderTop} transition-all duration-300 cursor-pointer h-[180px] justify-between group overflow-hidden ${cat.shadow} hover:-translate-y-1`}>
               
               {/* Subtle Gradient Glow */}
-              <div className={`absolute inset-0 bg-gradient-to-br ${cat.glow} opacity-60 group-hover:opacity-100 transition-opacity pointer-events-none z-0`} />
+              <div className={`absolute inset-0 bg-gradient-to-b ${cat.glow} opacity-60 group-hover:opacity-100 transition-opacity pointer-events-none z-0`} />
 
               {/* Oversized Background Icon */}
-              <div className={`absolute -right-4 -bottom-4 opacity-[0.08] group-hover:opacity-[0.15] transition-opacity pointer-events-none z-0 rotate-[-15deg] ${cat.color} group-hover:scale-110 duration-500`}>
-                <cat.icon size={110} strokeWidth={1.5} />
+              <div className={`absolute -right-6 -bottom-6 opacity-[0.05] group-hover:opacity-[0.10] transition-opacity pointer-events-none z-0 rotate-[-15deg] ${cat.color} group-hover:scale-110 duration-500`}>
+                <cat.icon size={130} strokeWidth={1} />
               </div>
               
               {/* Category Header */}
-              <div className="flex items-center justify-between gap-1.5 mb-2 relative z-10">
-                <div className="flex items-center gap-1.5 opacity-90 group-hover:opacity-100 transition-opacity">
-                  <span className={`text-[11px] font-bold uppercase tracking-[0.15em] ${cat.color}`}>{cat.label}</span>
+              <div className="flex items-center gap-3 mb-2 relative z-10">
+                <div className="relative flex items-center justify-center w-[24px] h-[26px]">
+                  <svg viewBox="0 0 24 24" className={`absolute inset-0 w-full h-full ${cat.color}`} fill="none" stroke="currentColor" strokeWidth="2" strokeLinejoin="round">
+                    <polygon points="12 2 22 8 22 16 12 22 2 16 2 8 12 2" />
+                  </svg>
+                  <span className={`text-[11px] font-black z-10 text-white mt-px`}>{cat.rankNum}</span>
                 </div>
-                {cat.rank && (
-                  <span className="text-[14px] opacity-90 drop-shadow-md">{cat.rank}</span>
-                )}
+                <span className={`text-[12px] font-bold uppercase tracking-[0.15em] ${cat.color}`}>{cat.label}</span>
               </div>
 
               {/* Player Info & Big Stat */}
               <div className="flex flex-col justify-end relative z-10 mt-auto h-full">
-                <div className="flex items-center gap-2 group-hover:drop-shadow-[0_0_8px_rgba(255,255,255,0.2)] transition-all mb-2">
-                  <div className="relative">
-                    <Avatar p={cat.player} size={28} className={`border ${cat.isHero ? 'border-amber-500/50' : 'border-border/50'} shadow-sm group-hover:border-white/50 transition-colors`} />
+                <div className="flex items-center gap-3 group-hover:drop-shadow-[0_0_8px_rgba(255,255,255,0.2)] transition-all mb-3">
+                  <Avatar p={cat.player} size={34} className="border border-border/50 shadow-sm rounded-full" />
+                  <div className="flex flex-col">
+                    <span className="font-bold text-[14px] leading-tight truncate text-foreground group-hover:text-white transition-colors">
+                      {formatName(cat.player?.name || "—")}
+                    </span>
                     {cat.player?.identity && (
-                      <div className="absolute -bottom-1 -right-1 w-3.5 h-3.5 bg-card rounded-full overflow-hidden border border-border flex items-center justify-center shadow-sm">
-                        <img src={getPlayerIdentityBadgeUrl(cat.player)} alt="club" className="w-full h-full object-cover" />
-                      </div>
+                      <img src={getPlayerIdentityBadgeUrl(cat.player)} alt="club" className="h-3.5 object-contain mt-0.5 opacity-90" />
                     )}
                   </div>
-                  <span className="font-bold text-[14px] truncate text-foreground group-hover:text-white transition-colors">
-                    {formatName(cat.player?.name || "—")}
-                  </span>
                 </div>
                 <div className="flex flex-col leading-none">
-                  <span className={`font-score font-black text-3xl sm:text-4xl ${cat.color} brightness-110 tracking-tighter`}>{cat.stat}</span>
-                  <span className="text-[9px] text-muted-foreground uppercase font-bold tracking-[0.15em] mt-1">{cat.statLabel}</span>
+                  <span className={`font-score font-black text-4xl sm:text-[42px] ${cat.color} brightness-110 tracking-tighter drop-shadow-sm`}>{cat.stat}</span>
+                  <span className="text-[10px] text-muted-foreground uppercase font-bold tracking-[0.2em] mt-1.5">{cat.statLabel}</span>
                 </div>
               </div>
 
