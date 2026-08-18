@@ -521,7 +521,7 @@ function LiveControl({ state, onFinish, onTogglePause, onUndoStart }) {
       </div>
 
       {/* Action Buttons */}
-      <div className="fixed bottom-0 left-0 right-0 p-4 sm:static sm:p-0 bg-[#0a0c14]/90 sm:bg-transparent backdrop-blur-xl sm:backdrop-blur-none border-t border-white/[0.04] sm:border-0 z-50 flex flex-col sm:flex-row gap-3 shadow-[0_-10px_40px_rgba(0,0,0,0.3)] sm:shadow-none pb-safe">
+      <div className="mt-8 flex flex-col sm:flex-row gap-3 z-50 relative pb-4 sm:pb-0">
         {canUndo && <ActionButton icon={RotateCcw} label="Undo Start" onClick={onUndoStart} variant="secondary" />}
         <ActionButton icon={paused ? Play : Pause} label={paused ? "Resume Match" : "Pause Match"} onClick={onTogglePause} variant="secondary" />
         <ActionButton icon={Square} label="Finish Match" onClick={() => setShowFinishConfirm(true)} variant="destructive" />
@@ -537,7 +537,7 @@ function ExtraTime({ etHalf, setEtHalf, onDone }) {
         <Timer size={18} className="animate-pulse" /> Extra Time — {etHalf === 1 ? "1st Half (15')" : "2nd Half (15')"}
       </div>
       
-      <div className="fixed bottom-0 left-0 right-0 p-4 sm:static sm:p-0 bg-[#0a0c14]/90 sm:bg-transparent backdrop-blur-xl sm:backdrop-blur-none border-t border-white/[0.04] sm:border-0 z-50 flex flex-col gap-3 shadow-[0_-10px_40px_rgba(0,0,0,0.3)] sm:shadow-none sm:max-w-md sm:mx-auto pb-safe">
+      <div className="mt-8 flex flex-col gap-3 z-50 sm:max-w-md sm:mx-auto relative pb-4 sm:pb-0">
         {etHalf === 1 ? (
           <ActionButton label="Start 2nd Half of Extra Time" onClick={() => setEtHalf(2)} variant="primary" />
         ) : (
@@ -625,7 +625,7 @@ function Shootout({ home, away, kicks, setKicks, onDecided }) {
       </div>
 
       {!decided ? (
-        <div className="fixed bottom-0 left-0 right-0 p-4 sm:static sm:p-0 bg-[#0a0c14]/90 sm:bg-transparent backdrop-blur-xl sm:backdrop-blur-none border-t border-white/[0.04] sm:border-0 z-50 grid grid-cols-2 gap-3 shadow-[0_-10px_40px_rgba(0,0,0,0.3)] sm:shadow-none sm:max-w-lg sm:mx-auto pb-safe">
+        <div className="mt-8 grid grid-cols-2 gap-3 z-50 sm:max-w-lg sm:mx-auto relative pb-4 sm:pb-0">
           <button onClick={() => record("scored")} className="h-16 rounded-xl flex items-center justify-center gap-3 font-bold text-lg bg-emerald-500 hover:bg-emerald-600 text-white shadow-[0_0_15px_rgba(34,197,94,0.3)] active:scale-95 transition-all cursor-pointer">
             <Check size={24} strokeWidth={3} /> Scored
           </button>
@@ -831,7 +831,7 @@ function StatsEntry({ stats, setStats, onSave, onSkip, busy, homeObj, awayObj, h
       </div>
 
       {/* Main Content Area */}
-      <div className="px-4 sm:px-8 flex-1 overflow-y-auto pb-36 bg-[#0a0c14]">
+      <div className="px-4 sm:px-8 flex-1 bg-[#0a0c14] pb-6">
         {/* Image Import (above stats) */}
         <div className="py-6">
           <ImageImport onApply={handleImportApply} />
@@ -846,7 +846,7 @@ function StatsEntry({ stats, setStats, onSave, onSkip, busy, homeObj, awayObj, h
       </div>
 
       {/* Sticky Bottom Bar - Centered Action */}
-      <div className="fixed bottom-0 left-0 right-0 z-50 bg-[#0a0c14]/95 backdrop-blur-xl border-t border-white/[0.05] px-4 sm:px-8 py-4 sm:py-5 flex flex-col sm:flex-row items-center justify-center gap-3">
+      <div className="sticky bottom-0 z-50 bg-[#0a0c14]/95 backdrop-blur-xl border-t border-white/[0.05] p-4 sm:px-8 py-4 sm:py-5 flex flex-col sm:flex-row items-center justify-center gap-3 shadow-[0_-10px_40px_rgba(0,0,0,0.4)]">
         {/* We keep both buttons but style them cleanly */}
         <button
           onClick={onSkip}
