@@ -36,12 +36,16 @@ const clubs = clubsData.map(c => ({ ...c, subtitle: `${c.league}, ${c.country}` 
 const nationalTeams = nationalTeamsData.map(nt => ({ ...nt, subtitle: nt.confederation }));
 
 const BENTO_TROPHIES = [
-  { id: 'bb-championship', name: 'BB Championship', requirement: 'Win the ultimate BB League title.', image: '/assets/trophies/BB-Champion.png', icon: '🏆' },
-  { id: 'ballon-dor', name: "Ballon d'Or", requirement: 'Voted the absolute best player in the world.', image: '/assets/trophies/BalanDor.png', icon: '🥇' },
-  { id: 'golden-boot', name: 'Golden Boot', requirement: 'Score the most goals in the season.', image: '/assets/trophies/Golden-boot.png', icon: '👟' },
-  { id: 'most-successful-pass', name: 'Pass Master', requirement: 'Achieve the highest pass accuracy.', image: '/assets/trophies/MostPasses.png', icon: '🎯' },
-  { id: 'mvp', name: 'Tournament MVP', requirement: 'Dominate the pitch and earn MVP honors.', image: '/assets/trophies/MVP.png', icon: '⭐' }
+  { id: 'bb-championship', name: 'BB Championship', category: 'Championships', priority: 1, requirement: 'Win the ultimate BB League title.', image: '/assets/trophies/BB-Champion.png', icon: '🏆', scale: 1.0 },
+  { id: 'mvp', name: 'Tournament MVP', category: 'MVP', priority: 2, requirement: 'Dominate the pitch and earn MVP honors.', image: '/assets/trophies/MVP.png', icon: '⭐', scale: 0.85 },
+  { id: 'ballon-dor', name: "Ballon d'Or", category: 'MVP', priority: 3, requirement: 'Voted the absolute best player in the world.', image: '/assets/trophies/BalanDor.png', icon: '🥇', scale: 0.88 },
+  { id: 'golden-boot', name: 'Golden Boot', category: 'Scoring', priority: 4, requirement: 'Score the most goals in the season.', image: '/assets/trophies/Golden-boot.png', icon: '👟', scale: 0.82 },
+  { id: 'most-successful-pass', name: 'Pass Master', category: 'Special', priority: 5, requirement: 'Achieve the highest pass accuracy.', image: '/assets/trophies/MostPasses.png', icon: '🎯', scale: 0.88 },
+  { id: 'clean-sheet', name: 'Clean Sheet Glove', category: 'Defense', priority: 6, requirement: 'Keep the most clean sheets in the season.', image: '/assets/trophies/cleansheet.png', icon: '🧤', scale: 0.9 },
+  { id: 'best-defender', name: 'Best Defender', category: 'Defense', priority: 7, requirement: 'The most dominant defender of the season.', image: '/assets/trophies/bestdefence.png', icon: '🛡️', scale: 0.9 },
 ];
+
+const TROPHY_CATEGORIES = ['ALL', 'Championships', 'MVP', 'Scoring', 'Defense', 'Special'];
 
 export default function PlayerViews(props) {
   const [selectedMatchId, setSelectedMatchId] = React.useState(null);
@@ -579,114 +583,14 @@ export function PlayerDashboard({ me, activeSeason, seasons = [], matches, playe
           onSeasonChange={setSelectedSeasonId}
         />
 
-        {/* Trophy Cabinet Row */}
+        {/* Trophy Cabinet — Hall of Fame */}
         <FadeIn delay={0.25} className="col-span-12">
-          <div className="relative overflow-hidden w-full bg-card dark:bg-card border border-border/80 dark:border-white/[0.08] rounded-[20px] shadow-sm">
-            {(() => {
-              // Combine hardcoded templates, db templates, and all unique awarded trophies in the game
-              const templateMap = new Map();
-
-              const seenIcons = new Set();
-              BENTO_TROPHIES.forEach(t => {
-                if (t.image) seenIcons.add(t.image);
-                templateMap.set(t.id, {
-                  id: t.id,
-                  name: t.name,
-                  image: t.image,
-                  icon: t.icon,
-                  locked: true,
-                  requirement: t.requirement
-                });
-              });
-
-              // 2. Add any unique trophies awarded to ANY player (so users see what's out there)
-              trophies.forEach(t => {
-                const key = t.templateId || t.title.toLowerCase().replace(/\s+/g, '-');
-                const isDuplicateIcon = t.icon && seenIcons.has(t.icon);
-                if (!templateMap.has(key) && !isDuplicateIcon) {
-                  if (t.icon) seenIcons.add(t.icon);
-                  templateMap.set(key, {
-                    id: t.id, // Just use the instance ID as a key
-                    name: t.title,
-                    image: t.icon || '🏆',
-                    locked: true,
-                    requirement: t.description || 'Locked'
-                  });
-                }
-              });
-              (me.badges || []).forEach(badgeName => {
-                const badgeKey = `badge-${badgeName.toLowerCase().replace(/\s+/g, '-')}`;
-                if (!templateMap.has(badgeKey)) {
-                  templateMap.set(badgeKey, {
-                    id: badgeKey,
-                    name: badgeName,
-                    image: '🎖️',
-                    locked: false, // Badges are always unlocked since they are stored directly on the player
-                    requirement: 'Admin Awarded Badge',
-                    isBadge: true
-                  });
-                }
-              });
-
-              const trophyList = Array.from(templateMap.values());
-
-              return (
-                <>
-                  <div className="pb-3 pt-5 px-5 sm:px-6 flex flex-row items-center justify-between gap-4 relative border-b border-border/40 dark:border-white/[0.06]">
-                    <div className="text-xl sm:text-2xl font-bold flex items-center gap-2.5 text-foreground" style={{ fontFamily: "'Sora', sans-serif", fontWeight: 700 }}>
-                      <Trophy className="text-amber-500 dark:text-amber-400" size={24} /> Trophy Cabinet
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Badge variant="gold" className="px-3 py-1.5 font-score text-[10px] sm:text-xs font-black tracking-widest bg-amber-500/10 text-amber-500 border border-amber-500/30">
-                        {trophyList.filter(tr => myTrophies.some(t => t.title === tr.name || t.id === tr.id)).length} / {trophyList.length} UNLOCKED
-                      </Badge>
-                    </div>
-                  </div>
-
-                  {/* The Bento Vault */}
-                  <div className="relative w-full overflow-hidden bg-[#0A0A0C] border-x border-b border-white/[0.05] rounded-b-2xl p-4 sm:p-8 shadow-[inset_0_20px_50px_rgba(0,0,0,0.8)]">
-                    {/* Ambient Cabinet Lighting */}
-                    <div className="absolute top-0 left-1/2 -translate-x-1/2 w-3/4 h-32 bg-amber-500/15 blur-[100px] pointer-events-none z-0" />
-                    <div className="absolute inset-0 bg-[url('/assets/noise.png')] opacity-20 mix-blend-overlay pointer-events-none z-0" />
-
-                    <div className="grid grid-cols-2 md:grid-cols-3 grid-rows-3 md:grid-rows-2 gap-4 sm:gap-6 relative z-10 w-full max-w-6xl mx-auto">
-                      {trophyList.map((tr, index) => {
-                        const isUnlocked = myTrophies.some(t => t.title === tr.name || t.id === tr.id || t.icon === tr.image) || tr.locked === false;
-                        const instances = tr.isBadge ? [tr] : myTrophies.filter(t => t.title === tr.name || t.id === tr.id || t.icon === tr.image);
-                        const count = instances.length;
-                        
-                        // Determine grid placement
-                        let bentoClass = "col-span-1";
-                        if (index === 0) {
-                          // The Crown Jewel: Spans 2 columns on mobile, 1 col & 2 rows on desktop
-                          bentoClass = "col-span-2 md:col-span-1 md:row-span-2";
-                        }
-
-                        return (
-                          <div key={tr.id} className={bentoClass}>
-                            <BentoTrophyTile
-                              trophy={tr}
-                              unlocked={isUnlocked}
-                              count={count}
-                              instances={instances}
-                              isLarge={index === 0}
-                              onSelect={() => setSelectedTrophy({
-                                trophy: tr,
-                                unlocked: isUnlocked,
-                                count: count,
-                                instances,
-                                requirement: tr.requirement
-                              })}
-                            />
-                          </div>
-                        );
-                      })}
-                    </div>
-                  </div>
-                </>
-              );
-            })()}
-          </div>
+          <TrophyCabinetSection
+            trophies={trophies}
+            myTrophies={myTrophies}
+            meBadges={me.badges || []}
+            onSelectTrophy={(data) => setSelectedTrophy(data)}
+          />
         </FadeIn>
 
         {/* Live Matches */}
@@ -1099,108 +1003,458 @@ function NotificationsView({ notifications, me }) {
 }
 
 
-function BentoTrophyTile({ trophy, unlocked, count = 0, instances = [], isLarge, onSelect }) {
-  const [imgLoaded, setImgLoaded] = React.useState(false);
-  const showDuplicate = count > 1;
+// ─── Trophy Cabinet — Hall of Fame ────────────────────────────────────────────
+
+function TrophyCabinetSection({ trophies, myTrophies, meBadges, onSelectTrophy }) {
+  const [activeCategory, setActiveCategory] = React.useState('ALL');
+
+  // Build trophy template map (same merge logic, preserved)
+  const templateMap = React.useMemo(() => {
+    const map = new Map();
+    const seenImages = new Set();
+
+    // 1. Official trophy templates
+    BENTO_TROPHIES.forEach(t => {
+      if (t.image) seenImages.add(t.image);
+      map.set(t.id, { ...t, locked: true });
+    });
+
+    // 2. Custom admin-awarded trophies not matching a template
+    trophies.forEach(t => {
+      const key = t.templateId || t.title.toLowerCase().replace(/\s+/g, '-');
+      const isDuplicateImage = t.icon && seenImages.has(t.icon);
+      if (!map.has(key) && !isDuplicateImage) {
+        if (t.icon) seenImages.add(t.icon);
+        map.set(key, {
+          id: t.id,
+          name: t.title,
+          image: t.icon || null,
+          icon: '🏆',
+          category: 'Special',
+          priority: 99,
+          requirement: t.description || 'Admin Award',
+          locked: true,
+          scale: 0.88,
+        });
+      }
+    });
+
+    // 3. Admin badges
+    meBadges.forEach(badgeName => {
+      const badgeKey = `badge-${badgeName.toLowerCase().replace(/\s+/g, '-')}`;
+      if (!map.has(badgeKey)) {
+        map.set(badgeKey, {
+          id: badgeKey,
+          name: badgeName,
+          image: null,
+          icon: '🎖️',
+          category: 'Special',
+          priority: 100,
+          requirement: 'Admin Awarded Badge',
+          locked: false,
+          isBadge: true,
+          scale: 0.88,
+        });
+      }
+    });
+
+    return map;
+  }, [trophies, meBadges]);
+
+  const allTrophyList = React.useMemo(() =>
+    Array.from(templateMap.values()).sort((a, b) => (a.priority || 99) - (b.priority || 99)),
+    [templateMap]
+  );
+
+  const filteredList = React.useMemo(() =>
+    activeCategory === 'ALL'
+      ? allTrophyList
+      : allTrophyList.filter(t => t.category === activeCategory),
+    [allTrophyList, activeCategory]
+  );
+
+  // Stats
+  const unlockedCount = allTrophyList.filter(tr =>
+    myTrophies.some(t => t.title === tr.name || t.id === tr.id || t.icon === tr.image) || tr.locked === false
+  ).length;
+  const totalCount = allTrophyList.length;
+  const completePct = totalCount > 0 ? Math.round((unlockedCount / totalCount) * 100) : 0;
+  const multiWinCount = allTrophyList.filter(tr => {
+    const instances = tr.isBadge ? [] : myTrophies.filter(t => t.title === tr.name || t.id === tr.id || t.icon === tr.image);
+    return instances.length > 1;
+  }).length;
+  const totalSeasons = [...new Set(myTrophies.map(t => t.season).filter(Boolean))].length;
+
+  return (
+    <div
+      className="relative w-full overflow-hidden rounded-2xl"
+      style={{
+        background: 'linear-gradient(180deg, #0D1117 0%, #07090D 100%)',
+        border: '1px solid rgba(214,166,58,0.12)',
+        boxShadow: 'inset 0 1px 0 rgba(214,166,58,0.08), 0 20px 60px rgba(0,0,0,0.6)',
+      }}
+    >
+      {/* Ambient ceiling glow */}
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-2/3 h-24 pointer-events-none z-0" style={{ background: 'radial-gradient(ellipse, rgba(214,166,58,0.10) 0%, transparent 70%)' }} />
+      {/* Noise texture */}
+      <div className="absolute inset-0 opacity-[0.04] mix-blend-overlay pointer-events-none z-0" style={{ backgroundImage: "url('/assets/noise.png')" }} />
+
+      {/* ── Header ── */}
+      <div className="relative z-10 px-5 sm:px-8 pt-6 pb-0">
+        <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 mb-5">
+          {/* Title */}
+          <div className="flex flex-col">
+            <div className="flex items-center gap-2.5">
+              <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: 'linear-gradient(135deg,#D6A63A,#A87522)', boxShadow: '0 0 12px rgba(214,166,58,0.4)' }}>
+                <Trophy size={16} className="text-black" />
+              </div>
+              <span className="text-xs uppercase tracking-[0.25em] font-black" style={{ color: '#D6A63A', fontFamily: "'Sora', sans-serif" }}>Trophy Cabinet</span>
+            </div>
+            <h2 className="mt-1 text-xl sm:text-2xl font-black uppercase tracking-wider" style={{ color: '#F5F7FA', fontFamily: "'Sora', sans-serif", letterSpacing: '0.08em' }}>
+              Hall of Champions
+            </h2>
+          </div>
+
+          {/* Stats Pills */}
+          <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+            {[
+              { label: 'Trophies', value: unlockedCount, icon: '🏆' },
+              { label: 'Seasons', value: totalSeasons || '–', icon: '📅' },
+              { label: 'Complete', value: `${completePct}%`, icon: null, isPercent: true, pct: completePct },
+            ].map((s, i) => (
+              <div key={i} className="flex items-center gap-1.5 px-3 py-1.5 rounded-full" style={{ background: 'rgba(214,166,58,0.07)', border: '1px solid rgba(214,166,58,0.15)' }}>
+                {s.icon && <span className="text-xs">{s.icon}</span>}
+                {s.isPercent && (
+                  <svg viewBox="0 0 24 24" className="w-3.5 h-3.5" style={{ transform: 'rotate(-90deg)' }}>
+                    <circle cx="12" cy="12" r="10" fill="none" stroke="rgba(214,166,58,0.15)" strokeWidth="2.5" />
+                    <circle cx="12" cy="12" r="10" fill="none" stroke="#D6A63A" strokeWidth="2.5"
+                      strokeDasharray={`${(s.pct / 100) * 62.8} 62.8`} strokeLinecap="round" />
+                  </svg>
+                )}
+                <span className="text-xs font-black" style={{ color: '#F4C95D', fontFamily: "'Sora', sans-serif" }}>{s.value}</span>
+                <span className="text-[10px] uppercase tracking-widest" style={{ color: '#5E6877' }}>{s.label}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Category Filter Tabs */}
+        <div className="flex items-center gap-1 overflow-x-auto pb-4 scrollbar-none" style={{ borderBottom: '1px solid rgba(214,166,58,0.08)' }}>
+          {TROPHY_CATEGORIES.map(cat => (
+            <button
+              key={cat}
+              onClick={() => setActiveCategory(cat)}
+              className="shrink-0 px-3 py-1.5 rounded-full text-[10px] uppercase tracking-widest font-black transition-all duration-200"
+              style={activeCategory === cat ? {
+                background: 'linear-gradient(135deg,#D6A63A,#A87522)',
+                color: '#000',
+                boxShadow: '0 0 12px rgba(214,166,58,0.3)',
+              } : {
+                background: 'rgba(255,255,255,0.04)',
+                color: '#5E6877',
+                border: '1px solid rgba(255,255,255,0.06)',
+              }}
+            >
+              {cat}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* ── Trophy Grid ── */}
+      <div className="relative z-10 p-4 sm:p-6 md:p-8">
+        {filteredList.length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-16 gap-3">
+            <div className="text-4xl opacity-20">🏆</div>
+            <p className="text-sm font-bold uppercase tracking-widest" style={{ color: '#5E6877' }}>No Trophies Yet</p>
+            <p className="text-xs" style={{ color: '#3D4554' }}>Your next victory belongs here.</p>
+          </div>
+        ) : (
+          <div className="grid gap-3 sm:gap-4" style={{
+            gridTemplateColumns: 'repeat(2, 1fr)',
+            gridAutoRows: 'auto',
+          }}>
+            {/* On md+, use a 3-column layout with hero spanning rows */}
+            <style>{`
+              @media (min-width: 768px) {
+                .trophy-grid { grid-template-columns: repeat(3, 1fr) !important; }
+                .trophy-hero { grid-row: span 2 !important; }
+              }
+              @media (min-width: 1024px) {
+                .trophy-grid { gap: 1.25rem !important; }
+              }
+            `}</style>
+            <div className="trophy-grid grid gap-3 sm:gap-4 w-full" style={{
+              gridTemplateColumns: 'repeat(2, 1fr)',
+              gridAutoRows: 'auto',
+            }}>
+              {filteredList.map((tr, index) => {
+                const isHero = index === 0 && activeCategory === 'ALL';
+                const isUnlocked = myTrophies.some(t => t.title === tr.name || t.id === tr.id || t.icon === tr.image) || tr.locked === false;
+                const instances = tr.isBadge ? [tr] : myTrophies.filter(t => t.title === tr.name || t.id === tr.id || t.icon === tr.image);
+                const count = instances.length;
+
+                return (
+                  <div
+                    key={tr.id}
+                    className={isHero ? 'col-span-2 md:col-span-1 trophy-hero' : 'col-span-1'}
+                  >
+                    <HallOfFameTrophyCard
+                      trophy={tr}
+                      unlocked={isUnlocked}
+                      count={count}
+                      instances={instances}
+                      isHero={isHero}
+                      onSelect={() => onSelectTrophy({ trophy: tr, unlocked: isUnlocked, count, instances, requirement: tr.requirement })}
+                    />
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* ── Legacy Footer ── */}
+      <div
+        className="relative z-10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 px-5 sm:px-8 py-4"
+        style={{ borderTop: '1px solid rgba(214,166,58,0.08)', background: 'rgba(0,0,0,0.25)' }}
+      >
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-full flex items-center justify-center shrink-0" style={{ background: 'rgba(214,166,58,0.08)', border: '1px solid rgba(214,166,58,0.15)' }}>
+            <Trophy size={18} style={{ color: '#D6A63A' }} />
+          </div>
+          <div>
+            <p className="text-xs font-black uppercase tracking-wider" style={{ color: '#D6A63A' }}>Legacy In Progress</p>
+            <p className="text-[10px] mt-0.5" style={{ color: '#5E6877' }}>Every trophy tells a story of dedication, passion, and greatness.</p>
+          </div>
+        </div>
+        <div className="flex items-center gap-4 sm:gap-6">
+          {[
+            { label: 'Multi-Win', value: multiWinCount },
+            { label: 'Possible', value: totalCount },
+            { label: 'Complete', value: `${completePct}%` },
+          ].map((s, i) => (
+            <div key={i} className="flex flex-col items-center">
+              <span className="text-base font-black" style={{ color: '#F4C95D', fontFamily: "'Sora', sans-serif" }}>{s.value}</span>
+              <span className="text-[9px] uppercase tracking-widest" style={{ color: '#5E6877' }}>{s.label}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── Individual Trophy Card ───────────────────────────────────────────────────
+
+function HallOfFameTrophyCard({ trophy, unlocked, count = 0, instances = [], isHero, onSelect }) {
+  const showMultiplier = count > 1;
+  const imgScale = trophy.scale || 0.9;
 
   return (
     <motion.div
       onClick={() => onSelect && onSelect()}
-      whileHover={unlocked ? { scale: 1.02 } : { scale: 1.01 }}
-      className={`relative flex flex-col items-center justify-center p-6 text-center cursor-pointer transition-all duration-500 group w-full h-full min-h-[220px] rounded-3xl overflow-hidden shadow-[0_10px_30px_rgba(0,0,0,0.5)] ${
-        unlocked ? 'bg-gradient-to-br from-[#1a1306] to-[#0A0A0C] border border-amber-500/30' : 'bg-secondary/40 backdrop-blur-md border border-white/10'
-      }`}
-      style={{ perspective: 1000 }}
+      role="button"
+      tabIndex={0}
+      aria-label={`${trophy.name} trophy${unlocked ? ', earned' : ', locked'}`}
+      onKeyDown={e => (e.key === 'Enter' || e.key === ' ') && onSelect && onSelect()}
+      whileHover={{ scale: 1.015, y: -2 }}
+      transition={{ duration: 0.25, ease: 'easeOut' }}
+      className="relative flex flex-col items-center cursor-pointer group overflow-hidden focus:outline-none"
+      style={{
+        minHeight: isHero ? 280 : 200,
+        borderRadius: 16,
+        background: unlocked
+          ? 'linear-gradient(160deg, #13161C 0%, #0D1117 50%, #0A0C10 100%)'
+          : 'linear-gradient(160deg, #0F1117 0%, #0A0D12 100%)',
+        border: unlocked
+          ? '1px solid rgba(214,166,58,0.28)'
+          : '1px solid rgba(255,255,255,0.06)',
+        boxShadow: unlocked
+          ? '0 4px 24px rgba(0,0,0,0.5), inset 0 1px 0 rgba(214,166,58,0.08)'
+          : '0 4px 16px rgba(0,0,0,0.4)',
+      }}
     >
-      {/* Shiny Reflection Effect */}
+      {/* Spotlight behind trophy */}
       {unlocked && (
-        <>
-          <div className="absolute inset-0 w-[200%] h-full bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-[100%] group-hover:translate-x-[100%] transition-transform duration-[1500ms] ease-in-out pointer-events-none z-20" />
-          <div className="absolute inset-0 bg-amber-500/0 group-hover:bg-amber-500/10 transition-colors duration-500 z-0 pointer-events-none" />
-          {/* Glowing border effect */}
-          <div className="absolute inset-0 rounded-3xl border-2 border-transparent group-hover:border-amber-500/50 shadow-[inset_0_0_20px_transparent] group-hover:shadow-[inset_0_0_20px_rgba(245,158,11,0.3)] transition-all duration-500 pointer-events-none z-10" />
-        </>
-      )}
-
-      {/* Duplicate Badge */}
-      {showDuplicate && (
-        <div className="absolute top-4 right-4 z-30 flex items-center justify-center">
-          <span className="absolute w-8 h-8 rounded-full bg-amber-400/40 animate-ping" />
-          <span className="relative flex items-center justify-center w-8 h-8 rounded-full bg-gradient-to-br from-amber-300 to-amber-500 text-black text-xs font-black shadow-lg shadow-amber-500/40 border-2 border-amber-200">
-            ×{count}
-          </span>
-        </div>
-      )}
-
-      <motion.div 
-        className={`relative flex items-center justify-center shrink-0 z-10 ${isLarge ? 'w-32 h-32 md:w-48 md:h-48 mb-6' : 'w-24 h-24 sm:w-28 sm:h-28 mb-4'}`}
-        whileHover={unlocked ? { rotateY: 360, scale: 1.1 } : { scale: 1.05 }}
-        animate={unlocked ? { y: [0, -8, 0] } : {}}
-        transition={unlocked ? { duration: 3, repeat: Infinity, ease: "easeInOut" } : { duration: 0.8, ease: "easeInOut" }}
-      >
-        <img
-          src={trophy.image}
-          alt={trophy.name}
-          className={`w-full h-full object-contain z-10 transition-all duration-500 opacity-100 ${
-            unlocked 
-              ? 'drop-shadow-[0_15px_15px_rgba(0,0,0,0.6)] group-hover:drop-shadow-[0_25px_25px_rgba(245,158,11,0.5)]' 
-              : 'grayscale opacity-40 drop-shadow-none'
-          }`}
-          onError={(e) => {
-            e.target.style.display = 'none';
-            if (e.target.nextSibling) e.target.nextSibling.style.display = 'flex';
+        <div
+          className="absolute top-0 left-1/2 -translate-x-1/2 pointer-events-none transition-opacity duration-500 group-hover:opacity-100 opacity-60"
+          style={{
+            width: '70%',
+            height: '60%',
+            background: 'radial-gradient(ellipse at 50% 20%, rgba(214,166,58,0.12) 0%, transparent 70%)',
           }}
         />
-        {/* Fallback Icon */}
-        <span style={{ display: 'none' }} className={`text-5xl md:text-7xl drop-shadow-2xl absolute inset-0 items-center justify-center filter ${unlocked ? '' : 'grayscale opacity-40'}`}>{trophy.icon}</span>
-        
-        {/* Pedestal Glow */}
-        <div className={`absolute w-[80%] h-4 rounded-[100%] blur-[8px] transition-all duration-500 pointer-events-none -bottom-6 z-0 ${unlocked ? 'bg-amber-500/40 group-hover:bg-amber-500/80 shadow-[0_0_20px_rgba(245,158,11,0.6)]' : 'bg-black/80'}`} />
-      </motion.div>
+      )}
 
-      {/* Trophy Name */}
-      <div className="w-full flex flex-col items-center justify-center z-10 relative mb-6">
-        <h4 className={`font-black leading-tight line-clamp-2 px-2 text-center transition-colors ${isLarge ? 'text-lg md:text-xl' : 'text-sm sm:text-base'} ${unlocked ? 'text-amber-50 drop-shadow-md' : 'text-white/30'}`} style={{ fontFamily: "'Sora', sans-serif" }}>
-          {trophy.name}
-        </h4>
-      </div>
+      {/* Metallic sweep on hover */}
+      {unlocked && (
+        <div
+          className="absolute inset-0 pointer-events-none z-20"
+          style={{
+            background: 'linear-gradient(105deg, transparent 30%, rgba(255,255,255,0.04) 50%, transparent 70%)',
+            opacity: 0,
+          }}
+        />
+      )}
+      {unlocked && (
+        <div className="absolute inset-0 w-[200%] bg-gradient-to-r from-transparent via-white/5 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-[1200ms] ease-in-out pointer-events-none z-20" />
+      )}
 
-      {/* Neon News Ticker (Timeline) */}
-      {unlocked && instances.length > 0 && (
-        <div className="absolute bottom-0 left-0 w-full overflow-hidden bg-black/40 border-t border-white/5 backdrop-blur-md py-1.5 z-20 flex items-center justify-center group-hover:bg-amber-500/10 group-hover:border-amber-500/20 transition-colors duration-500">
-          {instances.length === 1 ? (
-            <span className="text-[9px] text-amber-400/80 uppercase tracking-widest font-black font-score group-hover:text-amber-400 transition-colors">
-              {instances[0].season || (instances[0].createdAt ? new Date(instances[0].createdAt).getFullYear() : 'Earned')}
-            </span>
-          ) : (
-            <motion.div
-              className="flex whitespace-nowrap items-center w-max"
-              animate={{ x: ["0%", "-50%"] }}
-              transition={{ repeat: Infinity, ease: "linear", duration: 12 }}
-            >
-              {[1, 2].map((_, i) => (
-                <div key={i} className="flex items-center gap-3 px-3">
-                  {instances.map((inst, idx) => (
-                    <React.Fragment key={idx}>
-                      <span className="text-[9px] text-amber-400 uppercase tracking-widest font-black font-score drop-shadow-[0_0_5px_rgba(251,191,36,0.4)]">
-                        {inst.season || (inst.createdAt ? new Date(inst.createdAt).getFullYear() : 'Earned')}
-                      </span>
-                      {idx < instances.length - 1 && <span className="text-amber-500/40 text-[10px]">•</span>}
-                    </React.Fragment>
-                  ))}
-                  <span className="text-amber-500/40 text-[10px] px-1">•</span>
-                </div>
-              ))}
-            </motion.div>
-          )}
+      {/* Multiplier Badge */}
+      {showMultiplier && (
+        <div className="absolute top-3 right-3 z-30">
+          <span className="absolute inset-0 rounded-lg bg-amber-400/30 animate-ping" />
+          <div
+            className="relative flex flex-col items-center justify-center w-10 h-10 rounded-lg"
+            style={{
+              background: 'linear-gradient(135deg, #F4C95D, #A87522)',
+              boxShadow: '0 2px 8px rgba(214,166,58,0.5)',
+              border: '1px solid rgba(255,231,160,0.3)',
+            }}
+          >
+            <span className="text-[8px] font-black text-black uppercase leading-none">x{count}</span>
+            <span className="text-[7px] font-bold text-black/70 uppercase leading-none">WINS</span>
+          </div>
         </div>
       )}
 
-      {/* Locked Padlock */}
+      {/* Locked icon */}
       {!unlocked && (
-        <div className="absolute top-4 left-4 flex items-center justify-center w-8 h-8 rounded-full bg-black/40 border border-white/5 transition-colors group-hover:border-red-500/50 group-hover:bg-red-500/10" title={trophy.requirement}>
-          <Lock size={14} className="text-white/20 group-hover:text-red-400 transition-colors" />
+        <div className="absolute top-3 left-3 z-30 w-6 h-6 rounded-md flex items-center justify-center" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.06)' }}>
+          <Lock size={11} style={{ color: '#3D4554' }} />
         </div>
+      )}
+
+      {/* Trophy image area */}
+      <div
+        className="flex items-end justify-center w-full relative"
+        style={{
+          flex: 1,
+          padding: isHero ? '24px 24px 8px' : '16px 16px 6px',
+        }}
+      >
+        <motion.div
+          className="relative flex items-end justify-center w-full h-full"
+          animate={unlocked ? { y: [0, -6, 0] } : {}}
+          transition={unlocked ? { duration: 3.5, repeat: Infinity, ease: 'easeInOut' } : {}}
+          style={{ maxHeight: isHero ? 180 : 110 }}
+        >
+          {typeof trophy.image === 'string' && trophy.image.startsWith('/') ? (
+            <img
+              src={trophy.image}
+              alt={`${trophy.name} trophy`}
+              className="w-full h-full"
+              style={{
+                objectFit: 'contain',
+                objectPosition: 'bottom center',
+                maxHeight: isHero ? 180 : 110,
+                transform: `scale(${imgScale})`,
+                transformOrigin: 'bottom center',
+                filter: unlocked
+                  ? 'drop-shadow(0 12px 20px rgba(0,0,0,0.7)) drop-shadow(0 4px 8px rgba(214,166,58,0.15))'
+                  : 'grayscale(1) brightness(0.35)',
+                transition: 'filter 0.4s ease',
+              }}
+              onError={e => {
+                e.target.style.display = 'none';
+                if (e.target.nextSibling) e.target.nextSibling.style.display = 'flex';
+              }}
+            />
+          ) : null}
+          {/* Emoji fallback */}
+          <span
+            style={{ display: (typeof trophy.image !== 'string' || !trophy.image.startsWith('/')) ? 'flex' : 'none' }}
+            className="text-5xl items-center justify-center"
+          >
+            {trophy.icon || '🏆'}
+          </span>
+        </motion.div>
+
+        {/* Floor ellipse shadow */}
+        {unlocked && (
+          <div
+            className="absolute bottom-0 left-1/2 -translate-x-1/2 pointer-events-none transition-all duration-500 group-hover:opacity-100 opacity-60"
+            style={{
+              width: '50%',
+              height: 8,
+              borderRadius: '50%',
+              background: 'rgba(214,166,58,0.25)',
+              filter: 'blur(6px)',
+              boxShadow: '0 0 12px rgba(214,166,58,0.4)',
+            }}
+          />
+        )}
+      </div>
+
+      {/* Bottom nameplate */}
+      <div
+        className="relative z-10 w-full mt-auto"
+        style={{
+          background: 'rgba(0,0,0,0.35)',
+          borderTop: `1px solid ${unlocked ? 'rgba(214,166,58,0.12)' : 'rgba(255,255,255,0.04)'}`,
+          backdropFilter: 'blur(4px)',
+        }}
+      >
+        {/* Trophy name */}
+        <div className="px-3 pt-2.5 pb-1 text-center">
+          <h4
+            className="text-[11px] sm:text-xs font-black uppercase tracking-wider leading-tight line-clamp-1"
+            style={{ color: unlocked ? '#F4C95D' : '#3D4554', fontFamily: "'Sora', sans-serif" }}
+          >
+            {trophy.name}
+          </h4>
+        </div>
+
+        {/* Season ticker / locked message */}
+        {unlocked && instances.length > 0 ? (
+          <div className="overflow-hidden w-full pb-2 flex items-center justify-center" style={{ minHeight: 20 }}>
+            {instances.length === 1 ? (
+              <span
+                className="text-[9px] uppercase tracking-[0.2em] font-bold block text-center"
+                style={{ color: '#8B95A5' }}
+              >
+                {instances[0].season || (instances[0].createdAt ? new Date(instances[0].createdAt).getFullYear() : 'Earned')}
+              </span>
+            ) : (
+              <motion.div
+                className="flex whitespace-nowrap items-center w-max"
+                animate={{ x: ['0%', '-50%'] }}
+                transition={{ repeat: Infinity, ease: 'linear', duration: 14 }}
+              >
+                {[0, 1].map((_, gi) => (
+                  <div key={gi} className="flex items-center gap-2 px-2">
+                    {instances.map((inst, idx) => (
+                      <React.Fragment key={idx}>
+                        <span
+                          className="text-[9px] uppercase tracking-widest font-bold"
+                          style={{ color: '#D6A63A' }}
+                        >
+                          {inst.season || (inst.createdAt ? new Date(inst.createdAt).getFullYear() : 'Earned')}
+                        </span>
+                        {idx < instances.length - 1 && <span style={{ color: 'rgba(214,166,58,0.3)', fontSize: 8 }}>•</span>}
+                      </React.Fragment>
+                    ))}
+                    <span style={{ color: 'rgba(214,166,58,0.3)', fontSize: 8 }} className="px-1">•</span>
+                  </div>
+                ))}
+              </motion.div>
+            )}
+          </div>
+        ) : !unlocked ? (
+          <div className="pb-2 text-center">
+            <span className="text-[9px] uppercase tracking-widest font-bold" style={{ color: '#3D4554' }}>Locked</span>
+          </div>
+        ) : null}
+      </div>
+
+      {/* Hover border glow */}
+      {unlocked && (
+        <div
+          className="absolute inset-0 rounded-[15px] pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-400"
+          style={{ boxShadow: 'inset 0 0 0 1px rgba(214,166,58,0.35), 0 0 20px rgba(214,166,58,0.08)' }}
+        />
       )}
     </motion.div>
   );
