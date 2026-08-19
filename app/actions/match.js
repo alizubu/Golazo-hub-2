@@ -465,100 +465,66 @@ export async function generatePlayoffs(seasonId, top4PlayerIds) {
 
 export async function progressPlayoffBracket(matchId) {
   try {
-    const match = await prisma.match.findUnique({ where: { id: matchId } });
-    if (!match || !match.seasonId || match.status !== 'completed') return;
+    const triggerMatch = await prisma.match.findUnique({ where: { id: matchId } });
+    if (!triggerMatch || !triggerMatch.seasonId) return;
 
+    const seasonId = triggerMatch.seasonId;
 
+    // Fetch all playoff matches for the season
+    const playoffs = await prisma.match.findMany({
+      where: { seasonId, round: { in: ['semiA', 'semiB', 'challenger', 'final'] } },
+      orderBy: { createdAt: 'desc' }
+    });
 
-    if (match.round === 'semiA' || match.round === 'semiB') {
-      const semis = await prisma.match.findMany({
-        where: { seasonId: match.seasonId, round: { in: ['semiA', 'semiB'] } }
-      });
-      // Find the most relevant matches (completed ones take priority, otherwise newest)
-      const getRelevantMatch = (roundMatches) => {
-        const completed = roundMatches.filter(m => m.status === 'completed');
-        if (completed.length > 0) return completed.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))[0];
-        return roundMatches.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))[0];
-      };
+    const getRelevantMatch = (round) => {
+      const matches = playoffs.filter(m => m.round === round);
+      const completed = matches.filter(m => m.status === 'completed');
+      if (completed.length > 0) return completed[0];
+      return matches[0];
+    };
 
-      const semiA = getRelevantMatch(semis.filter(m => m.round === 'semiA'));
-      const semiB = getRelevantMatch(semis.filter(m => m.round === 'semiB'));
+    const semiA = getRelevantMatch('semiA');
+    const semiB = getRelevantMatch('semiB');
+    const challenger = getRelevantMatch('challenger');
+    const finalMatch = getRelevantMatch('final');
 
-      if (semiA?.status === 'completed' && semiB?.status === 'completed') {
-        const existingChallenger = await prisma.match.findFirst({
-          where: { seasonId: match.seasonId, round: 'challenger' }
+    // 1. Sync Challenger (Qualifier 2)
+    if (challenger) {
+      const semiALoser = matchLoserId(semiA);
+      const semiBWinner = matchWinnerId(semiB);
+
+      let updateData = {};
+      if (semiALoser && challenger.homeId !== semiALoser) updateData.homeId = semiALoser;
+      if (semiBWinner && challenger.awayId !== semiBWinner) updateData.awayId = semiBWinner;
+
+      if (Object.keys(updateData).length > 0) {
+        const updated = await prisma.match.update({
+          where: { id: challenger.id },
+          data: updateData,
+          include: { home: true, away: true }
         });
-        
-        const semiALoser = matchLoserId(semiA);
-        const semiBWinner = matchWinnerId(semiB);
-        
-        if (semiALoser && semiBWinner) {
-          if (existingChallenger) {
-            // Force update the placeholder with the correct advancing players
-            const updated = await prisma.match.update({
-              where: { id: existingChallenger.id },
-              data: { homeId: semiALoser, awayId: semiBWinner },
-              include: { home: true, away: true }
-            });
-            await sendAutoNotification(`Qualifier 2 auto-populated: ${updated.home?.name || 'TBD'} vs ${updated.away?.name || 'TBD'}`, 'info');
-            broadcastEvent('match_update', updated);
-          } else {
-            // Fallback create
-            const challenger = await prisma.match.create({
-              data: {
-                seasonId: match.seasonId,
-                round: 'challenger',
-                homeId: semiALoser,
-                awayId: semiBWinner,
-                status: 'scheduled',
-                label: 'Qualifier 2',
-                decisive: true
-              },
-              include: { home: true, away: true }
-            });
-            await sendAutoNotification(`Qualifier 2 auto-created: ${challenger.home.name} vs ${challenger.away.name}`, 'info');
-            broadcastEvent('match_update', challenger);
-          }
-        }
+        await sendAutoNotification(`Qualifier 2 auto-populated: ${updated.home?.name || 'TBD'} vs ${updated.away?.name || 'TBD'}`, 'info');
+        broadcastEvent('match_update', updated);
       }
-    } else if (match.round === 'challenger') {
-      const existingFinal = await prisma.match.findFirst({
-        where: { seasonId: match.seasonId, round: 'final' }
-      });
-      
-      const semiA = await prisma.match.findFirst({
-        where: { seasonId: match.seasonId, round: 'semiA', status: 'completed' },
-        orderBy: { createdAt: 'desc' }
-      });
+    }
+
+    // 2. Sync Final
+    if (finalMatch) {
       const semiAWinner = matchWinnerId(semiA);
-      const challengerWinner = matchWinnerId(match);
+      const challengerWinner = matchWinnerId(challenger);
       
-      if (semiAWinner && challengerWinner) {
-        if (existingFinal) {
-          // Force update the final with the correct advancing players
-          const updated = await prisma.match.update({
-            where: { id: existingFinal.id },
-            data: { homeId: semiAWinner, awayId: challengerWinner },
-            include: { home: true, away: true }
-          });
-          await sendAutoNotification(`Grand Final auto-populated: ${updated.home?.name || 'TBD'} vs ${updated.away?.name || 'TBD'}`, 'info');
-          broadcastEvent('match_update', updated);
-        } else {
-          const finalMatch = await prisma.match.create({
-            data: {
-              seasonId: match.seasonId,
-              round: 'final',
-              homeId: semiAWinner,
-              awayId: challengerWinner,
-              status: 'scheduled',
-              label: 'Grand Final',
-              decisive: true
-            },
-            include: { home: true, away: true }
-          });
-          await sendAutoNotification(`Grand Final auto-created: ${finalMatch.home.name} vs ${finalMatch.away.name}`, 'info');
-          broadcastEvent('match_update', finalMatch);
-        }
+      let updateData = {};
+      if (semiAWinner && finalMatch.homeId !== semiAWinner) updateData.homeId = semiAWinner;
+      if (challengerWinner && finalMatch.awayId !== challengerWinner) updateData.awayId = challengerWinner;
+
+      if (Object.keys(updateData).length > 0) {
+        const updated = await prisma.match.update({
+          where: { id: finalMatch.id },
+          data: updateData,
+          include: { home: true, away: true }
+        });
+        await sendAutoNotification(`Grand Final auto-populated: ${updated.home?.name || 'TBD'} vs ${updated.away?.name || 'TBD'}`, 'info');
+        broadcastEvent('match_update', updated);
       }
     }
   } catch (error) {
