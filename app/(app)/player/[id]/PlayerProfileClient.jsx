@@ -21,7 +21,7 @@ export default function PlayerProfileClient({ targetPlayer, loggedInPlayer, play
   const isMe = loggedInPlayer?.id === targetPlayer.id;
 
   return (
-    <div className="max-w-5xl mx-auto px-4 pt-4 pb-10 w-full">
+    <div className="max-w-[1400px] mx-auto px-4 pt-4 pb-10 w-full">
       <PageHeader 
         title={`${targetPlayer.name}'s Profile`} 
         onBack={() => router.back()} 

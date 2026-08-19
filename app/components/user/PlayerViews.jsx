@@ -1270,24 +1270,24 @@ function HallOfFameTrophyCard({ trophy, unlocked, count = 0, instances = [], isH
         minHeight: isHero ? 280 : 200,
         borderRadius: 16,
         background: unlocked
-          ? 'linear-gradient(160deg, #13161C 0%, #0D1117 50%, #0A0C10 100%)'
+          ? 'linear-gradient(160deg, #15181F 0%, #0D1117 40%, #080A0E 100%)'
           : 'linear-gradient(160deg, #0F1117 0%, #0A0D12 100%)',
         border: unlocked
-          ? '1px solid rgba(214,166,58,0.28)'
+          ? '1px solid rgba(214,166,58,0.3)'
           : '1px solid rgba(255,255,255,0.06)',
         boxShadow: unlocked
-          ? '0 4px 24px rgba(0,0,0,0.5), inset 0 1px 0 rgba(214,166,58,0.08)'
+          ? '0 8px 32px rgba(0,0,0,0.6), inset 0 1px 1px rgba(214,166,58,0.2)'
           : '0 4px 16px rgba(0,0,0,0.4)',
       }}
     >
       {/* Spotlight behind trophy */}
       {unlocked && (
         <div
-          className="absolute top-0 left-1/2 -translate-x-1/2 pointer-events-none transition-opacity duration-500 group-hover:opacity-100 opacity-60"
+          className="absolute top-0 left-1/2 -translate-x-1/2 pointer-events-none transition-opacity duration-500 group-hover:opacity-100 opacity-80"
           style={{
-            width: '70%',
-            height: '60%',
-            background: 'radial-gradient(ellipse at 50% 20%, rgba(214,166,58,0.12) 0%, transparent 70%)',
+            width: '80%',
+            height: '70%',
+            background: 'radial-gradient(ellipse at 50% 10%, rgba(214,166,58,0.18) 0%, transparent 60%)',
           }}
         />
       )}
@@ -1297,7 +1297,7 @@ function HallOfFameTrophyCard({ trophy, unlocked, count = 0, instances = [], isH
         <div
           className="absolute inset-0 pointer-events-none z-20"
           style={{
-            background: 'linear-gradient(105deg, transparent 30%, rgba(255,255,255,0.04) 50%, transparent 70%)',
+            background: 'linear-gradient(105deg, transparent 30%, rgba(214,166,58,0.06) 50%, transparent 70%)',
             opacity: 0,
           }}
         />

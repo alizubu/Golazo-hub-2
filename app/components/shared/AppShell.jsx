@@ -223,7 +223,7 @@ export default function AppShell({
           tickerConfig={tickerConfig}
         />
       </div>
-      <div className="max-w-5xl mx-auto px-4 pt-4">
+      <div className="max-w-[1400px] mx-auto px-4 pt-4">
         <CelebrationBanner initialCelebrations={activeCelebrations} />
         {currentTab === 'hall-of-fame' ? (
         <HallOfFame trophies={trophies} players={players} />
