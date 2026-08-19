@@ -1171,36 +1171,47 @@ function TrophyCabinetSection({ trophies, myTrophies, meBadges, onSelectTrophy }
           </div>
         ) : (
           <>
-            {/* Responsive grid: mobile=2col, md=3col with hero spanning 2 rows */}
+            {/* Responsive bento grid */}
             <style>{`
-              .hof-grid {
-                display: grid;
-                gap: 12px;
-                grid-template-columns: repeat(2, 1fr);
-              }
-              @media (min-width: 768px) {
-                .hof-grid {
-                  grid-template-columns: repeat(3, 1fr);
-                  grid-auto-rows: minmax(180px, auto);
-                  gap: 16px;
-                }
-                .hof-hero {
-                  grid-column: span 1;
-                  grid-row: span 2;
-                }
-              }
+              .hide-scrollbar::-webkit-scrollbar { display: none; }
+              .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
             `}</style>
-            <div className="hof-grid">
-              {filteredList.map((tr, index) => {
-                const isHero = index === 0 && activeCategory === 'ALL';
+            <motion.div 
+              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 auto-rows-fr grid-flow-dense"
+              initial="hidden"
+              animate="visible"
+              variants={{
+                hidden: { opacity: 0 },
+                visible: { opacity: 1, transition: { staggerChildren: 0.05 } }
+              }}
+            >
+              {filteredList.map((tr) => {
+                const isAllCategory = activeCategory === 'ALL';
+                
+                let spanClasses = "col-span-1 row-span-1";
+                let isHero = false;
+                
+                if (isAllCategory) {
+                  if (tr.id === 'bb-championship') {
+                    spanClasses = "col-span-1 md:col-span-2 lg:col-span-2 row-span-2 aspect-[4/3] md:aspect-auto";
+                    isHero = true;
+                  } else if (['mvp', 'golden-boot'].includes(tr.id)) {
+                    spanClasses = "col-span-1 md:col-span-1 lg:col-span-2 row-span-1";
+                  }
+                }
+
                 const isUnlocked = myTrophies.some(t => t.title === tr.name || t.id === tr.id || t.icon === tr.image) || tr.locked === false;
                 const instances = tr.isBadge ? [tr] : myTrophies.filter(t => t.title === tr.name || t.id === tr.id || t.icon === tr.image);
                 const count = instances.length;
 
                 return (
-                  <div
+                  <motion.div
                     key={tr.id}
-                    className={isHero ? 'hof-hero col-span-2 md:col-span-1' : 'col-span-1'}
+                    className={spanClasses}
+                    variants={{
+                      hidden: { opacity: 0, y: 8 },
+                      visible: { opacity: 1, y: 0 }
+                    }}
                   >
                     <HallOfFameTrophyCard
                       trophy={tr}
@@ -1210,10 +1221,10 @@ function TrophyCabinetSection({ trophies, myTrophies, meBadges, onSelectTrophy }
                       isHero={isHero}
                       onSelect={() => onSelectTrophy({ trophy: tr, unlocked: isUnlocked, count, instances, requirement: tr.requirement })}
                     />
-                  </div>
+                  </motion.div>
                 );
               })}
-            </div>
+            </motion.div>
           </>
         )}
 
@@ -1263,18 +1274,14 @@ function HallOfFameTrophyCard({ trophy, unlocked, count = 0, instances = [], isH
       tabIndex={0}
       aria-label={`${trophy.name} trophy${unlocked ? ', earned' : ', locked'}`}
       onKeyDown={e => (e.key === 'Enter' || e.key === ' ') && onSelect && onSelect()}
-      whileHover={{ scale: 1.015, y: -2 }}
-      transition={{ duration: 0.25, ease: 'easeOut' }}
-      className="relative flex flex-col items-center cursor-pointer group overflow-hidden focus:outline-none"
+      whileHover={unlocked ? { scale: 1.02, y: -4 } : { scale: 1.02, opacity: 0.8 }}
+      transition={{ type: 'spring', stiffness: 300, damping: 20 }}
+      className={`relative w-full h-full flex flex-col items-center cursor-pointer group overflow-hidden focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500/80 focus-visible:ring-offset-2 focus-visible:ring-offset-black rounded-2xl border ${unlocked ? 'border-white/10' : 'border-white/5 opacity-50'}`}
       style={{
-        minHeight: isHero ? 280 : 200,
-        borderRadius: 16,
         background: unlocked
-          ? 'linear-gradient(160deg, #15181F 0%, #0D1117 40%, #080A0E 100%)'
-          : 'linear-gradient(160deg, #0F1117 0%, #0A0D12 100%)',
-        border: unlocked
-          ? '1px solid rgba(214,166,58,0.3)'
-          : '1px solid rgba(255,255,255,0.06)',
+          ? 'linear-gradient(160deg, rgba(21, 24, 31, 0.9) 0%, rgba(13, 17, 23, 0.9) 40%, rgba(8, 10, 14, 0.9) 100%)'
+          : 'rgba(255,255,255,0.03)',
+        backdropFilter: 'blur(8px)',
         boxShadow: unlocked
           ? '0 8px 32px rgba(0,0,0,0.6), inset 0 1px 1px rgba(214,166,58,0.2)'
           : '0 4px 16px rgba(0,0,0,0.4)',
@@ -1285,25 +1292,28 @@ function HallOfFameTrophyCard({ trophy, unlocked, count = 0, instances = [], isH
         <div
           className="absolute top-0 left-1/2 -translate-x-1/2 pointer-events-none transition-opacity duration-500 group-hover:opacity-100 opacity-80"
           style={{
-            width: '80%',
-            height: '70%',
+            width: isHero ? '100%' : '80%',
+            height: isHero ? '80%' : '70%',
             background: 'radial-gradient(ellipse at 50% 10%, rgba(214,166,58,0.18) 0%, transparent 60%)',
           }}
         />
       )}
 
-      {/* Metallic sweep on hover */}
-      {unlocked && (
-        <div
-          className="absolute inset-0 pointer-events-none z-20"
+      {/* Ambient shimmer on featured tile */}
+      {unlocked && isHero && (
+        <motion.div
+          className="absolute inset-0 pointer-events-none z-10"
+          animate={{ x: ['-100%', '100%'] }}
+          transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
           style={{
-            background: 'linear-gradient(105deg, transparent 30%, rgba(214,166,58,0.06) 50%, transparent 70%)',
-            opacity: 0,
+            background: 'linear-gradient(105deg, transparent 30%, rgba(214,166,58,0.08) 50%, transparent 70%)',
           }}
         />
       )}
+
+      {/* Fast metallic sweep on hover for all unlocked tiles */}
       {unlocked && (
-        <div className="absolute inset-0 w-[200%] bg-gradient-to-r from-transparent via-white/5 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-[1200ms] ease-in-out pointer-events-none z-20" />
+        <div className="absolute inset-0 w-[200%] bg-gradient-to-r from-transparent via-white/5 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-[1000ms] ease-in-out pointer-events-none z-20" />
       )}
 
       {/* Multiplier Badge */}
@@ -1413,38 +1423,20 @@ function HallOfFameTrophyCard({ trophy, unlocked, count = 0, instances = [], isH
 
         {/* Season ticker / locked message */}
         {unlocked && instances.length > 0 ? (
-          <div className="overflow-hidden w-full pb-2 flex items-center justify-center" style={{ minHeight: 20 }}>
-            {instances.length === 1 ? (
-              <span
-                className="text-[9px] uppercase tracking-[0.2em] font-bold block text-center"
-                style={{ color: '#8B95A5' }}
-              >
-                {instances[0].season || (instances[0].createdAt ? new Date(instances[0].createdAt).getFullYear() : 'Earned')}
-              </span>
-            ) : (
-              <motion.div
-                className="flex whitespace-nowrap items-center w-max"
-                animate={{ x: ['0%', '-50%'] }}
-                transition={{ repeat: Infinity, ease: 'linear', duration: 14 }}
-              >
-                {[0, 1].map((_, gi) => (
-                  <div key={gi} className="flex items-center gap-2 px-2">
-                    {instances.map((inst, idx) => (
-                      <React.Fragment key={idx}>
-                        <span
-                          className="text-[9px] uppercase tracking-widest font-bold"
-                          style={{ color: '#D6A63A' }}
-                        >
-                          {inst.season || (inst.createdAt ? new Date(inst.createdAt).getFullYear() : 'Earned')}
-                        </span>
-                        {idx < instances.length - 1 && <span style={{ color: 'rgba(214,166,58,0.3)', fontSize: 8 }}>•</span>}
-                      </React.Fragment>
-                    ))}
-                    <span style={{ color: 'rgba(214,166,58,0.3)', fontSize: 8 }} className="px-1">•</span>
-                  </div>
-                ))}
-              </motion.div>
-            )}
+          <div className="w-full pb-3 px-3">
+            <div className="flex flex-wrap items-center justify-center gap-x-2 gap-y-1 w-full">
+              {instances.map((inst, idx) => (
+                <div key={idx} className="flex items-center shrink-0">
+                  <span
+                    className="text-[9px] uppercase tracking-widest font-bold"
+                    style={{ color: '#D6A63A' }}
+                  >
+                    {inst.season || (inst.createdAt ? new Date(inst.createdAt).getFullYear() : 'Earned')}
+                  </span>
+                  {idx < instances.length - 1 && <span style={{ color: 'rgba(214,166,58,0.3)', fontSize: 8 }} className="ml-2">•</span>}
+                </div>
+              ))}
+            </div>
           </div>
         ) : !unlocked ? (
           <div className="pb-2 text-center">
