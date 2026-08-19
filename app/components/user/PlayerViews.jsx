@@ -1162,7 +1162,7 @@ function TrophyCabinetSection({ trophies, myTrophies, meBadges, onSelectTrophy }
       </div>
 
       {/* ── Trophy Grid ── */}
-      <div className="relative z-10 p-4 sm:p-6 md:p-8">
+      <div className="relative z-10 px-5 sm:px-8 py-6 md:py-8">
         {filteredList.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-16 gap-3">
             <div className="text-4xl opacity-20">🏆</div>
