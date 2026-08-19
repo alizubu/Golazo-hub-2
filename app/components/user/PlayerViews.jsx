@@ -2,14 +2,14 @@
 
 import React from 'react';
 import { PageHeader } from '@/app/components/shared/PageHeader';
-import { Trophy, Clock, ListOrdered, Calendar, Swords, Megaphone, Bell, Pen, Target, Handshake, Shield, Activity, Lock, Flame, BadgeCheck, TrendingUp, Users, ArrowRight } from 'lucide-react';
+import { Trophy, Medal, Star, Target, Shield, Clock, ArrowRight, Lock, MapPin, Search, Calendar, ChevronRight, LayoutGrid, List, Megaphone, Bell, Pen, Handshake, Activity, Users } from 'lucide-react';
 import { Btn, Badge, Avatar, PlayerChip, SectionTitle, EmptyState, MagicCard, FadeIn, ShinyButton, Label, WavingFlag, PlayStyleBadge, OnFireAvatar } from '@/app/components/shared/UI';
 import { AvatarWithBadge } from '@/app/components/shared/FootballIdentity';
 import { getPlayerIdentityBadgeUrl } from '@/lib/identityUtils';
 import { ClubLogo } from '@/app/components/shared/ClubLogo';
 import { Card, CardHeader, CardTitle, CardContent } from '@/app/components/ui/card';
 import { NumberTicker } from '@/app/components/ui/number-ticker';
-import { motion, useScroll, useTransform, useReducedMotion } from 'framer-motion';
+import { motion, useScroll, useTransform, useReducedMotion, AnimatePresence } from 'framer-motion';
 import { useRouter } from 'next/navigation';
 import SettingsView from '@/app/components/shared/SettingsView';
 import MatchesPage from '@/app/components/shared/MatchesPage';
@@ -212,9 +212,6 @@ export function PlayerDashboard({ me, activeSeason, seasons = [], matches, playe
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [me?.id]);
 
-  // ── Guard: admin viewing player tabs has me === null ──────────────────────
-  // ALL code below assumes me is a player object. If me is null (admin viewOnly),
-  // bail out early before any me.id access crashes the render.
   if (!me) {
     return (
       <div className="flex flex-col items-center justify-center py-24 text-muted-foreground gap-4">
@@ -226,7 +223,6 @@ export function PlayerDashboard({ me, activeSeason, seasons = [], matches, playe
       </div>
     );
   }
-  // ─────────────────────────────────────────────────────────────────────────
   const t = seasons.find(s => s.id === selectedSeasonId) || activeSeason;
   const tMatches = t ? matches.filter((m) => m.seasonId === t.id) : [];
   const standings = t ? computeStandings(tMatches, players, t.id) : [];
@@ -345,13 +341,10 @@ export function PlayerDashboard({ me, activeSeason, seasons = [], matches, playe
         </FadeIn>
       )}
 
-      {/* ── NEW GLASS BENTO HERO ── */}
       <FadeIn delay={0.1}>
         <div className="relative w-full mb-10 flex flex-col gap-4">
           
-          {/* 1. Cover Banner & Sharp Header */}
           <div className="relative rounded-none sm:rounded-3xl overflow-hidden border-b sm:border border-border shadow-sm bg-card mb-4">
-            {/* Cover Image */}
             <div className="h-48 md:h-64 w-full relative bg-secondary overflow-hidden">
               <motion.div 
                 style={{ y: shouldReduceMotion ? 0 : coverY }} 
@@ -367,9 +360,7 @@ export function PlayerDashboard({ me, activeSeason, seasons = [], matches, playe
               </motion.div>
             </div>
             
-            {/* Identity Card Block */}
             <div className="px-5 py-5 sm:px-8 sm:py-6 flex flex-col md:flex-row items-center md:items-start justify-between gap-6 relative z-20">
-              {/* Left: Identity */}
               <div className="flex flex-col sm:flex-row items-center sm:items-start gap-5 w-full md:w-auto text-center sm:text-left">
                 <div className="relative -mt-16 sm:-mt-20 shrink-0">
                   <div className="relative rounded-full p-1 bg-card shadow-md ring-4 ring-card border-none">
@@ -381,14 +372,13 @@ export function PlayerDashboard({ me, activeSeason, seasons = [], matches, playe
                     <h1 className="text-2xl md:text-3xl font-black tracking-tight truncate text-foreground">
                       {me.name}
                     </h1>
-                    {myRank === 1 && <BadgeCheck size={20} className="text-blue-500 shrink-0" title="Top Ranked Player" />}
+                    {myRank === 1 && <div className="text-blue-500 shrink-0" title="Top Ranked Player">👑</div>}
                   </div>
                   <div className="flex items-center justify-center sm:justify-start gap-2 mt-1">
                     <span className="text-muted-foreground font-medium text-sm">@{me.username}</span>
                     <PlayStyleBadge style={me.playStyle} showLabel={false} size="sm" />
                   </div>
                   
-                  {/* Actions inside Left block for mobile flow */}
                   <div className="flex flex-wrap items-center justify-center sm:justify-start gap-3 mt-4">
                     {!viewOnly && (
                       <button onClick={() => setTab('settings')} className="px-4 py-2 bg-secondary hover:bg-secondary/80 text-foreground text-sm font-bold rounded-lg transition-colors border border-border flex items-center gap-2 shadow-sm active:scale-95 outline-none">
@@ -409,7 +399,6 @@ export function PlayerDashboard({ me, activeSeason, seasons = [], matches, playe
                 </div>
               </div>
 
-              {/* Right: Actions & Status */}
               <div className="flex flex-row md:flex-col items-center md:items-end justify-center gap-4 md:gap-3 w-full md:w-auto border-t md:border-t-0 border-border pt-5 md:pt-0">
                 <div className="flex items-center gap-2">
                   <span className="text-[10px] uppercase font-bold text-muted-foreground tracking-widest hidden md:block">Form</span>
@@ -423,10 +412,8 @@ export function PlayerDashboard({ me, activeSeason, seasons = [], matches, playe
             </div>
           </div>
 
-          {/* 2. Bento Grid (Stats & Identity) */}
           <div className="grid grid-cols-1 md:grid-cols-12 gap-4">
             
-            {/* Win Rate Hero (4 cols) */}
             <motion.div 
               initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}
               className="md:col-span-4 relative rounded-3xl bg-card border border-border shadow-xl p-6 flex flex-col items-center justify-center group overflow-hidden"
@@ -452,7 +439,6 @@ export function PlayerDashboard({ me, activeSeason, seasons = [], matches, playe
               )}
             </motion.div>
 
-            {/* Micro Stats (4 cols) */}
             <motion.div 
               initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25 }}
               className="md:col-span-4 grid grid-cols-2 gap-4"
@@ -483,13 +469,11 @@ export function PlayerDashboard({ me, activeSeason, seasons = [], matches, playe
               </div>
             </motion.div>
 
-            {/* Identity Split (4 cols) */}
             <motion.div 
               initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}
               className="md:col-span-4 rounded-3xl bg-card border border-border shadow-xl overflow-hidden flex flex-col relative group"
             >
               <div className="absolute -inset-full top-0 block h-full w-1/2 -skew-x-12 transform bg-gradient-to-r from-transparent via-white/5 to-transparent opacity-0 group-hover:animate-shimmer z-10" />
-              {/* Club Top Half */}
               <div className="flex-1 p-5 flex items-center gap-4 border-b border-border/50 relative overflow-hidden bg-secondary/20">
                 <div className="absolute right-0 top-0 bottom-0 w-32 bg-gradient-to-l from-current opacity-5" style={{ color: selectedClub && CLUB_COLORS[selectedClub.name] ? CLUB_COLORS[selectedClub.name].primary : 'transparent' }} />
                 <div className="shrink-0 bg-background/50 backdrop-blur p-2 rounded-xl border border-border shadow-sm z-10">
@@ -500,7 +484,6 @@ export function PlayerDashboard({ me, activeSeason, seasons = [], matches, playe
                   <span className="text-lg font-black truncate">{selectedClub ? selectedClub.name : 'Not set'}</span>
                 </div>
               </div>
-              {/* Nation Bottom Half */}
               <div className="flex-1 p-5 flex items-center gap-4 relative overflow-hidden bg-secondary/10">
                 <div className="absolute right-0 top-0 bottom-0 w-32 bg-gradient-to-l from-gold opacity-5" />
                 <div className="shrink-0 bg-background/50 backdrop-blur p-2 rounded-xl border border-border shadow-sm z-10">
@@ -514,20 +497,17 @@ export function PlayerDashboard({ me, activeSeason, seasons = [], matches, playe
             </motion.div>
           </div>
 
-          {/* 3. Rivalry Clash Banner */}
           {biggestRival && rivalStats && (
             <motion.div 
               initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.35 }}
               onClick={() => onH2HClick(biggestRival.id)}
               className="w-full relative rounded-3xl bg-card border border-border shadow-xl p-4 sm:p-6 overflow-hidden cursor-pointer group hover:border-amber-500/50 transition-colors"
             >
-              {/* Cinematic Background effect */}
               <div className="absolute inset-0 bg-gradient-to-r from-red-500/5 via-transparent to-blue-500/5 opacity-50" />
               <div className="absolute -inset-full top-0 block h-full w-1/2 -skew-x-12 transform bg-gradient-to-r from-transparent via-white/5 to-transparent opacity-0 group-hover:animate-shimmer" />
               
               <div className="relative z-10 flex flex-col sm:flex-row items-center justify-between gap-6">
                 
-                {/* Me (Left) */}
                 <div className="flex items-center gap-4 w-full sm:w-1/3 justify-start">
                   <Avatar p={me} size={48} className="ring-2 ring-red-500/50 shadow-[0_0_15px_rgba(239,68,68,0.3)] shrink-0" />
                   <div className="flex flex-col min-w-0">
@@ -536,7 +516,6 @@ export function PlayerDashboard({ me, activeSeason, seasons = [], matches, playe
                   </div>
                 </div>
 
-                {/* VS Tug of War (Center) */}
                 <div className="flex flex-col items-center gap-2 w-full sm:w-1/3">
                   <div className="flex items-center justify-center gap-2 mb-1">
                     <Swords size={14} className="text-muted-foreground" />
@@ -559,7 +538,6 @@ export function PlayerDashboard({ me, activeSeason, seasons = [], matches, playe
                   <div className="text-[9px] uppercase font-bold text-muted-foreground mt-1 whitespace-nowrap">Tap to view full history <ArrowRight size={10} className="inline ml-0.5"/></div>
                 </div>
 
-                {/* Rival (Right) */}
                 <div className="flex items-center gap-4 w-full sm:w-1/3 justify-end text-right">
                   <div className="flex flex-col min-w-0">
                     <span className="text-[10px] uppercase font-bold text-muted-foreground tracking-widest">Rival</span>
@@ -583,7 +561,6 @@ export function PlayerDashboard({ me, activeSeason, seasons = [], matches, playe
           onSeasonChange={setSelectedSeasonId}
         />
 
-        {/* Trophy Cabinet — Hall of Fame */}
         <FadeIn delay={0.25} className="col-span-12">
           <TrophyCabinetSection
             trophies={trophies}
@@ -593,7 +570,6 @@ export function PlayerDashboard({ me, activeSeason, seasons = [], matches, playe
           />
         </FadeIn>
 
-        {/* Live Matches */}
         {myLive.map((m, i) => (
           <FadeIn key={m.id} delay={0.3} className="col-span-12">
             <ProMatchFixtureCard 
@@ -608,7 +584,6 @@ export function PlayerDashboard({ me, activeSeason, seasons = [], matches, playe
           </FadeIn>
         ))}
 
-        {/* Cinematic Leaderboard */}
         <FadeIn delay={0.35} className="col-span-12 h-full mb-8">
           <MagicCard className="p-0 overflow-hidden flex flex-col h-full bg-[#181a20]/80 backdrop-blur-xl border border-white/[0.05] rounded-3xl shadow-2xl">
             <div className="flex items-center justify-between p-6 border-b border-white/[0.05] bg-gradient-to-r from-black/40 to-transparent">
@@ -709,122 +684,361 @@ export function PlayerDashboard({ me, activeSeason, seasons = [], matches, playe
   );
 }
 
-function StandingsView({ activeSeason, matches, players, me }) {
-  const router = useRouter();
-  if (!activeSeason) return <EmptyState text="No active season yet." />;
-  const tMatches = matches.filter((m) => m.seasonId === activeSeason.id);
-  const standings = computeStandings(tMatches, players, activeSeason.id);
+function LegacyProgressBar({ multiWinCount, totalPossible, completePct }) {
+  return (
+    <div className="flex flex-col sm:flex-row items-center justify-between gap-4 px-6 py-4 mt-6 rounded-xl border border-amber-500/10 bg-zinc-950/80">
+      <div className="flex items-center gap-4">
+        <div className="w-12 h-12 rounded-full border border-amber-500/20 bg-amber-500/5 flex items-center justify-center shrink-0">
+          <Trophy size={20} className="text-amber-500" />
+        </div>
+        <div className="flex flex-col">
+          <h4 className="text-sm font-bold text-amber-500 tracking-widest uppercase">Legacy In Progress</h4>
+          <p className="text-xs text-zinc-500 mt-1 max-w-sm">Every trophy tells a story of dedication, passion, and greatness.</p>
+        </div>
+      </div>
+      
+      <div className="flex items-center gap-8">
+        <div className="flex flex-col items-center">
+          <span className="text-lg font-black text-amber-400">{multiWinCount}</span>
+          <span className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest mt-1">Multi-Win</span>
+        </div>
+        <div className="flex flex-col items-center">
+          <span className="text-lg font-black text-amber-400">{totalPossible}</span>
+          <span className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest mt-1">Possible</span>
+        </div>
+        
+        <div className="flex items-center gap-3">
+          <div className="relative w-12 h-12 flex items-center justify-center">
+            <svg viewBox="0 0 36 36" className="w-full h-full -rotate-90">
+              <path className="text-zinc-800" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="currentColor" strokeWidth="3" />
+              <path className="text-amber-500 drop-shadow-md" strokeDasharray={`${completePct}, 100`} d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="currentColor" strokeWidth="3" />
+            </svg>
+            <span className="absolute text-[10px] font-black text-white">{completePct}%</span>
+          </div>
+          <button className="flex items-center gap-1.5 px-4 py-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg text-xs font-bold transition-colors">
+            VIEW STATS <ChevronRight size={14} />
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function FeaturedTrophyCard({ trophy, onClick }) {
+  const isUnlocked = !trophy.locked;
+  
+  return (
+    <motion.div
+      layoutId={trophy.id}
+      onClick={onClick}
+      tabIndex={0}
+      role="button"
+      className="col-span-1 row-span-3 relative flex flex-col items-center justify-center rounded-2xl cursor-pointer group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 overflow-hidden h-full min-h-[360px]"
+      style={{
+        background: isUnlocked 
+          ? 'linear-gradient(180deg, rgba(20,20,22,0.95) 0%, rgba(10,10,12,0.95) 100%)' 
+          : 'rgba(10,10,12,0.8)',
+        border: isUnlocked ? '1px solid rgba(245,158,11,0.2)' : '1px solid rgba(255,255,255,0.05)',
+      }}
+      whileHover={isUnlocked ? { scale: 1.02, y: -4 } : { scale: 1.01, opacity: 0.8 }}
+      transition={{ type: 'spring', stiffness: 300, damping: 20 }}
+    >
+      {isUnlocked && (
+        <>
+          <motion.div
+            className="absolute inset-0 z-0 pointer-events-none"
+            animate={{ x: ['-100%', '100%'] }}
+            transition={{ duration: 5, repeat: Infinity, ease: 'linear' }}
+            style={{ background: 'linear-gradient(105deg, transparent 20%, rgba(251,191,36,0.06) 50%, transparent 80%)' }}
+          />
+          <div className="absolute inset-0 z-0 bg-[radial-gradient(circle_at_50%_40%,rgba(251,191,36,0.15),transparent_70%)]" />
+        </>
+      )}
+
+      <div className="absolute top-4 left-4 z-20">
+        <span className="px-2 py-1 rounded bg-amber-500/10 border border-amber-500/30 text-[9px] font-black tracking-widest text-amber-500">FEATURED</span>
+      </div>
+
+      {isUnlocked && trophy.wins > 1 && (
+        <motion.div 
+          initial={{ scale: 0.8, opacity: 0 }} 
+          animate={{ scale: [1, 1.15, 1], opacity: 1 }}
+          transition={{ duration: 0.4, delay: 0.2 }}
+          className="absolute top-4 right-4 z-20 flex flex-col items-center justify-center w-12 h-12 rounded-full border border-amber-400 bg-zinc-950 shadow-[0_0_15px_rgba(251,191,36,0.3)]"
+        >
+          <span className="text-xs font-black text-amber-400">x{trophy.wins}</span>
+          <span className="text-[7px] font-bold text-amber-500/80 mt-0.5 tracking-widest">WINS</span>
+        </motion.div>
+      )}
+
+      <motion.div 
+        className={`relative z-10 w-full flex-1 flex flex-col items-center justify-center p-8 ${!isUnlocked ? 'grayscale opacity-40' : ''}`}
+        animate={isUnlocked ? { y: [0, -4, 0] } : {}}
+        transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
+      >
+        {trophy.icon ? (
+          <img src={trophy.icon} alt={trophy.name} className="w-full max-h-48 object-contain drop-shadow-[0_10px_20px_rgba(0,0,0,0.8)]" />
+        ) : (
+          <span className="text-6xl">{trophy.fallbackIcon}</span>
+        )}
+        {!isUnlocked && (
+          <div className="absolute inset-0 flex items-center justify-center">
+            <Lock size={48} className="text-zinc-400" />
+          </div>
+        )}
+      </motion.div>
+
+      <div className="relative z-20 w-full p-6 text-center border-t border-white/5 bg-black/40 backdrop-blur-md">
+        <h3 className={`text-lg font-black uppercase tracking-wider ${isUnlocked ? 'text-amber-400' : 'text-zinc-500'}`}>{trophy.name}</h3>
+        {isUnlocked && trophy.seasons?.length > 0 ? (
+          <div className="mt-3 flex flex-wrap items-center justify-center gap-x-2 gap-y-1">
+            {trophy.seasons.map((s, i) => (
+              <div key={i} className="flex items-center">
+                <span className="text-[10px] font-bold tracking-widest text-amber-500">{s}</span>
+                {i < trophy.seasons.length - 1 && <span className="text-amber-500/30 text-[8px] mx-1.5">•</span>}
+              </div>
+            ))}
+          </div>
+        ) : !isUnlocked ? (
+          <div className="mt-3 text-[10px] tracking-widest text-zinc-500 font-bold uppercase">Locked</div>
+        ) : null}
+      </div>
+    </motion.div>
+  );
+}
+
+function TrophyTile({ trophy, onClick }) {
+  const isUnlocked = !trophy.locked;
+  const isGold = ['championship', 'mvp'].includes(trophy.tier);
+  const glowColor = isGold ? 'rgba(251,191,36,0.1)' : trophy.tier === 'scoring' ? 'rgba(245,158,11,0.1)' : 'rgba(148,163,184,0.1)';
+  const textColor = isUnlocked ? (isGold ? 'text-amber-400' : 'text-zinc-200') : 'text-zinc-500';
 
   return (
-    <FadeIn delay={0.1}>
-      <Card className="p-5">
-        <SectionTitle icon={ListOrdered}>{activeSeason.name} — Table</SectionTitle>
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm text-left">
-            <thead>
-              <tr className="text-muted-foreground text-[11px] uppercase tracking-wider border-b border-border/50">
-                <th className="p-3 font-semibold">#</th>
-                <th className="p-3 font-semibold text-center w-8">Change</th>
-                <th className="p-3 font-semibold">Player</th>
-                <th className="p-3 text-center font-semibold">P</th>
-                <th className="p-3 text-center font-semibold">W</th>
-                <th className="p-3 text-center font-semibold">D</th>
-                <th className="p-3 text-center font-semibold">L</th>
-                <th className="p-3 text-center font-semibold">GF</th>
-                <th className="p-3 text-center font-semibold">GA</th>
-                <th className="p-3 text-center font-semibold">GD</th>
-                <th className="p-3 text-center font-semibold text-pitch-bright">Pts</th>
-                <th className="p-3 text-center font-semibold">Form</th>
-                <th className="p-3 text-center font-semibold">Streak</th>
-              </tr>
-            </thead>
-            <tbody>
-              {standings.map((s, i) => (
-                <motion.tr
-                  initial={{ opacity: 0, x: -10 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: i * 0.05 }}
-                  key={s.id}
-                  onClick={() => router.push(`/player/${s.username || s.id}`)}
-                  className={`border-b border-border/30 last:border-0 hover:bg-secondary/50 transition-colors cursor-pointer ${s.id === me.id ? 'bg-pitch/10 hover:bg-pitch/20' : ''}`}
+    <motion.div
+      layoutId={trophy.id}
+      onClick={onClick}
+      tabIndex={0}
+      role="button"
+      className="relative flex flex-col rounded-2xl cursor-pointer group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 overflow-hidden h-full min-h-[160px]"
+      style={{
+        background: isUnlocked 
+          ? 'linear-gradient(180deg, rgba(20,20,22,0.9) 0%, rgba(10,10,12,0.9) 100%)' 
+          : 'rgba(10,10,12,0.6)',
+        border: isUnlocked ? '1px solid rgba(245,158,11,0.15)' : '1px solid rgba(255,255,255,0.04)',
+      }}
+      whileHover={isUnlocked ? { scale: 1.03, y: -4 } : { scale: 1.01, opacity: 0.6 }}
+      transition={{ type: 'spring', stiffness: 300, damping: 20 }}
+    >
+      {isUnlocked && (
+        <div className="absolute inset-0 z-0" style={{ background: `radial-gradient(circle at 50% 30%, ${glowColor}, transparent 60%)` }} />
+      )}
+      
+      {isUnlocked && trophy.wins > 1 && (
+        <div className="absolute top-3 right-3 z-20 flex flex-col items-center justify-center px-2 py-1 rounded-md border border-amber-500/40 bg-zinc-950/80 shadow-md">
+          <span className="text-[10px] font-black text-amber-400 leading-none">x{trophy.wins}</span>
+          <span className="text-[6px] font-bold text-amber-500/80 uppercase mt-0.5 tracking-widest leading-none">WINS</span>
+        </div>
+      )}
+
+      {!isUnlocked && (
+        <div className="absolute top-3 left-3 z-20">
+          <Lock size={14} className="text-zinc-600" />
+        </div>
+      )}
+
+      <div className={`relative z-10 flex-1 flex items-center justify-center p-4 ${!isUnlocked ? 'grayscale opacity-40' : ''}`}>
+        {trophy.icon ? (
+          <img src={trophy.icon} alt={trophy.name} className="h-16 w-16 object-contain drop-shadow-xl" />
+        ) : (
+          <span className="text-4xl">{trophy.fallbackIcon}</span>
+        )}
+      </div>
+
+      <div className="relative z-20 w-full px-3 pb-3 pt-2 text-center bg-black/20">
+        <h4 className={`text-[10px] font-black uppercase tracking-wider truncate ${textColor}`}>{trophy.name}</h4>
+        
+        {isUnlocked && trophy.seasons?.length > 0 ? (
+          <div className="mt-2 pt-2 border-t border-white/5 flex flex-wrap items-center justify-center gap-1.5">
+            {trophy.seasons.map((s, i) => (
+              <div key={i} className="flex items-center gap-1">
+                <div className="w-1 h-1 rounded-full bg-emerald-500" />
+                <span className="text-[8px] font-bold tracking-widest text-zinc-400">{s}</span>
+              </div>
+            ))}
+          </div>
+        ) : !isUnlocked ? (
+          <div className="mt-2 pt-2 border-t border-white/5 text-[9px] tracking-widest text-zinc-600 font-bold uppercase">Locked</div>
+        ) : null}
+      </div>
+    </motion.div>
+  );
+}
+
+function TrophyCabinetSection({ trophies = [], myTrophies = [], meBadges = [], onSelectTrophy }) {
+  const [activeCategory, setActiveCategory] = React.useState('ALL');
+
+  const templateMap = React.useMemo(() => {
+    const map = new Map();
+    const seenImages = new Set();
+
+    BENTO_TROPHIES.forEach(t => {
+      if (t.image) seenImages.add(t.image);
+      map.set(t.id, { ...t, locked: true });
+    });
+
+    trophies.forEach(t => {
+      const key = t.templateId || t.title.toLowerCase().replace(/\s+/g, '-');
+      const isDuplicateImage = t.icon && seenImages.has(t.icon);
+      if (!map.has(key) && !isDuplicateImage) {
+        if (t.icon) seenImages.add(t.icon);
+        map.set(key, {
+          id: t.id,
+          name: t.title,
+          image: t.icon || null,
+          icon: '🏆',
+          category: 'Special',
+          priority: 99,
+          requirement: t.description || 'Admin Award',
+          locked: true,
+          scale: 0.88,
+        });
+      }
+    });
+
+    meBadges.forEach(badgeName => {
+      const badgeKey = `badge-${badgeName.toLowerCase().replace(/\s+/g, '-')}`;
+      if (!map.has(badgeKey)) {
+        map.set(badgeKey, {
+          id: badgeKey,
+          name: badgeName,
+          image: null,
+          icon: '🎖️',
+          category: 'Special',
+          priority: 100,
+          requirement: 'Admin Awarded Badge',
+          locked: false,
+          isBadge: true,
+          scale: 0.88,
+        });
+      }
+    });
+
+    return map;
+  }, [trophies, meBadges]);
+
+  const allTrophyList = React.useMemo(() =>
+    Array.from(templateMap.values()).sort((a, b) => (a.priority || 99) - (b.priority || 99)),
+    [templateMap]
+  );
+
+  const formattedTrophies = React.useMemo(() => {
+    return allTrophyList.map(tr => {
+      const isUnlocked = myTrophies.some(t => t.title === tr.name || t.id === tr.id || t.icon === tr.image) || tr.locked === false;
+      const instances = tr.isBadge ? [tr] : myTrophies.filter(t => t.title === tr.name || t.id === tr.id || t.icon === tr.image);
+      const wins = instances.length;
+      const seasons = instances.map(inst => inst.season || (inst.createdAt ? new Date(inst.createdAt).getFullYear() : 'Earned'));
+
+      return {
+        id: tr.id,
+        name: tr.name,
+        tier: tr.category === 'Special' ? 'special' : (tr.tier || 'championship'),
+        icon: tr.image, 
+        fallbackIcon: tr.icon,
+        seasons: [...new Set(seasons)],
+        wins: wins,
+        locked: !isUnlocked,
+        featured: tr.id === 'bb-championship',
+        category: tr.category.toUpperCase(),
+        raw: tr,
+        instances: instances
+      };
+    });
+  }, [allTrophyList, myTrophies]);
+
+  const displayList = activeCategory === 'ALL' 
+    ? formattedTrophies 
+    : formattedTrophies.filter(t => t.category === activeCategory);
+
+  const featured = displayList.find(t => t.featured) || displayList[0];
+  const remaining = displayList.filter(t => t.id !== featured?.id);
+
+  const totalPossible = formattedTrophies.length;
+  const totalUnlocked = formattedTrophies.filter(t => !t.locked).length;
+  const completePct = totalPossible > 0 ? Math.round((totalUnlocked / totalPossible) * 100) : 0;
+  const multiWinCount = myTrophies.length - totalUnlocked;
+
+  return (
+    <div className="w-full flex flex-col gap-6 p-4 md:p-8 bg-zinc-950 rounded-2xl border border-white/5">
+      <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-4 pb-4 border-b border-white/10">
+        <style>{`
+          .hide-scrollbar::-webkit-scrollbar { display: none; }
+          .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        `}</style>
+        <div className="flex items-center gap-2 overflow-x-auto hide-scrollbar pb-1">
+          {TROPHY_CATEGORIES.map(tab => (
+            <button
+              key={tab}
+              onClick={() => setActiveCategory(tab)}
+              className={`px-4 py-2 rounded-full text-[10px] font-black uppercase tracking-widest whitespace-nowrap transition-colors ${
+                activeCategory === tab 
+                  ? 'bg-amber-500 text-black shadow-[0_0_15px_rgba(245,158,11,0.3)]' 
+                  : 'bg-white/5 text-zinc-400 hover:bg-white/10'
+              }`}
+            >
+              {tab}
+            </button>
+          ))}
+        </div>
+        
+        <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3 text-xs text-zinc-400 font-bold tracking-widest px-4 py-2 bg-white/5 rounded-lg border border-white/5">
+            <span>{totalUnlocked} EARNED</span>
+            <span className="w-1 h-1 rounded-full bg-zinc-600" />
+            <span className="text-amber-500">{completePct}% COMPLETE</span>
+          </div>
+          <div className="flex items-center gap-1 p-1 bg-white/5 rounded-lg border border-white/5 hidden md:flex">
+            <button className="p-1.5 bg-white/10 rounded text-white shadow-sm"><LayoutGrid size={16} /></button>
+            <button className="p-1.5 text-zinc-500 hover:text-zinc-300"><List size={16} /></button>
+          </div>
+        </div>
+      </div>
+
+      {displayList.length === 0 ? (
+        <div className="py-24 flex flex-col items-center justify-center text-zinc-500">
+          <LayoutGrid size={48} className="opacity-20 mb-4" />
+          <p className="text-sm tracking-widest uppercase font-bold">No Trophies Match Filter</p>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          {featured && (
+            <div className="md:col-span-4 lg:col-span-1 lg:row-span-3">
+              <FeaturedTrophyCard trophy={featured} onClick={() => onSelectTrophy && onSelectTrophy({ trophy: featured.raw, unlocked: !featured.locked, count: featured.wins, instances: featured.instances, requirement: featured.raw.requirement })} />
+            </div>
+          )}
+
+          <div className="md:col-span-4 lg:col-span-3 grid grid-cols-2 lg:grid-cols-3 gap-4 auto-rows-fr grid-flow-dense">
+            <AnimatePresence mode="popLayout">
+              {remaining.map((trophy, i) => (
+                <motion.div
+                  key={trophy.id}
+                  initial={{ opacity: 0, y: 12 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, scale: 0.95 }}
+                  transition={{ duration: 0.3, delay: i * 0.05 }}
+                  className="col-span-1"
                 >
-                  <td className="p-3 font-medium text-muted-foreground">{i + 1}</td>
-                  <td className="p-3 text-center text-[10px] font-bold">
-                    {s.posChange === '▲' ? <span className="text-green-500">▲</span> : s.posChange === '▼' ? <span className="text-red-500">▼</span> : <span className="text-muted-foreground">-</span>}
-                  </td>
-                  <td className="p-3 flex items-center gap-2">
-                    <Avatar p={s} size={24} />
-                    {getPlayerIdentityBadgeUrl(s) && <img src={getPlayerIdentityBadgeUrl(s)} alt="badge" className="w-4 h-4 object-contain drop-shadow-sm shrink-0" />}
-                    <span className="font-semibold">{s.name}</span>
-                  </td>
-                  <td className="p-3 text-center">{s.played}</td>
-                  <td className="p-3 text-center text-muted-foreground">{s.won}</td>
-                  <td className="p-3 text-center text-muted-foreground">{s.drawn}</td>
-                  <td className="p-3 text-center text-muted-foreground">{s.lost}</td>
-                  <td className="p-3 text-center">{s.gf}</td>
-                  <td className="p-3 text-center">{s.ga}</td>
-                  <td className="p-3 text-center font-score">{s.gd > 0 ? `+${s.gd}` : s.gd}</td>
-                  <td className="p-3 text-center font-bold text-pitch-bright text-base">{s.pts}</td>
-                  <td className="p-3 text-center">
-                    <div className="flex items-center justify-center gap-1">
-                      {s.form.map((f, i) => (
-                        <span key={i} className={`w-3 h-3 rounded-full ${f === 'W' ? 'bg-green-500' : f === 'L' ? 'bg-red-500' : 'bg-amber-400'}`} title={f}></span>
-                      ))}
-                    </div>
-                  </td>
-                  <td className="p-3 text-center font-score text-xs">
-                    {s.streak > 0 ? <span className="text-green-500">W{s.streak}</span> : s.streak < 0 ? <span className="text-red-500">L{Math.abs(s.streak)}</span> : '-'}
-                  </td>
-                </motion.tr>
+                  <TrophyTile trophy={trophy} onClick={() => onSelectTrophy && onSelectTrophy({ trophy: trophy.raw, unlocked: !trophy.locked, count: trophy.wins, instances: trophy.instances, requirement: trophy.raw.requirement })} />
+                </motion.div>
               ))}
-            </tbody>
-          </table>
+            </AnimatePresence>
+          </div>
         </div>
-      </Card>
-    </FadeIn>
+      )}
+
+      <LegacyProgressBar multiWinCount={multiWinCount} totalPossible={totalPossible} completePct={completePct} />
+    </div>
   );
 }
-
-function MatchesView({ activeSeason, matches, players, onMatchClick }) {
-  if (!activeSeason) return <EmptyState text="No active season yet." />;
-  const tMatches = matches.filter((m) => m.seasonId === activeSeason.id && m.round === "league");
-  const standings = computeStandings(tMatches, players, activeSeason.id);
-
-  const getStats = (id) => {
-    const row = standings.find(s => s.id === id);
-    const rank = standings.findIndex(s => s.id === id) + 1;
-    return { rank: rank > 0 ? rank : '-', wins: row ? row.won : 0 };
-  };
-
-  return (
-    <FadeIn delay={0.1}>
-      <Card className="p-5">
-        <SectionTitle icon={Calendar}>All Matches</SectionTitle>
-        <div className="flex flex-col gap-3">
-          {tMatches.map((m, i) => {
-            const h = players.find(p => p.id === m.homeId);
-            const a = players.find(p => p.id === m.awayId);
-            return (
-              <motion.div key={m.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.03 }}>
-                <ProMatchFixtureCard 
-                  m={m} 
-                  h={h} 
-                  a={a} 
-                  hStats={getStats(m.homeId)}
-                  aStats={getStats(m.awayId)}
-                  index={i}
-                  onClick={() => onMatchClick(m)} 
-                />
-              </motion.div>
-            );
-          })}
-        </div>
-      </Card>
-    </FadeIn>
-  );
-}
-
-
 
 function RosterView({ players, matches, setTab }) {
   const router = useRouter();
@@ -921,7 +1135,6 @@ function HistoryView({ history, players, matches, setTab }) {
 
       {history.map((t, i) => {
         const mvp = players.find((p) => p.id === t.mvpId);
-        // Use season's included matches if available, otherwise filter from all matches
         const seasonMatches = t.matches && t.matches.length > 0 ? t.matches : matches.filter(m => m.seasonId === t.id);
 
         return (
@@ -940,7 +1153,6 @@ function HistoryView({ history, players, matches, setTab }) {
                 </div>
               )}
 
-              {/* Season Summary Dashboard */}
               <div className="mt-5 pt-5 border-t border-border/50 dark:border-white/[0.06]">
                 <SeasonSummaryDashboard season={t} matches={seasonMatches} players={players} compact />
               </div>
@@ -999,459 +1211,5 @@ function NotificationsView({ notifications, me }) {
         </div>
       </Card>
     </FadeIn>
-  );
-}
-
-
-// ─── Trophy Cabinet — Hall of Fame ────────────────────────────────────────────
-
-function TrophyCabinetSection({ trophies, myTrophies, meBadges, onSelectTrophy }) {
-  const [activeCategory, setActiveCategory] = React.useState('ALL');
-
-  // Build trophy template map (same merge logic, preserved)
-  const templateMap = React.useMemo(() => {
-    const map = new Map();
-    const seenImages = new Set();
-
-    // 1. Official trophy templates
-    BENTO_TROPHIES.forEach(t => {
-      if (t.image) seenImages.add(t.image);
-      map.set(t.id, { ...t, locked: true });
-    });
-
-    // 2. Custom admin-awarded trophies not matching a template
-    trophies.forEach(t => {
-      const key = t.templateId || t.title.toLowerCase().replace(/\s+/g, '-');
-      const isDuplicateImage = t.icon && seenImages.has(t.icon);
-      if (!map.has(key) && !isDuplicateImage) {
-        if (t.icon) seenImages.add(t.icon);
-        map.set(key, {
-          id: t.id,
-          name: t.title,
-          image: t.icon || null,
-          icon: '🏆',
-          category: 'Special',
-          priority: 99,
-          requirement: t.description || 'Admin Award',
-          locked: true,
-          scale: 0.88,
-        });
-      }
-    });
-
-    // 3. Admin badges
-    meBadges.forEach(badgeName => {
-      const badgeKey = `badge-${badgeName.toLowerCase().replace(/\s+/g, '-')}`;
-      if (!map.has(badgeKey)) {
-        map.set(badgeKey, {
-          id: badgeKey,
-          name: badgeName,
-          image: null,
-          icon: '🎖️',
-          category: 'Special',
-          priority: 100,
-          requirement: 'Admin Awarded Badge',
-          locked: false,
-          isBadge: true,
-          scale: 0.88,
-        });
-      }
-    });
-
-    return map;
-  }, [trophies, meBadges]);
-
-  const allTrophyList = React.useMemo(() =>
-    Array.from(templateMap.values()).sort((a, b) => (a.priority || 99) - (b.priority || 99)),
-    [templateMap]
-  );
-
-  const filteredList = React.useMemo(() =>
-    activeCategory === 'ALL'
-      ? allTrophyList
-      : allTrophyList.filter(t => t.category === activeCategory),
-    [allTrophyList, activeCategory]
-  );
-
-  // Stats
-  const unlockedCount = allTrophyList.filter(tr =>
-    myTrophies.some(t => t.title === tr.name || t.id === tr.id || t.icon === tr.image) || tr.locked === false
-  ).length;
-  const totalCount = allTrophyList.length;
-  const completePct = totalCount > 0 ? Math.round((unlockedCount / totalCount) * 100) : 0;
-  const multiWinCount = allTrophyList.filter(tr => {
-    const instances = tr.isBadge ? [] : myTrophies.filter(t => t.title === tr.name || t.id === tr.id || t.icon === tr.image);
-    return instances.length > 1;
-  }).length;
-  const totalSeasons = [...new Set(myTrophies.map(t => t.season).filter(Boolean))].length;
-
-  return (
-    <div
-      className="relative w-full overflow-hidden rounded-2xl"
-      style={{
-        background: 'linear-gradient(180deg, #0D1117 0%, #07090D 100%)',
-        border: '1px solid rgba(214,166,58,0.12)',
-        boxShadow: 'inset 0 1px 0 rgba(214,166,58,0.08), 0 20px 60px rgba(0,0,0,0.6)',
-      }}
-    >
-      {/* Ambient ceiling glow */}
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-2/3 h-24 pointer-events-none z-0" style={{ background: 'radial-gradient(ellipse, rgba(214,166,58,0.10) 0%, transparent 70%)' }} />
-      {/* Noise texture */}
-      <div className="absolute inset-0 opacity-[0.04] mix-blend-overlay pointer-events-none z-0" style={{ backgroundImage: "url('/assets/noise.png')" }} />
-
-      {/* ── Header ── */}
-      <div className="relative z-10 px-5 sm:px-8 pt-6 pb-0">
-        <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 mb-5">
-          {/* Title */}
-          <div className="flex flex-col">
-            <div className="flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: 'linear-gradient(135deg,#D6A63A,#A87522)', boxShadow: '0 0 12px rgba(214,166,58,0.4)' }}>
-                <Trophy size={16} className="text-black" />
-              </div>
-              <span className="text-xs uppercase tracking-[0.25em] font-black" style={{ color: '#D6A63A', fontFamily: "'Sora', sans-serif" }}>Trophy Cabinet</span>
-            </div>
-            <h2 className="mt-1 text-xl sm:text-2xl font-black uppercase tracking-wider" style={{ color: '#F5F7FA', fontFamily: "'Sora', sans-serif", letterSpacing: '0.08em' }}>
-              Hall of Champions
-            </h2>
-          </div>
-
-          {/* Stats Pills */}
-          <div className="flex flex-wrap items-center gap-2 sm:gap-3">
-            {[
-              { label: 'Trophies', value: unlockedCount, icon: '🏆' },
-              { label: 'Seasons', value: totalSeasons || '–', icon: '📅' },
-              { label: 'Complete', value: `${completePct}%`, icon: null, isPercent: true, pct: completePct },
-            ].map((s, i) => (
-              <div key={i} className="flex items-center gap-1.5 px-3 py-1.5 rounded-full" style={{ background: 'rgba(214,166,58,0.07)', border: '1px solid rgba(214,166,58,0.15)' }}>
-                {s.icon && <span className="text-xs">{s.icon}</span>}
-                {s.isPercent && (
-                  <svg viewBox="0 0 24 24" className="w-3.5 h-3.5" style={{ transform: 'rotate(-90deg)' }}>
-                    <circle cx="12" cy="12" r="10" fill="none" stroke="rgba(214,166,58,0.15)" strokeWidth="2.5" />
-                    <circle cx="12" cy="12" r="10" fill="none" stroke="#D6A63A" strokeWidth="2.5"
-                      strokeDasharray={`${(s.pct / 100) * 62.8} 62.8`} strokeLinecap="round" />
-                  </svg>
-                )}
-                <span className="text-xs font-black" style={{ color: '#F4C95D', fontFamily: "'Sora', sans-serif" }}>{s.value}</span>
-                <span className="text-[10px] uppercase tracking-widest" style={{ color: '#5E6877' }}>{s.label}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Category Filter Tabs */}
-        <div className="flex items-center gap-1 overflow-x-auto pb-4 scrollbar-none" style={{ borderBottom: '1px solid rgba(214,166,58,0.08)' }}>
-          {TROPHY_CATEGORIES.map(cat => (
-            <button
-              key={cat}
-              onClick={() => setActiveCategory(cat)}
-              className="shrink-0 px-3 py-1.5 rounded-full text-[10px] uppercase tracking-widest font-black transition-all duration-200"
-              style={activeCategory === cat ? {
-                background: 'linear-gradient(135deg,#D6A63A,#A87522)',
-                color: '#000',
-                boxShadow: '0 0 12px rgba(214,166,58,0.3)',
-              } : {
-                background: 'rgba(255,255,255,0.04)',
-                color: '#5E6877',
-                border: '1px solid rgba(255,255,255,0.06)',
-              }}
-            >
-              {cat}
-            </button>
-          ))}
-        </div>
-      </div>
-
-      {/* ── Trophy Grid ── */}
-      <div className="relative z-10 px-5 sm:px-8 py-6 md:py-8">
-        {filteredList.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-16 gap-3">
-            <div className="text-4xl opacity-20">🏆</div>
-            <p className="text-sm font-bold uppercase tracking-widest" style={{ color: '#5E6877' }}>No Trophies Yet</p>
-            <p className="text-xs" style={{ color: '#3D4554' }}>Your next victory belongs here.</p>
-          </div>
-        ) : (
-          <>
-            {/* Responsive bento grid */}
-            <style>{`
-              .hide-scrollbar::-webkit-scrollbar { display: none; }
-              .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-            `}</style>
-            <motion.div 
-              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 auto-rows-fr grid-flow-dense"
-              initial="hidden"
-              animate="visible"
-              variants={{
-                hidden: { opacity: 0 },
-                visible: { opacity: 1, transition: { staggerChildren: 0.05 } }
-              }}
-            >
-              {filteredList.map((tr) => {
-                const isAllCategory = activeCategory === 'ALL';
-                
-                let spanClasses = "col-span-1 row-span-1";
-                let isHero = false;
-                
-                if (isAllCategory) {
-                  if (tr.id === 'bb-championship') {
-                    spanClasses = "col-span-1 md:col-span-2 lg:col-span-2 row-span-2 aspect-[4/3] md:aspect-auto";
-                    isHero = true;
-                  } else if (['mvp', 'golden-boot'].includes(tr.id)) {
-                    spanClasses = "col-span-1 md:col-span-1 lg:col-span-2 row-span-1";
-                  }
-                }
-
-                const isUnlocked = myTrophies.some(t => t.title === tr.name || t.id === tr.id || t.icon === tr.image) || tr.locked === false;
-                const instances = tr.isBadge ? [tr] : myTrophies.filter(t => t.title === tr.name || t.id === tr.id || t.icon === tr.image);
-                const count = instances.length;
-
-                return (
-                  <motion.div
-                    key={tr.id}
-                    className={spanClasses}
-                    variants={{
-                      hidden: { opacity: 0, y: 8 },
-                      visible: { opacity: 1, y: 0 }
-                    }}
-                  >
-                    <HallOfFameTrophyCard
-                      trophy={tr}
-                      unlocked={isUnlocked}
-                      count={count}
-                      instances={instances}
-                      isHero={isHero}
-                      onSelect={() => onSelectTrophy({ trophy: tr, unlocked: isUnlocked, count, instances, requirement: tr.requirement })}
-                    />
-                  </motion.div>
-                );
-              })}
-            </motion.div>
-          </>
-        )}
-
-      </div>
-
-      {/* ── Legacy Footer ── */}
-      <div
-        className="relative z-10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 px-5 sm:px-8 py-4"
-        style={{ borderTop: '1px solid rgba(214,166,58,0.08)', background: 'rgba(0,0,0,0.25)' }}
-      >
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-full flex items-center justify-center shrink-0" style={{ background: 'rgba(214,166,58,0.08)', border: '1px solid rgba(214,166,58,0.15)' }}>
-            <Trophy size={18} style={{ color: '#D6A63A' }} />
-          </div>
-          <div>
-            <p className="text-xs font-black uppercase tracking-wider" style={{ color: '#D6A63A' }}>Legacy In Progress</p>
-            <p className="text-[10px] mt-0.5" style={{ color: '#5E6877' }}>Every trophy tells a story of dedication, passion, and greatness.</p>
-          </div>
-        </div>
-        <div className="flex items-center gap-4 sm:gap-6">
-          {[
-            { label: 'Multi-Win', value: multiWinCount },
-            { label: 'Possible', value: totalCount },
-            { label: 'Complete', value: `${completePct}%` },
-          ].map((s, i) => (
-            <div key={i} className="flex flex-col items-center">
-              <span className="text-base font-black" style={{ color: '#F4C95D', fontFamily: "'Sora', sans-serif" }}>{s.value}</span>
-              <span className="text-[9px] uppercase tracking-widest" style={{ color: '#5E6877' }}>{s.label}</span>
-            </div>
-          ))}
-        </div>
-      </div>
-    </div>
-  );
-}
-
-// ─── Individual Trophy Card ───────────────────────────────────────────────────
-
-function HallOfFameTrophyCard({ trophy, unlocked, count = 0, instances = [], isHero, onSelect }) {
-  const showMultiplier = count > 1;
-  const imgScale = trophy.scale || 0.9;
-
-  return (
-    <motion.div
-      onClick={() => onSelect && onSelect()}
-      role="button"
-      tabIndex={0}
-      aria-label={`${trophy.name} trophy${unlocked ? ', earned' : ', locked'}`}
-      onKeyDown={e => (e.key === 'Enter' || e.key === ' ') && onSelect && onSelect()}
-      whileHover={unlocked ? { scale: 1.02, y: -4 } : { scale: 1.02, opacity: 0.8 }}
-      transition={{ type: 'spring', stiffness: 300, damping: 20 }}
-      className={`relative w-full h-full flex flex-col items-center cursor-pointer group overflow-hidden focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500/80 focus-visible:ring-offset-2 focus-visible:ring-offset-black rounded-2xl border ${unlocked ? 'border-white/10' : 'border-white/5 opacity-50'}`}
-      style={{
-        background: unlocked
-          ? 'linear-gradient(160deg, rgba(21, 24, 31, 0.9) 0%, rgba(13, 17, 23, 0.9) 40%, rgba(8, 10, 14, 0.9) 100%)'
-          : 'rgba(255,255,255,0.03)',
-        backdropFilter: 'blur(8px)',
-        boxShadow: unlocked
-          ? '0 8px 32px rgba(0,0,0,0.6), inset 0 1px 1px rgba(214,166,58,0.2)'
-          : '0 4px 16px rgba(0,0,0,0.4)',
-      }}
-    >
-      {/* Spotlight behind trophy */}
-      {unlocked && (
-        <div
-          className="absolute top-0 left-1/2 -translate-x-1/2 pointer-events-none transition-opacity duration-500 group-hover:opacity-100 opacity-80"
-          style={{
-            width: isHero ? '100%' : '80%',
-            height: isHero ? '80%' : '70%',
-            background: 'radial-gradient(ellipse at 50% 10%, rgba(214,166,58,0.18) 0%, transparent 60%)',
-          }}
-        />
-      )}
-
-      {/* Ambient shimmer on featured tile */}
-      {unlocked && isHero && (
-        <motion.div
-          className="absolute inset-0 pointer-events-none z-10"
-          animate={{ x: ['-100%', '100%'] }}
-          transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
-          style={{
-            background: 'linear-gradient(105deg, transparent 30%, rgba(214,166,58,0.08) 50%, transparent 70%)',
-          }}
-        />
-      )}
-
-      {/* Fast metallic sweep on hover for all unlocked tiles */}
-      {unlocked && (
-        <div className="absolute inset-0 w-[200%] bg-gradient-to-r from-transparent via-white/5 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-[1000ms] ease-in-out pointer-events-none z-20" />
-      )}
-
-      {/* Multiplier Badge */}
-      {showMultiplier && (
-        <div className="absolute top-4 right-4 z-30">
-          <span className="absolute inset-0 rounded-lg bg-amber-400/30 animate-ping" />
-          <div
-            className="relative flex flex-col items-center justify-center w-11 h-11 rounded-lg"
-            style={{
-              background: 'linear-gradient(135deg, #F4C95D, #A87522)',
-              boxShadow: '0 4px 12px rgba(214,166,58,0.5)',
-              border: '1px solid rgba(255,231,160,0.4)',
-            }}
-          >
-            <span className="text-[10px] font-black text-black uppercase leading-none">x{count}</span>
-            <span className="text-[8px] font-bold text-black/80 uppercase leading-none mt-0.5">WINS</span>
-          </div>
-        </div>
-      )}
-
-      {/* Locked icon */}
-      {!unlocked && (
-        <div className="absolute top-4 left-4 z-30 w-8 h-8 rounded-md flex items-center justify-center" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.06)' }}>
-          <Lock size={14} style={{ color: '#3D4554' }} />
-        </div>
-      )}
-
-      {/* Trophy image area */}
-      <div
-        className="flex items-end justify-center w-full relative"
-        style={{
-          flex: 1,
-          padding: isHero ? '28px 24px 12px' : '16px 16px 8px',
-        }}
-      >
-        <motion.div
-          className="relative flex items-end justify-center w-full h-full"
-          animate={unlocked ? { y: [0, -6, 0] } : {}}
-          transition={unlocked ? { duration: 3.5, repeat: Infinity, ease: 'easeInOut' } : {}}
-          style={{ maxHeight: isHero ? 240 : 130 }}
-        >
-          {typeof trophy.image === 'string' && trophy.image.startsWith('/') ? (
-            <img
-              src={trophy.image}
-              alt={`${trophy.name} trophy`}
-              className="w-full h-full"
-              style={{
-                objectFit: 'contain',
-                objectPosition: 'bottom center',
-                maxHeight: isHero ? 180 : 110,
-                transform: `scale(${imgScale})`,
-                transformOrigin: 'bottom center',
-                filter: unlocked
-                  ? 'drop-shadow(0 12px 20px rgba(0,0,0,0.7)) drop-shadow(0 4px 8px rgba(214,166,58,0.15))'
-                  : 'grayscale(1) brightness(0.35)',
-                transition: 'filter 0.4s ease',
-              }}
-              onError={e => {
-                e.target.style.display = 'none';
-                if (e.target.nextSibling) e.target.nextSibling.style.display = 'flex';
-              }}
-            />
-          ) : null}
-          {/* Emoji fallback */}
-          <span
-            style={{ display: (typeof trophy.image !== 'string' || !trophy.image.startsWith('/')) ? 'flex' : 'none' }}
-            className="text-5xl items-center justify-center"
-          >
-            {trophy.icon || '🏆'}
-          </span>
-        </motion.div>
-
-        {/* Floor ellipse shadow */}
-        {unlocked && (
-          <div
-            className="absolute bottom-0 left-1/2 -translate-x-1/2 pointer-events-none transition-all duration-500 group-hover:opacity-100 opacity-60"
-            style={{
-              width: '50%',
-              height: 8,
-              borderRadius: '50%',
-              background: 'rgba(214,166,58,0.25)',
-              filter: 'blur(6px)',
-              boxShadow: '0 0 12px rgba(214,166,58,0.4)',
-            }}
-          />
-        )}
-      </div>
-
-      {/* Bottom nameplate */}
-      <div
-        className="relative z-10 w-full mt-auto"
-        style={{
-          background: 'rgba(0,0,0,0.35)',
-          borderTop: `1px solid ${unlocked ? 'rgba(214,166,58,0.12)' : 'rgba(255,255,255,0.04)'}`,
-          backdropFilter: 'blur(4px)',
-        }}
-      >
-        {/* Trophy name */}
-        <div className="px-3 pt-2.5 pb-1 text-center">
-          <h4
-            className="text-[11px] sm:text-xs font-black uppercase tracking-wider leading-tight line-clamp-1"
-            style={{ color: unlocked ? '#F4C95D' : '#3D4554', fontFamily: "'Sora', sans-serif" }}
-          >
-            {trophy.name}
-          </h4>
-        </div>
-
-        {/* Season ticker / locked message */}
-        {unlocked && instances.length > 0 ? (
-          <div className="w-full pb-3 px-3">
-            <div className="flex flex-wrap items-center justify-center gap-x-2 gap-y-1 w-full">
-              {instances.map((inst, idx) => (
-                <div key={idx} className="flex items-center shrink-0">
-                  <span
-                    className="text-[9px] uppercase tracking-widest font-bold"
-                    style={{ color: '#D6A63A' }}
-                  >
-                    {inst.season || (inst.createdAt ? new Date(inst.createdAt).getFullYear() : 'Earned')}
-                  </span>
-                  {idx < instances.length - 1 && <span style={{ color: 'rgba(214,166,58,0.3)', fontSize: 8 }} className="ml-2">•</span>}
-                </div>
-              ))}
-            </div>
-          </div>
-        ) : !unlocked ? (
-          <div className="pb-2 text-center">
-            <span className="text-[9px] uppercase tracking-widest font-bold" style={{ color: '#3D4554' }}>Locked</span>
-          </div>
-        ) : null}
-      </div>
-
-      {/* Hover border glow */}
-      {unlocked && (
-        <div
-          className="absolute inset-0 rounded-[15px] pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-400"
-          style={{ boxShadow: 'inset 0 0 0 1px rgba(214,166,58,0.35), 0 0 20px rgba(214,166,58,0.08)' }}
-        />
-      )}
-    </motion.div>
   );
 }
