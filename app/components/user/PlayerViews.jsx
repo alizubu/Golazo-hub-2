@@ -1171,7 +1171,7 @@ function TrophyCabinetSection({ trophies, myTrophies, meBadges, onSelectTrophy }
           </div>
         ) : (
           <>
-            {/* Responsive grid: mobile=2col, md=4col with hero spanning 2 rows */}
+            {/* Responsive grid: mobile=2col, md=3col with hero spanning 2 rows */}
             <style>{`
               .hof-grid {
                 display: grid;
@@ -1180,7 +1180,7 @@ function TrophyCabinetSection({ trophies, myTrophies, meBadges, onSelectTrophy }
               }
               @media (min-width: 768px) {
                 .hof-grid {
-                  grid-template-columns: repeat(4, 1fr);
+                  grid-template-columns: repeat(3, 1fr);
                   gap: 16px;
                 }
                 .hof-hero {
