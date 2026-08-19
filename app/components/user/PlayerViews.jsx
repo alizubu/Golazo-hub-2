@@ -647,7 +647,7 @@ export function PlayerDashboard({ me, activeSeason, seasons = [], matches, playe
                     </div>
                     <div className="flex items-center gap-2">
                       <Badge variant="gold" className="px-3 py-1.5 font-score text-[10px] sm:text-xs font-black tracking-widest bg-amber-500/10 text-amber-500 border border-amber-500/30">
-                        {BENTO_TROPHIES.filter(tr => myTrophies.some(t => t.title === tr.name || t.id === tr.id)).length} / 5 UNLOCKED
+                        {trophyList.filter(tr => myTrophies.some(t => t.title === tr.name || t.id === tr.id)).length} / {trophyList.length} UNLOCKED
                       </Badge>
                     </div>
                   </div>
@@ -659,9 +659,9 @@ export function PlayerDashboard({ me, activeSeason, seasons = [], matches, playe
                     <div className="absolute inset-0 bg-[url('/assets/noise.png')] opacity-20 mix-blend-overlay pointer-events-none z-0" />
 
                     <div className="grid grid-cols-2 md:grid-cols-3 grid-rows-3 md:grid-rows-2 gap-4 sm:gap-6 relative z-10 w-full max-w-6xl mx-auto">
-                      {BENTO_TROPHIES.map((tr, index) => {
-                        const isUnlocked = myTrophies.some(t => t.title === tr.name || t.id === tr.id);
-                        const instances = myTrophies.filter(t => t.title === tr.name || t.id === tr.id);
+                      {trophyList.map((tr, index) => {
+                        const isUnlocked = myTrophies.some(t => t.title === tr.name || t.id === tr.id) || tr.locked === false;
+                        const instances = tr.isBadge ? [tr] : myTrophies.filter(t => t.title === tr.name || t.id === tr.id);
                         const count = instances.length;
                         
                         // Determine grid placement
@@ -1186,10 +1186,19 @@ function BentoTrophyTile({ trophy, unlocked, count = 0, instances = [], isLarge,
               initial={{ y: 45 }}
               whileHover={{ y: 0 }}
             >
-              <div className="px-3 py-1 rounded-full bg-amber-500/20 border border-amber-500/30 backdrop-blur-md">
-                <span className="text-[10px] text-amber-400 uppercase tracking-widest font-black font-score">
-                  {instances[0]?.createdAt ? new Date(instances[0].createdAt).getFullYear() : 'Earned'}
-                </span>
+              <div className="flex flex-col gap-1 items-center justify-center">
+                {instances.slice(0, 3).map((inst, idx) => (
+                  <div key={idx} className="px-3 py-1 rounded-full bg-amber-500/20 border border-amber-500/30 backdrop-blur-md">
+                    <span className="text-[10px] text-amber-400 uppercase tracking-widest font-black font-score">
+                      {inst.season || (inst.createdAt ? new Date(inst.createdAt).getFullYear() : 'Earned')}
+                    </span>
+                  </div>
+                ))}
+                {instances.length > 3 && (
+                  <div className="px-2 py-0.5 rounded-full bg-amber-500/10">
+                    <span className="text-[9px] text-amber-500/80 font-bold">+{instances.length - 3} MORE</span>
+                  </div>
+                )}
               </div>
             </motion.div>
          )}
