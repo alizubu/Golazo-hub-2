@@ -1159,39 +1159,42 @@ function BentoTrophyTile({ trophy, unlocked, count = 0, instances = [], isLarge,
       </motion.div>
 
       {/* Trophy Name */}
-      <div className="w-full flex flex-col items-center justify-center z-10 relative overflow-hidden h-[45px]">
-         <motion.div
-           className="absolute inset-0 flex flex-col items-center justify-center"
-           initial={{ y: 0 }}
-           whileHover={unlocked ? { y: -45 } : {}}
-         >
-            <h4 className={`font-black leading-tight line-clamp-2 px-2 relative transition-colors ${isLarge ? 'text-lg md:text-xl' : 'text-sm sm:text-base'} ${unlocked ? 'text-amber-50 drop-shadow-md' : 'text-white/30'}`} style={{ fontFamily: "'Sora', sans-serif" }}>
-              {trophy.name}
-            </h4>
-         </motion.div>
-         {unlocked && (
-            <motion.div
-              className="absolute inset-0 flex flex-col items-center justify-center translate-y-[45px]"
-              initial={{ y: 45 }}
-              whileHover={{ y: 0 }}
-            >
-              <div className="flex flex-col gap-1 items-center justify-center">
-                {instances.slice(0, 3).map((inst, idx) => (
-                  <div key={idx} className="px-3 py-1 rounded-full bg-amber-500/20 border border-amber-500/30 backdrop-blur-md">
-                    <span className="text-[10px] text-amber-400 uppercase tracking-widest font-black font-score">
-                      {inst.season || (inst.createdAt ? new Date(inst.createdAt).getFullYear() : 'Earned')}
-                    </span>
-                  </div>
-                ))}
-                {instances.length > 3 && (
-                  <div className="px-2 py-0.5 rounded-full bg-amber-500/10">
-                    <span className="text-[9px] text-amber-500/80 font-bold">+{instances.length - 3} MORE</span>
-                  </div>
-                )}
-              </div>
-            </motion.div>
-         )}
+      <div className="w-full flex flex-col items-center justify-center z-10 relative mb-6">
+        <h4 className={`font-black leading-tight line-clamp-2 px-2 text-center transition-colors ${isLarge ? 'text-lg md:text-xl' : 'text-sm sm:text-base'} ${unlocked ? 'text-amber-50 drop-shadow-md' : 'text-white/30'}`} style={{ fontFamily: "'Sora', sans-serif" }}>
+          {trophy.name}
+        </h4>
       </div>
+
+      {/* Neon News Ticker (Timeline) */}
+      {unlocked && instances.length > 0 && (
+        <div className="absolute bottom-0 left-0 w-full overflow-hidden bg-black/40 border-t border-white/5 backdrop-blur-md py-1.5 z-20 flex items-center justify-center group-hover:bg-amber-500/10 group-hover:border-amber-500/20 transition-colors duration-500">
+          {instances.length === 1 ? (
+            <span className="text-[9px] text-amber-400/80 uppercase tracking-widest font-black font-score group-hover:text-amber-400 transition-colors">
+              {instances[0].season || (instances[0].createdAt ? new Date(instances[0].createdAt).getFullYear() : 'Earned')}
+            </span>
+          ) : (
+            <motion.div
+              className="flex whitespace-nowrap items-center w-max"
+              animate={{ x: ["0%", "-50%"] }}
+              transition={{ repeat: Infinity, ease: "linear", duration: 12 }}
+            >
+              {[1, 2].map((_, i) => (
+                <div key={i} className="flex items-center gap-3 px-3">
+                  {instances.map((inst, idx) => (
+                    <React.Fragment key={idx}>
+                      <span className="text-[9px] text-amber-400 uppercase tracking-widest font-black font-score drop-shadow-[0_0_5px_rgba(251,191,36,0.4)]">
+                        {inst.season || (inst.createdAt ? new Date(inst.createdAt).getFullYear() : 'Earned')}
+                      </span>
+                      {idx < instances.length - 1 && <span className="text-amber-500/40 text-[10px]">•</span>}
+                    </React.Fragment>
+                  ))}
+                  <span className="text-amber-500/40 text-[10px] px-1">•</span>
+                </div>
+              ))}
+            </motion.div>
+          )}
+        </div>
+      )}
 
       {/* Locked Padlock */}
       {!unlocked && (
