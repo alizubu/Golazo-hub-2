@@ -651,8 +651,8 @@ export function PlayerDashboard({ me, activeSeason, seasons = [], matches, playe
 
                     <div className="grid grid-cols-2 md:grid-cols-3 grid-rows-3 md:grid-rows-2 gap-4 sm:gap-6 relative z-10 w-full max-w-6xl mx-auto">
                       {trophyList.map((tr, index) => {
-                        const isUnlocked = myTrophies.some(t => t.title === tr.name || t.id === tr.id) || tr.locked === false;
-                        const instances = tr.isBadge ? [tr] : myTrophies.filter(t => t.title === tr.name || t.id === tr.id);
+                        const isUnlocked = myTrophies.some(t => t.title === tr.name || t.id === tr.id || t.icon === tr.image) || tr.locked === false;
+                        const instances = tr.isBadge ? [tr] : myTrophies.filter(t => t.title === tr.name || t.id === tr.id || t.icon === tr.image);
                         const count = instances.length;
                         
                         // Determine grid placement
@@ -1141,15 +1141,13 @@ function BentoTrophyTile({ trophy, unlocked, count = 0, instances = [], isLarge,
         <img
           src={trophy.image}
           alt={trophy.name}
-          className={`w-full h-full object-contain z-10 transition-all duration-500 ${imgLoaded ? 'opacity-100' : 'opacity-0'} ${
+          className={`w-full h-full object-contain z-10 transition-all duration-500 opacity-100 ${
             unlocked 
               ? 'drop-shadow-[0_15px_15px_rgba(0,0,0,0.6)] group-hover:drop-shadow-[0_25px_25px_rgba(245,158,11,0.5)]' 
               : 'grayscale opacity-40 drop-shadow-none'
           }`}
-          onLoad={() => setImgLoaded(true)}
           onError={(e) => {
             e.target.style.display = 'none';
-            setImgLoaded(true);
             if (e.target.nextSibling) e.target.nextSibling.style.display = 'flex';
           }}
         />
