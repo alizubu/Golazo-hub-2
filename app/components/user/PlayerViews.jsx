@@ -879,10 +879,9 @@ function TrophyTile({ trophy, onClick }) {
   return (
     <div style={{ perspective: 800 }} className="h-full">
       <motion.div
-        <div
-          layoutId={trophy.id}
-          onClick={onClick}
-          onMouseMove={handleMouseMove}
+        layoutId={trophy.id}
+        onClick={onClick}
+        onMouseMove={handleMouseMove}
           onMouseLeave={handleMouseLeave}
           tabIndex={0}
           role="button"
