@@ -1181,6 +1181,7 @@ function TrophyCabinetSection({ trophies, myTrophies, meBadges, onSelectTrophy }
               @media (min-width: 768px) {
                 .hof-grid {
                   grid-template-columns: repeat(3, 1fr);
+                  grid-auto-rows: minmax(180px, auto);
                   gap: 16px;
                 }
                 .hof-hero {
@@ -1199,7 +1200,7 @@ function TrophyCabinetSection({ trophies, myTrophies, meBadges, onSelectTrophy }
                 return (
                   <div
                     key={tr.id}
-                    className={isHero ? 'col-span-2 md:col-span-1 hof-hero' : 'col-span-1'}
+                    className={isHero ? 'hof-hero col-span-2 md:col-span-1' : 'col-span-1'}
                   >
                     <HallOfFameTrophyCard
                       trophy={tr}
@@ -1307,26 +1308,26 @@ function HallOfFameTrophyCard({ trophy, unlocked, count = 0, instances = [], isH
 
       {/* Multiplier Badge */}
       {showMultiplier && (
-        <div className="absolute top-3 right-3 z-30">
+        <div className="absolute top-4 right-4 z-30">
           <span className="absolute inset-0 rounded-lg bg-amber-400/30 animate-ping" />
           <div
-            className="relative flex flex-col items-center justify-center w-10 h-10 rounded-lg"
+            className="relative flex flex-col items-center justify-center w-11 h-11 rounded-lg"
             style={{
               background: 'linear-gradient(135deg, #F4C95D, #A87522)',
-              boxShadow: '0 2px 8px rgba(214,166,58,0.5)',
-              border: '1px solid rgba(255,231,160,0.3)',
+              boxShadow: '0 4px 12px rgba(214,166,58,0.5)',
+              border: '1px solid rgba(255,231,160,0.4)',
             }}
           >
-            <span className="text-[8px] font-black text-black uppercase leading-none">x{count}</span>
-            <span className="text-[7px] font-bold text-black/70 uppercase leading-none">WINS</span>
+            <span className="text-[10px] font-black text-black uppercase leading-none">x{count}</span>
+            <span className="text-[8px] font-bold text-black/80 uppercase leading-none mt-0.5">WINS</span>
           </div>
         </div>
       )}
 
       {/* Locked icon */}
       {!unlocked && (
-        <div className="absolute top-3 left-3 z-30 w-6 h-6 rounded-md flex items-center justify-center" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.06)' }}>
-          <Lock size={11} style={{ color: '#3D4554' }} />
+        <div className="absolute top-4 left-4 z-30 w-8 h-8 rounded-md flex items-center justify-center" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.06)' }}>
+          <Lock size={14} style={{ color: '#3D4554' }} />
         </div>
       )}
 
@@ -1335,14 +1336,14 @@ function HallOfFameTrophyCard({ trophy, unlocked, count = 0, instances = [], isH
         className="flex items-end justify-center w-full relative"
         style={{
           flex: 1,
-          padding: isHero ? '24px 24px 8px' : '16px 16px 6px',
+          padding: isHero ? '28px 24px 12px' : '16px 16px 8px',
         }}
       >
         <motion.div
           className="relative flex items-end justify-center w-full h-full"
           animate={unlocked ? { y: [0, -6, 0] } : {}}
           transition={unlocked ? { duration: 3.5, repeat: Infinity, ease: 'easeInOut' } : {}}
-          style={{ maxHeight: isHero ? 180 : 110 }}
+          style={{ maxHeight: isHero ? 240 : 130 }}
         >
           {typeof trophy.image === 'string' && trophy.image.startsWith('/') ? (
             <img
