@@ -684,7 +684,7 @@ export function PlayerDashboard({ me, activeSeason, seasons = [], matches, playe
   );
 }
 
-function LegacyProgressBar({ multiWinCount, totalPossible, completePct }) {
+function LegacyProgressBar({ totalUnlocked, multiWinCount, totalPossible, completePct }) {
   return (
     <div className="flex flex-col sm:flex-row items-center justify-between gap-4 px-6 py-4 mt-6 rounded-xl border border-amber-500/10 bg-zinc-950/80">
       <div className="flex items-center gap-4">
@@ -698,6 +698,10 @@ function LegacyProgressBar({ multiWinCount, totalPossible, completePct }) {
       </div>
       
       <div className="flex items-center gap-8">
+        <div className="flex flex-col items-center">
+          <span className="text-lg font-black text-amber-400">{totalUnlocked}</span>
+          <span className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest mt-1">Earned</span>
+        </div>
         <div className="flex flex-col items-center">
           <span className="text-lg font-black text-amber-400">{multiWinCount}</span>
           <span className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest mt-1">Multi-Win</span>
@@ -810,25 +814,25 @@ function FeaturedTrophyCard({ trophy, onClick }) {
           style={{ transform: isUnlocked ? "translateZ(50px)" : "none" }}
         >
           {trophy.icon ? (
-            <img src={trophy.icon} alt={trophy.name} className="w-full max-h-48 object-contain drop-shadow-[0_10px_20px_rgba(0,0,0,0.8)]" />
+            <img src={trophy.icon} alt={trophy.name} className="w-[75%] h-[75%] max-h-[260px] object-contain drop-shadow-[0_10px_20px_rgba(0,0,0,0.8)]" />
           ) : (
-            <span className="text-6xl">{trophy.fallbackIcon}</span>
+            <span className="text-8xl">{trophy.fallbackIcon}</span>
           )}
           {!isUnlocked && (
             <div className="absolute inset-0 flex items-center justify-center">
-              <Lock size={48} className="text-zinc-400" />
+              <Lock size={64} className="text-zinc-400" />
             </div>
           )}
         </motion.div>
 
-        <div className="relative z-20 w-full p-6 text-center border-t border-white/5 bg-black/40 backdrop-blur-md" style={{ transform: isUnlocked ? "translateZ(20px)" : "none" }}>
+        <div className="relative z-20 w-full p-6 text-left border-t border-white/5 bg-black/40 backdrop-blur-md" style={{ transform: isUnlocked ? "translateZ(20px)" : "none" }}>
           <h3 className={`text-lg font-black uppercase tracking-wider ${isUnlocked ? 'text-amber-400' : 'text-zinc-500'}`}>{trophy.name}</h3>
           {isUnlocked && trophy.seasons?.length > 0 ? (
-            <div className="mt-3 flex flex-wrap items-center justify-center gap-x-2 gap-y-1">
+            <div className="mt-3 flex flex-wrap items-center justify-start gap-2">
               {trophy.seasons.map((s, i) => (
                 <div key={i} className="flex items-center">
-                  <span className="text-[10px] font-bold tracking-widest text-amber-500">{s}</span>
-                  {i < trophy.seasons.length - 1 && <span className="text-amber-500/30 text-[8px] mx-1.5">•</span>}
+                  <span className="text-xs text-zinc-400 uppercase tracking-wide font-bold">{s}</span>
+                  {i < trophy.seasons.length - 1 && <span className="text-zinc-600 text-xs mx-2 flex items-center">•</span>}
                 </div>
               ))}
             </div>
@@ -875,49 +879,50 @@ function TrophyTile({ trophy, onClick }) {
   return (
     <div style={{ perspective: 800 }} className="h-full">
       <motion.div
-        layoutId={trophy.id}
-        onClick={onClick}
-        onMouseMove={handleMouseMove}
-        onMouseLeave={handleMouseLeave}
-        tabIndex={0}
-        role="button"
-        className="relative flex flex-col rounded-2xl cursor-pointer group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 overflow-hidden h-full min-h-[160px]"
-        style={{
-          background: isUnlocked 
-            ? 'linear-gradient(180deg, rgba(20,20,22,0.9) 0%, rgba(10,10,12,0.9) 100%)' 
-            : 'rgba(10,10,12,0.6)',
-          border: isUnlocked ? '1px solid rgba(245,158,11,0.15)' : '1px solid rgba(255,255,255,0.04)',
-          rotateX,
-          rotateY,
-          transformStyle: "preserve-3d"
-        }}
-        whileHover={isUnlocked ? { scale: 1.05 } : { scale: 1.01, opacity: 0.6 }}
-        transition={{ type: 'spring', stiffness: 300, damping: 20 }}
-      >
-        {isUnlocked && (
-          <div className="absolute inset-0 z-0" style={{ background: `radial-gradient(circle at 50% 30%, ${glowColor}, transparent 60%)`, transform: "translateZ(0)" }} />
-        )}
-        
-        {isUnlocked && trophy.wins > 1 && (
-          <div className="absolute top-3 right-3 z-20 flex flex-col items-center justify-center px-2 py-1 rounded-md border border-amber-500/40 bg-zinc-950/80 shadow-md" style={{ transform: "translateZ(15px)" }}>
-            <span className="text-[10px] font-black text-amber-400 leading-none">x{trophy.wins}</span>
-            <span className="text-[6px] font-bold text-amber-500/80 uppercase mt-0.5 tracking-widest leading-none">WINS</span>
-          </div>
-        )}
-
-        {!isUnlocked && (
-          <div className="absolute top-3 left-3 z-20">
-            <Lock size={14} className="text-zinc-600" />
-          </div>
-        )}
-
-        <div className={`relative z-10 flex-1 flex items-center justify-center p-4 ${!isUnlocked ? 'grayscale opacity-40' : ''}`} style={{ transform: isUnlocked ? "translateZ(30px)" : "none" }}>
-          {trophy.icon ? (
-            <img src={trophy.icon} alt={trophy.name} className="h-16 w-16 object-contain drop-shadow-xl" />
-          ) : (
-            <span className="text-4xl">{trophy.fallbackIcon}</span>
+        <div
+          layoutId={trophy.id}
+          onClick={onClick}
+          onMouseMove={handleMouseMove}
+          onMouseLeave={handleMouseLeave}
+          tabIndex={0}
+          role="button"
+          className="relative flex flex-col rounded-2xl cursor-pointer group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 overflow-hidden h-full min-h-[180px]"
+          style={{
+            background: isUnlocked 
+              ? 'linear-gradient(180deg, rgba(20,20,22,0.9) 0%, rgba(10,10,12,0.9) 100%)' 
+              : 'rgba(10,10,12,0.6)',
+            border: isUnlocked ? '1px solid rgba(245,158,11,0.15)' : '1px solid rgba(255,255,255,0.04)',
+            rotateX,
+            rotateY,
+            transformStyle: "preserve-3d"
+          }}
+          whileHover={isUnlocked ? { scale: 1.05 } : { scale: 1.01, opacity: 0.6 }}
+          transition={{ type: 'spring', stiffness: 300, damping: 20 }}
+        >
+          {isUnlocked && (
+            <div className="absolute inset-0 z-0" style={{ background: `radial-gradient(circle at 50% 30%, ${glowColor}, transparent 60%)`, transform: "translateZ(0)" }} />
           )}
-        </div>
+          
+          {isUnlocked && trophy.wins > 1 && (
+            <div className="absolute top-3 right-3 z-20 flex flex-col items-center justify-center px-2 py-1 rounded-md border border-amber-500/40 bg-zinc-950/80 shadow-md" style={{ transform: "translateZ(15px)" }}>
+              <span className="text-[10px] font-black text-amber-400 leading-none">x{trophy.wins}</span>
+              <span className="text-[6px] font-bold text-amber-500/80 uppercase mt-0.5 tracking-widest leading-none">WINS</span>
+            </div>
+          )}
+
+          {!isUnlocked && (
+            <div className="absolute top-3 left-3 z-20">
+              <Lock size={18} className="text-zinc-600" />
+            </div>
+          )}
+
+          <div className={`relative z-10 flex-1 flex items-center justify-center p-4 ${!isUnlocked ? 'grayscale opacity-40' : ''}`} style={{ transform: isUnlocked ? "translateZ(30px)" : "none" }}>
+            {trophy.icon ? (
+              <img src={trophy.icon} alt={trophy.name} className="h-24 w-24 object-contain drop-shadow-xl" />
+            ) : (
+              <span className="text-6xl">{trophy.fallbackIcon}</span>
+            )}
+          </div>
 
         <div className="relative z-20 w-full px-3 pb-3 pt-2 text-center bg-black/20" style={{ transform: isUnlocked ? "translateZ(10px)" : "none" }}>
           <h4 className={`text-[10px] font-black uppercase tracking-wider truncate ${textColor}`}>{trophy.name}</h4>
@@ -941,8 +946,6 @@ function TrophyTile({ trophy, onClick }) {
 }
 
 function TrophyCabinetSection({ trophies = [], myTrophies = [], meBadges = [], onSelectTrophy }) {
-  const [activeCategory, setActiveCategory] = React.useState('ALL');
-
   const templateMap = React.useMemo(() => {
     const map = new Map();
     const seenImages = new Set();
@@ -1021,9 +1024,7 @@ function TrophyCabinetSection({ trophies = [], myTrophies = [], meBadges = [], o
     });
   }, [allTrophyList, myTrophies]);
 
-  const displayList = activeCategory === 'ALL' 
-    ? formattedTrophies 
-    : formattedTrophies.filter(t => t.category === activeCategory);
+  const displayList = formattedTrophies;
 
   const featured = displayList.find(t => t.featured) || displayList[0];
   const remaining = displayList.filter(t => t.id !== featured?.id);
@@ -1035,40 +1036,6 @@ function TrophyCabinetSection({ trophies = [], myTrophies = [], meBadges = [], o
 
   return (
     <div className="w-full flex flex-col gap-6 p-4 md:p-8 bg-zinc-950 rounded-2xl border border-white/5">
-      <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-4 pb-4 border-b border-white/10">
-        <style>{`
-          .hide-scrollbar::-webkit-scrollbar { display: none; }
-          .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-        `}</style>
-        <div className="flex items-center gap-2 overflow-x-auto hide-scrollbar pb-1">
-          {TROPHY_CATEGORIES.map(tab => (
-            <button
-              key={tab}
-              onClick={() => setActiveCategory(tab)}
-              className={`px-4 py-2 rounded-full text-[10px] font-black uppercase tracking-widest whitespace-nowrap transition-colors ${
-                activeCategory === tab 
-                  ? 'bg-amber-500 text-black shadow-[0_0_15px_rgba(245,158,11,0.3)]' 
-                  : 'bg-white/5 text-zinc-400 hover:bg-white/10'
-              }`}
-            >
-              {tab}
-            </button>
-          ))}
-        </div>
-        
-        <div className="flex items-center gap-4">
-          <div className="flex items-center gap-3 text-xs text-zinc-400 font-bold tracking-widest px-4 py-2 bg-white/5 rounded-lg border border-white/5">
-            <span>{totalUnlocked} EARNED</span>
-            <span className="w-1 h-1 rounded-full bg-zinc-600" />
-            <span className="text-amber-500">{completePct}% COMPLETE</span>
-          </div>
-          <div className="flex items-center gap-1 p-1 bg-white/5 rounded-lg border border-white/5 hidden md:flex">
-            <button className="p-1.5 bg-white/10 rounded text-white shadow-sm"><LayoutGrid size={16} /></button>
-            <button className="p-1.5 text-zinc-500 hover:text-zinc-300"><List size={16} /></button>
-          </div>
-        </div>
-      </div>
-
       {displayList.length === 0 ? (
         <div className="py-24 flex flex-col items-center justify-center text-zinc-500">
           <LayoutGrid size={48} className="opacity-20 mb-4" />
@@ -1101,7 +1068,7 @@ function TrophyCabinetSection({ trophies = [], myTrophies = [], meBadges = [], o
         </div>
       )}
 
-      <LegacyProgressBar multiWinCount={multiWinCount} totalPossible={totalPossible} completePct={completePct} />
+      <LegacyProgressBar totalUnlocked={totalUnlocked} multiWinCount={multiWinCount} totalPossible={totalPossible} completePct={completePct} />
     </div>
   );
 }
