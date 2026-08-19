@@ -17,20 +17,6 @@ export async function getMatches(seasonId) {
   });
 }
 
-const matchWinnerId = (m) => {
-  if (!m || m.status !== 'completed') return null;
-  if (m.homeScore > m.awayScore) return m.homeId;
-  if (m.awayScore > m.homeScore) return m.awayId;
-  if (m.penaltyWinner) return m.penaltyWinner === 'home' ? m.homeId : m.awayId;
-  return null;
-};
-
-const matchLoserId = (m) => {
-  const w = matchWinnerId(m);
-  if (!w) return null;
-  return w === m.homeId ? m.awayId : m.homeId;
-};
-
 export async function generateFixtures(seasonId, playerIds, doubleRound) {
   const auth = await checkSessionPermission('canManageMatches');
   if (!auth.authorized) return { error: auth.error };
@@ -583,6 +569,7 @@ export async function adminTriggerBracketProgress(seasonId) {
     revalidatePath('/admin');
     return { success: true, debug: debugData };
   } catch (error) {
-    return { error: 'Failed to trigger bracket progress' };
+    console.error('Bracket Progress Error:', error);
+    return { error: 'Failed to trigger bracket progress: ' + (error.message || String(error)) };
   }
 }
