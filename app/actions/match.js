@@ -536,16 +536,38 @@ export async function adminTriggerBracketProgress(seasonId) {
   const auth = await checkSessionPermission('canManageMatches');
   if (!auth.authorized) return { error: auth.error };
   try {
-    // Find any completed semi matches that haven't triggered the challenger
-    const matches = await prisma.match.findMany({
-      where: { seasonId, round: { in: ['semiA', 'semiB', 'challenger'] }, status: 'completed' }
+    const playoffs = await prisma.match.findMany({
+      where: { seasonId, round: { in: ['semiA', 'semiB', 'challenger', 'final'] } },
+      orderBy: { createdAt: 'desc' }
     });
-    for (const match of matches) {
-      await progressPlayoffBracket(match.id);
+
+    const getRelevantMatch = (round) => {
+      const matches = playoffs.filter(m => m.round === round);
+      const completed = matches.filter(m => m.status === 'completed');
+      if (completed.length > 0) return completed[0];
+      return matches[0];
+    };
+
+    const semiA = getRelevantMatch('semiA');
+    const semiB = getRelevantMatch('semiB');
+    const challenger = getRelevantMatch('challenger');
+    const finalMatch = getRelevantMatch('final');
+
+    const debugData = {
+      semiA: semiA ? { id: semiA.id, status: semiA.status, homeScore: semiA.homeScore, awayScore: semiA.awayScore, winner: matchWinnerId(semiA) } : null,
+      challenger: challenger ? { id: challenger.id, status: challenger.status, homeScore: challenger.homeScore, awayScore: challenger.awayScore, winner: matchWinnerId(challenger) } : null,
+      finalMatch: finalMatch ? { id: finalMatch.id, homeId: finalMatch.homeId, awayId: finalMatch.awayId } : null,
+    };
+
+    // Run the actual progress function
+    const anyPlayoff = playoffs[0];
+    if (anyPlayoff) {
+      await progressPlayoffBracket(anyPlayoff.id);
     }
+
     revalidatePath('/');
     revalidatePath('/admin');
-    return { success: true };
+    return { success: true, debug: debugData };
   } catch (error) {
     return { error: 'Failed to trigger bracket progress' };
   }

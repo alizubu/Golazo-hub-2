@@ -2214,7 +2214,10 @@ export function AdminSeason({ activeSeason, seasons = [], matches = [], players 
           onClick={async () => {
             const res = await adminTriggerBracketProgress(activeSeason.id);
             if (res.error) showToast(res.error);
-            else showToast("✅ Bracket Synced Successfully!");
+            else {
+              showToast("✅ Bracket Synced Successfully!");
+              if (res.debug) alert("DEBUG INFO (Please send this to the AI):\n\n" + JSON.stringify(res.debug, null, 2));
+            }
           }}
           className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-emerald-500/10 hover:bg-emerald-500/20 border border-transparent hover:border-emerald-500/20 text-foreground transition-all"
         >
