@@ -1170,24 +1170,26 @@ function TrophyCabinetSection({ trophies, myTrophies, meBadges, onSelectTrophy }
             <p className="text-xs" style={{ color: '#3D4554' }}>Your next victory belongs here.</p>
           </div>
         ) : (
-          <div className="grid gap-3 sm:gap-4" style={{
-            gridTemplateColumns: 'repeat(2, 1fr)',
-            gridAutoRows: 'auto',
-          }}>
-            {/* On md+, use a 3-column layout with hero spanning rows */}
+          <>
+            {/* Responsive grid: mobile=2col, md=4col with hero spanning 2 rows */}
             <style>{`
-              @media (min-width: 768px) {
-                .trophy-grid { grid-template-columns: repeat(3, 1fr) !important; }
-                .trophy-hero { grid-row: span 2 !important; }
+              .hof-grid {
+                display: grid;
+                gap: 12px;
+                grid-template-columns: repeat(2, 1fr);
               }
-              @media (min-width: 1024px) {
-                .trophy-grid { gap: 1.25rem !important; }
+              @media (min-width: 768px) {
+                .hof-grid {
+                  grid-template-columns: repeat(4, 1fr);
+                  gap: 16px;
+                }
+                .hof-hero {
+                  grid-column: span 1;
+                  grid-row: span 2;
+                }
               }
             `}</style>
-            <div className="trophy-grid grid gap-3 sm:gap-4 w-full" style={{
-              gridTemplateColumns: 'repeat(2, 1fr)',
-              gridAutoRows: 'auto',
-            }}>
+            <div className="hof-grid">
               {filteredList.map((tr, index) => {
                 const isHero = index === 0 && activeCategory === 'ALL';
                 const isUnlocked = myTrophies.some(t => t.title === tr.name || t.id === tr.id || t.icon === tr.image) || tr.locked === false;
@@ -1197,7 +1199,7 @@ function TrophyCabinetSection({ trophies, myTrophies, meBadges, onSelectTrophy }
                 return (
                   <div
                     key={tr.id}
-                    className={isHero ? 'col-span-2 md:col-span-1 trophy-hero' : 'col-span-1'}
+                    className={isHero ? 'col-span-2 md:col-span-1 hof-hero' : 'col-span-1'}
                   >
                     <HallOfFameTrophyCard
                       trophy={tr}
@@ -1211,8 +1213,9 @@ function TrophyCabinetSection({ trophies, myTrophies, meBadges, onSelectTrophy }
                 );
               })}
             </div>
-          </div>
+          </>
         )}
+
       </div>
 
       {/* ── Legacy Footer ── */}
