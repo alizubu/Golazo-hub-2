@@ -586,23 +586,14 @@ export function PlayerDashboard({ me, activeSeason, seasons = [], matches, playe
               // Combine hardcoded templates, db templates, and all unique awarded trophies in the game
               const templateMap = new Map();
 
-              // 0. Add the 6 official hardcoded trophies
-              const HARDCODED_TROPHIES = [
-                { id: 'bb-champion', name: 'BB Champion', icon: '/assets/trophies/BB-Champion.png', requirement: 'Champion of the BB League season.' },
-                { id: 'world-cup', name: 'World Cup Winner', icon: '/assets/trophies/World-Cup-Winner-Trophy.png', requirement: 'Won the World Cup season.' },
-                { id: 'golden-boot', name: 'Golden Boot', icon: '/assets/trophies/Golden-boot.png', requirement: 'Top goalscorer of the season.' },
-                { id: 'mvp', name: 'MVP', icon: '/assets/trophies/MVP.png', requirement: 'Most Valuable Player of the season.' },
-                { id: 'la-liga', name: 'La Liga Champion', icon: '/assets/trophies/La-Liga-trophy.png', requirement: 'La Liga season champion.' },
-                { id: 'premier-league', name: 'Premier League Champion', icon: '/assets/trophies/Premier-League.png', requirement: 'Premier League season champion.' },
-              ];
-
               const seenIcons = new Set();
-              HARDCODED_TROPHIES.forEach(t => {
-                if (t.icon) seenIcons.add(t.icon);
+              BENTO_TROPHIES.forEach(t => {
+                if (t.image) seenIcons.add(t.image);
                 templateMap.set(t.id, {
                   id: t.id,
                   name: t.name,
-                  image: t.icon,
+                  image: t.image,
+                  icon: t.icon,
                   locked: true,
                   requirement: t.requirement
                 });
