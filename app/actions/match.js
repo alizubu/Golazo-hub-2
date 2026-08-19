@@ -472,8 +472,7 @@ export async function progressPlayoffBracket(matchId) {
 
     // Fetch all playoff matches for the season
     const playoffs = await prisma.match.findMany({
-      where: { seasonId, round: { in: ['semiA', 'semiB', 'challenger', 'final'] } },
-      orderBy: { createdAt: 'desc' }
+      where: { seasonId, round: { in: ['semiA', 'semiB', 'challenger', 'final'] } }
     });
 
     const getRelevantMatch = (round) => {
@@ -537,8 +536,7 @@ export async function adminTriggerBracketProgress(seasonId) {
   if (!auth.authorized) return { error: auth.error };
   try {
     const playoffs = await prisma.match.findMany({
-      where: { seasonId, round: { in: ['semiA', 'semiB', 'challenger', 'final'] } },
-      orderBy: { createdAt: 'desc' }
+      where: { seasonId, round: { in: ['semiA', 'semiB', 'challenger', 'final'] } }
     });
 
     const getRelevantMatch = (round) => {
