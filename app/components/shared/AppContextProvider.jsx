@@ -29,6 +29,7 @@ export function AppProvider({ children, initialMatches = [] }) {
 
   useEffect(() => {
     if (liveData?.matches) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setMatches(prev => {
         let updated = [...prev];
         let hasChanges = false;

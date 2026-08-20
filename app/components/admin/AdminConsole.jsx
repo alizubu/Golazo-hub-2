@@ -1827,6 +1827,7 @@ export function AdminAnnouncements({ announcements, showToast }) {
               <RichTextEditor 
                 value={form.content} 
                 onChange={val => setForm({...form, content: val})} 
+                players={players}
               />
             </div>
           </div>
@@ -1879,6 +1880,7 @@ export function AdminAnnouncements({ announcements, showToast }) {
                           <RichTextEditor 
                             value={editForm.content} 
                             onChange={val => setEditForm({...editForm, content: val})} 
+                            players={players}
                           />
                         </div>
                       </div>
