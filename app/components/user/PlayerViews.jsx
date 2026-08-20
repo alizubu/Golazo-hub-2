@@ -757,7 +757,7 @@ function FeaturedTrophyCard({ trophy, onClick }) {
   };
 
   return (
-    <div style={{ perspective: 1000 }} className="h-full">
+    <div style={{ perspective: 1000 }} className="h-full w-full">
       <motion.div
         layoutId={trophy.id}
         onClick={onClick}
@@ -765,12 +765,8 @@ function FeaturedTrophyCard({ trophy, onClick }) {
         onMouseLeave={handleMouseLeave}
         tabIndex={0}
         role="button"
-        className="col-span-1 row-span-3 relative flex flex-col items-center justify-center rounded-2xl cursor-pointer group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 overflow-hidden h-full min-h-[360px]"
+        className={`relative flex flex-col justify-between rounded-2xl cursor-pointer group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 overflow-hidden h-full min-h-[360px] lg:min-h-[450px] bg-card dark:bg-card border shadow-sm transition-colors ${isUnlocked ? 'border-amber-500/40' : 'border-border/80 dark:border-white/[0.08]'}`}
         style={{
-          background: isUnlocked 
-            ? 'linear-gradient(180deg, rgba(20,20,22,0.95) 0%, rgba(10,10,12,0.95) 100%)' 
-            : 'rgba(10,10,12,0.8)',
-          border: isUnlocked ? '1px solid rgba(245,158,11,0.2)' : '1px solid rgba(255,255,255,0.05)',
           rotateX,
           rotateY,
           transformStyle: "preserve-3d"
@@ -814,7 +810,7 @@ function FeaturedTrophyCard({ trophy, onClick }) {
           style={{ transform: isUnlocked ? "translateZ(50px)" : "none" }}
         >
           {trophy.icon ? (
-            <img src={trophy.icon} alt={trophy.name} className="w-[75%] h-[75%] max-h-[260px] object-contain drop-shadow-[0_10px_20px_rgba(0,0,0,0.8)]" />
+            <img src={trophy.icon} alt={trophy.name} className="w-[85%] h-[85%] max-h-[320px] object-contain drop-shadow-[0_10px_20px_rgba(0,0,0,0.8)]" />
           ) : (
             <span className="text-8xl">{trophy.fallbackIcon}</span>
           )}
@@ -825,7 +821,7 @@ function FeaturedTrophyCard({ trophy, onClick }) {
           )}
         </motion.div>
 
-        <div className="relative z-20 w-full p-6 text-left border-t border-white/5 bg-black/40 backdrop-blur-md" style={{ transform: isUnlocked ? "translateZ(20px)" : "none" }}>
+        <div className="relative z-20 w-full p-6 pb-6 text-left border-t border-border/40 dark:border-white/[0.06] bg-secondary/40 dark:bg-black/20 backdrop-blur-md shrink-0" style={{ transform: isUnlocked ? "translateZ(20px)" : "none" }}>
           <h3 className={`text-lg font-black uppercase tracking-wider ${isUnlocked ? 'text-amber-400' : 'text-zinc-500'}`}>{trophy.name}</h3>
           {isUnlocked && trophy.seasons?.length > 0 ? (
             <div className="mt-3 flex flex-wrap items-center justify-start gap-2">
@@ -877,57 +873,53 @@ function TrophyTile({ trophy, onClick }) {
   };
 
   return (
-    <div style={{ perspective: 800 }} className="h-full">
+    <div style={{ perspective: 800 }} className="h-full w-full">
       <motion.div
         layoutId={trophy.id}
         onClick={onClick}
         onMouseMove={handleMouseMove}
-          onMouseLeave={handleMouseLeave}
-          tabIndex={0}
-          role="button"
-          className="relative flex flex-col rounded-2xl cursor-pointer group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 overflow-hidden h-full min-h-[180px]"
-          style={{
-            background: isUnlocked 
-              ? 'linear-gradient(180deg, rgba(20,20,22,0.9) 0%, rgba(10,10,12,0.9) 100%)' 
-              : 'rgba(10,10,12,0.6)',
-            border: isUnlocked ? '1px solid rgba(245,158,11,0.15)' : '1px solid rgba(255,255,255,0.04)',
-            rotateX,
-            rotateY,
-            transformStyle: "preserve-3d"
-          }}
-          whileHover={isUnlocked ? { scale: 1.05 } : { scale: 1.01, opacity: 0.6 }}
-          transition={{ type: 'spring', stiffness: 300, damping: 20 }}
-        >
-          {isUnlocked && (
-            <div className="absolute inset-0 z-0" style={{ background: `radial-gradient(circle at 50% 30%, ${glowColor}, transparent 60%)`, transform: "translateZ(0)" }} />
-          )}
-          
-          {isUnlocked && trophy.wins > 1 && (
-            <div className="absolute top-3 right-3 z-20 flex flex-col items-center justify-center px-2 py-1 rounded-md border border-amber-500/40 bg-zinc-950/80 shadow-md" style={{ transform: "translateZ(15px)" }}>
-              <span className="text-[10px] font-black text-amber-400 leading-none">x{trophy.wins}</span>
-              <span className="text-[6px] font-bold text-amber-500/80 uppercase mt-0.5 tracking-widest leading-none">WINS</span>
-            </div>
-          )}
-
-          {!isUnlocked && (
-            <div className="absolute top-3 left-3 z-20">
-              <Lock size={18} className="text-zinc-600" />
-            </div>
-          )}
-
-          <div className={`relative z-10 flex-1 flex items-center justify-center p-4 ${!isUnlocked ? 'grayscale opacity-40' : ''}`} style={{ transform: isUnlocked ? "translateZ(30px)" : "none" }}>
-            {trophy.icon ? (
-              <img src={trophy.icon} alt={trophy.name} className="h-24 w-24 object-contain drop-shadow-xl" />
-            ) : (
-              <span className="text-6xl">{trophy.fallbackIcon}</span>
-            )}
+        onMouseLeave={handleMouseLeave}
+        tabIndex={0}
+        role="button"
+        className={`relative flex flex-col justify-between rounded-2xl cursor-pointer group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 overflow-hidden h-full min-h-[180px] lg:min-h-[240px] bg-card dark:bg-card border shadow-sm transition-colors ${isUnlocked ? 'border-amber-500/30' : 'border-border/80 dark:border-white/[0.08]'}`}
+        style={{
+          rotateX,
+          rotateY,
+          transformStyle: "preserve-3d"
+        }}
+        whileHover={isUnlocked ? { scale: 1.05 } : { scale: 1.01, opacity: 0.6 }}
+        transition={{ type: 'spring', stiffness: 300, damping: 20 }}
+      >
+        {isUnlocked && (
+          <div className="absolute inset-0 z-0" style={{ background: `radial-gradient(circle at 50% 30%, ${glowColor}, transparent 60%)`, transform: "translateZ(0)" }} />
+        )}
+        
+        {isUnlocked && trophy.wins > 1 && (
+          <div className="absolute top-3 right-3 z-20 flex flex-col items-center justify-center px-2 py-1 rounded-md border border-amber-500/40 bg-zinc-950/80 shadow-md" style={{ transform: "translateZ(15px)" }}>
+            <span className="text-[10px] font-black text-amber-400 leading-none">x{trophy.wins}</span>
+            <span className="text-[6px] font-bold text-amber-500/80 uppercase mt-0.5 tracking-widest leading-none">WINS</span>
           </div>
+        )}
 
-        <div className="relative z-20 w-full px-3 pb-3 pt-2 text-center bg-black/20" style={{ transform: isUnlocked ? "translateZ(10px)" : "none" }}>
+        {!isUnlocked && (
+          <div className="absolute top-3 left-3 z-20">
+            <Lock size={18} className="text-zinc-600" />
+          </div>
+        )}
+
+        <div className={`relative z-10 flex-1 flex items-center justify-center p-4 ${!isUnlocked ? 'grayscale opacity-40' : ''}`} style={{ transform: isUnlocked ? "translateZ(30px)" : "none" }}>
+          {trophy.icon ? (
+            <img src={trophy.icon} alt={trophy.name} className="h-32 w-32 object-contain drop-shadow-xl" />
+          ) : (
+            <span className="text-6xl">{trophy.fallbackIcon}</span>
+          )}
+        </div>
+
+        <div className="relative z-20 w-full px-3 pb-6 pt-3 text-center border-t border-border/40 dark:border-white/[0.06] bg-secondary/40 dark:bg-black/20 shrink-0" style={{ transform: isUnlocked ? "translateZ(10px)" : "none" }}>
           <h4 className={`text-[10px] font-black uppercase tracking-wider truncate ${textColor}`}>{trophy.name}</h4>
           
           {isUnlocked && trophy.seasons?.length > 0 ? (
-            <div className="mt-2 pt-2 border-t border-white/5 flex flex-wrap items-center justify-center gap-1.5">
+            <div className="mt-2 pt-2 border-t border-border/40 dark:border-white/[0.05] flex flex-wrap items-center justify-center gap-1.5">
               {trophy.seasons.map((s, i) => (
                 <div key={i} className="flex items-center gap-1">
                   <div className="w-1 h-1 rounded-full bg-emerald-500" />
@@ -936,7 +928,7 @@ function TrophyTile({ trophy, onClick }) {
               ))}
             </div>
           ) : !isUnlocked ? (
-            <div className="mt-2 pt-2 border-t border-white/5 text-[9px] tracking-widest text-zinc-600 font-bold uppercase">Locked</div>
+            <div className="mt-2 pt-2 border-t border-border/40 dark:border-white/[0.05] text-[9px] tracking-widest text-zinc-600 font-bold uppercase">Locked</div>
           ) : null}
         </div>
       </motion.div>
@@ -1034,40 +1026,48 @@ function TrophyCabinetSection({ trophies = [], myTrophies = [], meBadges = [], o
   const multiWinCount = myTrophies.length - totalUnlocked;
 
   return (
-    <div className="w-full flex flex-col gap-6 p-4 md:p-8 bg-zinc-950 rounded-2xl border border-white/5">
-      {displayList.length === 0 ? (
-        <div className="py-24 flex flex-col items-center justify-center text-zinc-500">
-          <LayoutGrid size={48} className="opacity-20 mb-4" />
-          <p className="text-sm tracking-widest uppercase font-bold">No Trophies Match Filter</p>
+    <div className="relative overflow-hidden w-full flex flex-col bg-card dark:bg-card border border-border/80 dark:border-white/[0.08] rounded-[20px] shadow-sm">
+      <div className="pb-3 pt-5 px-5 sm:px-6 flex items-center justify-between relative border-b border-border/40 dark:border-white/[0.06]">
+        <div className="text-xl sm:text-2xl font-bold flex items-center gap-2.5 text-foreground" style={{ fontFamily: "'Sora', sans-serif", fontWeight: 700 }}>
+          <Trophy className="text-foreground/70" size={24}/> Trophy Cabinet
         </div>
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          {featured && (
-            <div className="md:col-span-4 lg:col-span-1 lg:row-span-3">
-              <FeaturedTrophyCard trophy={featured} onClick={() => onSelectTrophy && onSelectTrophy({ trophy: featured.raw, unlocked: !featured.locked, count: featured.wins, instances: featured.instances, requirement: featured.raw.requirement })} />
-            </div>
-          )}
-
-          <div className="md:col-span-4 lg:col-span-3 grid grid-cols-2 lg:grid-cols-3 gap-4 auto-rows-fr grid-flow-dense">
-            <AnimatePresence mode="popLayout">
-              {remaining.map((trophy, i) => (
-                <motion.div
-                  key={trophy.id}
-                  initial={{ opacity: 0, y: 12 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, scale: 0.95 }}
-                  transition={{ duration: 0.3, delay: i * 0.05 }}
-                  className="col-span-1"
-                >
-                  <TrophyTile trophy={trophy} onClick={() => onSelectTrophy && onSelectTrophy({ trophy: trophy.raw, unlocked: !trophy.locked, count: trophy.wins, instances: trophy.instances, requirement: trophy.raw.requirement })} />
-                </motion.div>
-              ))}
-            </AnimatePresence>
+      </div>
+      
+      <div className="flex flex-col gap-6 p-4 md:p-6 lg:p-8">
+        {displayList.length === 0 ? (
+          <div className="py-24 flex flex-col items-center justify-center text-zinc-500">
+            <LayoutGrid size={48} className="opacity-20 mb-4" />
+            <p className="text-sm tracking-widest uppercase font-bold">No Trophies Match Filter</p>
           </div>
-        </div>
-      )}
+        ) : (
+          <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
+            {featured && (
+              <div className="lg:col-span-1 w-full h-full">
+                <FeaturedTrophyCard trophy={featured} onClick={() => onSelectTrophy && onSelectTrophy({ trophy: featured.raw, unlocked: !featured.locked, count: featured.wins, instances: featured.instances, requirement: featured.raw.requirement })} />
+              </div>
+            )}
 
-      <LegacyProgressBar totalUnlocked={totalUnlocked} multiWinCount={multiWinCount} totalPossible={totalPossible} completePct={completePct} />
+            <div className="lg:col-span-3 grid grid-cols-2 lg:grid-cols-3 gap-4 auto-rows-fr grid-flow-dense h-full">
+              <AnimatePresence mode="popLayout">
+                {remaining.map((trophy, i) => (
+                  <motion.div
+                    key={trophy.id}
+                    initial={{ opacity: 0, y: 12 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, scale: 0.95 }}
+                    transition={{ duration: 0.3, delay: i * 0.05 }}
+                    className="col-span-1 h-full w-full"
+                  >
+                    <TrophyTile trophy={trophy} onClick={() => onSelectTrophy && onSelectTrophy({ trophy: trophy.raw, unlocked: !trophy.locked, count: trophy.wins, instances: trophy.instances, requirement: trophy.raw.requirement })} />
+                  </motion.div>
+                ))}
+              </AnimatePresence>
+            </div>
+          </div>
+        )}
+
+        <LegacyProgressBar totalUnlocked={totalUnlocked} multiWinCount={multiWinCount} totalPossible={totalPossible} completePct={completePct} />
+      </div>
     </div>
   );
 }
