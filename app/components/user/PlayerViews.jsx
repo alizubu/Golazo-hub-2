@@ -322,20 +322,35 @@ export function PlayerDashboard({ me, activeSeason, seasons = [], matches, playe
 
       {announcements.length > 0 && (
         <FadeIn delay={0.05}>
-          <div className="flex flex-col gap-3">
+          <div className="flex flex-col gap-4">
             {announcements.map((ann) => (
-              <MagicCard key={ann.id} className="p-4 bg-secondary/80 border-pitch/50 border-l-4 border-l-pitch backdrop-blur-sm">
-                <div className="flex gap-3">
-                  <Megaphone className="text-pitch-bright shrink-0" size={20} />
-                  <div className="w-full overflow-hidden">
-                    <div className="font-bold text-sm">{ann.title}</div>
-                    <div
-                      className="text-sm text-muted-foreground mt-1 max-w-none"
-                      dangerouslySetInnerHTML={{ __html: ann.content }}
-                    />
+              <div key={ann.id} className="relative overflow-hidden rounded-2xl bg-black/40 backdrop-blur-md border border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.5)] group">
+                {/* Holographic Glowing Border Effect */}
+                <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-amber-500/50 to-transparent opacity-50 group-hover:opacity-100 transition-opacity duration-500"></div>
+                <div className="absolute inset-0 bg-gradient-to-b from-amber-500/5 to-transparent pointer-events-none"></div>
+                
+                <div className="p-5 md:p-6 relative z-10">
+                  {/* Header */}
+                  <div className="flex items-center gap-3 mb-4 border-b border-white/[0.06] pb-4">
+                    <div className="bg-amber-500/10 p-2 rounded-lg border border-amber-500/20 shadow-[0_0_15px_rgba(245,158,11,0.15)]">
+                      <Megaphone className="text-amber-500" size={18} />
+                    </div>
+                    <h3 className="font-[800] text-[15px] md:text-[17px] text-white tracking-wide uppercase">{ann.title}</h3>
                   </div>
+                  
+                  {/* Content with Rich Text Fixes */}
+                  <div
+                    className="text-sm md:text-[15px] text-gray-300 leading-relaxed max-w-none 
+                    [&_p]:mb-3 last:[&_p]:mb-0 
+                    [&_ul]:list-none [&_ul]:mb-3 [&_ul]:pl-1 
+                    [&_li]:relative [&_li]:pl-5 [&_li]:mb-1.5 
+                    [&_li::before]:content-[''] [&_li::before]:absolute [&_li::before]:left-0 [&_li::before]:top-[8px] [&_li::before]:w-1.5 [&_li::before]:h-1.5 [&_li::before]:bg-amber-500 [&_li::before]:rounded-full [&_li::before]:shadow-[0_0_5px_rgba(245,158,11,0.5)]
+                    [&_ol]:list-decimal [&_ol]:pl-5 [&_ol]:mb-3 [&_ol_li::before]:hidden [&_ol_li]:pl-1
+                    [&_strong]:text-white [&_strong]:font-[700]"
+                    dangerouslySetInnerHTML={{ __html: ann.content }}
+                  />
                 </div>
-              </MagicCard>
+              </div>
             ))}
           </div>
         </FadeIn>
