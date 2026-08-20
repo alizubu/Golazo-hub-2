@@ -62,7 +62,7 @@ function TimelineMatchRow({ m, playerA, playerB, onClick, index }) {
   const aScore = m.homeId === playerA.id ? m.homeScore : m.awayScore;
   const bScore = m.homeId === playerB.id ? m.homeScore : m.awayScore;
 
-  const CardContent = () => (
+  const renderCardContent = () => (
     <MagicCard 
       className={`w-full max-w-[200px] p-3 cursor-pointer hover:scale-[1.03] transition-transform shadow-md border ${
         isAWinner ? 'bg-pitch-bright/10 border-pitch-bright/30' : 
@@ -93,17 +93,17 @@ function TimelineMatchRow({ m, playerA, playerB, onClick, index }) {
       
       {/* Left side */}
       <div className="w-1/2 flex justify-end pr-6 sm:pr-10 relative z-10">
-        {isAWinner && <CardContent />}
+        {isAWinner && renderCardContent()}
         {isDraw && (
           <div className="absolute right-0 translate-x-1/2 z-20 w-[140px] sm:w-[180px]">
-            <CardContent />
+            {renderCardContent()}
           </div>
         )}
       </div>
 
       {/* Right side */}
       <div className="w-1/2 flex justify-start pl-6 sm:pl-10 relative z-10">
-        {isBWinner && <CardContent />}
+        {isBWinner && renderCardContent()}
       </div>
     </motion.div>
   );

@@ -18,7 +18,7 @@ export default function ErrorBoundary({ error, reset }) {
         </div>
         <h2 className="text-2xl font-bold text-white mb-2 font-heading">Something went wrong!</h2>
         <p className="text-zinc-400 mb-6">
-          We've encountered an unexpected error. The technical details have been logged.
+          We&apos;ve encountered an unexpected error. The technical details have been logged.
         </p>
         
         <div className="bg-black/50 border border-red-500/20 rounded-lg p-4 w-full text-left overflow-x-auto mb-8">
