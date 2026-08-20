@@ -47,30 +47,30 @@ export function SeasonStats({ playerId, initialStats, seasons, activeSeason, sel
 
   return (
     <FadeIn delay={0.2} className="col-span-12">
-      <div className="relative overflow-hidden w-full bg-card dark:bg-card border border-border/80 dark:border-white/[0.08] rounded-[20px] shadow-sm">
-        <div className="pb-3 pt-5 px-5 sm:px-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4 relative border-b border-border/40 dark:border-white/[0.06]">
-          <div className="text-xl sm:text-2xl font-black flex items-center gap-2.5 text-foreground uppercase tracking-wide" style={{ fontFamily: "'Sora', sans-serif", fontWeight: 900 }}>
-            <Activity className="text-amber-500" size={24}/> SEASON OVERVIEW
+      <div className="relative overflow-hidden w-full bg-[#0B0F14] border border-white/[0.08] rounded-[16px] shadow-[0_10px_30px_rgba(0,0,0,0.25)]">
+        <div className="h-[55px] md:h-[60px] px-5 sm:px-6 flex items-center justify-between gap-4 relative border-b border-white/[0.06]">
+          <div className="text-[17px] md:text-[19px] font-[800] flex items-center gap-2.5 text-[#F5F7FA] uppercase tracking-wide">
+            <Activity className="text-amber-500" size={20}/> SEASON OVERVIEW
           </div>
           
           <DropdownMenu>
             <DropdownMenuTrigger className="outline-none focus-visible:ring-2 focus-visible:ring-white/20 rounded-full">
-              <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-background dark:bg-background dark:bg-[#12151b] border border-border hover:bg-secondary dark:hover:bg-secondary dark:bg-[#1a1e27] hover:border-border dark:hover:border-border dark:border-white/20 transition-colors cursor-pointer text-sm font-[600] text-foreground shadow-sm w-fit h-[36px]">
-                <Calendar size={14} className="text-[#6b7280]" />
-                <span>{selectedSeason?.name || "Select Season"}</span>
+              <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/[0.04] border border-white/[0.08] hover:bg-white/[0.08] hover:border-white/[0.15] transition-colors cursor-pointer text-xs font-[700] text-[#F5F7FA] shadow-sm w-fit h-[32px]">
+                <Calendar size={12} className="text-[#8B95A3]" />
+                <span className="truncate max-w-[120px] sm:max-w-[180px]">{selectedSeason?.name || "Select Season"}</span>
                 
                 {isActive ? (
                   <motion.div 
-                    className="w-2 h-2 ml-1 rounded-full bg-[#22c55e]"
+                    className="w-1.5 h-1.5 ml-1 rounded-full bg-[#22c55e]"
                     animate={{ opacity: [0.3, 1, 0.3] }}
                     transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
                   />
                 ) : (
-                  <div className="w-2 h-2 ml-1 rounded-full bg-[#4b5563]" />
+                  <div className="w-1.5 h-1.5 ml-1 rounded-full bg-[#4b5563]" />
                 )}
               </div>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-56 bg-background dark:bg-[#12151b] border-border shadow-[0_8px_32px_-8px_rgba(0,0,0,0.8)] rounded-xl z-[60] text-foreground">
+            <DropdownMenuContent align="end" className="w-56 bg-[#0D1218] border border-[#202630] shadow-[0_8px_32px_-8px_rgba(0,0,0,0.8)] rounded-xl z-[60] text-[#F5F7FA]">
               <DropdownMenuItem 
                 onClick={() => onSeasonChange('overall')}
                 className="flex items-center justify-between cursor-pointer rounded-lg hover:bg-white/5 py-2 px-3 m-1 focus:bg-white/5 focus:text-foreground"
@@ -105,23 +105,20 @@ export function SeasonStats({ playerId, initialStats, seasons, activeSeason, sel
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
-        
-        <div className="pt-8 pb-10 px-5 sm:px-6 flex flex-col md:flex-row items-center gap-10 md:gap-14">
+        <div className="pt-4 pb-6 px-4 md:pt-6 md:pb-8 flex flex-col md:flex-row items-stretch w-full overflow-hidden">
           
-          {/* 1. The Fitness Ring (Win Rate) + Rank */}
-          <div className="flex flex-col items-center justify-center shrink-0 relative group">
-            <div className="relative flex items-center justify-center w-32 h-32 md:w-40 md:h-40 mb-4">
-              {/* Background Track */}
-              <svg height={radius * 2} width={radius * 2} className="transform -rotate-90 drop-shadow-xl scale-110 md:scale-125">
+          {/* 1. WIN RATE (Hero Column) */}
+          <div className="flex flex-col items-center justify-center relative group w-full md:w-1/6 md:min-w-[140px] py-4">
+            <div className="relative flex items-center justify-center w-28 h-28 md:w-32 md:h-32 mb-2">
+              <svg height={radius * 2} width={radius * 2} className="transform -rotate-90 scale-[0.9] md:scale-100">
                 <circle
-                  stroke="rgba(255,255,255,0.05)"
+                  stroke="rgba(255,255,255,0.04)"
                   fill="transparent"
                   strokeWidth={stroke}
                   r={normalizedRadius}
                   cx={radius}
                   cy={radius}
                 />
-                {/* Progress Ring */}
                 {!loading && (
                   <motion.circle
                     stroke={winRateColor}
@@ -136,87 +133,88 @@ export function SeasonStats({ playerId, initialStats, seasons, activeSeason, sel
                     initial={{ strokeDashoffset: circumference }}
                     animate={{ strokeDashoffset }}
                     transition={{ duration: 1.5, ease: "easeOut", delay: 0.2 }}
-                    className="drop-shadow-[0_0_15px_rgba(0,0,0,0.5)]"
+                    className="drop-shadow-[0_0_12px_rgba(239,68,68,0.4)]"
                   />
                 )}
               </svg>
-              {/* Center Text */}
-              <div className="absolute flex flex-col items-center justify-center pointer-events-none">
-                <span className="text-3xl md:text-4xl font-black font-score tracking-tighter" style={{ color: winRateColor }}>
-                  {loading ? '-' : (hasData ? <NumberTicker value={winRate} /> : 0)}<span className="text-xl opacity-80">%</span>
+              <div className="absolute flex flex-col items-center justify-center pointer-events-none text-center mt-0.5">
+                <span className="text-[28px] md:text-[32px] font-[800] tracking-tight leading-none" style={{ color: winRateColor }}>
+                  {loading ? '-' : (hasData ? <NumberTicker value={winRate} /> : 0)}<span className="text-lg opacity-80">%</span>
                 </span>
-                <span className="text-[9px] uppercase font-bold text-muted-foreground tracking-widest mt-1">Win Rate</span>
+                <span className="text-[10px] uppercase font-[700] text-[#F5F7FA] tracking-[0.08em] mt-1.5 opacity-90">WIN RATE</span>
               </div>
             </div>
-            {hasData && rank && (
-              <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }} className="flex items-center gap-1.5 bg-amber-500/10 border border-amber-500/30 px-4 py-1.5 rounded-full shadow-[0_0_15px_rgba(245,158,11,0.2)]">
-                <Trophy size={12} className="text-amber-500" />
-                <span className="text-[10px] font-black text-amber-500 tracking-widest uppercase">#{rank} Season Rank</span>
+            
+            {hasData && rank ? (
+              <motion.div initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }} className="flex flex-col items-center mt-2 group-hover:-translate-y-1 transition-transform">
+                <div className="flex items-center gap-1.5 bg-[#0B0F14] border border-[#F5B72B] px-3 py-1 rounded-[6px] shadow-[0_0_10px_rgba(245,183,43,0.1)] mb-1.5">
+                  <Trophy size={10} className="text-[#F5B72B]" />
+                  <span className="text-[11px] font-[800] text-[#F5B72B]">#{rank}</span>
+                </div>
+                <span className="text-[9px] font-[700] text-[#8B95A3] uppercase tracking-widest">SEASON RANK</span>
               </motion.div>
+            ) : (
+              <div className="h-10 mt-2"></div>
             )}
           </div>
 
-          {/* 2. Flat Stat Row */}
-          <div className="flex-1 w-full grid grid-cols-2 md:grid-cols-3 lg:flex lg:flex-row lg:justify-between gap-6 md:gap-4 relative z-10">
+          {/* Vertical Divider for desktop */}
+          <div className="hidden md:block w-px bg-white/[0.08] my-4 mx-2"></div>
+          {/* Horizontal Divider for mobile */}
+          <div className="md:hidden h-px w-full bg-white/[0.08] my-2"></div>
+
+          {/* Remaining 6 Stats Container */}
+          <div className="flex-1 w-full grid grid-cols-2 lg:grid-cols-6 items-stretch">
             
             {/* Matches */}
-            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="flex flex-col items-center lg:items-start group">
-               <Swords size={20} className="text-purple-500 mb-2 group-hover:scale-110 transition-transform drop-shadow-[0_0_8px_rgba(168,85,247,0.5)]" />
-               <span className="text-2xl md:text-3xl font-black text-white font-score drop-shadow-md">{loading ? '-' : (hasData ? <NumberTicker value={played} /> : 0)}</span>
-               <div className="flex items-center gap-1 mt-1">
-                 <span className="text-[10px] md:text-xs uppercase font-black text-gray-300 tracking-widest">Matches</span>
-                 <span className="text-[10px] md:text-xs text-muted-foreground ml-1">Played</span>
-               </div>
+            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="flex flex-col items-center justify-center py-5 md:py-4 px-2 md:px-0 relative group hover:-translate-y-1 transition-transform cursor-default">
+               <Swords size={26} className="text-[#A855F7] mb-2 group-hover:drop-shadow-[0_0_8px_rgba(168,85,247,0.6)] transition-all" />
+               <span className="text-[28px] md:text-[32px] font-[800] text-[#F5F7FA] leading-none mb-1.5">{loading ? '-' : (hasData ? <NumberTicker value={played} /> : 0)}</span>
+               <span className="text-[10px] md:text-[11px] uppercase font-[700] text-[#8B95A3] tracking-[0.08em] mb-1.5">MATCHES</span>
+               <span className="text-[11px] md:text-[12px] font-[500] text-[#8B95A3] opacity-70">Played</span>
             </motion.div>
 
+            {/* Vertical Divider */}
+            <div className="hidden lg:block w-px bg-white/[0.08] my-4 absolute right-0 top-0 bottom-0"></div>
+
             {/* Wins */}
-            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.35 }} className="flex flex-col items-center lg:items-start group">
-               <Trophy size={20} className="text-amber-500 mb-2 group-hover:scale-110 transition-transform drop-shadow-[0_0_8px_rgba(245,158,11,0.5)]" />
-               <span className="text-2xl md:text-3xl font-black text-white font-score drop-shadow-md">{loading ? '-' : (hasData ? <NumberTicker value={won || 0} /> : 0)}</span>
-               <div className="flex items-center gap-1 mt-1">
-                 <span className="text-[10px] md:text-xs uppercase font-black text-amber-500 tracking-widest drop-shadow-[0_0_5px_rgba(245,158,11,0.5)]">Wins</span>
-                 <span className="text-[10px] md:text-xs text-muted-foreground ml-1">-</span>
-               </div>
+            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.35 }} className="flex flex-col items-center justify-center py-5 md:py-4 px-2 md:px-0 lg:border-l lg:border-white/[0.08] relative group hover:-translate-y-1 transition-transform cursor-default">
+               <Trophy size={26} className="text-[#F5B72B] mb-2 group-hover:drop-shadow-[0_0_8px_rgba(245,183,43,0.6)] transition-all" />
+               <span className="text-[28px] md:text-[32px] font-[800] text-[#F5F7FA] leading-none mb-1.5">{loading ? '-' : (hasData ? <NumberTicker value={won || 0} /> : 0)}</span>
+               <span className="text-[10px] md:text-[11px] uppercase font-[700] text-[#F5B72B] tracking-[0.08em] mb-1.5">WINS</span>
+               <span className="text-[11px] md:text-[12px] font-[500] text-[#8B95A3] opacity-70">—</span>
             </motion.div>
 
             {/* Losses */}
-            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }} className="flex flex-col items-center lg:items-start group">
-               <TrendingUp size={20} className="text-red-500 mb-2 rotate-180 group-hover:scale-110 transition-transform drop-shadow-[0_0_8px_rgba(239,68,68,0.5)]" />
-               <span className="text-2xl md:text-3xl font-black text-white font-score drop-shadow-md">{loading ? '-' : (hasData ? <NumberTicker value={lost || 0} /> : 0)}</span>
-               <div className="flex items-center gap-1 mt-1">
-                 <span className="text-[10px] md:text-xs uppercase font-black text-red-500 tracking-widest drop-shadow-[0_0_5px_rgba(239,68,68,0.5)]">Losses</span>
-                 <span className="text-[10px] md:text-xs text-muted-foreground ml-1">Total</span>
-               </div>
+            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }} className="flex flex-col items-center justify-center py-5 md:py-4 px-2 md:px-0 lg:border-l lg:border-white/[0.08] relative group hover:-translate-y-1 transition-transform cursor-default">
+               <TrendingUp size={26} className="text-[#EF4444] mb-2 rotate-180 group-hover:drop-shadow-[0_0_8px_rgba(239,68,68,0.6)] transition-all" />
+               <span className="text-[28px] md:text-[32px] font-[800] text-[#F5F7FA] leading-none mb-1.5">{loading ? '-' : (hasData ? <NumberTicker value={lost || 0} /> : 0)}</span>
+               <span className="text-[10px] md:text-[11px] uppercase font-[700] text-[#EF4444] tracking-[0.08em] mb-1.5">LOSSES</span>
+               <span className="text-[11px] md:text-[12px] font-[500] text-[#8B95A3] opacity-70">Total</span>
             </motion.div>
 
             {/* Goals */}
-            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.45 }} className="flex flex-col items-center lg:items-start group">
-               <Target size={20} className="text-emerald-500 mb-2 group-hover:scale-110 transition-transform drop-shadow-[0_0_8px_rgba(16,185,129,0.5)]" />
-               <span className="text-2xl md:text-3xl font-black text-white font-score drop-shadow-md">{loading ? '-' : (hasData ? <NumberTicker value={goals} /> : 0)}</span>
-               <div className="flex items-center gap-1 mt-1">
-                 <span className="text-[10px] md:text-xs uppercase font-black text-amber-500 tracking-widest drop-shadow-[0_0_5px_rgba(245,158,11,0.5)]">Goals</span>
-                 <span className="text-[10px] md:text-xs text-muted-foreground ml-1">Scored</span>
-               </div>
+            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.45 }} className="flex flex-col items-center justify-center py-5 md:py-4 px-2 md:px-0 lg:border-l lg:border-white/[0.08] relative group hover:-translate-y-1 transition-transform cursor-default">
+               <Target size={26} className="text-[#22C55E] mb-2 group-hover:drop-shadow-[0_0_8px_rgba(34,197,94,0.6)] transition-all" />
+               <span className="text-[28px] md:text-[32px] font-[800] text-[#F5F7FA] leading-none mb-1.5">{loading ? '-' : (hasData ? <NumberTicker value={goals} /> : 0)}</span>
+               <span className="text-[10px] md:text-[11px] uppercase font-[700] text-[#F5B72B] tracking-[0.08em] mb-1.5">GOALS</span>
+               <span className="text-[11px] md:text-[12px] font-[500] text-[#8B95A3] opacity-70">Scored</span>
             </motion.div>
             
             {/* Gls/Game */}
-            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5 }} className="flex flex-col items-center lg:items-start group">
-               <Activity size={20} className="text-blue-500 mb-2 group-hover:scale-110 transition-transform drop-shadow-[0_0_8px_rgba(59,130,246,0.5)]" />
-               <span className="text-2xl md:text-3xl font-black text-white font-score drop-shadow-md">{loading ? '-' : (hasData && played > 0 ? <NumberTicker value={Math.round((goals/played)*10)/10} /> : 0)}</span>
-               <div className="flex items-center gap-1 mt-1">
-                 <span className="text-[10px] md:text-xs uppercase font-black text-gray-300 tracking-widest">Gls/Game</span>
-                 <span className="text-[10px] md:text-xs text-muted-foreground ml-1">Average</span>
-               </div>
+            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5 }} className="flex flex-col items-center justify-center py-5 md:py-4 px-2 md:px-0 lg:border-l lg:border-white/[0.08] relative group hover:-translate-y-1 transition-transform cursor-default">
+               <Activity size={26} className="text-[#3B82F6] mb-2 group-hover:drop-shadow-[0_0_8px_rgba(59,130,246,0.6)] transition-all" />
+               <span className="text-[28px] md:text-[32px] font-[800] text-[#F5F7FA] leading-none mb-1.5">{loading ? '-' : (hasData && played > 0 ? <NumberTicker value={Math.round((goals/played)*10)/10} /> : 0)}</span>
+               <span className="text-[10px] md:text-[11px] uppercase font-[700] text-[#8B95A3] tracking-[0.08em] mb-1.5">GLS/GAME</span>
+               <span className="text-[11px] md:text-[12px] font-[500] text-[#8B95A3] opacity-70">Average</span>
             </motion.div>
 
             {/* Assists */}
-            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.55 }} className="flex flex-col items-center lg:items-start group">
-               <Handshake size={20} className="text-purple-500 mb-2 group-hover:scale-110 transition-transform drop-shadow-[0_0_8px_rgba(168,85,247,0.5)]" />
-               <span className="text-2xl md:text-3xl font-black text-white font-score drop-shadow-md">{loading ? '-' : (hasData ? <NumberTicker value={assists} /> : 0)}</span>
-               <div className="flex items-center gap-1 mt-1">
-                 <span className="text-[10px] md:text-xs uppercase font-black text-amber-500 tracking-widest drop-shadow-[0_0_5px_rgba(245,158,11,0.5)]">Assists</span>
-                 <span className="text-[10px] md:text-xs text-muted-foreground ml-1">Total</span>
-               </div>
+            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.55 }} className="flex flex-col items-center justify-center py-5 md:py-4 px-2 md:px-0 lg:border-l lg:border-white/[0.08] relative group hover:-translate-y-1 transition-transform cursor-default">
+               <Handshake size={26} className="text-[#A855F7] mb-2 group-hover:drop-shadow-[0_0_8px_rgba(168,85,247,0.6)] transition-all" />
+               <span className="text-[28px] md:text-[32px] font-[800] text-[#F5F7FA] leading-none mb-1.5">{loading ? '-' : (hasData ? <NumberTicker value={assists} /> : 0)}</span>
+               <span className="text-[10px] md:text-[11px] uppercase font-[700] text-[#F5B72B] tracking-[0.08em] mb-1.5">ASSISTS</span>
+               <span className="text-[11px] md:text-[12px] font-[500] text-[#8B95A3] opacity-70">Total</span>
             </motion.div>
 
           </div>
