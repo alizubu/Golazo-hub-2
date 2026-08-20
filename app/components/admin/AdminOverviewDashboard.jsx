@@ -475,7 +475,7 @@ export default function AdminOverviewDashboard({ players = [], activeSeason, mat
   return (
     <div className="flex flex-col gap-6 w-full min-w-0">
       <HeroSeasonSummary activeSeason={activeSeason} players={players} matches={liveMatches} setTab={setTab} />
-      <LiveMatchControl matches={liveMatches} players={players} activeSeason={activeSeason} showToast={showToast} />
+      <LiveMatchControl matches={liveMatches} players={players} activeSeason={activeSeason} showToast={showToast} setTab={setTab} />
 
 
       <div className="mb-6 w-full min-w-0">

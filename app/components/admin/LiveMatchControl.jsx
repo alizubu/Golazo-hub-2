@@ -992,7 +992,7 @@ function Published({ state, stats, resultType, shootoutWinner, onClose }) {
 // ---------------------------------------------------------------------------
 let scoreTimeoutId = null;
 
-export default function LiveMatchControl({ matches, players, activeSeason, showToast }) {
+export default function LiveMatchControl({ matches, players, activeSeason, showToast, setTab }) {
   const [phase, setPhase] = useState("live");
   const [showDrawDecision, setShowDrawDecision] = useState(false);
   const [etHalf, setEtHalf] = useState(1);
@@ -1149,21 +1149,11 @@ export default function LiveMatchControl({ matches, players, activeSeason, showT
           <div className="font-bold text-sm tracking-widest uppercase text-slate-500 text-center">No Live Match In Progress</div>
           {scheduledMatches.length > 0 ? (
             <div className="flex flex-col items-center gap-3 w-full max-w-sm">
-              <select 
-                value={selectedScheduledMatchId} 
-                onChange={(e) => setSelectedScheduledMatchId(e.target.value)}
-                className="w-full bg-[#0a0c14] border border-white/[0.08] rounded-xl px-4 py-3 text-sm text-white outline-none focus:border-emerald-500/50 transition-colors cursor-pointer"
-              >
-                <option value="" className="bg-[#0a0c14]">Default: Next Match ({byId[nextMatch?.homeId]?.name} vs {byId[nextMatch?.awayId]?.name})</option>
-                {scheduledMatches.map(m => {
-                  const h = byId[m.homeId];
-                  const a = byId[m.awayId];
-                  return (
-                    <option key={m.id} value={m.id} className="bg-[#0a0c14]">{h?.name} vs {a?.name} (Round {m.round})</option>
-                  );
-                })}
-              </select>
-              <ActionButton label={selectedScheduledMatchId ? "Start Selected Match" : "Start Next Match"} onClick={startNextMatch} variant="primary" />
+              <ActionButton 
+                label="Start Next Match" 
+                onClick={() => setTab && setTab('admin/matches')} 
+                variant="primary" 
+              />
             </div>
           ) : (
             <div className="text-xs text-slate-600">All scheduled matches are completed.</div>
