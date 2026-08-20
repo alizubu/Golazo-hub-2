@@ -1780,7 +1780,7 @@ const Toggle = ({ checked, onChange, label, desc }) => (
   </label>
 );
 
-export function AdminAnnouncements({ announcements, showToast }) {
+export function AdminAnnouncements({ announcements, showToast, players }) {
   const [form, setForm] = useState({ title: "", content: "" });
   const [loading, setLoading] = useState(false);
   const [editingId, setEditingId] = useState(null);
