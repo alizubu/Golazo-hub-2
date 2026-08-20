@@ -1,6 +1,6 @@
 'use client';
 import React, { useState, useEffect } from 'react';
-import { Activity, Trophy, Swords, Target, Handshake, TrendingUp, Calendar, Check } from 'lucide-react';
+import { Activity, Trophy, Swords, Target, Handshake, TrendingUp, Calendar, Check, Shield } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FadeIn } from '@/app/components/shared/UI';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/app/components/ui/dropdown-menu';
@@ -141,7 +141,7 @@ export function SeasonStats({ playerId, initialStats, seasons, activeSeason, sel
                 <span className="text-[28px] md:text-[32px] font-[800] tracking-tight leading-none" style={{ color: winRateColor }}>
                   {loading ? '-' : (hasData ? <NumberTicker value={winRate} /> : 0)}<span className="text-lg opacity-80">%</span>
                 </span>
-                <span className="text-[10px] uppercase font-[700] text-[#F5F7FA] tracking-[0.08em] mt-1.5 opacity-90">WIN RATE</span>
+                <span className="text-[10px] uppercase font-[700] text-[#8B95A3] tracking-[0.08em] mt-1.5 opacity-90">WIN RATE</span>
               </div>
             </div>
             
@@ -170,7 +170,7 @@ export function SeasonStats({ playerId, initialStats, seasons, activeSeason, sel
             <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="flex flex-col items-center justify-center py-5 md:py-4 px-2 md:px-0 relative group hover:-translate-y-1 transition-transform cursor-default">
                <Swords size={26} className="text-[#A855F7] mb-2 group-hover:drop-shadow-[0_0_8px_rgba(168,85,247,0.6)] transition-all" />
                <span className="text-[28px] md:text-[32px] font-[800] text-[#F5F7FA] leading-none mb-1.5">{loading ? '-' : (hasData ? <NumberTicker value={played} /> : 0)}</span>
-               <span className="text-[10px] md:text-[11px] uppercase font-[700] text-[#8B95A3] tracking-[0.08em] mb-1.5">MATCHES</span>
+               <span className="text-[10px] md:text-[11px] uppercase font-[700] text-[#A855F7] tracking-[0.08em] mb-1.5">MATCHES</span>
                <span className="text-[11px] md:text-[12px] font-[500] text-[#8B95A3] opacity-70">Played</span>
             </motion.div>
 
@@ -187,7 +187,7 @@ export function SeasonStats({ playerId, initialStats, seasons, activeSeason, sel
 
             {/* Losses */}
             <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }} className="flex flex-col items-center justify-center py-5 md:py-4 px-2 md:px-0 lg:border-l lg:border-white/[0.08] relative group hover:-translate-y-1 transition-transform cursor-default">
-               <TrendingUp size={26} className="text-[#EF4444] mb-2 rotate-180 group-hover:drop-shadow-[0_0_8px_rgba(239,68,68,0.6)] transition-all" />
+               <TrendingUp size={26} className="text-[#EF4444] mb-2 group-hover:drop-shadow-[0_0_8px_rgba(239,68,68,0.6)] transition-all" />
                <span className="text-[28px] md:text-[32px] font-[800] text-[#F5F7FA] leading-none mb-1.5">{loading ? '-' : (hasData ? <NumberTicker value={lost || 0} /> : 0)}</span>
                <span className="text-[10px] md:text-[11px] uppercase font-[700] text-[#EF4444] tracking-[0.08em] mb-1.5">LOSSES</span>
                <span className="text-[11px] md:text-[12px] font-[500] text-[#8B95A3] opacity-70">Total</span>
@@ -197,7 +197,7 @@ export function SeasonStats({ playerId, initialStats, seasons, activeSeason, sel
             <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.45 }} className="flex flex-col items-center justify-center py-5 md:py-4 px-2 md:px-0 lg:border-l lg:border-white/[0.08] relative group hover:-translate-y-1 transition-transform cursor-default">
                <Target size={26} className="text-[#22C55E] mb-2 group-hover:drop-shadow-[0_0_8px_rgba(34,197,94,0.6)] transition-all" />
                <span className="text-[28px] md:text-[32px] font-[800] text-[#F5F7FA] leading-none mb-1.5">{loading ? '-' : (hasData ? <NumberTicker value={goals} /> : 0)}</span>
-               <span className="text-[10px] md:text-[11px] uppercase font-[700] text-[#F5B72B] tracking-[0.08em] mb-1.5">GOALS</span>
+               <span className="text-[10px] md:text-[11px] uppercase font-[700] text-[#22C55E] tracking-[0.08em] mb-1.5">GOALS</span>
                <span className="text-[11px] md:text-[12px] font-[500] text-[#8B95A3] opacity-70">Scored</span>
             </motion.div>
             
@@ -205,15 +205,15 @@ export function SeasonStats({ playerId, initialStats, seasons, activeSeason, sel
             <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5 }} className="flex flex-col items-center justify-center py-5 md:py-4 px-2 md:px-0 lg:border-l lg:border-white/[0.08] relative group hover:-translate-y-1 transition-transform cursor-default">
                <Activity size={26} className="text-[#3B82F6] mb-2 group-hover:drop-shadow-[0_0_8px_rgba(59,130,246,0.6)] transition-all" />
                <span className="text-[28px] md:text-[32px] font-[800] text-[#F5F7FA] leading-none mb-1.5">{loading ? '-' : (hasData && played > 0 ? <NumberTicker value={Math.round((goals/played)*10)/10} /> : 0)}</span>
-               <span className="text-[10px] md:text-[11px] uppercase font-[700] text-[#8B95A3] tracking-[0.08em] mb-1.5">GLS/GAME</span>
+               <span className="text-[10px] md:text-[11px] uppercase font-[700] text-[#3B82F6] tracking-[0.08em] mb-1.5">GLS/GAME</span>
                <span className="text-[11px] md:text-[12px] font-[500] text-[#8B95A3] opacity-70">Average</span>
             </motion.div>
 
             {/* Assists */}
             <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.55 }} className="flex flex-col items-center justify-center py-5 md:py-4 px-2 md:px-0 lg:border-l lg:border-white/[0.08] relative group hover:-translate-y-1 transition-transform cursor-default">
-               <Handshake size={26} className="text-[#A855F7] mb-2 group-hover:drop-shadow-[0_0_8px_rgba(168,85,247,0.6)] transition-all" />
+               <Shield size={26} className="text-[#A855F7] mb-2 group-hover:drop-shadow-[0_0_8px_rgba(168,85,247,0.6)] transition-all" />
                <span className="text-[28px] md:text-[32px] font-[800] text-[#F5F7FA] leading-none mb-1.5">{loading ? '-' : (hasData ? <NumberTicker value={assists} /> : 0)}</span>
-               <span className="text-[10px] md:text-[11px] uppercase font-[700] text-[#F5B72B] tracking-[0.08em] mb-1.5">ASSISTS</span>
+               <span className="text-[10px] md:text-[11px] uppercase font-[700] text-[#A855F7] tracking-[0.08em] mb-1.5">ASSISTS</span>
                <span className="text-[11px] md:text-[12px] font-[500] text-[#8B95A3] opacity-70">Total</span>
             </motion.div>
 

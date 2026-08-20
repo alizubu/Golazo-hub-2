@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { PageHeader } from '@/app/components/shared/PageHeader';
-import { Trophy, Medal, Star, Target, Shield, Clock, ArrowRight, Lock, MapPin, Search, Calendar, ChevronRight, LayoutGrid, List, Megaphone, Bell, Pen, Handshake, Activity, Users, Swords, ListOrdered, Flame, BadgeCheck, TrendingUp, Check } from 'lucide-react';
+import { Trophy, Medal, Star, Target, Shield, Clock, ArrowRight, Lock, MapPin, Search, Calendar, ChevronRight, LayoutGrid, List, Megaphone, Bell, Pen, Handshake, Activity, Users, Swords, ListOrdered, Flame, BadgeCheck, TrendingUp, Check, Crown } from 'lucide-react';
 import { Btn, Badge, Avatar, PlayerChip, SectionTitle, EmptyState, MagicCard, FadeIn, ShinyButton, Label, WavingFlag, PlayStyleBadge, OnFireAvatar } from '@/app/components/shared/UI';
 import { AvatarWithBadge } from '@/app/components/shared/FootballIdentity';
 import { getPlayerIdentityBadgeUrl } from '@/lib/identityUtils';
@@ -382,21 +382,14 @@ export function PlayerDashboard({ me, activeSeason, seasons = [], matches, playe
             <div className="relative z-20 px-5 pt-20 pb-5 sm:px-8 sm:pb-8 flex flex-col w-full">
               
               {/* Top Right: Form */}
-              {form.length > 0 ? (
-                <div className="absolute top-5 right-5 sm:top-6 sm:right-6 hidden sm:flex items-center gap-3 bg-black/40 backdrop-blur-md px-3 py-1.5 rounded-xl border border-white/10 group-hover/hero:border-white/20 transition-colors">
-                  <span className="text-[10px] font-bold text-amber-500 tracking-widest uppercase">Form</span>
-                  <div className="flex items-center gap-1.5">
-                    {form.map((r, i) => (
-                      <span key={i} title={r === 'W' ? 'Win' : r === 'L' ? 'Loss' : 'Draw'} className={`w-3 h-5 rounded-sm transition-transform duration-300 hover:scale-110 ${r === 'W' ? 'bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.4)]' : r === 'L' ? 'bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.4)]' : 'bg-amber-400 shadow-[0_0_8px_rgba(251,191,36,0.4)]'}`} />
-                    ))}
-                  </div>
-                </div>
-              ) : (
-                <div className="absolute top-5 right-5 sm:top-6 sm:right-6 hidden sm:flex items-center gap-3 bg-black/40 backdrop-blur-md px-3 py-1.5 rounded-xl border border-white/10 group-hover/hero:border-white/20 transition-colors">
-                  <span className="text-[10px] font-bold text-amber-500 tracking-widest uppercase">Form</span>
-                  <span className="text-xs font-medium text-muted-foreground px-1">No matches</span>
-                </div>
-              )}
+              <div className="absolute top-5 right-5 sm:top-6 sm:right-6 hidden sm:flex items-center gap-2 bg-[#0B0F14]/90 backdrop-blur-md px-3 py-1.5 rounded-lg border border-white/5 shadow-lg">
+                <span className="text-[10px] font-bold text-amber-500 tracking-widest uppercase">Form</span>
+                {form.length > 0 ? (
+                  <div className={`w-3 h-3 rounded-sm shadow-inner ${form[0] === 'W' ? 'bg-green-500' : form[0] === 'L' ? 'bg-red-500' : 'bg-amber-400'}`} title={`Latest: ${form[0] === 'W' ? 'Win' : form[0] === 'L' ? 'Loss' : 'Draw'}`} />
+                ) : (
+                  <div className="w-3 h-3 rounded-sm bg-gray-600 shadow-inner" title="No matches" />
+                )}
+              </div>
 
               <div className="flex flex-col md:flex-row items-center md:items-end justify-between gap-6 w-full">
                 
@@ -409,7 +402,9 @@ export function PlayerDashboard({ me, activeSeason, seasons = [], matches, playe
                   </div>
                   
                   <div className="flex flex-col min-w-0 pb-1 sm:mt-0">
-                    <span className="text-amber-500 text-xs sm:text-[13px] font-black tracking-[0.15em] uppercase mb-1.5 drop-shadow-md">BB Legend</span>
+                    <span className="flex items-center gap-1.5 text-amber-500 text-xs sm:text-[13px] font-black tracking-[0.15em] uppercase mb-1.5 drop-shadow-md">
+                      <Crown size={14} className="text-amber-500 fill-amber-500" /> BB Legend
+                    </span>
                     <div className="flex items-center justify-center sm:justify-start gap-2">
                       <h1 className="text-4xl md:text-[44px] font-black tracking-tight truncate text-white drop-shadow-lg leading-none">
                         {me.name}
