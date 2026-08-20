@@ -401,64 +401,64 @@ export function PlayerDashboard({ me, activeSeason, seasons = [], matches, playe
               <div className="flex flex-col md:flex-row items-center md:items-end justify-between gap-6 w-full">
                 
                 {/* Left Side: Avatar and Name */}
-                <div className="flex flex-col sm:flex-row items-center sm:items-end gap-6 w-full md:w-auto text-center sm:text-left">
+                <div className="flex flex-col sm:flex-row items-center sm:items-end gap-6 md:gap-8 w-full md:w-auto text-center sm:text-left">
                   <div className="relative shrink-0">
-                    <div className="relative rounded-full p-1 bg-black/20 backdrop-blur-sm shadow-[0_0_30px_rgba(245,158,11,0.15)] ring-2 ring-amber-500/80 border-none group transition-transform duration-300 hover:scale-105">
-                      <AvatarWithBadge player={me} size={110} isOnFire={isOnFire} />
+                    <div className="relative rounded-full p-1.5 bg-black/40 backdrop-blur-md shadow-[0_0_50px_rgba(245,158,11,0.4)] ring-[3px] ring-amber-500 border-none group transition-transform duration-300 hover:scale-105">
+                      <AvatarWithBadge player={me} size={140} isOnFire={isOnFire} />
                     </div>
                   </div>
                   
                   <div className="flex flex-col min-w-0 pb-1 sm:mt-0">
-                    <span className="text-amber-500 text-[10px] sm:text-xs font-black tracking-widest uppercase mb-1 drop-shadow-md">BB Legend</span>
+                    <span className="text-amber-500 text-xs sm:text-[13px] font-black tracking-[0.15em] uppercase mb-1.5 drop-shadow-md">BB Legend</span>
                     <div className="flex items-center justify-center sm:justify-start gap-2">
-                      <h1 className="text-3xl md:text-4xl font-black tracking-tight truncate text-white drop-shadow-md">
+                      <h1 className="text-4xl md:text-[44px] font-black tracking-tight truncate text-white drop-shadow-lg leading-none">
                         {me.name}
                       </h1>
-                      {myRank === 1 && <div className="text-amber-500 shrink-0 text-xl drop-shadow-[0_0_10px_rgba(245,158,11,0.8)]" title="Top Ranked Player">🔥</div>}
-                      {isOnFire && myRank !== 1 && <div className="text-orange-500 shrink-0 text-xl drop-shadow-[0_0_10px_rgba(249,115,22,0.8)]" title="On Fire">🔥</div>}
+                      {myRank === 1 && <div className="text-amber-500 shrink-0 text-2xl drop-shadow-[0_0_15px_rgba(245,158,11,0.8)] ml-1" title="Top Ranked Player">🔥</div>}
+                      {isOnFire && myRank !== 1 && <div className="text-orange-500 shrink-0 text-2xl drop-shadow-[0_0_15px_rgba(249,115,22,0.8)] ml-1" title="On Fire">🔥</div>}
                     </div>
                     
-                    <div className="flex items-center justify-center sm:justify-start gap-2 mt-1">
-                      <span className="text-gray-300 font-medium text-sm">@{me.username}</span>
-                      <div className="w-4 h-4 rounded-full bg-green-500 flex items-center justify-center text-black shadow-[0_0_10px_rgba(34,197,94,0.4)]">
-                        <BadgeCheck size={10} strokeWidth={4} />
+                    <div className="flex items-center justify-center sm:justify-start gap-2 mt-2">
+                      <span className="text-gray-300 font-medium text-[15px]">@{me.username}</span>
+                      <div className="w-[18px] h-[18px] rounded-full bg-green-500 flex items-center justify-center text-black shadow-[0_0_12px_rgba(34,197,94,0.5)]">
+                        <BadgeCheck size={12} strokeWidth={4} />
                       </div>
                     </div>
                     
-                    <div className="flex flex-wrap items-center justify-center sm:justify-start gap-3 mt-4">
+                    <div className="flex flex-wrap items-center justify-center sm:justify-start gap-3 mt-5">
                       {!viewOnly && (
-                        <button onClick={() => setTab('settings')} className="px-4 py-1.5 h-8 bg-white/10 hover:bg-white/20 backdrop-blur-md text-white text-xs font-bold rounded-lg border border-white/20 flex items-center gap-2 transition-colors outline-none">
-                          <Pen size={12} /> Edit Profile
+                        <button onClick={() => setTab('settings')} className="px-5 py-2 h-10 bg-[#1A1F26]/80 hover:bg-[#252B36] backdrop-blur-md text-white text-[13px] font-bold rounded-xl border border-white/5 flex items-center gap-2 transition-colors outline-none shadow-sm">
+                          <Pen size={14} /> Edit Profile
                         </button>
                       )}
-                      <div className="px-4 py-1.5 h-8 bg-green-500/10 backdrop-blur-md text-green-400 text-xs font-bold rounded-lg border border-green-500/30 flex items-center gap-2 shadow-[0_0_10px_rgba(34,197,94,0.1)]">
-                        <div className="w-1.5 h-1.5 rounded-full bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.8)]" /> Online
+                      <div className="px-5 py-2 h-10 bg-[#1A1F26]/80 backdrop-blur-md text-green-500 text-[13px] font-bold rounded-xl border border-green-500/20 flex items-center gap-2 shadow-[0_0_15px_rgba(34,197,94,0.05)]">
+                        <div className="w-2 h-2 rounded-full bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.8)]" /> Online
                       </div>
                     </div>
                   </div>
                 </div>
 
                 {/* Right Side: Badges */}
-                <div className="flex flex-col sm:flex-row items-center gap-3 w-full md:w-auto">
+                <div className="flex flex-col sm:flex-row items-center gap-4 w-full md:w-auto">
                   {selectedClub && (
-                    <div className="flex items-center gap-3 bg-black/40 hover:bg-black/60 transition-colors backdrop-blur-md px-4 py-2.5 rounded-2xl border border-white/10 shadow-xl group">
-                      <div className="bg-white/10 p-1.5 rounded-full group-hover:scale-110 transition-transform shadow-inner">
-                        <ClubLogo club={selectedClub} size={24} />
+                    <div className="flex items-center gap-4 bg-[#0B0F14]/90 hover:bg-[#11171E] transition-colors backdrop-blur-xl px-5 py-4 w-full sm:w-[220px] rounded-[20px] border border-white/5 shadow-2xl group">
+                      <div className="bg-white/5 p-2 rounded-full group-hover:scale-110 transition-transform shadow-inner shrink-0">
+                        <ClubLogo club={selectedClub} size={32} />
                       </div>
-                      <div className="flex flex-col text-left">
-                        <span className="text-[9px] uppercase font-bold text-muted-foreground tracking-widest group-hover:text-amber-500 transition-colors">Favorite Club</span>
-                        <span className="text-sm font-bold text-white truncate max-w-[120px]">{selectedClub.name}</span>
+                      <div className="flex flex-col text-left min-w-0">
+                        <span className="text-[10px] uppercase font-bold text-gray-400 tracking-widest group-hover:text-amber-500 transition-colors mb-0.5">Favorite Club</span>
+                        <span className="text-[15px] font-black text-white truncate w-full">{selectedClub.name}</span>
                       </div>
                     </div>
                   )}
                   {selectedNationalTeam && (
-                    <div className="flex items-center gap-3 bg-black/40 hover:bg-black/60 transition-colors backdrop-blur-md px-4 py-2.5 rounded-2xl border border-white/10 shadow-xl group">
-                      <div className="bg-white/10 p-1.5 rounded-full group-hover:scale-110 transition-transform overflow-hidden shadow-inner">
-                        <WavingFlag url={selectedNationalTeam.flag_url} code={selectedNationalTeam.flag_url ? null : 'UN'} size="md" />
+                    <div className="flex items-center gap-4 bg-[#0B0F14]/90 hover:bg-[#11171E] transition-colors backdrop-blur-xl px-5 py-4 w-full sm:w-[220px] rounded-[20px] border border-white/5 shadow-2xl group">
+                      <div className="bg-white/5 p-2 rounded-full group-hover:scale-110 transition-transform overflow-hidden shadow-inner shrink-0 flex items-center justify-center">
+                        <WavingFlag url={selectedNationalTeam.flag_url} code={selectedNationalTeam.flag_url ? null : 'UN'} size="lg" />
                       </div>
-                      <div className="flex flex-col text-left">
-                        <span className="text-[9px] uppercase font-bold text-muted-foreground tracking-widest group-hover:text-amber-500 transition-colors">National Team</span>
-                        <span className="text-sm font-bold text-white truncate max-w-[120px]">{selectedNationalTeam.name}</span>
+                      <div className="flex flex-col text-left min-w-0">
+                        <span className="text-[10px] uppercase font-bold text-gray-400 tracking-widest group-hover:text-amber-500 transition-colors mb-0.5">National Team</span>
+                        <span className="text-[15px] font-black text-white truncate w-full">{selectedNationalTeam.name}</span>
                       </div>
                     </div>
                   )}
