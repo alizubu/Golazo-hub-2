@@ -27,7 +27,7 @@ import { BorderBeam } from '@/app/components/magicui/BorderBeam';
 import { markNotificationsRead } from '@/app/actions/player';
 import { Skeleton } from '@/app/components/ui/skeleton';
 import { HoverCard, HoverCardContent, HoverCardTrigger } from '@/app/components/ui/hover-card';
-import { computeStandings } from '@/app/components/shared/StandingsTable';
+import StandingsTable, { computeStandings } from '@/app/components/shared/StandingsTable';
 import { CLUB_COLORS } from '@/lib/data/club-colors';
 import clubsData from '@/lib/data/clubs.json';
 import nationalTeamsData from '@/lib/data/national_teams.json';
@@ -584,100 +584,23 @@ export function PlayerDashboard({ me, activeSeason, seasons = [], matches, playe
           </FadeIn>
         ))}
 
-        <FadeIn delay={0.35} className="col-span-12 h-full mb-8">
-          <MagicCard className="p-0 overflow-hidden flex flex-col h-full bg-[#181a20]/80 backdrop-blur-xl border border-white/[0.05] rounded-3xl shadow-2xl">
-            <div className="flex items-center justify-between p-6 border-b border-white/[0.05] bg-gradient-to-r from-black/40 to-transparent">
-              <SectionTitle icon={ListOrdered}>Current Standings</SectionTitle>
-              <Btn variant="ghost" className="text-xs p-1 h-auto text-amber-500 hover:text-amber-400 hover:bg-amber-500/10" onClick={() => setTab('matches')}>
-                Full Table <ArrowRight size={14} className="ml-1" />
-              </Btn>
-            </div>
-
-            <div className="w-full overflow-x-auto">
-              <table className="w-full text-left text-sm whitespace-nowrap min-w-[700px]">
-                <thead>
-                  <tr className="text-muted-foreground text-[10px] uppercase tracking-[0.2em] bg-black/40 border-b border-white/[0.05]">
-                    <th className="py-4 px-4 text-center w-12">#</th>
-                    <th className="py-4 px-4 font-bold">Player</th>
-                    <th className="py-4 px-3 text-center">P</th>
-                    <th className="py-4 px-3 text-center">W</th>
-                    <th className="py-4 px-3 text-center">D</th>
-                    <th className="py-4 px-3 text-center">L</th>
-                    <th className="py-4 px-3 text-center">GF</th>
-                    <th className="py-4 px-3 text-center">GA</th>
-                    <th className="py-4 px-3 text-center">GD</th>
-                    <th className="py-4 px-4 text-center text-amber-500 font-bold">PTS</th>
-                    <th className="py-4 px-4 text-center">Form</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-white/[0.02]">
-                  {standings.map((s, i) => {
-                    const isTop1 = i === 0;
-                    const isTop2 = i === 1;
-                    const isTop3 = i === 2;
-                    const isMe = me && s.id === me.id;
-
-                    let rowStyle = 'hover:bg-white/[0.02] transition-colors duration-300';
-                    let rankStyle = 'text-muted-foreground font-bold';
-                    let nameStyle = 'font-bold text-foreground';
-
-                    if (isTop1) {
-                      rowStyle = 'bg-gradient-to-r from-amber-500/10 via-transparent to-transparent hover:from-amber-500/20 border-l-2 border-l-amber-500 transition-all duration-300 shadow-[inset_0_1px_0_rgba(245,158,11,0.1)]';
-                      rankStyle = 'text-amber-400 font-black drop-shadow-[0_0_8px_rgba(245,158,11,0.5)]';
-                      nameStyle = 'font-black text-amber-50 drop-shadow-sm';
-                    } else if (isTop2) {
-                      rowStyle = 'bg-gradient-to-r from-slate-300/10 via-transparent to-transparent hover:from-slate-300/20 border-l-2 border-l-slate-300 transition-all duration-300';
-                      rankStyle = 'text-slate-300 font-black drop-shadow-[0_0_8px_rgba(203,213,225,0.4)]';
-                      nameStyle = 'font-black text-slate-100';
-                    } else if (isTop3) {
-                      rowStyle = 'bg-gradient-to-r from-orange-700/10 via-transparent to-transparent hover:from-orange-700/20 border-l-2 border-l-orange-700 transition-all duration-300';
-                      rankStyle = 'text-orange-500 font-black drop-shadow-[0_0_8px_rgba(194,65,12,0.4)]';
-                      nameStyle = 'font-black text-orange-100';
-                    } else if (isMe) {
-                      rowStyle = 'bg-white/[0.03] hover:bg-white/[0.05] border-l-2 border-l-white/20 transition-all duration-300';
-                    }
-
-                    return (
-                      <tr key={s.id} className={`group ${rowStyle}`}>
-                        <td className={`py-4 px-4 text-center text-lg font-score ${rankStyle}`}>{i + 1}</td>
-                        <td className="py-4 px-4">
-                          <div className="flex items-center gap-3">
-                            <div className="relative">
-                              <Avatar p={players.find(p => p.id === s.id)} size={36} className={`border ${isTop1 ? 'border-amber-500/50' : isTop2 ? 'border-slate-300/50' : isTop3 ? 'border-orange-700/50' : 'border-white/10'}`} />
-                              {isTop1 && <div className="absolute -top-2 -right-2 text-lg drop-shadow-[0_0_5px_rgba(245,158,11,0.8)]">👑</div>}
-                            </div>
-                            <span className={`${nameStyle} text-[15px]`}>{s.name}</span>
-                          </div>
-                        </td>
-                        <td className="py-4 px-3 text-center text-muted-foreground font-score group-hover:text-foreground transition-colors">{s.played}</td>
-                        <td className="py-4 px-3 text-center text-emerald-400/70 font-score group-hover:text-emerald-400 transition-colors">{s.won}</td>
-                        <td className="py-4 px-3 text-center text-slate-400/70 font-score group-hover:text-slate-300 transition-colors">{s.drawn}</td>
-                        <td className="py-4 px-3 text-center text-red-400/70 font-score group-hover:text-red-400 transition-colors">{s.lost}</td>
-                        <td className="py-4 px-3 text-center text-muted-foreground font-score">{s.gf}</td>
-                        <td className="py-4 px-3 text-center text-muted-foreground font-score">{s.ga}</td>
-                        <td className="py-4 px-3 text-center text-muted-foreground font-score">{s.gd > 0 ? `+${s.gd}` : s.gd}</td>
-                        <td className={`py-4 px-4 text-center font-black font-score text-lg ${isTop1 ? 'text-amber-400 drop-shadow-[0_0_10px_rgba(245,158,11,0.5)]' : 'text-pitch-bright'}`}>{s.pts}</td>
-                        <td className="py-4 px-4 text-center">
-                          <div className="flex justify-center gap-1.5">
-                            {s.form.slice(-5).map((resObj, idx) => {
-                              const res = typeof resObj === 'object' && resObj !== null ? resObj.result : resObj;
-                              return (
-                                <span key={idx} className={`w-4 h-4 rounded-[4px] flex items-center justify-center text-[9px] font-bold text-black shadow-inner
-                                    ${res === 'W' ? 'bg-emerald-500 shadow-emerald-500/50' : res === 'D' ? 'bg-slate-400 shadow-slate-400/50' : 'bg-red-500 shadow-red-500/50'}
-                                  `}>
-                                  {res}
-                                </span>
-                              );
-                            })}
-                          </div>
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            </div>
-          </MagicCard>
+        <FadeIn delay={0.35} className="col-span-12 mb-8">
+          <StandingsTable
+            matches={tMatches}
+            players={players}
+            seasonId={t?.id}
+            me={me}
+            onH2HClick={onH2HClick}
+            config={t?.config || {}}
+            headerLeft={
+              <div className="flex items-center gap-4">
+                <SectionTitle icon={ListOrdered}>Current Standings</SectionTitle>
+                <Btn variant="ghost" className="text-xs p-1 h-auto text-amber-500 hover:text-amber-400 hover:bg-amber-500/10" onClick={() => setTab('matches')}>
+                  Full Table <ArrowRight size={14} className="ml-1" />
+                </Btn>
+              </div>
+            }
+          />
         </FadeIn>
       </div>
     </div>
