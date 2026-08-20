@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { PageHeader } from '@/app/components/shared/PageHeader';
-import { Trophy, Medal, Star, Target, Shield, Clock, ArrowRight, Lock, MapPin, Search, Calendar, ChevronRight, LayoutGrid, List, Megaphone, Bell, Pen, Handshake, Activity, Users, Swords, ListOrdered, Flame, BadgeCheck, TrendingUp } from 'lucide-react';
+import { Trophy, Medal, Star, Target, Shield, Clock, ArrowRight, Lock, MapPin, Search, Calendar, ChevronRight, LayoutGrid, List, Megaphone, Bell, Pen, Handshake, Activity, Users, Swords, ListOrdered, Flame, BadgeCheck, TrendingUp, Check } from 'lucide-react';
 import { Btn, Badge, Avatar, PlayerChip, SectionTitle, EmptyState, MagicCard, FadeIn, ShinyButton, Label, WavingFlag, PlayStyleBadge, OnFireAvatar } from '@/app/components/shared/UI';
 import { AvatarWithBadge } from '@/app/components/shared/FootballIdentity';
 import { getPlayerIdentityBadgeUrl } from '@/lib/identityUtils';
@@ -344,146 +344,116 @@ export function PlayerDashboard({ me, activeSeason, seasons = [], matches, playe
       <FadeIn delay={0.1}>
         <div className="relative w-full mb-10 flex flex-col gap-4">
           
-          <div className="relative rounded-none sm:rounded-3xl overflow-hidden border-b sm:border border-border shadow-sm bg-card mb-4">
-            <div className="h-48 md:h-64 w-full relative bg-secondary overflow-hidden">
+          <div className="relative rounded-none sm:rounded-[2rem] overflow-hidden border-b sm:border border-amber-500/30 shadow-2xl bg-card min-h-[280px] md:min-h-[320px] flex flex-col justify-end group/hero transition-all duration-700 hover:shadow-[0_0_40px_rgba(245,158,11,0.15)] mb-4">
+            {/* Background Cover Image */}
+            <div className="absolute inset-0 z-0">
               <motion.div 
                 style={{ y: shouldReduceMotion ? 0 : coverY }} 
                 className="w-full h-[120%] -top-[10%] absolute"
               >
                 {me.coverBanner && failedCoverUrl !== me.coverBanner ? (
-                  <img src={me.coverBanner} alt="Cover Banner" className="w-full h-full object-cover" onError={() => setFailedCoverUrl(me.coverBanner)} />
+                  <img src={me.coverBanner} alt="Cover Banner" className="w-full h-full object-cover opacity-80" onError={() => setFailedCoverUrl(me.coverBanner)} />
                 ) : (
-                  <div className="w-full h-full bg-slate-200 dark:bg-zinc-800 flex items-center justify-center">
+                  <div className="w-full h-full bg-slate-900 flex items-center justify-center">
                     <span className="text-6xl opacity-30">⚽</span>
                   </div>
                 )}
               </motion.div>
+              {/* Dark Gradient Overlay */}
+              <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/40 to-black/10" />
             </div>
-            
-            <div className="px-5 py-5 sm:px-6 flex flex-col md:flex-row items-center md:items-end justify-between gap-6 relative z-20">
-              <div className="flex flex-col sm:flex-row items-center sm:items-end gap-5 w-full md:w-auto text-center sm:text-left">
-                <div className="relative -mt-20 shrink-0 z-30">
-                  <div className="relative rounded-full p-1 bg-background shadow-xl ring-2 ring-border border-none">
-                    <AvatarWithBadge player={me} size={110} isOnFire={isOnFire} />
+
+            {/* Content Container */}
+            <div className="relative z-20 px-5 pt-20 pb-5 sm:px-8 sm:pb-8 flex flex-col w-full">
+              
+              {/* Top Right: Form */}
+              {form.length > 0 ? (
+                <div className="absolute top-5 right-5 sm:top-6 sm:right-6 hidden sm:flex items-center gap-3 bg-black/40 backdrop-blur-md px-3 py-1.5 rounded-xl border border-white/10 group-hover/hero:border-white/20 transition-colors">
+                  <span className="text-[10px] font-bold text-amber-500 tracking-widest uppercase">Form</span>
+                  <div className="flex items-center gap-1.5">
+                    {form.map((r, i) => (
+                      <span key={i} title={r === 'W' ? 'Win' : r === 'L' ? 'Loss' : 'Draw'} className={`w-3 h-5 rounded-sm transition-transform duration-300 hover:scale-110 ${r === 'W' ? 'bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.4)]' : r === 'L' ? 'bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.4)]' : 'bg-amber-400 shadow-[0_0_8px_rgba(251,191,36,0.4)]'}`} />
+                    ))}
                   </div>
                 </div>
-                <div className="flex flex-col min-w-0 pb-1 sm:mt-0">
-                  <div className="flex items-center justify-center sm:justify-start gap-2">
-                    <h1 className="text-2xl md:text-3xl font-black tracking-tight truncate text-foreground">
-                      {me.name}
-                    </h1>
-                    {myRank === 1 && <div className="text-blue-500 shrink-0" title="Top Ranked Player">👑</div>}
-                  </div>
-                  <div className="flex items-center justify-center sm:justify-start gap-3 mt-1">
-                    <span className="text-muted-foreground font-medium text-sm">@{me.username}</span>
-                    <div className="w-1 h-1 rounded-full bg-border" />
-                    <span className="text-green-500 text-xs font-bold flex items-center gap-1.5"><div className="w-1.5 h-1.5 rounded-full bg-green-500" /> Online</span>
+              ) : (
+                <div className="absolute top-5 right-5 sm:top-6 sm:right-6 hidden sm:flex items-center gap-3 bg-black/40 backdrop-blur-md px-3 py-1.5 rounded-xl border border-white/10 group-hover/hero:border-white/20 transition-colors">
+                  <span className="text-[10px] font-bold text-amber-500 tracking-widest uppercase">Form</span>
+                  <span className="text-xs font-medium text-muted-foreground px-1">No matches</span>
+                </div>
+              )}
+
+              <div className="flex flex-col md:flex-row items-center md:items-end justify-between gap-6 w-full">
+                
+                {/* Left Side: Avatar and Name */}
+                <div className="flex flex-col sm:flex-row items-center sm:items-end gap-6 w-full md:w-auto text-center sm:text-left">
+                  <div className="relative shrink-0">
+                    <div className="relative rounded-full p-1 bg-black/20 backdrop-blur-sm shadow-[0_0_30px_rgba(245,158,11,0.15)] ring-2 ring-amber-500/80 border-none group transition-transform duration-300 hover:scale-105">
+                      <AvatarWithBadge player={me} size={110} isOnFire={isOnFire} />
+                    </div>
                   </div>
                   
-                  <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2 mt-3">
-                    {selectedNationalTeam && (
-                      <div className="flex items-center gap-1.5 bg-secondary/30 px-2.5 py-1 rounded border border-border/50 text-xs font-semibold text-muted-foreground">
-                        <WavingFlag url={selectedNationalTeam.flag_url} code={selectedNationalTeam.flag_url ? null : 'UN'} size="sm" />
-                        {selectedNationalTeam.name}
+                  <div className="flex flex-col min-w-0 pb-1 sm:mt-0">
+                    <span className="text-amber-500 text-[10px] sm:text-xs font-black tracking-widest uppercase mb-1 drop-shadow-md">BB Legend</span>
+                    <div className="flex items-center justify-center sm:justify-start gap-2">
+                      <h1 className="text-3xl md:text-4xl font-black tracking-tight truncate text-white drop-shadow-md">
+                        {me.name}
+                      </h1>
+                      {myRank === 1 && <div className="text-amber-500 shrink-0 text-xl drop-shadow-[0_0_10px_rgba(245,158,11,0.8)]" title="Top Ranked Player">🔥</div>}
+                      {isOnFire && myRank !== 1 && <div className="text-orange-500 shrink-0 text-xl drop-shadow-[0_0_10px_rgba(249,115,22,0.8)]" title="On Fire">🔥</div>}
+                    </div>
+                    
+                    <div className="flex items-center justify-center sm:justify-start gap-2 mt-1">
+                      <span className="text-gray-300 font-medium text-sm">@{me.username}</span>
+                      <div className="w-4 h-4 rounded-full bg-green-500 flex items-center justify-center text-black shadow-[0_0_10px_rgba(34,197,94,0.4)]">
+                        <BadgeCheck size={10} strokeWidth={4} />
                       </div>
-                    )}
-                    {selectedClub && (
-                      <div className="flex items-center gap-1.5 bg-secondary/30 px-2.5 py-1 rounded border border-border/50 text-xs font-semibold text-muted-foreground">
-                        <ClubLogo club={selectedClub} size={14} />
-                        {selectedClub.name}
+                    </div>
+                    
+                    <div className="flex flex-wrap items-center justify-center sm:justify-start gap-3 mt-4">
+                      {!viewOnly && (
+                        <button onClick={() => setTab('settings')} className="px-4 py-1.5 h-8 bg-white/10 hover:bg-white/20 backdrop-blur-md text-white text-xs font-bold rounded-lg border border-white/20 flex items-center gap-2 transition-colors outline-none">
+                          <Pen size={12} /> Edit Profile
+                        </button>
+                      )}
+                      <div className="px-4 py-1.5 h-8 bg-green-500/10 backdrop-blur-md text-green-400 text-xs font-bold rounded-lg border border-green-500/30 flex items-center gap-2 shadow-[0_0_10px_rgba(34,197,94,0.1)]">
+                        <div className="w-1.5 h-1.5 rounded-full bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.8)]" /> Online
                       </div>
-                    )}
+                    </div>
                   </div>
                 </div>
-              </div>
 
-              <div className="flex items-center gap-3 w-full md:w-auto pb-1 justify-center md:justify-end">
-                {!viewOnly && (
-                  <button onClick={() => setTab('settings')} className="px-4 py-2 h-10 bg-secondary hover:bg-secondary/80 text-foreground text-sm font-bold rounded-lg border border-border flex items-center gap-2 shadow-sm transition-colors outline-none">
-                    <Pen size={14} /> Edit Profile
-                  </button>
-                )}
-                {tMatches.some(m => m.round !== 'league' && m.round !== 'friendly') && (
-                  <button onClick={() => setTab('matches')} className="px-4 py-2 h-10 bg-amber-500/10 hover:bg-amber-500/20 text-amber-500 text-sm font-bold rounded-lg border border-amber-500/20 transition-colors flex items-center gap-2 outline-none">
-                    <Trophy size={14} /> Playoffs
-                  </button>
-                )}
+                {/* Right Side: Badges */}
+                <div className="flex flex-col sm:flex-row items-center gap-3 w-full md:w-auto">
+                  {selectedClub && (
+                    <div className="flex items-center gap-3 bg-black/40 hover:bg-black/60 transition-colors backdrop-blur-md px-4 py-2.5 rounded-2xl border border-white/10 shadow-xl group">
+                      <div className="bg-white/10 p-1.5 rounded-full group-hover:scale-110 transition-transform shadow-inner">
+                        <ClubLogo club={selectedClub} size={24} />
+                      </div>
+                      <div className="flex flex-col text-left">
+                        <span className="text-[9px] uppercase font-bold text-muted-foreground tracking-widest group-hover:text-amber-500 transition-colors">Favorite Club</span>
+                        <span className="text-sm font-bold text-white truncate max-w-[120px]">{selectedClub.name}</span>
+                      </div>
+                    </div>
+                  )}
+                  {selectedNationalTeam && (
+                    <div className="flex items-center gap-3 bg-black/40 hover:bg-black/60 transition-colors backdrop-blur-md px-4 py-2.5 rounded-2xl border border-white/10 shadow-xl group">
+                      <div className="bg-white/10 p-1.5 rounded-full group-hover:scale-110 transition-transform overflow-hidden shadow-inner">
+                        <WavingFlag url={selectedNationalTeam.flag_url} code={selectedNationalTeam.flag_url ? null : 'UN'} size="md" />
+                      </div>
+                      <div className="flex flex-col text-left">
+                        <span className="text-[9px] uppercase font-bold text-muted-foreground tracking-widest group-hover:text-amber-500 transition-colors">National Team</span>
+                        <span className="text-sm font-bold text-white truncate max-w-[120px]">{selectedNationalTeam.name}</span>
+                      </div>
+                    </div>
+                  )}
+                </div>
+
               </div>
             </div>
           </div>
 
-          {(form.length > 0 || (biggestRival && rivalStats)) && (
-            <motion.div 
-              initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.35 }}
-              className="w-full relative rounded-3xl bg-card border border-border shadow-xl p-4 sm:p-6 overflow-hidden flex flex-col gap-6"
-            >
-              <div className="absolute inset-0 bg-gradient-to-r from-red-500/5 via-transparent to-blue-500/5 opacity-50 pointer-events-none" />
-              <div className="absolute -inset-full top-0 block h-full w-1/2 -skew-x-12 transform bg-gradient-to-r from-transparent via-white/5 to-transparent opacity-0 group-hover:animate-shimmer pointer-events-none" />
-              
-              {form.length > 0 && (
-                <div className="relative z-10 flex flex-col sm:flex-row items-center justify-between gap-4 border-b border-border/50 pb-4">
-                  <div className="flex items-center gap-2">
-                    <Activity size={16} className="text-muted-foreground" />
-                    <span className="text-sm font-bold text-foreground tracking-wide uppercase">Recent Form</span>
-                  </div>
-                  <div className="flex items-center gap-1.5 bg-secondary/50 px-3 py-2 rounded-xl border border-border shadow-sm">
-                    {form.map((r, i) => (
-                      <span key={i} title={r === 'W' ? 'Win' : r === 'L' ? 'Loss' : 'Draw'} className={`w-3 h-5 rounded-sm ${r === 'W' ? 'bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.4)]' : r === 'L' ? 'bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.4)]' : 'bg-amber-400 shadow-[0_0_8px_rgba(251,191,36,0.4)]'}`} />
-                    ))}
-                  </div>
-                </div>
-              )}
 
-              {biggestRival && rivalStats && (
-                <div 
-                  onClick={() => onH2HClick(biggestRival.id)}
-                  className="relative z-10 w-full cursor-pointer group transition-colors"
-                >
-                  <div className="flex flex-col sm:flex-row items-center justify-between gap-6">
-                
-                <div className="flex items-center gap-4 w-full sm:w-1/3 justify-start">
-                  <Avatar p={me} size={48} className="ring-2 ring-red-500/50 shadow-[0_0_15px_rgba(239,68,68,0.3)] shrink-0" />
-                  <div className="flex flex-col min-w-0">
-                    <span className="text-[10px] uppercase font-bold text-muted-foreground tracking-widest">You</span>
-                    <span className="text-lg font-black truncate text-red-500">{rivalStats.w} Wins</span>
-                  </div>
-                </div>
-
-                <div className="flex flex-col items-center gap-2 w-full sm:w-1/3">
-                  <div className="flex items-center justify-center gap-2 mb-1">
-                    <Swords size={14} className="text-muted-foreground" />
-                    <Badge className="bg-black text-[10px] font-black border-white/10 shadow-sm tracking-widest px-3 py-1">H2H CLASH</Badge>
-                  </div>
-                  <div className="h-2 rounded-full bg-secondary overflow-hidden flex w-full relative border border-border/50 shadow-inner">
-                    <motion.div 
-                      initial={{ width: 0 }}
-                      animate={!shouldReduceMotion ? { width: `${(rivalStats.w / ((rivalStats.w + rivalStats.l) || 1)) * 100}%` } : { width: `${(rivalStats.w / ((rivalStats.w + rivalStats.l) || 1)) * 100}%` }}
-                      transition={{ duration: 1.5, type: "spring", bounce: 0, delay: 0.5 }}
-                      className="h-full bg-red-500 rounded-l-full relative z-10 shadow-[0_0_10px_rgba(239,68,68,0.8)]" 
-                    />
-                    <motion.div 
-                      initial={{ width: 0 }}
-                      animate={!shouldReduceMotion ? { width: `${(rivalStats.l / ((rivalStats.w + rivalStats.l) || 1)) * 100}%` } : { width: `${(rivalStats.l / ((rivalStats.w + rivalStats.l) || 1)) * 100}%` }}
-                      transition={{ duration: 1.5, type: "spring", bounce: 0, delay: 0.5 }}
-                      className="absolute right-0 top-0 bottom-0 bg-blue-500 rounded-r-full shadow-[0_0_10px_rgba(59,130,246,0.8)]" 
-                    />
-                  </div>
-                  <div className="text-[9px] uppercase font-bold text-muted-foreground mt-1 whitespace-nowrap">Tap to view full history <ArrowRight size={10} className="inline ml-0.5"/></div>
-                </div>
-
-                <div className="flex items-center gap-4 w-full sm:w-1/3 justify-end text-right">
-                  <div className="flex flex-col min-w-0">
-                    <span className="text-[10px] uppercase font-bold text-muted-foreground tracking-widest">Rival</span>
-                    <span className="text-lg font-black truncate text-blue-500">{rivalStats.l} Wins</span>
-                  </div>
-                  <Avatar p={biggestRival} size={48} className="ring-2 ring-blue-500/50 shadow-[0_0_15px_rgba(59,130,246,0.3)] shrink-0" />
-                </div>
-
-              </div>
-            </div>
-          )}
-        </motion.div>
-      )}
         </div>
       </FadeIn>
       <div className="grid grid-cols-1 md:grid-cols-12 gap-6 mt-4">
@@ -495,6 +465,82 @@ export function PlayerDashboard({ me, activeSeason, seasons = [], matches, playe
           selectedSeasonId={selectedSeasonId}
           onSeasonChange={setSelectedSeasonId}
         />
+
+        {biggestRival && rivalStats && (
+          <FadeIn delay={0.3} className="col-span-12">
+            <motion.div 
+              onClick={() => onH2HClick(biggestRival.id)}
+              className="w-full relative rounded-3xl bg-card border border-border/50 shadow-xl p-4 sm:p-6 overflow-hidden cursor-pointer group hover:border-border transition-colors mt-2"
+            >
+              <div className="absolute inset-0 bg-gradient-to-r from-red-500/5 via-transparent to-blue-500/5 opacity-50 pointer-events-none" />
+              <div className="absolute -inset-full top-0 block h-full w-1/2 -skew-x-12 transform bg-gradient-to-r from-transparent via-white/5 to-transparent opacity-0 group-hover:animate-shimmer pointer-events-none" />
+              
+              <div className="relative z-10 flex flex-col sm:flex-row items-center justify-between gap-6">
+                
+                {/* Left Side */}
+                <div className="flex items-center gap-4 w-full sm:w-1/3 justify-start">
+                  <div className="relative">
+                    <div className="absolute inset-0 bg-red-500/30 blur-md rounded-full" />
+                    <Avatar p={me} size={56} className="ring-2 ring-red-500/80 relative z-10 group-hover:scale-105 transition-transform" />
+                  </div>
+                  <div className="flex flex-col min-w-0">
+                    <span className="text-[10px] uppercase font-bold text-muted-foreground tracking-widest mb-0.5">You</span>
+                    <span className="text-xl font-black truncate text-red-500 drop-shadow-[0_0_8px_rgba(239,68,68,0.5)]">{rivalStats.w} Wins</span>
+                  </div>
+                </div>
+
+                {/* Center Bar */}
+                <div className="flex flex-col items-center gap-3 w-full sm:w-1/3">
+                  <div className="flex items-center justify-center gap-2">
+                    <Swords size={16} className="text-muted-foreground opacity-50" />
+                    <span className="text-xs font-black tracking-widest text-white">H2H CLASH</span>
+                  </div>
+                  
+                  <div className="h-[3px] rounded-full bg-secondary overflow-hidden flex w-full relative group-hover:shadow-[0_0_15px_rgba(255,255,255,0.1)] transition-shadow">
+                    <motion.div 
+                      initial={{ width: 0 }}
+                      animate={!shouldReduceMotion ? { width: `${(rivalStats.w / ((rivalStats.w + rivalStats.l) || 1)) * 100}%` } : { width: `${(rivalStats.w / ((rivalStats.w + rivalStats.l) || 1)) * 100}%` }}
+                      transition={{ duration: 1.5, type: "spring", bounce: 0, delay: 0.5 }}
+                      className="h-full bg-red-500 relative z-10 shadow-[0_0_10px_rgba(239,68,68,0.8)]" 
+                    />
+                    
+                    {/* Glowing Spark at intersection */}
+                    <motion.div
+                      initial={{ left: 0, opacity: 0 }}
+                      animate={!shouldReduceMotion ? { left: `${(rivalStats.w / ((rivalStats.w + rivalStats.l) || 1)) * 100}%`, opacity: 1 } : { left: `${(rivalStats.w / ((rivalStats.w + rivalStats.l) || 1)) * 100}%`, opacity: 1 }}
+                      transition={{ duration: 1.5, type: "spring", bounce: 0, delay: 0.5 }}
+                      className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 w-4 h-4 bg-white rounded-full blur-[2px] shadow-[0_0_15px_rgba(255,255,255,1)] z-20"
+                    />
+
+                    <motion.div 
+                      initial={{ width: 0 }}
+                      animate={!shouldReduceMotion ? { width: `${(rivalStats.l / ((rivalStats.w + rivalStats.l) || 1)) * 100}%` } : { width: `${(rivalStats.l / ((rivalStats.w + rivalStats.l) || 1)) * 100}%` }}
+                      transition={{ duration: 1.5, type: "spring", bounce: 0, delay: 0.5 }}
+                      className="absolute right-0 top-0 bottom-0 bg-blue-600 shadow-[0_0_10px_rgba(37,99,235,0.8)]" 
+                    />
+                  </div>
+                  
+                  <div className="text-[10px] font-medium text-muted-foreground mt-2 group-hover:text-white transition-colors">
+                    TAP TO VIEW FULL HISTORY <ArrowRight size={10} className="inline ml-1 opacity-70"/>
+                  </div>
+                </div>
+
+                {/* Right Side */}
+                <div className="flex items-center gap-4 w-full sm:w-1/3 justify-end text-right">
+                  <div className="flex flex-col min-w-0">
+                    <span className="text-[10px] uppercase font-bold text-muted-foreground tracking-widest mb-0.5">Rival</span>
+                    <span className="text-xl font-black truncate text-blue-500 drop-shadow-[0_0_8px_rgba(59,130,246,0.5)]">{rivalStats.l} Wins</span>
+                  </div>
+                  <div className="relative">
+                    <div className="absolute inset-0 bg-blue-500/30 blur-md rounded-full" />
+                    <Avatar p={biggestRival} size={56} className="ring-2 ring-blue-500/80 relative z-10 group-hover:scale-105 transition-transform" />
+                  </div>
+                </div>
+
+              </div>
+            </motion.div>
+          </FadeIn>
+        )}
 
         <FadeIn delay={0.25} className="col-span-12">
           <TrophyCabinetSection
