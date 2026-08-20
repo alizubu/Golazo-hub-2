@@ -177,7 +177,7 @@ export function PlayerDashboard({ me, activeSeason, seasons = [], matches, playe
   const router = useRouter();
   const shouldReduceMotion = useReducedMotion();
   const { scrollY } = useScroll();
-  const coverY = useTransform(scrollY, [0, 500], [0, 80]);
+  const coverY = useTransform(scrollY, [0, 500], [0, 50]);
 
   const [selectedSeasonId, setSelectedSeasonId] = React.useState(activeSeason?.id);
   const [statsLoaded, setStatsLoaded] = React.useState(false);
@@ -359,12 +359,12 @@ export function PlayerDashboard({ me, activeSeason, seasons = [], matches, playe
       <FadeIn delay={0.1}>
         <div className="relative w-full mb-10 flex flex-col gap-4">
           
-          <div className="relative rounded-none sm:rounded-[2rem] overflow-hidden border-b sm:border border-amber-500/30 shadow-2xl bg-card min-h-[280px] md:min-h-[320px] flex flex-col justify-end group/hero transition-all duration-700 hover:shadow-[0_0_40px_rgba(245,158,11,0.15)] mb-4">
+          <div className="relative rounded-none sm:rounded-[2rem] overflow-hidden border-b sm:border border-amber-500/30 shadow-2xl bg-card min-h-[350px] md:min-h-[420px] flex flex-col justify-end group/hero transition-all duration-700 hover:shadow-[0_0_40px_rgba(245,158,11,0.15)] mb-4">
             {/* Background Cover Image */}
             <div className="absolute inset-0 z-0">
               <motion.div 
                 style={{ y: shouldReduceMotion ? 0 : coverY }} 
-                className="w-full h-[120%] -top-[10%] absolute"
+                className="w-full h-[130%] -top-[15%] absolute"
               >
                 {me.coverBanner && failedCoverUrl !== me.coverBanner ? (
                   <img src={me.coverBanner} alt="Cover Banner" className="w-full h-full object-cover opacity-80" onError={() => setFailedCoverUrl(me.coverBanner)} />
