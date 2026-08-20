@@ -1,20 +1,20 @@
 import React, { useState, useEffect } from 'react';
-import { useEditor, EditorContent, BubbleMenu } from '@tiptap/react';
-import StarterKit from '@tiptap/starter-kit';
-import Link from '@tiptap/extension-link';
-import TextAlign from '@tiptap/extension-text-align';
-import Color from '@tiptap/extension-color';
-import TextStyle from '@tiptap/extension-text-style';
-import Highlight from '@tiptap/extension-highlight';
-import Image from '@tiptap/extension-image';
-import Youtube from '@tiptap/extension-youtube';
-import Table from '@tiptap/extension-table';
-import TableRow from '@tiptap/extension-table-row';
-import TableHeader from '@tiptap/extension-table-header';
-import TableCell from '@tiptap/extension-table-cell';
-import Mention from '@tiptap/extension-mention';
+import { useEditor, EditorContent } from '@tiptap/react';
+import { StarterKit } from '@tiptap/starter-kit';
+import { Link } from '@tiptap/extension-link';
+import { TextAlign } from '@tiptap/extension-text-align';
+import { Color } from '@tiptap/extension-color';
+import { TextStyle } from '@tiptap/extension-text-style';
+import { Highlight } from '@tiptap/extension-highlight';
+import { Image as TiptapImage } from '@tiptap/extension-image';
+import { Youtube } from '@tiptap/extension-youtube';
+import { Table } from '@tiptap/extension-table';
+import { TableRow } from '@tiptap/extension-table-row';
+import { TableHeader } from '@tiptap/extension-table-header';
+import { TableCell } from '@tiptap/extension-table-cell';
+import { Mention } from '@tiptap/extension-mention';
 import * as Popover from '@radix-ui/react-popover';
-import { Bold, Italic, Strikethrough, Heading1, Heading2, Heading3, List, ListOrdered, Link as LinkIcon, Unlink, Eraser, Check, AlignLeft, AlignCenter, AlignRight, AlignJustify, Palette, Highlighter, Image as ImageIcon, Youtube as YoutubeIcon, Table as TableIcon, Quote, Minus, Trash2, ChevronDown } from 'lucide-react';
+import { Bold, Italic, Strikethrough, Heading1, Heading2, Heading3, List, ListOrdered, Link as LinkIcon, Unlink, Eraser, Check, AlignLeft, AlignCenter, AlignRight, AlignJustify, Palette, Highlighter, Image as ImageIcon, Video as YoutubeIcon, Table as TableIcon, Quote, Minus, Trash2, ChevronDown } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Input } from '@/app/components/ui/input';
 import { Button } from '@/app/components/ui/button';
@@ -240,7 +240,7 @@ export default function RichTextEditor({ value, onChange, players = [] }) {
         types: ['heading', 'paragraph'],
       }),
       Highlight.configure({ multicolor: false }),
-      Image.configure({
+      TiptapImage.configure({
         inline: true,
         allowBase64: true,
       }),
@@ -301,19 +301,6 @@ export default function RichTextEditor({ value, onChange, players = [] }) {
       <div className="absolute inset-0 bg-gradient-to-br from-amber-500/[0.02] via-transparent to-emerald-500/[0.02] pointer-events-none" />
       
       <MenuBar editor={editor} />
-      
-      {editor && (
-        <BubbleMenu editor={editor} tippyOptions={{ duration: 100, animation: 'scale-subtle' }}>
-          <div className="flex items-center gap-1 p-1.5 bg-[#0a0c14] border border-white/10 rounded-xl shadow-2xl backdrop-blur-xl">
-            <ToolbarBtn title="Bold" onClick={() => editor.chain().focus().toggleBold().run()} active={editor.isActive('bold')}><Bold size={14} /></ToolbarBtn>
-            <ToolbarBtn title="Italic" onClick={() => editor.chain().focus().toggleItalic().run()} active={editor.isActive('italic')}><Italic size={14} /></ToolbarBtn>
-            <ToolbarBtn title="Strikethrough" onClick={() => editor.chain().focus().toggleStrike().run()} active={editor.isActive('strike')}><Strikethrough size={14} /></ToolbarBtn>
-            <div className="w-px h-4 bg-white/10 mx-1" />
-            <ToolbarBtn title="Heading 2" onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()} active={editor.isActive('heading', { level: 2 })}><Heading2 size={14} /></ToolbarBtn>
-            <ToolbarBtn title="Highlight" onClick={() => editor.chain().focus().toggleHighlight().run()} active={editor.isActive('highlight')}><Highlighter size={14} /></ToolbarBtn>
-          </div>
-        </BubbleMenu>
-      )}
 
       <div className="relative z-10 w-full">
         <EditorContent editor={editor} className="w-full cursor-text" />
