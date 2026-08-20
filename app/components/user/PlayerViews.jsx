@@ -688,7 +688,7 @@ function FeaturedTrophyCard({ trophy, onClick }) {
         onMouseLeave={handleMouseLeave}
         tabIndex={0}
         role="button"
-        className={`relative flex flex-col justify-between rounded-2xl cursor-pointer group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 overflow-hidden h-full min-h-[360px] lg:min-h-[450px] bg-card dark:bg-card border shadow-sm transition-colors ${isUnlocked ? 'border-amber-500/40' : 'border-border/80 dark:border-white/[0.08]'}`}
+        className={`relative flex flex-col justify-between rounded-2xl cursor-pointer group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 overflow-hidden h-full min-h-[360px] lg:min-h-[450px] bg-[#181a20]/60 backdrop-blur-xl border transition-all duration-300 ${isUnlocked ? 'border-amber-500/40 shadow-[0_0_20px_rgba(251,191,36,0.15)] hover:shadow-[0_0_35px_rgba(251,191,36,0.3)] hover:border-amber-400' : 'border-border/80 dark:border-white/[0.08]'}`}
         style={{
           rotateX,
           rotateY,
@@ -728,12 +728,12 @@ function FeaturedTrophyCard({ trophy, onClick }) {
 
         <motion.div 
           className={`relative z-10 w-full flex-1 flex flex-col items-center justify-center p-8 ${!isUnlocked ? 'grayscale opacity-40' : ''}`}
-          animate={isUnlocked ? { y: [0, -4, 0] } : {}}
+          animate={isUnlocked ? { y: [0, -8, 0] } : {}}
           transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
           style={{ transform: isUnlocked ? "translateZ(50px)" : "none" }}
         >
           {trophy.icon ? (
-            <img src={trophy.icon} alt={trophy.name} className="w-[85%] h-[85%] max-h-[320px] object-contain drop-shadow-[0_10px_20px_rgba(0,0,0,0.8)]" />
+            <img src={trophy.icon} alt={trophy.name} className={`w-[85%] h-[85%] max-h-[320px] object-contain ${isUnlocked ? 'drop-shadow-[0_0_25px_rgba(251,191,36,0.4)]' : 'drop-shadow-[0_10px_20px_rgba(0,0,0,0.8)]'}`} />
           ) : (
             <span className="text-8xl">{trophy.fallbackIcon}</span>
           )}
@@ -804,7 +804,7 @@ function TrophyTile({ trophy, onClick }) {
         onMouseLeave={handleMouseLeave}
         tabIndex={0}
         role="button"
-        className={`relative flex flex-col justify-between rounded-2xl cursor-pointer group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 overflow-hidden h-full min-h-[180px] lg:min-h-[240px] bg-card dark:bg-card border shadow-sm transition-colors ${isUnlocked ? 'border-amber-500/30' : 'border-border/80 dark:border-white/[0.08]'}`}
+        className={`relative flex flex-col justify-between rounded-2xl cursor-pointer group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 overflow-hidden h-full min-h-[180px] lg:min-h-[240px] bg-[#181a20]/50 backdrop-blur-md border transition-all duration-300 ${isUnlocked ? (isGold ? 'border-amber-500/30 shadow-[0_0_15px_rgba(251,191,36,0.1)] hover:shadow-[0_0_25px_rgba(251,191,36,0.25)]' : 'border-slate-400/30 shadow-[0_0_15px_rgba(148,163,184,0.1)] hover:shadow-[0_0_25px_rgba(148,163,184,0.25)]') : 'border-border/80 dark:border-white/[0.08]'}`}
         style={{
           rotateX,
           rotateY,
@@ -830,13 +830,18 @@ function TrophyTile({ trophy, onClick }) {
           </div>
         )}
 
-        <div className={`relative z-10 flex-1 flex items-center justify-center p-4 ${!isUnlocked ? 'grayscale opacity-40' : ''}`} style={{ transform: isUnlocked ? "translateZ(30px)" : "none" }}>
+        <motion.div 
+          className={`relative z-10 flex-1 flex items-center justify-center p-4 ${!isUnlocked ? 'grayscale opacity-40' : ''}`} 
+          style={{ transform: isUnlocked ? "translateZ(30px)" : "none" }}
+          animate={isUnlocked ? { y: [0, -5, 0] } : {}}
+          transition={{ duration: 3.5, repeat: Infinity, ease: 'easeInOut', delay: (trophy.id.length % 3) * 0.5 }}
+        >
           {trophy.icon ? (
-            <img src={trophy.icon} alt={trophy.name} className="h-32 w-32 object-contain drop-shadow-xl" />
+            <img src={trophy.icon} alt={trophy.name} className={`h-32 w-32 object-contain ${isUnlocked ? (isGold ? 'drop-shadow-[0_0_15px_rgba(251,191,36,0.4)]' : 'drop-shadow-[0_0_15px_rgba(148,163,184,0.4)]') : 'drop-shadow-xl'}`} />
           ) : (
             <span className="text-6xl">{trophy.fallbackIcon}</span>
           )}
-        </div>
+        </motion.div>
 
         <div className="relative z-20 w-full px-3 pb-6 pt-3 text-center border-t border-border/40 dark:border-white/[0.06] bg-secondary/40 dark:bg-black/20 shrink-0" style={{ transform: isUnlocked ? "translateZ(10px)" : "none" }}>
           <h4 className={`text-[10px] font-black uppercase tracking-wider truncate ${textColor}`}>{trophy.name}</h4>
