@@ -999,6 +999,7 @@ export default function LiveMatchControl({ matches, players, activeSeason, showT
   const [kicks, setKicks] = useState([]);
   const [shootoutWinner, setShootoutWinner] = useState(null);
   const [resultType, setResultType] = useState(null);
+  const [selectedScheduledMatchId, setSelectedScheduledMatchId] = useState("");
 
   const emptyStats = Object.fromEntries(STAT_FIELDS.map((f) => [f.key, ""]));
   const [stats, setStats] = useState({ home: { ...emptyStats }, away: { ...emptyStats } });
@@ -1051,15 +1052,16 @@ export default function LiveMatchControl({ matches, players, activeSeason, showT
   if (!activeSeason) return null;
 
   const startNextMatch = async () => {
-    if (!nextMatch) return;
+    const matchToStart = selectedScheduledMatchId ? matches.find(m => m.id === selectedScheduledMatchId) : nextMatch;
+    if (!matchToStart) return;
     setPhase("live"); setShowDrawDecision(false); setEtHalf(1); setKicks([]); setShootoutWinner(null); setResultType(null); setStats({ home: { ...emptyStats }, away: { ...emptyStats } }); setFinishedDataCache(null);
-    const h = byId[nextMatch.homeId]; const a = byId[nextMatch.awayId];
+    const h = byId[matchToStart.homeId]; const a = byId[matchToStart.awayId];
     setState({ home: { name: h?.name || "Home", avatarImage: h?.avatarImage || null, avatar: h?.avatar || null, goals: 0, penalties: 0 }, away: { name: a?.name || "Away", avatarImage: a?.avatarImage || null, avatar: a?.avatar || null, goals: 0, penalties: 0 }, paused: false });
-    const optLiveMatchData = { ...nextMatch, status: 'live', homeScore: 0, awayScore: 0, liveState: { phase: 'first', paused: false, clock: 0 } };
+    const optLiveMatchData = { ...matchToStart, status: 'live', homeScore: 0, awayScore: 0, liveState: { phase: 'first', paused: false, clock: 0 } };
     setOptLiveMatch(optLiveMatchData);
     supabase.channel('league-events').send({ type: 'broadcast', event: 'match_update', payload: optLiveMatchData });
-    const res = await updateMatchStatus(nextMatch.id, { status: 'live', liveState: { phase: 'first', paused: false, clock: 0 }, homeScore: 0, awayScore: 0 });
-    if (res.error) { setOptLiveMatch(null); showToast(res.error); } else { showToast("Match Started!"); }
+    const res = await updateMatchStatus(matchToStart.id, { status: 'live', liveState: { phase: 'first', paused: false, clock: 0 }, homeScore: 0, awayScore: 0 });
+    if (res.error) { setOptLiveMatch(null); showToast(res.error); } else { showToast("Match Started!"); setSelectedScheduledMatchId(""); }
   };
 
   const handleSetState = (updater) => {
@@ -1137,6 +1139,7 @@ export default function LiveMatchControl({ matches, players, activeSeason, showT
   const awayPlayerObj = byId[liveMatch?.awayId || finishedDataCache?.match?.awayId] || state.away;
 
   if (!liveMatch && !isPostMatch) {
+    const scheduledMatches = matches.filter(m => m.status === 'scheduled' && m.seasonId === activeSeason?.id);
     return (
       <div className="relative w-full mb-8 mt-2">
         <div className="p-8 flex flex-col items-center justify-center gap-4 bg-[#0a0c14] border border-dashed border-white/[0.08] rounded-2xl">
@@ -1144,7 +1147,27 @@ export default function LiveMatchControl({ matches, players, activeSeason, showT
             <Calendar size={32} />
           </div>
           <div className="font-bold text-sm tracking-widest uppercase text-slate-500 text-center">No Live Match In Progress</div>
-          {nextMatch ? <ActionButton label="Start Next Match" onClick={startNextMatch} variant="primary" /> : <div className="text-xs text-slate-600">All scheduled matches are completed.</div>}
+          {scheduledMatches.length > 0 ? (
+            <div className="flex flex-col items-center gap-3 w-full max-w-sm">
+              <select 
+                value={selectedScheduledMatchId} 
+                onChange={(e) => setSelectedScheduledMatchId(e.target.value)}
+                className="w-full bg-[#0a0c14] border border-white/[0.08] rounded-xl px-4 py-3 text-sm text-white outline-none focus:border-emerald-500/50 transition-colors cursor-pointer"
+              >
+                <option value="" className="bg-[#0a0c14]">Default: Next Match ({byId[nextMatch?.homeId]?.name} vs {byId[nextMatch?.awayId]?.name})</option>
+                {scheduledMatches.map(m => {
+                  const h = byId[m.homeId];
+                  const a = byId[m.awayId];
+                  return (
+                    <option key={m.id} value={m.id} className="bg-[#0a0c14]">{h?.name} vs {a?.name} (Round {m.round})</option>
+                  );
+                })}
+              </select>
+              <ActionButton label={selectedScheduledMatchId ? "Start Selected Match" : "Start Next Match"} onClick={startNextMatch} variant="primary" />
+            </div>
+          ) : (
+            <div className="text-xs text-slate-600">All scheduled matches are completed.</div>
+          )}
         </div>
       </div>
     );
