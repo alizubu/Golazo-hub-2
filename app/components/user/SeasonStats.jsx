@@ -35,7 +35,7 @@ export function SeasonStats({ playerId, initialStats, seasons, activeSeason, sel
   const selectedSeason = isOverall ? { name: "Overall Career", id: 'overall' } : (seasons.find(s => s.id === selectedSeasonId) || activeSeason);
   const isActive = !isOverall && selectedSeason?.id === activeSeason?.id;
 
-  const { rank, played, winRate, goals, assists } = stats || {};
+  const { rank, played, winRate, goals, assists, won, lost } = stats || {};
   const hasData = played > 0;
 
   const winRateColor = winRate >= 50 ? "#22c55e" : "#ef4444";
@@ -150,35 +150,57 @@ export function SeasonStats({ playerId, initialStats, seasons, activeSeason, sel
             </div>
           </div>
 
-          {/* 2. The Glass Pill Grid (Rank, Matches, Goals, Assists) */}
-          <div className="flex-1 w-full grid grid-cols-2 lg:grid-cols-4 gap-4">
+          {/* 2. The Glass Pill Grid (Matches, Wins, Losses, Goals, Assists, Goals/Game) */}
+          <div className="flex-1 w-full grid grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4">
             
-            <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.3 }} className="bg-secondary/30 border border-border/50 rounded-2xl p-5 flex flex-col items-center justify-center relative overflow-hidden backdrop-blur-md group">
-               <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
-               <Trophy size={22} className="text-amber-500 mb-2 drop-shadow-md" />
-               <span className="text-2xl font-black text-foreground font-score">{loading ? '-' : (hasData && rank ? `#${rank}` : '-')}</span>
-               <span className="text-[10px] uppercase font-bold text-muted-foreground tracking-widest mt-1">Rank</span>
+            {/* Rank / Matches */}
+            {hasData && rank ? (
+              <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.3 }} className="bg-secondary/20 border border-border/40 rounded-xl md:rounded-2xl p-4 md:p-5 flex flex-col items-center justify-center relative overflow-hidden group hover:bg-secondary/40 transition-colors">
+                <Trophy size={18} className="text-amber-500 mb-1.5 md:mb-2 drop-shadow-md" />
+                <span className="text-xl md:text-2xl font-black text-foreground font-score">{loading ? '-' : `#${rank}`}</span>
+                <span className="text-[9px] md:text-[10px] uppercase font-bold text-muted-foreground tracking-widest mt-0.5 md:mt-1">Rank</span>
+              </motion.div>
+            ) : (
+              <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.3 }} className="bg-secondary/20 border border-border/40 rounded-xl md:rounded-2xl p-4 md:p-5 flex flex-col items-center justify-center relative overflow-hidden group hover:bg-secondary/40 transition-colors">
+                <Swords size={18} className="text-muted-foreground mb-1.5 md:mb-2 drop-shadow-md" />
+                <span className="text-xl md:text-2xl font-black text-foreground font-score">{loading ? '-' : (hasData ? <NumberTicker value={played} /> : 0)}</span>
+                <span className="text-[9px] md:text-[10px] uppercase font-bold text-muted-foreground tracking-widest mt-0.5 md:mt-1">Matches</span>
+              </motion.div>
+            )}
+
+            {/* Wins */}
+            <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.35 }} className="bg-secondary/20 border border-border/40 rounded-xl md:rounded-2xl p-4 md:p-5 flex flex-col items-center justify-center relative overflow-hidden group hover:bg-secondary/40 transition-colors">
+               <Trophy size={18} className="text-amber-500 mb-1.5 md:mb-2 drop-shadow-md" />
+               <span className="text-xl md:text-2xl font-black text-amber-500 font-score">{loading ? '-' : (hasData ? <NumberTicker value={won || 0} /> : 0)}</span>
+               <span className="text-[9px] md:text-[10px] uppercase font-bold text-muted-foreground tracking-widest mt-0.5 md:mt-1">Wins</span>
             </motion.div>
 
-            <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.4 }} className="bg-secondary/30 border border-border/50 rounded-2xl p-5 flex flex-col items-center justify-center relative overflow-hidden backdrop-blur-md group">
-               <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
-               <Swords size={22} className="text-blue-500 mb-2 drop-shadow-md" />
-               <span className="text-2xl font-black text-foreground font-score">{loading ? '-' : (hasData ? <NumberTicker value={played} /> : 0)}</span>
-               <span className="text-[10px] uppercase font-bold text-muted-foreground tracking-widest mt-1">Matches</span>
+            {/* Losses */}
+            <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.4 }} className="bg-secondary/20 border border-border/40 rounded-xl md:rounded-2xl p-4 md:p-5 flex flex-col items-center justify-center relative overflow-hidden group hover:bg-secondary/40 transition-colors">
+               <TrendingUp size={18} className="text-red-500 mb-1.5 md:mb-2 drop-shadow-md rotate-180" />
+               <span className="text-xl md:text-2xl font-black text-red-500 font-score">{loading ? '-' : (hasData ? <NumberTicker value={lost || 0} /> : 0)}</span>
+               <span className="text-[9px] md:text-[10px] uppercase font-bold text-muted-foreground tracking-widest mt-0.5 md:mt-1">Losses</span>
             </motion.div>
 
-            <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.5 }} className="bg-secondary/30 border border-border/50 rounded-2xl p-5 flex flex-col items-center justify-center relative overflow-hidden backdrop-blur-md group">
-               <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
-               <Target size={22} className="text-green-500 mb-2 drop-shadow-md" />
-               <span className="text-2xl font-black text-foreground font-score">{loading ? '-' : (hasData ? <NumberTicker value={goals} /> : 0)}</span>
-               <span className="text-[10px] uppercase font-bold text-muted-foreground tracking-widest mt-1">Goals</span>
+            {/* Goals */}
+            <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.45 }} className="bg-secondary/20 border border-border/40 rounded-xl md:rounded-2xl p-4 md:p-5 flex flex-col items-center justify-center relative overflow-hidden group hover:bg-secondary/40 transition-colors">
+               <Target size={18} className="text-emerald-500 mb-1.5 md:mb-2 drop-shadow-md" />
+               <span className="text-xl md:text-2xl font-black text-foreground font-score">{loading ? '-' : (hasData ? <NumberTicker value={goals} /> : 0)}</span>
+               <span className="text-[9px] md:text-[10px] uppercase font-bold text-muted-foreground tracking-widest mt-0.5 md:mt-1">Goals</span>
             </motion.div>
 
-            <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.6 }} className="bg-secondary/30 border border-border/50 rounded-2xl p-5 flex flex-col items-center justify-center relative overflow-hidden backdrop-blur-md group">
-               <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
-               <Handshake size={22} className="text-purple-500 mb-2 drop-shadow-md" />
-               <span className="text-2xl font-black text-foreground font-score">{loading ? '-' : (hasData ? <NumberTicker value={assists} /> : 0)}</span>
-               <span className="text-[10px] uppercase font-bold text-muted-foreground tracking-widest mt-1">Assists</span>
+            {/* Assists */}
+            <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.5 }} className="bg-secondary/20 border border-border/40 rounded-xl md:rounded-2xl p-4 md:p-5 flex flex-col items-center justify-center relative overflow-hidden group hover:bg-secondary/40 transition-colors">
+               <Handshake size={18} className="text-purple-500 mb-1.5 md:mb-2 drop-shadow-md" />
+               <span className="text-xl md:text-2xl font-black text-foreground font-score">{loading ? '-' : (hasData ? <NumberTicker value={assists} /> : 0)}</span>
+               <span className="text-[9px] md:text-[10px] uppercase font-bold text-muted-foreground tracking-widest mt-0.5 md:mt-1">Assists</span>
+            </motion.div>
+
+            {/* Goals/Game */}
+            <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.55 }} className="bg-secondary/20 border border-border/40 rounded-xl md:rounded-2xl p-4 md:p-5 flex flex-col items-center justify-center relative overflow-hidden group hover:bg-secondary/40 transition-colors">
+               <Activity size={18} className="text-blue-500 mb-1.5 md:mb-2 drop-shadow-md" />
+               <span className="text-xl md:text-2xl font-black text-blue-500 font-score">{loading ? '-' : (hasData && played > 0 ? <NumberTicker value={Math.round((goals/played)*10)/10} /> : 0)}</span>
+               <span className="text-[9px] md:text-[10px] uppercase font-bold text-muted-foreground tracking-widest mt-0.5 md:mt-1">Gls/Game</span>
             </motion.div>
 
           </div>

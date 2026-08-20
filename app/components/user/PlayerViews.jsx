@@ -360,153 +360,86 @@ export function PlayerDashboard({ me, activeSeason, seasons = [], matches, playe
               </motion.div>
             </div>
             
-            <div className="px-5 py-5 sm:px-8 sm:py-6 flex flex-col md:flex-row items-center md:items-start justify-between gap-6 relative z-20">
-              <div className="flex flex-col sm:flex-row items-center sm:items-start gap-5 w-full md:w-auto text-center sm:text-left">
-                <div className="relative -mt-16 sm:-mt-20 shrink-0">
-                  <div className="relative rounded-full p-1 bg-card shadow-md ring-4 ring-card border-none">
-                    <AvatarWithBadge player={me} size={120} isOnFire={isOnFire} />
+            <div className="px-5 py-5 sm:px-6 flex flex-col md:flex-row items-center md:items-end justify-between gap-6 relative z-20">
+              <div className="flex flex-col sm:flex-row items-center sm:items-end gap-5 w-full md:w-auto text-center sm:text-left">
+                <div className="relative -mt-20 shrink-0 z-30">
+                  <div className="relative rounded-full p-1 bg-background shadow-xl ring-2 ring-border border-none">
+                    <AvatarWithBadge player={me} size={110} isOnFire={isOnFire} />
                   </div>
                 </div>
-                <div className="flex flex-col min-w-0 mt-2 sm:mt-0">
+                <div className="flex flex-col min-w-0 pb-1 sm:mt-0">
                   <div className="flex items-center justify-center sm:justify-start gap-2">
                     <h1 className="text-2xl md:text-3xl font-black tracking-tight truncate text-foreground">
                       {me.name}
                     </h1>
                     {myRank === 1 && <div className="text-blue-500 shrink-0" title="Top Ranked Player">👑</div>}
                   </div>
-                  <div className="flex items-center justify-center sm:justify-start gap-2 mt-1">
+                  <div className="flex items-center justify-center sm:justify-start gap-3 mt-1">
                     <span className="text-muted-foreground font-medium text-sm">@{me.username}</span>
-                    <PlayStyleBadge style={me.playStyle} showLabel={false} size="sm" />
+                    <div className="w-1 h-1 rounded-full bg-border" />
+                    <span className="text-green-500 text-xs font-bold flex items-center gap-1.5"><div className="w-1.5 h-1.5 rounded-full bg-green-500" /> Online</span>
                   </div>
                   
-                  <div className="flex flex-wrap items-center justify-center sm:justify-start gap-3 mt-4">
-                    {!viewOnly && (
-                      <button onClick={() => setTab('settings')} className="px-4 py-2 bg-secondary hover:bg-secondary/80 text-foreground text-sm font-bold rounded-lg transition-colors border border-border flex items-center gap-2 shadow-sm active:scale-95 outline-none">
-                        <Pen size={14} /> Edit
-                      </button>
-                    )}
-                    {!viewOnly && (
-                      <div className="px-4 py-2 bg-green-500/10 text-green-600 dark:text-green-400 text-sm font-bold rounded-lg border border-green-500/20 flex items-center gap-2">
-                        <div className="w-2 h-2 rounded-full bg-green-500" /> Online
+                  <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2 mt-3">
+                    {selectedNationalTeam && (
+                      <div className="flex items-center gap-1.5 bg-secondary/30 px-2.5 py-1 rounded border border-border/50 text-xs font-semibold text-muted-foreground">
+                        <WavingFlag url={selectedNationalTeam.flag_url} code={selectedNationalTeam.flag_url ? null : 'UN'} size="sm" />
+                        {selectedNationalTeam.name}
                       </div>
                     )}
-                    {tMatches.some(m => m.round !== 'league' && m.round !== 'friendly') && (
-                      <button onClick={() => setTab('matches')} className="px-4 py-2 bg-amber-500 hover:bg-amber-600 text-white text-sm font-bold rounded-lg transition-colors shadow-sm flex items-center gap-2 active:scale-95 outline-none">
-                        <Trophy size={14} /> Playoffs
-                      </button>
+                    {selectedClub && (
+                      <div className="flex items-center gap-1.5 bg-secondary/30 px-2.5 py-1 rounded border border-border/50 text-xs font-semibold text-muted-foreground">
+                        <ClubLogo club={selectedClub} size={14} />
+                        {selectedClub.name}
+                      </div>
                     )}
                   </div>
                 </div>
               </div>
 
-              <div className="flex flex-row md:flex-col items-center md:items-end justify-center gap-4 md:gap-3 w-full md:w-auto border-t md:border-t-0 border-border pt-5 md:pt-0">
-                <div className="flex items-center gap-2">
-                  <span className="text-[10px] uppercase font-bold text-muted-foreground tracking-widest hidden md:block">Form</span>
-                  <div className="flex items-center gap-1 bg-secondary px-2.5 py-1.5 rounded-lg border border-border shadow-sm">
-                    {form.length > 0 ? form.map((r, i) => (
-                      <span key={i} title={r === 'W' ? 'Win' : r === 'L' ? 'Loss' : 'Draw'} className={`w-2.5 h-4 rounded-sm ${r === 'W' ? 'bg-green-500' : r === 'L' ? 'bg-red-500' : 'bg-amber-400'}`} />
-                    )) : <span className="text-xs font-bold text-muted-foreground px-1">No matches</span>}
-                  </div>
-                </div>
+              <div className="flex items-center gap-3 w-full md:w-auto pb-1 justify-center md:justify-end">
+                {!viewOnly && (
+                  <button onClick={() => setTab('settings')} className="px-4 py-2 h-10 bg-secondary hover:bg-secondary/80 text-foreground text-sm font-bold rounded-lg border border-border flex items-center gap-2 shadow-sm transition-colors outline-none">
+                    <Pen size={14} /> Edit Profile
+                  </button>
+                )}
+                {tMatches.some(m => m.round !== 'league' && m.round !== 'friendly') && (
+                  <button onClick={() => setTab('matches')} className="px-4 py-2 h-10 bg-amber-500/10 hover:bg-amber-500/20 text-amber-500 text-sm font-bold rounded-lg border border-amber-500/20 transition-colors flex items-center gap-2 outline-none">
+                    <Trophy size={14} /> Playoffs
+                  </button>
+                )}
               </div>
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-12 gap-4">
-            
-            <motion.div 
-              initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}
-              className="md:col-span-4 relative rounded-3xl bg-card border border-border shadow-xl p-6 flex flex-col items-center justify-center group overflow-hidden"
-            >
-              <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
-              {winRate > 50 && <BorderBeam size={200} duration={12} delay={0} colorFrom="var(--gold)" colorTo="transparent" />}
-              <span className="text-xs uppercase font-bold text-muted-foreground tracking-widest mb-4">Win Rate</span>
-              <div className="relative">
-                <CircularProgress value={winRate} color={winRate >= 50 ? "var(--brand-green)" : "var(--brand-red)"} label="" />
-                {myRank > 0 && (
-                  <motion.div 
-                    initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ delay: 0.5, type: 'spring' }}
-                    className="absolute -bottom-2 -right-2 bg-amber-500 text-black font-black text-xs px-2 py-1 rounded-lg border-2 border-card shadow-lg flex items-center gap-1"
-                  >
-                    <Trophy size={10} /> #{myRank}
-                  </motion.div>
-                )}
-              </div>
-              {winStreak >= 2 && (
-                <div className="mt-4 text-[10px] font-bold text-orange-500 tracking-wide uppercase flex items-center gap-1 animate-pulse">
-                  🔥 {winStreak} Streak
-                </div>
-              )}
-            </motion.div>
-
-            <motion.div 
-              initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25 }}
-              className="md:col-span-4 grid grid-cols-2 gap-4"
-            >
-              <div className="bg-card border border-border shadow-md rounded-2xl p-4 flex flex-col items-center justify-center relative overflow-hidden group">
-                <div className="absolute -inset-full top-0 block h-full w-1/2 -skew-x-12 transform bg-gradient-to-r from-transparent via-white/5 to-transparent opacity-0 group-hover:animate-shimmer" />
-                <Swords size={20} className="text-muted-foreground mb-2" />
-                <span className="text-3xl font-black font-score leading-none"><NumberTicker value={played} /></span>
-                <span className="text-[10px] uppercase font-bold text-muted-foreground tracking-widest mt-1">Matches</span>
-              </div>
-              <div className="bg-card border border-border shadow-md rounded-2xl p-4 flex flex-col items-center justify-center relative overflow-hidden group">
-                <div className="absolute -inset-full top-0 block h-full w-1/2 -skew-x-12 transform bg-gradient-to-r from-transparent via-white/5 to-transparent opacity-0 group-hover:animate-shimmer" />
-                <Trophy size={20} className="text-amber-500 mb-2" />
-                <span className="text-3xl font-black font-score leading-none text-amber-500"><NumberTicker value={won} /></span>
-                <span className="text-[10px] uppercase font-bold text-muted-foreground tracking-widest mt-1">Wins</span>
-              </div>
-              <div className="bg-card border border-border shadow-md rounded-2xl p-4 flex flex-col items-center justify-center relative overflow-hidden group">
-                <div className="absolute -inset-full top-0 block h-full w-1/2 -skew-x-12 transform bg-gradient-to-r from-transparent via-white/5 to-transparent opacity-0 group-hover:animate-shimmer" />
-                <Target size={20} className="text-muted-foreground mb-2" />
-                <span className="text-3xl font-black font-score leading-none"><NumberTicker value={goals} /></span>
-                <span className="text-[10px] uppercase font-bold text-muted-foreground tracking-widest mt-1">Goals</span>
-              </div>
-              <div className="bg-card border border-border shadow-md rounded-2xl p-4 flex flex-col items-center justify-center relative overflow-hidden group">
-                <div className="absolute -inset-full top-0 block h-full w-1/2 -skew-x-12 transform bg-gradient-to-r from-transparent via-white/5 to-transparent opacity-0 group-hover:animate-shimmer" />
-                <Activity size={20} className="text-blue-500 mb-2" />
-                <span className="text-3xl font-black font-score leading-none text-blue-500"><NumberTicker value={played > 0 ? Math.round((goals/played)*10)/10 : 0} /></span>
-                <span className="text-[10px] uppercase font-bold text-muted-foreground tracking-widest mt-1">Gls/Game</span>
-              </div>
-            </motion.div>
-
-            <motion.div 
-              initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}
-              className="md:col-span-4 rounded-3xl bg-card border border-border shadow-xl overflow-hidden flex flex-col relative group"
-            >
-              <div className="absolute -inset-full top-0 block h-full w-1/2 -skew-x-12 transform bg-gradient-to-r from-transparent via-white/5 to-transparent opacity-0 group-hover:animate-shimmer z-10" />
-              <div className="flex-1 p-5 flex items-center gap-4 border-b border-border/50 relative overflow-hidden bg-secondary/20">
-                <div className="absolute right-0 top-0 bottom-0 w-32 bg-gradient-to-l from-current opacity-5" style={{ color: selectedClub && CLUB_COLORS[selectedClub.name] ? CLUB_COLORS[selectedClub.name].primary : 'transparent' }} />
-                <div className="shrink-0 bg-background/50 backdrop-blur p-2 rounded-xl border border-border shadow-sm z-10">
-                  {selectedClub ? <ClubLogo club={selectedClub} size={48} /> : <Shield size={48} className="text-muted-foreground opacity-30" />}
-                </div>
-                <div className="flex flex-col z-10">
-                  <span className="text-[10px] uppercase font-bold text-muted-foreground tracking-widest mb-0.5">Favorite Club</span>
-                  <span className="text-lg font-black truncate">{selectedClub ? selectedClub.name : 'Not set'}</span>
-                </div>
-              </div>
-              <div className="flex-1 p-5 flex items-center gap-4 relative overflow-hidden bg-secondary/10">
-                <div className="absolute right-0 top-0 bottom-0 w-32 bg-gradient-to-l from-gold opacity-5" />
-                <div className="shrink-0 bg-background/50 backdrop-blur p-2 rounded-xl border border-border shadow-sm z-10">
-                  {selectedNationalTeam ? <WavingFlag url={selectedNationalTeam.flag_url} size="lg" /> : <WavingFlag code="UN" size="lg" />}
-                </div>
-                <div className="flex flex-col z-10">
-                  <span className="text-[10px] uppercase font-bold text-muted-foreground tracking-widest mb-0.5">National Team</span>
-                  <span className="text-lg font-black truncate">{selectedNationalTeam ? selectedNationalTeam.name : 'Not set'}</span>
-                </div>
-              </div>
-            </motion.div>
-          </div>
-
-          {biggestRival && rivalStats && (
+          {(form.length > 0 || (biggestRival && rivalStats)) && (
             <motion.div 
               initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.35 }}
-              onClick={() => onH2HClick(biggestRival.id)}
-              className="w-full relative rounded-3xl bg-card border border-border shadow-xl p-4 sm:p-6 overflow-hidden cursor-pointer group hover:border-amber-500/50 transition-colors"
+              className="w-full relative rounded-3xl bg-card border border-border shadow-xl p-4 sm:p-6 overflow-hidden flex flex-col gap-6"
             >
-              <div className="absolute inset-0 bg-gradient-to-r from-red-500/5 via-transparent to-blue-500/5 opacity-50" />
-              <div className="absolute -inset-full top-0 block h-full w-1/2 -skew-x-12 transform bg-gradient-to-r from-transparent via-white/5 to-transparent opacity-0 group-hover:animate-shimmer" />
+              <div className="absolute inset-0 bg-gradient-to-r from-red-500/5 via-transparent to-blue-500/5 opacity-50 pointer-events-none" />
+              <div className="absolute -inset-full top-0 block h-full w-1/2 -skew-x-12 transform bg-gradient-to-r from-transparent via-white/5 to-transparent opacity-0 group-hover:animate-shimmer pointer-events-none" />
               
-              <div className="relative z-10 flex flex-col sm:flex-row items-center justify-between gap-6">
+              {form.length > 0 && (
+                <div className="relative z-10 flex flex-col sm:flex-row items-center justify-between gap-4 border-b border-border/50 pb-4">
+                  <div className="flex items-center gap-2">
+                    <Activity size={16} className="text-muted-foreground" />
+                    <span className="text-sm font-bold text-foreground tracking-wide uppercase">Recent Form</span>
+                  </div>
+                  <div className="flex items-center gap-1.5 bg-secondary/50 px-3 py-2 rounded-xl border border-border shadow-sm">
+                    {form.map((r, i) => (
+                      <span key={i} title={r === 'W' ? 'Win' : r === 'L' ? 'Loss' : 'Draw'} className={`w-3 h-5 rounded-sm ${r === 'W' ? 'bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.4)]' : r === 'L' ? 'bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.4)]' : 'bg-amber-400 shadow-[0_0_8px_rgba(251,191,36,0.4)]'}`} />
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {biggestRival && rivalStats && (
+                <div 
+                  onClick={() => onH2HClick(biggestRival.id)}
+                  className="relative z-10 w-full cursor-pointer group transition-colors"
+                >
+                  <div className="flex flex-col sm:flex-row items-center justify-between gap-6">
                 
                 <div className="flex items-center gap-4 w-full sm:w-1/3 justify-start">
                   <Avatar p={me} size={48} className="ring-2 ring-red-500/50 shadow-[0_0_15px_rgba(239,68,68,0.3)] shrink-0" />
@@ -547,14 +480,16 @@ export function PlayerDashboard({ me, activeSeason, seasons = [], matches, playe
                 </div>
 
               </div>
-            </motion.div>
+            </div>
           )}
+        </motion.div>
+      )}
         </div>
       </FadeIn>
       <div className="grid grid-cols-1 md:grid-cols-12 gap-6 mt-4">
         <SeasonStats
           playerId={me.id}
-          initialStats={{ rank: myRank, elo, played, winRate, goals, assists }}
+          initialStats={{ rank: myRank, elo, played, winRate, goals, assists, won: myRow?.won || 0, lost: myRow?.lost || 0 }}
           seasons={seasons}
           activeSeason={activeSeason}
           selectedSeasonId={selectedSeasonId}
@@ -602,50 +537,6 @@ export function PlayerDashboard({ me, activeSeason, seasons = [], matches, playe
             }
           />
         </FadeIn>
-      </div>
-    </div>
-  );
-}
-
-function LegacyProgressBar({ totalUnlocked, multiWinCount, totalPossible, completePct }) {
-  return (
-    <div className="flex flex-col sm:flex-row items-center justify-between gap-4 px-6 py-4 mt-6 rounded-xl border border-amber-500/10 bg-zinc-950/80">
-      <div className="flex items-center gap-4">
-        <div className="w-12 h-12 rounded-full border border-amber-500/20 bg-amber-500/5 flex items-center justify-center shrink-0">
-          <Trophy size={20} className="text-amber-500" />
-        </div>
-        <div className="flex flex-col">
-          <h4 className="text-sm font-bold text-amber-500 tracking-widest uppercase">Legacy In Progress</h4>
-          <p className="text-xs text-zinc-500 mt-1 max-w-sm">Every trophy tells a story of dedication, passion, and greatness.</p>
-        </div>
-      </div>
-      
-      <div className="flex items-center gap-8">
-        <div className="flex flex-col items-center">
-          <span className="text-lg font-black text-amber-400">{totalUnlocked}</span>
-          <span className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest mt-1">Earned</span>
-        </div>
-        <div className="flex flex-col items-center">
-          <span className="text-lg font-black text-amber-400">{multiWinCount}</span>
-          <span className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest mt-1">Multi-Win</span>
-        </div>
-        <div className="flex flex-col items-center">
-          <span className="text-lg font-black text-amber-400">{totalPossible}</span>
-          <span className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest mt-1">Possible</span>
-        </div>
-        
-        <div className="flex items-center gap-3">
-          <div className="relative w-12 h-12 flex items-center justify-center">
-            <svg viewBox="0 0 36 36" className="w-full h-full -rotate-90">
-              <path className="text-zinc-800" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="currentColor" strokeWidth="3" />
-              <path className="text-amber-500 drop-shadow-md" strokeDasharray={`${completePct}, 100`} d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="currentColor" strokeWidth="3" />
-            </svg>
-            <span className="absolute text-[10px] font-black text-white">{completePct}%</span>
-          </div>
-          <button className="flex items-center gap-1.5 px-4 py-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg text-xs font-bold transition-colors">
-            VIEW STATS <ChevronRight size={14} />
-          </button>
-        </div>
       </div>
     </div>
   );
@@ -1049,7 +940,7 @@ function TrophyCabinetSection({ trophies = [], myTrophies = [], meBadges = [], o
           </div>
         )}
 
-        <LegacyProgressBar totalUnlocked={totalUnlocked} multiWinCount={multiWinCount} totalPossible={totalPossible} completePct={completePct} />
+
       </div>
     </div>
   );
