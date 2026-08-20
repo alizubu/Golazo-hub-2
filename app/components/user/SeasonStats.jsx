@@ -1,11 +1,11 @@
 'use client';
 import React, { useState, useEffect } from 'react';
-import { Activity, Trophy, Swords, Target, Handshake, TrendingUp, Calendar, Check, Shield } from 'lucide-react';
+import { Activity, Trophy, Swords, Target, TrendingUp, Calendar, Check, Shield } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FadeIn } from '@/app/components/shared/UI';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/app/components/ui/dropdown-menu';
 import { NumberTicker } from '@/app/components/ui/number-ticker';
-
+import { ProgressCircle } from '@tremor/react';
 export function SeasonStats({ playerId, initialStats, seasons, activeSeason, selectedSeasonId, onSeasonChange }) {
   const [stats, setStats] = useState(initialStats);
   const [loading, setLoading] = useState(false);
@@ -109,40 +109,15 @@ export function SeasonStats({ playerId, initialStats, seasons, activeSeason, sel
           
           {/* 1. WIN RATE (Hero Column) */}
           <div className="flex flex-col items-center justify-center relative group w-full md:w-1/6 md:min-w-[140px] py-4">
-            <div className="relative flex items-center justify-center w-28 h-28 md:w-32 md:h-32 mb-2">
-              <svg height={radius * 2} width={radius * 2} className="transform -rotate-90 scale-[0.9] md:scale-100">
-                <circle
-                  stroke="rgba(255,255,255,0.04)"
-                  fill="transparent"
-                  strokeWidth={stroke}
-                  r={normalizedRadius}
-                  cx={radius}
-                  cy={radius}
-                />
-                {!loading && (
-                  <motion.circle
-                    stroke={winRateColor}
-                    fill="transparent"
-                    strokeWidth={stroke}
-                    strokeDasharray={circumference + ' ' + circumference}
-                    style={{ strokeDashoffset }}
-                    strokeLinecap="round"
-                    r={normalizedRadius}
-                    cx={radius}
-                    cy={radius}
-                    initial={{ strokeDashoffset: circumference }}
-                    animate={{ strokeDashoffset }}
-                    transition={{ duration: 1.5, ease: "easeOut", delay: 0.2 }}
-                    className="drop-shadow-[0_0_12px_rgba(239,68,68,0.4)]"
-                  />
-                )}
-              </svg>
-              <div className="absolute flex flex-col items-center justify-center pointer-events-none text-center mt-0.5">
-                <span className="text-[28px] md:text-[32px] font-[800] tracking-tight leading-none" style={{ color: winRateColor }}>
-                  {loading ? '-' : (hasData ? <NumberTicker value={winRate} /> : 0)}<span className="text-lg opacity-80">%</span>
-                </span>
-                <span className="text-[10px] uppercase font-[700] text-[#8B95A3] tracking-[0.08em] mt-1.5 opacity-90">WIN RATE</span>
-              </div>
+            <div className="relative flex items-center justify-center mb-2 drop-shadow-[0_0_15px_rgba(245,158,11,0.2)]">
+              <ProgressCircle value={hasData ? winRate : 0} radius={64} strokeWidth={8} color={winRate >= 50 ? "amber" : "red"}>
+                <div className="flex flex-col items-center justify-center text-center mt-1">
+                  <span className="text-[28px] md:text-[32px] font-[900] tracking-tight leading-none text-white">
+                    {loading ? '-' : (hasData ? <NumberTicker value={winRate} /> : 0)}<span className="text-lg opacity-80 text-amber-500">%</span>
+                  </span>
+                  <span className="text-[9px] uppercase font-[700] text-[#8B95A3] tracking-[0.08em] mt-1">WIN RATE</span>
+                </div>
+              </ProgressCircle>
             </div>
             
             {hasData && rank ? (
@@ -187,7 +162,7 @@ export function SeasonStats({ playerId, initialStats, seasons, activeSeason, sel
 
             {/* Losses */}
             <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }} className="flex flex-col items-center justify-center py-5 md:py-4 px-2 md:px-0 lg:border-l lg:border-white/[0.08] relative group hover:-translate-y-1 transition-transform cursor-default">
-               <TrendingUp size={26} className="text-[#EF4444] mb-2 group-hover:drop-shadow-[0_0_8px_rgba(239,68,68,0.6)] transition-all" />
+               <TrendingUp size={26} className="text-[#EF4444] mb-2 rotate-180 group-hover:drop-shadow-[0_0_8px_rgba(239,68,68,0.6)] transition-all" />
                <span className="text-[28px] md:text-[32px] font-[800] text-[#F5F7FA] leading-none mb-1.5">{loading ? '-' : (hasData ? <NumberTicker value={lost || 0} /> : 0)}</span>
                <span className="text-[10px] md:text-[11px] uppercase font-[700] text-[#EF4444] tracking-[0.08em] mb-1.5">LOSSES</span>
                <span className="text-[11px] md:text-[12px] font-[500] text-[#8B95A3] opacity-70">Total</span>

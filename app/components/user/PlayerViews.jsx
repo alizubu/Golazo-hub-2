@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { PageHeader } from '@/app/components/shared/PageHeader';
-import { Trophy, Medal, Star, Target, Shield, Clock, ArrowRight, Lock, MapPin, Search, Calendar, ChevronRight, LayoutGrid, List, Megaphone, Bell, Pen, Handshake, Activity, Users, Swords, ListOrdered, Flame, BadgeCheck, TrendingUp, Check, Crown } from 'lucide-react';
+import { Trophy, Medal, Star, Target, Shield, Clock, ArrowRight, Lock, MapPin, Search, Calendar, ChevronRight, LayoutGrid, List, Megaphone, Bell, Pen, Handshake, Activity, Users, Swords, ListOrdered, Flame, BadgeCheck, TrendingUp, Check } from 'lucide-react';
 import { Btn, Badge, Avatar, PlayerChip, SectionTitle, EmptyState, MagicCard, FadeIn, ShinyButton, Label, WavingFlag, PlayStyleBadge, OnFireAvatar } from '@/app/components/shared/UI';
 import { AvatarWithBadge } from '@/app/components/shared/FootballIdentity';
 import { getPlayerIdentityBadgeUrl } from '@/lib/identityUtils';
@@ -382,13 +382,26 @@ export function PlayerDashboard({ me, activeSeason, seasons = [], matches, playe
             <div className="relative z-20 px-5 pt-20 pb-5 sm:px-8 sm:pb-8 flex flex-col w-full">
               
               {/* Top Right: Form */}
-              <div className="absolute top-5 right-5 sm:top-6 sm:right-6 hidden sm:flex items-center gap-2 bg-[#0B0F14]/90 backdrop-blur-md px-3 py-1.5 rounded-lg border border-white/5 shadow-lg">
+              <div className="absolute top-5 right-5 sm:top-6 sm:right-6 hidden sm:flex items-center gap-3 bg-[#0B0F14]/90 backdrop-blur-xl px-4 py-2 rounded-xl border border-white/5 shadow-2xl transition-colors z-20">
                 <span className="text-[10px] font-bold text-amber-500 tracking-widest uppercase">Form</span>
-                {form.length > 0 ? (
-                  <div className={`w-3 h-3 rounded-sm shadow-inner ${form[0] === 'W' ? 'bg-green-500' : form[0] === 'L' ? 'bg-red-500' : 'bg-amber-400'}`} title={`Latest: ${form[0] === 'W' ? 'Win' : form[0] === 'L' ? 'Loss' : 'Draw'}`} />
-                ) : (
-                  <div className="w-3 h-3 rounded-sm bg-gray-600 shadow-inner" title="No matches" />
-                )}
+                <div className="flex items-center gap-1.5">
+                  {Array.from({ length: 4 }).map((_, i) => {
+                    const r = form[i];
+                    return (
+                      <span 
+                        key={i} 
+                        title={r === 'W' ? 'Win' : r === 'L' ? 'Loss' : r === 'D' ? 'Draw' : 'No Match'} 
+                        className={cn(
+                          "w-3 h-4 rounded-sm transition-all duration-300",
+                          r === 'W' ? "bg-[#22C55E] shadow-[0_0_10px_rgba(34,197,94,0.4)]" : 
+                          r === 'L' ? "bg-[#EF4444] shadow-[0_0_10px_rgba(239,68,68,0.4)]" : 
+                          r === 'D' ? "bg-[#F5B72B] shadow-[0_0_10px_rgba(245,183,43,0.4)]" : 
+                          "bg-[#8B95A3]/30 border border-white/10"
+                        )} 
+                      />
+                    );
+                  })}
+                </div>
               </div>
 
               <div className="flex flex-col md:flex-row items-center md:items-end justify-between gap-6 w-full">
@@ -402,9 +415,7 @@ export function PlayerDashboard({ me, activeSeason, seasons = [], matches, playe
                   </div>
                   
                   <div className="flex flex-col min-w-0 pb-1 sm:mt-0">
-                    <span className="flex items-center gap-1.5 text-amber-500 text-xs sm:text-[13px] font-black tracking-[0.15em] uppercase mb-1.5 drop-shadow-md">
-                      <Crown size={14} className="text-amber-500 fill-amber-500" /> BB Legend
-                    </span>
+                    <span className="text-amber-500 text-xs sm:text-[13px] font-black tracking-[0.15em] uppercase mb-1.5 drop-shadow-md">BB Legend</span>
                     <div className="flex items-center justify-center sm:justify-start gap-2">
                       <h1 className="text-4xl md:text-[44px] font-black tracking-tight truncate text-white drop-shadow-lg leading-none">
                         {me.name}
