@@ -35,6 +35,25 @@ export async function deleteAnnouncement(id) {
   }
 }
 
+export async function updateAnnouncement(id, data) {
+  const auth = await checkSessionPermission('canEditBroadcast');
+  if (!auth.authorized) return { error: auth.error };
+  try {
+    const announcement = await prisma.announcement.update({
+      where: { id },
+      data: {
+        title: data.title,
+        content: data.content,
+      },
+    });
+    revalidatePath('/');
+    revalidatePath('/admin');
+    return { announcement };
+  } catch (error) {
+    return { error: 'Failed to update announcement.' };
+  }
+}
+
 
 export async function awardTrophy(data) {
   const auth = await checkSessionPermission('canManageSeason');

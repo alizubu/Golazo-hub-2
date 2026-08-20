@@ -1,7 +1,8 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Trophy, Calendar, Users, Radio, Clock, Check, Archive, Plus, Trash2, Settings, Swords, Edit2, ListOrdered, BarChart2, AlertTriangle, ArrowRight, Megaphone, ChevronDown, Package, MoreVertical, History, CheckCircle2, X, Camera, Copy, Download, RefreshCw } from 'lucide-react';
+import * as Popover from '@radix-ui/react-popover';
+import { Trophy, Calendar, Users, Radio, Clock, Check, Archive, Plus, Trash2, Settings, Swords, Edit2, ListOrdered, BarChart2, AlertTriangle, ArrowRight, Megaphone, ChevronDown, Package, MoreVertical, History, CheckCircle2, X, Camera, Copy, Download, RefreshCw, Eye, Pencil } from 'lucide-react';
 import { BorderBeam } from '@/app/components/magicui/BorderBeam';
 import { FlickeringGrid } from '@/app/components/magicui/FlickeringGrid';
 import { Card, Btn, Input, Label, SectionTitle, EmptyState, MagicCard, FadeIn, ShinyButton, Badge, Avatar, toTitleCase } from '@/app/components/shared/UI';
@@ -10,7 +11,7 @@ import { TeamCombobox, DisplayBadgeToggle } from '@/app/components/shared/Footba
 import { motion, AnimatePresence, Reorder } from 'framer-motion';
 
 import { generateFixtures, generatePlayoffs, updateMatchStatus, updateMatchScore, adminTriggerBracketProgress } from '@/app/actions/match';
-import { awardTrophy, removeTrophy, updateTrophy, createAnnouncement, deleteAnnouncement, endCelebration, retriggerCelebration, getCelebrations, getSystemSettings, updateSystemSettings, createCustomNotification, deleteCustomNotification, clearAllNotifications, adminUpdateRankingPoints } from '@/app/actions/admin';
+import { awardTrophy, removeTrophy, updateTrophy, createAnnouncement, deleteAnnouncement, updateAnnouncement, endCelebration, retriggerCelebration, getCelebrations, getSystemSettings, updateSystemSettings, createCustomNotification, deleteCustomNotification, clearAllNotifications, adminUpdateRankingPoints } from '@/app/actions/admin';
 
 import { startSeason, updateSeason, completeSeason, updateSeasonAwards } from '@/app/actions/season';
 import { signUpPlayer, adminUpdatePlayer, adminDeletePlayer } from '@/app/actions/player';
@@ -1782,6 +1783,8 @@ const Toggle = ({ checked, onChange, label, desc }) => (
 export function AdminAnnouncements({ announcements, showToast }) {
   const [form, setForm] = useState({ title: "", content: "" });
   const [loading, setLoading] = useState(false);
+  const [editingId, setEditingId] = useState(null);
+  const [editForm, setEditForm] = useState({ title: "", content: "" });
 
   const handlePost = async () => {
     if (!form.title || !form.content) return showToast("Title and Content required.");
@@ -1792,8 +1795,16 @@ export function AdminAnnouncements({ announcements, showToast }) {
     setLoading(false);
   };
 
+  const handleUpdate = async () => {
+    if (!editForm.title || !editForm.content) return showToast("Title and Content required.");
+    setLoading(true);
+    const res = await updateAnnouncement(editingId, editForm);
+    if (res.error) showToast(res.error);
+    else { showToast("Announcement updated!"); setEditingId(null); }
+    setLoading(false);
+  };
+
   const handleRemove = async (id) => {
-    if (!confirm("Remove announcement?")) return;
     setLoading(true);
     const res = await deleteAnnouncement(id);
     if (res.error) showToast(res.error);
@@ -1803,13 +1814,16 @@ export function AdminAnnouncements({ announcements, showToast }) {
 
   return (
     <div className="flex flex-col gap-6">
-      <Card className="p-4 sm:p-6">
+      <Card className="p-4 sm:p-6 border-white/[0.05] shadow-lg">
         <SectionTitle icon={Megaphone}>Post Announcement</SectionTitle>
-        <div className="grid gap-4 mt-4">
-          <div><Label>Title</Label><Input value={form.title} onChange={e => setForm({...form, title: e.target.value})} placeholder="e.g. Season Start!" /></div>
+        <div className="grid gap-4 mt-6">
           <div>
-            <Label>Message</Label>
-            <div className="mt-2 max-w-full overflow-hidden">
+            <Label className="text-muted-foreground mb-1.5 block">Title</Label>
+            <Input value={form.title} onChange={e => setForm({...form, title: e.target.value})} placeholder="e.g. BB FREE SQUAD TOURNAMENT" className="bg-background/50" />
+          </div>
+          <div>
+            <Label className="text-muted-foreground mb-1.5 block">Message</Label>
+            <div className="max-w-full overflow-hidden">
               <RichTextEditor 
                 value={form.content} 
                 onChange={val => setForm({...form, content: val})} 
@@ -1817,24 +1831,153 @@ export function AdminAnnouncements({ announcements, showToast }) {
             </div>
           </div>
         </div>
-        <ShinyButton className="mt-6 w-full sm:w-auto" onClick={handlePost} loading={loading}>Publish</ShinyButton>
+        <ShinyButton 
+          className={cn(
+            "mt-6 w-full sm:w-auto transition-all duration-300", 
+            (!form.title || !form.content) ? "opacity-50 cursor-not-allowed saturate-0" : "hover:shadow-[0_0_20px_rgba(245,158,11,0.3)]"
+          )} 
+          onClick={handlePost} 
+          loading={loading}
+          disabled={!form.title || !form.content}
+        >
+          Publish
+        </ShinyButton>
       </Card>
 
       <div className="flex flex-col gap-4">
-        {announcements?.map((a, i) => (
-          <FadeIn key={a.id} delay={i * 0.05}>
-            <MagicCard className="p-4 flex flex-col md:flex-row md:items-center justify-between gap-4">
-              <div>
-                <div className="font-bold">{a.title}</div>
-                <div 
-                  className="text-sm text-muted-foreground mt-1 max-w-none" 
-                  dangerouslySetInnerHTML={{ __html: a.content }}
-                />
-              </div>
-              <Btn variant="danger" className="shrink-0 w-full md:w-auto mt-2 md:mt-0" onClick={() => handleRemove(a.id)} loading={loading}>Delete</Btn>
-            </MagicCard>
-          </FadeIn>
-        ))}
+        <AnimatePresence>
+          {announcements?.map((a, i) => {
+            const isEditing = editingId === a.id;
+
+            return (
+              <motion.div 
+                key={a.id} 
+                initial={{ opacity: 0, y: 15 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.95 }}
+                transition={{ duration: 0.3, delay: isEditing ? 0 : i * 0.05 }}
+              >
+                <div className={cn(
+                  "p-5 md:p-6 flex flex-col gap-4 rounded-2xl border transition-all duration-300", 
+                  isEditing ? "bg-card border-amber-500/50 shadow-[0_0_30px_rgba(245,158,11,0.1)] ring-1 ring-amber-500/20" : "bg-black/20 border-white/[0.05] hover:border-white/10"
+                )}>
+                  {isEditing ? (
+                    <div className="flex flex-col gap-5">
+                      <div className="flex items-center justify-between border-b border-white/[0.05] pb-3">
+                        <div className="flex items-center gap-2 text-amber-500 text-sm font-bold tracking-wider uppercase">
+                          <Pencil size={16} />
+                          <span>Editing Announcement</span>
+                        </div>
+                      </div>
+                      <div>
+                        <Label className="text-muted-foreground mb-1.5 block">Title</Label>
+                        <Input value={editForm.title} onChange={e => setEditForm({...editForm, title: e.target.value})} placeholder="Title" className="bg-background/50" />
+                      </div>
+                      <div>
+                        <Label className="text-muted-foreground mb-1.5 block">Message</Label>
+                        <div className="max-w-full overflow-hidden">
+                          <RichTextEditor 
+                            value={editForm.content} 
+                            onChange={val => setEditForm({...editForm, content: val})} 
+                          />
+                        </div>
+                      </div>
+                      <div className="flex items-center justify-end gap-3 mt-2">
+                        <Popover.Root>
+                          <Popover.Trigger asChild>
+                            <Btn variant="outline" className="border-white/10 text-gray-400 hover:text-white" disabled={loading}>Cancel</Btn>
+                          </Popover.Trigger>
+                          <Popover.Portal>
+                            <Popover.Content className="z-50 p-4 bg-popover border border-border rounded-xl shadow-2xl w-64" sideOffset={8}>
+                              <p className="text-sm text-foreground mb-4">Discard unsaved changes?</p>
+                              <div className="flex gap-2 justify-end">
+                                <Popover.Close asChild>
+                                  <Btn variant="outline" size="sm">No</Btn>
+                                </Popover.Close>
+                                <Popover.Close asChild>
+                                  <Btn variant="danger" size="sm" onClick={() => setEditingId(null)}>Discard</Btn>
+                                </Popover.Close>
+                              </div>
+                            </Popover.Content>
+                          </Popover.Portal>
+                        </Popover.Root>
+                        <ShinyButton 
+                          onClick={handleUpdate} 
+                          loading={loading} 
+                          disabled={!editForm.title || !editForm.content}
+                          className={(!editForm.title || !editForm.content) ? "opacity-50 cursor-not-allowed saturate-0" : ""}
+                        >
+                          Save Changes
+                        </ShinyButton>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="flex flex-col md:flex-row gap-5">
+                      <div className="flex-grow">
+                        <div className="flex items-center gap-2 mb-3">
+                          <Badge variant="outline" className="border-amber-500/30 text-amber-500 bg-amber-500/10 gap-1.5 py-0.5 shadow-[0_0_10px_rgba(245,158,11,0.1)] rounded-full">
+                            <Eye size={12} />
+                            Preview
+                          </Badge>
+                          <span className="text-xs text-muted-foreground">Published</span>
+                        </div>
+                        <div className="font-black text-lg md:text-xl text-white tracking-wide uppercase mb-3">{a.title}</div>
+                        <div 
+                          className="text-sm md:text-[15px] text-gray-300 leading-relaxed max-w-none 
+                            [&_p]:mb-3 last:[&_p]:mb-0 
+                            [&_ul]:list-none [&_ul]:mb-3 [&_ul]:pl-1 
+                            [&_li]:relative [&_li]:pl-5 [&_li]:mb-1.5 
+                            [&_li::before]:content-[''] [&_li::before]:absolute [&_li::before]:left-0 [&_li::before]:top-[8px] [&_li::before]:w-1.5 [&_li::before]:h-1.5 [&_li::before]:bg-amber-500 [&_li::before]:rounded-full [&_li::before]:shadow-[0_0_5px_rgba(245,158,11,0.5)]
+                            [&_ol]:list-decimal [&_ol]:pl-5 [&_ol]:mb-3 [&_ol_li::before]:hidden [&_ol_li]:pl-1
+                            [&_strong]:text-white [&_strong]:font-[700]
+                            [&_h1]:text-2xl [&_h1]:font-black [&_h1]:mb-4 [&_h1]:text-white
+                            [&_h2]:text-xl [&_h2]:font-bold [&_h2]:mb-3 [&_h2]:text-white
+                            [&_h3]:text-lg [&_h3]:font-bold [&_h3]:mb-2 [&_h3]:text-white
+                            [&_a]:text-amber-500 [&_a]:hover:underline" 
+                          dangerouslySetInnerHTML={{ __html: a.content }}
+                        />
+                      </div>
+                      <div className="flex items-start gap-2 shrink-0 md:border-l md:border-white/[0.05] md:pl-5">
+                        <Btn 
+                          variant="outline" 
+                          className="border-white/10 text-gray-400 hover:text-white hover:border-white/30 hover:bg-white/5 h-10 w-10 p-0 rounded-lg flex items-center justify-center transition-all" 
+                          onClick={() => { setEditingId(a.id); setEditForm({ title: a.title, content: a.content }); }}
+                          title="Edit Announcement"
+                        >
+                          <Pencil size={18} />
+                        </Btn>
+                        <Popover.Root>
+                          <Popover.Trigger asChild>
+                            <Btn 
+                              variant="outline" 
+                              className="border-red-500/20 text-red-400 hover:bg-red-500 hover:text-white hover:border-red-500 transition-all h-10 w-10 p-0 rounded-lg flex items-center justify-center"
+                              title="Delete Announcement"
+                            >
+                              <Trash2 size={18} />
+                            </Btn>
+                          </Popover.Trigger>
+                          <Popover.Portal>
+                            <Popover.Content className="z-50 p-4 bg-popover border border-border rounded-xl shadow-2xl w-64" sideOffset={8} align="end">
+                              <p className="text-sm text-foreground mb-4">Delete this announcement permanently?</p>
+                              <div className="flex gap-2 justify-end">
+                                <Popover.Close asChild>
+                                  <Btn variant="outline" size="sm">Cancel</Btn>
+                                </Popover.Close>
+                                <Popover.Close asChild>
+                                  <Btn variant="danger" size="sm" onClick={() => handleRemove(a.id)}>Delete</Btn>
+                                </Popover.Close>
+                              </div>
+                            </Popover.Content>
+                          </Popover.Portal>
+                        </Popover.Root>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </motion.div>
+            );
+          })}
+        </AnimatePresence>
       </div>
     </div>
   );
