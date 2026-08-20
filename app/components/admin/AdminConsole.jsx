@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import * as Popover from '@radix-ui/react-popover';
+import * as RadixPopover from '@radix-ui/react-popover';
 import { Trophy, Calendar, Users, Radio, Clock, Check, Archive, Plus, Trash2, Settings, Swords, Edit2, ListOrdered, BarChart2, AlertTriangle, ArrowRight, Megaphone, ChevronDown, Package, MoreVertical, History, CheckCircle2, X, Camera, Copy, Download, RefreshCw, Eye, Pencil } from 'lucide-react';
 import { BorderBeam } from '@/app/components/magicui/BorderBeam';
 import { FlickeringGrid } from '@/app/components/magicui/FlickeringGrid';
@@ -1883,24 +1883,24 @@ export function AdminAnnouncements({ announcements, showToast }) {
                         </div>
                       </div>
                       <div className="flex items-center justify-end gap-3 mt-2">
-                        <Popover.Root>
-                          <Popover.Trigger asChild>
+                        <RadixPopover.Root>
+                          <RadixPopover.Trigger asChild>
                             <Btn variant="outline" className="border-white/10 text-gray-400 hover:text-white" disabled={loading}>Cancel</Btn>
-                          </Popover.Trigger>
-                          <Popover.Portal>
-                            <Popover.Content className="z-50 p-4 bg-popover border border-border rounded-xl shadow-2xl w-64" sideOffset={8}>
+                          </RadixPopover.Trigger>
+                          <RadixPopover.Portal>
+                            <RadixPopover.Content className="z-50 p-4 bg-popover border border-border rounded-xl shadow-2xl w-64" sideOffset={8}>
                               <p className="text-sm text-foreground mb-4">Discard unsaved changes?</p>
                               <div className="flex gap-2 justify-end">
-                                <Popover.Close asChild>
+                                <RadixPopover.Close asChild>
                                   <Btn variant="outline" size="sm">No</Btn>
-                                </Popover.Close>
-                                <Popover.Close asChild>
+                                </RadixPopover.Close>
+                                <RadixPopover.Close asChild>
                                   <Btn variant="danger" size="sm" onClick={() => setEditingId(null)}>Discard</Btn>
-                                </Popover.Close>
+                                </RadixPopover.Close>
                               </div>
-                            </Popover.Content>
-                          </Popover.Portal>
-                        </Popover.Root>
+                            </RadixPopover.Content>
+                          </RadixPopover.Portal>
+                        </RadixPopover.Root>
                         <ShinyButton 
                           onClick={handleUpdate} 
                           loading={loading} 
@@ -1946,8 +1946,8 @@ export function AdminAnnouncements({ announcements, showToast }) {
                         >
                           <Pencil size={18} />
                         </Btn>
-                        <Popover.Root>
-                          <Popover.Trigger asChild>
+                        <RadixPopover.Root>
+                          <RadixPopover.Trigger asChild>
                             <Btn 
                               variant="outline" 
                               className="border-red-500/20 text-red-400 hover:bg-red-500 hover:text-white hover:border-red-500 transition-all h-10 w-10 p-0 rounded-lg flex items-center justify-center"
@@ -1955,21 +1955,21 @@ export function AdminAnnouncements({ announcements, showToast }) {
                             >
                               <Trash2 size={18} />
                             </Btn>
-                          </Popover.Trigger>
-                          <Popover.Portal>
-                            <Popover.Content className="z-50 p-4 bg-popover border border-border rounded-xl shadow-2xl w-64" sideOffset={8} align="end">
+                          </RadixPopover.Trigger>
+                          <RadixPopover.Portal>
+                            <RadixPopover.Content className="z-50 p-4 bg-popover border border-border rounded-xl shadow-2xl w-64" sideOffset={8} align="end">
                               <p className="text-sm text-foreground mb-4">Delete this announcement permanently?</p>
                               <div className="flex gap-2 justify-end">
-                                <Popover.Close asChild>
+                                <RadixPopover.Close asChild>
                                   <Btn variant="outline" size="sm">Cancel</Btn>
-                                </Popover.Close>
-                                <Popover.Close asChild>
+                                </RadixPopover.Close>
+                                <RadixPopover.Close asChild>
                                   <Btn variant="danger" size="sm" onClick={() => handleRemove(a.id)}>Delete</Btn>
-                                </Popover.Close>
+                                </RadixPopover.Close>
                               </div>
-                            </Popover.Content>
-                          </Popover.Portal>
-                        </Popover.Root>
+                            </RadixPopover.Content>
+                          </RadixPopover.Portal>
+                        </RadixPopover.Root>
                       </div>
                     </div>
                   )}
