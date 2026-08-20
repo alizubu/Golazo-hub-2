@@ -471,7 +471,8 @@ export function PlayerDashboard({ me, activeSeason, seasons = [], matches, playe
 
         </div>
       </FadeIn>
-      <div className="grid grid-cols-1 md:grid-cols-12 gap-6 mt-4">
+
+      <div className="grid grid-cols-1 md:grid-cols-12 gap-6 mt-8 md:mt-12">
         <SeasonStats
           playerId={me.id}
           initialStats={{ rank: myRank, elo, played, winRate, goals, assists, won: myRow?.won || 0, lost: myRow?.lost || 0 }}
