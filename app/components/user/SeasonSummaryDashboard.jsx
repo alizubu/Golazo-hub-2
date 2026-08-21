@@ -38,12 +38,28 @@ function DonutChart({ data, colors, size = 120, strokeWidth = 14, centerTitle, c
   return (
     <div style={{ width: size, height: size }} className="relative flex items-center justify-center">
       <svg width={size} height={size} className="transform -rotate-90">
+        <defs>
+          {data.map((item, i) => {
+            if (item.value === 0) return null;
+            const color = colors[i % colors.length];
+            const id = `grad-${color.replace('#', '')}-${i}`;
+            return (
+              <linearGradient key={id} id={id} x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stopColor={color} stopOpacity="1" />
+                <stop offset="100%" stopColor={color} stopOpacity="0.3" />
+              </linearGradient>
+            );
+          })}
+        </defs>
         {data.map((item, i) => {
           if (item.value === 0) return null;
           const percentage = item.value / total;
           const strokeDasharray = `${percentage * circumference} ${circumference}`;
           const strokeDashoffset = -currentOffset * circumference;
           currentOffset += percentage;
+          
+          const color = colors[i % colors.length];
+          const gradId = `url(#grad-${color.replace('#', '')}-${i})`;
           
           return (
             <circle
@@ -52,7 +68,7 @@ function DonutChart({ data, colors, size = 120, strokeWidth = 14, centerTitle, c
               cy={center}
               r={radius}
               fill="none"
-              stroke={colors[i % colors.length]}
+              stroke={gradId}
               strokeWidth={strokeWidth}
               strokeDasharray={strokeDasharray}
               strokeDashoffset={strokeDashoffset}
@@ -391,7 +407,7 @@ export default function SeasonSummaryDashboard({ season, matches, players }) {
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4 md:gap-6 mt-4">
         
         {/* Top Scorers */}
-        <div className="bg-[#13161c] border border-border/20 rounded-xl p-5 shadow-lg hover:shadow-[0_0_30px_rgba(245,158,11,0.08)] hover:border-white/10 transition-all duration-500 flex flex-col relative overflow-hidden">
+        <div className="bg-gradient-to-br from-[#13161c] via-[#13161c] to-[#f59e0b]/10 border border-border/20 border-t-2 border-t-[#f59e0b] rounded-xl p-5 shadow-lg hover:shadow-[0_0_30px_rgba(245,158,11,0.08)] hover:border-white/10 transition-all duration-500 flex flex-col relative overflow-hidden">
           <div className="absolute top-0 right-0 p-4 opacity-5 pointer-events-none"><Goal size={120} /></div>
           <span className="text-[11px] font-bold text-[#f59e0b] uppercase tracking-[0.15em] mb-5 relative z-10">Top Scorers</span>
           <div className="flex flex-col gap-4 relative z-10">
@@ -415,7 +431,7 @@ export default function SeasonSummaryDashboard({ season, matches, players }) {
         </div>
 
         {/* Top Assists / Passes */}
-        <div className="bg-[#13161c] border border-border/20 rounded-xl p-5 shadow-lg hover:shadow-[0_0_30px_rgba(20,184,166,0.08)] hover:border-white/10 transition-all duration-500 flex flex-col relative overflow-hidden">
+        <div className="bg-gradient-to-br from-[#13161c] via-[#13161c] to-[#14b8a6]/10 border border-border/20 border-t-2 border-t-[#14b8a6] rounded-xl p-5 shadow-lg hover:shadow-[0_0_30px_rgba(20,184,166,0.08)] hover:border-white/10 transition-all duration-500 flex flex-col relative overflow-hidden">
           <div className="absolute top-0 right-0 p-4 opacity-5 pointer-events-none"><Footprints size={120} /></div>
           <span className="text-[11px] font-bold text-[#14b8a6] uppercase tracking-[0.15em] mb-5 relative z-10">Passing Leaders</span>
           <div className="flex flex-col gap-4 relative z-10">
@@ -439,7 +455,7 @@ export default function SeasonSummaryDashboard({ season, matches, players }) {
         </div>
 
         {/* Best Defense */}
-        <div className="bg-[#13161c] border border-border/20 rounded-xl p-5 shadow-lg hover:shadow-[0_0_30px_rgba(59,130,246,0.08)] hover:border-white/10 transition-all duration-500 flex flex-col relative overflow-hidden">
+        <div className="bg-gradient-to-br from-[#13161c] via-[#13161c] to-[#3b82f6]/10 border border-border/20 border-t-2 border-t-[#3b82f6] rounded-xl p-5 shadow-lg hover:shadow-[0_0_30px_rgba(59,130,246,0.08)] hover:border-white/10 transition-all duration-500 flex flex-col relative overflow-hidden">
           <div className="absolute top-0 right-0 p-4 opacity-5 pointer-events-none"><Shield size={120} /></div>
           <span className="text-[11px] font-bold text-[#3b82f6] uppercase tracking-[0.15em] mb-5 relative z-10">Best Defense</span>
           <div className="flex flex-col gap-4 relative z-10">
@@ -463,7 +479,7 @@ export default function SeasonSummaryDashboard({ season, matches, players }) {
         </div>
 
         {/* Clean Sheets */}
-        <div className="bg-[#13161c] border border-border/20 rounded-xl p-5 shadow-lg hover:shadow-[0_0_30px_rgba(236,72,153,0.08)] hover:border-white/10 transition-all duration-500 flex flex-col relative overflow-hidden">
+        <div className="bg-gradient-to-br from-[#13161c] via-[#13161c] to-[#ec4899]/10 border border-border/20 border-t-2 border-t-[#ec4899] rounded-xl p-5 shadow-lg hover:shadow-[0_0_30px_rgba(236,72,153,0.08)] hover:border-white/10 transition-all duration-500 flex flex-col relative overflow-hidden">
           <div className="absolute top-0 right-0 p-4 opacity-5 pointer-events-none"><Star size={120} /></div>
           <span className="text-[11px] font-bold text-[#ec4899] uppercase tracking-[0.15em] mb-5 relative z-10">Clean Sheets</span>
           <div className="flex flex-col gap-4 relative z-10">
