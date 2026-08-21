@@ -17,6 +17,7 @@ import TournamentControlPanel from '@/app/components/admin/TournamentControlPane
 import LiveMatchControl from '@/app/components/admin/LiveMatchControl';
 import SeasonSummaryDashboard from '@/app/components/user/SeasonSummaryDashboard';
 import { getPlayerIdentityBadgeUrl } from '@/lib/identityUtils';
+import AwardDetailModal from '@/app/components/shared/AwardDetailModal';
 
 function formatName(name) {
   if (!name) return 'TBD';
@@ -172,7 +173,7 @@ function NotificationCenter({ notifications = [], announcements = [], matches = 
 }
 
 // 9. Top Players
-function TopPlayersHorizontal({ matches, players, activeSeason }) {
+function TopPlayersHorizontal({ matches, players, activeSeason, onAwardClick }) {
   if (!activeSeason) return null;
   const standings = computeStandings(matches, players, activeSeason.id);
   if (standings.length === 0) return null;
@@ -207,10 +208,10 @@ function TopPlayersHorizontal({ matches, players, activeSeason }) {
   if (!mostPassesPlayer && standings.length > 0) mostPassesPlayer = standings[0];
 
   const categories = [
-    { label: "Golden Boot", player: topScorer, stat: `${topScorer?.gf || 0}`, statLabel: "Goals", icon: Target, color: "text-[#ffb703]", borderTop: "border-t-[#ffb703]", glow: "from-[#ffb703]/10 via-[#ffb703]/5 to-transparent", rankNum: "1" },
-    { label: "Most Wins", player: mostWins, stat: `${mostWins?.won || 0}`, statLabel: "Wins", icon: Trophy, color: "text-[#2dc653]", borderTop: "border-t-[#2dc653]", glow: "from-[#2dc653]/10 via-[#2dc653]/5 to-transparent", rankNum: "2" },
-    { label: "Best Defense", player: bestDefense, stat: bestDefense && bestDefense.played > 0 ? (bestDefense.ga / bestDefense.played).toFixed(1) : "0.0", statLabel: "Goals Conceded", icon: Shield, color: "text-[#00b4d8]", borderTop: "border-t-[#00b4d8]", glow: "from-[#00b4d8]/10 via-[#00b4d8]/5 to-transparent", rankNum: "3" },
-    { label: "Most Passes", player: mostPassesPlayer, stat: `${highestPassesVal}`, statLabel: "Successful Passes", icon: Zap, color: "text-[#f48c06]", borderTop: "border-t-[#f48c06]", glow: "from-[#f48c06]/10 via-[#f48c06]/5 to-transparent", rankNum: "4" }
+    { id: 'goldenBoot', label: "Golden Boot", player: topScorer, stat: `${topScorer?.gf || 0}`, statLabel: "Goals", icon: Target, color: "text-[#ffb703]", borderTop: "border-t-[#ffb703]", glow: "from-[#ffb703]/10 via-[#ffb703]/5 to-transparent", rankNum: "1" },
+    { id: 'mostWins', label: "Most Wins", player: mostWins, stat: `${mostWins?.won || 0}`, statLabel: "Wins", icon: Trophy, color: "text-[#2dc653]", borderTop: "border-t-[#2dc653]", glow: "from-[#2dc653]/10 via-[#2dc653]/5 to-transparent", rankNum: "2" },
+    { id: 'bestDefense', label: "Best Defense", player: bestDefense, stat: bestDefense && bestDefense.played > 0 ? (bestDefense.ga / bestDefense.played).toFixed(1) : "0.0", statLabel: "Goals Conceded", icon: Shield, color: "text-[#00b4d8]", borderTop: "border-t-[#00b4d8]", glow: "from-[#00b4d8]/10 via-[#00b4d8]/5 to-transparent", rankNum: "3" },
+    { id: 'mostPasses', label: "Most Passes", player: mostPassesPlayer, stat: `${highestPassesVal}`, statLabel: "Successful Passes", icon: Zap, color: "text-[#f48c06]", borderTop: "border-t-[#f48c06]", glow: "from-[#f48c06]/10 via-[#f48c06]/5 to-transparent", rankNum: "4" }
   ];
 
   return (
@@ -218,7 +219,10 @@ function TopPlayersHorizontal({ matches, players, activeSeason }) {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 w-full">
         {categories.map((cat) => (
           <div key={cat.label} className="w-full h-full">
-            <div className={`relative flex flex-col p-5 rounded-[16px] bg-[#0c0e12] border border-border/20 border-t-2 ${cat.borderTop} transition-all duration-300 cursor-pointer h-[240px] justify-between group overflow-hidden shadow-lg hover:-translate-y-1`}>
+            <div 
+              onClick={() => onAwardClick(cat.id, cat.player)}
+              className={`relative flex flex-col p-5 rounded-[16px] bg-[#0c0e12] border border-border/20 border-t-2 ${cat.borderTop} transition-all duration-300 cursor-pointer h-[240px] justify-between group overflow-hidden shadow-lg hover:-translate-y-1`}
+            >
               
               {/* Subtle Gradient Glow */}
               <div className={`absolute inset-0 bg-gradient-to-b ${cat.glow} opacity-60 group-hover:opacity-100 transition-opacity pointer-events-none z-0`} />
@@ -413,6 +417,8 @@ export default function AdminOverviewDashboard({ players = [], activeSeason, mat
   const [realtimeOverrides, setRealtimeOverrides] = useState({});
   const summarySnapshotRef = useRef(null);
   const [isExportingSnapshot, setIsExportingSnapshot] = useState(false);
+  const [selectedAward, setSelectedAward] = useState(null);
+  const [selectedAwardPlayer, setSelectedAwardPlayer] = useState(null);
 
   const handleExportSnapshot = async () => {
     if (!summarySnapshotRef.current) return;
@@ -542,7 +548,12 @@ export default function AdminOverviewDashboard({ players = [], activeSeason, mat
         </div>
 
         <div className="relative z-10 flex flex-col gap-8">
-          <TopPlayersHorizontal matches={liveMatches} players={players} activeSeason={activeSeason} />
+          <TopPlayersHorizontal 
+            matches={liveMatches} 
+            players={players} 
+            activeSeason={activeSeason} 
+            onAwardClick={(id, p) => { setSelectedAward(id); setSelectedAwardPlayer(p); }}
+          />
 
           <div className="w-full">
             <div className="flex items-center gap-2 mb-4 pl-1">
@@ -555,6 +566,17 @@ export default function AdminOverviewDashboard({ players = [], activeSeason, mat
 
 
       <TournamentControlPanel season={activeSeason} showToast={showToast} session={session} managerPermissions={managerPermissions} />
+
+      {selectedAward && selectedAwardPlayer && (
+        <AwardDetailModal
+          awardId={selectedAward}
+          player={selectedAwardPlayer}
+          activeSeason={activeSeason}
+          matches={liveMatches}
+          players={players}
+          onClose={() => { setSelectedAward(null); setSelectedAwardPlayer(null); }}
+        />
+      )}
     </div>
   );
 }
