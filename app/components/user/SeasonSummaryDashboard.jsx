@@ -505,22 +505,22 @@ export default function SeasonSummaryDashboard({ season, matches, players }) {
       </div>
 
       {/* ─── ROW 4: Key Highlights Footer Ribbon ─── */}
-      <div className="mt-4 bg-[#0c0e12] border border-border/40 rounded-xl p-5 shadow-2xl flex flex-col md:flex-row items-start md:items-center justify-between gap-6 relative overflow-hidden group hover:border-white/20 transition-all duration-500 hover:shadow-[0_0_40px_rgba(255,255,255,0.05)]">
+      <div className="mt-4 bg-gradient-to-r from-[#0c0e12] via-[#13161c] to-[#0c0e12] border border-border/40 rounded-xl p-5 shadow-2xl flex flex-col md:flex-row items-start md:items-center justify-between gap-6 relative overflow-hidden group hover:border-white/20 transition-all duration-500 hover:shadow-[0_0_40px_rgba(255,255,255,0.08)]">
         {/* Subtle glow behind ribbon */}
         <div className="absolute inset-0 bg-gradient-to-r from-white/[0.02] via-white/[0.05] to-white/[0.02] pointer-events-none" />
         
-        <div className="shrink-0 relative z-10 bg-white/5 px-3 py-1.5 rounded-lg border border-white/10 group-hover:border-white/20 transition-colors shadow-lg">
-          <span className="text-[10px] font-bold text-white/90 uppercase tracking-[0.2em]">Key Highlights</span>
+        <div className="shrink-0 relative z-10 bg-white/10 px-3 py-1.5 rounded-lg border border-white/20 group-hover:border-white/30 transition-colors shadow-[0_0_15px_rgba(255,255,255,0.05)]">
+          <span className="text-[10px] font-bold text-white uppercase tracking-[0.2em] drop-shadow-sm">Key Highlights</span>
         </div>
 
         <div className="flex-1 flex flex-wrap md:flex-nowrap items-center justify-start md:justify-around gap-6 w-full relative z-10 divide-x divide-white/10">
           
           <div className="flex items-center gap-3 pl-0">
-            <div className="p-2 rounded-full bg-[#f59e0b]/10"><Target size={20} className="text-[#f59e0b]" /></div>
+            <div className="p-2 rounded-full bg-[#f59e0b]/10 border border-[#f59e0b]/20 shadow-[0_0_10px_rgba(245,158,11,0.1)]"><Target size={20} className="text-[#f59e0b]" /></div>
             <div className="flex flex-col">
-              <span className="text-[8px] uppercase font-bold tracking-widest text-[#f59e0b]">Biggest Win</span>
-              <span className="font-score font-black text-[20px] text-white leading-none mt-1">{summary.biggestWinScore}</span>
-              <span className="text-[10px] text-muted-foreground mt-0.5 truncate max-w-[120px]">
+              <span className="text-[9px] uppercase font-bold tracking-[0.2em] text-[#f59e0b] drop-shadow-sm">Biggest Win</span>
+              <span className="font-score font-black text-[22px] text-white leading-none mt-1 drop-shadow-md">{summary.biggestWinScore}</span>
+              <span className="text-[11px] text-zinc-300 font-medium mt-0.5 truncate max-w-[130px]">
                 {summary.biggestWinMatch ? (() => {
                   const p1 = players.find(p => p.id === summary.biggestWinMatch.homeId);
                   const p2 = players.find(p => p.id === summary.biggestWinMatch.awayId);
@@ -531,29 +531,29 @@ export default function SeasonSummaryDashboard({ season, matches, players }) {
           </div>
 
           <div className="flex items-center gap-3 pl-6">
-            <div className="p-2 rounded-full bg-[#22c55e]/10"><Flame size={20} className="text-[#22c55e]" /></div>
+            <div className="p-2 rounded-full bg-[#22c55e]/10 border border-[#22c55e]/20 shadow-[0_0_10px_rgba(34,197,94,0.1)]"><Flame size={20} className="text-[#22c55e]" /></div>
             <div className="flex flex-col">
-              <span className="text-[8px] uppercase font-bold tracking-widest text-[#22c55e]">Win Streak</span>
-              <span className="font-score font-black text-[20px] text-white leading-none mt-1">{summary.longestWinStreak?.bestWinStreak || 0}</span>
-              <span className="text-[10px] text-muted-foreground mt-0.5 truncate max-w-[120px]">Matches by {summary.longestWinStreak?.player?.name || '—'}</span>
+              <span className="text-[9px] uppercase font-bold tracking-[0.2em] text-[#22c55e] drop-shadow-sm">Win Streak</span>
+              <span className="font-score font-black text-[22px] text-white leading-none mt-1 drop-shadow-md">{summary.longestWinStreak?.bestWinStreak || 0}</span>
+              <span className="text-[11px] text-zinc-300 font-medium mt-0.5 truncate max-w-[130px]">Matches by {summary.longestWinStreak?.player?.name || '—'}</span>
             </div>
           </div>
 
           <div className="flex items-center gap-3 pl-6">
-            <div className="p-2 rounded-full bg-[#ec4899]/10"><Star size={20} className="text-[#ec4899]" /></div>
+            <div className="p-2 rounded-full bg-[#ec4899]/10 border border-[#ec4899]/20 shadow-[0_0_10px_rgba(236,72,153,0.1)]"><Star size={20} className="text-[#ec4899]" /></div>
             <div className="flex flex-col">
-              <span className="text-[8px] uppercase font-bold tracking-widest text-[#ec4899]">CS Streak</span>
-              <span className="font-score font-black text-[20px] text-white leading-none mt-1">{summary.longestCSStreak?.bestCSStreak || 0}</span>
-              <span className="text-[10px] text-muted-foreground mt-0.5 truncate max-w-[120px]">Matches by {summary.longestCSStreak?.player?.name || '—'}</span>
+              <span className="text-[9px] uppercase font-bold tracking-[0.2em] text-[#ec4899] drop-shadow-sm">CS Streak</span>
+              <span className="font-score font-black text-[22px] text-white leading-none mt-1 drop-shadow-md">{summary.longestCSStreak?.bestCSStreak || 0}</span>
+              <span className="text-[11px] text-zinc-300 font-medium mt-0.5 truncate max-w-[130px]">Matches by {summary.longestCSStreak?.player?.name || '—'}</span>
             </div>
           </div>
 
           <div className="flex items-center gap-3 pl-6">
-            <div className="p-2 rounded-full bg-[#3b82f6]/10"><Clock size={20} className="text-[#3b82f6]" /></div>
+            <div className="p-2 rounded-full bg-[#3b82f6]/10 border border-[#3b82f6]/20 shadow-[0_0_10px_rgba(59,130,246,0.1)]"><Clock size={20} className="text-[#3b82f6]" /></div>
             <div className="flex flex-col">
-              <span className="text-[8px] uppercase font-bold tracking-widest text-[#3b82f6]">Most Minutes</span>
-              <span className="font-score font-black text-[20px] text-white leading-none mt-1">{summary.mostMinutes?.minutesPlayed || 0}</span>
-              <span className="text-[10px] text-muted-foreground mt-0.5 truncate max-w-[120px]">By {summary.mostMinutes?.player?.name || '—'}</span>
+              <span className="text-[9px] uppercase font-bold tracking-[0.2em] text-[#3b82f6] drop-shadow-sm">Most Minutes</span>
+              <span className="font-score font-black text-[22px] text-white leading-none mt-1 drop-shadow-md">{summary.mostMinutes?.minutesPlayed || 0}</span>
+              <span className="text-[11px] text-zinc-300 font-medium mt-0.5 truncate max-w-[130px]">By {summary.mostMinutes?.player?.name || '—'}</span>
             </div>
           </div>
 
