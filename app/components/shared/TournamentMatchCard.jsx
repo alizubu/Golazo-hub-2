@@ -39,7 +39,7 @@ const STAGE_CONFIG = {
     labelClass: 'bg-gradient-to-r from-[#0d2a5c] to-[#04122d] border-[#1769FF]/50 text-white shadow-none',
     bgClass: 'bg-gradient-to-r from-[#031024] via-[#051c42] to-[#031024] border-[#1769FF]/30',
     gridColor: '#1769FF',
-    gridOpacity: 0.08,
+    gridOpacity: 0.35,
     vsBadge: 'stroke-[#FFB800]/80 fill-[#0a0b10] text-[#FFB800] drop-shadow-md',
     startBtn: 'border-[#1769FF]/50 bg-[#1769FF]/20 text-[#00C8FF] shadow-none hover:bg-[#1769FF]/30'
   },
@@ -48,7 +48,7 @@ const STAGE_CONFIG = {
     labelClass: 'bg-gradient-to-r from-[#5c0f0f] to-[#240505] border-[#FF2C2C]/50 text-white shadow-none',
     bgClass: 'bg-gradient-to-r from-[#240505] via-[#3a0808] to-[#240505] border-[#FF2C2C]/30',
     gridColor: '#FF2C2C',
-    gridOpacity: 0.08,
+    gridOpacity: 0.35,
     vsBadge: 'stroke-[#FFB800]/80 fill-[#0a0b10] text-[#FFB800] drop-shadow-md',
     startBtn: 'border-[#FF2C2C]/50 bg-[#FF2C2C]/20 text-[#FF4F4F] shadow-none hover:bg-[#FF2C2C]/30'
   },
@@ -57,7 +57,7 @@ const STAGE_CONFIG = {
     labelClass: 'bg-[#022c22] border-[#10b981]/50 text-[#6ee7b7] drop-shadow-[0_0_8px_rgba(16,185,129,0.5)]',
     bgClass: 'bg-gradient-to-r from-[#021f18] via-[#064e3b] to-[#021f18] border-[#10b981]/30',
     gridColor: '#10b981',
-    gridOpacity: 0.1,
+    gridOpacity: 0.35,
     vsBadge: 'stroke-[#34d399] fill-[#022c22] text-[#34d399] drop-shadow-[0_0_10px_rgba(52,211,153,0.3)] stroke-[1.5px]',
     startBtn: 'border-[#10b981]/60 bg-[#065f46]/30 text-[#6ee7b7] hover:bg-[#065f46]/50 hover:shadow-[0_0_15px_rgba(16,185,129,0.4)] px-6 py-2'
   },
