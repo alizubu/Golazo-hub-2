@@ -10,7 +10,7 @@ import { TeamCombobox, DisplayBadgeToggle } from '@/app/components/shared/Footba
 import { cn } from '@/lib/utils';
 import { motion, AnimatePresence, Reorder } from 'framer-motion';
 
-import { generateFixtures, generatePlayoffs, updateMatchStatus, updateMatchScore, adminTriggerBracketProgress } from '@/app/actions/match';
+import { generateFixtures, generatePlayoffs, updateMatchStatus, updateMatchScore, adminTriggerBracketProgress, updateMatchOrder } from '@/app/actions/match';
 import { awardTrophy, removeTrophy, updateTrophy, createAnnouncement, deleteAnnouncement, updateAnnouncement, endCelebration, retriggerCelebration, getCelebrations, getSystemSettings, updateSystemSettings, createCustomNotification, deleteCustomNotification, clearAllNotifications, adminUpdateRankingPoints } from '@/app/actions/admin';
 
 import { startSeason, updateSeason, completeSeason, updateSeasonAwards } from '@/app/actions/season';
@@ -80,6 +80,7 @@ import AdminHistory from '@/app/components/admin/AdminHistory';
 import AdminNotifications from '@/app/components/admin/AdminNotifications';
 import { MobileStandingsList } from '@/app/components/admin/AdminOverviewDashboard';
 import StandingsTable from '@/app/components/shared/StandingsTable';
+import { TournamentMatchCard } from '@/app/components/shared/TournamentMatchCard';
 
 import dynamic from 'next/dynamic';
 import RichTextEditor from '@/app/components/shared/RichTextEditor';
@@ -464,11 +465,21 @@ export function AdminMatches({ matches, activeSeason, players, showToast, setTab
         </div>
         
         <div className="flex-1 flex flex-col px-0 py-2 sm:p-6 bg-secondary/10">
-          <Reorder.Group axis="y" values={orderedMatches} onReorder={setOrderedMatches} className="grid gap-2 sm:gap-4 px-0 sm:px-0">
+          <Reorder.Group 
+            axis="y" 
+            values={orderedMatches} 
+            onReorder={(newOrder) => {
+              setOrderedMatches(newOrder);
+              updateMatchOrder(newOrder.map(m => m.id)).then(res => {
+                if (res?.error) showToast(res.error);
+              });
+            }} 
+            className="grid gap-2 sm:gap-4 px-0 sm:px-0"
+          >
             {orderedMatches.map((m, i) => (
               <Reorder.Item key={m.id} value={m} dragListener={!isMobile} className={`relative ${!isMobile ? 'cursor-grab active:cursor-grabbing' : ''}`}>
                 <FadeIn delay={Math.min(i * 0.05, 0.5)}>
-                  <AdminMatchControl m={m} players={players} showToast={showToast} setTab={setTab} isPlayoff={false} />
+                  <AdminMatchControl m={m} players={players} showToast={showToast} setTab={setTab} isPlayoff={false} index={i} />
                 </FadeIn>
               </Reorder.Item>
             ))}
@@ -479,7 +490,7 @@ export function AdminMatches({ matches, activeSeason, players, showToast, setTab
   );
 }
 
-function AdminMatchControl({ m, players, showToast, setTab, isPlayoff = false }) {
+function AdminMatchControl({ m, players, showToast, setTab, isPlayoff = false, index = 0 }) {
   const isMobile = useIsMobile();
   const byId = Object.fromEntries(players.map((p) => [p.id, p]));
   const h = byId[m.homeId], a = byId[m.awayId];
@@ -577,102 +588,27 @@ function AdminMatchControl({ m, players, showToast, setTab, isPlayoff = false })
   }
 
   if (optStatus === "scheduled") {
-    const hFlagUrl = getPlayerIdentityBadgeUrl(h);
-    const aFlagUrl = getPlayerIdentityBadgeUrl(a);
+    let stage = 'normal';
+    if (m.round === 'semiA') stage = 'qualifier-1';
+    else if (m.round === 'semiB') stage = 'eliminator';
+    else if (m.round === 'challenger') stage = 'qualifier-2';
+    else if (m.round === 'final') stage = 'final';
+    
+    // Create minimal stats object for the card UI
+    const mockStats = { rank: '-', wins: '-' };
 
     return (
-      <div className={`relative flex flex-col px-1.5 py-3 sm:p-6 rounded-none sm:rounded-3xl bg-[#0a0b10] border-y sm:border ${m.round === 'final' ? 'border-amber-500/50 shadow-[0_0_30px_rgba(245,158,11,0.2)]' : 'border-white/5 shadow-2xl'} overflow-hidden group transition-all duration-500 hover:scale-[1.01]`}>
-        
-        {m.round === 'final' && (
-          <div className="absolute top-0 left-1/2 -translate-x-1/2 bg-amber-500 text-black font-black text-[10px] sm:text-xs tracking-widest uppercase px-4 sm:px-8 py-0.5 sm:py-1 rounded-b-xl shadow-[0_0_20px_rgba(245,158,11,0.6)] z-30">
-            Grand Final
-          </div>
-        )}
-
-        {/* Layer 1: Tactical Auroras */}
-        <div className="absolute inset-y-0 left-0 w-2/3 bg-gradient-to-r from-red-500/20 to-transparent pointer-events-none opacity-50 group-hover:opacity-85 transition-opacity duration-700 blur-2xl" />
-        <div className="absolute inset-y-0 right-0 w-2/3 bg-gradient-to-l from-emerald-500/20 to-transparent pointer-events-none opacity-50 group-hover:opacity-85 transition-opacity duration-700 blur-2xl" />
-        
-        {/* Layer 2: Flickering Grid */}
-        <FlickeringGrid className="z-0 absolute inset-0 [mask-image:radial-gradient(circle_at_center,white,transparent_80%)]" color="#ef4444" colorTo="#10b981" maxOpacity={0.12} flickerSpeed={0.5} gridSize={12} />
-
-        {/* Layer 3: Glassmorphic Sweep */}
-        <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/[0.03] to-transparent -translate-x-[150%] group-hover:translate-x-[150%] transition-transform duration-1000 ease-in-out pointer-events-none" />
-
-        <div className="flex flex-row items-center justify-between gap-1 sm:gap-4 w-full relative z-10">
-          
-          {/* Home Team */}
-          <div className="flex flex-col sm:flex-row items-center gap-1.5 sm:gap-5 flex-1 min-w-0 justify-center sm:justify-start order-1">
-            <div className="relative shrink-0">
-              <div className="absolute -inset-1 bg-gradient-to-br from-red-600 to-rose-600 rounded-full blur-md opacity-30 group-hover:opacity-50 transition-opacity" />
-              <div className="relative rounded-full ring-2 ring-red-500 shadow-[0_0_20px_rgba(220,38,38,0.5)]">
-                <div className="relative rounded-full overflow-hidden bg-background">
-                  <Avatar p={h} className="!w-12 !h-12 sm:!w-20 sm:!h-20 rounded-full !border-0" />
-                  <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/30 to-transparent -translate-x-[150%] group-hover:translate-x-[150%] transition-transform duration-1000 ease-in-out pointer-events-none" />
-                </div>
-              </div>
-              {/* Club Flag */}
-              {hFlagUrl && (
-                <div className="absolute -bottom-1 -right-1 sm:-bottom-2 sm:-right-2 bg-transparent rounded-full p-0.5">
-                  <img src={hFlagUrl} alt="badge" className="w-5 h-5 sm:w-8 sm:h-8 object-contain drop-shadow-md" />
-                </div>
-              )}
-            </div>
-            <div className="flex flex-col items-center sm:items-start min-w-0 w-full text-center sm:text-left">
-              <span className="font-black text-[11px] sm:text-2xl truncate w-full tracking-tight animate-gradient bg-gradient-to-r from-red-200 via-white to-red-200 bg-[length:200%_auto] text-transparent bg-clip-text drop-shadow-[0_0_15px_rgba(239,68,68,0.3)]" style={{ fontFamily: "'Sora', sans-serif" }}>
-                {toTitleCase(h?.name) || 'TBD'}
-              </span>
-              <div className="flex flex-col sm:flex-row items-center gap-0.5 sm:gap-3 mt-0.5 sm:mt-1.5 text-slate-300 w-full justify-center sm:justify-start">
-                <span className="text-[9px] sm:text-base font-bold truncate w-full opacity-70 sm:opacity-100">{h?.favoriteClub || 'TBD'}</span>
-              </div>
-            </div>
-          </div>
-          
-          {/* VS Badge / Start Button */}
-          <div className="flex flex-col items-center justify-center shrink-0 px-1 sm:px-6 relative order-2 z-20">
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[200%] h-[1px] bg-gradient-to-r from-transparent via-white/20 to-transparent hidden sm:block z-0" />
-            
-            <div className="relative z-10 flex flex-col items-center justify-center w-10 h-10 sm:w-24 sm:h-24">
-              <div className="absolute inset-0 bg-amber-500/20 rounded-full blur-lg sm:blur-xl animate-pulse" />
-              <svg viewBox="0 0 100 100" className="absolute inset-0 w-full h-full drop-shadow-[0_0_10px_rgba(245,158,11,0.5)] sm:drop-shadow-[0_0_20px_rgba(245,158,11,0.5)]">
-                <polygon points="50,5 90,25 90,75 50,95 10,75 10,25" fill="rgba(245,158,11,0.1)" stroke="rgba(245,158,11,0.5)" strokeWidth="2" />
-              </svg>
-              <span className="text-[10px] sm:text-3xl font-black text-amber-400 relative z-20 font-score tracking-widest drop-shadow-[0_0_10px_rgba(245,158,11,1)]" style={{ fontFamily: "'Chakra Petch', sans-serif" }}>VS</span>
-            </div>
-
-            <ShinyButton onClick={startMatch} loading={loading} className="relative z-20 mt-1.5 sm:mt-0 px-3 sm:px-6 py-1 sm:py-2.5 text-[9px] sm:text-xs font-black shadow-[0_0_15px_rgba(16,185,129,0.4)] sm:shadow-[0_0_20px_rgba(16,185,129,0.4)] hover:shadow-[0_0_40px_rgba(16,185,129,0.8)] rounded-full border border-emerald-400/60 bg-gradient-to-b from-emerald-500/20 to-emerald-900/40 text-emerald-300 backdrop-blur-xl uppercase tracking-widest hover:scale-[1.05] transition-all duration-300">
-              Start
-            </ShinyButton>
-          </div>
-          
-          {/* Away Team */}
-          <div className="flex flex-col sm:flex-row items-center gap-1.5 sm:gap-5 flex-1 min-w-0 justify-center sm:justify-end order-3">
-            <div className="flex flex-col items-center sm:items-end min-w-0 w-full text-center sm:text-right order-2 sm:order-1">
-              <span className="font-black text-[11px] sm:text-2xl truncate w-full tracking-tight animate-gradient bg-gradient-to-r from-emerald-200 via-white to-emerald-200 bg-[length:200%_auto] text-transparent bg-clip-text drop-shadow-[0_0_15px_rgba(16,185,129,0.3)]" style={{ fontFamily: "'Sora', sans-serif" }}>
-                {toTitleCase(a?.name) || 'TBD'}
-              </span>
-              <div className="flex flex-col sm:flex-row items-center gap-0.5 sm:gap-3 mt-0.5 sm:mt-1.5 text-slate-300 w-full justify-center sm:justify-end">
-                <span className="text-[9px] sm:text-base font-bold truncate w-full opacity-70 sm:opacity-100 order-2 sm:order-1">{a?.favoriteClub || 'TBD'}</span>
-              </div>
-            </div>
-            <div className="relative shrink-0 order-1 sm:order-2">
-              <div className="absolute -inset-1 bg-gradient-to-br from-emerald-600 to-teal-600 rounded-full blur-md opacity-30 group-hover:opacity-50 transition-opacity" />
-              <div className="relative rounded-full ring-2 ring-emerald-500 shadow-[0_0_20px_rgba(16,185,129,0.5)]">
-                <div className="relative rounded-full overflow-hidden bg-background">
-                  <Avatar p={a} className="!w-12 !h-12 sm:!w-20 sm:!h-20 rounded-full !border-0" />
-                  <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/30 to-transparent -translate-x-[150%] group-hover:translate-x-[150%] transition-transform duration-1000 ease-in-out pointer-events-none" />
-                </div>
-              </div>
-              {/* Club Flag */}
-              {aFlagUrl && (
-                <div className="absolute -bottom-1 -left-1 sm:-bottom-2 sm:-left-2 bg-transparent rounded-full p-0.5">
-                  <img src={aFlagUrl} alt="badge" className="w-5 h-5 sm:w-8 sm:h-8 object-contain drop-shadow-md" />
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-      </div>
+      <TournamentMatchCard 
+        stage={stage}
+        m={m}
+        h={h}
+        a={a}
+        hStats={mockStats}
+        aStats={mockStats}
+        index={index}
+        onStartClick={startMatch}
+        onClick={() => {}} // Do nothing on general card click in admin mode, require explicit Start button click
+      />
     );
   }
 

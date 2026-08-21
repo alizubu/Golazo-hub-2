@@ -571,3 +571,24 @@ export async function adminTriggerBracketProgress(seasonId) {
     return { error: 'Failed to trigger bracket progress: ' + (error.message || String(error)) };
   }
 }
+
+export async function updateMatchOrder(matchIds) {
+  const auth = await checkSessionPermission('canManageMatches');
+  if (!auth.authorized) return { error: auth.error };
+  if (!matchIds || !Array.isArray(matchIds)) return { error: 'Invalid match IDs' };
+
+  try {
+    const baseTime = Date.now();
+    for (let i = 0; i < matchIds.length; i++) {
+      await prisma.match.update({
+        where: { id: matchIds[i] },
+        data: { scheduledAt: new Date(baseTime + i * 60000) }
+      });
+    }
+    revalidatePath('/');
+    revalidatePath('/admin');
+    return { success: true };
+  } catch (error) {
+    return { error: 'Failed to update match order' };
+  }
+}

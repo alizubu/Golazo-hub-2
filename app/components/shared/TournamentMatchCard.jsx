@@ -76,7 +76,7 @@ const STAGE_CONFIG = {
   }
 };
 
-export function TournamentMatchCard({ stage = 'normal', m, h, a, hStats, aStats, index, onClick }) {
+export function TournamentMatchCard({ stage = 'normal', m, h, a, hStats, aStats, index, onClick, onStartClick }) {
   const isCompleted = m?.status === 'completed';
   const config = STAGE_CONFIG[stage] || STAGE_CONFIG['normal'];
   const isFinal = stage === 'final';
@@ -220,7 +220,15 @@ export function TournamentMatchCard({ stage = 'normal', m, h, a, hStats, aStats,
           
           {/* START Button */}
           {!isCompleted && (
-             <div className={`flex items-center justify-center px-5 py-1.5 mt-2 rounded-full border backdrop-blur-md cursor-pointer transition-all duration-300 transform group-hover:-translate-y-1 z-20 ${config.startBtn}`}>
+             <div 
+               onClick={(e) => {
+                 if (onStartClick) {
+                   e.stopPropagation();
+                   onStartClick();
+                 }
+               }}
+               className={`flex items-center justify-center px-5 py-1.5 mt-2 rounded-full border backdrop-blur-md cursor-pointer transition-all duration-300 transform group-hover:-translate-y-1 z-20 ${config.startBtn}`}
+             >
                <span className="text-[11px] font-black uppercase tracking-[0.2em]">Start</span>
              </div>
           )}
