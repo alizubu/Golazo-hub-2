@@ -37,8 +37,17 @@ function DonutChart({ data, colors, size = 120, strokeWidth = 14, centerTitle, c
 
   return (
     <div style={{ width: size, height: size }} className="relative flex items-center justify-center">
-      <svg width={size} height={size} className="transform -rotate-90">
+      <svg width={size} height={size} className="transform -rotate-90 overflow-visible">
         <defs>
+          <filter id="neonGlow" x="-50%" y="-50%" width="200%" height="200%">
+            <feGaussianBlur in="SourceGraphic" stdDeviation="3" result="blur1" />
+            <feGaussianBlur in="SourceGraphic" stdDeviation="6" result="blur2" />
+            <feMerge>
+              <feMergeNode in="blur2" />
+              <feMergeNode in="blur1" />
+              <feMergeNode in="SourceGraphic" />
+            </feMerge>
+          </filter>
           {data.map((item, i) => {
             if (item.value === 0) return null;
             const color = colors[i % colors.length];
@@ -46,7 +55,7 @@ function DonutChart({ data, colors, size = 120, strokeWidth = 14, centerTitle, c
             return (
               <linearGradient key={id} id={id} x1="0%" y1="0%" x2="100%" y2="100%">
                 <stop offset="0%" stopColor={color} stopOpacity="1" />
-                <stop offset="100%" stopColor={color} stopOpacity="0.3" />
+                <stop offset="100%" stopColor={color} stopOpacity="0.4" />
               </linearGradient>
             );
           })}
@@ -73,6 +82,7 @@ function DonutChart({ data, colors, size = 120, strokeWidth = 14, centerTitle, c
               strokeDasharray={strokeDasharray}
               strokeDashoffset={strokeDashoffset}
               strokeLinecap="butt"
+              filter="url(#neonGlow)"
               className="transition-all duration-1000 ease-out"
             />
           );
@@ -359,14 +369,14 @@ export default function SeasonSummaryDashboard({ season, matches, players }) {
                 { label: 'Home Goals', value: summary.homeGoals },
                 { label: 'Away Goals', value: summary.awayGoals },
               ]}
-              colors={['#f59e0b', '#3b82f6']}
+              colors={['#3b82f6', '#ef4444']}
               centerTitle="Goals"
               size={110}
-              strokeWidth={12}
+              strokeWidth={10}
             />
             <div className="flex flex-col gap-3 justify-center">
-              <div className="flex items-center gap-2 text-[10px] uppercase font-bold text-white tracking-widest"><div className="w-2 h-2 rounded-full bg-[#f59e0b]" /> Home <span className="text-muted-foreground ml-auto">{((summary.homeGoals/summary.totalGoals)*100).toFixed(1)}%</span></div>
-              <div className="flex items-center gap-2 text-[10px] uppercase font-bold text-white tracking-widest"><div className="w-2 h-2 rounded-full bg-[#3b82f6]" /> Away <span className="text-muted-foreground ml-auto">{((summary.awayGoals/summary.totalGoals)*100).toFixed(1)}%</span></div>
+              <div className="flex items-center gap-2 text-[10px] uppercase font-bold text-white tracking-widest"><div className="w-2 h-2 rounded-full bg-[#3b82f6] shadow-[0_0_8px_#3b82f6]" /> Home <span className="text-muted-foreground ml-auto">{((summary.homeGoals/summary.totalGoals)*100).toFixed(1)}%</span></div>
+              <div className="flex items-center gap-2 text-[10px] uppercase font-bold text-white tracking-widest"><div className="w-2 h-2 rounded-full bg-[#ef4444] shadow-[0_0_8px_#ef4444]" /> Away <span className="text-muted-foreground ml-auto">{((summary.awayGoals/summary.totalGoals)*100).toFixed(1)}%</span></div>
             </div>
           </div>
         </div>
@@ -381,15 +391,15 @@ export default function SeasonSummaryDashboard({ season, matches, players }) {
                 { label: 'Draws', value: summary.totalDraws },
                 { label: 'Away Wins', value: summary.awayWins },
               ]}
-              colors={['#22c55e', '#eab308', '#ec4899']}
+              colors={['#ef4444', '#eab308', '#3b82f6']}
               centerTitle="Matches"
               size={110}
-              strokeWidth={12}
+              strokeWidth={10}
             />
             <div className="flex flex-col gap-3 justify-center">
-              <div className="flex items-center gap-2 text-[10px] uppercase font-bold text-white tracking-widest"><div className="w-2 h-2 rounded-full bg-[#22c55e]" /> Home Win</div>
-              <div className="flex items-center gap-2 text-[10px] uppercase font-bold text-white tracking-widest"><div className="w-2 h-2 rounded-full bg-[#eab308]" /> Draw</div>
-              <div className="flex items-center gap-2 text-[10px] uppercase font-bold text-white tracking-widest"><div className="w-2 h-2 rounded-full bg-[#ec4899]" /> Away Win</div>
+              <div className="flex items-center gap-2 text-[10px] uppercase font-bold text-white tracking-widest"><div className="w-2 h-2 rounded-full bg-[#ef4444] shadow-[0_0_8px_#ef4444]" /> Home Win</div>
+              <div className="flex items-center gap-2 text-[10px] uppercase font-bold text-white tracking-widest"><div className="w-2 h-2 rounded-full bg-[#eab308] shadow-[0_0_8px_#eab308]" /> Draw</div>
+              <div className="flex items-center gap-2 text-[10px] uppercase font-bold text-white tracking-widest"><div className="w-2 h-2 rounded-full bg-[#3b82f6] shadow-[0_0_8px_#3b82f6]" /> Away Win</div>
             </div>
           </div>
         </div>
@@ -407,9 +417,9 @@ export default function SeasonSummaryDashboard({ season, matches, players }) {
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4 md:gap-6 mt-4">
         
         {/* Top Scorers */}
-        <div className="bg-gradient-to-br from-[#13161c] via-[#13161c] to-[#f59e0b]/10 border border-border/20 border-t-2 border-t-[#f59e0b] rounded-xl p-5 shadow-lg hover:shadow-[0_0_30px_rgba(245,158,11,0.08)] hover:border-white/10 transition-all duration-500 flex flex-col relative overflow-hidden">
+        <div className="bg-gradient-to-b from-[#f59e0b]/15 via-[#13161c] to-[#0a0c10] border border-[#f59e0b]/30 rounded-xl p-5 shadow-lg hover:shadow-[0_0_30px_rgba(245,158,11,0.15)] hover:border-[#f59e0b]/60 transition-all duration-500 flex flex-col relative overflow-hidden">
           <div className="absolute top-0 right-0 p-4 opacity-5 pointer-events-none"><Goal size={120} /></div>
-          <span className="text-[11px] font-bold text-[#f59e0b] uppercase tracking-[0.15em] mb-5 relative z-10">Top Scorers</span>
+          <span className="text-[11px] font-bold text-[#f59e0b] uppercase tracking-[0.15em] mb-5 relative z-10 drop-shadow-sm">Top Scorers</span>
           <div className="flex flex-col gap-4 relative z-10">
             {summary.topScorers.map((s, i) => (
               <div key={i} className="flex items-center justify-between group">
@@ -431,9 +441,9 @@ export default function SeasonSummaryDashboard({ season, matches, players }) {
         </div>
 
         {/* Top Assists / Passes */}
-        <div className="bg-gradient-to-br from-[#13161c] via-[#13161c] to-[#14b8a6]/10 border border-border/20 border-t-2 border-t-[#14b8a6] rounded-xl p-5 shadow-lg hover:shadow-[0_0_30px_rgba(20,184,166,0.08)] hover:border-white/10 transition-all duration-500 flex flex-col relative overflow-hidden">
+        <div className="bg-gradient-to-b from-[#14b8a6]/15 via-[#13161c] to-[#0a0c10] border border-[#14b8a6]/30 rounded-xl p-5 shadow-lg hover:shadow-[0_0_30px_rgba(20,184,166,0.15)] hover:border-[#14b8a6]/60 transition-all duration-500 flex flex-col relative overflow-hidden">
           <div className="absolute top-0 right-0 p-4 opacity-5 pointer-events-none"><Footprints size={120} /></div>
-          <span className="text-[11px] font-bold text-[#14b8a6] uppercase tracking-[0.15em] mb-5 relative z-10">Passing Leaders</span>
+          <span className="text-[11px] font-bold text-[#14b8a6] uppercase tracking-[0.15em] mb-5 relative z-10 drop-shadow-sm">Passing Leaders</span>
           <div className="flex flex-col gap-4 relative z-10">
             {summary.topPassers.map((s, i) => (
               <div key={i} className="flex items-center justify-between group">
@@ -455,9 +465,9 @@ export default function SeasonSummaryDashboard({ season, matches, players }) {
         </div>
 
         {/* Best Defense */}
-        <div className="bg-gradient-to-br from-[#13161c] via-[#13161c] to-[#3b82f6]/10 border border-border/20 border-t-2 border-t-[#3b82f6] rounded-xl p-5 shadow-lg hover:shadow-[0_0_30px_rgba(59,130,246,0.08)] hover:border-white/10 transition-all duration-500 flex flex-col relative overflow-hidden">
+        <div className="bg-gradient-to-b from-[#3b82f6]/15 via-[#13161c] to-[#0a0c10] border border-[#3b82f6]/30 rounded-xl p-5 shadow-lg hover:shadow-[0_0_30px_rgba(59,130,246,0.15)] hover:border-[#3b82f6]/60 transition-all duration-500 flex flex-col relative overflow-hidden">
           <div className="absolute top-0 right-0 p-4 opacity-5 pointer-events-none"><Shield size={120} /></div>
-          <span className="text-[11px] font-bold text-[#3b82f6] uppercase tracking-[0.15em] mb-5 relative z-10">Best Defense</span>
+          <span className="text-[11px] font-bold text-[#3b82f6] uppercase tracking-[0.15em] mb-5 relative z-10 drop-shadow-sm">Best Defense</span>
           <div className="flex flex-col gap-4 relative z-10">
             {summary.bestDefense.map((s, i) => (
               <div key={i} className="flex items-center justify-between group">
@@ -479,9 +489,9 @@ export default function SeasonSummaryDashboard({ season, matches, players }) {
         </div>
 
         {/* Clean Sheets */}
-        <div className="bg-gradient-to-br from-[#13161c] via-[#13161c] to-[#ec4899]/10 border border-border/20 border-t-2 border-t-[#ec4899] rounded-xl p-5 shadow-lg hover:shadow-[0_0_30px_rgba(236,72,153,0.08)] hover:border-white/10 transition-all duration-500 flex flex-col relative overflow-hidden">
+        <div className="bg-gradient-to-b from-[#ec4899]/15 via-[#13161c] to-[#0a0c10] border border-[#ec4899]/30 rounded-xl p-5 shadow-lg hover:shadow-[0_0_30px_rgba(236,72,153,0.15)] hover:border-[#ec4899]/60 transition-all duration-500 flex flex-col relative overflow-hidden">
           <div className="absolute top-0 right-0 p-4 opacity-5 pointer-events-none"><Star size={120} /></div>
-          <span className="text-[11px] font-bold text-[#ec4899] uppercase tracking-[0.15em] mb-5 relative z-10">Clean Sheets</span>
+          <span className="text-[11px] font-bold text-[#ec4899] uppercase tracking-[0.15em] mb-5 relative z-10 drop-shadow-sm">Clean Sheets</span>
           <div className="flex flex-col gap-4 relative z-10">
             {summary.topCleanSheets.map((s, i) => (
               <div key={i} className="flex items-center justify-between group">
