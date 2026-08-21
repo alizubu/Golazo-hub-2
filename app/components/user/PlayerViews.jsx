@@ -15,7 +15,7 @@ import { useRouter } from 'next/navigation';
 import SettingsView from '@/app/components/shared/SettingsView';
 import MatchesPage from '@/app/components/shared/MatchesPage';
 import MatchCard from '@/app/components/shared/MatchCard';
-import { ProMatchFixtureCard } from '@/app/components/shared/ProMatchFixtureCard';
+import { TournamentMatchCard } from '@/app/components/shared/TournamentMatchCard';
 
 import TrophyDetailModal from '@/app/components/shared/TrophyDetailModal';
 import HeadToHeadModal from '@/app/components/shared/HeadToHeadModal';
@@ -576,7 +576,8 @@ export function PlayerDashboard({ me, activeSeason, seasons = [], matches, playe
 
         {myLive.map((m, i) => (
           <FadeIn key={m.id} delay={0.3} className="col-span-12">
-            <ProMatchFixtureCard 
+            <TournamentMatchCard 
+              stage="normal"
               m={m} 
               h={players.find(p => p.id === m.homeId)} 
               a={players.find(p => p.id === m.awayId)} 
