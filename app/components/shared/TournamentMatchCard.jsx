@@ -45,12 +45,12 @@ const STAGE_CONFIG = {
   },
   'eliminator': {
     label: 'ELIMINATOR',
-    labelClass: 'bg-gradient-to-r from-[#3d0f5c] to-[#170524] border-[#8B2CFF]/50 text-white shadow-none',
-    bgClass: 'bg-gradient-to-r from-[#170524] via-[#2a083a] to-[#170524] border-[#8B2CFF]/30',
-    gridColor: '#8B2CFF',
+    labelClass: 'bg-gradient-to-r from-[#5c0f0f] to-[#240505] border-[#FF2C2C]/50 text-white shadow-none',
+    bgClass: 'bg-gradient-to-r from-[#240505] via-[#3a0808] to-[#240505] border-[#FF2C2C]/30',
+    gridColor: '#FF2C2C',
     gridOpacity: 0.08,
     vsBadge: 'stroke-[#FFB800]/80 fill-[#0a0b10] text-[#FFB800] drop-shadow-md',
-    startBtn: 'border-[#8B2CFF]/50 bg-[#8B2CFF]/20 text-[#FF4FD8] shadow-none hover:bg-[#8B2CFF]/30'
+    startBtn: 'border-[#FF2C2C]/50 bg-[#FF2C2C]/20 text-[#FF4F4F] shadow-none hover:bg-[#FF2C2C]/30'
   },
   'qualifier-2': {
     label: 'QUALIFIER 2',
@@ -184,17 +184,7 @@ export function TournamentMatchCard({ stage = 'normal', m, h, a, hStats, aStats,
             <div className="flex items-center gap-2 mt-1 text-slate-400">
               <span className="text-sm font-semibold">{h?.favoriteClub || 'TBD'}</span>
             </div>
-            {/* Desktop Stats */}
-            <div className="hidden md:flex items-center gap-6 mt-4">
-              <div className="flex flex-col">
-                <span className="text-[10px] text-muted-foreground uppercase tracking-widest font-bold">Rank</span>
-                <span className="font-score font-black text-xl text-white">#{hStats?.rank || '-'}</span>
-              </div>
-              <div className="flex flex-col">
-                <span className="text-[10px] text-muted-foreground uppercase tracking-widest font-bold">Wins</span>
-                <span className="font-score font-black text-xl text-emerald-400">{hStats?.wins || '0'}</span>
-              </div>
-            </div>
+
           </div>
         </div>
 
@@ -287,17 +277,7 @@ export function TournamentMatchCard({ stage = 'normal', m, h, a, hStats, aStats,
             <div className="flex items-center gap-2 mt-1 text-slate-400">
               <span className="text-sm font-semibold">{a?.favoriteClub || 'TBD'}</span>
             </div>
-            {/* Desktop Stats */}
-            <div className="hidden md:flex items-center gap-6 mt-4">
-              <div className="flex flex-col items-end">
-                <span className="text-[10px] text-muted-foreground uppercase tracking-widest font-bold">Rank</span>
-                <span className="font-score font-black text-xl text-white">#{aStats?.rank || '-'}</span>
-              </div>
-              <div className="flex flex-col items-end">
-                <span className="text-[10px] text-muted-foreground uppercase tracking-widest font-bold">Wins</span>
-                <span className="font-score font-black text-xl text-emerald-400">{aStats?.wins || '0'}</span>
-              </div>
-            </div>
+
           </div>
 
           <div className="relative shrink-0 order-1 md:order-2">
