@@ -68,7 +68,7 @@ const STAGE_CONFIG = {
     gridColor: '#FFE7A3',
     gridOpacity: 0.12,
     vsBadge: 'stroke-[#F4D06F] fill-[#11100D] text-[#F4D06F] drop-shadow-md stroke-[2px]',
-    startBtn: 'border-[#F4D06F] bg-gradient-to-r from-[#C58A18] via-[#F4D06F] to-[#C58A18] text-[#110c03] shadow-[0_0_20px_rgba(243,199,95,0.4)] hover:shadow-[0_0_30px_rgba(243,199,95,0.6)] px-8 py-2 font-black border-2'
+    startBtn: 'border-[#F4D06F] bg-gradient-to-r from-[#C58A18] via-[#F4D06F] to-[#C58A18] text-[#110c03] shadow-[0_0_20px_rgba(243,199,95,0.4)] hover:shadow-[0_0_30px_rgba(243,199,95,0.6)] px-10 py-2.5 font-black border-2'
   }
 };
 
@@ -188,17 +188,15 @@ export function TournamentMatchCard({ stage = 'normal', m, h, a, hStats, aStats,
       <div className="absolute top-0 left-1/2 -translate-x-1/2 flex items-center justify-center z-30">
         {config.label ? (
           isFinal ? (
-            <div className="relative flex items-center justify-center mt-2 px-8 py-4">
-              {/* Sunburst God-Rays */}
-              <div className="absolute inset-0 overflow-hidden pointer-events-none flex items-center justify-center">
-                 <div className="w-[180px] h-[180px] bg-[conic-gradient(from_0deg,transparent_0%,rgba(243,199,95,0.4)_10%,transparent_20%,rgba(243,199,95,0.4)_30%,transparent_40%,rgba(243,199,95,0.4)_50%,transparent_60%,rgba(243,199,95,0.4)_70%,transparent_80%,rgba(243,199,95,0.4)_90%,transparent_100%)] animate-[spin_20s_linear_infinite]" style={{ maskImage: 'radial-gradient(circle, white 0%, transparent 70%)' }} />
-              </div>
+            <div className="relative flex items-center justify-center px-12 py-2 rounded-b-2xl bg-gradient-to-b from-[#1a1204] to-[#0A0702] border-x border-b border-[#F3C75F]/60 shadow-[0_10px_30px_rgba(0,0,0,0.9),inset_0_-2px_15px_rgba(243,199,95,0.2)]">
               
-              {/* Dark Halo */}
-              <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(0,0,0,0.9),transparent_60%)] blur-lg pointer-events-none z-0" />
-              <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(243,199,95,0.5),transparent_60%)] blur-lg pointer-events-none z-0 mix-blend-screen" />
+              {/* Internal Glow */}
+              <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(243,199,95,0.4),transparent_70%)] pointer-events-none rounded-b-2xl z-0" />
               
-              <span className="text-[16px] tracking-[0.4em] font-score font-black relative z-10 bg-gradient-to-r from-[#FFF2C8] via-[#C58A18] to-[#FFF2C8] bg-[length:200%_auto] text-transparent bg-clip-text animate-[shimmer_3s_linear_infinite]" style={{ filter: 'drop-shadow(0px 4px 6px rgba(0,0,0,1))' }}>
+              {/* Sweeping Edge Light */}
+              <div className="absolute bottom-0 left-0 w-[40%] h-[2px] bg-gradient-to-r from-transparent via-[#FFF2C8] to-transparent opacity-90 animate-[edgeLight_3s_ease-in-out_infinite] z-0" />
+              
+              <span className="text-[14px] tracking-[0.3em] font-score font-black relative z-10 bg-gradient-to-b from-[#FFF2C8] to-[#C58A18] text-transparent bg-clip-text" style={{ filter: 'drop-shadow(0px 3px 5px rgba(0,0,0,1))' }}>
                 {config.label}
               </span>
             </div>
@@ -324,7 +322,7 @@ export function TournamentMatchCard({ stage = 'normal', m, h, a, hStats, aStats,
                {isFinal && (
                   <div className="absolute top-0 -left-[100%] w-[50%] h-[100%] bg-gradient-to-r from-transparent via-white to-transparent opacity-60 animate-[foilGlint_3s_ease-in-out_infinite]" style={{ transform: 'skewX(-45deg)' }} />
                )}
-               <span className={`text-[11px] font-black uppercase tracking-[0.2em] relative z-10 ${isFinal ? 'drop-shadow-none' : ''}`}>Start</span>
+               <span className={`text-[14px] font-black uppercase tracking-[0.25em] relative z-10 ${isFinal ? 'drop-shadow-none' : ''}`}>Start</span>
              </div>
           )}
         </div>
