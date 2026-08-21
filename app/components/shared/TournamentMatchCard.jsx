@@ -54,12 +54,12 @@ const STAGE_CONFIG = {
   },
   'qualifier-2': {
     label: 'QUALIFIER 2',
-    labelClass: 'bg-gradient-to-r from-[#4a340a] to-[#211707] border-[#C58A18]/50 text-white shadow-none',
-    bgClass: 'bg-gradient-to-r from-[#171003] via-[#332200] to-[#171003] border-[#C58A18]/30',
-    gridColor: '#F3C75F',
-    gridOpacity: 0.08,
-    vsBadge: 'stroke-[#F3C75F]/80 fill-[#0a0b10] text-[#F3C75F] drop-shadow-md',
-    startBtn: 'border-[#F3C75F]/50 bg-[#C58A18]/20 text-[#FFD978] shadow-none hover:bg-[#C58A18]/30'
+    labelClass: 'bg-[#022c22] border-[#10b981]/50 text-[#6ee7b7] drop-shadow-[0_0_8px_rgba(16,185,129,0.5)]',
+    bgClass: 'bg-gradient-to-r from-[#021f18] via-[#064e3b] to-[#021f18] border-[#10b981]/30',
+    gridColor: '#10b981',
+    gridOpacity: 0.1,
+    vsBadge: 'stroke-[#34d399] fill-[#022c22] text-[#34d399] drop-shadow-[0_0_10px_rgba(52,211,153,0.3)] stroke-[1.5px]',
+    startBtn: 'border-[#10b981]/60 bg-[#065f46]/30 text-[#6ee7b7] hover:bg-[#065f46]/50 hover:shadow-[0_0_15px_rgba(16,185,129,0.4)] px-6 py-2'
   },
   'final': {
     label: 'FINAL',
@@ -264,6 +264,12 @@ export function TournamentMatchCard({ stage = 'normal', m, h, a, hStats, aStats,
           {isFinal && (
             <div className="relative z-10 flex items-center justify-center w-56 h-36 mb-2 mt-4 perspective-[800px]">
               
+              {/* Orbital Rings */}
+              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[160px] h-[160px] pointer-events-none z-0">
+                <div className="absolute inset-0 w-full h-full rounded-full border border-[#F3C75F]/20 border-t-[#F3C75F]/80 border-b-[#F3C75F]/80 animate-[spin_8s_linear_infinite]" style={{ transform: 'rotateX(75deg) rotateY(15deg) scale(1.1)' }} />
+                <div className="absolute inset-0 w-full h-full rounded-full border-[2px] border-[#FFF2C8]/10 border-l-[#FFF2C8]/60 animate-[spin_6s_linear_infinite_reverse]" style={{ transform: 'rotateX(65deg) rotateY(-10deg)' }} />
+              </div>
+
               {/* Seismic Shockwave */}
               <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-[45%] w-[180px] h-[180px] pointer-events-none z-0">
                 {[...Array(3)].map((_, i) => (
