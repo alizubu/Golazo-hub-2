@@ -7,6 +7,7 @@ import { getPlayerIdentityBadgeUrl } from '@/lib/identityUtils';
 import { CLUBS } from '@/lib/data/clubs';
 import nationalTeamsData from '@/lib/data/national_teams.json';
 import { Trophy, BarChart2, Radio } from 'lucide-react';
+import { FlickeringGrid } from '@/app/components/magicui/FlickeringGrid';
 
 const formatName = (name) => {
   if (!name) return 'TBD';
@@ -30,49 +31,44 @@ const STAGE_CONFIG = {
     bgClass: 'bg-[#0a0b10] border-white/5',
     glowClass: 'from-purple-500/5 via-transparent to-blue-500/5',
     hoverGlowClass: 'from-purple-500/10 to-blue-500/10',
-    gridClass: null,
     vsBadge: 'stroke-white/10 fill-white/5 text-white',
     startBtn: 'border-cyan-500/50 bg-cyan-500/10 text-cyan-400 shadow-[0_0_15px_rgba(6,182,212,0.2)] hover:bg-cyan-500/20'
   },
   'qualifier-1': {
     label: 'QUALIFIER 1',
-    labelClass: 'bg-[#08183a] border-[#1769FF] text-white shadow-[0_0_20px_rgba(23,105,255,0.3)]',
-    bgClass: 'bg-[#050B16] border-[#1769FF]/30',
-    glowClass: 'from-[#1769FF]/10 via-[#050B16] to-[#00C8FF]/10',
-    hoverGlowClass: 'from-[#1769FF]/20 to-[#00C8FF]/20',
-    gridClass: 'bg-[radial-gradient(circle_at_center,rgba(23,105,255,0.15)_0%,transparent_70%)]',
-    vsBadge: 'stroke-[#FFB800]/50 fill-[#0a0b10] text-[#FFB800] drop-shadow-[0_0_10px_rgba(23,105,255,0.4)]',
-    startBtn: 'border-[#1769FF]/50 bg-[#1769FF]/10 text-[#00C8FF] shadow-[0_0_15px_rgba(23,105,255,0.4)] hover:bg-[#1769FF]/20'
+    labelClass: 'bg-gradient-to-r from-[#0d2a5c] to-[#04122d] border-[#1769FF]/50 text-white shadow-none',
+    bgClass: 'bg-gradient-to-r from-[#031024] via-[#051c42] to-[#031024] border-[#1769FF]/30',
+    gridColor: '#1769FF',
+    gridOpacity: 0.08,
+    vsBadge: 'stroke-[#FFB800]/80 fill-[#0a0b10] text-[#FFB800] drop-shadow-md',
+    startBtn: 'border-[#1769FF]/50 bg-[#1769FF]/20 text-[#00C8FF] shadow-none hover:bg-[#1769FF]/30'
   },
   'eliminator': {
     label: 'ELIMINATOR',
-    labelClass: 'bg-[#2a083a] border-[#8B2CFF] text-white shadow-[0_0_20px_rgba(139,44,255,0.4)]',
-    bgClass: 'bg-[#0B0612] border-[#8B2CFF]/30',
-    glowClass: 'from-[#8B2CFF]/10 via-[#0B0612] to-[#FF4FD8]/10',
-    hoverGlowClass: 'from-[#8B2CFF]/20 to-[#FF4FD8]/20',
-    gridClass: 'bg-[radial-gradient(circle_at_center,rgba(139,44,255,0.15)_0%,transparent_70%)]',
-    vsBadge: 'stroke-[#FFB800]/50 fill-[#0a0b10] text-[#FFB800] drop-shadow-[0_0_10px_rgba(139,44,255,0.4)]',
-    startBtn: 'border-[#8B2CFF]/50 bg-[#8B2CFF]/10 text-[#FF4FD8] shadow-[0_0_15px_rgba(139,44,255,0.4)] hover:bg-[#8B2CFF]/20'
+    labelClass: 'bg-gradient-to-r from-[#3d0f5c] to-[#170524] border-[#8B2CFF]/50 text-white shadow-none',
+    bgClass: 'bg-gradient-to-r from-[#170524] via-[#2a083a] to-[#170524] border-[#8B2CFF]/30',
+    gridColor: '#8B2CFF',
+    gridOpacity: 0.08,
+    vsBadge: 'stroke-[#FFB800]/80 fill-[#0a0b10] text-[#FFB800] drop-shadow-md',
+    startBtn: 'border-[#8B2CFF]/50 bg-[#8B2CFF]/20 text-[#FF4FD8] shadow-none hover:bg-[#8B2CFF]/30'
   },
   'qualifier-2': {
     label: 'QUALIFIER 2',
-    labelClass: 'bg-[#3a2808] border-[#F3C75F] text-white shadow-[0_0_20px_rgba(243,199,95,0.3)]',
-    bgClass: 'bg-[#0D0A05] border-[#C58A18]/30',
-    glowClass: 'from-[#C58A18]/10 via-[#0D0A05] to-[#FFD978]/10',
-    hoverGlowClass: 'from-[#C58A18]/20 to-[#FFD978]/20',
-    gridClass: 'bg-[radial-gradient(circle_at_center,rgba(197,138,24,0.15)_0%,transparent_70%)]',
-    vsBadge: 'stroke-[#F3C75F]/60 fill-[#0a0b10] text-[#F3C75F] drop-shadow-[0_0_10px_rgba(197,138,24,0.4)]',
-    startBtn: 'border-[#F3C75F]/50 bg-[#C58A18]/10 text-[#FFD978] shadow-[0_0_15px_rgba(197,138,24,0.4)] hover:bg-[#C58A18]/20'
+    labelClass: 'bg-gradient-to-r from-[#4a340a] to-[#211707] border-[#C58A18]/50 text-white shadow-none',
+    bgClass: 'bg-gradient-to-r from-[#171003] via-[#332200] to-[#171003] border-[#C58A18]/30',
+    gridColor: '#F3C75F',
+    gridOpacity: 0.08,
+    vsBadge: 'stroke-[#F3C75F]/80 fill-[#0a0b10] text-[#F3C75F] drop-shadow-md',
+    startBtn: 'border-[#F3C75F]/50 bg-[#C58A18]/20 text-[#FFD978] shadow-none hover:bg-[#C58A18]/30'
   },
   'final': {
     label: 'FINAL',
-    labelClass: 'bg-gradient-to-r from-[#2c200b] via-[#4a3610] to-[#2c200b] border-y-[#F3C75F] border-x-transparent border-y-[2px] text-[#FFE7A3] shadow-[0_0_30px_rgba(243,199,95,0.4)] px-8 py-1.5 font-black text-[14px]',
-    bgClass: 'bg-[#050403] border-[#8A641C]/50',
-    glowClass: 'from-[#C99A32]/10 via-[#050403] to-[#8A641C]/10',
-    hoverGlowClass: 'from-[#C99A32]/20 to-[#8A641C]/20',
-    gridClass: 'bg-[radial-gradient(circle_at_center,rgba(201,154,50,0.25)_0%,transparent_70%)]',
-    vsBadge: 'stroke-[#F4D06F] fill-[#11100D] text-[#F4D06F] drop-shadow-[0_0_15px_rgba(244,208,111,0.5)] stroke-[2px]',
-    startBtn: 'border-[#C99A32]/80 bg-[#8A641C]/20 text-[#FFE7A3] shadow-[0_0_25px_rgba(201,154,50,0.5)] hover:bg-[#C99A32]/30 px-6 py-2'
+    labelClass: 'bg-gradient-to-r from-[#2c200b] via-[#4a3610] to-[#2c200b] border-y-[#F3C75F] border-x-transparent border-y-[2px] text-[#FFE7A3] shadow-none px-8 py-1.5 font-black text-[14px]',
+    bgClass: 'bg-gradient-to-r from-[#211707] via-[#5C4000] to-[#211707] border-[#F4D06F]/50',
+    gridColor: '#FFE7A3',
+    gridOpacity: 0.12,
+    vsBadge: 'stroke-[#F4D06F] fill-[#11100D] text-[#F4D06F] drop-shadow-md stroke-[2px]',
+    startBtn: 'border-[#C99A32]/80 bg-[#8A641C]/30 text-[#FFE7A3] shadow-none hover:bg-[#C99A32]/40 px-6 py-2'
   }
 };
 
@@ -97,17 +93,18 @@ export function TournamentMatchCard({ stage = 'normal', m, h, a, hStats, aStats,
       className={`relative flex flex-col w-full p-6 pt-10 md:pt-6 rounded-[24px] ${config.bgClass} border shadow-2xl cursor-pointer overflow-hidden group transition-all duration-500`}
     >
       {/* Background Layers */}
-      <div className={`absolute inset-0 bg-gradient-to-br ${config.glowClass} opacity-50 pointer-events-none transition-all duration-500`} />
-      <div className={`absolute -inset-[1px] rounded-[24px] ${config.hoverGlowClass ? `bg-gradient-to-r ${config.hoverGlowClass} opacity-0 group-hover:opacity-100 transition-opacity duration-500` : ''} pointer-events-none`} />
+      {config.glowClass && <div className={`absolute inset-0 bg-gradient-to-br ${config.glowClass} opacity-50 pointer-events-none transition-all duration-500`} />}
+      {config.hoverGlowClass && <div className={`absolute -inset-[1px] rounded-[24px] bg-gradient-to-r ${config.hoverGlowClass} opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none`} />}
       
-      {/* Stage specific grids / atmospheric glows */}
-      {config.gridClass && (
-        <div className={`absolute inset-0 ${config.gridClass} opacity-60 pointer-events-none mix-blend-screen`} />
-      )}
-      
-      {/* Eliminator Embers */}
-      {stage === 'eliminator' && (
-        <div className="absolute inset-0 bg-[url('/assets/noise.png')] opacity-10 pointer-events-none mix-blend-overlay" />
+      {/* Stage specific grids */}
+      {config.gridColor && (
+        <FlickeringGrid 
+          className="z-0 absolute inset-0 [mask-image:radial-gradient(circle_at_center,white,transparent_80%)]" 
+          color={config.gridColor}
+          maxOpacity={config.gridOpacity || 0.12} 
+          flickerSpeed={0.3} 
+          gridSize={16} 
+        />
       )}
 
       {/* Top Stage / Match Pill */}
@@ -129,9 +126,8 @@ export function TournamentMatchCard({ stage = 'normal', m, h, a, hStats, aStats,
         {/* Home Player (Left) */}
         <div className="flex flex-col md:flex-row items-center gap-4 flex-1 w-full justify-start">
           <div className="relative shrink-0 order-1 md:order-1">
-            <div className="absolute -inset-2 bg-gradient-to-br from-red-600 to-rose-600 rounded-full blur-[10px] opacity-40 group-hover:opacity-60 transition-opacity" />
             <div className="relative p-1 rounded-full bg-black">
-              <Avatar p={h} size={80} className="rounded-full ring-2 ring-red-500/50" />
+              <Avatar p={h} size={80} className="rounded-full ring-2 ring-white/10" />
             </div>
             {/* Club Badge Overlap */}
             {hBadgeUrl && (
@@ -258,9 +254,8 @@ export function TournamentMatchCard({ stage = 'normal', m, h, a, hStats, aStats,
           </div>
 
           <div className="relative shrink-0 order-1 md:order-2">
-            <div className="absolute -inset-2 bg-gradient-to-br from-cyan-500 to-teal-500 rounded-full blur-[10px] opacity-40 group-hover:opacity-60 transition-opacity" />
             <div className="relative p-1 rounded-full bg-black">
-              <Avatar p={a} size={80} className="rounded-full ring-2 ring-cyan-500/50" />
+              <Avatar p={a} size={80} className="rounded-full ring-2 ring-white/10" />
             </div>
             {/* Club Badge Overlap */}
             {aBadgeUrl && (
