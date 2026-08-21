@@ -68,7 +68,7 @@ const STAGE_CONFIG = {
     gridColor: '#FFE7A3',
     gridOpacity: 0.12,
     vsBadge: 'stroke-[#F4D06F] fill-[#11100D] text-[#F4D06F] drop-shadow-md stroke-[2px]',
-    startBtn: 'border-[#C99A32]/80 bg-[#8A641C]/30 text-[#FFE7A3] shadow-none hover:bg-[#C99A32]/40 px-6 py-2'
+    startBtn: 'border-[#F4D06F] bg-gradient-to-r from-[#C58A18] via-[#F4D06F] to-[#C58A18] text-[#110c03] shadow-[0_0_20px_rgba(243,199,95,0.4)] hover:shadow-[0_0_30px_rgba(243,199,95,0.6)] px-8 py-2 font-black border-2'
   }
 };
 
@@ -193,9 +193,12 @@ export function TournamentMatchCard({ stage = 'normal', m, h, a, hStats, aStats,
               <div className="absolute inset-0 overflow-hidden pointer-events-none flex items-center justify-center">
                  <div className="w-[180px] h-[180px] bg-[conic-gradient(from_0deg,transparent_0%,rgba(243,199,95,0.4)_10%,transparent_20%,rgba(243,199,95,0.4)_30%,transparent_40%,rgba(243,199,95,0.4)_50%,transparent_60%,rgba(243,199,95,0.4)_70%,transparent_80%,rgba(243,199,95,0.4)_90%,transparent_100%)] animate-[spin_20s_linear_infinite]" style={{ maskImage: 'radial-gradient(circle, white 0%, transparent 70%)' }} />
               </div>
-              <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(243,199,95,0.5),transparent_60%)] blur-lg pointer-events-none" />
               
-              <span className="text-[16px] tracking-[0.4em] font-score font-black relative z-10 bg-gradient-to-r from-[#FFF2C8] via-[#C58A18] to-[#FFF2C8] bg-[length:200%_auto] text-transparent bg-clip-text animate-[shimmer_3s_linear_infinite] drop-shadow-[0_0_12px_rgba(243,199,95,0.8)]">
+              {/* Dark Halo */}
+              <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(0,0,0,0.9),transparent_60%)] blur-lg pointer-events-none z-0" />
+              <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(243,199,95,0.5),transparent_60%)] blur-lg pointer-events-none z-0 mix-blend-screen" />
+              
+              <span className="text-[16px] tracking-[0.4em] font-score font-black relative z-10 bg-gradient-to-r from-[#FFF2C8] via-[#C58A18] to-[#FFF2C8] bg-[length:200%_auto] text-transparent bg-clip-text animate-[shimmer_3s_linear_infinite]" style={{ filter: 'drop-shadow(0px 4px 6px rgba(0,0,0,1))' }}>
                 {config.label}
               </span>
             </div>
@@ -226,7 +229,7 @@ export function TournamentMatchCard({ stage = 'normal', m, h, a, hStats, aStats,
                  </>
               )}
               <div className={`relative rounded-full overflow-hidden z-10 ${isFinal ? 'bg-[#0a0702] border-[4px] border-[#100A02] shadow-[inset_0_0_15px_rgba(0,0,0,1)]' : 'bg-black'}`}>
-                <Avatar p={h} size={isFinal ? 76 : 80} className={`rounded-full ${isFinal ? '' : 'ring-2 ring-white/10'}`} />
+                <Avatar p={h} size={isFinal ? 96 : 80} className={`rounded-full ${isFinal ? '' : 'ring-2 ring-white/10'}`} />
               </div>
             </div>
             {/* Club Badge Overlap */}
@@ -239,12 +242,15 @@ export function TournamentMatchCard({ stage = 'normal', m, h, a, hStats, aStats,
           
           <div className={`flex flex-col items-center md:items-start min-w-0 order-2 md:order-2 relative ${isFinal ? 'px-4' : ''}`}>
             {isFinal && (
-              <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(243,199,95,0.25),transparent_70%)] blur-xl pointer-events-none" />
+              <>
+                <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(243,199,95,0.25),transparent_70%)] blur-xl pointer-events-none" />
+                <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(0,0,0,0.6),transparent_60%)] blur-2xl pointer-events-none" />
+              </>
             )}
             {isFinal && hBadgeUrl && (
               <img src={hBadgeUrl} alt="watermark" className="absolute right-2 top-1/2 -translate-y-1/2 w-16 h-16 opacity-[0.08] grayscale mix-blend-overlay pointer-events-none" />
             )}
-            <span className={`font-bold text-xl md:text-2xl truncate text-center md:text-left drop-shadow-md relative z-10 ${isFinal ? 'bg-gradient-to-b from-[#FFF2C8] via-[#F4D06F] to-[#B37700] text-transparent bg-clip-text' : 'text-white'}`} style={{ fontFamily: "'Sora', sans-serif" }}>
+            <span className={`font-bold text-xl md:text-2xl truncate text-center md:text-left relative z-10 ${isFinal ? 'bg-gradient-to-b from-[#FFF2C8] via-[#F4D06F] to-[#B37700] text-transparent bg-clip-text' : 'text-white drop-shadow-md'}`} style={{ fontFamily: "'Sora', sans-serif", filter: isFinal ? 'drop-shadow(0px 4px 8px rgba(0,0,0,0.9))' : '' }}>
               {formatName(h?.name)}
             </span>
             <div className={`flex items-center gap-2 mt-1 relative z-10 ${isFinal ? 'text-[#C58A18]' : 'text-slate-400'}`}>
@@ -313,9 +319,12 @@ export function TournamentMatchCard({ stage = 'normal', m, h, a, hStats, aStats,
                    onStartClick();
                  }
                }}
-               className={`flex items-center justify-center px-5 py-1.5 mt-2 rounded-full border backdrop-blur-md cursor-pointer transition-all duration-300 transform group-hover:-translate-y-1 z-20 ${config.startBtn}`}
+               className={`relative overflow-hidden flex items-center justify-center px-5 py-1.5 mt-2 rounded-full border backdrop-blur-md cursor-pointer transition-all duration-300 transform group-hover:-translate-y-1 z-20 ${config.startBtn}`}
              >
-               <span className="text-[11px] font-black uppercase tracking-[0.2em]">Start</span>
+               {isFinal && (
+                  <div className="absolute top-0 -left-[100%] w-[50%] h-[100%] bg-gradient-to-r from-transparent via-white to-transparent opacity-60 animate-[foilGlint_3s_ease-in-out_infinite]" style={{ transform: 'skewX(-45deg)' }} />
+               )}
+               <span className={`text-[11px] font-black uppercase tracking-[0.2em] relative z-10 ${isFinal ? 'drop-shadow-none' : ''}`}>Start</span>
              </div>
           )}
         </div>
@@ -325,12 +334,15 @@ export function TournamentMatchCard({ stage = 'normal', m, h, a, hStats, aStats,
           
           <div className={`flex flex-col items-center md:items-end min-w-0 order-2 md:order-1 relative ${isFinal ? 'px-4' : ''}`}>
             {isFinal && (
-              <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(243,199,95,0.25),transparent_70%)] blur-xl pointer-events-none" />
+              <>
+                <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(243,199,95,0.25),transparent_70%)] blur-xl pointer-events-none" />
+                <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(0,0,0,0.6),transparent_60%)] blur-2xl pointer-events-none" />
+              </>
             )}
             {isFinal && aBadgeUrl && (
               <img src={aBadgeUrl} alt="watermark" className="absolute left-2 top-1/2 -translate-y-1/2 w-16 h-16 opacity-[0.08] grayscale mix-blend-overlay pointer-events-none" />
             )}
-            <span className={`font-bold text-xl md:text-2xl truncate text-center md:text-right drop-shadow-md relative z-10 ${isFinal ? 'bg-gradient-to-b from-[#FFF2C8] via-[#F4D06F] to-[#B37700] text-transparent bg-clip-text' : 'text-white'}`} style={{ fontFamily: "'Sora', sans-serif" }}>
+            <span className={`font-bold text-xl md:text-2xl truncate text-center md:text-right relative z-10 ${isFinal ? 'bg-gradient-to-b from-[#FFF2C8] via-[#F4D06F] to-[#B37700] text-transparent bg-clip-text' : 'text-white drop-shadow-md'}`} style={{ fontFamily: "'Sora', sans-serif", filter: isFinal ? 'drop-shadow(0px 4px 8px rgba(0,0,0,0.9))' : '' }}>
               {formatName(a?.name)}
             </span>
             <div className={`flex items-center gap-2 mt-1 relative z-10 ${isFinal ? 'text-[#C58A18]' : 'text-slate-400'}`}>
@@ -348,7 +360,7 @@ export function TournamentMatchCard({ stage = 'normal', m, h, a, hStats, aStats,
                  </>
               )}
               <div className={`relative rounded-full overflow-hidden z-10 ${isFinal ? 'bg-[#0a0702] border-[4px] border-[#100A02] shadow-[inset_0_0_15px_rgba(0,0,0,1)]' : 'bg-black'}`}>
-                <Avatar p={a} size={isFinal ? 76 : 80} className={`rounded-full ${isFinal ? '' : 'ring-2 ring-white/10'}`} />
+                <Avatar p={a} size={isFinal ? 96 : 80} className={`rounded-full ${isFinal ? '' : 'ring-2 ring-white/10'}`} />
               </div>
             </div>
             {/* Club Badge Overlap */}
