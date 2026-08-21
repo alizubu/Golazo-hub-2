@@ -321,12 +321,12 @@ export default function SeasonSummaryDashboard({ season, matches, players }) {
         <h4 className="text-[12px] font-bold text-white uppercase tracking-[0.2em] mb-4">Season Overview</h4>
         <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-3 md:gap-4">
           {metricsGrid.map((m, i) => (
-            <div key={i} className="flex flex-col items-center justify-center bg-[#13161c] border border-border/20 rounded-xl p-4 md:p-5 hover:-translate-y-1 transition-transform shadow-lg group">
-              <div className={`mb-3 p-2 rounded-lg ${m.bg} ${m.border} border group-hover:scale-110 transition-transform`}>
+            <div key={i} className="flex flex-col items-center justify-center bg-[#13161c] border border-border/20 rounded-xl p-4 md:p-5 hover:-translate-y-1 hover:border-white/20 transition-all duration-300 shadow-lg hover:shadow-[0_0_20px_rgba(255,255,255,0.05)] group">
+              <div className={`mb-3 p-2 rounded-lg ${m.bg} ${m.border} border group-hover:scale-110 group-hover:shadow-[0_0_15px_currentColor] transition-all duration-300`}>
                 <m.icon size={20} className={m.color} strokeWidth={2} />
               </div>
               <span className="text-[26px] font-score font-black text-white leading-none mb-2 drop-shadow-sm">{m.value}</span>
-              <span className="text-[9px] uppercase font-bold text-muted-foreground tracking-[0.1em] text-center px-1 leading-tight">{m.label}</span>
+              <span className="text-[9px] uppercase font-bold text-muted-foreground group-hover:text-white/70 transition-colors tracking-[0.1em] text-center px-1 leading-tight">{m.label}</span>
             </div>
           ))}
         </div>
@@ -335,7 +335,7 @@ export default function SeasonSummaryDashboard({ season, matches, players }) {
       {/* ─── ROW 2: Charts (Goal Breakdown, Result Dist, Goals Trend) ─── */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 mt-2">
         {/* Chart 1 */}
-        <div className="bg-[#13161c] border border-border/20 rounded-xl p-5 shadow-lg flex flex-col">
+        <div className="bg-[#13161c] border border-border/20 rounded-xl p-5 shadow-lg hover:shadow-[0_0_30px_rgba(245,158,11,0.08)] hover:border-white/10 transition-all duration-500 flex flex-col">
           <span className="text-[11px] font-bold text-[#f59e0b] uppercase tracking-[0.15em] mb-4">Goal Breakdown</span>
           <div className="flex-1 flex items-center justify-center gap-6">
             <DonutChart 
@@ -356,7 +356,7 @@ export default function SeasonSummaryDashboard({ season, matches, players }) {
         </div>
 
         {/* Chart 2 */}
-        <div className="bg-[#13161c] border border-border/20 rounded-xl p-5 shadow-lg flex flex-col">
+        <div className="bg-[#13161c] border border-border/20 rounded-xl p-5 shadow-lg hover:shadow-[0_0_30px_rgba(34,197,94,0.08)] hover:border-white/10 transition-all duration-500 flex flex-col">
           <span className="text-[11px] font-bold text-[#22c55e] uppercase tracking-[0.15em] mb-4">Result Distribution</span>
           <div className="flex-1 flex items-center justify-center gap-6">
             <DonutChart 
@@ -379,7 +379,7 @@ export default function SeasonSummaryDashboard({ season, matches, players }) {
         </div>
 
         {/* Chart 3 */}
-        <div className="bg-[#13161c] border border-border/20 rounded-xl p-5 shadow-lg flex flex-col">
+        <div className="bg-[#13161c] border border-border/20 rounded-xl p-5 shadow-lg hover:shadow-[0_0_30px_rgba(168,85,247,0.08)] hover:border-white/10 transition-all duration-500 flex flex-col">
           <span className="text-[11px] font-bold text-[#a855f7] uppercase tracking-[0.15em] mb-2">Goals Per Match Trend</span>
           <div className="flex-1 flex items-center justify-center pt-2">
             <LineChart data={summary.goalsTimeline} height={120} accentColor="#a855f7" />
@@ -391,7 +391,7 @@ export default function SeasonSummaryDashboard({ season, matches, players }) {
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4 md:gap-6 mt-4">
         
         {/* Top Scorers */}
-        <div className="bg-[#13161c] border border-border/20 rounded-xl p-5 shadow-lg flex flex-col relative overflow-hidden">
+        <div className="bg-[#13161c] border border-border/20 rounded-xl p-5 shadow-lg hover:shadow-[0_0_30px_rgba(245,158,11,0.08)] hover:border-white/10 transition-all duration-500 flex flex-col relative overflow-hidden">
           <div className="absolute top-0 right-0 p-4 opacity-5 pointer-events-none"><Goal size={120} /></div>
           <span className="text-[11px] font-bold text-[#f59e0b] uppercase tracking-[0.15em] mb-5 relative z-10">Top Scorers</span>
           <div className="flex flex-col gap-4 relative z-10">
@@ -399,9 +399,9 @@ export default function SeasonSummaryDashboard({ season, matches, players }) {
               <div key={i} className="flex items-center justify-between group">
                 <div className="flex items-center gap-3">
                   <span className={`text-[12px] font-black w-3 text-center ${i===0 ? 'text-[#f59e0b]' : i===1 ? 'text-zinc-300' : i===2 ? 'text-orange-400' : 'text-muted-foreground'}`}>{i+1}</span>
-                  <Avatar p={s.player} size={36} className={`border ${i===0 ? 'border-[#f59e0b]/50 shadow-[0_0_10px_rgba(245,158,11,0.2)]' : 'border-border/30'}`} />
+                  <Avatar p={s.player} size={36} className={`border ${i===0 ? 'border-[#f59e0b]/50 shadow-[0_0_10px_rgba(245,158,11,0.3)]' : 'border-white/10 shadow-[0_0_10px_rgba(255,255,255,0.05)]'}`} />
                   <div className="flex flex-col">
-                    <span className={`font-bold text-[13px] leading-tight group-hover:text-white transition-colors ${i===0 ? 'text-white' : 'text-foreground'}`}>{s.player?.name || '—'}</span>
+                    <span className={`font-bold text-[13px] leading-tight transition-colors ${i===0 ? 'text-white' : 'text-white/90 group-hover:text-white'}`}>{s.player?.name || '—'}</span>
                     <span className="text-[10px] text-muted-foreground font-semibold">{s.player?.favoriteClub || '—'}</span>
                   </div>
                 </div>
@@ -415,7 +415,7 @@ export default function SeasonSummaryDashboard({ season, matches, players }) {
         </div>
 
         {/* Top Assists / Passes */}
-        <div className="bg-[#13161c] border border-border/20 rounded-xl p-5 shadow-lg flex flex-col relative overflow-hidden">
+        <div className="bg-[#13161c] border border-border/20 rounded-xl p-5 shadow-lg hover:shadow-[0_0_30px_rgba(20,184,166,0.08)] hover:border-white/10 transition-all duration-500 flex flex-col relative overflow-hidden">
           <div className="absolute top-0 right-0 p-4 opacity-5 pointer-events-none"><Footprints size={120} /></div>
           <span className="text-[11px] font-bold text-[#14b8a6] uppercase tracking-[0.15em] mb-5 relative z-10">Passing Leaders</span>
           <div className="flex flex-col gap-4 relative z-10">
@@ -423,9 +423,9 @@ export default function SeasonSummaryDashboard({ season, matches, players }) {
               <div key={i} className="flex items-center justify-between group">
                 <div className="flex items-center gap-3">
                   <span className={`text-[12px] font-black w-3 text-center ${i===0 ? 'text-[#14b8a6]' : i===1 ? 'text-zinc-300' : i===2 ? 'text-orange-400' : 'text-muted-foreground'}`}>{i+1}</span>
-                  <Avatar p={s.player} size={36} className={`border ${i===0 ? 'border-[#14b8a6]/50 shadow-[0_0_10px_rgba(20,184,166,0.2)]' : 'border-border/30'}`} />
+                  <Avatar p={s.player} size={36} className={`border ${i===0 ? 'border-[#14b8a6]/50 shadow-[0_0_10px_rgba(20,184,166,0.3)]' : 'border-white/10 shadow-[0_0_10px_rgba(255,255,255,0.05)]'}`} />
                   <div className="flex flex-col">
-                    <span className={`font-bold text-[13px] leading-tight group-hover:text-white transition-colors ${i===0 ? 'text-white' : 'text-foreground'}`}>{s.player?.name || '—'}</span>
+                    <span className={`font-bold text-[13px] leading-tight transition-colors ${i===0 ? 'text-white' : 'text-white/90 group-hover:text-white'}`}>{s.player?.name || '—'}</span>
                     <span className="text-[10px] text-muted-foreground font-semibold">{s.player?.favoriteClub || '—'}</span>
                   </div>
                 </div>
@@ -439,7 +439,7 @@ export default function SeasonSummaryDashboard({ season, matches, players }) {
         </div>
 
         {/* Best Defense */}
-        <div className="bg-[#13161c] border border-border/20 rounded-xl p-5 shadow-lg flex flex-col relative overflow-hidden">
+        <div className="bg-[#13161c] border border-border/20 rounded-xl p-5 shadow-lg hover:shadow-[0_0_30px_rgba(59,130,246,0.08)] hover:border-white/10 transition-all duration-500 flex flex-col relative overflow-hidden">
           <div className="absolute top-0 right-0 p-4 opacity-5 pointer-events-none"><Shield size={120} /></div>
           <span className="text-[11px] font-bold text-[#3b82f6] uppercase tracking-[0.15em] mb-5 relative z-10">Best Defense</span>
           <div className="flex flex-col gap-4 relative z-10">
@@ -447,9 +447,9 @@ export default function SeasonSummaryDashboard({ season, matches, players }) {
               <div key={i} className="flex items-center justify-between group">
                 <div className="flex items-center gap-3">
                   <span className={`text-[12px] font-black w-3 text-center ${i===0 ? 'text-[#3b82f6]' : i===1 ? 'text-zinc-300' : i===2 ? 'text-orange-400' : 'text-muted-foreground'}`}>{i+1}</span>
-                  <Avatar p={s.player} size={36} className={`border ${i===0 ? 'border-[#3b82f6]/50 shadow-[0_0_10px_rgba(59,130,246,0.2)]' : 'border-border/30'}`} />
+                  <Avatar p={s.player} size={36} className={`border ${i===0 ? 'border-[#3b82f6]/50 shadow-[0_0_10px_rgba(59,130,246,0.3)]' : 'border-white/10 shadow-[0_0_10px_rgba(255,255,255,0.05)]'}`} />
                   <div className="flex flex-col">
-                    <span className={`font-bold text-[13px] leading-tight group-hover:text-white transition-colors ${i===0 ? 'text-white' : 'text-foreground'}`}>{s.player?.name || '—'}</span>
+                    <span className={`font-bold text-[13px] leading-tight transition-colors ${i===0 ? 'text-white' : 'text-white/90 group-hover:text-white'}`}>{s.player?.name || '—'}</span>
                     <span className="text-[10px] text-muted-foreground font-semibold">{s.player?.favoriteClub || '—'}</span>
                   </div>
                 </div>
@@ -463,7 +463,7 @@ export default function SeasonSummaryDashboard({ season, matches, players }) {
         </div>
 
         {/* Clean Sheets */}
-        <div className="bg-[#13161c] border border-border/20 rounded-xl p-5 shadow-lg flex flex-col relative overflow-hidden">
+        <div className="bg-[#13161c] border border-border/20 rounded-xl p-5 shadow-lg hover:shadow-[0_0_30px_rgba(236,72,153,0.08)] hover:border-white/10 transition-all duration-500 flex flex-col relative overflow-hidden">
           <div className="absolute top-0 right-0 p-4 opacity-5 pointer-events-none"><Star size={120} /></div>
           <span className="text-[11px] font-bold text-[#ec4899] uppercase tracking-[0.15em] mb-5 relative z-10">Clean Sheets</span>
           <div className="flex flex-col gap-4 relative z-10">
@@ -471,9 +471,9 @@ export default function SeasonSummaryDashboard({ season, matches, players }) {
               <div key={i} className="flex items-center justify-between group">
                 <div className="flex items-center gap-3">
                   <span className={`text-[12px] font-black w-3 text-center ${i===0 ? 'text-[#ec4899]' : i===1 ? 'text-zinc-300' : i===2 ? 'text-orange-400' : 'text-muted-foreground'}`}>{i+1}</span>
-                  <Avatar p={s.player} size={36} className={`border ${i===0 ? 'border-[#ec4899]/50 shadow-[0_0_10px_rgba(236,72,153,0.2)]' : 'border-border/30'}`} />
+                  <Avatar p={s.player} size={36} className={`border ${i===0 ? 'border-[#ec4899]/50 shadow-[0_0_10px_rgba(236,72,153,0.3)]' : 'border-white/10 shadow-[0_0_10px_rgba(255,255,255,0.05)]'}`} />
                   <div className="flex flex-col">
-                    <span className={`font-bold text-[13px] leading-tight group-hover:text-white transition-colors ${i===0 ? 'text-white' : 'text-foreground'}`}>{s.player?.name || '—'}</span>
+                    <span className={`font-bold text-[13px] leading-tight transition-colors ${i===0 ? 'text-white' : 'text-white/90 group-hover:text-white'}`}>{s.player?.name || '—'}</span>
                     <span className="text-[10px] text-muted-foreground font-semibold">{s.player?.favoriteClub || '—'}</span>
                   </div>
                 </div>
@@ -489,12 +489,12 @@ export default function SeasonSummaryDashboard({ season, matches, players }) {
       </div>
 
       {/* ─── ROW 4: Key Highlights Footer Ribbon ─── */}
-      <div className="mt-4 bg-[#1a1130] border border-[#a855f7]/30 rounded-xl p-5 shadow-lg flex flex-col md:flex-row items-start md:items-center justify-between gap-6 relative overflow-hidden">
+      <div className="mt-4 bg-[#0c0e12] border border-border/40 rounded-xl p-5 shadow-2xl flex flex-col md:flex-row items-start md:items-center justify-between gap-6 relative overflow-hidden group hover:border-white/20 transition-all duration-500 hover:shadow-[0_0_40px_rgba(255,255,255,0.05)]">
         {/* Subtle glow behind ribbon */}
-        <div className="absolute inset-0 bg-gradient-to-r from-[#a855f7]/10 via-[#ec4899]/10 to-[#a855f7]/10 pointer-events-none" />
+        <div className="absolute inset-0 bg-gradient-to-r from-white/[0.02] via-white/[0.05] to-white/[0.02] pointer-events-none" />
         
-        <div className="shrink-0 relative z-10 bg-[#a855f7]/20 px-3 py-1.5 rounded-lg border border-[#a855f7]/40">
-          <span className="text-[10px] font-bold text-[#d8b4fe] uppercase tracking-[0.2em]">Key Highlights</span>
+        <div className="shrink-0 relative z-10 bg-white/5 px-3 py-1.5 rounded-lg border border-white/10 group-hover:border-white/20 transition-colors shadow-lg">
+          <span className="text-[10px] font-bold text-white/90 uppercase tracking-[0.2em]">Key Highlights</span>
         </div>
 
         <div className="flex-1 flex flex-wrap md:flex-nowrap items-center justify-start md:justify-around gap-6 w-full relative z-10 divide-x divide-white/10">

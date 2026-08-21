@@ -556,9 +556,6 @@ export default function AdminOverviewDashboard({ players = [], activeSeason, mat
           />
 
           <div className="w-full">
-            <div className="flex items-center gap-2 mb-4 pl-1">
-              <h3 className="text-[14px] font-bold uppercase tracking-[0.1em] text-white/80">Season Summary</h3>
-            </div>
             <SeasonSummaryDashboard season={activeSeason} matches={liveMatches} players={players} />
           </div>
         </div>
