@@ -118,32 +118,40 @@ function PodiumStep({ player, rank, height, trend, delay }) {
       transition={{ delay, type: 'spring', damping: 20 }}
       className="flex flex-col items-center relative z-10 w-28 sm:w-40"
     >
-      {/* Mythic Halo Crown (Backdrop) */}
+      {/* Royal Embers (Rank 1 Only) */}
       {isFirst && (
-        <motion.div 
-          animate={{ y: [-5, 5, -5] }}
-          transition={{ repeat: Infinity, duration: 4, ease: "easeInOut" }}
-          className="absolute -top-16 z-0 flex items-center justify-center pointer-events-none"
-        >
-          <img 
-            src="/assets/winnercrown.png" 
-            alt="Rank 1 Crown" 
-            className="w-24 h-24 sm:w-32 sm:h-32 object-contain drop-shadow-[0_0_30px_rgba(16,185,129,0.8)] opacity-90"
-          />
-        </motion.div>
+        <div className="absolute inset-0 z-0 pointer-events-none flex items-center justify-center">
+          {[...Array(6)].map((_, i) => (
+            <motion.div 
+              key={i}
+              animate={{ 
+                y: [50, -150], 
+                opacity: [0, 0.8, 0], 
+                x: [0, -15 + (i * 7) % 30, 10 - (i * 4) % 20] 
+              }}
+              transition={{ 
+                repeat: Infinity, 
+                duration: 4 + (i % 3), 
+                delay: i * 0.5, 
+                ease: "easeOut" 
+              }}
+              className="absolute w-1.5 h-1.5 rounded-full bg-emerald-400 blur-[1px]"
+            />
+          ))}
+        </div>
       )}
 
-      <div className={`relative z-10 flex flex-col items-center gap-2 mb-4 ${isFirst ? 'scale-110 mt-6' : ''}`}>
+      <div className={`relative z-10 flex flex-col items-center gap-2 mb-4 ${isFirst ? 'scale-110 mt-8' : ''}`}>
         <div className="relative">
           {isFirst ? (
-            <div className="relative z-10 p-2 backdrop-blur-2xl bg-white/5 border border-white/10 rounded-[1.5rem] shadow-2xl flex items-center justify-center">
-              {/* Rotating blurred starburst aura */}
-              <motion.div 
-                animate={{ rotate: 360 }}
-                transition={{ repeat: Infinity, duration: 10, ease: "linear" }}
-                className="absolute inset-0 -z-10 rounded-full blur-xl opacity-60 bg-gradient-to-tr from-emerald-500 via-transparent to-yellow-500"
+            <div className="relative z-10 flex flex-col items-center">
+              <motion.img 
+                animate={{ scale: [1, 1.05, 1] }}
+                transition={{ repeat: Infinity, duration: 4, ease: "easeInOut" }}
+                src="/assets/winnercrown.png" 
+                className="absolute -top-10 z-20 w-16 h-16 sm:w-20 sm:h-20 drop-shadow-2xl"
               />
-              <Avatar p={player} size={88} className="rounded-[1.2rem] shadow-inner" />
+              <Avatar p={player} size={88} className="relative z-10 ring-2 ring-emerald-500/60 ring-offset-4 ring-offset-background rounded-full shadow-[0_0_20px_rgba(16,185,129,0.3)]" />
             </div>
           ) : (
             <Avatar p={player} size={56} className="border-4 border-background shadow-2xl" />
