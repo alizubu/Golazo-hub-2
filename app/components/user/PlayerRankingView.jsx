@@ -109,17 +109,17 @@ export default function PlayerRankingView({ players, matches, setTab }) {
             {/* Position the avatars exactly over the image using responsive padding */}
             <div className="relative z-30 w-full max-w-[850px] flex justify-between items-end px-2 sm:px-12 mx-auto h-full pb-0">
               {/* 2nd Place (Left) */}
-              <div className="flex-1 flex justify-center items-end pb-[35%] sm:pb-[29%]">
+              <div className="flex-1 flex justify-center items-end pb-[52%] sm:pb-[46%]">
                 {top3[1] && <PodiumStep player={top3[1]} rank={2} delay={0.2} />}
               </div>
               
               {/* 1st Place (Center) */}
-              <div className="flex-1 flex justify-center items-end pb-[52%] sm:pb-[44%]">
+              <div className="flex-1 flex justify-center items-end pb-[72%] sm:pb-[62%]">
                 {top3[0] && <PodiumStep player={top3[0]} rank={1} delay={0} />}
               </div>
               
               {/* 3rd Place (Right) */}
-              <div className="flex-1 flex justify-center items-end pb-[24%] sm:pb-[20%]">
+              <div className="flex-1 flex justify-center items-end pb-[42%] sm:pb-[36%]">
                 {top3[2] && <PodiumStep player={top3[2]} rank={3} delay={0.4} />}
               </div>
             </div>
