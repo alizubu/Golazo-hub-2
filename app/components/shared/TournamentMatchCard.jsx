@@ -315,7 +315,7 @@ export function TournamentMatchCard({ stage = 'normal', m, h, a, hStats, aStats,
           )}
           
           {/* START Button */}
-          {!isCompleted && (
+          {!isCompleted && onStartClick && (
              <div 
                onClick={(e) => {
                  if (onStartClick) {

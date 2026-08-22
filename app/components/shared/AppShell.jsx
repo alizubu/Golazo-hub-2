@@ -46,7 +46,7 @@ export default function AppShell({
   
   const [currentTab, setCurrentTab] = useState(getCleanTab(initialTab));
   const [prevInitialTab, setPrevInitialTab] = useState(initialTab);
-  const [isSidebarExpanded, setIsSidebarExpanded] = useState(true);
+  const [isSidebarExpanded, setIsSidebarExpanded] = useState(false);
 
   // Sync initialTab with currentTab on server navigation without causing cascading renders
   if (initialTab !== prevInitialTab) {

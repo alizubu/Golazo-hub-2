@@ -14,7 +14,6 @@ import { motion, useScroll, useTransform, useReducedMotion, AnimatePresence, use
 import { useRouter } from 'next/navigation';
 import SettingsView from '@/app/components/shared/SettingsView';
 import MatchesPage from '@/app/components/shared/MatchesPage';
-import MatchCard from '@/app/components/shared/MatchCard';
 import { TournamentMatchCard } from '@/app/components/shared/TournamentMatchCard';
 
 import TrophyDetailModal from '@/app/components/shared/TrophyDetailModal';

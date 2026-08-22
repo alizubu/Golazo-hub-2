@@ -1,17 +1,14 @@
+'use client';
+
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/app/components/ui/tabs";
-import MatchCard from '@/app/components/shared/MatchCard';
-import StandingsTable from '@/app/components/shared/StandingsTable';
-import PlayoffBracket from '@/app/components/shared/PlayoffBracket';
-import DoubleElimBracket from '@/app/components/shared/DoubleElimBracket';
-import SingleElimBracket from '@/app/components/shared/SingleElimBracket';
-import { Calendar, ListOrdered, Swords } from 'lucide-react';
-import { supabase } from '@/lib/supabaseClient';
+import { Calendar } from 'lucide-react';
+
+import { TournamentMatchCard } from '@/app/components/shared/TournamentMatchCard';
+import UserMatchCard from '@/app/components/shared/UserMatchCard';
+import { MagicCard, Badge, Avatar } from '@/app/components/shared/UI';
 
 export default function MatchesPage({ activeSeason, matches, players, me, onMatchClick }) {
-  const [view, setView] = useState("list");
-
   if (!activeSeason) {
     return (
       <div className="flex flex-col items-center justify-center p-12 text-center bg-secondary/20 rounded-2xl border border-dashed border-border/50">
@@ -20,15 +17,21 @@ export default function MatchesPage({ activeSeason, matches, players, me, onMatc
     );
   }
 
-  const leagueMatches = matches.filter((m) => m.seasonId === activeSeason.id && m.round === "league");
-  const playoffMatches = matches.filter((m) => m.seasonId === activeSeason.id && m.round !== "league");
+  // Filter matches for the active season
+  const seasonMatches = matches.filter((m) => m.seasonId === activeSeason.id);
 
-  // Sort live to top, then upcoming, then completed
-  const sortedLeagueMatches = [...leagueMatches].sort((a, b) => {
+  // Sort live to top, then scheduled, then completed
+  const sortedMatches = [...seasonMatches].sort((a, b) => {
     const statusOrder = { 'live': 0, 'scheduled': 1, 'completed': 2 };
-    if (statusOrder[a.status] !== statusOrder[b.status]) {
-      return statusOrder[a.status] - statusOrder[b.status];
+    
+    // Sort by status first
+    const statusA = (a.status === 'in_progress' || a.status === 'live') ? 'live' : a.status;
+    const statusB = (b.status === 'in_progress' || b.status === 'live') ? 'live' : b.status;
+    
+    if (statusOrder[statusA] !== statusOrder[statusB]) {
+      return statusOrder[statusA] - statusOrder[statusB];
     }
+    
     // Secondary sort by date
     if (a.scheduledAt && b.scheduledAt) {
       return new Date(a.scheduledAt) - new Date(b.scheduledAt);
@@ -47,72 +50,92 @@ export default function MatchesPage({ activeSeason, matches, players, me, onMatc
             </span>
           )}
         </h2>
-
-        <Tabs value={view} onValueChange={setView} className="w-full sm:w-auto">
-          <TabsList className="grid w-full grid-cols-3 sm:w-[400px]">
-            <TabsTrigger value="list" className="flex items-center gap-2">
-              <Calendar size={14} /> List
-            </TabsTrigger>
-            <TabsTrigger value="table" className="flex items-center gap-2">
-              <ListOrdered size={14} /> Table
-            </TabsTrigger>
-            <TabsTrigger 
-              value="bracket" 
-              disabled={activeSeason.type === "League"} 
-              className="flex items-center gap-2"
-              title={activeSeason.type === "League" ? "Available after league stage / Playoffs enabled" : ""}
-            >
-              <Swords size={14} /> Bracket
-            </TabsTrigger>
-          </TabsList>
-        </Tabs>
       </div>
 
       <AnimatePresence mode="wait">
         <motion.div
-          key={view}
+          key="list"
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -10 }}
           transition={{ duration: 0.2 }}
         >
-          {view === "list" && (
-            <div className="flex flex-col gap-3">
-              {sortedLeagueMatches.map((m, i) => (
-                <motion.div 
-                  key={m.id} 
-                  initial={{ opacity: 0, y: 10 }} 
-                  animate={{ opacity: 1, y: 0 }} 
-                  transition={{ delay: Math.min(i * 0.05, 0.5) }}
-                >
-                  <MatchCard m={m} players={players} onClick={onMatchClick} />
+          <div className="flex flex-col gap-4">
+            {sortedMatches.map((m, i) => {
+              const h = players.find(p => p.id === m.homeId);
+              const a = players.find(p => p.id === m.awayId);
+              const isPlayoff = m.round !== 'league';
+              
+              const status = (m.status === 'in_progress' || m.status === 'live') ? 'live' : m.status;
+
+              if (status === 'completed') {
+                return (
+                  <motion.div key={m.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: Math.min(i * 0.05, 0.5) }}>
+                    <UserMatchCard m={m} h={h} a={a} players={players} showToast={() => {}} isPlayoff={isPlayoff} isAdmin={false} />
+                  </motion.div>
+                );
+              }
+
+              if (status === 'scheduled') {
+                let stage = 'normal';
+                if (m.round === 'semiA') stage = 'qualifier-1';
+                else if (m.round === 'semiB') stage = 'eliminator';
+                else if (m.round === 'challenger') stage = 'qualifier-2';
+                else if (m.round === 'final') stage = 'final';
+                
+                const mockStats = { rank: '-', wins: '-' };
+
+                return (
+                  <motion.div key={m.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: Math.min(i * 0.05, 0.5) }}>
+                    <TournamentMatchCard 
+                      stage={stage}
+                      m={m}
+                      h={h}
+                      a={a}
+                      hStats={mockStats}
+                      aStats={mockStats}
+                      index={i}
+                      onClick={() => onMatchClick && onMatchClick(m.id)}
+                    />
+                  </motion.div>
+                );
+              }
+
+              // Live Match View
+              return (
+                <motion.div key={m.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: Math.min(i * 0.05, 0.5) }} onClick={() => onMatchClick && onMatchClick(m.id)} className="cursor-pointer">
+                  <MagicCard className="p-5 border-destructive/50 bg-destructive/5 hover:bg-destructive/10 transition-colors">
+                    <div className="flex items-center justify-center mb-4">
+                      <Badge color="#e11d48" pulse>
+                        🔴 LIVE • {m.liveState?.clock ? `${m.liveState.clock}'` : (m.liveState?.phase === 'first' ? '1ST HALF' : m.liveState?.phase === 'second' ? '2ND HALF' : m.liveState?.phase === 'extra' ? 'AET' : m.liveState?.phase === 'penalties' ? 'PENS' : 'IN PROGRESS')}
+                      </Badge>
+                    </div>
+                    <div className="flex items-center justify-between gap-2 sm:gap-6">
+                      <div className="flex-1 min-w-0 flex flex-col items-center justify-center gap-3 w-full">
+                        <Avatar p={h} size={56} className="ring-2 ring-white/10" />
+                        <div className="font-bold text-center truncate w-full px-2">{h?.name || 'Home'}</div>
+                        <div className="text-4xl font-score text-center font-black">{m.homeScore || 0}</div>
+                      </div>
+                      <div className="flex flex-col items-center justify-center gap-1 shrink-0">
+                        <div className="text-sm font-score opacity-30 font-bold select-none">-</div>
+                      </div>
+                      <div className="flex-1 min-w-0 flex flex-col items-center justify-center gap-3 w-full">
+                        <Avatar p={a} size={56} className="ring-2 ring-white/10" />
+                        <div className="font-bold text-center truncate w-full px-2">{a?.name || 'Away'}</div>
+                        <div className="text-4xl font-score text-center font-black">{m.awayScore || 0}</div>
+                      </div>
+                    </div>
+                  </MagicCard>
                 </motion.div>
-              ))}
-              {sortedLeagueMatches.length === 0 && (
-                <div className="p-8 text-center text-muted-foreground bg-secondary/20 rounded-xl border border-dashed border-border/50">
-                  No matches generated yet.
-                </div>
-              )}
-            </div>
-          )}
-
-          {view === "table" && (
-            <div className="bg-card p-2 sm:p-5 rounded-2xl border border-border shadow-sm">
-              <StandingsTable matches={matches} players={players} seasonId={activeSeason.id} me={me} config={activeSeason.config} />
-            </div>
-          )}
-
-          {view === "bracket" && (
-            <div className="bg-card p-2 sm:p-5 rounded-2xl border border-border shadow-sm">
-              {activeSeason.type === 'Double Elimination' ? (
-                <DoubleElimBracket matches={playoffMatches} players={players} onMatchClick={onMatchClick} />
-              ) : activeSeason.type === 'Single Elimination' ? (
-                <SingleElimBracket matches={playoffMatches} players={players} onMatchClick={onMatchClick} />
-              ) : (
-                <PlayoffBracket matches={playoffMatches} players={players} onMatchClick={onMatchClick} />
-              )}
-            </div>
-          )}
+              );
+            })}
+            
+            {sortedMatches.length === 0 && (
+              <div className="p-8 text-center text-muted-foreground bg-secondary/20 rounded-xl border border-dashed border-border/50">
+                No matches generated yet.
+              </div>
+            )}
+          </div>
         </motion.div>
       </AnimatePresence>
     </div>
