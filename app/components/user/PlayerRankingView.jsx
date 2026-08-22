@@ -123,7 +123,6 @@ function PodiumStep({ player, rank, height, trend, delay }) {
     3: 'from-orange-600/30'
   };
 
-  const isFirst = rank === 1;
 
   return (
     <motion.div 
