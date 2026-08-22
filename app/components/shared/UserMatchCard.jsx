@@ -89,9 +89,9 @@ export default function UserMatchCard({ m, h, a, players, showToast, isPlayoff =
       {/* Compact summary row — click to toggle edit */}
       <div
         onClick={() => {
-          if (isAdmin) setIsEditingStats(!isEditingStats);
+          setIsEditingStats(!isEditingStats);
         }}
-        className={`group relative flex flex-col p-4 sm:p-5 rounded-3xl bg-[#0a0b10] border shadow-2xl overflow-hidden transition-all duration-500 hover:scale-[1.005] ${isEditingStats ? 'border-violet-500/40 rounded-b-none' : m.round === 'final' ? 'border-amber-500/50 shadow-[0_0_30px_rgba(245,158,11,0.2)]' : 'border-white/5'} ${isAdmin ? 'cursor-pointer' : ''}`}
+        className={`group relative flex flex-col p-4 sm:p-5 rounded-3xl bg-[#0a0b10] border shadow-2xl overflow-hidden transition-all duration-500 hover:scale-[1.005] cursor-pointer ${isEditingStats ? 'border-violet-500/40 rounded-b-none' : m.round === 'final' ? 'border-amber-500/50 shadow-[0_0_30px_rgba(245,158,11,0.2)]' : 'border-white/5'}`}
       >
         <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 via-transparent to-blue-500/5 opacity-50 pointer-events-none" />
 
@@ -195,9 +195,8 @@ export default function UserMatchCard({ m, h, a, players, showToast, isPlayoff =
       </div>
 
       {/* Expandable stats edit panel */}
-      {isAdmin && (
-        <AnimatePresence>
-          {isEditingStats && (
+      <AnimatePresence>
+        {isEditingStats && (
             <motion.div
               initial={{ height: 0, opacity: 0 }}
               animate={{ height: "auto", opacity: 1 }}
@@ -256,6 +255,7 @@ export default function UserMatchCard({ m, h, a, players, showToast, isPlayoff =
                         <input
                           type="number"
                           inputMode="numeric"
+                          readOnly={!isAdmin}
                           value={statsForm[def.key]?.a === undefined ? "" : statsForm[def.key]?.a}
                           onChange={e => handleStatChange(def.key, 'a', e.target.value)}
                           className={`w-full h-full bg-transparent outline-none font-score font-bold text-sm sm:text-base tabular-nums text-emerald-400 ${isAccuratePasses || isPercent ? 'text-right pr-1' : 'text-center'}`}
@@ -288,6 +288,7 @@ export default function UserMatchCard({ m, h, a, players, showToast, isPlayoff =
                         <input
                           type="number"
                           inputMode="numeric"
+                          readOnly={!isAdmin}
                           value={statsForm[def.key]?.b === undefined ? "" : statsForm[def.key]?.b}
                           onChange={e => handleStatChange(def.key, 'b', e.target.value)}
                           className={`w-full h-full bg-transparent outline-none font-score font-bold text-sm sm:text-base tabular-nums text-rose-400 ${isAccuratePasses || isPercent ? 'text-right pr-1' : 'text-center'}`}
@@ -304,18 +305,19 @@ export default function UserMatchCard({ m, h, a, players, showToast, isPlayoff =
               </div>
 
               {/* Action bar */}
-              <div className="px-4 sm:px-6 pb-4 pt-2 flex gap-3 border-t border-white/[0.04]">
-                <Btn variant="ghost" onClick={() => setIsEditingStats(false)} disabled={saving} className="flex-1 h-11 rounded-xl border border-white/10 text-muted-foreground hover:text-white hover:bg-white/5">
-                  Cancel
-                </Btn>
-                <ShinyButton onClick={saveStats} loading={saving} className="flex-[2] h-11 rounded-xl bg-rose-500 hover:bg-rose-400 text-white font-black text-sm shadow-[0_0_20px_rgba(244,63,94,0.3)]">
-                  <Check size={16} className="mr-2" /> Save Stats
-                </ShinyButton>
-              </div>
+              {isAdmin && (
+                <div className="px-4 sm:px-6 pb-4 pt-2 flex gap-3 border-t border-white/[0.04]">
+                  <Btn variant="ghost" onClick={() => setIsEditingStats(false)} disabled={saving} className="flex-1 h-11 rounded-xl border border-white/10 text-muted-foreground hover:text-white hover:bg-white/5">
+                    Cancel
+                  </Btn>
+                  <ShinyButton onClick={saveStats} loading={saving} className="flex-[2] h-11 rounded-xl bg-rose-500 hover:bg-rose-400 text-white font-black text-sm shadow-[0_0_20px_rgba(244,63,94,0.3)]">
+                    <Check size={16} className="mr-2" /> Save Stats
+                  </ShinyButton>
+                </div>
+              )}
             </motion.div>
           )}
-        </AnimatePresence>
-      )}
+      </AnimatePresence>
     </div>
   );
 }
