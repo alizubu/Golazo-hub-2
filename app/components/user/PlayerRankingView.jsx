@@ -44,10 +44,30 @@ export default function PlayerRankingView({ players, matches, setTab }) {
             <div className="absolute top-[30%] right-[20%] w-64 h-64 bg-orange-600/10 blur-[100px] rounded-full pointer-events-none" />
 
             {/* The 3D Podium Image Background & Holographic Floor */}
-            <div className="absolute inset-x-0 bottom-0 flex flex-col items-center pointer-events-none z-10 overflow-hidden pb-4">
+            <div className="absolute inset-x-0 bottom-0 flex justify-center pointer-events-none z-10 overflow-hidden pb-0">
               
-              {/* Image Container with Glint Effect */}
+              {/* Image Container with Glint Effect & Floor */}
               <div className="relative w-[120%] sm:w-[95%] max-w-[850px] flex justify-center">
+                
+                {/* Holographic Arena Floor & Smoke (Positioned relative to the image bottom) */}
+                <div className="absolute bottom-[8%] w-full flex justify-center items-center mix-blend-screen z-0">
+                  {/* Layer 1: Wide smoke */}
+                  <motion.div 
+                    animate={{ opacity: [0.3, 0.6, 0.3], x: [-30, 30, -30] }}
+                    transition={{ repeat: Infinity, duration: 8, ease: "easeInOut" }}
+                    className="absolute w-[120%] max-w-[1000px] h-32 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-blue-500/10 via-slate-400/5 to-transparent blur-3xl rounded-[100%]"
+                  />
+                  {/* Layer 2: Core glowing fog */}
+                  <motion.div 
+                    animate={{ opacity: [0.4, 0.8, 0.4], x: [20, -20, 20], scale: [0.95, 1.05, 0.95] }}
+                    transition={{ repeat: Infinity, duration: 6, ease: "easeInOut" }}
+                    className="absolute w-full max-w-[800px] h-20 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-yellow-500/30 via-orange-600/10 to-transparent blur-2xl rounded-[100%]"
+                  />
+                  {/* Layer 3: Solid Anchor Shadow (mix-blend-normal) */}
+                  <div className="absolute w-[80%] max-w-[700px] h-6 bg-black/90 blur-md rounded-[100%] translate-y-3 mix-blend-normal" />
+                  <div className="absolute w-[90%] max-w-[800px] h-2 bg-gradient-to-r from-transparent via-yellow-500/50 to-transparent blur-[2px] rounded-[100%] translate-y-3 mix-blend-normal" />
+                </div>
+
                 <motion.img 
                   initial={{ y: 50, opacity: 0 }}
                   animate={{ y: 0, opacity: 1 }}
@@ -68,7 +88,7 @@ export default function PlayerRankingView({ players, matches, setTab }) {
                 </div>
 
                 {/* Volcanic Sparkles from Gold Base */}
-                <div className="absolute bottom-[15%] left-1/2 -translate-x-1/2 w-48 h-10 z-20 flex justify-center overflow-visible">
+                <div className="absolute bottom-[10%] left-1/2 -translate-x-1/2 w-48 h-10 z-20 flex justify-center overflow-visible">
                    {[...Array(8)].map((_, i) => (
                     <motion.div 
                       key={`sparkle-${i}`}
@@ -84,32 +104,22 @@ export default function PlayerRankingView({ players, matches, setTab }) {
                   ))}
                 </div>
               </div>
-
-              {/* Holographic Arena Floor */}
-              <div className="absolute bottom-4 w-full flex justify-center items-center">
-                <motion.div 
-                  animate={{ opacity: [0.4, 0.8, 0.4], scaleX: [0.95, 1.05, 0.95] }}
-                  transition={{ repeat: Infinity, duration: 4, ease: "easeInOut" }}
-                  className="absolute w-full max-w-[900px] h-12 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-yellow-500/40 via-orange-600/10 to-transparent blur-xl rounded-[100%] z-0"
-                />
-                <div className="absolute w-full max-w-[700px] h-1 bg-gradient-to-r from-transparent via-yellow-500/60 to-transparent blur-[2px] rounded-[100%] z-0" />
-              </div>
             </div>
 
             {/* Position the avatars exactly over the image */}
-            <div className="relative z-20 w-full max-w-[850px] flex justify-between items-end px-2 sm:px-12 mx-auto h-full pb-[40%] sm:pb-[250px]">
+            <div className="relative z-30 w-full max-w-[850px] flex justify-between items-end px-2 sm:px-12 mx-auto h-full pb-0">
               {/* 2nd Place (Left) */}
-              <div className="flex-1 flex justify-center items-end pb-[20px] sm:pb-[10px]">
+              <div className="flex-1 flex justify-center items-end mb-[180px] sm:mb-[250px]">
                 {top3[1] && <PodiumStep player={top3[1]} rank={2} delay={0.2} />}
               </div>
               
               {/* 1st Place (Center) */}
-              <div className="flex-1 flex justify-center items-end pb-[100px] sm:pb-[120px]">
+              <div className="flex-1 flex justify-center items-end mb-[280px] sm:mb-[370px]">
                 {top3[0] && <PodiumStep player={top3[0]} rank={1} delay={0} />}
               </div>
               
               {/* 3rd Place (Right) */}
-              <div className="flex-1 flex justify-center items-end pb-0 sm:pb-[-10px]">
+              <div className="flex-1 flex justify-center items-end mb-[140px] sm:mb-[210px]">
                 {top3[2] && <PodiumStep player={top3[2]} rank={3} delay={0.4} />}
               </div>
             </div>
