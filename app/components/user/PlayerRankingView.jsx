@@ -147,36 +147,33 @@ function PodiumStep({ player, rank, height, trend, delay }) {
         </div>
       )}
 
-      {/* High-Floating Crown */}
-      {isFirst && (
-        <motion.div 
-          animate={{ y: [0, -12, 0] }}
-          transition={{ repeat: Infinity, duration: 3, ease: "easeInOut" }}
-          className="absolute -top-20 sm:-top-24 z-50 flex items-center justify-center pointer-events-none overflow-hidden rounded-full p-4"
-        >
-          {/* Blazing Shadow behind Crown */}
-          <div className="absolute inset-0 bg-yellow-500/40 blur-xl rounded-full scale-110 animate-pulse" />
-          
-          <img 
-            src="/assets/winnercrown.png" 
-            alt="Rank 1 Crown" 
-            className="w-20 h-20 sm:w-28 sm:h-28 object-contain relative z-10 drop-shadow-[0_15px_15px_rgba(0,0,0,0.6)]"
-          />
-          
-          {/* Fast Shimmer/Shine Effect over Crown */}
-          <motion.div 
-            animate={{ x: ['-200%', '300%'] }}
-            transition={{ repeat: Infinity, duration: 2, ease: "linear", repeatDelay: 1.5 }}
-            className="absolute inset-y-0 w-8 bg-gradient-to-r from-transparent via-white/80 to-transparent -rotate-45 z-20 mix-blend-overlay"
-            style={{ top: '-20%', bottom: '-20%' }}
-          />
-        </motion.div>
-      )}
-
-      <div className={`relative z-10 flex flex-col items-center gap-2 mb-4 ${isFirst ? 'scale-110 mt-12' : ''}`}>
+      <div className={`relative z-10 flex flex-col items-center gap-2 mb-4 ${isFirst ? 'scale-110 mt-16' : ''}`}>
         <div className="relative">
           {isFirst ? (
             <div className="relative z-10 flex flex-col items-center">
+              
+              {/* Crown Floating above avatar top 10% */}
+              <div className="absolute -top-14 sm:-top-16 z-50 w-24 h-24 sm:w-28 sm:h-28 pointer-events-none drop-shadow-[0_15px_15px_rgba(0,0,0,0.6)]">
+                <motion.div 
+                  animate={{ y: [0, -8, 0] }}
+                  transition={{ repeat: Infinity, duration: 3, ease: "easeInOut" }}
+                  className="relative w-full h-full"
+                >
+                  <div 
+                    className="relative w-full h-full"
+                    style={{ maskImage: "url('/assets/winnercrown.png')", maskSize: "contain", maskRepeat: "no-repeat", maskPosition: "center", WebkitMaskImage: "url('/assets/winnercrown.png')", WebkitMaskSize: "contain", WebkitMaskRepeat: "no-repeat", WebkitMaskPosition: "center" }}
+                  >
+                    <img src="/assets/winnercrown.png" alt="Rank 1 Crown" className="w-full h-full object-contain" />
+                    <motion.div 
+                      animate={{ x: ['-200%', '300%'] }}
+                      transition={{ repeat: Infinity, duration: 2.5, ease: "linear", repeatDelay: 1.5 }}
+                      className="absolute inset-y-0 w-12 bg-gradient-to-r from-transparent via-white/90 to-transparent -rotate-45 z-20"
+                      style={{ top: '-20%', bottom: '-20%' }}
+                    />
+                  </div>
+                </motion.div>
+              </div>
+
               <div className="relative p-1">
                 {/* Outer pulsing fire ring */}
                 <motion.div 
@@ -184,9 +181,15 @@ function PodiumStep({ player, rank, height, trend, delay }) {
                   transition={{ repeat: Infinity, duration: 1.5, ease: "easeInOut" }}
                   className="absolute -inset-2 rounded-full blur-md bg-gradient-to-tr from-red-600 via-orange-500 to-yellow-500"
                 />
-                {/* Inner solid gold ring */}
-                <div className="relative z-10 bg-gradient-to-b from-yellow-300 to-amber-600 p-[3px] rounded-full">
-                  <Avatar p={player} size={88} className="rounded-full shadow-inner border-2 border-background" />
+                
+                {/* 10px Golden Moving Gradient Border */}
+                <div className="relative z-10 p-[10px] rounded-full flex items-center justify-center overflow-hidden">
+                  <motion.div 
+                    animate={{ rotate: 360 }}
+                    transition={{ repeat: Infinity, duration: 3, ease: "linear" }}
+                    className="absolute inset-[-50%] bg-gradient-to-tr from-yellow-600 via-yellow-200 to-yellow-600"
+                  />
+                  <Avatar p={player} size={100} className="rounded-full shadow-inner relative z-10 border-2 border-background bg-background" />
                 </div>
               </div>
             </div>
