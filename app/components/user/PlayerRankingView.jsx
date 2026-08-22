@@ -132,12 +132,21 @@ function PodiumStep({ player, rank, height, trend, delay }) {
           {/* Outer intense glow */}
           <div className="absolute inset-0 bg-yellow-400/40 blur-xl rounded-full w-full h-full scale-150 animate-pulse" />
           
-          {/* Crown Image */}
-          <img 
-            src="/assets/RankCrown.png" 
-            alt="Rank 1 Crown" 
-            className="w-12 h-12 sm:w-16 sm:h-16 object-contain relative z-10 drop-shadow-[0_0_12px_rgba(255,223,0,0.8)]"
-          />
+          {/* Crown Image & Shimmer */}
+          <div className="relative">
+            <img 
+              src="/assets/BBrankCrown.png" 
+              alt="Rank 1 Crown" 
+              className="w-16 h-16 sm:w-20 sm:h-20 object-contain relative z-10 drop-shadow-[0_0_15px_rgba(255,215,0,0.9)]"
+            />
+            {/* Shimmer Light Sweep Effect */}
+            <motion.div 
+              animate={{ x: ['-200%', '300%'] }}
+              transition={{ repeat: Infinity, duration: 3, ease: "linear", repeatDelay: 1 }}
+              className="absolute inset-y-0 w-12 bg-gradient-to-r from-transparent via-white/50 to-transparent -rotate-45 z-20 mix-blend-overlay"
+              style={{ top: '-20%', bottom: '-20%' }}
+            />
+          </div>
           
           {/* Sparkles */}
           <motion.div 
@@ -153,10 +162,30 @@ function PodiumStep({ player, rank, height, trend, delay }) {
         </motion.div>
       )}
 
-      <div className={`relative z-10 flex flex-col items-center gap-2 mb-4 ${isFirst ? 'scale-110' : ''}`}>
+      <div className={`relative z-10 flex flex-col items-center gap-2 mb-4 ${isFirst ? 'scale-110 mt-6' : ''}`}>
         <div className="relative">
-          <Avatar p={player} size={isFirst ? 88 : 56} className={`border-4 border-background shadow-2xl ${isFirst ? 'ring-4 ring-yellow-500/70' : ''}`} />
-          <div className={`absolute -bottom-1 -right-1 w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-background flex items-center justify-center border-2 border-border/50 shadow-lg ${medalColors[rank]}`}>
+          {isFirst ? (
+            <div className="relative p-1">
+              {/* The Glowing Aura */}
+              <motion.div 
+                animate={{ rotate: 360 }}
+                transition={{ repeat: Infinity, duration: 4, ease: "linear" }}
+                className="absolute -inset-1 rounded-full blur-md opacity-70 bg-gradient-to-tr from-yellow-400 via-emerald-400 to-yellow-500"
+              />
+              {/* The Solid Gradient Border */}
+              <motion.div 
+                animate={{ rotate: 360 }}
+                transition={{ repeat: Infinity, duration: 4, ease: "linear" }}
+                className="absolute inset-0 rounded-full bg-gradient-to-tr from-yellow-400 via-emerald-400 to-yellow-500"
+              />
+              <div className="relative bg-background rounded-full p-[3px] z-10">
+                <Avatar p={player} size={88} className="rounded-full" />
+              </div>
+            </div>
+          ) : (
+            <Avatar p={player} size={56} className="border-4 border-background shadow-2xl" />
+          )}
+          <div className={`absolute -bottom-1 -right-1 z-20 w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-background flex items-center justify-center border-2 border-border/50 shadow-lg ${medalColors[rank]}`}>
             <Medal size={16} strokeWidth={2.5} />
           </div>
         </div>
