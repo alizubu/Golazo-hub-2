@@ -9,19 +9,13 @@ import clubsData from '@/lib/data/clubs.json';
 
 import { getPlayerIdentityBadgeUrl } from '@/lib/identityUtils';
 const RankMedal = ({ rank }) => {
-  if (rank === 1) {
+  if (rank <= 3) {
     return (
-      <div className="relative flex items-center justify-center">
-        <div className="absolute w-8 h-8 bg-yellow-500/20 rounded-full blur-md animate-pulse"></div>
-        <Medal className="text-yellow-400 drop-shadow-[0_0_8px_rgba(250,204,21,0.6)] relative z-10" size={26} strokeWidth={2.5} />
+      <div className="relative flex items-center justify-center mx-auto w-10 h-10 sm:w-12 sm:h-12 drop-shadow-md">
+        {rank === 1 && <div className="absolute w-8 h-8 bg-yellow-500/20 rounded-full blur-md animate-pulse"></div>}
+        <img src={`/assets/rankbadge/rank${rank}.png`} alt={`Rank ${rank}`} className="w-full h-full object-contain relative z-10 hover:scale-110 transition-transform" />
       </div>
     );
-  }
-  if (rank === 2) {
-    return <Medal className="text-slate-300 drop-shadow-[0_0_4px_rgba(203,213,225,0.4)] mx-auto" size={24} strokeWidth={2} />;
-  }
-  if (rank === 3) {
-    return <Medal className="text-amber-600 drop-shadow-[0_0_4px_rgba(217,119,6,0.4)] mx-auto" size={24} strokeWidth={2} />;
   }
   return (
     <div className="w-[22px] h-[22px] rounded-full bg-black/40 border border-white/10 text-muted-foreground flex items-center justify-center text-[10px] font-bold mx-auto shadow-inner">

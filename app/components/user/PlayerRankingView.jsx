@@ -161,9 +161,9 @@ function PodiumStep({ player, rank, height, trend, delay }) {
                 >
                   <div 
                     className="relative w-full h-full"
-                    style={{ maskImage: "url('/assets/winnercrown.png')", maskSize: "contain", maskRepeat: "no-repeat", maskPosition: "center", WebkitMaskImage: "url('/assets/winnercrown.png')", WebkitMaskSize: "contain", WebkitMaskRepeat: "no-repeat", WebkitMaskPosition: "center" }}
+                    style={{ maskImage: "url('/assets/RankCrown.png')", maskSize: "contain", maskRepeat: "no-repeat", maskPosition: "center", WebkitMaskImage: "url('/assets/RankCrown.png')", WebkitMaskSize: "contain", WebkitMaskRepeat: "no-repeat", WebkitMaskPosition: "center" }}
                   >
-                    <img src="/assets/winnercrown.png" alt="Rank 1 Crown" className="w-full h-full object-contain" />
+                    <img src="/assets/RankCrown.png" alt="Rank 1 Crown" className="w-full h-full object-contain" />
                     <motion.div 
                       animate={{ x: ['-200%', '300%'] }}
                       transition={{ repeat: Infinity, duration: 2.5, ease: "linear", repeatDelay: 1.5 }}
@@ -196,8 +196,14 @@ function PodiumStep({ player, rank, height, trend, delay }) {
           ) : (
             <Avatar p={player} size={56} className="border-4 border-background shadow-2xl" />
           )}
-          <div className={`absolute -bottom-1 -right-1 z-20 w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-background flex items-center justify-center border-2 border-border/50 shadow-lg ${medalColors[rank]}`}>
-            <Medal size={16} strokeWidth={2.5} />
+          <div className="absolute -bottom-3 -right-3 z-20 w-12 h-12 sm:w-14 sm:h-14 flex items-center justify-center drop-shadow-lg hover:scale-110 transition-transform">
+            {rank <= 3 ? (
+              <img src={`/assets/rankbadge/rank${rank}.png`} alt={`Rank ${rank}`} className="w-full h-full object-contain" />
+            ) : (
+              <div className={`w-8 h-8 rounded-full bg-background flex items-center justify-center border-2 border-border/50 shadow-lg ${medalColors[rank]}`}>
+                <Medal size={16} strokeWidth={2.5} />
+              </div>
+            )}
           </div>
         </div>
         <div className="text-center px-1 flex flex-col items-center w-full">
