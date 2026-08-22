@@ -131,42 +131,89 @@ function PodiumStep({ player, rank, height, trend, delay }) {
       transition={{ delay, type: 'spring', damping: 20 }}
       className={`flex flex-col items-center relative z-10 ${isFirst ? 'w-36 sm:w-48' : 'w-28 sm:w-40'}`}
     >
-      {/* Premium Profile Card */}
-      <div className={`relative z-10 flex flex-col items-center justify-center p-4 sm:p-5 rounded-2xl sm:rounded-[2rem] bg-[#0F1115] border border-white/5 shadow-2xl overflow-hidden mb-3 sm:mb-4 w-full ${isFirst ? 'scale-105 mt-10' : 'mt-4'}`}>
-        
-        {/* Honeycomb Pattern & Ambient Glow */}
-        <div className={`absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] ${ambientGlows[rank] || 'from-white/10'} via-transparent to-transparent opacity-90 z-0`}></div>
-        {/* Subtle Hex/Grid Pattern */}
-        <div className="absolute inset-0 opacity-[0.04] z-0 mix-blend-overlay" style={{ backgroundImage: "url('data:image/svg+xml,%3Csvg width=\\'24\\' height=\\'40\\' viewBox=\\'0 0 24 40\\' xmlns=\\'http://www.w3.org/2000/svg\\'%3E%3Cpath d=\\'M0 10l12 6.928L24 10V0L12-6.928 0 0v10zm0 20l12 6.928L24 30V20l-12-6.928L0 20v10z\\' fill=\\'%23ffffff\\' fill-opacity=\\'1\\' fill-rule=\\'evenodd\\'/%3E%3C/svg%3E')" }}></div>
+      {/* Volcanic Reign Base Heat Source */}
+      {isFirst && (
+        <div className="absolute inset-0 top-10 rounded-full blur-3xl bg-[radial-gradient(circle,_var(--tw-gradient-stops))] from-orange-500/60 via-red-500/20 to-transparent opacity-80 z-0 pointer-events-none" />
+      )}
 
-        {/* Profile Image & Rank Badge */}
-        <div className="relative flex flex-col items-center w-full z-10">
-          <div className={`relative p-[4px] rounded-full bg-gradient-to-tr ${ringGradients[rank] || ringGradients[1]} mb-4 sm:mb-5`}>
-            <Avatar p={player} size={isFirst ? 100 : 76} className="rounded-full shadow-inner border-[4px] border-[#0F1115]" />
+      {/* Aggressive Fire Sparkles */}
+      {isFirst && (
+        <div className="absolute inset-0 z-0 pointer-events-none flex items-center justify-center overflow-visible">
+          {[...Array(10)].map((_, i) => (
+            <motion.div 
+              key={i}
+              animate={{ 
+                y: [0, -150 - (i * 37) % 100], 
+                opacity: [0, 1, 0], 
+                scale: [0.5, 1.5, 0.2],
+                x: [0, ((i * 41) % 100 - 50) * 1.6] 
+              }}
+              transition={{ 
+                repeat: Infinity, 
+                duration: 1 + ((i * 17) % 20) / 10, 
+                delay: ((i * 23) % 15) / 10, 
+                ease: "easeOut" 
+              }}
+              className={`absolute w-1.5 h-1.5 rounded-full blur-[1px] ${i % 2 === 0 ? 'bg-yellow-300' : 'bg-orange-500 shadow-[0_0_10px_2px_rgba(234,88,12,0.8)]'}`}
+            />
+          ))}
+        </div>
+      )}
+
+      <div className={`relative z-10 flex flex-col items-center gap-2 mb-4 ${isFirst ? 'scale-105 mt-16' : 'mt-4'}`}>
+        <div className="relative flex flex-col items-center">
+          
+          {/* Crown Floating above avatar top 10% */}
+          {isFirst && (
+            <div className="absolute -top-12 sm:-top-14 z-50 w-24 h-24 sm:w-28 sm:h-28 pointer-events-none drop-shadow-[0_15px_15px_rgba(0,0,0,0.6)]">
+              <motion.div 
+                animate={{ y: [0, -8, 0] }}
+                transition={{ repeat: Infinity, duration: 3, ease: "easeInOut" }}
+                className="relative w-full h-full"
+              >
+                <div 
+                  className="relative w-full h-full"
+                  style={{ maskImage: "url('/assets/RankCrown.png')", maskSize: "contain", maskRepeat: "no-repeat", maskPosition: "center", WebkitMaskImage: "url('/assets/RankCrown.png')", WebkitMaskSize: "contain", WebkitMaskRepeat: "no-repeat", WebkitMaskPosition: "center" }}
+                >
+                  <img src="/assets/RankCrown.png" alt="Rank 1 Crown" className="w-full h-full object-contain" />
+                  <motion.div 
+                    animate={{ x: ['-200%', '300%'] }}
+                    transition={{ repeat: Infinity, duration: 2.5, ease: "linear", repeatDelay: 1.5 }}
+                    className="absolute inset-y-0 w-12 bg-gradient-to-r from-transparent via-white/90 to-transparent -rotate-45 z-20"
+                    style={{ top: '-20%', bottom: '-20%' }}
+                  />
+                </div>
+              </motion.div>
+            </div>
+          )}
+
+          {/* Profile Image & Rank Badge */}
+          <div className={`relative p-[4px] rounded-full bg-gradient-to-tr ${ringGradients[rank] || ringGradients[1]} mb-2`}>
+            <Avatar p={player} size={isFirst ? 100 : 76} className="rounded-full shadow-inner border-[4px] border-background" />
             
             {/* Rank Badge overlapping bottom right */}
             <div className={`absolute -bottom-3 -right-3 sm:-bottom-4 sm:-right-4 z-20 ${isFirst ? 'w-14 h-14 sm:w-16 sm:h-16' : 'w-10 h-10 sm:w-12 sm:h-12'} drop-shadow-[0_4px_12px_rgba(0,0,0,0.6)] hover:scale-110 transition-transform`}>
               {rank <= 3 ? (
                 <img src={`/assets/rankbadge/rank${rank}.png`} alt={`Rank ${rank}`} className="w-full h-full object-contain" />
               ) : (
-                <div className={`w-full h-full rounded-full bg-[#12151B] flex items-center justify-center border-2 border-border/50 shadow-lg ${medalColors[rank]}`}>
+                <div className={`w-full h-full rounded-full bg-background flex items-center justify-center border-2 border-border/50 shadow-lg ${medalColors[rank]}`}>
                   <Medal size={16} strokeWidth={2.5} />
                 </div>
               )}
             </div>
           </div>
+        </div>
 
-          {/* Player Name */}
-          <div className={`font-heading font-black uppercase tracking-wider text-center bg-clip-text text-transparent bg-gradient-to-b from-white to-gray-400 drop-shadow-sm mb-2.5 w-full truncate px-1 ${isFirst ? 'text-[15px] sm:text-[18px]' : 'text-[13px] sm:text-[15px]'}`}>
-            {player.name}
-          </div>
+        {/* Player Name */}
+        <div className={`font-bold uppercase tracking-wider text-center drop-shadow-sm w-full truncate px-1 ${isFirst ? 'text-[15px] sm:text-[18px]' : 'text-[13px] sm:text-[15px]'}`}>
+          {player.name}
+        </div>
 
-          {/* Points Pill */}
-          <div className="px-3 py-1 sm:px-4 sm:py-1.5 rounded-full bg-[#090A0D] border border-yellow-500/40 shadow-[0_0_12px_rgba(234,179,8,0.15)] flex items-center justify-center min-w-[70px]">
-            <span className="font-score font-bold text-yellow-500 text-[11px] sm:text-[13px] tracking-widest uppercase">
-              {player.rankingPoints ?? 1000} pts
-            </span>
-          </div>
+        {/* Points Pill */}
+        <div className="px-3 py-1 sm:px-4 sm:py-1 rounded-full bg-background/90 backdrop-blur-sm border border-border/50 shadow-[0_0_10px_rgba(0,0,0,0.5)] flex items-center justify-center min-w-[70px]">
+          <span className={`font-score font-bold tracking-widest ${isFirst ? 'text-yellow-400' : 'text-foreground'} text-[11px] sm:text-[12px] uppercase`}>
+            {player.rankingPoints ?? 1000} pts
+          </span>
         </div>
       </div>
 
