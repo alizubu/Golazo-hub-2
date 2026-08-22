@@ -118,68 +118,45 @@ function PodiumStep({ player, rank, height, trend, delay }) {
       transition={{ delay, type: 'spring', damping: 20 }}
       className="flex flex-col items-center relative z-10 w-28 sm:w-40"
     >
+      {/* Ascension Beam (Rank 1 Only) */}
+      {isFirst && (
+        <div className="absolute inset-x-0 bottom-12 top-[-150px] bg-gradient-to-t from-emerald-500/0 via-emerald-500/20 to-yellow-500/0 blur-xl w-32 mx-auto mix-blend-screen pointer-events-none z-0" />
+      )}
+
+      {/* Floating Crown */}
       {isFirst && (
         <motion.div 
-          initial={{ scale: 0, opacity: 0, y: 10 }}
-          animate={{ scale: 1, opacity: 1, y: [0, -8, 0] }}
-          transition={{ 
-            delay: delay + 0.4, 
-            scale: { type: 'spring' },
-            y: { repeat: Infinity, duration: 3, ease: "easeInOut" } 
-          }}
-          className="absolute -top-12 sm:-top-16 z-50 flex items-center justify-center"
+          animate={{ y: [0, -10, 0] }}
+          transition={{ repeat: Infinity, duration: 5, ease: "easeInOut" }}
+          className="absolute -top-16 sm:-top-20 z-50 flex items-center justify-center pointer-events-none"
         >
-          {/* Outer intense glow */}
-          <div className="absolute inset-0 bg-yellow-400/40 blur-xl rounded-full w-full h-full scale-150 animate-pulse" />
-          
-          {/* Crown Image & Shimmer */}
-          <div className="relative">
-            <img 
-              src="/assets/BBrankCrown.png" 
-              alt="Rank 1 Crown" 
-              className="w-16 h-16 sm:w-20 sm:h-20 object-contain relative z-10 drop-shadow-[0_0_15px_rgba(255,215,0,0.9)]"
-            />
-            {/* Shimmer Light Sweep Effect */}
-            <motion.div 
-              animate={{ x: ['-200%', '300%'] }}
-              transition={{ repeat: Infinity, duration: 3, ease: "linear", repeatDelay: 1 }}
-              className="absolute inset-y-0 w-12 bg-gradient-to-r from-transparent via-white/50 to-transparent -rotate-45 z-20 mix-blend-overlay"
-              style={{ top: '-20%', bottom: '-20%' }}
-            />
-          </div>
-          
-          {/* Sparkles */}
-          <motion.div 
-            animate={{ opacity: [0.3, 1, 0.3], scale: [0.8, 1.3, 0.8], rotate: [0, 45, 90] }}
-            transition={{ repeat: Infinity, duration: 2, ease: "easeInOut" }}
-            className="absolute -top-1 -right-1 w-2 h-2 bg-white rounded-full blur-[1px] shadow-[0_0_12px_4px_rgba(255,255,255,0.9)] z-20"
-          />
-          <motion.div 
-            animate={{ opacity: [1, 0.3, 1], scale: [1.3, 0.8, 1.3], rotate: [90, 45, 0] }}
-            transition={{ repeat: Infinity, duration: 1.5, ease: "easeInOut", delay: 0.5 }}
-            className="absolute bottom-1 -left-2 w-1.5 h-1.5 bg-yellow-100 rounded-full blur-[1px] shadow-[0_0_8px_3px_rgba(255,255,255,0.9)] z-20"
+          <img 
+            src="/assets/winnercrown.png" 
+            alt="Rank 1 Crown" 
+            className="w-20 h-20 sm:w-28 sm:h-28 object-contain drop-shadow-[0_10px_20px_rgba(0,0,0,0.5)]"
           />
         </motion.div>
       )}
 
-      <div className={`relative z-10 flex flex-col items-center gap-2 mb-4 ${isFirst ? 'scale-110 mt-6' : ''}`}>
+      <div className={`relative z-10 flex flex-col items-center gap-2 mb-4 ${isFirst ? 'scale-110 mt-10' : ''}`}>
         <div className="relative">
           {isFirst ? (
-            <div className="relative p-1">
-              {/* The Glowing Aura */}
+            <div className="relative p-1 flex items-center justify-center">
+              {/* Orbital Ring 1 */}
               <motion.div 
-                animate={{ rotate: 360 }}
-                transition={{ repeat: Infinity, duration: 4, ease: "linear" }}
-                className="absolute -inset-1 rounded-full blur-md opacity-70 bg-gradient-to-tr from-yellow-400 via-emerald-400 to-yellow-500"
+                animate={{ rotate: 360 }} 
+                transition={{ repeat: Infinity, duration: 8, ease: "linear" }} 
+                className="absolute inset-0 -m-1 rounded-full border-[2px] border-transparent border-t-emerald-400 border-b-emerald-400 opacity-60" 
               />
-              {/* The Solid Gradient Border */}
+              {/* Orbital Ring 2 */}
               <motion.div 
-                animate={{ rotate: 360 }}
-                transition={{ repeat: Infinity, duration: 4, ease: "linear" }}
-                className="absolute inset-0 rounded-full bg-gradient-to-tr from-yellow-400 via-emerald-400 to-yellow-500"
+                animate={{ rotate: -360 }} 
+                transition={{ repeat: Infinity, duration: 12, ease: "linear" }} 
+                className="absolute inset-0 -m-2 rounded-full border-[1px] border-transparent border-l-yellow-400 border-r-yellow-400 opacity-50" 
               />
-              <div className="relative bg-background rounded-full p-[3px] z-10">
-                <Avatar p={player} size={88} className="rounded-full" />
+              
+              <div className="relative z-10">
+                <Avatar p={player} size={88} className="rounded-full shadow-2xl" />
               </div>
             </div>
           ) : (
