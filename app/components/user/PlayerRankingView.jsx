@@ -36,12 +36,12 @@ export default function PlayerRankingView({ players, matches, setTab }) {
         {/* Cinematic Podium for Top 3 */}
         {/* Cinematic Podium for Top 3 */}
         {top3.length > 0 && (
-          <div className="relative pt-10 sm:pt-16 pb-0 flex justify-center items-end h-[500px] sm:h-[650px] mt-8 px-0">
+          <div className="relative pt-10 sm:pt-16 pb-0 flex justify-center items-end h-[600px] sm:h-[750px] mt-8 px-0 overflow-visible">
             
-            {/* Ambient Background Glows */}
-            <div className="absolute inset-x-0 bottom-0 h-[80%] bg-[radial-gradient(ellipse_at_bottom,_var(--tw-gradient-stops))] from-yellow-600/5 via-transparent to-transparent opacity-80 pointer-events-none" />
-            <div className="absolute top-[30%] left-[20%] w-64 h-64 bg-slate-400/5 blur-[100px] rounded-full pointer-events-none" />
-            <div className="absolute top-[30%] right-[20%] w-64 h-64 bg-orange-600/10 blur-[100px] rounded-full pointer-events-none" />
+            {/* Ambient Background Glows - warm amber like reference */}
+            <div className="absolute inset-x-0 bottom-0 h-[60%] bg-[radial-gradient(ellipse_at_bottom,_var(--tw-gradient-stops))] from-amber-600/20 via-orange-900/8 to-transparent pointer-events-none" />
+            <div className="absolute bottom-0 left-[10%] w-80 h-48 bg-orange-500/10 blur-[120px] rounded-full pointer-events-none" />
+            <div className="absolute bottom-0 right-[10%] w-80 h-48 bg-amber-500/10 blur-[120px] rounded-full pointer-events-none" />
 
             {/* The 3D Podium Image Background & Holographic Floor */}
             <div className="absolute inset-x-0 bottom-0 flex justify-center pointer-events-none z-10 overflow-hidden pb-0">
@@ -49,23 +49,22 @@ export default function PlayerRankingView({ players, matches, setTab }) {
               {/* Image Container with Glint Effect & Floor */}
               <div className="relative w-[120%] sm:w-[95%] max-w-[850px] flex justify-center">
                 
-                {/* Holographic Arena Floor & Smoke (Positioned relative to the image bottom) */}
-                <div className="absolute bottom-[8%] w-full flex justify-center items-center mix-blend-screen z-0">
-                  {/* Layer 1: Wide smoke */}
+                {/* Warm Amber Ground Glow - matching reference Image 2 */}
+                <div className="absolute -bottom-[2%] w-[140%] flex justify-center items-center z-0 pointer-events-none">
+                  {/* Layer 1: Wide atmospheric warm glow */}
                   <motion.div 
-                    animate={{ opacity: [0.3, 0.6, 0.3], x: [-30, 30, -30] }}
-                    transition={{ repeat: Infinity, duration: 8, ease: "easeInOut" }}
-                    className="absolute w-[120%] max-w-[1000px] h-32 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-blue-500/10 via-slate-400/5 to-transparent blur-3xl rounded-[100%]"
+                    animate={{ opacity: [0.5, 0.8, 0.5], scaleX: [0.98, 1.02, 0.98] }}
+                    transition={{ repeat: Infinity, duration: 5, ease: "easeInOut" }}
+                    className="absolute w-full h-40 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-amber-500/30 via-orange-700/12 to-transparent blur-2xl rounded-[100%]"
                   />
-                  {/* Layer 2: Core glowing fog */}
+                  {/* Layer 2: Tight warm reflection under podium */}
                   <motion.div 
-                    animate={{ opacity: [0.4, 0.8, 0.4], x: [20, -20, 20], scale: [0.95, 1.05, 0.95] }}
-                    transition={{ repeat: Infinity, duration: 6, ease: "easeInOut" }}
-                    className="absolute w-full max-w-[800px] h-20 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-yellow-500/30 via-orange-600/10 to-transparent blur-2xl rounded-[100%]"
+                    animate={{ opacity: [0.6, 1, 0.6], scaleX: [0.96, 1.04, 0.96] }}
+                    transition={{ repeat: Infinity, duration: 4, ease: "easeInOut" }}
+                    className="absolute w-[80%] h-16 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-orange-400/40 via-amber-600/15 to-transparent blur-xl rounded-[100%] translate-y-4"
                   />
-                  {/* Layer 3: Solid Anchor Shadow (mix-blend-normal) */}
-                  <div className="absolute w-[80%] max-w-[700px] h-6 bg-black/90 blur-md rounded-[100%] translate-y-3 mix-blend-normal" />
-                  <div className="absolute w-[90%] max-w-[800px] h-2 bg-gradient-to-r from-transparent via-yellow-500/50 to-transparent blur-[2px] rounded-[100%] translate-y-3 mix-blend-normal" />
+                  {/* Layer 3: Sharp golden edge line */}
+                  <div className="absolute w-[70%] h-[2px] bg-gradient-to-r from-transparent via-amber-400/50 to-transparent blur-[1px] rounded-full translate-y-2" />
                 </div>
 
                 <motion.img 
@@ -109,17 +108,17 @@ export default function PlayerRankingView({ players, matches, setTab }) {
             {/* Position the avatars exactly over the image using responsive padding */}
             <div className="relative z-30 w-full max-w-[850px] flex justify-between items-end px-2 sm:px-12 mx-auto h-full pb-0">
               {/* 2nd Place (Left) */}
-              <div className="flex-1 flex justify-center items-end pb-[52%] sm:pb-[46%]">
+              <div className="flex-1 flex justify-center items-end pb-[58%] sm:pb-[52%]">
                 {top3[1] && <PodiumStep player={top3[1]} rank={2} delay={0.2} />}
               </div>
               
               {/* 1st Place (Center) */}
-              <div className="flex-1 flex justify-center items-end pb-[72%] sm:pb-[62%]">
+              <div className="flex-1 flex justify-center items-end pb-[78%] sm:pb-[68%]">
                 {top3[0] && <PodiumStep player={top3[0]} rank={1} delay={0} />}
               </div>
               
               {/* 3rd Place (Right) */}
-              <div className="flex-1 flex justify-center items-end pb-[42%] sm:pb-[36%]">
+              <div className="flex-1 flex justify-center items-end pb-[48%] sm:pb-[42%]">
                 {top3[2] && <PodiumStep player={top3[2]} rank={3} delay={0.4} />}
               </div>
             </div>
