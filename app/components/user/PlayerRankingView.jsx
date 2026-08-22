@@ -118,40 +118,77 @@ function PodiumStep({ player, rank, height, trend, delay }) {
       transition={{ delay, type: 'spring', damping: 20 }}
       className="flex flex-col items-center relative z-10 w-28 sm:w-40"
     >
-      {/* Royal Embers (Rank 1 Only) */}
+      {/* Volcanic Reign Base Heat Source */}
       {isFirst && (
-        <div className="absolute inset-0 z-0 pointer-events-none flex items-center justify-center">
-          {[...Array(6)].map((_, i) => (
+        <div className="absolute inset-0 top-10 rounded-full blur-3xl bg-[radial-gradient(circle,_var(--tw-gradient-stops))] from-orange-500/60 via-red-500/20 to-transparent opacity-80 z-0 pointer-events-none" />
+      )}
+
+      {/* Aggressive Fire Sparkles */}
+      {isFirst && (
+        <div className="absolute inset-0 z-0 pointer-events-none flex items-center justify-center overflow-visible">
+          {[...Array(10)].map((_, i) => (
             <motion.div 
               key={i}
               animate={{ 
-                y: [50, -150], 
-                opacity: [0, 0.8, 0], 
-                x: [0, -15 + (i * 7) % 30, 10 - (i * 4) % 20] 
+                y: [0, -150 - (i * 37) % 100], 
+                opacity: [0, 1, 0], 
+                scale: [0.5, 1.5, 0.2],
+                x: [0, ((i * 41) % 100 - 50) * 1.6] 
               }}
               transition={{ 
                 repeat: Infinity, 
-                duration: 4 + (i % 3), 
-                delay: i * 0.5, 
+                duration: 1 + ((i * 17) % 20) / 10, 
+                delay: ((i * 23) % 15) / 10, 
                 ease: "easeOut" 
               }}
-              className="absolute w-1.5 h-1.5 rounded-full bg-emerald-400 blur-[1px]"
+              className={`absolute w-1.5 h-1.5 rounded-full blur-[1px] ${i % 2 === 0 ? 'bg-yellow-300' : 'bg-orange-500 shadow-[0_0_10px_2px_rgba(234,88,12,0.8)]'}`}
             />
           ))}
         </div>
       )}
 
-      <div className={`relative z-10 flex flex-col items-center gap-2 mb-4 ${isFirst ? 'scale-110 mt-8' : ''}`}>
+      {/* High-Floating Crown */}
+      {isFirst && (
+        <motion.div 
+          animate={{ y: [0, -12, 0] }}
+          transition={{ repeat: Infinity, duration: 3, ease: "easeInOut" }}
+          className="absolute -top-20 sm:-top-24 z-50 flex items-center justify-center pointer-events-none overflow-hidden rounded-full p-4"
+        >
+          {/* Blazing Shadow behind Crown */}
+          <div className="absolute inset-0 bg-yellow-500/40 blur-xl rounded-full scale-110 animate-pulse" />
+          
+          <img 
+            src="/assets/winnercrown.png" 
+            alt="Rank 1 Crown" 
+            className="w-20 h-20 sm:w-28 sm:h-28 object-contain relative z-10 drop-shadow-[0_15px_15px_rgba(0,0,0,0.6)]"
+          />
+          
+          {/* Fast Shimmer/Shine Effect over Crown */}
+          <motion.div 
+            animate={{ x: ['-200%', '300%'] }}
+            transition={{ repeat: Infinity, duration: 2, ease: "linear", repeatDelay: 1.5 }}
+            className="absolute inset-y-0 w-8 bg-gradient-to-r from-transparent via-white/80 to-transparent -rotate-45 z-20 mix-blend-overlay"
+            style={{ top: '-20%', bottom: '-20%' }}
+          />
+        </motion.div>
+      )}
+
+      <div className={`relative z-10 flex flex-col items-center gap-2 mb-4 ${isFirst ? 'scale-110 mt-12' : ''}`}>
         <div className="relative">
           {isFirst ? (
             <div className="relative z-10 flex flex-col items-center">
-              <motion.img 
-                animate={{ scale: [1, 1.05, 1] }}
-                transition={{ repeat: Infinity, duration: 4, ease: "easeInOut" }}
-                src="/assets/winnercrown.png" 
-                className="absolute -top-10 z-20 w-16 h-16 sm:w-20 sm:h-20 drop-shadow-2xl"
-              />
-              <Avatar p={player} size={88} className="relative z-10 ring-2 ring-emerald-500/60 ring-offset-4 ring-offset-background rounded-full shadow-[0_0_20px_rgba(16,185,129,0.3)]" />
+              <div className="relative p-1">
+                {/* Outer pulsing fire ring */}
+                <motion.div 
+                  animate={{ scale: [1, 1.05, 1], opacity: [0.6, 1, 0.6] }}
+                  transition={{ repeat: Infinity, duration: 1.5, ease: "easeInOut" }}
+                  className="absolute -inset-2 rounded-full blur-md bg-gradient-to-tr from-red-600 via-orange-500 to-yellow-500"
+                />
+                {/* Inner solid gold ring */}
+                <div className="relative z-10 bg-gradient-to-b from-yellow-300 to-amber-600 p-[3px] rounded-full">
+                  <Avatar p={player} size={88} className="rounded-full shadow-inner border-2 border-background" />
+                </div>
+              </div>
             </div>
           ) : (
             <Avatar p={player} size={56} className="border-4 border-background shadow-2xl" />
