@@ -106,20 +106,20 @@ export default function PlayerRankingView({ players, matches, setTab }) {
               </div>
             </div>
 
-            {/* Position the avatars exactly over the image */}
+            {/* Position the avatars exactly over the image using responsive padding */}
             <div className="relative z-30 w-full max-w-[850px] flex justify-between items-end px-2 sm:px-12 mx-auto h-full pb-0">
               {/* 2nd Place (Left) */}
-              <div className="flex-1 flex justify-center items-end mb-[180px] sm:mb-[250px]">
+              <div className="flex-1 flex justify-center items-end pb-[35%] sm:pb-[29%]">
                 {top3[1] && <PodiumStep player={top3[1]} rank={2} delay={0.2} />}
               </div>
               
               {/* 1st Place (Center) */}
-              <div className="flex-1 flex justify-center items-end mb-[280px] sm:mb-[370px]">
+              <div className="flex-1 flex justify-center items-end pb-[52%] sm:pb-[44%]">
                 {top3[0] && <PodiumStep player={top3[0]} rank={1} delay={0} />}
               </div>
               
               {/* 3rd Place (Right) */}
-              <div className="flex-1 flex justify-center items-end mb-[140px] sm:mb-[210px]">
+              <div className="flex-1 flex justify-center items-end pb-[24%] sm:pb-[20%]">
                 {top3[2] && <PodiumStep player={top3[2]} rank={3} delay={0.4} />}
               </div>
             </div>
@@ -264,7 +264,7 @@ function PodiumStep({ player, rank, delay }) {
           )}
 
           {/* Profile Image & Rank Badge */}
-          <div className={`relative p-[4px] rounded-full bg-gradient-to-tr ${ringGradients[rank] || ringGradients[1]} mb-3 shadow-[0_0_30px_rgba(0,0,0,0.8)]`}>
+          <div className={`relative p-[4px] rounded-full bg-gradient-to-tr ${ringGradients[rank] || ringGradients[1]} mb-1.5 shadow-[0_0_30px_rgba(0,0,0,0.8)]`}>
             <Avatar p={player} size={isFirst ? 110 : 86} className="rounded-full shadow-inner border-[4px] border-[#0a0c10]" />
             
             {/* Rank Badge overlapping bottom right */}
@@ -281,7 +281,7 @@ function PodiumStep({ player, rank, delay }) {
         </div>
 
         {/* Player Name with Slashes */}
-        <div className="flex items-center justify-center gap-2 mb-2 w-full">
+        <div className="flex items-center justify-center gap-2 mb-1 w-full">
           <span className={`text-[12px] sm:text-[14px] font-black ${isFirst ? 'text-[#d4af37]' : rank === 2 ? 'text-slate-400' : 'text-amber-600'} italic`}>//</span>
           <h2 className={`font-heading font-black uppercase tracking-wider text-center drop-shadow-md truncate ${isFirst ? 'text-white text-[16px] sm:text-[20px] drop-shadow-[0_0_8px_rgba(255,255,255,0.4)]' : rank === 2 ? 'text-slate-200 text-[14px] sm:text-[16px]' : 'text-orange-100 text-[14px] sm:text-[16px]'}`}>
             {player.name}
@@ -291,7 +291,7 @@ function PodiumStep({ player, rank, delay }) {
 
         {/* Angular Points Pill */}
         <div 
-          className="relative flex items-center justify-center min-w-[100px] mb-2 drop-shadow-[0_5px_10px_rgba(0,0,0,0.5)]"
+          className="relative flex items-center justify-center min-w-[100px] mb-0 drop-shadow-[0_5px_10px_rgba(0,0,0,0.5)]"
           style={{
              clipPath: 'polygon(10px 0, calc(100% - 10px) 0, 100% 10px, 100% calc(100% - 10px), calc(100% - 10px) 100%, 10px 100%, 0 calc(100% - 10px), 0 10px)',
              background: isFirst ? 'linear-gradient(135deg, #d4af37, #8b6914)' : rank === 2 ? 'linear-gradient(135deg, #94a3b8, #475569)' : 'linear-gradient(135deg, #d97706, #92400e)',
