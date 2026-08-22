@@ -36,32 +36,64 @@ export default function PlayerRankingView({ players, matches, setTab }) {
         {/* Cinematic Podium for Top 3 */}
         {/* Cinematic Podium for Top 3 */}
         {top3.length > 0 && (
-          <div className="relative pt-10 sm:pt-16 pb-0 flex justify-center items-end h-[500px] sm:h-[650px] rounded-3xl bg-[#0a0c10] border border-white/[0.05] shadow-[0_20px_50px_rgba(0,0,0,0.5)] overflow-hidden mt-8 px-0">
+          <div className="relative pt-10 sm:pt-16 pb-0 flex justify-center items-end h-[500px] sm:h-[650px] mt-8 px-0">
             
-            {/* Base Glows for 1, 2, 3 */}
-            <div className="absolute inset-x-0 bottom-0 h-[80%] bg-[radial-gradient(ellipse_at_bottom,_var(--tw-gradient-stops))] from-yellow-600/10 via-transparent to-transparent opacity-80 pointer-events-none" />
+            {/* Ambient Background Glows */}
+            <div className="absolute inset-x-0 bottom-0 h-[80%] bg-[radial-gradient(ellipse_at_bottom,_var(--tw-gradient-stops))] from-yellow-600/5 via-transparent to-transparent opacity-80 pointer-events-none" />
             <div className="absolute top-[30%] left-[20%] w-64 h-64 bg-slate-400/5 blur-[100px] rounded-full pointer-events-none" />
             <div className="absolute top-[30%] right-[20%] w-64 h-64 bg-orange-600/10 blur-[100px] rounded-full pointer-events-none" />
-            
-            {/* Subtle Honeycomb Texture */}
-            <div className="absolute inset-0 opacity-[0.03] mix-blend-overlay pointer-events-none" style={{ backgroundImage: "url('data:image/svg+xml,%3Csvg width=\\'24\\' height=\\'40\\' viewBox=\\'0 0 24 40\\' xmlns=\\'http://www.w3.org/2000/svg\\'%3E%3Cpath d=\\'M0 10l12 6.928L24 10V0L12-6.928 0 0v10zm0 20l12 6.928L24 30V20l-12-6.928L0 20v10z\\' fill=\\'%23ffffff\\' fill-opacity=\\'1\\' fill-rule=\\'evenodd\\'/%3E%3C/svg%3E')" }} />
 
-            {/* The 3D Podium Image Background */}
-            <div className="absolute inset-x-0 bottom-0 flex justify-center pointer-events-none z-10 items-end">
-              <motion.img 
-                initial={{ y: 50, opacity: 0 }}
-                animate={{ y: 0, opacity: 1 }}
-                transition={{ delay: 0.2, type: 'spring' }}
-                src="/assets/Podium.png" 
-                className="w-[120%] sm:w-[95%] max-w-[850px] object-contain drop-shadow-[0_20px_30px_rgba(0,0,0,0.9)] relative z-10" 
-                alt="Podium"
-              />
-              {/* Ground Glow Animation */}
-              <motion.div 
-                animate={{ opacity: [0.3, 0.7, 0.3], scale: [0.95, 1.05, 0.95] }}
-                transition={{ repeat: Infinity, duration: 3, ease: "easeInOut" }}
-                className="absolute bottom-0 inset-x-20 h-16 bg-gradient-to-t from-yellow-500/40 to-transparent blur-2xl rounded-[100%] z-0"
-              />
+            {/* The 3D Podium Image Background & Holographic Floor */}
+            <div className="absolute inset-x-0 bottom-0 flex flex-col items-center pointer-events-none z-10 overflow-hidden pb-4">
+              
+              {/* Image Container with Glint Effect */}
+              <div className="relative w-[120%] sm:w-[95%] max-w-[850px] flex justify-center">
+                <motion.img 
+                  initial={{ y: 50, opacity: 0 }}
+                  animate={{ y: 0, opacity: 1 }}
+                  transition={{ delay: 0.2, type: 'spring' }}
+                  src="/assets/Podium.png" 
+                  className="w-full h-auto object-contain drop-shadow-[0_20px_30px_rgba(0,0,0,0.9)] relative z-10" 
+                  alt="Podium"
+                />
+                
+                {/* Glint Animation overlay on the image */}
+                <div className="absolute inset-0 z-20 overflow-hidden mask-image-podium" style={{ WebkitMaskImage: "url('/assets/Podium.png')", WebkitMaskSize: "contain", WebkitMaskRepeat: "no-repeat", WebkitMaskPosition: "center bottom" }}>
+                  <motion.div
+                    animate={{ left: ['-100%', '200%'] }}
+                    transition={{ repeat: Infinity, duration: 3.5, ease: "linear", repeatDelay: 2 }}
+                    className="absolute inset-y-0 w-32 bg-gradient-to-r from-transparent via-white/40 to-transparent -rotate-45 z-20 pointer-events-none"
+                    style={{ top: '-50%', bottom: '-50%' }}
+                  />
+                </div>
+
+                {/* Volcanic Sparkles from Gold Base */}
+                <div className="absolute bottom-[15%] left-1/2 -translate-x-1/2 w-48 h-10 z-20 flex justify-center overflow-visible">
+                   {[...Array(8)].map((_, i) => (
+                    <motion.div 
+                      key={`sparkle-${i}`}
+                      animate={{ 
+                        y: [0, -120 - (i * 20)], 
+                        opacity: [0, 1, 0], 
+                        scale: [0.5, 1.5, 0],
+                        x: [0, (i % 2 === 0 ? 1 : -1) * (i * 15)]
+                      }}
+                      transition={{ repeat: Infinity, duration: 1.5 + (i * 0.2), delay: i * 0.3, ease: "easeOut" }}
+                      className="absolute bottom-0 w-1.5 h-1.5 rounded-full bg-yellow-300 shadow-[0_0_10px_2px_rgba(234,179,8,0.9)]"
+                    />
+                  ))}
+                </div>
+              </div>
+
+              {/* Holographic Arena Floor */}
+              <div className="absolute bottom-4 w-full flex justify-center items-center">
+                <motion.div 
+                  animate={{ opacity: [0.4, 0.8, 0.4], scaleX: [0.95, 1.05, 0.95] }}
+                  transition={{ repeat: Infinity, duration: 4, ease: "easeInOut" }}
+                  className="absolute w-full max-w-[900px] h-12 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-yellow-500/40 via-orange-600/10 to-transparent blur-xl rounded-[100%] z-0"
+                />
+                <div className="absolute w-full max-w-[700px] h-1 bg-gradient-to-r from-transparent via-yellow-500/60 to-transparent blur-[2px] rounded-[100%] z-0" />
+              </div>
             </div>
 
             {/* Position the avatars exactly over the image */}
