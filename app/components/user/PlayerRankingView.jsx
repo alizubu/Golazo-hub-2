@@ -118,46 +118,32 @@ function PodiumStep({ player, rank, height, trend, delay }) {
       transition={{ delay, type: 'spring', damping: 20 }}
       className="flex flex-col items-center relative z-10 w-28 sm:w-40"
     >
-      {/* Ascension Beam (Rank 1 Only) */}
-      {isFirst && (
-        <div className="absolute inset-x-0 bottom-12 top-[-150px] bg-gradient-to-t from-emerald-500/0 via-emerald-500/20 to-yellow-500/0 blur-xl w-32 mx-auto mix-blend-screen pointer-events-none z-0" />
-      )}
-
-      {/* Floating Crown */}
+      {/* Mythic Halo Crown (Backdrop) */}
       {isFirst && (
         <motion.div 
-          animate={{ y: [0, -10, 0] }}
-          transition={{ repeat: Infinity, duration: 5, ease: "easeInOut" }}
-          className="absolute -top-16 sm:-top-20 z-50 flex items-center justify-center pointer-events-none"
+          animate={{ y: [-5, 5, -5] }}
+          transition={{ repeat: Infinity, duration: 4, ease: "easeInOut" }}
+          className="absolute -top-16 z-0 flex items-center justify-center pointer-events-none"
         >
           <img 
             src="/assets/winnercrown.png" 
             alt="Rank 1 Crown" 
-            className="w-20 h-20 sm:w-28 sm:h-28 object-contain drop-shadow-[0_10px_20px_rgba(0,0,0,0.5)]"
+            className="w-24 h-24 sm:w-32 sm:h-32 object-contain drop-shadow-[0_0_30px_rgba(16,185,129,0.8)] opacity-90"
           />
         </motion.div>
       )}
 
-      <div className={`relative z-10 flex flex-col items-center gap-2 mb-4 ${isFirst ? 'scale-110 mt-10' : ''}`}>
+      <div className={`relative z-10 flex flex-col items-center gap-2 mb-4 ${isFirst ? 'scale-110 mt-6' : ''}`}>
         <div className="relative">
           {isFirst ? (
-            <div className="relative p-1 flex items-center justify-center">
-              {/* Orbital Ring 1 */}
+            <div className="relative z-10 p-2 backdrop-blur-2xl bg-white/5 border border-white/10 rounded-[1.5rem] shadow-2xl flex items-center justify-center">
+              {/* Rotating blurred starburst aura */}
               <motion.div 
-                animate={{ rotate: 360 }} 
-                transition={{ repeat: Infinity, duration: 8, ease: "linear" }} 
-                className="absolute inset-0 -m-1 rounded-full border-[2px] border-transparent border-t-emerald-400 border-b-emerald-400 opacity-60" 
+                animate={{ rotate: 360 }}
+                transition={{ repeat: Infinity, duration: 10, ease: "linear" }}
+                className="absolute inset-0 -z-10 rounded-full blur-xl opacity-60 bg-gradient-to-tr from-emerald-500 via-transparent to-yellow-500"
               />
-              {/* Orbital Ring 2 */}
-              <motion.div 
-                animate={{ rotate: -360 }} 
-                transition={{ repeat: Infinity, duration: 12, ease: "linear" }} 
-                className="absolute inset-0 -m-2 rounded-full border-[1px] border-transparent border-l-yellow-400 border-r-yellow-400 opacity-50" 
-              />
-              
-              <div className="relative z-10">
-                <Avatar p={player} size={88} className="rounded-full shadow-2xl" />
-              </div>
+              <Avatar p={player} size={88} className="rounded-[1.2rem] shadow-inner" />
             </div>
           ) : (
             <Avatar p={player} size={56} className="border-4 border-background shadow-2xl" />
