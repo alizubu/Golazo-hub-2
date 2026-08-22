@@ -35,7 +35,16 @@ export default function PlayerRankingView({ players, matches, setTab }) {
       <div className="flex-1 max-w-5xl w-full mx-auto p-4 sm:p-6 lg:p-8 flex flex-col gap-12 mt-4">
         {/* Cinematic Podium for Top 3 */}
         {top3.length > 0 && (
-          <div className="relative pt-40 sm:pt-48 pb-8 flex justify-center items-end gap-2 sm:gap-6 h-[480px] sm:h-[520px]">
+          <div className="relative pt-32 sm:pt-40 pb-0 flex justify-center items-end gap-2 sm:gap-6 h-[500px] sm:h-[560px] rounded-3xl bg-[#0a0c10] border border-white/[0.05] shadow-[0_20px_50px_rgba(0,0,0,0.5)] overflow-hidden mt-8 px-2 sm:px-6">
+            
+            {/* Base Glows for 1, 2, 3 */}
+            <div className="absolute inset-x-0 bottom-0 h-[80%] bg-[radial-gradient(ellipse_at_bottom,_var(--tw-gradient-stops))] from-yellow-600/10 via-transparent to-transparent opacity-80 pointer-events-none" />
+            <div className="absolute top-[30%] left-[20%] w-64 h-64 bg-slate-400/5 blur-[100px] rounded-full pointer-events-none" />
+            <div className="absolute top-[30%] right-[20%] w-64 h-64 bg-orange-600/10 blur-[100px] rounded-full pointer-events-none" />
+            
+            {/* Subtle Honeycomb Texture */}
+            <div className="absolute inset-0 opacity-[0.03] mix-blend-overlay pointer-events-none" style={{ backgroundImage: "url('data:image/svg+xml,%3Csvg width=\\'24\\' height=\\'40\\' viewBox=\\'0 0 24 40\\' xmlns=\\'http://www.w3.org/2000/svg\\'%3E%3Cpath d=\\'M0 10l12 6.928L24 10V0L12-6.928 0 0v10zm0 20l12 6.928L24 30V20l-12-6.928L0 20v10z\\' fill=\\'%23ffffff\\' fill-opacity=\\'1\\' fill-rule=\\'evenodd\\'/%3E%3C/svg%3E')" }} />
+
             {/* 2nd Place */}
             {top3[1] && <PodiumStep player={top3[1]} rank={2} height={200} trend={getPlayerTrend(top3[1].id)} delay={0.2} />}
             
@@ -43,7 +52,7 @@ export default function PlayerRankingView({ players, matches, setTab }) {
             {top3[0] && <PodiumStep player={top3[0]} rank={1} height={260} trend={getPlayerTrend(top3[0].id)} delay={0} />}
             
             {/* 3rd Place */}
-            {top3[2] && <PodiumStep player={top3[2]} rank={3} height={150} trend={getPlayerTrend(top3[2].id)} delay={0.4} />}
+            {top3[2] && <PodiumStep player={top3[2]} rank={3} height={160} trend={getPlayerTrend(top3[2].id)} delay={0.4} />}
           </div>
         )}
 
@@ -160,33 +169,9 @@ function PodiumStep({ player, rank, height, trend, delay }) {
         </div>
       )}
 
-      <div className={`relative z-10 flex flex-col items-center gap-2 mb-4 ${isFirst ? 'scale-105 mt-16' : 'mt-4'}`}>
-        <div className="relative flex flex-col items-center">
+      <div className={`relative z-10 flex flex-col items-center gap-2 sm:gap-3 mb-4 ${isFirst ? 'scale-105 mt-10' : 'mt-0'}`}>
+        <div className="relative flex flex-col items-center hover:scale-105 transition-transform duration-300">
           
-          {/* Crown Floating above avatar top 10% */}
-          {isFirst && (
-            <div className="absolute -top-12 sm:-top-14 z-50 w-24 h-24 sm:w-28 sm:h-28 pointer-events-none drop-shadow-[0_15px_15px_rgba(0,0,0,0.6)]">
-              <motion.div 
-                animate={{ y: [0, -8, 0] }}
-                transition={{ repeat: Infinity, duration: 3, ease: "easeInOut" }}
-                className="relative w-full h-full"
-              >
-                <div 
-                  className="relative w-full h-full"
-                  style={{ maskImage: "url('/assets/RankCrown.png')", maskSize: "contain", maskRepeat: "no-repeat", maskPosition: "center", WebkitMaskImage: "url('/assets/RankCrown.png')", WebkitMaskSize: "contain", WebkitMaskRepeat: "no-repeat", WebkitMaskPosition: "center" }}
-                >
-                  <img src="/assets/RankCrown.png" alt="Rank 1 Crown" className="w-full h-full object-contain" />
-                  <motion.div 
-                    animate={{ x: ['-200%', '300%'] }}
-                    transition={{ repeat: Infinity, duration: 2.5, ease: "linear", repeatDelay: 1.5 }}
-                    className="absolute inset-y-0 w-12 bg-gradient-to-r from-transparent via-white/90 to-transparent -rotate-45 z-20"
-                    style={{ top: '-20%', bottom: '-20%' }}
-                  />
-                </div>
-              </motion.div>
-            </div>
-          )}
-
           {/* Profile Image & Rank Badge */}
           <div className={`relative p-[4px] rounded-full bg-gradient-to-tr ${ringGradients[rank] || ringGradients[1]} mb-2`}>
             <Avatar p={player} size={isFirst ? 100 : 76} className="rounded-full shadow-inner border-[4px] border-background" />
@@ -205,26 +190,36 @@ function PodiumStep({ player, rank, height, trend, delay }) {
         </div>
 
         {/* Player Name */}
-        <div className={`font-bold uppercase tracking-wider text-center drop-shadow-sm w-full truncate px-1 ${isFirst ? 'text-[15px] sm:text-[18px]' : 'text-[13px] sm:text-[15px]'}`}>
+        <h2 className={`font-heading font-black uppercase tracking-wider text-center drop-shadow-md w-full truncate px-1 ${isFirst ? 'text-white text-[16px] sm:text-[20px] drop-shadow-[0_0_8px_rgba(255,255,255,0.4)]' : rank === 2 ? 'text-slate-200 text-[14px] sm:text-[16px]' : 'text-orange-100 text-[14px] sm:text-[16px]'}`}>
           {player.name}
-        </div>
+        </h2>
 
         {/* Points Pill */}
-        <div className="px-3 py-1 sm:px-4 sm:py-1 rounded-full bg-background/90 backdrop-blur-sm border border-border/50 shadow-[0_0_10px_rgba(0,0,0,0.5)] flex items-center justify-center min-w-[70px]">
-          <span className={`font-score font-bold tracking-widest ${isFirst ? 'text-yellow-400' : 'text-foreground'} text-[11px] sm:text-[12px] uppercase`}>
-            {player.rankingPoints ?? 1000} pts
+        <div className={`px-4 py-1.5 rounded-full bg-[#0a0c10] border ${isFirst ? 'border-yellow-500/60 shadow-[0_0_12px_rgba(234,179,8,0.25)]' : rank === 2 ? 'border-slate-400/60 shadow-[0_0_12px_rgba(148,163,184,0.15)]' : 'border-amber-600/60 shadow-[0_0_12px_rgba(217,119,6,0.15)]'} flex items-center justify-center min-w-[70px]`}>
+          <span className={`font-score font-bold tracking-widest text-[11px] sm:text-[13px] uppercase ${isFirst ? 'text-yellow-400' : rank === 2 ? 'text-slate-300' : 'text-amber-500'}`}>
+            {player.rankingPoints ?? 1000} <span className="text-white/60 ml-0.5">pts</span>
           </span>
         </div>
       </div>
 
       {/* Actual Podium Block */}
       <div 
-        className={`w-full rounded-t-2xl sm:rounded-t-3xl ${rankColors[rank]} relative overflow-hidden flex flex-col items-center justify-start pt-4 sm:pt-6`}
+        className={`w-full rounded-t-lg sm:rounded-t-xl relative overflow-hidden flex flex-col items-center justify-start pt-6 sm:pt-8 border-t-2 border-l border-r shadow-[inset_0_30px_60px_rgba(0,0,0,0.6)] ${isFirst ? 'border-t-yellow-400 border-l-yellow-600/30 border-r-yellow-600/30 bg-gradient-to-b from-yellow-700 via-yellow-900 to-[#0a0c10]' : rank === 2 ? 'border-t-slate-300 border-l-slate-400/30 border-r-slate-400/30 bg-gradient-to-b from-slate-600 via-slate-800 to-[#0a0c10]' : 'border-t-amber-500 border-l-amber-600/30 border-r-amber-600/30 bg-gradient-to-b from-orange-700 via-orange-900 to-[#0a0c10]'}`}
         style={{ height: `${height}px` }}
       >
-        <div className="absolute inset-0 bg-black/20 mix-blend-overlay"></div>
-        <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent"></div>
-        <div className="relative z-10 font-score font-black text-4xl sm:text-6xl text-white/90 drop-shadow-md">
+        {/* Subtle Podium Texture */}
+        <div className="absolute inset-0 opacity-[0.06] mix-blend-overlay" style={{ backgroundImage: "url('data:image/svg+xml,%3Csvg width=\\'16\\' height=\\'28\\' viewBox=\\'0 0 16 28\\' xmlns=\\'http://www.w3.org/2000/svg\\'%3E%3Cpath d=\\'M0 7l8 4.619L16 7V0L8-4.619 0 0v7zm0 14l8 4.619L16 21V14l-8-4.619L0 14v7z\\' fill=\\'%23ffffff\\' fill-opacity=\\'1\\' fill-rule=\\'evenodd\\'/%3E%3C/svg%3E')" }}></div>
+        <div className="absolute top-0 inset-x-0 h-1/2 bg-gradient-to-b from-white/10 to-transparent"></div>
+        
+        <div 
+          className="relative z-10 font-heading font-black text-6xl sm:text-7xl mt-2"
+          style={{
+            background: isFirst ? 'linear-gradient(180deg, #ffffff 0%, #ffd76a 40%, #c58a12 100%)' : rank === 2 ? 'linear-gradient(180deg, #ffffff 0%, #e2e8f0 40%, #64748b 100%)' : 'linear-gradient(180deg, #ffffff 0%, #fcd34d 40%, #b45309 100%)',
+            WebkitBackgroundClip: 'text',
+            WebkitTextFillColor: 'transparent',
+            filter: 'drop-shadow(0px 10px 15px rgba(0,0,0,0.5))'
+          }}
+        >
           {rank}
         </div>
       </div>
