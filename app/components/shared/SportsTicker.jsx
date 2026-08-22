@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useMemo, useCallback, useEffect } from 'react';
-import { Megaphone } from 'lucide-react';
+import { Megaphone, Trophy, Shield, Activity, Flame, Skull, Zap, BarChart3 } from 'lucide-react';
 import { Avatar } from '@/app/components/shared/UI';
 import MatchStatsModal from '@/app/components/shared/MatchStatsModal';
 import {
@@ -70,8 +70,31 @@ function MatchChip({ match, home, away, theme, isLive, onClick, showAvatars, pre
   );
 }
 
+// ── Segmented Smart Badge ──────────────────────────────────────────────────
+function SegmentedSmartBadge({ icon: Icon, category, data, color, theme }) {
+  return (
+    <div className="flex items-center rounded-xl overflow-hidden shadow-[inset_1px_1px_0_rgba(255,255,255,0.1),_0_2px_10px_rgba(0,0,0,0.5)] border border-white/[0.05] shrink-0 font-sans mx-4">
+      <div 
+        className="flex items-center gap-1.5 px-3 py-1.5 text-[11px] font-black tracking-widest uppercase"
+        style={{ backgroundColor: `${color}30`, color: color, textShadow: `0 0 10px ${color}80` }}
+      >
+        {Icon && <Icon size={14} />}
+        {category}
+      </div>
+      <div 
+        className="px-3 py-1.5 text-sm font-bold tracking-wide"
+        style={{ backgroundColor: 'rgba(0,0,0,0.4)', color: theme.team, backdropFilter: 'blur(8px)' }}
+      >
+        <span style={{ fontFamily: theme.mono ? "'JetBrains Mono', monospace" : theme.font }}>
+          {data}
+        </span>
+      </div>
+    </div>
+  );
+}
+
 // ── Main Component ───────────────────────────────────────────────────────────
-export default function SportsTicker({ matches = [], announcements = [], players = [], tickerConfig, previewMode = false, standings = [] }) {
+export default function SportsTicker({ matches = [], announcements = [], players = [], tickerConfig, previewMode = false, standings = [], activeSeasonId }) {
   const [selectedMatchId, setSelectedMatchId] = useState(null);
 
   const cfg = tickerConfig ?? {
@@ -107,10 +130,16 @@ export default function SportsTicker({ matches = [], announcements = [], players
       : matches;
   }, [matches, cfg.source, cfg.selectedSeasonId]);
 
+  // Analytics Matches: ALWAYS pinned to active season (or selected season if explicitly requested)
+  const analyticsMatches = useMemo(() => {
+    const targetSeasonId = cfg.selectedSeasonId || activeSeasonId;
+    return targetSeasonId ? matches.filter(m => m.seasonId === targetSeasonId) : matches;
+  }, [matches, cfg.selectedSeasonId, activeSeasonId]);
+
   // ── Enhanced Smart Content: Stats ─────────────────────────────────────────
   const statsItems = useMemo(() => {
     if (!cfg.showStats) return [];
-    const completed = relevantMatches.filter(m => m.status === 'completed');
+    const completed = analyticsMatches.filter(m => m.status === 'completed');
     if (completed.length === 0) return [];
 
     const playerStats = {};
@@ -137,17 +166,17 @@ export default function SportsTicker({ matches = [], announcements = [], players
     const topScorer = [...sorted].sort((a, b) => b.goals - a.goals)[0];
     const topCleanSheet = [...sorted].sort((a, b) => b.cleanSheets - a.cleanSheets)[0];
     
-    if (topScorer && topScorer.goals > 0) result.push(`GOLDEN BOOT RACE: ${topScorer.name} leads with ${topScorer.goals} Goals!`);
-    if (topCleanSheet && topCleanSheet.cleanSheets > 0) result.push(`BRICK WALL: ${topCleanSheet.name} has ${topCleanSheet.cleanSheets} Clean Sheets.`);
-    result.push(`LEAGUE UPDATE: ${completed.length} Matches Officially Completed.`);
+    if (topScorer && topScorer.goals > 0) result.push({ icon: Trophy, category: 'GOLDEN BOOT', data: `${topScorer.name} leads with ${topScorer.goals} Goals!`, color: '#00f0ff' });
+    if (topCleanSheet && topCleanSheet.cleanSheets > 0) result.push({ icon: Shield, category: 'BRICK WALL', data: `${topCleanSheet.name} has ${topCleanSheet.cleanSheets} Clean Sheets.`, color: '#00f0ff' });
+    result.push({ icon: BarChart3, category: 'LEAGUE UPDATE', data: `${completed.length} Matches Officially Completed.`, color: '#00f0ff' });
     
     return result;
-  }, [cfg.showStats, relevantMatches, players]);
+  }, [cfg.showStats, analyticsMatches, players]);
 
   // ── Enhanced Smart Content: Highlights ────────────────────────────────────
   const highlightItems = useMemo(() => {
     if (!cfg.showHighlights) return [];
-    const completed = relevantMatches.filter(m => m.status === 'completed').sort((a, b) => new Date(b.completedAt) - new Date(a.completedAt));
+    const completed = analyticsMatches.filter(m => m.status === 'completed').sort((a, b) => new Date(b.completedAt) - new Date(a.completedAt));
     if (completed.length === 0) return [];
     const result = [];
     
@@ -167,16 +196,16 @@ export default function SportsTicker({ matches = [], announcements = [], players
     if (biggestMatch && biggestMargin > 0) {
       const h = getPlayer(biggestMatch.homeId);
       const a = getPlayer(biggestMatch.awayId);
-      if (h && a) result.push(`ABSOLUTE ROUT: ${h.name} destroys ${a.name} ${biggestMatch.homeScore}-${biggestMatch.awayScore}!`);
+      if (h && a) result.push({ icon: Zap, category: 'ABSOLUTE ROUT', data: `${h.name} destroys ${a.name} ${biggestMatch.homeScore}-${biggestMatch.awayScore}!`, color: '#f472b6' });
     }
-    if (totalGoals > 0) result.push(`GOAL FEST: ${totalGoals} goals scored in the last ${recent.length} games!`);
+    if (totalGoals > 0) result.push({ icon: Activity, category: 'GOAL FEST', data: `${totalGoals} goals scored in the last ${recent.length} games!`, color: '#f472b6' });
     return result;
-  }, [cfg.showHighlights, relevantMatches, getPlayer]);
+  }, [cfg.showHighlights, analyticsMatches, getPlayer]);
 
   // ── Enhanced Smart Content: Streaks ───────────────────────────────────────
   const streakItems = useMemo(() => {
     if (!cfg.showStreaks) return [];
-    const completed = relevantMatches.filter(m => m.status === 'completed').sort((a, b) => new Date(b.completedAt) - new Date(a.completedAt));
+    const completed = analyticsMatches.filter(m => m.status === 'completed').sort((a, b) => new Date(b.completedAt) - new Date(a.completedAt));
     if (completed.length < 3) return [];
     const result = [];
 
@@ -197,15 +226,15 @@ export default function SportsTicker({ matches = [], announcements = [], players
       }
       if (streak >= 3) {
         if (streakType === 'W') {
-          result.push({ text: `UNSTOPPABLE! ${p.name} is on a ${streak}-Game WINNING Streak!`, type: 'win' });
+          result.push({ icon: Flame, category: 'UNSTOPPABLE!', data: `${p.name} is on a ${streak}-Game WINNING Streak!`, color: '#ff4500' });
         } else {
-          result.push({ text: `IN CRISIS! ${p.name} suffers ${streak} consecutive losses.`, type: 'loss' });
+          result.push({ icon: Skull, category: 'IN CRISIS!', data: `${p.name} suffers ${streak} consecutive losses.`, color: '#ff4500' });
         }
       }
     });
 
     return result.slice(0, 3);
-  }, [cfg.showStreaks, relevantMatches, players]);
+  }, [cfg.showStreaks, analyticsMatches, players]);
 
   useEffect(() => {
     // Inject fonts needed for the themes if they don't exist
@@ -301,13 +330,8 @@ export default function SportsTicker({ matches = [], announcements = [], players
   });
 
   // ── Stats Ticker Items ────────────────────────────────────────────────────
-  statsItems.forEach((text, i) => {
-    items.push(
-      <div key={`stat-${i}`} className="flex items-center shrink-0 gap-3 font-semibold mx-4">
-        <StatsBadge />
-        <span style={{ color: theme.team, fontFamily: theme.font }} className="text-sm font-bold tracking-wide">{text}</span>
-      </div>
-    );
+  statsItems.forEach((item, i) => {
+    items.push(<SegmentedSmartBadge key={`stat-${i}`} {...item} theme={theme} />);
   });
 
   // ── Highlight Reel Items (Auto + Custom) ──────────────────────────────────
@@ -331,14 +355,21 @@ export default function SportsTicker({ matches = [], announcements = [], players
 
     const allHighlights = [...highlightItems, ...(cfg.customHighlights || []).filter(h => h.visible !== false)];
     allHighlights.forEach((hl, i) => {
-      if (typeof hl === 'string') {
+      // If it's our new structured object from highlightItems
+      if (hl.category) {
+        items.push(<SegmentedSmartBadge key={`hl-${i}`} {...hl} theme={theme} />);
+      } 
+      // Legacy string format
+      else if (typeof hl === 'string') {
         items.push(
           <div key={`hl-${i}`} className="flex items-center shrink-0 gap-3 font-semibold mx-4">
             <HighlightBadge />
             <span style={{ color: theme.team, fontFamily: theme.font }} className="text-sm font-bold tracking-wide">{hl}</span>
           </div>
         );
-      } else {
+      } 
+      // Legacy object format from config
+      else {
         const BadgeComponent = badgeComponentMap[hl.badge] || HighlightBadge;
         const textStyle = {
           color: hl.style?.color || theme.team,
@@ -363,12 +394,7 @@ export default function SportsTicker({ matches = [], announcements = [], players
 
   // ── Player Streak Alerts ──────────────────────────────────────────────────
   streakItems.forEach((item, i) => {
-    items.push(
-      <div key={`streak-${i}`} className="flex items-center shrink-0 gap-3 font-semibold mx-4">
-        <StreakBadge type={item.type} />
-        <span style={{ color: theme.team, fontFamily: theme.font }} className="text-sm font-bold tracking-wide">{item.text}</span>
-      </div>
-    );
+    items.push(<SegmentedSmartBadge key={`streak-${i}`} {...item} theme={theme} />);
   });
 
   // ── Empty state ───────────────────────────────────────────────────────────

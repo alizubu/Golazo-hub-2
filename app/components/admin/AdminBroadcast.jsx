@@ -450,6 +450,7 @@ export default function AdminBroadcast({
                   players={players}
                   tickerConfig={previewTheme}
                   previewMode={true}
+                  activeSeasonId={seasons?.find(s => !s.isArchived)?.id}
                 />
               ) : (
                 <div className="flex items-center justify-center h-10 text-[11px] font-semibold text-muted-foreground tracking-widest uppercase bg-black/20">

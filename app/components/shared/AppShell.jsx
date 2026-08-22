@@ -137,6 +137,7 @@ export default function AppShell({
                 announcements={announcements}
                 players={players}
                 tickerConfig={tickerConfig}
+                activeSeasonId={activeSeason?.id}
               />
             </div>
 
@@ -221,6 +222,7 @@ export default function AppShell({
           announcements={announcements}
           players={players}
           tickerConfig={tickerConfig}
+          activeSeasonId={activeSeason?.id}
         />
       </div>
       <div className="max-w-[1400px] mx-auto px-4 pt-4">
