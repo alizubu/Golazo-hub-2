@@ -127,9 +127,29 @@ function PodiumStep({ player, rank, height, trend, delay }) {
             scale: { type: 'spring' },
             y: { repeat: Infinity, duration: 3, ease: "easeInOut" } 
           }}
-          className="absolute -top-10 sm:-top-12 z-50 drop-shadow-xl text-3xl sm:text-4xl"
+          className="absolute -top-12 sm:-top-16 z-50 flex items-center justify-center"
         >
-          👑
+          {/* Outer intense glow */}
+          <div className="absolute inset-0 bg-yellow-400/40 blur-xl rounded-full w-full h-full scale-150 animate-pulse" />
+          
+          {/* Crown Image */}
+          <img 
+            src="/assets/RankCrown.png" 
+            alt="Rank 1 Crown" 
+            className="w-12 h-12 sm:w-16 sm:h-16 object-contain relative z-10 drop-shadow-[0_0_12px_rgba(255,223,0,0.8)]"
+          />
+          
+          {/* Sparkles */}
+          <motion.div 
+            animate={{ opacity: [0.3, 1, 0.3], scale: [0.8, 1.3, 0.8], rotate: [0, 45, 90] }}
+            transition={{ repeat: Infinity, duration: 2, ease: "easeInOut" }}
+            className="absolute -top-1 -right-1 w-2 h-2 bg-white rounded-full blur-[1px] shadow-[0_0_12px_4px_rgba(255,255,255,0.9)] z-20"
+          />
+          <motion.div 
+            animate={{ opacity: [1, 0.3, 1], scale: [1.3, 0.8, 1.3], rotate: [90, 45, 0] }}
+            transition={{ repeat: Infinity, duration: 1.5, ease: "easeInOut", delay: 0.5 }}
+            className="absolute bottom-1 -left-2 w-1.5 h-1.5 bg-yellow-100 rounded-full blur-[1px] shadow-[0_0_8px_3px_rgba(255,255,255,0.9)] z-20"
+          />
         </motion.div>
       )}
 
