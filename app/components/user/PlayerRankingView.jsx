@@ -32,11 +32,11 @@ export default function PlayerRankingView({ players, matches, setTab }) {
     <div className="flex flex-col min-h-screen bg-background text-foreground pb-24">
       <PageHeader title="Global Ranking" onBack={() => setTab('dashboard')} />
       
-      <div className="flex-1 max-w-5xl w-full mx-auto p-4 sm:p-6 lg:p-8 flex flex-col gap-12 mt-4">
+      <div className="flex-1 max-w-5xl w-full mx-auto p-4 sm:p-6 lg:p-8 flex flex-col gap-4 sm:gap-12 mt-0 sm:mt-4">
         {/* Cinematic Podium for Top 3 */}
         {/* Cinematic Podium for Top 3 */}
         {top3.length > 0 && (
-          <div className="relative pt-10 sm:pt-16 pb-0 flex justify-center items-end h-[600px] sm:h-[750px] mt-8 px-0 overflow-visible">
+          <div className="relative pt-4 sm:pt-16 pb-0 flex justify-center items-end h-[420px] sm:h-[750px] mt-2 sm:mt-8 px-0 overflow-visible">
             
             {/* Ambient Background Glows - warm amber like reference */}
             <div className="absolute inset-x-0 bottom-0 h-[60%] bg-[radial-gradient(ellipse_at_bottom,_var(--tw-gradient-stops))] from-amber-600/20 via-orange-900/8 to-transparent pointer-events-none" />
@@ -47,7 +47,7 @@ export default function PlayerRankingView({ players, matches, setTab }) {
             <div className="absolute inset-x-0 bottom-0 flex justify-center pointer-events-none z-10 overflow-hidden pb-0">
               
               {/* Image Container with Glint Effect & Floor */}
-              <div className="relative w-[120%] sm:w-[95%] max-w-[850px] flex justify-center">
+              <div className="relative w-[105%] sm:w-[95%] max-w-[850px] flex justify-center">
                 
                 {/* Warm Amber Ground Glow - matching reference Image 2 */}
                 <div className="absolute -bottom-[2%] w-[140%] flex justify-center items-center z-0 pointer-events-none">
@@ -106,19 +106,19 @@ export default function PlayerRankingView({ players, matches, setTab }) {
             </div>
 
             {/* Position the avatars exactly over the image using responsive padding */}
-            <div className="relative z-30 w-full max-w-[850px] flex justify-between items-end px-2 sm:px-12 mx-auto h-full pb-0">
+            <div className="relative z-30 w-full max-w-[850px] flex justify-between items-end px-1 sm:px-12 mx-auto h-full pb-0">
               {/* 2nd Place (Left) */}
-              <div className="flex-1 flex justify-center items-end pb-[58%] sm:pb-[52%]">
+              <div className="flex-1 flex justify-center items-end pb-[42%] sm:pb-[52%]">
                 {top3[1] && <PodiumStep player={top3[1]} rank={2} delay={0.2} />}
               </div>
               
               {/* 1st Place (Center) */}
-              <div className="flex-1 flex justify-center items-end pb-[78%] sm:pb-[68%]">
+              <div className="flex-1 flex justify-center items-end pb-[55%] sm:pb-[68%]">
                 {top3[0] && <PodiumStep player={top3[0]} rank={1} delay={0} />}
               </div>
               
               {/* 3rd Place (Right) */}
-              <div className="flex-1 flex justify-center items-end pb-[48%] sm:pb-[42%]">
+              <div className="flex-1 flex justify-center items-end pb-[35%] sm:pb-[42%]">
                 {top3[2] && <PodiumStep player={top3[2]} rank={3} delay={0.4} />}
               </div>
             </div>
@@ -206,7 +206,7 @@ function PodiumStep({ player, rank, delay }) {
       initial={{ opacity: 0, y: 50 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay, type: 'spring', damping: 20 }}
-      className={`flex flex-col items-center relative z-10 ${isFirst ? 'w-40 sm:w-56' : 'w-32 sm:w-48'}`}
+      className={`flex flex-col items-center relative z-10 ${isFirst ? 'w-28 sm:w-56' : 'w-24 sm:w-48'}`}
     >
       {/* Base Sparkles / Glows for Rank 1 */}
       {isFirst && (
@@ -235,12 +235,12 @@ function PodiumStep({ player, rank, delay }) {
         </>
       )}
 
-      <div className={`relative z-10 flex flex-col items-center mb-4 ${isFirst ? 'scale-105 mt-12' : 'mt-0'}`}>
+      <div className={`relative z-10 flex flex-col items-center mb-1 sm:mb-4 ${isFirst ? 'scale-100 sm:scale-105 mt-4 sm:mt-12' : 'mt-0'}`}>
         <div className="relative flex flex-col items-center hover:scale-105 transition-transform duration-300">
           
           {/* Crown Floating above avatar top */}
           {isFirst && (
-            <div className="absolute -top-12 sm:-top-16 z-50 w-24 h-24 sm:w-28 sm:h-28 pointer-events-none drop-shadow-[0_15px_15px_rgba(0,0,0,0.6)]">
+            <div className="absolute -top-10 sm:-top-16 z-50 w-16 h-16 sm:w-28 sm:h-28 pointer-events-none drop-shadow-[0_15px_15px_rgba(0,0,0,0.6)]">
               <motion.div 
                 animate={{ y: [0, -8, 0] }}
                 transition={{ repeat: Infinity, duration: 3, ease: "easeInOut" }}
@@ -263,11 +263,11 @@ function PodiumStep({ player, rank, delay }) {
           )}
 
           {/* Profile Image & Rank Badge */}
-          <div className={`relative p-[4px] rounded-full bg-gradient-to-tr ${ringGradients[rank] || ringGradients[1]} mb-1.5 shadow-[0_0_30px_rgba(0,0,0,0.8)]`}>
-            <Avatar p={player} size={isFirst ? 110 : 86} className="rounded-full shadow-inner border-[4px] border-[#0a0c10]" />
+          <div className={`relative p-[3px] sm:p-[4px] rounded-full bg-gradient-to-tr ${ringGradients[rank] || ringGradients[1]} mb-1 sm:mb-1.5 shadow-[0_0_30px_rgba(0,0,0,0.8)]`}>
+            <Avatar p={player} size={isFirst ? 72 : 56} className="rounded-full shadow-inner border-[3px] sm:border-[4px] border-[#0a0c10]" />
             
             {/* Rank Badge overlapping bottom right */}
-            <div className={`absolute -bottom-3 -right-3 sm:-bottom-4 sm:-right-4 z-20 ${isFirst ? 'w-16 h-16 sm:w-20 sm:h-20' : 'w-12 h-12 sm:w-14 sm:h-14'} drop-shadow-[0_10px_15px_rgba(0,0,0,0.8)] hover:scale-110 transition-transform`}>
+            <div className={`absolute -bottom-2 -right-2 sm:-bottom-4 sm:-right-4 z-20 ${isFirst ? 'w-10 h-10 sm:w-20 sm:h-20' : 'w-8 h-8 sm:w-14 sm:h-14'} drop-shadow-[0_10px_15px_rgba(0,0,0,0.8)] hover:scale-110 transition-transform`}>
               {rank <= 3 ? (
                 <img src={`/assets/rankbadge/rank${rank}.png`} alt={`Rank ${rank}`} className="w-full h-full object-contain" />
               ) : (
@@ -282,7 +282,7 @@ function PodiumStep({ player, rank, delay }) {
         {/* Player Name with Slashes */}
         <div className="flex items-center justify-center gap-2 mb-1 w-full">
           <span className={`text-[12px] sm:text-[14px] font-black ${isFirst ? 'text-[#d4af37]' : rank === 2 ? 'text-slate-400' : 'text-amber-600'} italic`}>//</span>
-          <h2 className={`font-heading font-black uppercase tracking-wider text-center drop-shadow-md truncate ${isFirst ? 'text-white text-[16px] sm:text-[20px] drop-shadow-[0_0_8px_rgba(255,255,255,0.4)]' : rank === 2 ? 'text-slate-200 text-[14px] sm:text-[16px]' : 'text-orange-100 text-[14px] sm:text-[16px]'}`}>
+          <h2 className={`font-heading font-black uppercase tracking-wider text-center drop-shadow-md truncate ${isFirst ? 'text-white text-[12px] sm:text-[20px] drop-shadow-[0_0_8px_rgba(255,255,255,0.4)]' : rank === 2 ? 'text-slate-200 text-[11px] sm:text-[16px]' : 'text-orange-100 text-[11px] sm:text-[16px]'}`}>
             {player.name}
           </h2>
           <span className={`text-[12px] sm:text-[14px] font-black ${isFirst ? 'text-[#d4af37]' : rank === 2 ? 'text-slate-400' : 'text-amber-600'} italic`}>//</span>
@@ -290,7 +290,7 @@ function PodiumStep({ player, rank, delay }) {
 
         {/* Angular Points Pill */}
         <div 
-          className="relative flex items-center justify-center min-w-[100px] mb-0 drop-shadow-[0_5px_10px_rgba(0,0,0,0.5)]"
+          className="relative flex items-center justify-center min-w-[80px] sm:min-w-[100px] mb-0 drop-shadow-[0_5px_10px_rgba(0,0,0,0.5)]"
           style={{
              clipPath: 'polygon(10px 0, calc(100% - 10px) 0, 100% 10px, 100% calc(100% - 10px), calc(100% - 10px) 100%, 10px 100%, 0 calc(100% - 10px), 0 10px)',
              background: isFirst ? 'linear-gradient(135deg, #d4af37, #8b6914)' : rank === 2 ? 'linear-gradient(135deg, #94a3b8, #475569)' : 'linear-gradient(135deg, #d97706, #92400e)',
@@ -301,7 +301,7 @@ function PodiumStep({ player, rank, delay }) {
             className="w-full h-full bg-[#0a0c10] flex items-center justify-center px-4 py-1.5"
             style={{ clipPath: 'polygon(9px 0, calc(100% - 9px) 0, 100% 9px, 100% calc(100% - 9px), calc(100% - 9px) 100%, 9px 100%, 0 calc(100% - 9px), 0 9px)' }}
           >
-            <span className={`font-score font-bold tracking-widest text-[12px] sm:text-[14px] uppercase ${isFirst ? 'text-[#ffd76a]' : rank === 2 ? 'text-slate-300' : 'text-amber-500'}`}>
+            <span className={`font-score font-bold tracking-widest text-[10px] sm:text-[14px] uppercase ${isFirst ? 'text-[#ffd76a]' : rank === 2 ? 'text-slate-300' : 'text-amber-500'}`}>
               {player.rankingPoints ?? 1000} <span className="text-white/60 ml-1">PTS</span>
             </span>
           </div>
