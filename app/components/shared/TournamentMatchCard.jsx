@@ -332,29 +332,10 @@ export function TournamentMatchCard({ stage = 'normal', m, h, a, hStats, aStats,
                 {/* Trophy Asset with Glint Mask */}
                 <div className="relative z-10 w-32 h-full">
                    <img src="/assets/trophies/BB-Champion.png" alt="Trophy" className="w-full h-full object-contain drop-shadow-[0_0_20px_rgba(243,199,95,0.4)]" />
-                   {/* Alpha-Masked Glint layer exact to trophy shape */}
-                   <div 
-                     className="absolute inset-0 bg-gradient-to-r from-transparent via-white to-transparent opacity-0 animate-[gemGlint_4s_linear_infinite]" 
-                     style={{ 
-                       mixBlendMode: 'overlay',
-                       maskImage: "url('/assets/trophies/BB-Champion.png')",
-                       WebkitMaskImage: "url('/assets/trophies/BB-Champion.png')",
-                       maskSize: 'contain',
-                       WebkitMaskSize: 'contain',
-                       maskRepeat: 'no-repeat',
-                       WebkitMaskRepeat: 'no-repeat',
-                       maskPosition: 'center',
-                       WebkitMaskPosition: 'center'
-                     }} 
-                   />
                    {/* Starburst Flares */}
                    <span className="absolute top-[8%] left-[25%] text-white text-[10px] animate-[starTwinkle_3s_ease-in-out_infinite_0.5s] pointer-events-none">✨</span>
                    <span className="absolute top-[5%] right-[25%] text-white text-[12px] animate-[starTwinkle_4s_ease-in-out_infinite_1.2s] pointer-events-none">✨</span>
                 </div>
-              </div>
-              {/* Stakes Badge */}
-              <div className="mt-2 px-3 py-1 rounded-full border border-amber-500/30 bg-amber-500/10 backdrop-blur-sm shadow-[0_0_15px_rgba(245,158,11,0.15)] animate-[heartbeatPulse_4s_ease-in-out_infinite_reverse]">
-                 <span className="text-[9px] font-black uppercase tracking-widest text-amber-300">Championship Title</span>
               </div>
             </div>
           )}
