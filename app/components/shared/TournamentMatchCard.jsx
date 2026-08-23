@@ -355,10 +355,20 @@ export function TournamentMatchCard({ stage = 'normal', m, h, a, hStats, aStats,
                 
                 {/* Trophy Asset with Glint Mask */}
                 <div className="relative z-10 w-32 h-full">
-                   <img src="/assets/trophies/BB-Champion.png" alt="Trophy" className="w-full h-full object-contain drop-shadow-[0_0_20px_rgba(243,199,95,0.4)]" />
-                   {/* Starburst Flares */}
-                   <span className="absolute top-[8%] left-[25%] text-white text-[10px] animate-[starTwinkle_3s_ease-in-out_infinite_0.5s] pointer-events-none">✨</span>
-                   <span className="absolute top-[5%] right-[25%] text-white text-[12px] animate-[starTwinkle_4s_ease-in-out_infinite_1.2s] pointer-events-none">✨</span>
+                   {/* Massive Radiant Aura Behind Trophy */}
+                   <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-48 h-48 z-0 opacity-40 mix-blend-screen animate-[spin_10s_linear_infinite] pointer-events-none">
+                     <img src="/assets/shine.svg" alt="" className="w-full h-full object-contain animate-pulse" />
+                   </div>
+                   
+                   <img src="/assets/trophies/BB-Champion.png" alt="Trophy" className="w-full h-full object-contain drop-shadow-[0_0_20px_rgba(243,199,95,0.4)] relative z-10" />
+                   
+                   {/* Jewel Glint Flares On Trophy */}
+                   <div className="absolute top-[8%] left-[25%] w-4 h-4 z-20 mix-blend-screen animate-[starTwinkle_3s_ease-in-out_infinite_0.5s] pointer-events-none">
+                     <img src="/assets/shine.svg" alt="" className="w-full h-full object-contain animate-[spin_4s_linear_infinite]" />
+                   </div>
+                   <div className="absolute top-[5%] right-[25%] w-5 h-5 z-20 mix-blend-screen animate-[starTwinkle_4s_ease-in-out_infinite_1.2s] pointer-events-none">
+                     <img src="/assets/shine.svg" alt="" className="w-full h-full object-contain animate-[spin_5s_linear_infinite]" />
+                   </div>
                 </div>
               </div>
             </div>
