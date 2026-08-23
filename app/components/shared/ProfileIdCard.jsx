@@ -145,11 +145,8 @@ export default function ProfileIdCard({ me, form, setForm, showToast }) {
       <div className="relative px-6 sm:px-8 pb-8">
         {/* Avatar positioned over the cover border */}
         <div className="relative -mt-16 sm:-mt-20 mb-6 flex justify-between items-end">
-          <div className="relative z-20 p-1 bg-card rounded-full shadow-2xl">
-             {/* Note: AvatarUpload is used here, we'll style it to fit */}
-             <div className="scale-75 sm:scale-90 origin-bottom-left -m-4 sm:-m-3">
-               <AvatarUpload me={me} form={form} setForm={setForm} showToast={showToast} />
-             </div>
+          <div className="relative z-20 pl-2">
+             <AvatarUpload me={me} form={form} setForm={setForm} showToast={showToast} size={140} />
           </div>
           
           <div className="hidden sm:block pb-4">

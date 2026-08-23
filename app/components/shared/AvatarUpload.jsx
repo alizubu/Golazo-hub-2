@@ -7,7 +7,7 @@ import { Avatar } from '@/app/components/shared/UI';
 import { Progress } from '@/app/components/ui/progress';
 import { updatePlayerProfile } from '@/app/actions/player';
 
-export default function AvatarUpload({ me, form, setForm, showToast }) {
+export default function AvatarUpload({ me, form, setForm, showToast, size = 160 }) {
   const [isHovered, setIsHovered] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
   const [uploading, setUploading] = useState(false);
@@ -125,7 +125,7 @@ export default function AvatarUpload({ me, form, setForm, showToast }) {
         className={`rounded-full p-1.5 shrink-0 shadow-xl inline-block relative cursor-pointer transition-colors duration-300 ${isDragging ? 'bg-pitch border-2 border-dashed border-pitch-bright' : 'bg-card'}`}
         onClick={() => fileInputRef.current?.click()}
       >
-        <Avatar p={{ ...me, avatar: form.avatar, avatarImage: form.avatarImage }} size={240} ring="var(--gold)" />
+        <Avatar p={{ ...me, avatar: form.avatar, avatarImage: form.avatarImage }} size={size} ring="var(--gold)" />
         
         {/* Hover Overlay */}
         <AnimatePresence>
