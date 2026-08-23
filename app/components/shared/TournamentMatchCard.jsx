@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Avatar } from '@/app/components/shared/UI';
 import { getPlayerIdentityBadgeUrl } from '@/lib/identityUtils';
@@ -76,6 +76,39 @@ export function TournamentMatchCard({ stage = 'normal', m, h, a, hStats, aStats,
   const isCompleted = m?.status === 'completed';
   const config = STAGE_CONFIG[stage] || STAGE_CONFIG['normal'];
   const isFinal = stage === 'final';
+
+  // Generate particle configurations safely after mount to avoid impure function during render
+  const [particles, setParticles] = useState({ bg: [], fg: [] });
+
+  useEffect(() => {
+    if (!isFinal) return;
+    
+    // Push calculation to next tick to avoid synchronous setState cascading render warning
+    const timer = setTimeout(() => {
+      const bg = [...Array(20)].map(() => ({
+        width: `${4 + Math.random() * 6}px`,
+        height: `${4 + Math.random() * 6}px`,
+        left: `${Math.random() * 100}%`,
+        bottom: '-20px',
+        '--duration': `${8 + Math.random() * 10}s`,
+        animationDelay: `${Math.random() * 10}s`,
+        '--drift': `${(Math.random() - 0.5) * 200}px`,
+        filter: 'blur(3px)'
+      }));
+      
+      const fg = [...Array(20)].map(() => ({
+        left: `${Math.random() * 100}%`,
+        bottom: '-10px',
+        '--duration': `${3 + Math.random() * 5}s`,
+        animationDelay: `${Math.random() * 5}s`,
+        '--drift': `${(Math.random() - 0.5) * 80}px`
+      }));
+      
+      setParticles({ bg, fg });
+    }, 0);
+    
+    return () => clearTimeout(timer);
+  }, [isFinal]);
 
   const hClub = CLUBS.find(c => c.name === h?.favoriteClub);
   const aClub = CLUBS.find(c => c.name === a?.favoriteClub);
@@ -188,34 +221,19 @@ export function TournamentMatchCard({ stage = 'normal', m, h, a, hStats, aStats,
       {isFinal && (
         <div className="absolute inset-0 overflow-hidden pointer-events-none z-0 rounded-[24px]">
           {/* Layer 1: Background Bokeh */}
-          {[...Array(20)].map((_, i) => (
+          {particles.bg.map((style, i) => (
             <div 
               key={`bg-${i}`}
               className="absolute bg-[#F4D06F] rounded-full opacity-0 animate-[particleRise_var(--duration)_linear_infinite]"
-              style={{
-                width: `${4 + Math.random() * 6}px`,
-                height: `${4 + Math.random() * 6}px`,
-                left: `${Math.random() * 100}%`,
-                bottom: '-20px',
-                '--duration': `${8 + Math.random() * 10}s`,
-                animationDelay: `${Math.random() * 10}s`,
-                '--drift': `${(Math.random() - 0.5) * 200}px`,
-                filter: 'blur(3px)'
-              }}
+              style={style}
             />
           ))}
           {/* Layer 2: Foreground Sparks */}
-          {[...Array(20)].map((_, i) => (
+          {particles.fg.map((style, i) => (
             <div 
               key={`fg-${i}`}
               className="absolute w-1 h-1 bg-[#FFF2C8] rounded-full shadow-[0_0_8px_rgba(255,255,255,0.8)] opacity-0 animate-[particleRise_var(--duration)_linear_infinite]"
-              style={{
-                left: `${Math.random() * 100}%`,
-                bottom: '-10px',
-                '--duration': `${3 + Math.random() * 5}s`,
-                animationDelay: `${Math.random() * 5}s`,
-                '--drift': `${(Math.random() - 0.5) * 80}px`
-              }}
+              style={style}
             />
           ))}
         </div>
