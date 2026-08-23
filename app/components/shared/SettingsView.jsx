@@ -29,9 +29,9 @@ const nationalTeams = nationalTeamsData.map(nt => ({ ...nt, subtitle: nt.confede
 
 // ─── SIDEBAR TAB CONFIG ────────────────────────────────────────────────────
 const SETTINGS_TABS = [
-  { id: 'profile', label: 'Profile', icon: User, description: 'Your identity & football allegiance' },
-  { id: 'security', label: 'Security', icon: Lock, description: 'Password & account access' },
-  { id: 'preferences', label: 'Preferences', icon: Palette, description: 'Theme, icons & notifications' },
+  { id: 'profile', label: 'Profile', icon: User, description: 'Identity & teams' },
+  { id: 'security', label: 'Security', icon: Lock, description: 'Password & access' },
+  { id: 'preferences', label: 'Preferences', icon: Palette, description: 'Theme & alerts' },
 ];
 
 // ─── SECTION HEADER COMPONENT ──────────────────────────────────────────────
@@ -317,13 +317,13 @@ export default function SettingsView({ me, showToast }) {
   };
 
   return (
-    <div className="flex flex-col gap-0 pb-10 max-w-5xl mx-auto min-h-screen">
+    <div className="flex flex-col gap-0 pb-10 max-w-6xl mx-auto min-h-screen">
 
       {/* PREMIUM HEADER */}
       <motion.div
         initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
-        className="relative px-1 pt-2 pb-6 mb-2"
+        className="relative px-1 pt-2 pb-5 mb-0"
       >
         {/* Gradient accent line */}
         <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-pitch-bright/40 to-transparent" />
@@ -340,14 +340,14 @@ export default function SettingsView({ me, showToast }) {
       </motion.div>
 
       {/* LAYOUT: SIDEBAR + CONTENT */}
-      <div className="flex flex-col md:flex-row gap-6 md:gap-8">
+      <div className="flex flex-col md:flex-row gap-4 md:gap-0">
 
         {/* SIDEBAR NAV (desktop) / PILL TABS (mobile) */}
         <motion.nav
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.4, delay: 0.1 }}
-          className="md:w-56 shrink-0"
+          className="md:w-60 shrink-0"
         >
           {/* Mobile: horizontal pills */}
           <div className="flex md:hidden gap-2 overflow-x-auto pb-2 -mx-1 px-1 scrollbar-none">
@@ -372,7 +372,7 @@ export default function SettingsView({ me, showToast }) {
           </div>
 
           {/* Desktop: vertical sidebar */}
-          <div className="hidden md:flex flex-col gap-1 sticky top-24">
+          <div className="hidden md:flex flex-col gap-1 sticky top-24 pr-6 border-r border-border/30">
             {SETTINGS_TABS.map((tab, i) => {
               const isActive = activeTab === tab.id;
               const IconComp = tab.icon;
@@ -403,11 +403,10 @@ export default function SettingsView({ me, showToast }) {
                   </AnimatePresence>
 
                   <IconComp size={18} className={isActive ? 'text-pitch-bright' : 'group-hover:text-foreground'} />
-                  <div className="min-w-0">
+                  <div className="min-w-0 flex-1">
                     <div className="text-sm font-semibold">{tab.label}</div>
-                    <div className="text-[11px] text-muted-foreground truncate">{tab.description}</div>
+                    <div className="text-[11px] text-muted-foreground">{tab.description}</div>
                   </div>
-                  <ChevronRight size={14} className={`ml-auto transition-transform ${isActive ? 'text-pitch-bright rotate-0' : 'text-transparent group-hover:text-muted-foreground'}`} />
                 </motion.button>
               );
             })}
@@ -423,7 +422,7 @@ export default function SettingsView({ me, showToast }) {
         </motion.nav>
 
         {/* CONTENT AREA */}
-        <div className="flex-1 min-w-0">
+        <div className="flex-1 min-w-0 md:pl-8">
           <AnimatePresence mode="wait">
             {/* PROFILE TAB */}
             {activeTab === 'profile' && (
@@ -433,10 +432,10 @@ export default function SettingsView({ me, showToast }) {
                 initial="initial"
                 animate="animate"
                 exit="exit"
-                className="space-y-8"
+                className="space-y-6"
               >
                 {/* Profile ID Card */}
-                <motion.div variants={staggerItem} initial="initial" animate="animate">
+                <motion.div variants={staggerItem} initial="initial" animate="animate" className="[&>div]:max-w-none [&>div]:mx-0">
                   <ProfileIdCard me={me} form={form} setForm={setForm} showToast={showToast} />
                 </motion.div>
 
@@ -458,6 +457,25 @@ export default function SettingsView({ me, showToast }) {
                       </CardContent>
                     </Card>
                   </MagicCard>
+                </motion.div>
+
+                {/* Inline Save Button */}
+                <motion.div
+                  variants={staggerItem}
+                  initial="initial"
+                  animate="animate"
+                  transition={{ delay: 0.25 }}
+                  className="flex justify-end max-md:fixed max-md:bottom-0 max-md:inset-x-0 max-md:bg-background/85 max-md:backdrop-blur-xl max-md:border-t max-md:border-border max-md:p-4 max-md:pb-[calc(env(safe-area-inset-bottom)+16px)] max-md:z-50"
+                >
+                  <Btn variant="primary" onClick={saveProfile} disabled={isSaving} className="px-8 font-semibold shadow-md max-md:w-full h-12">
+                    {isSaving ? (
+                      <><Loader2 size={16} className="animate-spin" /> Saving...</>
+                    ) : saveSuccess ? (
+                      <><CheckCircle2 size={16} /> Saved!</>
+                    ) : (
+                      <><Save size={16} /> Save Profile</>
+                    )}
+                  </Btn>
                 </motion.div>
               </motion.div>
             )}
@@ -719,14 +737,7 @@ export default function SettingsView({ me, showToast }) {
         )}
       </AnimatePresence>
 
-      {/* ALWAYS-VISIBLE SAVE (when no changes detected yet) */}
-      {!isDirty && activeTab === 'profile' && (
-        <div className="flex justify-end pt-8 pb-12 max-md:fixed max-md:bottom-0 max-md:inset-x-0 max-md:bg-background/85 max-md:backdrop-blur-xl max-md:border-t max-md:border-border max-md:p-4 max-md:pb-[calc(env(safe-area-inset-bottom)+16px)] max-md:z-50">
-          <Btn variant="primary" onClick={saveProfile} disabled={isSaving} className="px-8 font-semibold shadow-md max-md:w-full h-12">
-            {isSaving ? "Saving..." : "Save Profile"}
-          </Btn>
-        </div>
-      )}
+
     </div>
   );
 }
