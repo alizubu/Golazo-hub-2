@@ -64,9 +64,9 @@ const STAGE_CONFIG = {
   'final': {
     label: '👑 GRAND FINAL',
     labelClass: 'bg-gradient-to-b from-[#1E1609] to-[#0D0A05] border-x border-b border-[#F59E0B]/50 text-[#FFD700] shadow-[0_8px_30px_rgba(245,158,11,0.2)] px-8 py-1.5 font-black text-[14px]',
-    bgClass: 'bg-gradient-to-b from-[#0e0f14] via-[#090a0e] to-[#06070a] border-amber-500/40 shadow-[0_0_40px_rgba(245,158,11,0.15)]',
-    gridColor: '#F59E0B',
-    gridOpacity: 0.16,
+    bgClass: 'bg-gradient-to-b from-[#231604] via-[#130d03] to-[#0a0702] border-[#F59E0B]/60 shadow-[0_0_50px_rgba(245,158,11,0.25)]',
+    gridColor: '#FBBF24',
+    gridOpacity: 0.24,
     vsBadge: 'stroke-[#FFD700] fill-[#06070a] text-[#FFD700] drop-shadow-md stroke-[2px]',
     startBtn: 'border-[#F4D06F] bg-gradient-to-r from-[#C58A18] via-[#F4D06F] to-[#C58A18] text-[#110c03] shadow-[0_0_20px_rgba(243,199,95,0.4)] hover:shadow-[0_0_30px_rgba(243,199,95,0.6)] px-10 py-2.5 font-black border-2'
   }
@@ -157,6 +157,10 @@ export function TournamentMatchCard({ stage = 'normal', m, h, a, hStats, aStats,
             0%, 100% { transform: translateY(-50%) scale(1); opacity: 0.03; }
             50% { transform: translateY(-50%) scale(1.05); opacity: 0.08; }
           }
+          @keyframes starTwinkle {
+            0%, 100% { transform: scale(0.5) rotate(0deg); opacity: 0; }
+            50% { transform: scale(1.2) rotate(45deg); opacity: 1; filter: drop-shadow(0 0 4px #FBBF24); }
+          }
         `}</style>
       )}
 
@@ -173,7 +177,11 @@ export function TournamentMatchCard({ stage = 'normal', m, h, a, hStats, aStats,
       
       {/* Golden bottom glow for Final */}
       {isFinal && (
-        <div className="absolute -bottom-16 left-1/2 -translate-x-1/2 w-[300px] h-[140px] bg-[radial-gradient(ellipse,rgba(255,200,74,0.25),transparent_70%)] blur-2xl animate-pulse pointer-events-none z-0" />
+        <>
+          {/* Top-down Stadium Volumetric Spotlight */}
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(251,191,36,0.35)_0%,rgba(245,158,11,0.12)_50%,transparent_75%)] pointer-events-none z-0" />
+          <div className="absolute -bottom-16 left-1/2 -translate-x-1/2 w-[300px] h-[140px] bg-[radial-gradient(ellipse,rgba(255,200,74,0.25),transparent_70%)] blur-2xl animate-pulse pointer-events-none z-0" />
+        </>
       )}
 
       {/* Gold Particles for Final */}
@@ -266,17 +274,22 @@ export function TournamentMatchCard({ stage = 'normal', m, h, a, hStats, aStats,
         <div className="flex flex-col md:flex-row items-center gap-4 flex-1 w-full justify-start">
           <div className="relative shrink-0 order-1 md:order-1 z-20">
             {/* Avatar Champion Frame */}
-            <div className={`relative rounded-full ${isFinal ? 'p-[2px] shadow-[0_0_25px_rgba(245,158,11,0.4)]' : 'p-1 bg-black'} overflow-hidden`}>
+            <div className={`relative rounded-full ${isFinal ? 'p-[5px] shadow-[0_0_35px_rgba(245,158,11,0.6)]' : 'p-1 bg-black'} overflow-hidden`}>
               {isFinal && (
-                 <div className="absolute inset-0 bg-[conic-gradient(from_0deg,transparent_0%,transparent_70%,rgba(245,158,11,1)_100%)] animate-[sonarSweep_2s_linear_infinite]" />
+                 <>
+                   {/* 24K Gold Base Rim */}
+                   <div className="absolute inset-0 bg-gradient-to-br from-[#FFF2C8] via-[#F59E0B] to-[#78350F]" />
+                   {/* Liquid Gold Tracer */}
+                   <div className="absolute inset-0 bg-[conic-gradient(from_0deg,transparent_0%,transparent_70%,rgba(255,255,255,0.8)_100%)] animate-[sonarSweep_2.5s_linear_infinite]" style={{ mixBlendMode: 'overlay' }} />
+                 </>
               )}
-              <div className={`relative rounded-full overflow-hidden z-10 ${isFinal ? 'bg-[#090a0e]' : 'bg-black'}`}>
-                <Avatar p={h} size={isFinal ? 92 : 80} className={`rounded-full ${isFinal ? 'ring-2 ring-[#090a0e]' : 'ring-2 ring-white/10'}`} />
+              <div className={`relative rounded-full overflow-hidden z-10 ${isFinal ? 'bg-[#090a0e] ring-2 ring-[#0d0a05]' : 'bg-black'}`}>
+                <Avatar p={h} size={isFinal ? 92 : 80} className={`rounded-full ${isFinal ? '' : 'ring-2 ring-white/10'}`} />
               </div>
             </div>
-            {/* Club Badge Overlap */}
+            {/* Transparent Floating Club Badge Overlap */}
             {hBadgeUrl && (
-              <div className="absolute -bottom-1 -right-1 w-8 h-8 rounded-full bg-[#0a0b10] border border-white/10 p-1 shadow-lg z-30">
+              <div className={`absolute -bottom-2 -right-2 ${isFinal ? 'w-11 h-11 drop-shadow-[0_4px_10px_rgba(0,0,0,0.9)]' : 'w-8 h-8 rounded-full bg-[#0a0b10] border border-white/10 p-1 shadow-lg'} z-30`}>
                 <img src={hBadgeUrl} alt="badge" className="w-full h-full object-contain" />
               </div>
             )}
@@ -317,10 +330,26 @@ export function TournamentMatchCard({ stage = 'normal', m, h, a, hStats, aStats,
                 <div className="absolute bottom-[-10px] w-24 h-4 rounded-full bg-amber-500/30 blur-md animate-[heartbeatPulse_2.5s_ease-in-out_infinite]" />
                 
                 {/* Trophy Asset with Glint Mask */}
-                <div className="relative z-10 w-32 h-full overflow-hidden">
+                <div className="relative z-10 w-32 h-full">
                    <img src="/assets/trophies/BB-Champion.png" alt="Trophy" className="w-full h-full object-contain drop-shadow-[0_0_20px_rgba(243,199,95,0.4)]" />
-                   {/* Glint Mask layer over the trophy */}
-                   <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white to-transparent opacity-0 animate-[gemGlint_4s_linear_infinite]" style={{ mixBlendMode: 'overlay' }} />
+                   {/* Alpha-Masked Glint layer exact to trophy shape */}
+                   <div 
+                     className="absolute inset-0 bg-gradient-to-r from-transparent via-white to-transparent opacity-0 animate-[gemGlint_4s_linear_infinite]" 
+                     style={{ 
+                       mixBlendMode: 'overlay',
+                       maskImage: "url('/assets/trophies/BB-Champion.png')",
+                       WebkitMaskImage: "url('/assets/trophies/BB-Champion.png')",
+                       maskSize: 'contain',
+                       WebkitMaskSize: 'contain',
+                       maskRepeat: 'no-repeat',
+                       WebkitMaskRepeat: 'no-repeat',
+                       maskPosition: 'center',
+                       WebkitMaskPosition: 'center'
+                     }} 
+                   />
+                   {/* Starburst Flares */}
+                   <span className="absolute top-[8%] left-[25%] text-white text-[10px] animate-[starTwinkle_3s_ease-in-out_infinite_0.5s] pointer-events-none">✨</span>
+                   <span className="absolute top-[5%] right-[25%] text-white text-[12px] animate-[starTwinkle_4s_ease-in-out_infinite_1.2s] pointer-events-none">✨</span>
                 </div>
               </div>
               {/* Stakes Badge */}
@@ -407,18 +436,23 @@ export function TournamentMatchCard({ stage = 'normal', m, h, a, hStats, aStats,
                 </div>
               </div>
             ) : (
-              <div className={`relative rounded-full ${isFinal ? 'p-[2px] shadow-[0_0_25px_rgba(245,158,11,0.4)]' : 'p-1 bg-black'} overflow-hidden`}>
+              <div className={`relative rounded-full ${isFinal ? 'p-[5px] shadow-[0_0_35px_rgba(245,158,11,0.6)]' : 'p-1 bg-black'} overflow-hidden`}>
                 {isFinal && (
-                   <div className="absolute inset-0 bg-[conic-gradient(from_0deg,transparent_0%,transparent_70%,rgba(245,158,11,1)_100%)] animate-[sonarSweep_2s_linear_infinite]" />
+                   <>
+                     {/* 24K Gold Base Rim */}
+                     <div className="absolute inset-0 bg-gradient-to-br from-[#FFF2C8] via-[#F59E0B] to-[#78350F]" />
+                     {/* Liquid Gold Tracer */}
+                     <div className="absolute inset-0 bg-[conic-gradient(from_0deg,transparent_0%,transparent_70%,rgba(255,255,255,0.8)_100%)] animate-[sonarSweep_2.5s_linear_infinite]" style={{ mixBlendMode: 'overlay' }} />
+                   </>
                 )}
-                <div className={`relative rounded-full overflow-hidden z-10 ${isFinal ? 'bg-[#090a0e]' : 'bg-black'}`}>
-                  <Avatar p={a} size={isFinal ? 92 : 80} className={`rounded-full ${isFinal ? 'ring-2 ring-[#090a0e]' : 'ring-2 ring-white/10'}`} />
+                <div className={`relative rounded-full overflow-hidden z-10 ${isFinal ? 'bg-[#090a0e] ring-2 ring-[#0d0a05]' : 'bg-black'}`}>
+                  <Avatar p={a} size={isFinal ? 92 : 80} className={`rounded-full ${isFinal ? '' : 'ring-2 ring-white/10'}`} />
                 </div>
               </div>
             )}
             
             {aBadgeUrl && (!isFinal || (a && a?.name !== 'TBD')) && (
-              <div className="absolute -bottom-1 -left-1 w-8 h-8 rounded-full bg-[#0a0b10] border border-white/10 p-1 shadow-lg z-30">
+              <div className={`absolute -bottom-2 -left-2 ${isFinal ? 'w-11 h-11 drop-shadow-[0_4px_10px_rgba(0,0,0,0.9)]' : 'w-8 h-8 rounded-full bg-[#0a0b10] border border-white/10 p-1 shadow-lg'} z-30`}>
                 <img src={aBadgeUrl} alt="badge" className="w-full h-full object-contain" />
               </div>
             )}
