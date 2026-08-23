@@ -38,10 +38,10 @@ export default function PlayerRankingView({ players, matches, setTab }) {
         {top3.length > 0 && (
           <div className="relative pt-4 sm:pt-16 pb-0 flex justify-center items-end h-[420px] sm:h-[750px] mt-2 sm:mt-8 px-0 overflow-visible">
             
-            {/* Ambient Background Glows - warm amber like reference */}
-            <div className="absolute inset-x-0 bottom-0 h-[60%] bg-[radial-gradient(ellipse_at_bottom,_var(--tw-gradient-stops))] from-amber-600/20 via-orange-900/8 to-transparent pointer-events-none" />
-            <div className="absolute bottom-0 left-[10%] w-80 h-48 bg-orange-500/10 blur-[120px] rounded-full pointer-events-none" />
-            <div className="absolute bottom-0 right-[10%] w-80 h-48 bg-amber-500/10 blur-[120px] rounded-full pointer-events-none" />
+            {/* Ambient Background Glows - perfectly faded to prevent box clipping */}
+            <div className="absolute left-1/2 -translate-x-1/2 bottom-[-5%] w-[120%] max-w-[1000px] h-[70%] bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-amber-600/15 via-orange-900/5 to-transparent pointer-events-none rounded-[100%]" />
+            <div className="absolute bottom-[5%] left-[20%] w-[30%] h-64 bg-orange-500/15 blur-[120px] rounded-full pointer-events-none" />
+            <div className="absolute bottom-[5%] right-[20%] w-[30%] h-64 bg-amber-500/15 blur-[120px] rounded-full pointer-events-none" />
 
             {/* The 3D Podium Image Background & Holographic Floor */}
             <div className="absolute inset-x-0 bottom-0 flex justify-center pointer-events-none z-10 overflow-visible pb-0">
