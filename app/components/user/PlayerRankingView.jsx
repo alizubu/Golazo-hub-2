@@ -6,6 +6,7 @@ import { Trophy, Info, TrendingUp, TrendingDown, Minus, Medal } from 'lucide-rea
 import { Avatar } from '@/app/components/shared/UI';
 import { PageHeader } from '@/app/components/shared/PageHeader';
 import { PlayStyleBadge } from '@/app/components/shared/UI';
+import { getPlayerIdentityBadgeUrl } from '@/lib/identityUtils';
 
 export default function PlayerRankingView({ players, matches, setTab }) {
   // Sort players by ranking points descending
@@ -125,51 +126,125 @@ export default function PlayerRankingView({ players, matches, setTab }) {
           </div>
         )}
 
-        {/* List View for Rest */}
-        <div className="flex flex-col gap-3">
-          {rest.length > 0 ? (
-            rest.map((p, i) => {
-              const rank = i + 4;
-              const trend = getPlayerTrend(p.id);
-              const TrendIcon = trend.icon;
-              return (
-                <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.5 + (i * 0.05) }}
-                  key={p.id}
-                  className="flex items-center gap-3 sm:gap-4 bg-secondary/40 backdrop-blur-md border border-white/5 shadow-lg shadow-black/20 rounded-2xl p-3 sm:p-4 hover:bg-secondary/60 transition-colors relative overflow-hidden"
-                >
-                  <div className="w-6 sm:w-8 text-center font-score font-bold text-muted-foreground text-sm sm:text-base">{rank}</div>
-                  <Avatar p={p} size={48} className="shrink-0" />
-                  <div className="flex-1 min-w-0">
-                    <div className="font-bold text-base sm:text-lg flex flex-wrap items-center gap-1.5 leading-tight">
-                      <span className="break-words break-all sm:break-normal">{p.name}</span>
-                      {p.playStyle && <PlayStyleBadge style={p.playStyle} showLabel={false} size="sm" />}
+        {/* Leaderboard Contenders Section */}
+        {rest.length > 0 && (
+          <div className="flex flex-col gap-3 mt-2 sm:mt-4">
+            {/* Section Divider Header */}
+            <div className="flex items-center justify-between gap-4 px-1 pb-1">
+              <div className="flex items-center gap-2">
+                <span className="text-amber-500 font-mono text-xs sm:text-sm font-black tracking-wider">//</span>
+                <h3 className="font-heading font-black uppercase text-xs sm:text-sm tracking-[0.2em] text-foreground/90 flex items-center gap-2">
+                  Global Contenders
+                  <span className="text-[10px] sm:text-xs font-score font-bold px-2 py-0.5 rounded-full bg-white/[0.06] border border-white/10 text-muted-foreground">
+                    TOP {rest.length + 3}
+                  </span>
+                </h3>
+              </div>
+              <div className="h-[1px] flex-1 bg-gradient-to-r from-amber-500/30 via-white/10 to-transparent" />
+            </div>
+
+            {/* List View for Rest */}
+            <div className="flex flex-col gap-2.5">
+              {rest.map((p, i) => {
+                const rank = i + 4;
+                const trend = getPlayerTrend(p.id);
+                const TrendIcon = trend.icon;
+                const pBadgeUrl = getPlayerIdentityBadgeUrl(p);
+
+                // Accent colors for rank brackets (4-10 get ice-cyan, 11+ get sleek titanium)
+                const isTop10 = rank <= 10;
+
+                return (
+                  <motion.div
+                    initial={{ opacity: 0, y: 15 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.3 + (i * 0.04), type: 'spring', damping: 25 }}
+                    whileHover={{ scale: 1.008, x: 2 }}
+                    key={p.id}
+                    className="relative flex items-center gap-3 sm:gap-4 bg-[#0a0d14]/75 hover:bg-[#101522]/90 backdrop-blur-xl border border-white/[0.08] hover:border-amber-500/40 rounded-2xl p-2.5 sm:p-3.5 shadow-lg shadow-black/40 transition-all duration-300 group overflow-hidden"
+                  >
+                    {/* Left Cyberpunk Accent Line */}
+                    <div 
+                      className={`absolute left-0 top-0 bottom-0 w-[3px] transition-all duration-300 ${
+                        isTop10 
+                          ? 'bg-gradient-to-b from-cyan-400 via-blue-500 to-transparent group-hover:w-[4px] group-hover:shadow-[0_0_12px_rgba(6,182,212,0.8)]' 
+                          : 'bg-gradient-to-b from-white/20 via-white/5 to-transparent group-hover:w-[4px] group-hover:bg-amber-500'
+                      }`} 
+                    />
+
+                    {/* Rank Badge */}
+                    <div className="relative shrink-0 flex items-center justify-center w-8 sm:w-10 h-8 sm:h-10 rounded-xl bg-gradient-to-br from-white/[0.08] via-[#121624] to-[#07090e] border border-white/10 shadow-[inset_0_1px_1px_rgba(255,255,255,0.12)] group-hover:border-amber-400/40 transition-colors ml-1">
+                      <span className="font-score font-black text-xs sm:text-sm text-slate-300 group-hover:text-amber-300 transition-colors">
+                        #{rank < 10 ? `0${rank}` : rank}
+                      </span>
                     </div>
-                    <div className="text-[11px] sm:text-xs text-muted-foreground leading-snug mt-0.5 break-words">
-                      {p.teamName ? <span className="font-medium text-foreground/80">{p.teamName}</span> : ''} {p.teamName && '· '} @{p.username}
+
+                    {/* Avatar with Titanium Ring & Optional Badge */}
+                    <div className="relative shrink-0">
+                      <div className="p-[2px] rounded-full bg-gradient-to-br from-white/25 via-white/5 to-transparent shadow-[0_0_15px_rgba(0,0,0,0.6)]">
+                        <Avatar p={p} size={44} className="rounded-full border border-[#0a0d14]" />
+                      </div>
+                      {pBadgeUrl && (
+                        <div className="absolute -bottom-1 -right-1 w-5 h-5 rounded-full bg-[#0a0d14] p-0.5 border border-white/20 shadow-md">
+                          <img src={pBadgeUrl} alt="badge" className="w-full h-full object-contain" />
+                        </div>
+                      )}
                     </div>
-                  </div>
-                  <div className="flex flex-col items-end gap-1 shrink-0 ml-2">
-                    <div className="text-lg sm:text-xl font-score font-black text-pitch-bright whitespace-nowrap">
-                      {p.rankingPoints ?? 1000} <span className="text-[10px] sm:text-xs text-muted-foreground font-normal">pts</span>
+
+                    {/* Player Info */}
+                    <div className="flex-1 min-w-0 flex flex-col justify-center">
+                      <div className="font-heading font-black text-sm sm:text-base text-white tracking-wide flex items-center gap-2 truncate group-hover:text-amber-200 transition-colors">
+                        <span className="truncate">{p.name}</span>
+                        {p.playStyle && <PlayStyleBadge style={p.playStyle} showLabel={false} size="sm" />}
+                      </div>
+                      <div className="text-[11px] sm:text-xs text-muted-foreground/90 flex items-center gap-1.5 mt-0.5 truncate">
+                        {p.favoriteClub || p.teamName ? (
+                          <span className="text-slate-300 font-medium truncate">{p.favoriteClub || p.teamName}</span>
+                        ) : null}
+                        {(p.favoriteClub || p.teamName) && <span className="text-white/20">·</span>}
+                        <span className="text-muted-foreground truncate">@{p.username}</span>
+                      </div>
                     </div>
-                    <div className={`flex items-center gap-1 text-[9px] sm:text-[10px] uppercase tracking-widest font-bold ${trend.color}`}>
-                      <TrendIcon size={10} strokeWidth={3} /> Form
+
+                    {/* Points & Form Pill */}
+                    <div className="flex items-center gap-2 sm:gap-3 shrink-0 ml-1">
+                      {/* Angular Points Pill */}
+                      <div 
+                        className="relative flex items-center justify-center min-w-[78px] sm:min-w-[94px] drop-shadow-md"
+                        style={{
+                          clipPath: 'polygon(7px 0, calc(100% - 7px) 0, 100% 7px, 100% calc(100% - 7px), calc(100% - 7px) 100%, 7px 100%, 0 calc(100% - 7px), 0 7px)',
+                          background: 'linear-gradient(135deg, rgba(255,255,255,0.25), rgba(255,255,255,0.05))',
+                          padding: '1px'
+                        }}
+                      >
+                        <div 
+                          className="w-full h-full bg-[#080a10] flex items-center justify-center px-2.5 sm:px-3.5 py-1 sm:py-1.5"
+                          style={{ clipPath: 'polygon(6px 0, calc(100% - 6px) 0, 100% 6px, 100% calc(100% - 6px), calc(100% - 6px) 100%, 6px 100%, 0 calc(100% - 6px), 0 6px)' }}
+                        >
+                          <span className="font-score font-black text-xs sm:text-sm text-amber-400 tracking-wider">
+                            {p.rankingPoints ?? 1000} <span className="text-[9px] sm:text-[10px] text-white/50 font-normal ml-0.5">PTS</span>
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Form Trend Pill */}
+                      <div className={`hidden xs:flex sm:flex items-center gap-1 px-2.5 py-1 rounded-lg bg-white/[0.04] border border-white/[0.08] text-[10px] font-score font-bold uppercase tracking-wider ${trend.color}`}>
+                        <TrendIcon size={12} strokeWidth={3} />
+                        <span className="hidden sm:inline">FORM</span>
+                      </div>
                     </div>
-                  </div>
-                </motion.div>
-              );
-            })
-          ) : (
-             top3.length === 0 && (
-                <div className="text-center py-20 text-muted-foreground">
-                  No ranked players available.
-                </div>
-             )
-          )}
-        </div>
+                  </motion.div>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
+        {top3.length === 0 && rest.length === 0 && (
+          <div className="text-center py-20 text-muted-foreground">
+            No ranked players available.
+          </div>
+        )}
       </div>
     </div>
   );
