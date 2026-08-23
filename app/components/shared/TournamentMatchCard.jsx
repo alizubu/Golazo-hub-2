@@ -78,7 +78,7 @@ export function TournamentMatchCard({ stage = 'normal', m, h, a, hStats, aStats,
   const isFinal = stage === 'final';
 
   // Generate particle configurations safely after mount to avoid impure function during render
-  const [particles, setParticles] = useState({ bg: [], fg: [] });
+  const [particles, setParticles] = useState({ bg: [], fg: [], tbdPull: [] });
 
   useEffect(() => {
     if (!isFinal) return;
@@ -103,8 +103,14 @@ export function TournamentMatchCard({ stage = 'normal', m, h, a, hStats, aStats,
         animationDelay: `${Math.random() * 5}s`,
         '--drift': `${(Math.random() - 0.5) * 80}px`
       }));
+
+      const tbdPull = [...Array(6)].map((_, i) => ({
+        left: `${Math.random() * 100}%`,
+        bottom: '-10px',
+        animationDelay: `${i * 0.3}s`
+      }));
       
-      setParticles({ bg, fg });
+      setParticles({ bg, fg, tbdPull });
     }, 0);
     
     return () => clearTimeout(timer);
@@ -429,8 +435,8 @@ export function TournamentMatchCard({ stage = 'normal', m, h, a, hStats, aStats,
                 <span className="text-3xl md:text-4xl font-black text-amber-500/40 relative z-10 drop-shadow-[0_0_15px_rgba(245,158,11,0.5)] animate-[hologramGlitch_5s_ease-in-out_infinite]">?</span>
                 {/* Energy Gravity Pull (Particles) */}
                 <div className="absolute inset-0 pointer-events-none">
-                   {[...Array(6)].map((_, i) => (
-                     <div key={`pull-${i}`} className="absolute w-1 h-1 bg-amber-400 rounded-full animate-[particleRise_2s_ease-in_infinite]" style={{ left: `${Math.random()*100}%`, bottom: '-10px', animationDelay: `${i*0.3}s` }} />
+                   {particles.tbdPull.map((style, i) => (
+                     <div key={`pull-${i}`} className="absolute w-1 h-1 bg-amber-400 rounded-full animate-[particleRise_2s_ease-in_infinite]" style={style} />
                    ))}
                 </div>
               </div>
