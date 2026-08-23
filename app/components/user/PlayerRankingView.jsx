@@ -108,17 +108,17 @@ export default function PlayerRankingView({ players, matches, setTab }) {
             {/* Position the avatars exactly over the image using responsive padding */}
             <div className="relative z-30 w-full max-w-[850px] flex justify-between items-end px-1 sm:px-12 mx-auto h-full pb-0">
               {/* 2nd Place (Left) */}
-              <div className="flex-1 flex justify-center items-end pb-[42%] sm:pb-[52%]">
+              <div className="flex-1 flex justify-center items-end pb-[42%] sm:pb-[48%]">
                 {top3[1] && <PodiumStep player={top3[1]} rank={2} delay={0.2} />}
               </div>
               
               {/* 1st Place (Center) */}
-              <div className="flex-1 flex justify-center items-end pb-[55%] sm:pb-[68%]">
+              <div className="flex-1 flex justify-center items-end pb-[55%] sm:pb-[62%]">
                 {top3[0] && <PodiumStep player={top3[0]} rank={1} delay={0} />}
               </div>
               
               {/* 3rd Place (Right) */}
-              <div className="flex-1 flex justify-center items-end pb-[35%] sm:pb-[42%]">
+              <div className="flex-1 flex justify-center items-end pb-[35%] sm:pb-[38%]">
                 {top3[2] && <PodiumStep player={top3[2]} rank={3} delay={0.4} />}
               </div>
             </div>
@@ -240,7 +240,7 @@ function PodiumStep({ player, rank, delay }) {
           
           {/* Crown Floating above avatar top */}
           {isFirst && (
-            <div className="absolute -top-10 sm:-top-16 z-50 w-16 h-16 sm:w-28 sm:h-28 pointer-events-none drop-shadow-[0_15px_15px_rgba(0,0,0,0.6)]">
+            <div className="absolute -top-10 sm:-top-14 z-50 w-16 h-16 sm:w-28 sm:h-28 pointer-events-none drop-shadow-[0_15px_15px_rgba(0,0,0,0.6)]">
               <motion.div 
                 animate={{ y: [0, -8, 0] }}
                 transition={{ repeat: Infinity, duration: 3, ease: "easeInOut" }}
@@ -264,10 +264,10 @@ function PodiumStep({ player, rank, delay }) {
 
           {/* Profile Image & Rank Badge */}
           <div className={`relative p-[3px] sm:p-[4px] rounded-full bg-gradient-to-tr ${ringGradients[rank] || ringGradients[1]} mb-1 sm:mb-1.5 shadow-[0_0_30px_rgba(0,0,0,0.8)]`}>
-            <Avatar p={player} size={isFirst ? 72 : 56} className="rounded-full shadow-inner border-[3px] sm:border-[4px] border-[#0a0c10]" />
+            <Avatar p={player} size={isFirst ? 72 : 56} className={`rounded-full shadow-inner border-[3px] sm:border-[4px] border-[#0a0c10] ${isFirst ? '!w-[72px] !h-[72px] sm:!w-[114px] sm:!h-[114px]' : '!w-[56px] !h-[56px] sm:!w-[88px] sm:!h-[88px]'}`} />
             
             {/* Rank Badge overlapping bottom right */}
-            <div className={`absolute -bottom-2 -right-2 sm:-bottom-4 sm:-right-4 z-20 ${isFirst ? 'w-10 h-10 sm:w-20 sm:h-20' : 'w-8 h-8 sm:w-14 sm:h-14'} drop-shadow-[0_10px_15px_rgba(0,0,0,0.8)] hover:scale-110 transition-transform`}>
+            <div className={`absolute -bottom-2 -right-2 sm:-bottom-2 sm:-right-2 z-20 ${isFirst ? 'w-10 h-10 sm:w-16 sm:h-16' : 'w-8 h-8 sm:w-12 sm:h-12'} drop-shadow-[0_10px_15px_rgba(0,0,0,0.8)] hover:scale-110 transition-transform`}>
               {rank <= 3 ? (
                 <img src={`/assets/rankbadge/rank${rank}.png`} alt={`Rank ${rank}`} className="w-full h-full object-contain" />
               ) : (
@@ -282,7 +282,7 @@ function PodiumStep({ player, rank, delay }) {
         {/* Player Name with Slashes */}
         <div className="flex items-center justify-center gap-2 mb-1 w-full">
           <span className={`text-[12px] sm:text-[14px] font-black ${isFirst ? 'text-[#d4af37]' : rank === 2 ? 'text-slate-400' : 'text-amber-600'} italic`}>//</span>
-          <h2 className={`font-heading font-black uppercase tracking-wider text-center drop-shadow-md truncate ${isFirst ? 'text-white text-[12px] sm:text-[20px] drop-shadow-[0_0_8px_rgba(255,255,255,0.4)]' : rank === 2 ? 'text-slate-200 text-[11px] sm:text-[16px]' : 'text-orange-100 text-[11px] sm:text-[16px]'}`}>
+          <h2 className={`font-heading font-black uppercase tracking-wider text-center drop-shadow-md truncate ${isFirst ? 'text-white text-[12px] sm:text-[18px] drop-shadow-[0_0_8px_rgba(255,255,255,0.4)]' : rank === 2 ? 'text-slate-200 text-[11px] sm:text-[15px]' : 'text-orange-100 text-[11px] sm:text-[15px]'}`}>
             {player.name}
           </h2>
           <span className={`text-[12px] sm:text-[14px] font-black ${isFirst ? 'text-[#d4af37]' : rank === 2 ? 'text-slate-400' : 'text-amber-600'} italic`}>//</span>
