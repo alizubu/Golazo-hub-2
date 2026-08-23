@@ -117,12 +117,59 @@ export function TournamentMatchCard({ stage = 'normal', m, h, a, hStats, aStats,
             0%, 80% { left: -50%; }
             100% { left: 150%; }
           }
+          /* New Pro-Max Animations */
+          @keyframes spin3D {
+            from { transform: rotateX(75deg) rotateY(30deg) rotateZ(0deg); }
+            to { transform: rotateX(75deg) rotateY(30deg) rotateZ(360deg); }
+          }
+          @keyframes spin3DReverse {
+            from { transform: rotateX(65deg) rotateY(-20deg) rotateZ(360deg); }
+            to { transform: rotateX(65deg) rotateY(-20deg) rotateZ(0deg); }
+          }
+          @keyframes gemGlint {
+            0%, 40% { transform: translateX(-100%) skewX(-15deg); opacity: 0; }
+            50% { transform: translateX(100%) skewX(-15deg); opacity: 0.8; }
+            60%, 100% { transform: translateX(200%) skewX(-15deg); opacity: 0; }
+          }
+          @keyframes heartbeatPulse {
+            0%, 100% { transform: scale(1); opacity: 0.4; }
+            50% { transform: scale(1.15); opacity: 0.8; }
+          }
+          @keyframes sonarSweep {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+          }
+          @keyframes hologramGlitch {
+            0%, 96%, 98%, 100% { transform: translate(0,0); text-shadow: 0 0 15px rgba(245,158,11,0.5); }
+            97% { transform: translate(-2px, 1px); text-shadow: -2px 0 #f00, 2px 0 #0f0; }
+            99% { transform: translate(2px, -1px); text-shadow: 2px 0 #00f, -2px 0 #f00; }
+          }
+          @keyframes goldFoilSheen {
+            0%, 100% { background-position: -200% center; }
+            50% { background-position: 200% center; }
+          }
+          @keyframes floatUp {
+            0% { transform: translateY(10px) scale(0.5); opacity: 0; }
+            50% { opacity: 1; }
+            100% { transform: translateY(-20px) scale(1); opacity: 0; }
+          }
+          @keyframes breatheWatermark {
+            0%, 100% { transform: translateY(-50%) scale(1); opacity: 0.03; }
+            50% { transform: translateY(-50%) scale(1.05); opacity: 0.08; }
+          }
         `}</style>
       )}
 
       {/* Background Layers */}
       {config.glowClass && <div className={`absolute inset-0 bg-gradient-to-br ${config.glowClass} opacity-50 pointer-events-none transition-all duration-500`} />}
       {config.hoverGlowClass && <div className={`absolute -inset-[1px] rounded-[24px] bg-gradient-to-r ${config.hoverGlowClass} opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none`} />}
+      
+      {/* Hover Light Flare Sweep */}
+      {isFinal && (
+         <div className="absolute inset-0 overflow-hidden rounded-[24px] pointer-events-none z-0">
+           <div className="absolute top-0 -left-[100%] w-[50%] h-[200%] bg-gradient-to-r from-transparent via-amber-200/10 to-transparent skew-x-[-30deg] opacity-0 group-hover:opacity-100 group-hover:animate-[edgeLight_1.5s_ease-out]" />
+         </div>
+      )}
       
       {/* Golden bottom glow for Final */}
       {isFinal && (
@@ -189,6 +236,12 @@ export function TournamentMatchCard({ stage = 'normal', m, h, a, hStats, aStats,
         {config.label ? (
           isFinal ? (
             <div className={`relative flex items-center justify-center rounded-b-2xl ${config.labelClass}`}>
+              {/* Firefly Emitter behind the pill */}
+              <div className="absolute inset-0 overflow-hidden rounded-b-2xl pointer-events-none">
+                {[...Array(5)].map((_, i) => (
+                  <div key={`firefly-${i}`} className="absolute w-[2px] h-[2px] bg-amber-200 rounded-full animate-[floatUp_2s_ease-in-out_infinite]" style={{ left: `${20 + i*15}%`, animationDelay: `${i*0.4}s` }} />
+                ))}
+              </div>
               <div className="absolute bottom-0 left-0 w-[40%] h-[2px] bg-gradient-to-r from-transparent via-[#FFF2C8] to-transparent opacity-90 animate-[edgeLight_3s_ease-in-out_infinite] z-0" />
               <span className="text-[15px] tracking-[0.3em] font-score relative z-10 animate-[shimmer_3s_linear_infinite] bg-gradient-to-r from-[#FFF2C8] via-[#C58A18] to-[#FFF2C8] bg-[length:200%_auto] text-transparent bg-clip-text">
                 {config.label}
@@ -213,9 +266,12 @@ export function TournamentMatchCard({ stage = 'normal', m, h, a, hStats, aStats,
         <div className="flex flex-col md:flex-row items-center gap-4 flex-1 w-full justify-start">
           <div className="relative shrink-0 order-1 md:order-1 z-20">
             {/* Avatar Champion Frame */}
-            <div className={`relative rounded-full ${isFinal ? 'ring-2 ring-amber-400/90 ring-offset-4 ring-offset-[#090a0e] shadow-[0_0_25px_rgba(245,158,11,0.4)]' : 'p-1 bg-black'} overflow-hidden`}>
+            <div className={`relative rounded-full ${isFinal ? 'p-[2px] shadow-[0_0_25px_rgba(245,158,11,0.4)]' : 'p-1 bg-black'} overflow-hidden`}>
+              {isFinal && (
+                 <div className="absolute inset-0 bg-[conic-gradient(from_0deg,transparent_0%,transparent_70%,rgba(245,158,11,1)_100%)] animate-[sonarSweep_2s_linear_infinite]" />
+              )}
               <div className={`relative rounded-full overflow-hidden z-10 ${isFinal ? 'bg-[#090a0e]' : 'bg-black'}`}>
-                <Avatar p={h} size={isFinal ? 92 : 80} className={`rounded-full ${isFinal ? '' : 'ring-2 ring-white/10'}`} />
+                <Avatar p={h} size={isFinal ? 92 : 80} className={`rounded-full ${isFinal ? 'ring-2 ring-[#090a0e]' : 'ring-2 ring-white/10'}`} />
               </div>
             </div>
             {/* Club Badge Overlap */}
@@ -228,9 +284,9 @@ export function TournamentMatchCard({ stage = 'normal', m, h, a, hStats, aStats,
           
           <div className={`flex flex-col items-center md:items-start min-w-0 order-2 md:order-2 relative ${isFinal ? 'px-4' : ''}`}>
             {isFinal && hBadgeUrl && (
-              <img src={hBadgeUrl} alt="watermark" className="absolute right-2 top-1/2 -translate-y-1/2 w-16 h-16 opacity-[0.05] grayscale mix-blend-overlay pointer-events-none" />
+              <img src={hBadgeUrl} alt="watermark" className="absolute right-2 top-1/2 -translate-y-1/2 w-16 h-16 opacity-[0.05] grayscale mix-blend-overlay pointer-events-none animate-[breatheWatermark_4s_ease-in-out_infinite]" />
             )}
-            <span className={`font-black text-xl md:text-2xl truncate text-center md:text-left relative z-10 ${isFinal ? 'text-white drop-shadow-[0_2px_12px_rgba(245,158,11,0.35)]' : 'text-white drop-shadow-md'}`} style={{ fontFamily: "'Sora', sans-serif" }}>
+            <span className={`font-black text-xl md:text-2xl truncate text-center md:text-left relative z-10 ${isFinal ? 'text-white drop-shadow-[0_2px_12px_rgba(245,158,11,0.35)] animate-[goldFoilSheen_5s_linear_infinite] bg-gradient-to-r from-white via-[#FFF2C8] to-white bg-[length:200%_auto] text-transparent bg-clip-text' : 'text-white drop-shadow-md'}`} style={{ fontFamily: "'Sora', sans-serif" }}>
               {formatName(h?.name)}
             </span>
             <div className={`flex items-center gap-2 mt-1 relative z-10`}>
@@ -250,18 +306,25 @@ export function TournamentMatchCard({ stage = 'normal', m, h, a, hStats, aStats,
               <div className="relative flex items-center justify-center w-56 h-36">
                 {/* Orbital Rings */}
                 <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[140px] h-[140px] pointer-events-none z-0">
-                  <div className="absolute inset-0 w-full h-full rounded-full border border-[#F3C75F]/20 border-t-[#F3C75F]/50 border-b-[#F3C75F]/50 animate-[spin_10s_linear_infinite]" style={{ transform: 'rotateX(75deg) rotateY(15deg) scale(1.1)' }} />
+                  <div className="absolute inset-0 w-full h-full rounded-full border border-[#F3C75F]/20 border-t-[#F3C75F]/50 border-b-[#F3C75F]/50 animate-[spin3D_6s_linear_infinite]" style={{ transformStyle: 'preserve-3d' }} />
+                  <div className="absolute inset-0 w-full h-full rounded-full border-[2px] border-[#FFF2C8]/10 border-l-[#FFF2C8]/60 animate-[spin3DReverse_8s_linear_infinite]" style={{ transformStyle: 'preserve-3d' }} />
                 </div>
                 
                 {/* Central Trophy Glow */}
                 <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(255,201,77,0.35)_0%,transparent_70%)] blur-[20px] pointer-events-none mix-blend-screen z-0" />
 
                 {/* Trophy on Pedestal Effect */}
-                <div className="absolute bottom-[-10px] w-24 h-4 rounded-full bg-amber-500/30 blur-md" />
-                <img src="/assets/trophies/BB-Champion.png" alt="Trophy" className="w-32 h-full object-contain drop-shadow-[0_0_20px_rgba(243,199,95,0.4)] opacity-100 relative z-10" />
+                <div className="absolute bottom-[-10px] w-24 h-4 rounded-full bg-amber-500/30 blur-md animate-[heartbeatPulse_2.5s_ease-in-out_infinite]" />
+                
+                {/* Trophy Asset with Glint Mask */}
+                <div className="relative z-10 w-32 h-full overflow-hidden">
+                   <img src="/assets/trophies/BB-Champion.png" alt="Trophy" className="w-full h-full object-contain drop-shadow-[0_0_20px_rgba(243,199,95,0.4)]" />
+                   {/* Glint Mask layer over the trophy */}
+                   <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white to-transparent opacity-0 animate-[gemGlint_4s_linear_infinite]" style={{ mixBlendMode: 'overlay' }} />
+                </div>
               </div>
               {/* Stakes Badge */}
-              <div className="mt-2 px-3 py-1 rounded-full border border-amber-500/30 bg-amber-500/10 backdrop-blur-sm shadow-[0_0_15px_rgba(245,158,11,0.15)]">
+              <div className="mt-2 px-3 py-1 rounded-full border border-amber-500/30 bg-amber-500/10 backdrop-blur-sm shadow-[0_0_15px_rgba(245,158,11,0.15)] animate-[heartbeatPulse_4s_ease-in-out_infinite_reverse]">
                  <span className="text-[9px] font-black uppercase tracking-widest text-amber-300">Championship Title</span>
               </div>
             </div>
@@ -315,10 +378,12 @@ export function TournamentMatchCard({ stage = 'normal', m, h, a, hStats, aStats,
           
           <div className={`flex flex-col items-center md:items-end min-w-0 order-2 md:order-1 relative ${isFinal ? 'px-4' : ''}`}>
             {isFinal && aBadgeUrl && (
-              <img src={aBadgeUrl} alt="watermark" className="absolute left-2 top-1/2 -translate-y-1/2 w-16 h-16 opacity-[0.05] grayscale mix-blend-overlay pointer-events-none" />
+              <img src={aBadgeUrl} alt="watermark" className="absolute left-2 top-1/2 -translate-y-1/2 w-16 h-16 opacity-[0.05] grayscale mix-blend-overlay pointer-events-none animate-[breatheWatermark_4s_ease-in-out_infinite]" />
             )}
-            <span className={`font-black text-xl md:text-2xl truncate text-center md:text-right relative z-10 ${isFinal ? 'text-white drop-shadow-[0_2px_12px_rgba(245,158,11,0.35)]' : 'text-white drop-shadow-md'}`} style={{ fontFamily: "'Sora', sans-serif" }}>
-              {isFinal && (!a || a?.name === 'TBD') ? 'Awaiting Challenger' : formatName(a?.name)}
+            <span className={`font-black text-xl md:text-2xl truncate text-center md:text-right relative z-10 ${isFinal ? 'text-white drop-shadow-[0_2px_12px_rgba(245,158,11,0.35)] animate-[goldFoilSheen_5s_linear_infinite] bg-gradient-to-r from-white via-[#FFF2C8] to-white bg-[length:200%_auto] text-transparent bg-clip-text' : 'text-white drop-shadow-md'}`} style={{ fontFamily: "'Sora', sans-serif" }}>
+              {isFinal && (!a || a?.name === 'TBD') ? (
+                <span className="animate-[hologramGlitch_4s_linear_infinite] inline-block">Awaiting Challenger</span>
+              ) : formatName(a?.name)}
             </span>
             <div className={`flex items-center justify-center md:justify-end gap-2 mt-1 relative z-10`}>
               <span className={`text-xs font-medium px-2.5 py-0.5 rounded-full ${isFinal ? 'bg-white/5 border border-white/10 text-amber-300/90' : 'text-slate-400'}`}>
@@ -330,13 +395,24 @@ export function TournamentMatchCard({ stage = 'normal', m, h, a, hStats, aStats,
           <div className="relative shrink-0 order-1 md:order-2 z-20">
             {isFinal && (!a || a?.name === 'TBD') ? (
               <div className="relative rounded-full ring-2 ring-white/10 ring-offset-4 ring-offset-[#090a0e] overflow-hidden w-[80px] h-[80px] md:w-[92px] md:h-[92px] bg-white/5 backdrop-blur-sm flex items-center justify-center shadow-[0_0_20px_rgba(0,0,0,0.5)]">
-                <div className="absolute inset-0 bg-[conic-gradient(from_0deg,transparent_0%,transparent_80%,rgba(245,158,11,0.3)_100%)] animate-[spin_4s_linear_infinite]" />
-                <span className="text-3xl md:text-4xl font-black text-amber-500/40 relative z-10 drop-shadow-[0_0_15px_rgba(245,158,11,0.5)]">?</span>
+                {/* Sonar Sweep */}
+                <div className="absolute inset-0 bg-[conic-gradient(from_0deg,transparent_0%,transparent_80%,rgba(245,158,11,0.6)_100%)] animate-[sonarSweep_3s_linear_infinite]" />
+                {/* Holographic Question Mark */}
+                <span className="text-3xl md:text-4xl font-black text-amber-500/40 relative z-10 drop-shadow-[0_0_15px_rgba(245,158,11,0.5)] animate-[hologramGlitch_5s_ease-in-out_infinite]">?</span>
+                {/* Energy Gravity Pull (Particles) */}
+                <div className="absolute inset-0 pointer-events-none">
+                   {[...Array(6)].map((_, i) => (
+                     <div key={`pull-${i}`} className="absolute w-1 h-1 bg-amber-400 rounded-full animate-[particleRise_2s_ease-in_infinite]" style={{ left: `${Math.random()*100}%`, bottom: '-10px', animationDelay: `${i*0.3}s` }} />
+                   ))}
+                </div>
               </div>
             ) : (
-              <div className={`relative rounded-full ${isFinal ? 'ring-2 ring-amber-400/90 ring-offset-4 ring-offset-[#090a0e] shadow-[0_0_25px_rgba(245,158,11,0.4)]' : 'p-1 bg-black'} overflow-hidden`}>
+              <div className={`relative rounded-full ${isFinal ? 'p-[2px] shadow-[0_0_25px_rgba(245,158,11,0.4)]' : 'p-1 bg-black'} overflow-hidden`}>
+                {isFinal && (
+                   <div className="absolute inset-0 bg-[conic-gradient(from_0deg,transparent_0%,transparent_70%,rgba(245,158,11,1)_100%)] animate-[sonarSweep_2s_linear_infinite]" />
+                )}
                 <div className={`relative rounded-full overflow-hidden z-10 ${isFinal ? 'bg-[#090a0e]' : 'bg-black'}`}>
-                  <Avatar p={a} size={isFinal ? 92 : 80} className={`rounded-full ${isFinal ? '' : 'ring-2 ring-white/10'}`} />
+                  <Avatar p={a} size={isFinal ? 92 : 80} className={`rounded-full ${isFinal ? 'ring-2 ring-[#090a0e]' : 'ring-2 ring-white/10'}`} />
                 </div>
               </div>
             )}
