@@ -44,7 +44,7 @@ export default function PlayerRankingView({ players, matches, setTab }) {
             <div className="absolute bottom-0 right-[10%] w-80 h-48 bg-amber-500/10 blur-[120px] rounded-full pointer-events-none" />
 
             {/* The 3D Podium Image Background & Holographic Floor */}
-            <div className="absolute inset-x-0 bottom-0 flex justify-center pointer-events-none z-10 overflow-hidden pb-0">
+            <div className="absolute inset-x-0 bottom-0 flex justify-center pointer-events-none z-10 overflow-visible pb-0">
               
               {/* Image Container with Glint Effect & Floor */}
               <div className="relative w-[105%] sm:w-[95%] max-w-[850px] flex justify-center">
