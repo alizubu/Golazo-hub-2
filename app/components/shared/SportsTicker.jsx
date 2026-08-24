@@ -31,7 +31,7 @@ function MatchChip({ match, home, away, theme, isLive, onClick, showAvatars, pre
   return (
     <button
       onClick={onClick}
-      className={`relative flex items-center gap-3 px-4 py-2 mx-1.5 shrink-0 transition-all overflow-visible ${previewMode ? 'cursor-default pointer-events-none' : 'cursor-pointer hover:opacity-90 hover:-translate-y-0.5'}`}
+      className={`relative flex items-center gap-3 px-3.5 py-1.5 mx-1.5 shrink-0 transition-all overflow-hidden ${previewMode ? 'cursor-default pointer-events-none' : 'cursor-pointer hover:opacity-95 hover:scale-[1.02]'}`}
       style={{ ...theme.chip, borderRadius: theme.radius, fontFamily: theme.font }}
     >
       {/* Momentum Backgrounds */}
@@ -41,12 +41,12 @@ function MatchChip({ match, home, away, theme, isLive, onClick, showAvatars, pre
       {/* Showtime Goals Light Sweep */}
       {showtimeGoals && isLive && <div className="absolute inset-0 pointer-events-none shiny z-10 rounded-[inherit]" />}
 
-      <div className="relative z-10 flex items-center gap-3.5">
+      <div className="relative z-10 flex items-center gap-3">
         
         {/* ── Home Side ── */}
         <div className="flex items-center gap-2">
           {showAvatars && (
-            <div className={`relative rounded-full ring-2 ${homeScore > awayScore ? 'ring-amber-400 shadow-[0_0_8px_rgba(245,158,11,0.5)]' : 'ring-white/10'}`}>
+            <div className={`relative rounded-full ring-2 transition-all ${homeScore > awayScore ? 'ring-emerald-400 shadow-[0_0_10px_rgba(16,185,129,0.5)]' : 'ring-white/10'}`}>
               <Avatar p={home} size={22} className="rounded-full !border-0" />
             </div>
           )}
@@ -55,38 +55,40 @@ function MatchChip({ match, home, away, theme, isLive, onClick, showAvatars, pre
           </span>
         </div>
         
-        {/* ── Center Score Pillar ── */}
-        <div className="flex flex-col items-center relative min-w-[50px]">
-          {/* Micro Status Badge */}
-          <div className="absolute -top-[18px] z-20">
-             {showtimeGoals && isLive ? (
-               <span className="text-[7.5px] font-black text-amber-400 bg-amber-950/90 border border-amber-500/40 px-1.5 py-[1px] rounded uppercase tracking-widest leading-none shadow-[0_0_8px_rgba(245,158,11,0.6)] whitespace-nowrap">
-                 Highlight
-               </span>
-             ) : (
-               <div className="flex items-center gap-1 bg-black/80 border border-white/15 px-1.5 py-[2px] rounded shadow-md">
-                 {isLive && <span className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse" />}
-                 <span className="text-[7.5px] font-black text-white/90 uppercase tracking-widest leading-none whitespace-nowrap">
-                   {isLive ? (match.liveState?.clock ? `${Math.floor(match.liveState.clock / 60)}'` : "LIVE") : "FT"}
-                 </span>
-               </div>
-             )}
-          </div>
+        {/* ── Center Score & Status Halo (Concept A) ── */}
+        <div className="flex flex-col items-center justify-center gap-1 min-w-[58px]">
+          {/* Integrated Status Badge */}
+          {showtimeGoals && isLive ? (
+            <span className="inline-flex items-center gap-1 text-[8px] font-black text-amber-300 bg-amber-950/90 border border-amber-500/50 px-2 py-0.5 rounded-full uppercase tracking-wider leading-none shadow-[0_0_8px_rgba(245,158,11,0.5)] whitespace-nowrap">
+              <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
+              Highlight Reel
+            </span>
+          ) : isLive ? (
+            <span className="inline-flex items-center gap-1 text-[8px] font-black text-red-300 bg-red-950/90 border border-red-500/50 px-2 py-0.5 rounded-full uppercase tracking-widest leading-none shadow-[0_0_8px_rgba(239,68,68,0.4)] whitespace-nowrap">
+              <span className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse" />
+              {match.liveState?.clock ? `${Math.floor(match.liveState.clock / 60)}' LIVE` : "LIVE"}
+            </span>
+          ) : (
+            <span className="inline-flex items-center gap-1 text-[8px] font-black text-emerald-300 bg-emerald-950/90 border border-emerald-500/50 px-2 py-0.5 rounded-full uppercase tracking-widest leading-none shadow-[0_0_10px_rgba(16,185,129,0.35)] whitespace-nowrap">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 shadow-[0_0_6px_#34d399]" />
+              Full Time
+            </span>
+          )}
           
           {/* Score Capsule */}
-          <div className="relative overflow-hidden bg-black/60 border border-white/15 backdrop-blur-md rounded px-2 py-0.5 flex items-center justify-center gap-1.5 shadow-[inset_0_1px_1px_rgba(255,255,255,0.1),0_2px_4px_rgba(0,0,0,0.5)] mt-[2px] w-full">
+          <div className="relative overflow-hidden bg-black/70 border border-white/15 rounded-md px-2.5 py-0.5 flex items-center justify-center gap-1.5 shadow-[inset_0_1px_1px_rgba(255,255,255,0.12),0_2px_6px_rgba(0,0,0,0.6)] w-full">
             {/* Light sweep animation */}
             <div className="absolute top-0 -left-[150%] w-[60%] h-full bg-gradient-to-r from-transparent via-white/20 to-transparent skew-x-[-25deg] animate-[shine_3.5s_ease-in-out_infinite] pointer-events-none" />
 
             <span
-              className={`text-[14px] font-black tabular-nums z-10 ${homeScore > awayScore ? 'text-white drop-shadow-[0_0_6px_rgba(255,255,255,0.7)]' : homeScore < awayScore ? 'text-white/40' : 'text-white/90'}`}
+              className={`text-[13px] font-black tabular-nums z-10 ${homeScore > awayScore ? 'text-white drop-shadow-[0_0_6px_rgba(255,255,255,0.8)] font-bold' : homeScore < awayScore ? 'text-white/40' : 'text-white/90'}`}
               style={{ fontFamily: theme.mono ? "'JetBrains Mono', monospace" : theme.font, color: showtimeGoals && isLive ? '#fcd34d' : undefined }}
             >
               {homeScore}
             </span>
-            <span className="text-[9px] text-white/20 font-black z-10">-</span>
+            <span className="text-[9px] text-white/30 font-black z-10">-</span>
             <span
-              className={`text-[14px] font-black tabular-nums z-10 ${awayScore > homeScore ? 'text-white drop-shadow-[0_0_6px_rgba(255,255,255,0.7)]' : awayScore < homeScore ? 'text-white/40' : 'text-white/90'}`}
+              className={`text-[13px] font-black tabular-nums z-10 ${awayScore > homeScore ? 'text-white drop-shadow-[0_0_6px_rgba(255,255,255,0.8)] font-bold' : awayScore < homeScore ? 'text-white/40' : 'text-white/90'}`}
               style={{ fontFamily: theme.mono ? "'JetBrains Mono', monospace" : theme.font, color: showtimeGoals && isLive ? '#fcd34d' : undefined }}
             >
               {awayScore}
@@ -100,7 +102,7 @@ function MatchChip({ match, home, away, theme, isLive, onClick, showAvatars, pre
             {away.name}
           </span>
           {showAvatars && (
-            <div className={`relative rounded-full ring-2 ${awayScore > homeScore ? 'ring-amber-400 shadow-[0_0_8px_rgba(245,158,11,0.5)]' : 'ring-white/10'}`}>
+            <div className={`relative rounded-full ring-2 transition-all ${awayScore > homeScore ? 'ring-emerald-400 shadow-[0_0_10px_rgba(16,185,129,0.5)]' : 'ring-white/10'}`}>
               <Avatar p={away} size={22} className="rounded-full !border-0" />
             </div>
           )}
@@ -537,8 +539,19 @@ export default function SportsTicker({ matches = [], announcements = [], players
   return (
     <>
       <style dangerouslySetInnerHTML={{__html: `
-        @keyframes custom-marquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
-        .animate-custom-marquee { animation: custom-marquee var(--duration, 55s) linear infinite; }
+        @keyframes custom-marquee { 
+          0% { transform: translate3d(0, 0, 0); } 
+          100% { transform: translate3d(-50%, 0, 0); } 
+        }
+        .animate-custom-marquee { 
+          animation: custom-marquee var(--duration, 55s) linear infinite; 
+          will-change: transform;
+          backface-visibility: hidden;
+          perspective: 1000px;
+          -webkit-backface-visibility: hidden;
+          -webkit-perspective: 1000px;
+          transform: translate3d(0, 0, 0);
+        }
         @media (prefers-reduced-motion: reduce) { .animate-custom-marquee { animation: none !important; } }
         
         .pulse-dot { width: 6px; height: 6px; border-radius: 999px; display: inline-block; animation: pulse 1.2s ease-in-out infinite; }
