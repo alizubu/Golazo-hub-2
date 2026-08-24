@@ -24,47 +24,88 @@ import {
 function MatchChip({ match, home, away, theme, isLive, onClick, showAvatars, previewMode, momentumTeam, showtimeGoals }) {
   const isHomeMomentum = isLive && momentumTeam === 'home';
   const isAwayMomentum = isLive && momentumTeam === 'away';
+  
+  const homeScore = parseInt(match.homeScore ?? 0, 10);
+  const awayScore = parseInt(match.awayScore ?? 0, 10);
 
   return (
     <button
       onClick={onClick}
-      className={`relative flex items-center gap-2.5 px-4 py-2 mx-1.5 shrink-0 transition-all overflow-hidden ${previewMode ? 'cursor-default pointer-events-none' : 'cursor-pointer hover:opacity-90'}`}
+      className={`relative flex items-center gap-3 px-4 py-2 mx-1.5 shrink-0 transition-all overflow-visible ${previewMode ? 'cursor-default pointer-events-none' : 'cursor-pointer hover:opacity-90 hover:-translate-y-0.5'}`}
       style={{ ...theme.chip, borderRadius: theme.radius, fontFamily: theme.font }}
     >
       {/* Momentum Backgrounds */}
-      {isHomeMomentum && <div className="absolute inset-y-0 left-0 w-1/2 aurora-bg opacity-50 z-0 pointer-events-none" style={{ maskImage: 'linear-gradient(to right, black, transparent)' }} />}
-      {isAwayMomentum && <div className="absolute inset-y-0 right-0 w-1/2 aurora-bg opacity-50 z-0 pointer-events-none" style={{ maskImage: 'linear-gradient(to left, black, transparent)' }} />}
+      {isHomeMomentum && <div className="absolute inset-y-0 left-0 w-1/2 aurora-bg opacity-50 z-0 pointer-events-none rounded-l-[inherit]" style={{ maskImage: 'linear-gradient(to right, black, transparent)' }} />}
+      {isAwayMomentum && <div className="absolute inset-y-0 right-0 w-1/2 aurora-bg opacity-50 z-0 pointer-events-none rounded-r-[inherit]" style={{ maskImage: 'linear-gradient(to left, black, transparent)' }} />}
 
       {/* Showtime Goals Light Sweep */}
-      {showtimeGoals && isLive && <div className="absolute inset-0 pointer-events-none shiny z-10" />}
+      {showtimeGoals && isLive && <div className="absolute inset-0 pointer-events-none shiny z-10 rounded-[inherit]" />}
 
-      <div className="relative z-10 flex items-center gap-2.5">
-        {showAvatars && (
-          <div className="relative rounded-full ring-2 ring-red-500 shadow-[0_0_8px_rgba(220,38,38,0.7)]">
-            <Avatar p={home} size={22} className="rounded-full !border-0" />
-          </div>
-        )}
-        <span className="text-[12px] font-bold tracking-wide" style={{ color: theme.team }}>{home.name}</span>
+      <div className="relative z-10 flex items-center gap-3.5">
         
-        <div className="flex flex-col items-center">
-          {showtimeGoals && isLive && <span className="text-[8px] font-black text-amber-400 bg-amber-950/80 px-1 rounded uppercase tracking-widest leading-none mb-0.5 shadow-[0_0_5px_rgba(245,158,11,0.5)]">Highlight Reel</span>}
-          <span
-            className="text-[15px] font-extrabold tabular-nums px-1"
-            style={{ color: showtimeGoals && isLive ? '#fcd34d' : theme.score, fontFamily: theme.mono ? "'JetBrains Mono', monospace" : theme.font, textShadow: showtimeGoals && isLive ? '0 0 10px rgba(245,158,11,0.5)' : 'none' }}
-          >
-            {match.homeScore ?? 0}–{match.awayScore ?? 0}
+        {/* ── Home Side ── */}
+        <div className="flex items-center gap-2">
+          {showAvatars && (
+            <div className={`relative rounded-full ring-2 ${homeScore > awayScore ? 'ring-amber-400 shadow-[0_0_8px_rgba(245,158,11,0.5)]' : 'ring-white/10'}`}>
+              <Avatar p={home} size={22} className="rounded-full !border-0" />
+            </div>
+          )}
+          <span className="text-[12px] font-bold tracking-wide" style={{ color: theme.team, textShadow: '0 1px 2px rgba(0,0,0,0.8)' }}>
+            {home.name}
           </span>
         </div>
-
-        <span className="text-[12px] font-bold tracking-wide" style={{ color: theme.team }}>{away.name}</span>
-        {showAvatars && (
-          <div className="relative rounded-full ring-2 ring-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.7)]">
-            <Avatar p={away} size={22} className="rounded-full !border-0" />
+        
+        {/* ── Center Score Pillar ── */}
+        <div className="flex flex-col items-center relative min-w-[50px]">
+          {/* Micro Status Badge */}
+          <div className="absolute -top-[18px] z-20">
+             {showtimeGoals && isLive ? (
+               <span className="text-[7.5px] font-black text-amber-400 bg-amber-950/90 border border-amber-500/40 px-1.5 py-[1px] rounded uppercase tracking-widest leading-none shadow-[0_0_8px_rgba(245,158,11,0.6)] whitespace-nowrap">
+                 Highlight
+               </span>
+             ) : (
+               <div className="flex items-center gap-1 bg-black/80 border border-white/15 px-1.5 py-[2px] rounded shadow-md">
+                 {isLive && <span className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse" />}
+                 <span className="text-[7.5px] font-black text-white/90 uppercase tracking-widest leading-none whitespace-nowrap">
+                   {isLive ? (match.liveState?.clock ? `${Math.floor(match.liveState.clock / 60)}'` : "LIVE") : "FT"}
+                 </span>
+               </div>
+             )}
           </div>
-        )}
-      </div>
-      <div className="relative z-10 ml-1">
-        <StatusTag status={isLive ? "LIVE" : "FT"} time={isLive ? (match.liveState?.clock ? `${Math.floor(match.liveState.clock / 60)}'` : "LIVE") : "FT"} theme={theme} />
+          
+          {/* Score Capsule */}
+          <div className="relative overflow-hidden bg-black/60 border border-white/15 backdrop-blur-md rounded px-2 py-0.5 flex items-center justify-center gap-1.5 shadow-[inset_0_1px_1px_rgba(255,255,255,0.1),0_2px_4px_rgba(0,0,0,0.5)] mt-[2px] w-full">
+            {/* Light sweep animation */}
+            <div className="absolute top-0 -left-[150%] w-[60%] h-full bg-gradient-to-r from-transparent via-white/20 to-transparent skew-x-[-25deg] animate-[shine_3.5s_ease-in-out_infinite] pointer-events-none" />
+
+            <span
+              className={`text-[14px] font-black tabular-nums z-10 ${homeScore > awayScore ? 'text-white drop-shadow-[0_0_6px_rgba(255,255,255,0.7)]' : homeScore < awayScore ? 'text-white/40' : 'text-white/90'}`}
+              style={{ fontFamily: theme.mono ? "'JetBrains Mono', monospace" : theme.font, color: showtimeGoals && isLive ? '#fcd34d' : undefined }}
+            >
+              {homeScore}
+            </span>
+            <span className="text-[9px] text-white/20 font-black z-10">-</span>
+            <span
+              className={`text-[14px] font-black tabular-nums z-10 ${awayScore > homeScore ? 'text-white drop-shadow-[0_0_6px_rgba(255,255,255,0.7)]' : awayScore < homeScore ? 'text-white/40' : 'text-white/90'}`}
+              style={{ fontFamily: theme.mono ? "'JetBrains Mono', monospace" : theme.font, color: showtimeGoals && isLive ? '#fcd34d' : undefined }}
+            >
+              {awayScore}
+            </span>
+          </div>
+        </div>
+
+        {/* ── Away Side ── */}
+        <div className="flex items-center gap-2">
+          <span className="text-[12px] font-bold tracking-wide" style={{ color: theme.team, textShadow: '0 1px 2px rgba(0,0,0,0.8)' }}>
+            {away.name}
+          </span>
+          {showAvatars && (
+            <div className={`relative rounded-full ring-2 ${awayScore > homeScore ? 'ring-amber-400 shadow-[0_0_8px_rgba(245,158,11,0.5)]' : 'ring-white/10'}`}>
+              <Avatar p={away} size={22} className="rounded-full !border-0" />
+            </div>
+          )}
+        </div>
+
       </div>
     </button>
   );
@@ -399,15 +440,8 @@ export default function SportsTicker({ matches = [], announcements = [], players
     );
   });
 
-  // ── Announcements ─────────────────────────────────────────────────────────
-  announcements.slice(0, 3).forEach(a => {
-    items.push(
-      <div key={`ann-${a.id}`} className="flex items-center shrink-0 gap-3 font-semibold mx-4">
-        <ShinyBadge label="UPDATE" icon={Megaphone} style={{ background: "rgba(255,255,255,0.15)", color: "#fff", backdropFilter: "blur(4px)", border: "1px solid rgba(255,255,255,0.3)" }} />
-        <span style={{ color: theme.team, fontFamily: theme.font }} className="text-sm font-bold tracking-wide">{a.title}</span>
-      </div>
-    );
-  });
+  // ── Announcements (Removed per request) ───────────────────────────────────
+  // announcements.slice(0, 3).forEach(a => { ... });
 
   // ── Stats Ticker Items ────────────────────────────────────────────────────
   statsItems.forEach((item, i) => {
