@@ -74,104 +74,95 @@ function MatchChip({ match, home, away, theme, isLive, onClick, showAvatars, pre
 function SegmentedSmartBadge({ icon: Icon, category = '', data, color, theme }) {
   const catUpper = (category || '').toUpperCase();
   
-  // Categorized broadcast themes with rich gradients, high contrast & metallic borders
+  // Concept 1: Unified Broadcast Capsule - Clean, high contrast, seamless
   let badgeStyle = {
-    bg: 'from-cyan-950/90 via-sky-900/70 to-black/90',
-    border: 'border-cyan-400/50 shadow-[0_0_15px_rgba(6,182,212,0.25)]',
-    text: 'text-cyan-100',
-    iconColor: 'text-cyan-300',
-    accent: '#00f0ff'
+    bg: 'from-cyan-950/40 via-black/80 to-black/90',
+    border: 'border-cyan-500/40 shadow-[0_0_15px_rgba(6,182,212,0.15)]',
+    text: 'text-cyan-400',
+    iconColor: 'text-cyan-400'
   };
 
   if (catUpper.includes('GOLDEN BOOT') || catUpper.includes('GOLD STANDARD') || catUpper.includes('TOP SCORER')) {
     badgeStyle = {
-      bg: 'from-amber-950/95 via-yellow-900/75 to-black/95',
-      border: 'border-amber-400/60 shadow-[0_0_18px_rgba(245,158,11,0.35)]',
-      text: 'text-amber-100',
-      iconColor: 'text-amber-300',
-      accent: '#f59e0b'
+      bg: 'from-amber-950/40 via-black/80 to-black/90',
+      border: 'border-amber-500/40 shadow-[0_0_15px_rgba(245,158,11,0.15)]',
+      text: 'text-amber-400',
+      iconColor: 'text-amber-400'
     };
   } else if (catUpper.includes('BRICK WALL') || catUpper.includes('CLEAN SHEET') || catUpper.includes('SHIELD') || catUpper.includes('DEFENSE')) {
     badgeStyle = {
-      bg: 'from-sky-950/95 via-cyan-950/75 to-black/95',
-      border: 'border-cyan-400/60 shadow-[0_0_18px_rgba(6,182,212,0.35)]',
-      text: 'text-cyan-100',
-      iconColor: 'text-cyan-300',
-      accent: '#00f0ff'
+      bg: 'from-sky-950/40 via-black/80 to-black/90',
+      border: 'border-sky-500/40 shadow-[0_0_15px_rgba(14,165,233,0.15)]',
+      text: 'text-sky-400',
+      iconColor: 'text-sky-400'
     };
   } else if (catUpper.includes('LEAGUE UPDATE') || catUpper.includes('STATS') || catUpper.includes('STANDINGS')) {
     badgeStyle = {
-      bg: 'from-emerald-950/95 via-teal-900/75 to-black/95',
-      border: 'border-emerald-400/60 shadow-[0_0_18px_rgba(16,185,129,0.35)]',
-      text: 'text-emerald-100',
-      iconColor: 'text-emerald-300',
-      accent: '#10b981'
+      bg: 'from-emerald-950/40 via-black/80 to-black/90',
+      border: 'border-emerald-500/40 shadow-[0_0_15px_rgba(16,185,129,0.15)]',
+      text: 'text-emerald-400',
+      iconColor: 'text-emerald-400'
     };
   } else if (catUpper.includes('UNSTOPPABLE') || catUpper.includes('INFERNO') || catUpper.includes('WINNING STREAK')) {
     badgeStyle = {
-      bg: 'from-red-950/95 via-orange-950/75 to-black/95',
-      border: 'border-orange-500/60 shadow-[0_0_18px_rgba(249,115,22,0.4)]',
-      text: 'text-orange-100',
-      iconColor: 'text-orange-400',
-      accent: '#ff4500'
+      bg: 'from-orange-950/40 via-black/80 to-black/90',
+      border: 'border-orange-500/40 shadow-[0_0_15px_rgba(249,115,22,0.15)]',
+      text: 'text-orange-400',
+      iconColor: 'text-orange-400'
     };
   } else if (catUpper.includes('CRISIS') || catUpper.includes('LOSS')) {
     badgeStyle = {
-      bg: 'from-purple-950/95 via-red-950/75 to-black/95',
-      border: 'border-red-500/60 shadow-[0_0_18px_rgba(239,68,68,0.4)]',
-      text: 'text-red-100',
-      iconColor: 'text-red-400',
-      accent: '#ef4444'
+      bg: 'from-red-950/40 via-black/80 to-black/90',
+      border: 'border-red-500/40 shadow-[0_0_15px_rgba(239,68,68,0.15)]',
+      text: 'text-red-400',
+      iconColor: 'text-red-400'
     };
   } else if (catUpper.includes('ROUT') || catUpper.includes('GOAL FEST') || catUpper.includes('HIGHLIGHT')) {
     badgeStyle = {
-      bg: 'from-pink-950/95 via-purple-950/75 to-black/95',
-      border: 'border-pink-400/60 shadow-[0_0_18px_rgba(244,114,182,0.35)]',
-      text: 'text-pink-100',
-      iconColor: 'text-pink-300',
-      accent: '#f472b6'
+      bg: 'from-fuchsia-950/40 via-black/80 to-black/90',
+      border: 'border-fuchsia-500/40 shadow-[0_0_15px_rgba(217,70,239,0.15)]',
+      text: 'text-fuchsia-400',
+      iconColor: 'text-fuchsia-400'
     };
   } else if (color) {
     badgeStyle = {
-      bg: 'from-slate-900/90 to-black/90',
-      border: 'border-white/20 shadow-[0_0_12px_rgba(255,255,255,0.15)]',
+      bg: 'from-slate-900/60 via-black/80 to-black/90',
+      border: 'border-white/20 shadow-[0_0_15px_rgba(255,255,255,0.1)]',
       text: 'text-white',
-      iconColor: 'text-white',
-      accent: color
+      iconColor: 'text-white'
     };
   }
 
   return (
-    <div className="flex items-center rounded-xl overflow-hidden shadow-[inset_0_1px_1px_rgba(255,255,255,0.15),0_4px_16px_rgba(0,0,0,0.6)] border border-white/10 shrink-0 font-sans mx-4 bg-black/60 backdrop-blur-md">
-      {/* ── Left Badge Pill with Dynamic Shiny Glint ── */}
-      <div 
-        className={`relative flex items-center gap-1.5 px-3.5 py-1.5 text-[11px] font-black tracking-widest uppercase bg-gradient-to-r ${badgeStyle.bg} border-r ${badgeStyle.border} overflow-hidden`}
-      >
-        {/* Dynamic Light Flare Sweep */}
-        <div className="absolute inset-0 pointer-events-none overflow-hidden">
-          <div className="absolute top-0 -left-[150%] w-[60%] h-full bg-gradient-to-r from-transparent via-white/40 to-transparent skew-x-[-25deg] animate-[shine_3.2s_ease-in-out_infinite]" />
-        </div>
-
-        {Icon && (
-          <Icon 
-            size={14} 
-            className={`${badgeStyle.iconColor} relative z-10 shrink-0`} 
-            style={{ filter: `drop-shadow(0 0 6px ${badgeStyle.accent})` }}
-          />
-        )}
-        <span className={`${badgeStyle.text} drop-shadow-[0_1px_3px_rgba(0,0,0,0.95)] relative z-10 font-extrabold whitespace-nowrap`}>
-          {category}
-        </span>
+    <div className={`relative flex items-center rounded-full overflow-hidden border ${badgeStyle.border} shrink-0 font-sans mx-4 bg-gradient-to-r ${badgeStyle.bg} backdrop-blur-xl`}>
+      {/* Dynamic Light Flare Sweep */}
+      <div className="absolute inset-0 pointer-events-none overflow-hidden rounded-full">
+        <div className="absolute top-0 -left-[150%] w-[60%] h-full bg-gradient-to-r from-transparent via-white/10 to-transparent skew-x-[-25deg] animate-[shine_3.2s_ease-in-out_infinite]" />
       </div>
 
-      {/* ── Right Content Pill with High Text Visibility ── */}
-      <div 
-        className="px-3.5 py-1.5 text-sm font-bold tracking-wide text-white/95 bg-white/[0.04]"
-        style={{ color: theme?.team || '#ffffff' }}
-      >
+      {/* ── Unified Layout: Icon, Category, and Data ── */}
+      <div className="flex items-center gap-2.5 px-4 py-1.5 relative z-10">
+        <div className="flex items-center gap-1.5">
+          {Icon && (
+            <Icon 
+              size={14} 
+              className={badgeStyle.iconColor} 
+            />
+          )}
+          <span className={`${badgeStyle.text} text-[11px] font-black tracking-widest uppercase whitespace-nowrap`}>
+            {category}
+          </span>
+        </div>
+
+        {/* Separator Dot */}
+        <div className="w-1 h-1 rounded-full bg-white/30" />
+
         <span 
-          style={{ fontFamily: theme?.mono ? "'JetBrains Mono', monospace" : (theme?.font || 'inherit') }}
-          className="drop-shadow-[0_1px_2px_rgba(0,0,0,0.85)] font-semibold"
+          style={{ 
+            fontFamily: theme?.mono ? "'JetBrains Mono', monospace" : (theme?.font || 'inherit'),
+            color: theme?.team || '#ffffff'
+          }}
+          className="text-[13px] font-bold tracking-wide drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)] whitespace-nowrap"
         >
           {data}
         </span>
