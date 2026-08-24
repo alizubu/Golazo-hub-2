@@ -31,79 +31,81 @@ function MatchChip({ match, home, away, theme, isLive, onClick, showAvatars, pre
   return (
     <button
       onClick={onClick}
-      className={`relative flex items-center gap-3 px-3.5 py-1.5 mx-1.5 shrink-0 transition-all overflow-hidden ${previewMode ? 'cursor-default pointer-events-none' : 'cursor-pointer hover:opacity-95 hover:scale-[1.02]'}`}
-      style={{ ...theme.chip, borderRadius: theme.radius, fontFamily: theme.font }}
+      className={`relative flex items-center rounded-full overflow-hidden border border-white/15 shrink-0 font-sans mx-4 bg-gradient-to-r from-black/80 via-zinc-950/90 to-black/80 backdrop-blur-xl shadow-[0_2px_12px_rgba(0,0,0,0.5)] transition-all ${previewMode ? 'cursor-default pointer-events-none' : 'cursor-pointer hover:border-white/30 hover:scale-[1.02] active:scale-[0.98]'}`}
+      style={{ fontFamily: theme.font }}
     >
       {/* Momentum Backgrounds */}
-      {isHomeMomentum && <div className="absolute inset-y-0 left-0 w-1/2 aurora-bg opacity-50 z-0 pointer-events-none rounded-l-[inherit]" style={{ maskImage: 'linear-gradient(to right, black, transparent)' }} />}
-      {isAwayMomentum && <div className="absolute inset-y-0 right-0 w-1/2 aurora-bg opacity-50 z-0 pointer-events-none rounded-r-[inherit]" style={{ maskImage: 'linear-gradient(to left, black, transparent)' }} />}
+      {isHomeMomentum && <div className="absolute inset-y-0 left-0 w-1/2 aurora-bg opacity-40 z-0 pointer-events-none" style={{ maskImage: 'linear-gradient(to right, black, transparent)' }} />}
+      {isAwayMomentum && <div className="absolute inset-y-0 right-0 w-1/2 aurora-bg opacity-40 z-0 pointer-events-none" style={{ maskImage: 'linear-gradient(to left, black, transparent)' }} />}
 
       {/* Showtime Goals Light Sweep */}
-      {showtimeGoals && isLive && <div className="absolute inset-0 pointer-events-none shiny z-10 rounded-[inherit]" />}
+      {showtimeGoals && isLive && <div className="absolute inset-0 pointer-events-none shiny z-10" />}
 
-      <div className="relative z-10 flex items-center gap-3">
+      {/* Dynamic Light Flare Sweep matching SmartBadge */}
+      <div className="absolute inset-0 pointer-events-none overflow-hidden rounded-full">
+        <div className="absolute top-0 -left-[150%] w-[60%] h-full bg-gradient-to-r from-transparent via-white/10 to-transparent skew-x-[-25deg] animate-[shine_3.2s_ease-in-out_infinite]" />
+      </div>
+
+      <div className="relative z-10 flex items-center gap-2.5 px-3.5 py-1.5">
         
+        {/* ── Left Anchor: Status Pill ── */}
+        {showtimeGoals && isLive ? (
+          <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-black tracking-wider uppercase text-amber-300 bg-amber-950/90 border border-amber-500/50 shadow-[0_0_10px_rgba(245,158,11,0.4)] whitespace-nowrap">
+            <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
+            Highlight Reel
+          </span>
+        ) : isLive ? (
+          <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-black tracking-widest uppercase text-red-300 bg-red-950/90 border border-red-500/50 shadow-[0_0_10px_rgba(239,68,68,0.4)] whitespace-nowrap">
+            <span className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse" />
+            {match.liveState?.clock ? `${Math.floor(match.liveState.clock / 60)}' LIVE` : "LIVE"}
+          </span>
+        ) : (
+          <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-black tracking-widest uppercase text-emerald-300 bg-emerald-950/90 border border-emerald-500/50 shadow-[0_0_10px_rgba(16,185,129,0.35)] whitespace-nowrap">
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 shadow-[0_0_6px_#34d399]" />
+            Full Time
+          </span>
+        )}
+
+        {/* Separator Divider */}
+        <div className="w-px h-3.5 bg-white/20" />
+
         {/* ── Home Side ── */}
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1.5">
           {showAvatars && (
-            <div className={`relative rounded-full ring-2 transition-all ${homeScore > awayScore ? 'ring-emerald-400 shadow-[0_0_10px_rgba(16,185,129,0.5)]' : 'ring-white/10'}`}>
-              <Avatar p={home} size={22} className="rounded-full !border-0" />
+            <div className={`relative rounded-full ring-2 transition-all ${homeScore > awayScore ? 'ring-emerald-400 shadow-[0_0_8px_rgba(16,185,129,0.5)]' : 'ring-white/10'}`}>
+              <Avatar p={home} size={20} className="rounded-full !border-0" />
             </div>
           )}
-          <span className="text-[12px] font-bold tracking-wide" style={{ color: theme.team, textShadow: '0 1px 2px rgba(0,0,0,0.8)' }}>
+          <span className="text-[12px] font-bold tracking-wide text-white/95 whitespace-nowrap" style={{ color: theme.team }}>
             {home.name}
           </span>
         </div>
-        
-        {/* ── Center Score & Status Halo (Concept A) ── */}
-        <div className="flex flex-col items-center justify-center gap-1 min-w-[58px]">
-          {/* Integrated Status Badge */}
-          {showtimeGoals && isLive ? (
-            <span className="inline-flex items-center gap-1 text-[8px] font-black text-amber-300 bg-amber-950/90 border border-amber-500/50 px-2 py-0.5 rounded-full uppercase tracking-wider leading-none shadow-[0_0_8px_rgba(245,158,11,0.5)] whitespace-nowrap">
-              <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
-              Highlight Reel
-            </span>
-          ) : isLive ? (
-            <span className="inline-flex items-center gap-1 text-[8px] font-black text-red-300 bg-red-950/90 border border-red-500/50 px-2 py-0.5 rounded-full uppercase tracking-widest leading-none shadow-[0_0_8px_rgba(239,68,68,0.4)] whitespace-nowrap">
-              <span className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse" />
-              {match.liveState?.clock ? `${Math.floor(match.liveState.clock / 60)}' LIVE` : "LIVE"}
-            </span>
-          ) : (
-            <span className="inline-flex items-center gap-1 text-[8px] font-black text-emerald-300 bg-emerald-950/90 border border-emerald-500/50 px-2 py-0.5 rounded-full uppercase tracking-widest leading-none shadow-[0_0_10px_rgba(16,185,129,0.35)] whitespace-nowrap">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 shadow-[0_0_6px_#34d399]" />
-              Full Time
-            </span>
-          )}
-          
-          {/* Score Capsule */}
-          <div className="relative overflow-hidden bg-black/70 border border-white/15 rounded-md px-2.5 py-0.5 flex items-center justify-center gap-1.5 shadow-[inset_0_1px_1px_rgba(255,255,255,0.12),0_2px_6px_rgba(0,0,0,0.6)] w-full">
-            {/* Light sweep animation */}
-            <div className="absolute top-0 -left-[150%] w-[60%] h-full bg-gradient-to-r from-transparent via-white/20 to-transparent skew-x-[-25deg] animate-[shine_3.5s_ease-in-out_infinite] pointer-events-none" />
 
-            <span
-              className={`text-[13px] font-black tabular-nums z-10 ${homeScore > awayScore ? 'text-white drop-shadow-[0_0_6px_rgba(255,255,255,0.8)] font-bold' : homeScore < awayScore ? 'text-white/40' : 'text-white/90'}`}
-              style={{ fontFamily: theme.mono ? "'JetBrains Mono', monospace" : theme.font, color: showtimeGoals && isLive ? '#fcd34d' : undefined }}
-            >
-              {homeScore}
-            </span>
-            <span className="text-[9px] text-white/30 font-black z-10">-</span>
-            <span
-              className={`text-[13px] font-black tabular-nums z-10 ${awayScore > homeScore ? 'text-white drop-shadow-[0_0_6px_rgba(255,255,255,0.8)] font-bold' : awayScore < homeScore ? 'text-white/40' : 'text-white/90'}`}
-              style={{ fontFamily: theme.mono ? "'JetBrains Mono', monospace" : theme.font, color: showtimeGoals && isLive ? '#fcd34d' : undefined }}
-            >
-              {awayScore}
-            </span>
-          </div>
+        {/* ── Center Score Digits (Horizontal Sleek Glass Plate) ── */}
+        <div className="flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-white/[0.08] border border-white/10 shadow-inner">
+          <span
+            className={`text-[13px] font-black tabular-nums ${homeScore > awayScore ? 'text-white drop-shadow-[0_0_6px_rgba(255,255,255,0.8)] font-bold' : homeScore < awayScore ? 'text-white/40' : 'text-white/90'}`}
+            style={{ fontFamily: theme.mono ? "'JetBrains Mono', monospace" : theme.font, color: showtimeGoals && isLive ? '#fcd34d' : undefined }}
+          >
+            {homeScore}
+          </span>
+          <span className="text-[10px] text-white/30 font-black">-</span>
+          <span
+            className={`text-[13px] font-black tabular-nums ${awayScore > homeScore ? 'text-white drop-shadow-[0_0_6px_rgba(255,255,255,0.8)] font-bold' : awayScore < homeScore ? 'text-white/40' : 'text-white/90'}`}
+            style={{ fontFamily: theme.mono ? "'JetBrains Mono', monospace" : theme.font, color: showtimeGoals && isLive ? '#fcd34d' : undefined }}
+          >
+            {awayScore}
+          </span>
         </div>
 
         {/* ── Away Side ── */}
-        <div className="flex items-center gap-2">
-          <span className="text-[12px] font-bold tracking-wide" style={{ color: theme.team, textShadow: '0 1px 2px rgba(0,0,0,0.8)' }}>
+        <div className="flex items-center gap-1.5">
+          <span className="text-[12px] font-bold tracking-wide text-white/95 whitespace-nowrap" style={{ color: theme.team }}>
             {away.name}
           </span>
           {showAvatars && (
-            <div className={`relative rounded-full ring-2 transition-all ${awayScore > homeScore ? 'ring-emerald-400 shadow-[0_0_10px_rgba(16,185,129,0.5)]' : 'ring-white/10'}`}>
-              <Avatar p={away} size={22} className="rounded-full !border-0" />
+            <div className={`relative rounded-full ring-2 transition-all ${awayScore > homeScore ? 'ring-emerald-400 shadow-[0_0_8px_rgba(16,185,129,0.5)]' : 'ring-white/10'}`}>
+              <Avatar p={away} size={20} className="rounded-full !border-0" />
             </div>
           )}
         </div>
