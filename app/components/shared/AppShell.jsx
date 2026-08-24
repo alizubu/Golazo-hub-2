@@ -97,7 +97,7 @@ export default function AppShell({
   };
 
   const activeSeason = seasons?.find((t) => !t.isArchived) || null;
-  const adminProps = { players, activeSeason, matches: currentMatches, announcements, notifications, trophies, seasons, history, showToast, setTab, session, managerPermissions };
+  const adminProps = { players, activeSeason, matches: currentMatches, announcements, notifications, trophies, seasons, history, showToast, setTab, session, managerPermissions, tickerConfig };
   const playerProps = { me, players, activeSeason, matches: currentMatches, announcements, notifications, trophies, seasons, history, setTab, tab: currentTab };
 
   // ══════════════════════════════════════════════════════════════

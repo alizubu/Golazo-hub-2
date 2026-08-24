@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import {
   Radio, MonitorPlay, Clock, CalendarDays, Trophy,
   SlidersHorizontal, CheckCircle2, Palette, Type,
@@ -332,6 +332,7 @@ export default function AdminBroadcast({
   seasons = [],
   showToast,
   onTickerConfigSaved,
+  tickerConfig,
 }) {
   const [draft, setDraft]               = useState(DEFAULT_TICKER);
   const [saved, setSaved]               = useState(DEFAULT_TICKER);
@@ -339,9 +340,14 @@ export default function AdminBroadcast({
   const [hoverTheme, setHoverTheme]     = useState(null);   // theme id being hovered
   const [hoverPreview, setHoverPreview] = useState(true);   // on/off toggle for preview-on-hover
 
-  // No fetch needed — draft starts from DEFAULT_TICKER.
-  // AppShell owns the persisted tickerConfig for the live site ticker.
-  // Saving here writes to DB via saveTickerConfig server action.
+  // Update local state when tickerConfig is loaded from server
+  useEffect(() => {
+    if (tickerConfig) {
+      const fullConfig = { ...DEFAULT_TICKER, ...tickerConfig };
+      setDraft(fullConfig);
+      setSaved(fullConfig);
+    }
+  }, [tickerConfig]);
 
   const update = useCallback((key, value) => {
     setDraft(prev => ({ ...prev, [key]: value }));
