@@ -71,21 +71,108 @@ function MatchChip({ match, home, away, theme, isLive, onClick, showAvatars, pre
 }
 
 // ── Segmented Smart Badge ──────────────────────────────────────────────────
-function SegmentedSmartBadge({ icon: Icon, category, data, color, theme }) {
+function SegmentedSmartBadge({ icon: Icon, category = '', data, color, theme }) {
+  const catUpper = (category || '').toUpperCase();
+  
+  // Categorized broadcast themes with rich gradients, high contrast & metallic borders
+  let badgeStyle = {
+    bg: 'from-cyan-950/90 via-sky-900/70 to-black/90',
+    border: 'border-cyan-400/50 shadow-[0_0_15px_rgba(6,182,212,0.25)]',
+    text: 'text-cyan-100',
+    iconColor: 'text-cyan-300',
+    accent: '#00f0ff'
+  };
+
+  if (catUpper.includes('GOLDEN BOOT') || catUpper.includes('GOLD STANDARD') || catUpper.includes('TOP SCORER')) {
+    badgeStyle = {
+      bg: 'from-amber-950/95 via-yellow-900/75 to-black/95',
+      border: 'border-amber-400/60 shadow-[0_0_18px_rgba(245,158,11,0.35)]',
+      text: 'text-amber-100',
+      iconColor: 'text-amber-300',
+      accent: '#f59e0b'
+    };
+  } else if (catUpper.includes('BRICK WALL') || catUpper.includes('CLEAN SHEET') || catUpper.includes('SHIELD') || catUpper.includes('DEFENSE')) {
+    badgeStyle = {
+      bg: 'from-sky-950/95 via-cyan-950/75 to-black/95',
+      border: 'border-cyan-400/60 shadow-[0_0_18px_rgba(6,182,212,0.35)]',
+      text: 'text-cyan-100',
+      iconColor: 'text-cyan-300',
+      accent: '#00f0ff'
+    };
+  } else if (catUpper.includes('LEAGUE UPDATE') || catUpper.includes('STATS') || catUpper.includes('STANDINGS')) {
+    badgeStyle = {
+      bg: 'from-emerald-950/95 via-teal-900/75 to-black/95',
+      border: 'border-emerald-400/60 shadow-[0_0_18px_rgba(16,185,129,0.35)]',
+      text: 'text-emerald-100',
+      iconColor: 'text-emerald-300',
+      accent: '#10b981'
+    };
+  } else if (catUpper.includes('UNSTOPPABLE') || catUpper.includes('INFERNO') || catUpper.includes('WINNING STREAK')) {
+    badgeStyle = {
+      bg: 'from-red-950/95 via-orange-950/75 to-black/95',
+      border: 'border-orange-500/60 shadow-[0_0_18px_rgba(249,115,22,0.4)]',
+      text: 'text-orange-100',
+      iconColor: 'text-orange-400',
+      accent: '#ff4500'
+    };
+  } else if (catUpper.includes('CRISIS') || catUpper.includes('LOSS')) {
+    badgeStyle = {
+      bg: 'from-purple-950/95 via-red-950/75 to-black/95',
+      border: 'border-red-500/60 shadow-[0_0_18px_rgba(239,68,68,0.4)]',
+      text: 'text-red-100',
+      iconColor: 'text-red-400',
+      accent: '#ef4444'
+    };
+  } else if (catUpper.includes('ROUT') || catUpper.includes('GOAL FEST') || catUpper.includes('HIGHLIGHT')) {
+    badgeStyle = {
+      bg: 'from-pink-950/95 via-purple-950/75 to-black/95',
+      border: 'border-pink-400/60 shadow-[0_0_18px_rgba(244,114,182,0.35)]',
+      text: 'text-pink-100',
+      iconColor: 'text-pink-300',
+      accent: '#f472b6'
+    };
+  } else if (color) {
+    badgeStyle = {
+      bg: 'from-slate-900/90 to-black/90',
+      border: 'border-white/20 shadow-[0_0_12px_rgba(255,255,255,0.15)]',
+      text: 'text-white',
+      iconColor: 'text-white',
+      accent: color
+    };
+  }
+
   return (
-    <div className="flex items-center rounded-xl overflow-hidden shadow-[inset_1px_1px_0_rgba(255,255,255,0.1),_0_2px_10px_rgba(0,0,0,0.5)] border border-white/[0.05] shrink-0 font-sans mx-4">
+    <div className="flex items-center rounded-xl overflow-hidden shadow-[inset_0_1px_1px_rgba(255,255,255,0.15),0_4px_16px_rgba(0,0,0,0.6)] border border-white/10 shrink-0 font-sans mx-4 bg-black/60 backdrop-blur-md">
+      {/* ── Left Badge Pill with Dynamic Shiny Glint ── */}
       <div 
-        className="flex items-center gap-1.5 px-3 py-1.5 text-[11px] font-black tracking-widest uppercase"
-        style={{ backgroundColor: `${color}30`, color: color, textShadow: `0 0 10px ${color}80` }}
+        className={`relative flex items-center gap-1.5 px-3.5 py-1.5 text-[11px] font-black tracking-widest uppercase bg-gradient-to-r ${badgeStyle.bg} border-r ${badgeStyle.border} overflow-hidden`}
       >
-        {Icon && <Icon size={14} />}
-        {category}
+        {/* Dynamic Light Flare Sweep */}
+        <div className="absolute inset-0 pointer-events-none overflow-hidden">
+          <div className="absolute top-0 -left-[150%] w-[60%] h-full bg-gradient-to-r from-transparent via-white/40 to-transparent skew-x-[-25deg] animate-[shine_3.2s_ease-in-out_infinite]" />
+        </div>
+
+        {Icon && (
+          <Icon 
+            size={14} 
+            className={`${badgeStyle.iconColor} relative z-10 shrink-0`} 
+            style={{ filter: `drop-shadow(0 0 6px ${badgeStyle.accent})` }}
+          />
+        )}
+        <span className={`${badgeStyle.text} drop-shadow-[0_1px_3px_rgba(0,0,0,0.95)] relative z-10 font-extrabold whitespace-nowrap`}>
+          {category}
+        </span>
       </div>
+
+      {/* ── Right Content Pill with High Text Visibility ── */}
       <div 
-        className="px-3 py-1.5 text-sm font-bold tracking-wide"
-        style={{ backgroundColor: 'rgba(0,0,0,0.4)', color: theme.team, backdropFilter: 'blur(8px)' }}
+        className="px-3.5 py-1.5 text-sm font-bold tracking-wide text-white/95 bg-white/[0.04]"
+        style={{ color: theme?.team || '#ffffff' }}
       >
-        <span style={{ fontFamily: theme.mono ? "'JetBrains Mono', monospace" : theme.font }}>
+        <span 
+          style={{ fontFamily: theme?.mono ? "'JetBrains Mono', monospace" : (theme?.font || 'inherit') }}
+          className="drop-shadow-[0_1px_2px_rgba(0,0,0,0.85)] font-semibold"
+        >
           {data}
         </span>
       </div>
@@ -166,9 +253,9 @@ export default function SportsTicker({ matches = [], announcements = [], players
     const topScorer = [...sorted].sort((a, b) => b.goals - a.goals)[0];
     const topCleanSheet = [...sorted].sort((a, b) => b.cleanSheets - a.cleanSheets)[0];
     
-    if (topScorer && topScorer.goals > 0) result.push({ icon: Trophy, category: 'GOLDEN BOOT', data: `${topScorer.name} leads with ${topScorer.goals} Goals!`, color: '#00f0ff' });
+    if (topScorer && topScorer.goals > 0) result.push({ icon: Trophy, category: 'GOLDEN BOOT', data: `${topScorer.name} leads with ${topScorer.goals} Goals!`, color: '#f59e0b' });
     if (topCleanSheet && topCleanSheet.cleanSheets > 0) result.push({ icon: Shield, category: 'BRICK WALL', data: `${topCleanSheet.name} has ${topCleanSheet.cleanSheets} Clean Sheets.`, color: '#00f0ff' });
-    result.push({ icon: BarChart3, category: 'LEAGUE UPDATE', data: `${completed.length} Matches Officially Completed.`, color: '#00f0ff' });
+    result.push({ icon: BarChart3, category: 'LEAGUE UPDATE', data: `${completed.length} Matches Officially Completed.`, color: '#10b981' });
     
     return result;
   }, [cfg.showStats, analyticsMatches, players]);
