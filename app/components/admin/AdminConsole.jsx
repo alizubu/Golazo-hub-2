@@ -418,11 +418,20 @@ export function AdminMatches({ matches, activeSeason, players, showToast, setTab
         <div className="relative p-6 sm:p-8 bg-gradient-to-br from-secondary/50 via-background to-background border-b border-white/5">
           <div className="absolute top-0 right-0 p-32 bg-primary/5 blur-[100px] rounded-full pointer-events-none"></div>
           <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-5 relative z-10">
-            <div>
-              <SectionTitle icon={Radio} className="mb-0 text-xl sm:text-2xl font-black tracking-tight">Full Fixtures Control</SectionTitle>
-              <p className="text-xs sm:text-sm text-muted-foreground mt-1.5 font-medium">Manage and review all matches for the current season.</p>
+            <div className="flex items-center gap-4">
+              <div className="relative flex h-4 w-4 mt-1 hidden sm:flex shadow-[0_0_12px_rgba(16,185,129,0.5)] rounded-full">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-4 w-4 bg-emerald-500"></span>
+              </div>
+              <div>
+                <SectionTitle className="mb-0 text-xl sm:text-2xl font-black tracking-tight text-white drop-shadow-md">Full Fixtures Control</SectionTitle>
+                <p className="text-xs sm:text-sm text-slate-300 mt-1.5 font-medium flex items-center gap-2">
+                  <span className="bg-white/10 px-2 py-0.5 rounded-md text-[10px] uppercase tracking-wider">Season 2026</span>
+                  Manage and review all matches for the current season.
+                </p>
+              </div>
             </div>
-            <div className="flex flex-row flex-wrap sm:flex-nowrap items-center gap-2 w-full lg:w-auto shrink-0 hide-in-export">
+            <div className="flex flex-row flex-wrap sm:flex-nowrap items-center gap-2 w-full lg:w-auto shrink-0 hide-in-export bg-white/[0.02] p-1.5 rounded-2xl border border-white/5 backdrop-blur-md">
               {unplayedMatches.length > 0 && (
                 <Btn 
                   onClick={() => {
@@ -434,9 +443,10 @@ export function AdminMatches({ matches, activeSeason, players, showToast, setTab
                     navigator.clipboard.writeText(text);
                     showToast("Unplayed fixtures copied!");
                   }}
-                  className="flex-1 lg:flex-none flex items-center justify-center gap-1.5 bg-secondary/80 hover:bg-secondary text-foreground text-[10px] sm:text-xs font-bold px-2.5 py-1.5 sm:px-3 sm:py-2 rounded-lg sm:rounded-xl border border-white/5 shadow-sm active:scale-95 transition-all whitespace-nowrap"
+                  className="flex-1 lg:flex-none flex items-center justify-center gap-1.5 bg-white/[0.04] hover:bg-white/[0.08] text-slate-200 text-[10px] sm:text-xs font-bold px-3 py-2 rounded-xl border border-white/10 shadow-sm active:scale-95 transition-all whitespace-nowrap hover:-translate-y-0.5"
                 >
-                  <Copy size={12} className="sm:w-[14px] sm:h-[14px]" /> <span className="truncate">Unplayed</span>
+                  <div className="w-1.5 h-1.5 rounded-full bg-amber-400 shadow-[0_0_5px_rgba(251,191,36,0.5)]"></div>
+                  <span className="truncate">Unplayed</span>
                 </Btn>
               )}
               <Btn 
@@ -449,16 +459,16 @@ export function AdminMatches({ matches, activeSeason, players, showToast, setTab
                     navigator.clipboard.writeText(text);
                     showToast("All fixtures copied!");
                   }}
-                  className="flex-1 lg:flex-none flex items-center justify-center gap-1.5 bg-primary/20 hover:bg-primary/30 text-primary text-[10px] sm:text-xs font-bold px-2.5 py-1.5 sm:px-3 sm:py-2 rounded-lg sm:rounded-xl border border-primary/20 shadow-sm active:scale-95 transition-all whitespace-nowrap"
+                  className="flex-1 lg:flex-none flex items-center justify-center gap-1.5 bg-white/[0.04] hover:bg-primary/10 text-slate-200 hover:text-primary text-[10px] sm:text-xs font-bold px-3 py-2 rounded-xl border border-white/10 hover:border-primary/50 shadow-sm active:scale-95 transition-all whitespace-nowrap hover:-translate-y-0.5"
                 >
                   <Copy size={12} className="sm:w-[14px] sm:h-[14px]" /> <span className="truncate">Copy All</span>
               </Btn>
               <Btn 
                 onClick={handleExport}
                 disabled={isExporting}
-                className="flex-1 lg:flex-none flex items-center justify-center gap-1.5 bg-amber-500/20 hover:bg-amber-500/30 text-amber-500 text-[10px] sm:text-xs font-bold px-2.5 py-1.5 sm:px-3 sm:py-2 rounded-lg sm:rounded-xl border border-amber-500/20 shadow-sm active:scale-95 transition-all whitespace-nowrap disabled:opacity-50"
+                className="flex-1 lg:flex-none flex items-center justify-center gap-1.5 bg-gradient-to-r from-amber-500/20 to-amber-600/10 text-amber-300 text-[10px] sm:text-xs font-bold px-4 py-2 rounded-xl border border-amber-500/40 shadow-[0_0_15px_rgba(245,158,11,0.15)] hover:shadow-[0_0_20px_rgba(245,158,11,0.35)] active:scale-95 transition-all whitespace-nowrap disabled:opacity-50 hover:-translate-y-0.5"
               >
-                {isExporting ? <Radio size={12} className="animate-spin sm:w-[14px] sm:h-[14px]" /> : <Download size={12} className="sm:w-[14px] sm:h-[14px]" />}
+                {isExporting ? <Radio size={12} className="animate-spin sm:w-[14px] sm:h-[14px] text-amber-400" /> : <Download size={12} className="sm:w-[14px] sm:h-[14px] text-amber-400" />}
                 <span className="truncate">Graphic</span>
               </Btn>
             </div>

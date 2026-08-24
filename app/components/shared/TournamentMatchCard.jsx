@@ -62,8 +62,8 @@ const STAGE_CONFIG = {
     startBtn: 'border-[#10b981]/60 bg-[#065f46]/30 text-[#6ee7b7] hover:bg-[#065f46]/50 hover:shadow-[0_0_15px_rgba(16,185,129,0.4)] px-6 py-2'
   },
   'final': {
-    label: '👑 GRAND FINAL',
-    labelClass: 'bg-gradient-to-b from-[#1E1609] to-[#0D0A05] border-x border-b border-[#F59E0B]/50 text-[#FFD700] shadow-[0_8px_30px_rgba(245,158,11,0.2)] px-8 py-1.5 font-black text-[14px]',
+    label: '👑 GRAND FINAL 👑',
+    labelClass: 'bg-gradient-to-b from-[#251805] via-[#140E04] to-[#0A0702] border-x border-b-2 border-amber-400/60 shadow-[0_8px_30px_rgba(245,158,11,0.3)] px-10 py-2.5 font-black text-[15px]',
     bgClass: 'bg-gradient-to-b from-[#231604] via-[#130d03] to-[#0a0702] border-[#F59E0B]/60 shadow-[0_0_50px_rgba(245,158,11,0.25)]',
     gridColor: '#FBBF24',
     gridOpacity: 0.24,
@@ -274,8 +274,8 @@ export function TournamentMatchCard({ stage = 'normal', m, h, a, hStats, aStats,
                   <div key={`firefly-${i}`} className="absolute w-[2px] h-[2px] bg-amber-200 rounded-full animate-[floatUp_2s_ease-in-out_infinite]" style={{ left: `${20 + i*15}%`, animationDelay: `${i*0.4}s` }} />
                 ))}
               </div>
-              <div className="absolute bottom-0 left-0 w-[40%] h-[2px] bg-gradient-to-r from-transparent via-[#FFF2C8] to-transparent opacity-90 animate-[edgeLight_3s_ease-in-out_infinite] z-0" />
-              <span className="text-[15px] tracking-[0.3em] font-score relative z-10 animate-[shimmer_3s_linear_infinite] bg-gradient-to-r from-[#FFF2C8] via-[#C58A18] to-[#FFF2C8] bg-[length:200%_auto] text-transparent bg-clip-text">
+              {/* Removed edgeLight line as requested */}
+              <span className="text-[15px] tracking-[0.28em] font-score relative z-10 bg-gradient-to-b from-[#FFFDF0] via-[#FBBF24] to-[#B45309] bg-clip-text text-transparent drop-shadow-[0_2px_8px_rgba(245,158,11,0.5)]">
                 {config.label}
               </span>
             </div>
@@ -323,11 +323,11 @@ export function TournamentMatchCard({ stage = 'normal', m, h, a, hStats, aStats,
             {isFinal && hBadgeUrl && (
               <img src={hBadgeUrl} alt="watermark" className="absolute right-2 top-1/2 -translate-y-1/2 w-16 h-16 opacity-[0.05] grayscale mix-blend-overlay pointer-events-none animate-[breatheWatermark_4s_ease-in-out_infinite]" />
             )}
-            <span className={`font-black text-xl md:text-2xl truncate text-center md:text-left relative z-10 ${isFinal ? 'text-white drop-shadow-[0_2px_12px_rgba(245,158,11,0.35)] animate-[goldFoilSheen_5s_linear_infinite] bg-gradient-to-r from-white via-[#FFF2C8] to-white bg-[length:200%_auto] text-transparent bg-clip-text' : 'text-white drop-shadow-md'}`} style={{ fontFamily: "'Sora', sans-serif" }}>
+            <span className={`font-black text-xl md:text-2xl truncate text-center md:text-left relative z-10 ${isFinal ? 'text-transparent bg-clip-text bg-gradient-to-r from-white via-[#FFF3D1] to-[#F59E0B] drop-shadow-[0_3px_6px_rgba(0,0,0,0.95)] drop-shadow-[0_0_18px_rgba(245,158,11,0.4)] animate-[goldFoilSheen_6s_linear_infinite]' : 'text-white drop-shadow-md'}`} style={{ fontFamily: "'Sora', sans-serif" }}>
               {formatName(h?.name)}
             </span>
             <div className={`flex items-center gap-2 mt-1 relative z-10`}>
-              <span className={`text-xs font-medium px-2.5 py-0.5 rounded-full ${isFinal ? 'bg-white/5 border border-white/10 text-amber-300/90' : 'text-slate-400'}`}>
+              <span className={`text-xs font-bold tracking-widest px-3 py-0.5 rounded-full uppercase ${isFinal ? 'bg-black/60 backdrop-blur-md border border-amber-400/30 shadow-[0_2px_8px_rgba(0,0,0,0.6)] text-amber-200/90 text-[11px]' : 'text-slate-400 bg-white/5 border border-white/10'}`}>
                 {h?.favoriteClub || 'TBD'}
               </span>
             </div>
@@ -419,14 +419,14 @@ export function TournamentMatchCard({ stage = 'normal', m, h, a, hStats, aStats,
             {isFinal && aBadgeUrl && (
               <img src={aBadgeUrl} alt="watermark" className="absolute left-2 top-1/2 -translate-y-1/2 w-16 h-16 opacity-[0.05] grayscale mix-blend-overlay pointer-events-none animate-[breatheWatermark_4s_ease-in-out_infinite]" />
             )}
-            <span className={`font-black text-xl md:text-2xl truncate text-center md:text-right relative z-10 ${isFinal ? 'text-white drop-shadow-[0_2px_12px_rgba(245,158,11,0.35)] animate-[goldFoilSheen_5s_linear_infinite] bg-gradient-to-r from-white via-[#FFF2C8] to-white bg-[length:200%_auto] text-transparent bg-clip-text' : 'text-white drop-shadow-md'}`} style={{ fontFamily: "'Sora', sans-serif" }}>
+            <span className={`font-black text-xl md:text-2xl truncate text-center md:text-right relative z-10 ${isFinal ? 'text-transparent bg-clip-text bg-gradient-to-r from-white via-[#FFF3D1] to-[#F59E0B] drop-shadow-[0_3px_6px_rgba(0,0,0,0.95)] drop-shadow-[0_0_18px_rgba(245,158,11,0.4)] animate-[goldFoilSheen_6s_linear_infinite]' : 'text-white drop-shadow-md'}`} style={{ fontFamily: "'Sora', sans-serif" }}>
               {isFinal && (!a || a?.name === 'TBD') ? (
-                <span className="animate-[hologramGlitch_4s_linear_infinite] inline-block">Awaiting Challenger</span>
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-100 via-amber-300 to-amber-100 drop-shadow-[0_0_20px_rgba(245,158,11,0.5)] animate-pulse tracking-[0.2em] uppercase font-black inline-block">TBD</span>
               ) : formatName(a?.name)}
             </span>
             <div className={`flex items-center justify-center md:justify-end gap-2 mt-1 relative z-10`}>
-              <span className={`text-xs font-medium px-2.5 py-0.5 rounded-full ${isFinal ? 'bg-white/5 border border-white/10 text-amber-300/90' : 'text-slate-400'}`}>
-                {isFinal && (!a || a?.name === 'TBD') ? 'Semi-Final Winner' : (a?.favoriteClub || 'TBD')}
+              <span className={`text-xs font-bold tracking-widest px-3 py-0.5 rounded-full uppercase ${isFinal ? ( (!a || a?.name === 'TBD') ? 'bg-amber-500/10 border border-amber-500/30 text-amber-400 text-[11px] shadow-[0_0_12px_rgba(245,158,11,0.15)]' : 'bg-black/60 backdrop-blur-md border border-amber-400/30 shadow-[0_2px_8px_rgba(0,0,0,0.6)] text-amber-200/90 text-[11px]' ) : 'text-slate-400 bg-white/5 border border-white/10'}`}>
+                {isFinal && (!a || a?.name === 'TBD') ? 'Q2 Winner' : (a?.favoriteClub || 'TBD')}
               </span>
             </div>
           </div>
