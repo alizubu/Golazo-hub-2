@@ -570,37 +570,7 @@ export default function AdminBroadcast({
               )}
             </AnimatePresence>
 
-            {/* Season selector */}
-            <AnimatePresence>
-              {draft.source === 'running_season' && (
-                <motion.div
-                  initial={{ opacity: 0, height: 0 }}
-                  animate={{ opacity: 1, height: 'auto' }}
-                  exit={{ opacity: 0, height: 0 }}
-                  transition={{ duration: 0.25 }}
-                  className="overflow-hidden"
-                >
-                  <div className="mt-4 pt-4 border-t border-white/[0.06]">
-                    <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2 block">
-                      Select Season
-                    </label>
-                    <div className="relative">
-                      <select
-                        value={draft.selectedSeasonId || ''}
-                        onChange={e => update('selectedSeasonId', e.target.value)}
-                        className="w-full bg-black/30 border border-white/[0.1] text-foreground text-sm font-semibold rounded-xl px-4 py-3 appearance-none focus:outline-none focus:ring-2 focus:ring-amber-500/50 cursor-pointer transition-all"
-                      >
-                        <option value="" disabled>Choose a season…</option>
-                        {seasons.filter(s => !s.isArchived).map(s => (
-                          <option key={s.id} value={s.id}>{s.name}</option>
-                        ))}
-                      </select>
-                      <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
-                    </div>
-                  </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
+
           </Card>
         </FadeIn>
 

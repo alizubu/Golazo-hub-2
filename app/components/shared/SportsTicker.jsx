@@ -203,10 +203,11 @@ export default function SportsTicker({ matches = [], announcements = [], players
 
   // ── Enhanced Smart Content: Base Filtering ────────────────────────────────
   const relevantMatches = useMemo(() => {
-    return (cfg.source === 'running_season' && cfg.selectedSeasonId)
-      ? matches.filter(m => m.seasonId === cfg.selectedSeasonId)
+    const targetSeasonId = cfg.selectedSeasonId || activeSeasonId;
+    return (cfg.source === 'running_season' && targetSeasonId)
+      ? matches.filter(m => m.seasonId === targetSeasonId)
       : matches;
-  }, [matches, cfg.source, cfg.selectedSeasonId]);
+  }, [matches, cfg.source, cfg.selectedSeasonId, activeSeasonId]);
 
   // Analytics Matches: ALWAYS pinned to active season (or selected season if explicitly requested)
   const analyticsMatches = useMemo(() => {
@@ -329,8 +330,9 @@ export default function SportsTicker({ matches = [], announcements = [], players
   const duration = speedToDuration(cfg.speed);
 
   // ── Build match lists ─────────────────────────────────────────────────────
-  const liveMatches = (cfg.source === 'running_season' && cfg.selectedSeasonId)
-    ? matches.filter(m => m.status === 'live' && m.seasonId === cfg.selectedSeasonId)
+  const targetSeasonId = cfg.selectedSeasonId || activeSeasonId;
+  const liveMatches = (cfg.source === 'running_season' && targetSeasonId)
+    ? matches.filter(m => m.status === 'live' && m.seasonId === targetSeasonId)
     : matches.filter(m => m.status === 'live');
     
   const isToday = m => {
@@ -345,8 +347,8 @@ export default function SportsTicker({ matches = [], announcements = [], players
     recentCompleted = matches.filter(m => m.status === 'completed' && isToday(m));
   } else if (cfg.source === 'custom' && cfg.customMatchIds?.length) {
     recentCompleted = matches.filter(m => cfg.customMatchIds.includes(m.id));
-  } else if (cfg.source === 'running_season' && cfg.selectedSeasonId) {
-    recentCompleted = matches.filter(m => m.status === 'completed' && m.seasonId === cfg.selectedSeasonId).sort((a, b) => new Date(b.completedAt) - new Date(a.completedAt)).slice(0, 10);
+  } else if (cfg.source === 'running_season' && targetSeasonId) {
+    recentCompleted = matches.filter(m => m.status === 'completed' && m.seasonId === targetSeasonId).sort((a, b) => new Date(b.completedAt) - new Date(a.completedAt)).slice(0, 10);
   }
 
   const items = [];
