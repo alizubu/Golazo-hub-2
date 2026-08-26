@@ -2,6 +2,7 @@ import { getPlayers } from '@/app/actions/player';
 import { getMatches } from '@/app/actions/match';
 import { getSeasons } from '@/app/actions/season';
 import { getCelebrations } from '@/app/actions/admin';
+import { getSession } from '@/app/actions/auth';
 import prisma from '@/lib/db';
 import { cookies } from 'next/headers';
 import AppShell from '@/app/components/shared/AppShell';
@@ -16,8 +17,7 @@ export default async function CatchAllTabRoute({ params }) {
   const { tab } = await params;
   const initialTab = tab ? tab.join('/') : '';
 
-  const cookieStore = await cookies();
-  const sessionCookie = cookieStore.get('golazo_session')?.value;
+  const payload = await getSession();
 
   let session = null;
   let me = null;
@@ -31,12 +31,12 @@ export default async function CatchAllTabRoute({ params }) {
     throw new Error('Failed to load players: ' + error.message);
   }
 
-  if (sessionCookie === 'admin') {
+  if (payload?.role === 'admin') {
     session = { type: 'admin', role: 'admin' };
-  } else if (sessionCookie === 'manager') {
+  } else if (payload?.role === 'manager') {
     session = { type: 'admin', role: 'manager' };
-  } else if (sessionCookie === 'player') {
-    const userId = cookieStore.get('golazo_user_id')?.value;
+  } else if (payload?.role === 'player') {
+    const userId = payload.id;
     const player = players.find(p => p.id === userId);
     if (player) {
       session = { type: 'player', playerId: player.id, player };

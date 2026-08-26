@@ -1,15 +1,14 @@
 import { redirect } from 'next/navigation';
-import { cookies } from 'next/headers';
+import { getSession } from '@/app/actions/auth';
 
 export const dynamic = 'force-dynamic';
 
 export default async function Home() {
-  const cookieStore = await cookies();
-  const sessionCookie = cookieStore.get('golazo_session')?.value;
+  const payload = await getSession();
   
-  if (sessionCookie === 'admin' || sessionCookie === 'manager') {
+  if (payload?.role === 'admin' || payload?.role === 'manager') {
     redirect('/admin');
-  } else if (sessionCookie === 'player') {
+  } else if (payload?.role === 'player') {
     redirect('/dashboard');
   } else {
     redirect('/login');
