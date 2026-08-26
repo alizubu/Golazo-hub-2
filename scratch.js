@@ -1,0 +1,1 @@
+const { PrismaClient } = require('@prisma/client'); const prisma = new PrismaClient(); async function main() { const players = await prisma.player.findMany({ select: { name: true, avatarImage: true, coverBanner: true }}); console.log(players.slice(0, 3)); } main().finally(() => prisma.$disconnect());

@@ -1,7 +1,7 @@
 'use server';
 
 import { v2 as cloudinary } from 'cloudinary';
-import { checkSessionPermission } from '@/lib/permissions';
+import { getSession } from '@/app/actions/auth';
 
 cloudinary.config({
   cloud_name: process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME,
@@ -10,8 +10,8 @@ cloudinary.config({
 });
 
 export async function uploadImage(base64Data) {
-  const auth = await checkSessionPermission();
-  if (!auth.authorized) return { error: auth.error };
+  const session = await getSession();
+  if (!session) return { error: 'Unauthorized' };
 
   try {
     const result = await cloudinary.uploader.upload(base64Data, {

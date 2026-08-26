@@ -4,6 +4,7 @@ import prisma from '@/lib/db';
 import crypto from 'crypto';
 import { checkSessionPermission } from '@/lib/permissions';
 import { createSession, getSession } from '@/app/actions/auth';
+import { uploadImage } from '@/app/actions/upload';
 
 function sha256(str) {
   return crypto.createHash('sha256').update(str).digest('hex');
@@ -128,13 +129,30 @@ export async function updatePlayerProfile(id, data) {
   if (session.role === 'player' && session.id !== id) return { error: 'Unauthorized to edit this profile.' };
   
   try {
+    let finalAvatarImage = data.avatarImage;
+    let finalCoverBanner = data.coverBanner;
+
+    if (finalAvatarImage && finalAvatarImage.startsWith('data:image')) {
+      const uploadResult = await uploadImage(finalAvatarImage);
+      if (!uploadResult.error) {
+        finalAvatarImage = uploadResult.url;
+      }
+    }
+    
+    if (finalCoverBanner && finalCoverBanner.startsWith('data:image')) {
+      const uploadResult = await uploadImage(finalCoverBanner);
+      if (!uploadResult.error) {
+        finalCoverBanner = uploadResult.url;
+      }
+    }
+
     const player = await prisma.player.update({
       where: { id },
       data: {
         name: data.name,
         teamName: data.teamName,
         avatar: data.avatar,
-        avatarImage: data.avatarImage,
+        avatarImage: finalAvatarImage,
         flag: data.flag,
         teamLogo: data.teamLogo,
         bio: data.bio,
@@ -144,7 +162,7 @@ export async function updatePlayerProfile(id, data) {
         displayBadgePreference: data.displayBadgePreference,
         playStyle: data.playStyle,
         badges: data.badges,
-        coverBanner: data.coverBanner,
+        coverBanner: finalCoverBanner,
       }
     });
     const { passwordHash: _ph, salt: _s, ...safePlayer } = player;

@@ -103,10 +103,10 @@ export const Avatar = ({ p, size = 40, ring, glow, className = "" }) => {
       style={{ width: size, height: size, border: ring ? `2px solid ${ring}` : `1px solid var(--border)` }}
     >
       {hasValidImage ? (
-        <AvatarImage 
+        <img 
           src={p.avatarImage} 
           alt={p?.name || "Player"} 
-          className="object-cover w-full h-full" 
+          className="object-cover w-full h-full relative z-20" 
           onError={() => setFailedSrc(p.avatarImage)} 
         />
       ) : null}
