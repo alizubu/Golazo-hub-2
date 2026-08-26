@@ -5,7 +5,7 @@ const SECRET_KEY = new TextEncoder().encode(
   process.env.SESSION_SECRET || 'super_secret_fallback_key_for_dev_only'
 );
 
-export async function middleware(request) {
+export default async function proxy(request) {
   const { pathname } = request.nextUrl;
   
   if (pathname.startsWith('/admin')) {
