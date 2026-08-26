@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Avatar } from '@/app/components/shared/UI';
 import { getPlayerIdentityBadgeUrl } from '@/lib/identityUtils';
+import { shortenClubName } from '@/lib/utils';
 import { CLUBS } from '@/lib/data/clubs';
 import nationalTeamsData from '@/lib/data/national_teams.json';
 import { Trophy, BarChart2, Radio } from 'lucide-react';
@@ -328,7 +329,7 @@ export function TournamentMatchCard({ stage = 'normal', m, h, a, hStats, aStats,
             </span>
             <div className={`flex items-center gap-2 mt-1 relative z-10`}>
               <span className={`text-xs font-bold tracking-widest px-3 py-0.5 rounded-full uppercase ${isFinal ? 'bg-black/60 backdrop-blur-md border border-amber-400/30 shadow-[0_2px_8px_rgba(0,0,0,0.6)] text-amber-200/90 text-[11px]' : 'text-slate-400 bg-white/5 border border-white/10'}`}>
-                {h?.favoriteClub || 'TBD'}
+                {h?.favoriteClub ? shortenClubName(h.favoriteClub) : 'TBD'}
               </span>
             </div>
           </div>
@@ -426,7 +427,7 @@ export function TournamentMatchCard({ stage = 'normal', m, h, a, hStats, aStats,
             </span>
             <div className={`flex items-center justify-center md:justify-end gap-2 mt-1 relative z-10`}>
               <span className={`text-xs font-bold tracking-widest px-3 py-0.5 rounded-full uppercase ${isFinal ? ( (!a || a?.name === 'TBD') ? 'bg-amber-500/10 border border-amber-500/30 text-amber-400 text-[11px] shadow-[0_0_12px_rgba(245,158,11,0.15)]' : 'bg-black/60 backdrop-blur-md border border-amber-400/30 shadow-[0_2px_8px_rgba(0,0,0,0.6)] text-amber-200/90 text-[11px]' ) : 'text-slate-400 bg-white/5 border border-white/10'}`}>
-                {isFinal && (!a || a?.name === 'TBD') ? 'Q2 Winner' : (a?.favoriteClub || 'TBD')}
+                {isFinal && (!a || a?.name === 'TBD') ? 'Q2 Winner' : (a?.favoriteClub ? shortenClubName(a.favoriteClub) : 'TBD')}
               </span>
             </div>
           </div>
