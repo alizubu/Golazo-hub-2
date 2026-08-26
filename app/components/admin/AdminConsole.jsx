@@ -25,6 +25,7 @@ import { PlayStyleBadge } from '@/app/components/shared/UI';
 import nationalTeamsData from '@/lib/data/national_teams.json';
 import { CLUBS } from '@/lib/data/clubs';
 import { getPlayerIdentityBadgeUrl } from '@/lib/identityUtils';
+import DOMPurify from 'isomorphic-dompurify';
 import { useRouter } from 'next/navigation';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/app/components/ui/tabs';
 import {
@@ -1589,7 +1590,7 @@ export function AdminAnnouncements({ announcements, showToast, players }) {
                             [&_h2]:text-xl [&_h2]:font-bold [&_h2]:mb-3 [&_h2]:text-white
                             [&_h3]:text-lg [&_h3]:font-bold [&_h3]:mb-2 [&_h3]:text-white
                             [&_a]:text-amber-500 [&_a]:hover:underline" 
-                          dangerouslySetInnerHTML={{ __html: a.content }}
+                          dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(a.content) }}
                         />
                       </div>
                       <div className="flex items-start gap-2 shrink-0 md:border-l md:border-white/[0.05] md:pl-5">

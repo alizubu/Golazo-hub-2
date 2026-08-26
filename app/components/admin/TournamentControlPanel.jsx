@@ -82,7 +82,7 @@ export default function TournamentControlPanel({ season, showToast, session, man
       color: 'text-green-500',
       bg: 'bg-green-500/10'
     },
-    {
+    ...(session?.role === 'admin' ? [{
       id: 'delete-season',
       label: 'Delete Season',
       desc: 'Completely deletes this season and all its matches forever.',
@@ -90,7 +90,7 @@ export default function TournamentControlPanel({ season, showToast, session, man
       action: () => handleAction(adminDeleteSeason, 'Season deleted!', true),
       color: 'text-red-500',
       bg: 'bg-red-500/10'
-    },
+    }] : []),
     {
       id: 'rename-season',
       label: 'Rename Season',

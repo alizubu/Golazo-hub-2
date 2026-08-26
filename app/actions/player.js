@@ -3,6 +3,7 @@
 import prisma from '@/lib/db';
 import crypto from 'crypto';
 import { checkSessionPermission } from '@/lib/permissions';
+import { createSession, getSession } from '@/app/actions/auth';
 
 function sha256(str) {
   return crypto.createHash('sha256').update(str).digest('hex');
@@ -47,6 +48,7 @@ export async function signUpPlayer(data) {
     
     // We omit password details before sending to client
     const { passwordHash: _ph, salt: _s, ...safePlayer } = player;
+    await createSession({ role: 'player', id: player.id });
     return { player: safePlayer };
   } catch (error) {
     return { error: 'Failed to create account.' };
@@ -82,18 +84,49 @@ export async function signInPlayer(data) {
   }
   
   const { passwordHash: _ph, salt: _s, ...safePlayer } = player;
+  await createSession({ role: 'player', id: player.id });
   return { player: safePlayer };
 }
 
 export async function getPlayers() {
   const players = await prisma.player.findMany({
+    select: {
+      id: true,
+      name: true,
+      username: true,
+      teamName: true,
+      avatar: true,
+      flag: true,
+      teamLogo: true,
+      bio: true,
+      nationality: true,
+      favoriteClub: true,
+      favoriteCompetition: true,
+      displayBadgePreference: true,
+      playStyle: true,
+      badges: true,
+      elo: true,
+      rankingPoints: true,
+      careerMatches: true,
+      careerGoals: true,
+      careerWins: true,
+      careerDraws: true,
+      careerLosses: true,
+      lastActive: true,
+      lastReadNotificationAt: true,
+      createdAt: true
+    },
     orderBy: { name: 'asc' }
   });
   
-  return players.map(({ passwordHash, salt, ...p }) => p);
+  return players;
 }
 
 export async function updatePlayerProfile(id, data) {
+  const session = await getSession();
+  if (!session) return { error: 'Unauthorized' };
+  if (session.role === 'player' && session.id !== id) return { error: 'Unauthorized to edit this profile.' };
+  
   try {
     const player = await prisma.player.update({
       where: { id },
@@ -122,6 +155,10 @@ export async function updatePlayerProfile(id, data) {
 }
 
 export async function changePlayerPassword(id, password) {
+  const session = await getSession();
+  if (!session) return { error: 'Unauthorized' };
+  if (session.role === 'player' && session.id !== id) return { error: 'Unauthorized to change this password.' };
+  
   if (password.length < 4) return { error: 'Password needs at least 4 characters.' };
   
   const salt = crypto.randomBytes(16).toString('hex');
@@ -196,6 +233,11 @@ export async function adminUpdatePlayer(id, data) {
 }
 
 export async function markNotificationsRead(id) {
+  const session = await getSession();
+  if (!session || (session.role === 'player' && session.id !== id)) {
+    return { error: 'Unauthorized' };
+  }
+  
   try {
     const updated = await prisma.player.update({
       where: { id },

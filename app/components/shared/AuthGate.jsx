@@ -4,7 +4,6 @@ import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { Lock, User, UserPlus, ShieldAlert, Eye, EyeOff, Loader2, X, ChevronRight, Trophy, Mail } from 'lucide-react';
 import { Avatar } from '@/app/components/shared/UI';
 import { signInPlayer, signUpPlayer } from '@/app/actions/player';
-import { setAuthCookie } from '@/app/actions/auth';
 import { motion, AnimatePresence } from 'framer-motion';
 import { BorderBeam } from '@/app/components/magicui/BorderBeam';
 import { AnimatedGradientText } from '@/app/components/magicui/AnimatedGradientText';
@@ -245,7 +244,6 @@ function SignInForm({ players, onPlayerLogin }) {
     setErr(''); setBusy(true);
     const res = await signInPlayer({ id, password: pwd });
     if (res.error) { setBusy(false); return setErr(res.error); }
-    await setAuthCookie('player', res.player.id);
     onPlayerLogin(res.player);
   };
 
@@ -263,7 +261,6 @@ function SignInForm({ players, onPlayerLogin }) {
         <FloatingLabelInput id="si-pwd" label="Password"
           type={showPwd ? 'text' : 'password'} value={pwd}
           onChange={(e) => setPwd(e.target.value)}
-          onKeyDown={(e) => e.key === 'Enter' && submit()}
           autoComplete="current-password" disabled={busy}
           leftElement={<Lock size={18} />}
           rightElement={
@@ -314,7 +311,6 @@ function SignUpForm({ showToast, onPlayerLogin }) {
     setBusy(true);
     const res = await signUpPlayer(form);
     if (res.error) { setBusy(false); return setErr(res.error); }
-    await setAuthCookie('player', res.player.id);
     showToast?.(`Welcome to the league, ${res.player.name}! Set up your avatar in Profile.`);
     onPlayerLogin(res.player);
   };
@@ -390,8 +386,7 @@ function AdminLoginForm({ onAdminLogin, onBack }) {
     setErr(''); setBusy(true);
     const res = await fetch('/api/admin', { method: 'POST', body: JSON.stringify({ username, password: pwd }) });
     if (res.ok) { 
-      const data = await res.json();
-      await setAuthCookie(data.role || 'admin'); 
+      await res.json();
       onAdminLogin(); 
     }
     else { setBusy(false); setErr('Incorrect credentials.'); }
@@ -420,7 +415,6 @@ function AdminLoginForm({ onAdminLogin, onBack }) {
         <FloatingLabelInput id="admin-pwd" label="Master Password"
           type={showPwd ? 'text' : 'password'} value={pwd}
           onChange={(e) => setPwd(e.target.value)}
-          onKeyDown={(e) => e.key === 'Enter' && submit()}
           autoComplete="current-password" disabled={busy}
           leftElement={<Lock size={18} />}
           rightElement={

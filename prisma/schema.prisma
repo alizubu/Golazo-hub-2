@@ -111,6 +111,7 @@ model Match {
   penaltyAway   Int?
   penaltyWinner String? // "home" or "away"
   stats         Json? // Stores ratings, MOTM, 12 stat pairs
+  bracketKey    String? // ID for knockout advancement
 }
 
 model Notification {

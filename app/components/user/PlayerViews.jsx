@@ -18,6 +18,7 @@ import { TournamentMatchCard } from '@/app/components/shared/TournamentMatchCard
 
 import TrophyDetailModal from '@/app/components/shared/TrophyDetailModal';
 import HeadToHeadModal from '@/app/components/shared/HeadToHeadModal';
+import DOMPurify from 'isomorphic-dompurify';
 
 import StatChip from '@/app/components/shared/StatChip';
 import { SeasonStats } from '@/app/components/user/SeasonStats';
@@ -347,7 +348,7 @@ export function PlayerDashboard({ me, activeSeason, seasons = [], matches, playe
                     [&_li::before]:content-[''] [&_li::before]:absolute [&_li::before]:left-0 [&_li::before]:top-[8px] [&_li::before]:w-1.5 [&_li::before]:h-1.5 [&_li::before]:bg-amber-500 [&_li::before]:rounded-full [&_li::before]:shadow-[0_0_5px_rgba(245,158,11,0.5)]
                     [&_ol]:list-decimal [&_ol]:pl-5 [&_ol]:mb-3 [&_ol_li::before]:hidden [&_ol_li]:pl-1
                     [&_strong]:text-white [&_strong]:font-[700]"
-                    dangerouslySetInnerHTML={{ __html: ann.content }}
+                    dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(ann.content) }}
                   />
                 </div>
               </div>

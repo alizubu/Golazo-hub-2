@@ -6,7 +6,7 @@ import { Card, SectionTitle, EmptyState, Btn, Input, Label, Badge, Avatar, Magic
 import { updateSeasonAwards, adminDeleteSeason } from '@/app/actions/season';
 import { updateMatchScore } from '@/app/actions/match';
 
-export default function AdminHistory({ seasons = [], matches = [], players = [], showToast }) {
+export default function AdminHistory({ seasons = [], matches = [], players = [], showToast, session }) {
   const archivedSeasons = seasons.filter(s => s.isArchived);
   const [expandedSeason, setExpandedSeason] = useState(null);
   
@@ -30,13 +30,14 @@ export default function AdminHistory({ seasons = [], matches = [], players = [],
           isExpanded={expandedSeason === season.id}
           onToggle={() => setExpandedSeason(expandedSeason === season.id ? null : season.id)}
           delay={index * 0.1}
+          session={session}
         />
       ))}
     </div>
   );
 }
 
-function AdminHistorySeasonCard({ season, matches, players, showToast, isExpanded, onToggle, delay = 0 }) {
+function AdminHistorySeasonCard({ season, matches, players, showToast, isExpanded, onToggle, delay = 0, session }) {
   const [loading, setLoading] = useState(false);
   const byId = Object.fromEntries(players.map(p => [p.id, p]));
   
@@ -215,9 +216,11 @@ function AdminHistorySeasonCard({ season, matches, players, showToast, isExpande
                 </h4>
                 <p className="text-xs text-muted-foreground">Modify the official awards recorded in the Hall of Fame.</p>
               </div>
-              <Btn variant="danger" className="h-10 text-xs shrink-0 font-bold" onClick={handleDelete} loading={loading}>
-                <Trash2 size={16} className="mr-2" /> Delete Season
-              </Btn>
+              {session?.role === 'admin' && (
+                <Btn variant="danger" className="h-10 text-xs shrink-0 font-bold" onClick={handleDelete} loading={loading}>
+                  <Trash2 size={16} className="mr-2" /> Delete Season
+                </Btn>
+              )}
             </div>
             
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">

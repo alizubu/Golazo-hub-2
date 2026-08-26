@@ -40,7 +40,7 @@ export default class ErrorBoundary extends React.Component {
               <RefreshCw size={14} className="mr-2" /> Reload Page
             </Btn>
           </div>
-          {this.state.error && (
+          {this.state.error && process.env.NODE_ENV !== 'production' && (
             <div className="mt-6 p-4 bg-secondary/70 dark:bg-black/60 rounded-lg text-left text-xs font-mono text-red-400 overflow-auto w-full max-w-full border border-red-500/20">
               <div className="font-bold text-red-300 mb-1">{this.state.error.toString()}</div>
               {this.state.error.stack && (

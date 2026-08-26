@@ -6,6 +6,23 @@ import { revalidatePath } from 'next/cache';
 import { sendAutoNotification } from '@/lib/notifications';
 import { checkSessionPermission } from '@/lib/permissions';
 
+function calculateEloDelta(eloA, eloB, scoreA, scoreB, penaltyWinner) {
+  const K = 32;
+  const expectedA = 1 / (1 + Math.pow(10, (eloB - eloA) / 400));
+  const expectedB = 1 / (1 + Math.pow(10, (eloA - eloB) / 400));
+
+  let actualA = 0.5;
+  let actualB = 0.5;
+  if (scoreA > scoreB) { actualA = 1; actualB = 0; }
+  else if (scoreA < scoreB) { actualA = 0; actualB = 1; }
+  else if (penaltyWinner === 'home') { actualA = 1; actualB = 0; }
+  else if (penaltyWinner === 'away') { actualA = 0; actualB = 1; }
+
+  const deltaA = Math.round(K * (actualA - expectedA));
+  const deltaB = Math.round(K * (actualB - expectedB));
+  return { deltaA, deltaB };
+}
+
 export async function getMatches(seasonId) {
   return await prisma.match.findMany({
     where: seasonId ? { seasonId } : undefined,
@@ -125,6 +142,9 @@ export async function updateMatchStatus(matchId, data) {
   const auth = await checkSessionPermission('canManageMatches');
   if (!auth.authorized) return { error: auth.error };
   try {
+    const currentMatch = await prisma.match.findUnique({ where: { id: matchId } });
+    const wasAlreadyCompleted = currentMatch?.status === 'completed';
+
     let updatePayload = {
       where: { id: matchId },
       data: {
@@ -175,8 +195,8 @@ export async function updateMatchStatus(matchId, data) {
       const home = await prisma.player.findUnique({ where: { id: match.homeId }});
       const away = await prisma.player.findUnique({ where: { id: match.awayId }});
       
-      // Update Ranking Points
-      if (home && away && match.homeScore !== null && match.awayScore !== null) {
+      // Update Ranking Points, ELO, and Career Stats (idempotent)
+      if (home && away && match.homeScore !== null && match.awayScore !== null && !wasAlreadyCompleted) {
         let homePointsDiff = 0;
         let awayPointsDiff = 0;
 
@@ -193,12 +213,33 @@ export async function updateMatchStatus(matchId, data) {
           }
         }
 
-        if (homePointsDiff > 0) {
-          await prisma.player.update({ where: { id: home.id }, data: { rankingPoints: { increment: homePointsDiff } } });
-        }
-        if (awayPointsDiff > 0) {
-          await prisma.player.update({ where: { id: away.id }, data: { rankingPoints: { increment: awayPointsDiff } } });
-        }
+        const { deltaA, deltaB } = calculateEloDelta(home.elo, away.elo, match.homeScore, match.awayScore, match.penaltyWinner);
+
+        await prisma.player.update({ 
+          where: { id: home.id }, 
+          data: { 
+            rankingPoints: { increment: homePointsDiff > 0 ? homePointsDiff : 0 },
+            elo: home.elo + deltaA,
+            careerMatches: home.careerMatches + 1,
+            careerGoals: home.careerGoals + match.homeScore,
+            careerWins: home.careerWins + (match.homeScore > match.awayScore || match.penaltyWinner === 'home' ? 1 : 0),
+            careerDraws: home.careerDraws + (match.homeScore === match.awayScore && !match.penaltyWinner ? 1 : 0),
+            careerLosses: home.careerLosses + (match.homeScore < match.awayScore || match.penaltyWinner === 'away' ? 1 : 0)
+          } 
+        });
+
+        await prisma.player.update({ 
+          where: { id: away.id }, 
+          data: { 
+            rankingPoints: { increment: awayPointsDiff > 0 ? awayPointsDiff : 0 },
+            elo: away.elo + deltaB,
+            careerMatches: away.careerMatches + 1,
+            careerGoals: away.careerGoals + match.awayScore,
+            careerWins: away.careerWins + (match.awayScore > match.homeScore || match.penaltyWinner === 'away' ? 1 : 0),
+            careerDraws: away.careerDraws + (match.awayScore === match.homeScore && !match.penaltyWinner ? 1 : 0),
+            careerLosses: away.careerLosses + (match.awayScore < match.homeScore || match.penaltyWinner === 'home' ? 1 : 0)
+          } 
+        });
       }
       
       const pens = match.penaltyWinner ? ` (${match.penaltyHome}-${match.penaltyAway} pens)` : '';
@@ -332,7 +373,7 @@ async function progressDynamicBracket(matchId) {
     const bracket = match.season.bracket;
     if (!bracket) return;
 
-    const matchKey = match.liveState?.key;
+    const matchKey = match.bracketKey;
     if (!matchKey) return;
 
     // If this match was the Grand Final, check if we need to trigger or cancel the reset
@@ -355,8 +396,8 @@ async function progressDynamicBracket(matchId) {
     });
 
     for (const pending of pendingMatches) {
-      if (!pending.liveState?.key) continue;
-      const bracketNode = bracket.find(b => b.key === pending.liveState.key);
+      if (!pending.bracketKey) continue;
+      const bracketNode = bracket.find(b => b.key === pending.bracketKey);
       if (!bracketNode || !bracketNode.dependsOn) continue;
 
       let updated = false;

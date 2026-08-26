@@ -60,7 +60,7 @@ export async function startSeason(name, type, startDate, config = {}) {
           status: 'scheduled',
           label: m.label,
           decisive: true, // Knocout matches are decisive
-          liveState: { key: m.key } // We store the bracket key here temporarily so we know which match is which
+          bracketKey: m.key // We store the bracket key here temporarily so we know which match is which
         });
       });
     } else {

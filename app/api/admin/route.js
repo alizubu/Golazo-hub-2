@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { createSession } from '@/app/actions/auth';
 
 export async function POST(req) {
   try {
@@ -7,22 +8,21 @@ export async function POST(req) {
     // Check Admin credentials
     if (
       username === process.env.ADMIN_USERNAME &&
-      password === process.env.ADMIN_PASSWORD
+      password === process.env.ADMIN_PASSWORD &&
+      username && password
     ) {
+      await createSession({ role: 'admin' });
       return NextResponse.json({ success: true, role: 'admin' });
     }
 
     // Check Manager credentials
     if (
       username === process.env.MANAGER_USERNAME &&
-      password === process.env.MANAGER_PASSWORD
+      password === process.env.MANAGER_PASSWORD &&
+      username && password
     ) {
+      await createSession({ role: 'manager' });
       return NextResponse.json({ success: true, role: 'manager' });
-    }
-
-    // Fallback for older .env files that might still use ADMIN_SETUP_PASSWORD
-    if (password === process.env.ADMIN_SETUP_PASSWORD && !username) {
-      return NextResponse.json({ success: true, role: 'admin' });
     }
 
     return NextResponse.json({ error: 'Invalid username or password' }, { status: 401 });
