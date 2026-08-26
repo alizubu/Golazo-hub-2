@@ -97,6 +97,8 @@ export async function getPlayers() {
       username: true,
       teamName: true,
       avatar: true,
+      avatarImage: true,
+      coverBanner: true,
       flag: true,
       teamLogo: true,
       bio: true,
