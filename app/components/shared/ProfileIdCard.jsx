@@ -109,7 +109,7 @@ export default function ProfileIdCard({ me, form, setForm, showToast }) {
       {/* Cover Banner */}
       <div className="relative h-40 sm:h-56 w-full bg-secondary/30 overflow-hidden">
         {form.coverBanner && coverFailedUrl !== form.coverBanner ? (
-          <Image src={form.coverBanner} alt="Cover Banner" fill className="object-cover transition-transform duration-700 group-hover:scale-105" onError={() => setCoverFailedUrl(form.coverBanner)} />
+          <img src={form.coverBanner} alt="Cover Banner" className="object-cover w-full h-full transition-transform duration-700 group-hover:scale-105" onError={() => setCoverFailedUrl(form.coverBanner)} />
         ) : (
           <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-tr from-secondary to-background">
             <span className="text-sm font-semibold opacity-30 tracking-widest uppercase">No Cover Set</span>
