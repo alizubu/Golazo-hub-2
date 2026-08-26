@@ -11,6 +11,7 @@ import { extractMatchStats } from '@/app/actions/extractStats';
 import { motion, AnimatePresence } from 'framer-motion';
 import { CLUBS } from '@/lib/data/clubs';
 import { getPlayerIdentityBadgeUrl } from '@/lib/identityUtils';
+import { shortenClubName } from '@/lib/utils';
 
 // ---------------------------------------------------------------------------
 // Stat fields
@@ -217,7 +218,7 @@ function ScoreRow({ home, away, homeScore, awayScore, homeObj, awayObj, onBump }
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src={homeClub.crestPath} alt={homeClub.name} className="w-7 h-7 sm:w-9 sm:h-9 object-contain drop-shadow-[0_0_8px_rgba(255,255,255,0.15)]" />
                 <div className="flex flex-col">
-                  <span className="text-[10px] sm:text-xs font-bold text-white uppercase tracking-wide">{homeClub.name}</span>
+                  <span className="text-[10px] sm:text-xs font-bold text-white uppercase tracking-wide" title={homeClub.name}>{shortenClubName(homeClub.name)}</span>
                   <span className="text-[8px] sm:text-[9px] font-bold text-emerald-400/70 uppercase tracking-widest">SUPPORTER</span>
                 </div>
               </>
@@ -231,7 +232,7 @@ function ScoreRow({ home, away, homeScore, awayScore, homeObj, awayObj, onBump }
             {awayClub ? (
               <>
                 <div className="flex flex-col items-end">
-                  <span className="text-[10px] sm:text-xs font-bold text-white uppercase tracking-wide">{awayClub.name}</span>
+                  <span className="text-[10px] sm:text-xs font-bold text-white uppercase tracking-wide" title={awayClub.name}>{shortenClubName(awayClub.name)}</span>
                   <span className="text-[8px] sm:text-[9px] font-bold text-rose-400/70 uppercase tracking-widest">SUPPORTER</span>
                 </div>
                 {/* eslint-disable-next-line @next/next/no-img-element */}

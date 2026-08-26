@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { cn } from '@/lib/utils';
+import { cn, shortenClubName } from '@/lib/utils';
 import { PageHeader } from '@/app/components/shared/PageHeader';
 import { Trophy, Medal, Star, Target, Shield, Clock, ArrowRight, Lock, MapPin, Search, Calendar, ChevronRight, LayoutGrid, List, Megaphone, Bell, Pen, Handshake, Activity, Users, Swords, ListOrdered, Flame, BadgeCheck, TrendingUp, Check } from 'lucide-react';
 import { Btn, Badge, Avatar, PlayerChip, SectionTitle, EmptyState, MagicCard, FadeIn, ShinyButton, Label, WavingFlag, PlayStyleBadge, OnFireAvatar } from '@/app/components/shared/UI';
@@ -453,7 +453,7 @@ export function PlayerDashboard({ me, activeSeason, seasons = [], matches, playe
                       </div>
                       <div className="flex flex-col text-left min-w-0">
                         <span className="text-[10px] uppercase font-bold text-gray-400 tracking-widest group-hover:text-amber-500 transition-colors mb-0.5">Favorite Club</span>
-                        <span className="text-[15px] font-black text-white truncate w-full">{selectedClub.name}</span>
+                        <span className="text-[15px] font-black text-white truncate w-full" title={selectedClub.name}>{shortenClubName(selectedClub.name)}</span>
                       </div>
                     </div>
                   )}

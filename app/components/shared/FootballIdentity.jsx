@@ -3,7 +3,7 @@ import Image from 'next/image';
 import { motion, AnimatePresence, useMotionValue, useTransform, useSpring } from 'framer-motion';
 import { Check, ChevronsUpDown, X, Plus, Shield, Globe } from 'lucide-react';
 
-import { cn } from '@/lib/utils';
+import { cn, shortenClubName } from '@/lib/utils';
 import { Button } from '@/app/components/ui/button';
 import {
   Command,
@@ -339,7 +339,7 @@ export function KitCard({ form, setForm }) {
                 <div className="min-w-0">
                   <p className="text-[10px] uppercase tracking-[0.2em] text-white/35 font-bold mb-0.5">Favorite Club</p>
                   <p className="text-xl sm:text-2xl font-black text-white truncate leading-tight">
-                    {selectedClub?.name || <span className="text-white/30 font-medium text-base">Not set</span>}
+                    {selectedClub ? shortenClubName(selectedClub.name) : <span className="text-white/30 font-medium text-base">Not set</span>}
                   </p>
                   {selectedClub && (
                     <p className="text-xs text-white/40 mt-0.5 font-medium">{selectedClub.league}</p>
