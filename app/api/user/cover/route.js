@@ -1,14 +1,25 @@
 import { NextResponse } from 'next/server';
 import { promises as fs } from 'fs';
 import path from 'path';
+import { getSession } from '@/app/actions/auth';
 
 export async function POST(req) {
   try {
+    const session = await getSession();
+    if (!session) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
     const formData = await req.formData();
     const file = formData.get('file');
 
     if (!file) {
       return NextResponse.json({ error: 'No file provided' }, { status: 400 });
+    }
+
+    const allowedTypes = ['image/jpeg', 'image/png', 'image/gif'];
+    if (!allowedTypes.includes(file.type)) {
+      return NextResponse.json({ error: 'Invalid format. Only JPEG, PNG, and GIF allowed.' }, { status: 400 });
     }
 
     const bytes = await file.arrayBuffer();

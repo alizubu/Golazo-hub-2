@@ -1,8 +1,5 @@
 ---
-name: code-rules
-version: 1.0.0
-priority: P0
-trigger: model_decision
+trigger: always_on
 description: Apply when writing, building, refactoring, or fixing code — project-type agent routing, the Socratic Gate, Plan Mode phases, and the final checklist/scripts. Skip for pure questions or text-only responses.
 ---
 

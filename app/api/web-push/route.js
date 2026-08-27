@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import webpush from 'web-push';
 import prisma from '@/lib/db';
+import { checkSessionPermission } from '@/lib/permissions';
 
 if (process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY && process.env.VAPID_PRIVATE_KEY) {
   webpush.setVapidDetails(
@@ -37,6 +38,11 @@ export async function POST(req) {
     }
 
     if (type === 'notify') {
+      const auth = await checkSessionPermission('canEditBroadcast');
+      if (!auth.authorized) {
+        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      }
+
       if (!process.env.VAPID_PRIVATE_KEY) {
         return NextResponse.json({ error: 'VAPID keys not configured' }, { status: 500 });
       }
