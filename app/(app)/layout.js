@@ -2,18 +2,17 @@ import { getPlayers } from '@/app/actions/player';
 import { getMatches } from '@/app/actions/match';
 import prisma from '@/lib/db';
 import FloatingNav from '@/app/components/user/FloatingNav';
+import { getSession } from '@/app/actions/auth';
 import ErrorBoundary from '@/app/components/shared/ErrorBoundary';
-import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import PageTransition from '@/pwa/components/PageTransition';
 
 import { AppProvider } from '@/app/components/shared/AppContextProvider';
 
 export default async function AppLayout({ children }) {
-  const cookieStore = await cookies();
-  const sessionCookie = cookieStore.get('golazo_session')?.value;
+  const payload = await getSession();
   
-  if (!sessionCookie) {
+  if (!payload) {
     redirect('/login');
   }
 
@@ -36,12 +35,12 @@ export default async function AppLayout({ children }) {
   let session = null;
   let me = null;
 
-  if (sessionCookie === 'admin') {
+  if (payload?.role === 'admin') {
     session = { type: 'admin', role: 'admin' };
-  } else if (sessionCookie === 'manager') {
+  } else if (payload?.role === 'manager') {
     session = { type: 'admin', role: 'manager' };
-  } else if (sessionCookie === 'player') {
-    const userId = cookieStore.get('golazo_user_id')?.value;
+  } else if (payload?.role === 'player') {
+    const userId = payload.id;
     const player = players.find(p => p.id === userId);
     if (player) {
       session = { type: 'player', playerId: player.id, player };
