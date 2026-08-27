@@ -540,7 +540,7 @@ export default function SportsTicker({ matches = [], announcements = [], players
 
   return (
     <>
-      <style dangerouslySetInnerHTML={{__html: `
+      <style>{`
         @keyframes custom-marquee { 
           0% { transform: translate3d(0, 0, 0); } 
           100% { transform: translate3d(-50%, 0, 0); } 
@@ -580,7 +580,7 @@ export default function SportsTicker({ matches = [], announcements = [], players
         
         @keyframes slide-in-left { 0% { transform: translateX(-150%); opacity: 0; } 100% { transform: translateX(0); opacity: 1; } }
         .animate-slide-in-left { animation: slide-in-left 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
-      `}} />
+      `}</style>
       <div 
         className={`w-full overflow-hidden flex items-center select-none z-40 relative py-1 ${theme.extraClass || ''} ${previewMode ? 'rounded-lg border-x border-t' : ''}`} 
         style={{ ...theme.wrap, borderRadius: previewMode ? '8px 8px 0 0' : theme.wrap.borderRadius }} 
