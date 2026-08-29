@@ -95,11 +95,17 @@ export default function UserMatchCard({ m, h, a, players, showToast, isPlayoff =
         className={`group relative flex flex-col p-4 sm:p-5 rounded-3xl bg-[#0a0b10] border shadow-2xl overflow-hidden transition-all duration-500 hover:scale-[1.005] cursor-pointer ${isEditingStats ? 'border-violet-500/40 rounded-b-none' : m.round === 'final' ? 'border-amber-500/50 shadow-[0_0_30px_rgba(245,158,11,0.2)]' : 'border-white/5'}`}
       >
         <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 via-transparent to-blue-500/5 opacity-50 pointer-events-none" />
+        <div 
+          className="absolute inset-0 z-0 opacity-20 mix-blend-screen pointer-events-none"
+          style={{
+            background: `radial-gradient(circle at center, ${m?.round === 'groupA' ? '#00D0FF' : '#10b981'} 0%, transparent 65%)`
+          }}
+        />
         <FlickeringGrid 
           className="z-0 absolute inset-0 pointer-events-none [mask-image:radial-gradient(circle_at_center,white,transparent_80%)]" 
-          color={m.round === 'groupA' ? '#3b82f6' : '#22c55e'}
-          maxOpacity={0.25} 
-          flickerSpeed={0.3} 
+          color={m?.round === 'groupA' ? '#00D0FF' : '#10b981'}
+          maxOpacity={0.45} 
+          flickerSpeed={0.4} 
           gridSize={16} 
         />
 

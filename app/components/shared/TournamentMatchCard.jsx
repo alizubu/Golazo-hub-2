@@ -32,8 +32,8 @@ const STAGE_CONFIG = {
     bgClass: 'bg-[#0a0b10] border-white/5',
     glowClass: 'from-purple-500/5 via-transparent to-blue-500/5',
     hoverGlowClass: 'from-purple-500/10 to-blue-500/10',
-    gridColor: '#22c55e',
-    gridOpacity: 0.25,
+    gridColor: '#10b981',
+    gridOpacity: 0.45,
     vsBadge: 'stroke-white/10 fill-white/5 text-white',
     startBtn: 'border-cyan-500/50 bg-cyan-500/10 text-cyan-400 shadow-[0_0_15px_rgba(6,182,212,0.2)] hover:bg-cyan-500/20'
   },
@@ -257,13 +257,21 @@ export function TournamentMatchCard({ stage = 'normal', m, h, a, hStats, aStats,
 
       {/* Stage specific grids */}
       {config.gridColor && (
-        <FlickeringGrid 
-          className="z-0 absolute inset-0 [mask-image:radial-gradient(circle_at_center,white,transparent_80%)]" 
-          color={m?.round === 'groupA' ? '#3b82f6' : config.gridColor}
-          maxOpacity={config.gridOpacity || 0.12} 
-          flickerSpeed={0.3} 
-          gridSize={16} 
-        />
+        <>
+          <div 
+            className="absolute inset-0 z-0 opacity-20 mix-blend-screen"
+            style={{
+              background: `radial-gradient(circle at center, ${m?.round === 'groupA' ? '#00D0FF' : config.gridColor} 0%, transparent 65%)`
+            }}
+          />
+          <FlickeringGrid 
+            className="z-0 absolute inset-0 [mask-image:radial-gradient(circle_at_center,white,transparent_80%)]" 
+            color={m?.round === 'groupA' ? '#00D0FF' : config.gridColor}
+            maxOpacity={config.gridOpacity || 0.12} 
+            flickerSpeed={0.4} 
+            gridSize={16} 
+          />
+        </>
       )}
 
       {/* Top Stage / Match Pill */}
