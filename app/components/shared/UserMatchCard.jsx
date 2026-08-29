@@ -127,10 +127,13 @@ export default function UserMatchCard({ m, h, a, players, showToast, isPlayoff =
         <div className="flex items-center justify-between gap-2 px-1">
           {/* Home player */}
           <div className="flex items-center gap-2 sm:gap-3 flex-1 min-w-0">
-            <div className="relative shrink-0">
-              <div className="absolute -inset-1.5 bg-blue-500/50 rounded-full blur-[8px]" />
-              <div className="relative w-10 h-10 sm:w-14 sm:h-14 rounded-full border-[3px] border-blue-400 overflow-hidden shadow-[0_0_15px_rgba(59,130,246,0.6)]">
-                <Avatar p={h} size={56} className="w-full h-full object-cover" />
+            <div className="relative shrink-0 group/avatar">
+              <div className="absolute -inset-2 bg-blue-500/40 rounded-full blur-[12px] opacity-70 group-hover/avatar:opacity-100 transition-opacity pointer-events-none" />
+              <div className="relative w-10 h-10 sm:w-14 sm:h-14 rounded-full p-[2px] sm:p-[3px] bg-gradient-to-br from-[#00E5FF] via-[#0055FF] to-[#000822] shadow-[0_0_15px_rgba(0,85,255,0.4)] z-10">
+                <div className="relative w-full h-full rounded-full overflow-hidden bg-black">
+                  <Avatar p={h} size={56} className="w-full h-full object-cover" />
+                  <div className="absolute inset-0 bg-gradient-to-b from-white/40 via-transparent to-transparent pointer-events-none" />
+                </div>
               </div>
             </div>
             {hFlagUrl && <img src={hFlagUrl} alt="" className="w-6 h-6 object-contain shrink-0 hidden sm:block" />}
@@ -158,10 +161,13 @@ export default function UserMatchCard({ m, h, a, players, showToast, isPlayoff =
               <span className="text-[9px] text-slate-500 truncate">{a?.favoriteClub || ''}</span>
             </div>
             {aFlagUrl && <img src={aFlagUrl} alt="" className="w-6 h-6 object-contain shrink-0 hidden sm:block" />}
-            <div className="relative shrink-0">
-              <div className="absolute -inset-1.5 bg-amber-500/50 rounded-full blur-[8px]" />
-              <div className="relative w-10 h-10 sm:w-14 sm:h-14 rounded-full border-[3px] border-amber-400 overflow-hidden shadow-[0_0_15px_rgba(245,158,11,0.6)]">
-                <Avatar p={a} size={56} className="w-full h-full object-cover" />
+            <div className="relative shrink-0 group/avatar">
+              <div className="absolute -inset-2 bg-amber-500/40 rounded-full blur-[12px] opacity-70 group-hover/avatar:opacity-100 transition-opacity pointer-events-none" />
+              <div className="relative w-10 h-10 sm:w-14 sm:h-14 rounded-full p-[2px] sm:p-[3px] bg-gradient-to-bl from-[#FFD700] via-[#FF3300] to-[#220400] shadow-[0_0_15px_rgba(255,51,0,0.4)] z-10">
+                <div className="relative w-full h-full rounded-full overflow-hidden bg-black">
+                  <Avatar p={a} size={56} className="w-full h-full object-cover" />
+                  <div className="absolute inset-0 bg-gradient-to-b from-white/40 via-transparent to-transparent pointer-events-none" />
+                </div>
               </div>
             </div>
           </div>

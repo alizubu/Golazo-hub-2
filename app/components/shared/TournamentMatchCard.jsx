@@ -318,10 +318,13 @@ export function TournamentMatchCard({ stage = 'normal', m, h, a, hStats, aStats,
                    <div className="absolute inset-0 bg-[conic-gradient(from_0deg,transparent_0%,transparent_70%,rgba(255,255,255,0.8)_100%)] animate-[sonarSweep_2.5s_linear_infinite]" />
                  </>
               )}
-              <div className="relative">
-                {!isFinal && <div className="absolute -inset-2 bg-blue-500/30 rounded-full blur-xl" />}
-                <div className={`relative rounded-full overflow-hidden z-10 ${isFinal ? 'bg-[#090a0e] ring-2 ring-[#0d0a05]' : 'bg-blue-500/20 ring-4 ring-blue-500 shadow-[0_0_20px_rgba(59,130,246,0.6)]'}`}>
-                  <Avatar p={h} size={isFinal ? 92 : 80} className="rounded-full" />
+              <div className="relative group/avatar">
+                {!isFinal && <div className="absolute -inset-3 bg-blue-500/40 rounded-full blur-2xl opacity-70 group-hover/avatar:opacity-100 transition-opacity duration-500 pointer-events-none" />}
+                <div className={`relative rounded-full z-10 ${isFinal ? 'p-0 bg-[#090a0e] ring-2 ring-[#0d0a05]' : 'p-[3px] bg-gradient-to-br from-[#00E5FF] via-[#0055FF] to-[#000822] shadow-[0_0_25px_rgba(0,85,255,0.5)]'}`}>
+                  <div className="relative w-full h-full rounded-full overflow-hidden bg-black">
+                    <Avatar p={h} size={isFinal ? 92 : 80} className="w-full h-full object-cover" />
+                    <div className="absolute inset-0 bg-gradient-to-b from-white/40 via-transparent to-transparent pointer-events-none" />
+                  </div>
                 </div>
               </div>
             </div>
@@ -467,10 +470,13 @@ export function TournamentMatchCard({ stage = 'normal', m, h, a, hStats, aStats,
                      <div className="absolute inset-0 bg-[conic-gradient(from_0deg,transparent_0%,transparent_70%,rgba(255,255,255,0.8)_100%)] animate-[sonarSweep_2.5s_linear_infinite]" style={{ mixBlendMode: 'overlay' }} />
                    </>
                 )}
-                <div className="relative">
-                  {!isFinal && <div className="absolute -inset-2 bg-amber-500/30 rounded-full blur-xl" />}
-                  <div className={`relative rounded-full overflow-hidden z-10 ${isFinal ? 'bg-[#090a0e] ring-2 ring-[#0d0a05]' : 'bg-amber-500/20 ring-4 ring-amber-500 shadow-[0_0_20px_rgba(245,158,11,0.6)]'}`}>
-                    <Avatar p={a} size={isFinal ? 92 : 80} className="rounded-full" />
+                <div className="relative group/avatar">
+                  {!isFinal && <div className="absolute -inset-3 bg-amber-500/40 rounded-full blur-2xl opacity-70 group-hover/avatar:opacity-100 transition-opacity duration-500 pointer-events-none" />}
+                  <div className={`relative rounded-full z-10 ${isFinal ? 'p-0 bg-[#090a0e] ring-2 ring-[#0d0a05]' : 'p-[3px] bg-gradient-to-bl from-[#FFD700] via-[#FF3300] to-[#220400] shadow-[0_0_25px_rgba(255,51,0,0.5)]'}`}>
+                    <div className="relative w-full h-full rounded-full overflow-hidden bg-black">
+                      <Avatar p={a} size={isFinal ? 92 : 80} className="w-full h-full object-cover" />
+                      <div className="absolute inset-0 bg-gradient-to-b from-white/40 via-transparent to-transparent pointer-events-none" />
+                    </div>
                   </div>
                 </div>
               </div>
