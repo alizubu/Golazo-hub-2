@@ -4,7 +4,7 @@ import Image from 'next/image';
 
 import { PageHeader } from '@/app/components/shared/PageHeader';
 import React, { useState, useRef, useEffect, useCallback, useMemo } from 'react';
-import { Camera, KeyRound, Shield, CheckCircle2, Flame, Eye, EyeOff, Settings, Bell, BellOff, LogOut, Loader2, User, Palette, Lock, ChevronRight, AlertTriangle, Check, X, Undo2, Save, Circle, Smartphone } from 'lucide-react';
+import { Camera, KeyRound, Shield, CheckCircle2, Flame, Eye, EyeOff, Settings, Bell, BellOff, LogOut, Loader2, User, Palette, Lock, ChevronRight, AlertTriangle, Check, X, Undo2, Save, Circle, Smartphone, Download } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Label, Btn } from '@/app/components/shared/UI';
 import dynamic from 'next/dynamic';
@@ -687,6 +687,41 @@ export default function SettingsView({ me, showToast }) {
                         }`}>
                           <div className={`w-2 h-2 rounded-full ${pushEnabled ? 'bg-pitch-bright animate-pulse' : 'bg-muted-foreground/40'}`} />
                           {pushEnabled ? 'Notifications are enabled' : 'Notifications are disabled'}
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </MagicCard>
+                </motion.div>
+
+                {/* Install App Section */}
+                <motion.div
+                  variants={staggerItem}
+                  initial="initial"
+                  animate="animate"
+                  transition={{ delay: 0.15 }}
+                >
+                  <MagicCard>
+                    <Card className="bg-transparent border-none shadow-none">
+                      <CardHeader className="pb-0 border-none">
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                          <div className="flex items-center gap-3">
+                            <div className="p-2 rounded-xl bg-secondary/60">
+                              <Smartphone size={18} className="text-sky-400" />
+                            </div>
+                            <div>
+                              <CardTitle className="text-lg">Install App</CardTitle>
+                              <p className="text-xs text-muted-foreground mt-0.5">Add Golazo Hub to your home screen for full-screen access.</p>
+                            </div>
+                          </div>
+                          <Btn variant="primary" onClick={() => window.dispatchEvent(new Event('trigger-install-prompt'))} className="px-4 py-2 text-xs font-bold whitespace-nowrap shadow-md">
+                            <Download size={14} className="mr-1.5 inline" /> Install App
+                          </Btn>
+                        </div>
+                      </CardHeader>
+                      <CardContent className="pt-4">
+                        <div className="flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-medium bg-secondary/30 text-muted-foreground">
+                          <div className="w-2 h-2 rounded-full bg-muted-foreground/40" />
+                          Recommended for the best experience on mobile and desktop
                         </div>
                       </CardContent>
                     </Card>

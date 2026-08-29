@@ -39,7 +39,11 @@ export default function InstallPrompt() {
 
   useEffect(() => {
     const triggerHandler = () => {
-      if (deferredPrompt && !localStorage.getItem('golazo_install_dismissed')) {
+      // Force show when manually triggered from settings
+      localStorage.removeItem('golazo_install_dismissed');
+      
+      const isStandalone = ('standalone' in window.navigator && window.navigator.standalone) || window.matchMedia('(display-mode: standalone)').matches;
+      if (!isStandalone) {
         setShowPrompt(true);
       }
     };
