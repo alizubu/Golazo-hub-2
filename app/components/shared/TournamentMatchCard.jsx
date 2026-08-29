@@ -32,6 +32,8 @@ const STAGE_CONFIG = {
     bgClass: 'bg-[#0a0b10] border-white/5',
     glowClass: 'from-purple-500/5 via-transparent to-blue-500/5',
     hoverGlowClass: 'from-purple-500/10 to-blue-500/10',
+    gridColor: '#ffffff',
+    gridOpacity: 0.03,
     vsBadge: 'stroke-white/10 fill-white/5 text-white',
     startBtn: 'border-cyan-500/50 bg-cyan-500/10 text-cyan-400 shadow-[0_0_15px_rgba(6,182,212,0.2)] hover:bg-cyan-500/20'
   },

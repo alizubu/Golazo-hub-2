@@ -14,6 +14,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/app/components/ui/dropdown-menu';
+import { FlickeringGrid } from '@/app/components/magicui/FlickeringGrid';
 
 const statDefinitions = [
   { key: 'possession', label: 'BALL POSSESSION', format: 'percent' },
@@ -94,6 +95,13 @@ export default function UserMatchCard({ m, h, a, players, showToast, isPlayoff =
         className={`group relative flex flex-col p-4 sm:p-5 rounded-3xl bg-[#0a0b10] border shadow-2xl overflow-hidden transition-all duration-500 hover:scale-[1.005] cursor-pointer ${isEditingStats ? 'border-violet-500/40 rounded-b-none' : m.round === 'final' ? 'border-amber-500/50 shadow-[0_0_30px_rgba(245,158,11,0.2)]' : 'border-white/5'}`}
       >
         <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 via-transparent to-blue-500/5 opacity-50 pointer-events-none" />
+        <FlickeringGrid 
+          className="z-0 absolute inset-0 pointer-events-none [mask-image:radial-gradient(circle_at_center,white,transparent_80%)]" 
+          color="#ffffff"
+          maxOpacity={0.03} 
+          flickerSpeed={0.3} 
+          gridSize={16} 
+        />
 
         {m.round === 'final' && (
           <div className="absolute top-0 left-1/2 -translate-x-1/2 bg-amber-500 text-black font-black text-[10px] sm:text-xs tracking-widest uppercase px-4 sm:px-8 py-0.5 sm:py-1 rounded-b-xl shadow-[0_0_20px_rgba(245,158,11,0.6)] z-30">
