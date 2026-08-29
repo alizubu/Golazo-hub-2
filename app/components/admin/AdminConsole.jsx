@@ -69,13 +69,15 @@ import {
   PopoverTrigger,
 } from '@/app/components/ui/popover';
 
-// Trophy template data — the 5 official premium trophies
+// Trophy template data — the 7 official premium trophies
 const TROPHY_TEMPLATES = [
   { id: 'bb-championship', name: 'BB Championship', image: '/assets/trophies/BB-Champion.png', icon: '/assets/trophies/BB-Champion.png', defaultDesc: 'The ultimate prize. Crowned Champion of the BB League.', colorTheme: 'from-amber-400 to-yellow-600' },
   { id: 'ballon-dor', name: "Ballon d'Or", image: '/assets/trophies/BalanDor.png', icon: '/assets/trophies/BalanDor.png', defaultDesc: 'Awarded to the absolute best player in the world.', colorTheme: 'from-yellow-300 to-amber-500' },
   { id: 'golden-boot', name: 'Golden Boot', image: '/assets/trophies/Golden-boot.png', icon: '/assets/trophies/Golden-boot.png', defaultDesc: 'Awarded for scoring the most goals in the season.', colorTheme: 'from-yellow-500 to-orange-500' },
   { id: 'most-successful-pass', name: 'Pass Master', image: '/assets/trophies/MostPasses.png', icon: '/assets/trophies/MostPasses.png', defaultDesc: 'Awarded to the ultimate playmaker with the highest pass accuracy.', colorTheme: 'from-blue-400 to-cyan-600' },
-  { id: 'mvp', name: 'Tournament MVP', image: '/assets/trophies/MVP.png', icon: '/assets/trophies/MVP.png', defaultDesc: 'Most Valuable Player. Voted for dominating the pitch.', colorTheme: 'from-purple-400 to-pink-600' }
+  { id: 'mvp', name: 'Tournament MVP', image: '/assets/trophies/MVP.png', icon: '/assets/trophies/MVP.png', defaultDesc: 'Most Valuable Player. Voted for dominating the pitch.', colorTheme: 'from-purple-400 to-pink-600' },
+  { id: 'best-defence', name: 'Best Defence', image: '/assets/trophies/bestdefence.png', icon: '/assets/trophies/bestdefence.png', defaultDesc: 'Awarded to the impenetrable wall with the best defensive record.', colorTheme: 'from-slate-400 to-slate-700' },
+  { id: 'clean-sheet', name: 'Golden Glove', image: '/assets/trophies/cleansheet.png', icon: '/assets/trophies/cleansheet.png', defaultDesc: 'Awarded for keeping the most clean sheets in the tournament.', colorTheme: 'from-emerald-400 to-teal-600' }
 ];
 import UserMatchCard from '@/app/components/shared/UserMatchCard';
 import AdminHistory from '@/app/components/admin/AdminHistory';
