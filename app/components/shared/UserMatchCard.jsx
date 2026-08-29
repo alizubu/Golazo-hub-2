@@ -96,17 +96,17 @@ export default function UserMatchCard({ m, h, a, players, showToast, isPlayoff =
       >
         <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 via-transparent to-blue-500/5 opacity-50 pointer-events-none" />
         <div 
-          className="absolute inset-0 z-0 opacity-20 mix-blend-screen pointer-events-none"
+          className="absolute inset-0 z-0 opacity-40 mix-blend-screen pointer-events-none"
           style={{
-            background: `radial-gradient(circle at center, ${m?.round === 'groupA' ? '#0066ff' : '#10b981'} 0%, transparent 65%)`
+            background: `radial-gradient(circle at center, ${m?.round === 'groupB' ? '#ff2c2c' : '#10b981'} 0%, transparent 65%)`
           }}
         />
         <FlickeringGrid 
           className="z-0 absolute inset-0 pointer-events-none [mask-image:radial-gradient(circle_at_center,white,transparent_80%)]" 
-          color={m?.round === 'groupA' ? '#0066ff' : '#10b981'}
-          maxOpacity={0.45} 
-          flickerSpeed={0.4} 
-          gridSize={16} 
+          color={m?.round === 'groupB' ? '#ff2c2c' : '#10b981'}
+          maxOpacity={0.85} 
+          flickerSpeed={0.5} 
+          gridSize={24} 
         />
 
         {m.round === 'final' && (
@@ -127,10 +127,11 @@ export default function UserMatchCard({ m, h, a, players, showToast, isPlayoff =
         <div className="flex items-center justify-between gap-2 px-1">
           {/* Home player */}
           <div className="flex items-center gap-2 sm:gap-3 flex-1 min-w-0">
-            <div className="relative shrink-0">
-              <div className="absolute -inset-1.5 bg-rose-500/40 rounded-full blur-[8px]" />
-              <div className="relative w-10 h-10 sm:w-14 sm:h-14 rounded-full border-2 border-rose-500/70 overflow-hidden">
-                <Avatar p={h} size={56} className="w-full h-full object-cover" />
+            <div className="relative shrink-0 group">
+              <div className="absolute -inset-2 bg-cyan-500/50 rounded-full blur-xl group-hover:bg-cyan-400/60 transition-all" />
+              <div className="absolute inset-0 bg-gradient-to-tr from-cyan-400/30 to-transparent rounded-full mix-blend-overlay z-10" />
+              <div className="relative w-10 h-10 sm:w-14 sm:h-14 rounded-full border-2 border-cyan-400 overflow-hidden bg-[#0a0b10] shadow-[0_0_15px_rgba(34,211,238,0.5)]">
+                <Avatar p={h} size={56} className="w-full h-full object-cover scale-[1.02]" />
               </div>
             </div>
             {hFlagUrl && <img src={hFlagUrl} alt="" className="w-6 h-6 object-contain shrink-0 hidden sm:block" />}
@@ -158,10 +159,11 @@ export default function UserMatchCard({ m, h, a, players, showToast, isPlayoff =
               <span className="text-[9px] text-slate-500 truncate">{a?.favoriteClub || ''}</span>
             </div>
             {aFlagUrl && <img src={aFlagUrl} alt="" className="w-6 h-6 object-contain shrink-0 hidden sm:block" />}
-            <div className="relative shrink-0">
-              <div className="absolute -inset-1.5 bg-rose-500/40 rounded-full blur-[8px]" />
-              <div className="relative w-10 h-10 sm:w-14 sm:h-14 rounded-full border-2 border-rose-500/70 overflow-hidden">
-                <Avatar p={a} size={56} className="w-full h-full object-cover" />
+            <div className="relative shrink-0 group">
+              <div className="absolute -inset-2 bg-rose-500/50 rounded-full blur-xl group-hover:bg-rose-400/60 transition-all" />
+              <div className="absolute inset-0 bg-gradient-to-tr from-rose-400/30 to-transparent rounded-full mix-blend-overlay z-10" />
+              <div className="relative w-10 h-10 sm:w-14 sm:h-14 rounded-full border-2 border-rose-400 overflow-hidden bg-[#0a0b10] shadow-[0_0_15px_rgba(244,63,94,0.5)]">
+                <Avatar p={a} size={56} className="w-full h-full object-cover scale-[1.02]" />
               </div>
             </div>
           </div>
