@@ -98,12 +98,12 @@ export default function UserMatchCard({ m, h, a, players, showToast, isPlayoff =
         <div 
           className="absolute inset-0 z-0 opacity-20 mix-blend-screen pointer-events-none"
           style={{
-            background: `radial-gradient(circle at center, ${m?.round === 'groupA' ? '#00D0FF' : '#10b981'} 0%, transparent 65%)`
+            background: `radial-gradient(circle at center, ${m?.round === 'groupA' ? '#0066ff' : '#10b981'} 0%, transparent 65%)`
           }}
         />
         <FlickeringGrid 
           className="z-0 absolute inset-0 pointer-events-none [mask-image:radial-gradient(circle_at_center,white,transparent_80%)]" 
-          color={m?.round === 'groupA' ? '#00D0FF' : '#10b981'}
+          color={m?.round === 'groupA' ? '#0066ff' : '#10b981'}
           maxOpacity={0.45} 
           flickerSpeed={0.4} 
           gridSize={16} 

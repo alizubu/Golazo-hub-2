@@ -261,12 +261,12 @@ export function TournamentMatchCard({ stage = 'normal', m, h, a, hStats, aStats,
           <div 
             className="absolute inset-0 z-0 opacity-20 mix-blend-screen"
             style={{
-              background: `radial-gradient(circle at center, ${m?.round === 'groupA' ? '#00D0FF' : config.gridColor} 0%, transparent 65%)`
+              background: `radial-gradient(circle at center, ${m?.round === 'groupA' ? '#0066ff' : config.gridColor} 0%, transparent 65%)`
             }}
           />
           <FlickeringGrid 
             className="z-0 absolute inset-0 [mask-image:radial-gradient(circle_at_center,white,transparent_80%)]" 
-            color={m?.round === 'groupA' ? '#00D0FF' : config.gridColor}
+            color={m?.round === 'groupA' ? '#0066ff' : config.gridColor}
             maxOpacity={config.gridOpacity || 0.12} 
             flickerSpeed={0.4} 
             gridSize={16} 
