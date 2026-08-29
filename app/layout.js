@@ -22,6 +22,7 @@ const jakarta = Plus_Jakarta_Sans({
 });
 
 export const metadata = {
+  metadataBase: new URL('https://golazoohub.vercel.app'),
   title: 'Golazo Hub',
   description: 'Matchday central for the crew — Track live scores, standings, and player stats.',
   manifest: '/manifest.json',
@@ -50,7 +51,6 @@ export const viewport = {
   viewportFit: 'cover',
 };
 
-import { ThemeProvider } from 'next-themes';
 import AppThemeProvider from '@/pwa/components/AppThemeProvider';
 import InstallPrompt from '@/pwa/components/InstallPrompt';
 
@@ -58,11 +58,9 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={`${jakarta.variable} ${sora.variable} ${chakra.variable} font-sans`}>
-        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-          <AppThemeProvider />
-          <InstallPrompt />
-          {children}
-        </ThemeProvider>
+        <AppThemeProvider />
+        <InstallPrompt />
+        {children}
       </body>
     </html>
   );

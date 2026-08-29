@@ -84,12 +84,12 @@ export default function FloatingNav({ session, me, players = [], notifications =
 
       {/* Command Search Dialog */}
       <Dialog open={searchOpen} onOpenChange={setSearchOpen}>
-        <DialogContent className="p-0 gap-0 w-screen h-screen sm:h-auto max-w-full sm:max-w-lg sm:rounded-xl bg-background border-border dark:border-zinc-800 sm:shadow-2xl overflow-hidden m-0 sm:border-solid z-[99999]">
+        <DialogContent className="p-0 gap-0 w-screen h-screen sm:h-auto max-w-full sm:max-w-lg sm:rounded-xl bg-background border-border border-zinc-800 sm:shadow-2xl overflow-hidden m-0 sm:border-solid z-[99999]">
           <DialogHeader className="sr-only">
             <DialogTitle>Search</DialogTitle>
           </DialogHeader>
           <Command className="bg-transparent">
-            <CommandInput placeholder="Search players, tabs..." className="h-12 text-sm border-b border-border dark:border-zinc-800 rounded-none text-foreground" />
+            <CommandInput placeholder="Search players, tabs..." className="h-12 text-sm border-b border-border border-zinc-800 rounded-none text-foreground" />
             <CommandList className="max-h-80 p-2">
               <CommandEmpty className="py-6 text-center text-sm text-muted-foreground">
                 No results found.

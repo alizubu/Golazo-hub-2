@@ -27,6 +27,20 @@
       "type": "image/png"
     }
   ],
+  "screenshots": [
+    {
+      "src": "/icons/golazohub.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "form_factor": "wide"
+    },
+    {
+      "src": "/icons/golazohub.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "form_factor": "narrow"
+    }
+  ],
   "shortcuts": [
     {
       "name": "Matches",

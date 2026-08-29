@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { motion, useReducedMotion, AnimatePresence } from 'framer-motion';
 import { LogOut, Settings, Bell, Trophy, Loader2 } from 'lucide-react';
 import { Avatar } from '@/app/components/shared/UI';
-import ThemeToggle from '@/app/components/shared/ThemeToggle';
+
 
 export const TopBar = ({ session, me, items, pathname, handleNav, unreadCount, isLoggingOut, handleLogout }) => {
   const shouldReduceMotion = useReducedMotion();
@@ -59,7 +59,7 @@ export const TopBar = ({ session, me, items, pathname, handleNav, unreadCount, i
           <div className="flex items-center gap-4 z-10 flex-shrink-0 ml-4">
             {me && (
               <>
-                <ThemeToggle />
+
                 <Link href="/notifications" onClick={(e) => handleNav(e, "/notifications")}
                   className="relative flex items-center justify-center w-10 h-10 rounded-full text-muted-foreground hover:text-foreground hover:bg-secondary/50 active:bg-secondary transition-colors outline-none"
                 >
@@ -135,7 +135,7 @@ export const TopBar = ({ session, me, items, pathname, handleNav, unreadCount, i
                <Bell size={18} />
                {unreadCount > 0 && <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full border-[1.5px] border-background" />}
              </Link>
-             <ThemeToggle />
+
              <button onClick={handleLogout} disabled={isLoggingOut} className="w-8 h-8 flex items-center justify-center rounded-lg text-muted-foreground hover:text-rose-500 hover:bg-rose-500/10 transition-colors active:scale-95 outline-none">
                {isLoggingOut ? <Loader2 size={16} className="animate-spin text-foreground" /> : <LogOut size={16} />}
              </button>

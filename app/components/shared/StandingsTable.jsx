@@ -110,7 +110,7 @@ const FormDots = ({ form }) => {
                 {res.result}
               </div>
             </HoverCardTrigger>
-            <HoverCardContent align="center" sideOffset={6} className="w-auto p-2.5 text-xs bg-background dark:bg-[#12151b] border-border shadow-[0_8px_32px_-8px_rgba(0,0,0,0.8)] z-[100] rounded-lg">
+            <HoverCardContent align="center" sideOffset={6} className="w-auto p-2.5 text-xs bg-background bg-[#12151b] border-border shadow-[0_8px_32px_-8px_rgba(0,0,0,0.8)] z-[100] rounded-lg">
               <div className="flex flex-col gap-1 text-center font-score">
                 <span className="font-bold text-foreground text-[13px]">
                   {res.result === 'W' ? 'Won' : res.result === 'D' ? 'Drew' : 'Lost'} {res.score}

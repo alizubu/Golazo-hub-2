@@ -3,7 +3,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabaseClient';
 import { AnimatePresence, motion } from 'framer-motion';
-import { ThemeProvider } from 'next-themes';
 import useSWR from 'swr';
 
 const fetcher = (url) => fetch(url).then((res) => res.json());

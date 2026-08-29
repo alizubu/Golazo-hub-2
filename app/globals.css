@@ -4,50 +4,6 @@
 
 @layer base {
   :root {
-    --background: 210 40% 94.5%; /* slate-100/200 blend for depth */
-    --foreground: 222 47% 11%; /* slate-900 */
-
-    --card: 0 0% 100%; /* Pure white */
-    --card-foreground: 222 47% 11%;
- 
-    --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
- 
-    --primary: 154 62% 33%; /* pitch */
-    --primary-foreground: 210 40% 98%;
- 
-    --secondary: 210 40% 90%; /* slate-200 */
-    --secondary-foreground: 222 47% 11%;
- 
-    --muted: 210 40% 90%;
-    --muted-foreground: 215 20% 45%;
- 
-    --accent: 44 68% 54%; /* gold */
-    --accent-foreground: 222.2 47.4% 11.2%;
- 
-    --destructive: 353 50% 46%; /* claret */
-    --destructive-foreground: 210 40% 98%;
-
-    --border: 154 15% 86%; /* subtle green-tinted light gray */
-    --input: 154 15% 86%;
-    --ring: 154 62% 33%;
- 
-    --radius: 0.5rem;
-
-    /* Stadium Daytime identity tokens */
-    --bg-base: #F1F5F9; /* matching new --background */
-    --bg-surface: #FFFFFF;
-    --bg-surface-raised: #E2E8F0;
-    --border-subtle: #E2E8F0;
-    --turf: #22C55E;
-    --floodlight-gold: #F59E0B;
-    --pitch-blue: #3B82F6;
-    --text-primary: #0F172A;
-    --text-secondary: #475569;
-    --text-muted: #94A3B8;
-  }
-
-  .dark {
     --background: 215 30% 6%;
     --foreground: 210 20% 98%;
 
@@ -75,6 +31,8 @@
     --border: 215 25% 20%;
     --input: 215 25% 20%;
     --ring: 154 62% 33%;
+ 
+    --radius: 0.5rem;
 
     /* Stadium at night identity tokens */
     --bg-base: #0B0E14;

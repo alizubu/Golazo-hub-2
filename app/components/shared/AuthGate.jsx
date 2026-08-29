@@ -8,7 +8,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { BorderBeam } from '@/app/components/magicui/BorderBeam';
 import { AnimatedGradientText } from '@/app/components/magicui/AnimatedGradientText';
 import { ShimmerButton } from '@/app/components/magicui/ShimmerButton';
-import ThemeToggle from '@/app/components/shared/ThemeToggle';
+
 
 // ══════════════════════════════════════════════════════════════
 // PITCH SVG — top-down animated football pitch
@@ -91,7 +91,7 @@ function FloatingPlayerCard({ player, posStyle, delay }) {
       animate={{ opacity: 1, scale: 1, y: 0 }}
       transition={{ delay, duration: 0.65, type: 'spring', bounce: 0.3 }}
       style={posStyle}
-      className="absolute flex items-center gap-2.5 bg-black/5 dark:bg-white/5 backdrop-blur-md border border-border rounded-2xl px-3 py-2.5 shadow-xl select-none pointer-events-none"
+      className="absolute flex items-center gap-2.5 bg-black/5 bg-white/5 backdrop-blur-md border border-border rounded-2xl px-3 py-2.5 shadow-xl select-none pointer-events-none"
     >
       <motion.div
         animate={{ y: [0, -6, 0] }}
@@ -148,7 +148,7 @@ function HoldToReveal({ onReveal }) {
       onMouseDown={start} onMouseUp={cancel} onMouseLeave={cancel}
       onTouchStart={(e) => { e.preventDefault(); start(); }}
       onTouchEnd={cancel} onTouchCancel={cancel}
-      className="flex items-center gap-2 text-[13px] text-muted-foreground hover:text-foreground transition-colors select-none cursor-pointer group py-2 px-3 rounded-full hover:bg-black/5 dark:bg-white/5 font-medium tracking-wide"
+      className="flex items-center gap-2 text-[13px] text-muted-foreground hover:text-foreground transition-colors select-none cursor-pointer group py-2 px-3 rounded-full hover:bg-black/5 bg-white/5 font-medium tracking-wide"
     >
       <div className="relative w-[22px] h-[22px] flex items-center justify-center flex-shrink-0">
         <svg className="absolute inset-0 w-full h-full -rotate-90" viewBox="0 0 22 22">
@@ -215,9 +215,9 @@ function FloatingLabelInput({ label, id, type = 'text', value, onChange, onKeyDo
           paddingLeft: leftElement ? '40px' : '12px'
         }}
         className={`
-          w-full h-14 px-3 pt-6 pb-2 text-sm text-foreground rounded-xl border bg-black/5 dark:bg-white/5
+          w-full h-14 px-3 pt-6 pb-2 text-sm text-foreground rounded-xl border bg-black/5 bg-white/5
           focus:outline-none focus:ring-1 focus:ring-pitch-bright/50 transition-all placeholder-transparent disabled:opacity-50
-          ${focused ? 'border-pitch-bright/60 bg-black/10 dark:bg-white/[0.07] shadow-[0_0_15px_rgba(41,193,121,0.12)]' : 'border-border'}
+          ${focused ? 'border-pitch-bright/60 bg-black/10 bg-white/[0.07] shadow-[0_0_15px_rgba(41,193,121,0.12)]' : 'border-border'}
         `}
       />
       {rightElement && (
@@ -251,7 +251,7 @@ function SignInForm({ players, onPlayerLogin }) {
     <motion.div animate={err ? { x: [-5, 5, -4, 4, 0] } : {}} transition={{ duration: 0.35 }}>
       <form onSubmit={submit} className="space-y-4">
         {players.length === 0 && (
-          <div className="text-xs text-muted-foreground/60 p-3 bg-black/5 dark:bg-white/5 rounded-xl border border-border dark:border-white/10 text-center">
+          <div className="text-xs text-muted-foreground/60 p-3 bg-black/5 bg-white/5 rounded-xl border border-border border-white/10 text-center">
             No accounts yet — be the first to sign up!
           </div>
         )}
@@ -455,7 +455,7 @@ function AdminLoginForm({ onAdminLogin, onBack }) {
 // ══════════════════════════════════════════════════════════════
 function TabToggle({ mode, setMode, layoutId }) {
   return (
-    <div className="flex p-1 bg-black/5 dark:bg-white/5 rounded-xl border border-border/50 dark:border-white/[0.08]">
+    <div className="flex p-1 bg-black/5 bg-white/5 rounded-xl border border-border/50 border-white/[0.08]">
       {['signin', 'signup'].map((key) => (
         <button
           key={key}
@@ -488,7 +488,7 @@ export default function AuthGate({ players = [], showToast }) {
   const visibleCards = players.slice(0, 5);
 
   return (
-    <div className="min-h-[100dvh] bg-background dark:bg-[#0B0E14] text-foreground overflow-hidden">
+    <div className="min-h-[100dvh] bg-background bg-[#0B0E14] text-foreground overflow-hidden">
 
       {/* ╔══════════════════════════════════════════╗
           ║  DESKTOP — Split-Screen Stadium Layout   ║
@@ -497,17 +497,17 @@ export default function AuthGate({ players = [], showToast }) {
 
         {/* ─── LEFT PANEL: Dynamic Pitch (Daytime Light / Nighttime Dark) ─── */}
         <div
-          className="relative flex flex-col overflow-hidden bg-emerald-950/5 dark:bg-[#0A0D14] text-foreground transition-colors duration-300"
+          className="relative flex flex-col overflow-hidden bg-emerald-950/5 bg-[#0A0D14] text-foreground transition-colors duration-300"
         >
           {/* Pitch SVG */}
           <PitchSVG />
 
           {/* Radial glow / Daytime pitch gradient layers */}
           <div className="absolute inset-0 pointer-events-none">
-            <div className="absolute inset-0 bg-gradient-to-br from-emerald-100/60 via-slate-100/40 to-background dark:from-transparent dark:to-transparent" />
-            <div className="absolute inset-0 bg-[radial-gradient(ellipse_65%_55%_at_50%_50%,rgba(31,138,92,0.18)_0%,transparent_70%)] hidden dark:block" />
-            <div className="absolute bottom-0 left-0 right-0 h-36 bg-gradient-to-t from-background dark:from-[#0B0E14] to-transparent" />
-            <div className="absolute top-0 left-0 right-0 h-24 bg-gradient-to-b from-background/50 dark:from-[#0B0E14]/50 to-transparent" />
+            <div className="absolute inset-0 bg-gradient-to-br from-emerald-100/60 via-slate-100/40 to-background from-transparent to-transparent" />
+            <div className="absolute inset-0 bg-[radial-gradient(ellipse_65%_55%_at_50%_50%,rgba(31,138,92,0.18)_0%,transparent_70%)] hidden block" />
+            <div className="absolute bottom-0 left-0 right-0 h-36 bg-gradient-to-t from-background from-[#0B0E14] to-transparent" />
+            <div className="absolute top-0 left-0 right-0 h-24 bg-gradient-to-b from-background/50 from-[#0B0E14]/50 to-transparent" />
           </div>
 
           {/* Floating player cards */}
@@ -570,20 +570,17 @@ export default function AuthGate({ players = [], showToast }) {
           </div>
 
           {/* Soft gradient seam connecting to right panel */}
-          <div className="absolute top-0 bottom-0 right-0 w-32 bg-gradient-to-l from-background dark:from-[#0D1118] to-transparent pointer-events-none z-20" />
+          <div className="absolute top-0 bottom-0 right-0 w-32 bg-gradient-to-l from-background from-[#0D1118] to-transparent pointer-events-none z-20" />
         </div>
 
         {/* ─── RIGHT PANEL: Auth form ─── */}
-        <div className="relative flex flex-col items-center justify-center bg-background dark:bg-[#0D1118] px-8 lg:px-10 xl:px-14 py-12 overflow-auto">
+        <div className="relative flex flex-col items-center justify-center bg-background bg-[#0D1118] px-8 lg:px-10 xl:px-14 py-12 overflow-auto">
           {/* Top glow */}
-          <div className="absolute top-0 left-0 right-0 h-64 bg-[radial-gradient(ellipse_at_50%_0%,rgba(31,138,92,0.08)_0%,transparent_70%)] pointer-events-none hidden dark:block" />
+          <div className="absolute top-0 left-0 right-0 h-64 bg-[radial-gradient(ellipse_at_50%_0%,rgba(31,138,92,0.08)_0%,transparent_70%)] pointer-events-none hidden block" />
 
-          {/* Theme Toggle */}
-          <div className="absolute top-6 right-6 md:top-8 md:right-8 z-50">
-            <ThemeToggle />
-          </div>
 
-          <div className="w-full max-w-[380px] relative z-10 bg-card dark:bg-transparent backdrop-blur-sm border border-border dark:border-none shadow-2xl dark:shadow-none rounded-3xl p-6 sm:p-8">
+
+          <div className="w-full max-w-[380px] relative z-10 bg-card bg-transparent backdrop-blur-sm border border-border border-none shadow-2xl shadow-none rounded-3xl p-6 sm:p-8">
             {/* Logo */}
             <motion.div
               initial={{ opacity: 0, y: -14 }}
@@ -639,13 +636,13 @@ export default function AuthGate({ players = [], showToast }) {
       {/* ╔══════════════════════════════════════════╗
           ║  MOBILE — Stacked Layout                 ║
           ╚══════════════════════════════════════════╝ */}
-      <div className="md:hidden flex flex-col min-h-[100dvh] bg-background dark:bg-[#0D1118]">
+      <div className="md:hidden flex flex-col min-h-[100dvh] bg-background bg-[#0D1118]">
         {/* Top Header: Pitch Visualization */}
-        <div className="relative w-full h-[35dvh] min-h-[260px] flex flex-col items-center justify-center overflow-hidden shrink-0 bg-emerald-950/5 dark:bg-[#0A0D14]">
+        <div className="relative w-full h-[35dvh] min-h-[260px] flex flex-col items-center justify-center overflow-hidden shrink-0 bg-emerald-950/5 bg-[#0A0D14]">
           <PitchSVG className="opacity-60" />
-          <div className="absolute inset-0 bg-gradient-to-b from-emerald-100/40 via-transparent to-background dark:from-transparent dark:to-transparent" />
-          <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_60%_at_50%_30%,rgba(31,138,92,0.15)_0%,transparent_70%)] hidden dark:block" />
-          <div className="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-t from-background dark:from-[#0D1118] to-transparent z-10" />
+          <div className="absolute inset-0 bg-gradient-to-b from-emerald-100/40 via-transparent to-background from-transparent to-transparent" />
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_60%_at_50%_30%,rgba(31,138,92,0.15)_0%,transparent_70%)] hidden block" />
+          <div className="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-t from-background from-[#0D1118] to-transparent z-10" />
           
           <motion.div
             initial={{ opacity: 0, y: 15 }}
@@ -666,13 +663,10 @@ export default function AuthGate({ players = [], showToast }) {
         </div>
 
         {/* Bottom Area: Auth Form */}
-        <div className="relative flex-1 flex flex-col items-center px-5 pt-4 pb-10 z-20 bg-background dark:bg-[#0D1118]">
-          {/* Theme Toggle for Mobile */}
-          <div className="absolute top-4 right-4 z-50 md:hidden">
-            <ThemeToggle />
-          </div>
+        <div className="relative flex-1 flex flex-col items-center px-5 pt-4 pb-10 z-20 bg-background bg-[#0D1118]">
 
-          <div className="w-full max-w-[360px] flex flex-col gap-6 bg-card dark:bg-transparent border border-border dark:border-none shadow-xl dark:shadow-none rounded-3xl p-5 mt-4">
+
+          <div className="w-full max-w-[360px] flex flex-col gap-6 bg-card bg-transparent border border-border border-none shadow-none rounded-3xl p-5 mt-4">
             {/* Tab toggle */}
             {mode !== 'admin' && (
               <TabToggle mode={mode} setMode={setMode} layoutId="mobile-tab-pill" />

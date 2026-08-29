@@ -23,7 +23,7 @@ export const BottomNav = ({ items, pathname, isActive, handleNav, hasLiveMatch }
       className="md:hidden fixed bottom-5 inset-x-0 z-50 px-4 pb-[env(safe-area-inset-bottom)] pointer-events-none flex justify-center"
     >
       {/* Floating Glassmorphic Island */}
-      <div className="relative w-full max-w-[420px] h-[72px] bg-background/75 backdrop-blur-2xl border border-border/60 rounded-full shadow-[0_15px_40px_-10px_rgba(0,0,0,0.4)] dark:shadow-[0_15px_40px_-10px_rgba(0,0,0,0.8)] pointer-events-auto flex items-center px-2">
+      <div className="relative w-full max-w-[420px] h-[72px] bg-background/75 backdrop-blur-2xl border border-border/60 rounded-full shadow-[0_15px_40px_-10px_rgba(0,0,0,0.4)] shadow-[0_15px_40px_-10px_rgba(0,0,0,0.8)] pointer-events-auto flex items-center px-2">
         
         {/* Luminous top border reflection */}
         <div className="absolute inset-x-8 top-0 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent" />
@@ -55,7 +55,7 @@ export const BottomNav = ({ items, pathname, isActive, handleNav, hasLiveMatch }
                 </>
               )}
               
-              <fabItem.icon size={28} className="text-foreground dark:text-zinc-950 drop-shadow-sm transition-transform group-active:scale-90" strokeWidth={2.5} />
+              <fabItem.icon size={28} className="text-foreground text-zinc-950 drop-shadow-sm transition-transform group-active:scale-90" strokeWidth={2.5} />
             </Link>
           )}
         </div>

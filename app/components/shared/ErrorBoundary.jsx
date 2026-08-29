@@ -41,7 +41,7 @@ export default class ErrorBoundary extends React.Component {
             </Btn>
           </div>
           {this.state.error && process.env.NODE_ENV !== 'production' && (
-            <div className="mt-6 p-4 bg-secondary/70 dark:bg-black/60 rounded-lg text-left text-xs font-mono text-red-400 overflow-auto w-full max-w-full border border-red-500/20">
+            <div className="mt-6 p-4 bg-secondary/70 bg-black/60 rounded-lg text-left text-xs font-mono text-red-400 overflow-auto w-full max-w-full border border-red-500/20">
               <div className="font-bold text-red-300 mb-1">{this.state.error.toString()}</div>
               {this.state.error.stack && (
                 <pre className="text-[11px] text-muted-foreground whitespace-pre-wrap mt-2 font-mono">

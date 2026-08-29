@@ -138,7 +138,7 @@ function AdminHistorySeasonCard({ season, matches, players, showToast, isExpande
       <div 
         className={`overflow-hidden transition-all duration-500 ease-in-out ${isExpanded ? 'max-h-[1200px] opacity-100' : 'max-h-0 opacity-0'}`}
       >
-        <div className="p-6 md:p-10 flex flex-col gap-12 bg-black/20 dark:bg-black/40 border-t border-border/50">
+        <div className="p-6 md:p-10 flex flex-col gap-12 bg-black/20 bg-black/40 border-t border-border/50">
           
           {/* Grand Final Flashback */}
           {finalMatch ? (

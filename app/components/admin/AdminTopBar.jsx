@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { Menu, AlertTriangle } from 'lucide-react';
-import ThemeToggle from '@/app/components/shared/ThemeToggle';
+
 
 const SECTION_LABELS = {
   'admin':                'Dashboard',
@@ -89,7 +89,6 @@ export default function AdminTopBar({ currentTab, activeSeason, notifications = 
         >
           ADMIN
         </span>
-        <ThemeToggle />
       </div>
     </div>
   );

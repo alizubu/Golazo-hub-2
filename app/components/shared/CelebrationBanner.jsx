@@ -333,11 +333,11 @@ export default function CelebrationBanner({ initialCelebrations = [] }) {
                       unoptimized
                     />
                   ) : (
-                    <div className="w-8 h-8 rounded-full bg-secondary dark:bg-zinc-800 flex items-center justify-center text-xs font-bold text-foreground border border-amber-500/50 shadow-[0_0_15px_rgba(251,191,36,0.3)]">
+                    <div className="w-8 h-8 rounded-full bg-secondary bg-zinc-800 flex items-center justify-center text-xs font-bold text-foreground border border-amber-500/50 shadow-[0_0_15px_rgba(251,191,36,0.3)]">
                       {current.trophy.player.name.substring(0,2).toUpperCase()}
                     </div>
                   )}
-                  <span className="font-bold text-sm text-foreground dark:text-zinc-200 group-hover:text-amber-400 transition-colors">
+                  <span className="font-bold text-sm text-foreground text-zinc-200 group-hover:text-amber-400 transition-colors">
                     {current.trophy.player.name}
                   </span>
                   <ChevronRight className="w-4 h-4 text-amber-500/70 group-hover:text-amber-400 group-hover:translate-x-1 transition-all" />

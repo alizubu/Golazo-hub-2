@@ -817,7 +817,7 @@ function TrophyTradingCard({ trophy, onEdit, onRevoke, hideActions }) {
   return (
     <motion.div
       whileHover={{ y: -6 }}
-      className="relative group rounded-2xl border border-white/[0.05] bg-background dark:bg-[#12151b] overflow-hidden shadow-xl aspect-[3/4] flex flex-col"
+      className="relative group rounded-2xl border border-white/[0.05] bg-background bg-[#12151b] overflow-hidden shadow-xl aspect-[3/4] flex flex-col"
     >
       {/* Gloss reflection effect */}
       <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/[0.03] to-white/[0.1] opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none z-10" />
@@ -856,7 +856,7 @@ function TrophyTradingCard({ trophy, onEdit, onRevoke, hideActions }) {
       {/* Overlay Actions */}
       {!hideActions && (
         <div className="absolute inset-0 bg-black/70 backdrop-blur-md opacity-0 group-hover:opacity-100 transition-all duration-300 flex flex-col items-center justify-center gap-3 z-30 pointer-events-none group-hover:pointer-events-auto translate-y-4 group-hover:translate-y-0">
-          <Btn variant="outline" className="w-32 bg-white/10 hover:bg-white/20 border-border dark:border-white/20 text-foreground rounded-xl gap-2 shadow-lg h-9 text-xs" onClick={(e) => { e.stopPropagation(); onEdit(trophy); }}>
+          <Btn variant="outline" className="w-32 bg-white/10 hover:bg-white/20 border-border border-white/20 text-foreground rounded-xl gap-2 shadow-lg h-9 text-xs" onClick={(e) => { e.stopPropagation(); onEdit(trophy); }}>
             <Edit2 size={12} /> Edit Award
           </Btn>
           <Btn variant="danger" className="w-32 rounded-xl gap-2 shadow-lg border border-red-500/50 h-9 text-xs" onClick={(e) => { e.stopPropagation(); onRevoke(trophy); }}>
@@ -885,7 +885,7 @@ function EditTrophyDrawer({ open, onOpenChange, trophy, players, onSave }) {
         <>
           <motion.div 
             initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-secondary/70 dark:bg-black/60 backdrop-blur-sm z-[100]"
+            className="fixed inset-0 bg-secondary/70 bg-black/60 backdrop-blur-sm z-[100]"
             onClick={() => onOpenChange(false)}
           />
           <motion.div 
@@ -1410,7 +1410,7 @@ const ThemeBtn = ({ theme, current, onChange }) => (
     className={`px-3 py-1 rounded text-[10px] font-black uppercase tracking-wider transition-all border ${
       current === theme 
         ? 'bg-amber-500 text-black border-amber-500 shadow-[0_0_8px_rgba(245,158,11,0.5)]' 
-        : 'bg-secondary dark:bg-zinc-900 text-muted-foreground border-border dark:border-zinc-700 hover:text-muted-foreground hover:border-zinc-500'
+        : 'bg-secondary bg-zinc-900 text-muted-foreground border-border border-zinc-700 hover:text-muted-foreground hover:border-zinc-500'
     }`}
   >
     {theme}

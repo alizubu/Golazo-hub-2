@@ -649,7 +649,7 @@ function FeaturedTrophyCard({ trophy, onClick }) {
         onMouseLeave={handleMouseLeave}
         tabIndex={0}
         role="button"
-        className={`relative flex flex-col justify-between rounded-2xl cursor-pointer group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 overflow-hidden h-full min-h-[360px] lg:min-h-[450px] bg-[#181a20]/60 backdrop-blur-xl border transition-all duration-300 ${isUnlocked ? 'border-amber-500/40 shadow-[0_0_20px_rgba(251,191,36,0.15)] hover:shadow-[0_0_35px_rgba(251,191,36,0.3)] hover:border-amber-400' : 'border-border/80 dark:border-white/[0.08]'}`}
+        className={`relative flex flex-col justify-between rounded-2xl cursor-pointer group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 overflow-hidden h-full min-h-[360px] lg:min-h-[450px] bg-[#181a20]/60 backdrop-blur-xl border transition-all duration-300 ${isUnlocked ? 'border-amber-500/40 shadow-[0_0_20px_rgba(251,191,36,0.15)] hover:shadow-[0_0_35px_rgba(251,191,36,0.3)] hover:border-amber-400' : 'border-border/80 border-white/[0.08]'}`}
         style={{
           rotateX,
           rotateY,
@@ -711,7 +711,7 @@ function FeaturedTrophyCard({ trophy, onClick }) {
           )}
         </motion.div>
 
-        <div className="relative z-20 w-full p-6 pb-6 text-left border-t border-border/40 dark:border-white/[0.06] bg-secondary/40 dark:bg-black/20 backdrop-blur-md shrink-0" style={{ transform: isUnlocked ? "translateZ(20px)" : "none" }}>
+        <div className="relative z-20 w-full p-6 pb-6 text-left border-t border-border/40 border-white/[0.06] bg-secondary/40 bg-black/20 backdrop-blur-md shrink-0" style={{ transform: isUnlocked ? "translateZ(20px)" : "none" }}>
           <h3 className={`text-lg font-black uppercase tracking-wider ${isUnlocked ? 'text-amber-400' : 'text-zinc-500'}`}>{trophy.name}</h3>
           {isUnlocked && trophy.seasons?.length > 0 ? (
             <div 
@@ -790,7 +790,7 @@ function TrophyTile({ trophy, onClick }) {
         onMouseLeave={handleMouseLeave}
         tabIndex={0}
         role="button"
-        className={`relative flex flex-col justify-between rounded-2xl cursor-pointer group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 overflow-hidden h-full min-h-[180px] lg:min-h-[240px] bg-[#181a20]/50 backdrop-blur-md border transition-all duration-300 ${isUnlocked ? (isGold ? 'border-amber-500/30 shadow-[0_0_15px_rgba(251,191,36,0.1)] hover:shadow-[0_0_25px_rgba(251,191,36,0.25)]' : 'border-slate-400/30 shadow-[0_0_15px_rgba(148,163,184,0.1)] hover:shadow-[0_0_25px_rgba(148,163,184,0.25)]') : 'border-border/80 dark:border-white/[0.08]'}`}
+        className={`relative flex flex-col justify-between rounded-2xl cursor-pointer group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 overflow-hidden h-full min-h-[180px] lg:min-h-[240px] bg-[#181a20]/50 backdrop-blur-md border transition-all duration-300 ${isUnlocked ? (isGold ? 'border-amber-500/30 shadow-[0_0_15px_rgba(251,191,36,0.1)] hover:shadow-[0_0_25px_rgba(251,191,36,0.25)]' : 'border-slate-400/30 shadow-[0_0_15px_rgba(148,163,184,0.1)] hover:shadow-[0_0_25px_rgba(148,163,184,0.25)]') : 'border-border/80 border-white/[0.08]'}`}
         style={{
           rotateX,
           rotateY,
@@ -840,12 +840,12 @@ function TrophyTile({ trophy, onClick }) {
           )}
         </motion.div>
 
-        <div className="relative z-20 w-full px-3 pb-6 pt-3 text-center border-t border-border/40 dark:border-white/[0.06] bg-secondary/40 dark:bg-black/20 shrink-0" style={{ transform: isUnlocked ? "translateZ(10px)" : "none" }}>
+        <div className="relative z-20 w-full px-3 pb-6 pt-3 text-center border-t border-border/40 border-white/[0.06] bg-secondary/40 bg-black/20 shrink-0" style={{ transform: isUnlocked ? "translateZ(10px)" : "none" }}>
           <h4 className={`text-[10px] font-black uppercase tracking-wider truncate ${textColor}`}>{trophy.name}</h4>
           
           {isUnlocked && trophy.seasons?.length > 0 ? (
             <div 
-              className="mt-2 pt-2 border-t border-border/40 dark:border-white/[0.05] relative w-full overflow-hidden flex items-center h-5"
+              className="mt-2 pt-2 border-t border-border/40 border-white/[0.05] relative w-full overflow-hidden flex items-center h-5"
               style={{ maskImage: 'linear-gradient(to right, transparent, black 15%, black 85%, transparent)', WebkitMaskImage: 'linear-gradient(to right, transparent, black 15%, black 85%, transparent)' }}
             >
               <motion.div
@@ -872,7 +872,7 @@ function TrophyTile({ trophy, onClick }) {
               </motion.div>
             </div>
           ) : !isUnlocked ? (
-            <div className="mt-2 pt-2 border-t border-border/40 dark:border-white/[0.05] text-[9px] tracking-widest text-zinc-600 font-bold uppercase">Locked</div>
+            <div className="mt-2 pt-2 border-t border-border/40 border-white/[0.05] text-[9px] tracking-widest text-zinc-600 font-bold uppercase">Locked</div>
           ) : null}
         </div>
       </motion.div>
@@ -970,8 +970,8 @@ function TrophyCabinetSection({ trophies = [], myTrophies = [], meBadges = [], o
   const multiWinCount = myTrophies.length - totalUnlocked;
 
   return (
-    <div className="relative overflow-hidden w-full flex flex-col bg-card dark:bg-card border border-border/80 dark:border-white/[0.08] rounded-[20px] shadow-sm">
-      <div className="pb-3 pt-5 px-5 sm:px-6 flex items-center justify-between relative border-b border-border/40 dark:border-white/[0.06]">
+    <div className="relative overflow-hidden w-full flex flex-col bg-card bg-card border border-border/80 border-white/[0.08] rounded-[20px] shadow-sm">
+      <div className="pb-3 pt-5 px-5 sm:px-6 flex items-center justify-between relative border-b border-border/40 border-white/[0.06]">
         <div className="text-xl sm:text-2xl font-bold flex items-center gap-2.5 text-foreground" style={{ fontFamily: "'Sora', sans-serif", fontWeight: 700 }}>
           <Trophy className="text-foreground/70" size={24}/> Trophy Cabinet
         </div>
@@ -1050,39 +1050,39 @@ function RosterView({ players, matches, setTab }) {
 
           return (
             <FadeIn key={p.id} delay={i * 0.05}>
-              <MagicCard onClick={() => router.push(`/player/${p.username || p.id}`)} className="p-5 flex items-center gap-4 hover:border-slate-300 dark:hover:border-border transition-all cursor-pointer group bg-white dark:bg-stadium-surface/40 hover:bg-slate-50 dark:hover:bg-stadium-surface/60 border border-slate-200 dark:border-border/50 shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-none hover:shadow-md dark:hover:shadow-lg hover:-translate-y-1">
+              <MagicCard onClick={() => router.push(`/player/${p.username || p.id}`)} className="p-5 flex items-center gap-4 hover:border-slate-300 hover:border-border transition-all cursor-pointer group bg-stadium-surface/40 hover:bg-slate-50 hover:bg-stadium-surface/60 border border-border/50 shadow-[0_8px_30px_rgb(0,0,0,0.04)] shadow-none hover:shadow-md hover:shadow-lg hover:-translate-y-1">
                 <div className="relative shrink-0">
                   <div className="absolute -inset-1 rounded-full bg-gradient-to-br from-gold/50 via-pitch-bright to-claret/50 blur-[2px] opacity-0 group-hover:opacity-100 transition-opacity" />
-                  <div className="relative rounded-full bg-white dark:bg-card p-0.5 border border-slate-200 dark:border-border/50 shadow-sm ring-4 ring-white dark:ring-transparent">
+                  <div className="relative rounded-full bg-card p-0.5 border border-border/50 shadow-sm ring-4 ring-white ring-transparent">
                     <Avatar p={p} size={56} />
                   </div>
                 </div>
                 <div className="min-w-0 flex-1">
-                  <div className="font-bold text-lg font-heading flex items-center gap-2 truncate text-slate-900 dark:text-foreground">
+                  <div className="font-bold text-lg font-heading flex items-center gap-2 truncate text-foreground">
                     <span className="truncate">{p.name}</span>
                     {p.nationality && (
-                      <span className="shrink-0 text-[10px] font-score tracking-wider font-semibold border border-slate-200 dark:border-border/50 rounded px-1.5 py-0.5 bg-slate-100 dark:bg-background/50 shadow-sm text-slate-600 dark:text-muted-foreground">
+                      <span className="shrink-0 text-[10px] font-score tracking-wider font-semibold border border-border/50 rounded px-1.5 py-0.5 bg-background/50 shadow-sm text-slate-600 text-muted-foreground">
                         {p.nationality}
                       </span>
                     )}
                   </div>
-                  <div className="text-xs text-slate-500 dark:text-muted-foreground mt-0.5 truncate flex items-center gap-1.5">
+                  <div className="text-xs text-slate-500 text-muted-foreground mt-0.5 truncate flex items-center gap-1.5">
                     {p.teamLogo && <img src={p.teamLogo} className="w-3.5 h-3.5 object-contain" alt="" />}
                     {p.teamName || `${p.name}'s XI`}
                   </div>
 
                   <div className="flex gap-1.5 mt-3 text-[10px] font-score tracking-wider">
-                    <span className="flex items-center justify-center font-bold px-2 py-0.5 rounded-sm bg-green-100 dark:bg-green-500/20 text-green-700 dark:text-green-400 border border-green-200 dark:border-green-500/20 shadow-sm dark:shadow-none">
+                    <span className="flex items-center justify-center font-bold px-2 py-0.5 rounded-sm bg-green-100 bg-green-500/20 text-green-700 text-green-400 border border-green-200 border-green-500/20 shadow-none">
                       {wins}W
                     </span>
-                    <span className="flex items-center justify-center font-bold px-2 py-0.5 rounded-sm bg-slate-100 dark:bg-slate-500/20 text-slate-700 dark:text-slate-400 border border-slate-200 dark:border-slate-500/20 shadow-sm dark:shadow-none">
+                    <span className="flex items-center justify-center font-bold px-2 py-0.5 rounded-sm bg-slate-500/20 text-slate-400 border border-slate-500/20 shadow-none">
                       {draws}D
                     </span>
-                    <span className="flex items-center justify-center font-bold px-2 py-0.5 rounded-sm bg-red-100 dark:bg-red-500/20 text-red-700 dark:text-red-400 border border-red-200 dark:border-red-500/20 shadow-sm dark:shadow-none">
+                    <span className="flex items-center justify-center font-bold px-2 py-0.5 rounded-sm bg-red-100 bg-red-500/20 text-red-700 text-red-400 border border-red-200 border-red-500/20 shadow-none">
                       {losses}L
                     </span>
                     {golds > 0 && (
-                      <span className="flex items-center justify-center gap-1 font-bold px-2 py-0.5 rounded-sm bg-amber-100 dark:bg-amber-400/10 text-amber-600 dark:text-amber-400 border border-amber-200 dark:border-amber-400/20 shadow-sm dark:shadow-none">
+                      <span className="flex items-center justify-center gap-1 font-bold px-2 py-0.5 rounded-sm bg-amber-100 bg-amber-400/10 text-amber-600 text-amber-400 border border-amber-200 border-amber-400/20 shadow-none">
                         <Trophy size={10} />{golds}
                       </span>
                     )}
@@ -1129,7 +1129,7 @@ function HistoryView({ history, players, matches, setTab }) {
                 </div>
               )}
 
-              <div className="mt-5 pt-5 border-t border-border/50 dark:border-white/[0.06]">
+              <div className="mt-5 pt-5 border-t border-border/50 border-white/[0.06]">
                 <SeasonSummaryDashboard season={t} matches={seasonMatches} players={players} compact />
               </div>
             </MagicCard>

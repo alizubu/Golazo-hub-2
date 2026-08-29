@@ -134,7 +134,7 @@ export default function AvatarUpload({ me, form, setForm, showToast, size = 160 
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="absolute inset-1.5 rounded-full bg-secondary/70 dark:bg-black/60 flex flex-col items-center justify-center text-foreground z-10 backdrop-blur-sm"
+              className="absolute inset-1.5 rounded-full bg-secondary/70 bg-black/60 flex flex-col items-center justify-center text-foreground z-10 backdrop-blur-sm"
             >
               <Camera size={28} className="mb-1" />
               <span className="text-[10px] font-semibold tracking-wider uppercase">Change</span>
