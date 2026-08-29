@@ -1767,6 +1767,7 @@ export function AdminSeason({ activeSeason, seasons = [], matches = [], players 
       { id: 'League (Single)', title: 'League', icon: '🏆', desc: 'Standard Round-Robin' },
       { id: 'League (Double)', title: 'Double League', icon: '⚔️', desc: 'Home & Away' },
       { id: 'League + Playoffs (Single)', title: 'League + Playoffs', icon: '🔥', desc: 'Top 4 to Knockouts' },
+      { id: '8-Player Tournament', title: '8-Player Tournament', icon: '⚽', desc: 'Groups + Knockout' },
       { id: 'Single Elimination', title: 'Single Elim Bracket', icon: '⚡', desc: 'Straight Knockout' },
       { id: 'Double Elimination', title: 'Double Elim Bracket', icon: '🛡️', desc: 'Upper & Lower Bracket' },
     ];
@@ -2077,6 +2078,7 @@ export function AdminSeason({ activeSeason, seasons = [], matches = [], players 
                    matches={matches} 
                    players={players} 
                    seasonId={activeSeason.id} 
+                   seasonType={activeSeason.type}
                    config={activeSeason.config} 
                    headerLeft={
                      <div className="flex flex-col gap-1 px-2">
@@ -2351,6 +2353,7 @@ export function AdminSeason({ activeSeason, seasons = [], matches = [], players 
                   <option value="League (Single)">League (Single)</option>
                   <option value="League (Double)">Double League</option>
                   <option value="League + Playoffs (Single)">League + Playoffs (Single)</option>
+                  <option value="8-Player Tournament">8-Player Tournament</option>
                   <option value="Single Elimination">Single Elimination</option>
                   <option value="Double Elimination">Double Elimination</option>
                 </select>

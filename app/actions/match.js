@@ -39,6 +39,56 @@ export async function generateFixtures(seasonId, playerIds, doubleRound) {
   if (!auth.authorized) return { error: auth.error };
   if (playerIds.length < 2) return { error: 'Need at least 2 players' };
 
+  const season = await prisma.season.findUnique({ where: { id: seasonId } });
+  if (!season) return { error: 'Season not found' };
+
+  if (season.type === '8-Player Tournament') {
+    if (playerIds.length !== 8) return { error: '8-Player Tournament requires exactly 8 players' };
+    
+    let shuffled = [...playerIds];
+    for (let i = shuffled.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+    }
+
+    const groupA = shuffled.slice(0, 4);
+    const groupB = shuffled.slice(4, 8);
+
+    let legs = [];
+    for (let i = 0; i < 4; i++) {
+      for (let j = i + 1; j < 4; j++) {
+        legs.push({ homeId: groupA[i], awayId: groupA[j], round: 'groupA', label: 'Group A' });
+        legs.push({ homeId: groupB[i], awayId: groupB[j], round: 'groupB', label: 'Group B' });
+      }
+    }
+
+    try {
+      await prisma.match.createMany({
+        data: legs.map((leg, index) => ({
+          seasonId,
+          round: leg.round,
+          homeId: leg.homeId,
+          awayId: leg.awayId,
+          status: 'scheduled',
+          decisive: false,
+          label: leg.label,
+          scheduledAt: new Date(Date.now() + index * 60000)
+        }))
+      });
+
+      await sendAutoNotification(
+        `${legs.length} group stage fixtures generated!`,
+        'fixtures'
+      );
+
+      revalidatePath('/');
+      revalidatePath('/admin');
+      return { success: true, count: legs.length };
+    } catch (error) {
+      return { error: 'Failed to generate group fixtures' };
+    }
+  }
+
   let allLegs = [];
   for (let i = 0; i < playerIds.length; i++) {
     for (let j = i + 1; j < playerIds.length; j++) {
@@ -321,6 +371,68 @@ export async function updateMatchStatus(matchId, data) {
             }
           }
         }
+
+        // 8-Player Tournament Auto-Trigger
+        if (season && season.type === '8-Player Tournament') {
+          const allGroupMatches = await prisma.match.findMany({
+            where: { seasonId: match.seasonId, round: { in: ['groupA', 'groupB'] } }
+          });
+          const allCompleted = allGroupMatches.length === 12 &&
+            allGroupMatches.every(m => m.status === 'completed');
+
+          if (allCompleted) {
+            const existingKnockout = await prisma.match.findFirst({
+              where: { seasonId: match.seasonId, round: { in: ['semiA', 'semiB'] } }
+            });
+
+            if (!existingKnockout) {
+              const tableA = {};
+              const tableB = {};
+              const players = await prisma.player.findMany({ select: { id: true } });
+              players.forEach(p => { 
+                tableA[p.id] = { id: p.id, pts: 0, gd: 0, gf: 0 }; 
+                tableB[p.id] = { id: p.id, pts: 0, gd: 0, gf: 0 }; 
+              });
+
+              allGroupMatches.forEach(m => {
+                const table = m.round === 'groupA' ? tableA : tableB;
+                const h = table[m.homeId], a = table[m.awayId];
+                if (!h || !a) return;
+                h.gf += (m.homeScore || 0); a.gf += (m.awayScore || 0);
+                h.gd += ((m.homeScore || 0) - (m.awayScore || 0));
+                a.gd += ((m.awayScore || 0) - (m.homeScore || 0));
+                if (m.homeScore > m.awayScore) { h.pts += 3; }
+                else if (m.awayScore > m.homeScore) { a.pts += 3; }
+                else { h.pts++; a.pts++; }
+              });
+
+              const standingsA = Object.values(tableA).filter(s => allGroupMatches.some(m => m.round === 'groupA' && (m.homeId === s.id || m.awayId === s.id)))
+                .sort((x, y) => y.pts - x.pts || y.gd - x.gd || y.gf - x.gf);
+              
+              const standingsB = Object.values(tableB).filter(s => allGroupMatches.some(m => m.round === 'groupB' && (m.homeId === s.id || m.awayId === s.id)))
+                .sort((x, y) => y.pts - x.pts || y.gd - x.gd || y.gf - x.gf);
+
+              if (standingsA.length >= 2 && standingsB.length >= 2) {
+                const a1 = standingsA[0].id, a2 = standingsA[1].id;
+                const b1 = standingsB[0].id, b2 = standingsB[1].id;
+
+                await prisma.match.createMany({
+                  data: [
+                    { seasonId: match.seasonId, round: 'semiA', homeId: a1, awayId: b2, status: 'scheduled', label: 'Semi-Final 1 (1A vs 2B)', decisive: true },
+                    { seasonId: match.seasonId, round: 'semiB', homeId: b1, awayId: a2, status: 'scheduled', label: 'Semi-Final 2 (1B vs 2A)', decisive: true },
+                    { seasonId: match.seasonId, round: 'third_place', homeId: null, awayId: null, status: 'scheduled', label: '3rd Place Match', decisive: true },
+                    { seasonId: match.seasonId, round: 'final', homeId: null, awayId: null, status: 'scheduled', label: 'Grand Final', decisive: true }
+                  ]
+                });
+
+                await sendAutoNotification(
+                  `🏆 Knockout stage auto-generated for "${season.name}"! Semifinals are set.`,
+                  'info'
+                );
+              }
+            }
+          }
+        }
       }
       // ─────────────────────────────────────────────────────────────────────
       
@@ -513,7 +625,7 @@ export async function progressPlayoffBracket(matchId) {
 
     // Fetch all playoff matches for the season
     const playoffs = await prisma.match.findMany({
-      where: { seasonId, round: { in: ['semiA', 'semiB', 'challenger', 'final'] } }
+      where: { seasonId, round: { in: ['semiA', 'semiB', 'challenger', 'final', 'third_place'] } }
     });
 
     const getRelevantMatch = (round) => {
@@ -527,8 +639,9 @@ export async function progressPlayoffBracket(matchId) {
     const semiB = getRelevantMatch('semiB');
     const challenger = getRelevantMatch('challenger');
     const finalMatch = getRelevantMatch('final');
+    const thirdPlace = getRelevantMatch('third_place');
 
-    // 1. Sync Challenger (Qualifier 2)
+    // 1. Sync Challenger (Qualifier 2) for League + Playoffs
     if (challenger) {
       const semiALoser = matchLoserId(semiA);
       const semiBWinner = matchWinnerId(semiB);
@@ -550,12 +663,16 @@ export async function progressPlayoffBracket(matchId) {
 
     // 2. Sync Final
     if (finalMatch) {
-      const semiAWinner = matchWinnerId(semiA);
-      const challengerWinner = matchWinnerId(challenger);
+      // If it's an 8-Player Tournament, the finalists are the winners of semiA and semiB
+      // If it's League + Playoffs, the finalists are the winner of semiA and winner of challenger
+      const is8Player = playoffs.some(m => m.round === 'third_place');
+      
+      const homeWinner = matchWinnerId(semiA);
+      const awayWinner = is8Player ? matchWinnerId(semiB) : matchWinnerId(challenger);
       
       let updateData = {};
-      if (semiAWinner && finalMatch.homeId !== semiAWinner) updateData.homeId = semiAWinner;
-      if (challengerWinner && finalMatch.awayId !== challengerWinner) updateData.awayId = challengerWinner;
+      if (homeWinner && finalMatch.homeId !== homeWinner) updateData.homeId = homeWinner;
+      if (awayWinner && finalMatch.awayId !== awayWinner) updateData.awayId = awayWinner;
 
       if (Object.keys(updateData).length > 0) {
         const updated = await prisma.match.update({
@@ -567,6 +684,27 @@ export async function progressPlayoffBracket(matchId) {
         broadcastEvent('match_update', updated);
       }
     }
+
+    // 3. Sync 3rd Place Match (For 8-Player Tournament)
+    if (thirdPlace) {
+      const semiALoser = matchLoserId(semiA);
+      const semiBLoser = matchLoserId(semiB);
+      
+      let updateData = {};
+      if (semiALoser && thirdPlace.homeId !== semiALoser) updateData.homeId = semiALoser;
+      if (semiBLoser && thirdPlace.awayId !== semiBLoser) updateData.awayId = semiBLoser;
+
+      if (Object.keys(updateData).length > 0) {
+        const updated = await prisma.match.update({
+          where: { id: thirdPlace.id },
+          data: updateData,
+          include: { home: true, away: true }
+        });
+        await sendAutoNotification(`3rd Place Match auto-populated: ${updated.home?.name || 'TBD'} vs ${updated.away?.name || 'TBD'}`, 'info');
+        broadcastEvent('match_update', updated);
+      }
+    }
+
   } catch (error) {
     console.error('Failed to progress playoff bracket:', error);
   }

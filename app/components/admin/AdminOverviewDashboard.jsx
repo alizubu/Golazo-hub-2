@@ -491,6 +491,7 @@ export default function AdminOverviewDashboard({ players = [], activeSeason, mat
             players={players} 
             seasonId={activeSeason.id} 
             seasonName={activeSeason.name}
+            seasonType={activeSeason.type}
             config={activeSeason.config}
             headerLeft={
               <div className="flex items-center gap-2 px-2">

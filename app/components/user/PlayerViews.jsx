@@ -594,6 +594,7 @@ export function PlayerDashboard({ me, activeSeason, seasons = [], matches, playe
             matches={tMatches}
             players={players}
             seasonId={t?.id}
+            seasonType={t?.type}
             me={me}
             onH2HClick={onH2HClick}
             config={t?.config || {}}
