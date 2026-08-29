@@ -259,17 +259,17 @@ export function TournamentMatchCard({ stage = 'normal', m, h, a, hStats, aStats,
       {config.gridColor && (
         <>
           <div 
-            className="absolute inset-0 z-0 opacity-40 mix-blend-screen"
+            className="absolute inset-0 z-0 opacity-15"
             style={{
-              background: `radial-gradient(circle at center, ${m?.round === 'groupB' ? '#ff2c2c' : '#10b981'} 0%, transparent 65%)`
+              background: `radial-gradient(circle at center, ${m?.round === 'groupA' ? '#ef4444' : config.gridColor} 0%, transparent 65%)`
             }}
           />
           <FlickeringGrid 
             className="z-0 absolute inset-0 [mask-image:radial-gradient(circle_at_center,white,transparent_80%)]" 
-            color={m?.round === 'groupB' ? '#ff2c2c' : '#10b981'}
-            maxOpacity={0.85} 
+            color={m?.round === 'groupA' ? '#ef4444' : config.gridColor}
+            maxOpacity={0.65} 
             flickerSpeed={0.5} 
-            gridSize={24} 
+            gridSize={16} 
           />
         </>
       )}
@@ -315,11 +315,14 @@ export function TournamentMatchCard({ stage = 'normal', m, h, a, hStats, aStats,
                    {/* 24K Gold Base Rim */}
                    <div className="absolute inset-0 bg-gradient-to-br from-[#FFF2C8] via-[#F59E0B] to-[#78350F]" />
                    {/* Liquid Gold Tracer */}
-                   <div className="absolute inset-0 bg-[conic-gradient(from_0deg,transparent_0%,transparent_70%,rgba(255,255,255,0.8)_100%)] animate-[sonarSweep_2.5s_linear_infinite]" style={{ mixBlendMode: 'overlay' }} />
+                   <div className="absolute inset-0 bg-[conic-gradient(from_0deg,transparent_0%,transparent_70%,rgba(255,255,255,0.8)_100%)] animate-[sonarSweep_2.5s_linear_infinite]" />
                  </>
               )}
-              <div className={`relative rounded-full overflow-hidden z-10 ${isFinal ? 'bg-[#090a0e] ring-2 ring-[#0d0a05]' : 'bg-black'}`}>
-                <Avatar p={h} size={isFinal ? 92 : 80} className={`rounded-full ${isFinal ? '' : 'ring-2 ring-white/10'}`} />
+              <div className="relative">
+                {!isFinal && <div className="absolute -inset-2 bg-blue-500/30 rounded-full blur-xl" />}
+                <div className={`relative rounded-full overflow-hidden z-10 ${isFinal ? 'bg-[#090a0e] ring-2 ring-[#0d0a05]' : 'bg-blue-500/20 ring-4 ring-blue-500 shadow-[0_0_20px_rgba(59,130,246,0.6)]'}`}>
+                  <Avatar p={h} size={isFinal ? 92 : 80} className="rounded-full" />
+                </div>
               </div>
             </div>
             {/* Transparent Floating Club Badge Overlap */}
@@ -457,20 +460,19 @@ export function TournamentMatchCard({ stage = 'normal', m, h, a, hStats, aStats,
                 </div>
               </div>
             ) : (
-              <div className="relative group">
-                <div className={`absolute -inset-2 rounded-full blur-xl transition-all ${isFinal ? '' : 'bg-rose-500/50 group-hover:bg-rose-400/60'}`} />
-                <div className={`absolute inset-0 rounded-full mix-blend-overlay z-10 ${isFinal ? '' : 'bg-gradient-to-tr from-rose-400/30 to-transparent'}`} />
-                <div className={`relative rounded-full ${isFinal ? 'p-[5px] shadow-[0_0_35px_rgba(245,158,11,0.6)]' : 'border-2 border-rose-400 overflow-hidden bg-[#0a0b10] shadow-[0_0_15px_rgba(244,63,94,0.5)]'} overflow-hidden`}>
-                  {isFinal && (
-                     <>
-                       {/* Rose Gold Base Rim */}
-                       <div className="absolute inset-0 bg-gradient-to-br from-[#FFE4E6] via-[#F43F5E] to-[#881337]" />
-                       {/* Liquid Rose Tracer */}
-                       <div className="absolute inset-0 bg-[conic-gradient(from_0deg,transparent_0%,transparent_70%,rgba(255,255,255,0.8)_100%)] animate-[sonarSweep_2.5s_linear_infinite]" style={{ mixBlendMode: 'overlay' }} />
-                     </>
-                  )}
-                  <div className={`relative w-12 h-12 sm:w-16 sm:h-16 rounded-full overflow-hidden z-10 ${isFinal ? 'bg-[#090a0e] ring-2 ring-[#4c0519]' : ''}`}>
-                    <Avatar p={a} size={64} className={`w-full h-full object-cover ${isFinal ? '' : 'scale-[1.02]'}`} />
+              <div className={`relative rounded-full ${isFinal ? 'p-[5px] shadow-[0_0_35px_rgba(245,158,11,0.6)]' : 'p-1 bg-black'} overflow-hidden`}>
+                {isFinal && (
+                   <>
+                     {/* 24K Gold Base Rim */}
+                     <div className="absolute inset-0 bg-gradient-to-br from-[#FFF2C8] via-[#F59E0B] to-[#78350F]" />
+                     {/* Liquid Gold Tracer */}
+                     <div className="absolute inset-0 bg-[conic-gradient(from_0deg,transparent_0%,transparent_70%,rgba(255,255,255,0.8)_100%)] animate-[sonarSweep_2.5s_linear_infinite]" style={{ mixBlendMode: 'overlay' }} />
+                   </>
+                )}
+                <div className="relative">
+                  {!isFinal && <div className="absolute -inset-2 bg-amber-500/30 rounded-full blur-xl" />}
+                  <div className={`relative rounded-full overflow-hidden z-10 ${isFinal ? 'bg-[#090a0e] ring-2 ring-[#0d0a05]' : 'bg-amber-500/20 ring-4 ring-amber-500 shadow-[0_0_20px_rgba(245,158,11,0.6)]'}`}>
+                    <Avatar p={a} size={isFinal ? 92 : 80} className="rounded-full" />
                   </div>
                 </div>
               </div>
