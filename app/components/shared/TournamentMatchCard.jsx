@@ -259,15 +259,15 @@ export function TournamentMatchCard({ stage = 'normal', m, h, a, hStats, aStats,
       {config.gridColor && (
         <>
           <div 
-            className="absolute inset-0 z-0 opacity-15"
+            className="absolute inset-0 z-0 opacity-20 mix-blend-color-dodge"
             style={{
-              background: `radial-gradient(circle at center, ${m?.round === 'groupA' ? '#ef4444' : config.gridColor} 0%, transparent 65%)`
+              background: `radial-gradient(circle at center, ${m?.round === 'groupA' ? '#ef4444' : config.gridColor} 0%, transparent 60%)`
             }}
           />
           <FlickeringGrid 
-            className="z-0 absolute inset-0 [mask-image:radial-gradient(circle_at_center,white,transparent_80%)]" 
+            className="z-0 absolute inset-0 [mask-image:radial-gradient(circle_at_center,white_0%,transparent_60%)]" 
             color={m?.round === 'groupA' ? '#ef4444' : config.gridColor}
-            maxOpacity={0.65} 
+            maxOpacity={0.7} 
             flickerSpeed={0.5} 
             gridSize={16} 
           />
@@ -296,8 +296,8 @@ export function TournamentMatchCard({ stage = 'normal', m, h, a, hStats, aStats,
             </div>
           )
         ) : (
-          <div className="flex items-center gap-1.5 px-4 py-1 rounded-b-xl bg-white/5 border border-white/10 border-t-0 backdrop-blur-md mt-0">
-            <span className="text-[10px] font-bold tracking-widest text-muted-foreground uppercase font-score">Match {index + 1}</span>
+          <div className="flex items-center gap-1.5 px-4 py-0.5 rounded-b-lg bg-[#0a0b10] border border-white/10 border-b-[2px] border-b-emerald-500/70 border-t-0 shadow-[0_4px_10px_rgba(16,185,129,0.2)] mt-0 relative z-20">
+            <span className="text-[9px] font-bold tracking-[0.3em] text-emerald-400 uppercase font-score">Match {index + 1}</span>
           </div>
         )}
       </div>
@@ -388,21 +388,19 @@ export function TournamentMatchCard({ stage = 'normal', m, h, a, hStats, aStats,
             <div className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[200%] h-[1px] bg-gradient-to-r from-transparent via-white/10 to-transparent hidden md:block`} />
           )}
           
-          {/* VS Polygon - Hidden for Final */}
+          {/* VS Diamond - Hidden for Final */}
           {!isFinal && (
-            <div className="relative z-10 flex flex-col items-center justify-center w-20 h-24 mb-3 mt-2">
-              <svg viewBox="0 0 100 100" className={`absolute inset-0 w-full h-full ${config.vsBadge.includes('drop-shadow') ? '' : 'drop-shadow-[0_0_15px_rgba(255,255,255,0.1)]'}`}>
-                <polygon points="50,5 90,25 90,75 50,95 10,75 10,25" className={config.vsBadge} strokeWidth="2" />
-              </svg>
+            <div className="relative z-10 flex flex-col items-center justify-center w-16 h-16 mb-3 mt-2">
+              <div className="absolute inset-0 rotate-45 backdrop-blur-md bg-white/5 border-t border-l border-white/20 shadow-lg rounded-xl" />
               
               {isCompleted ? (
                 <div className="flex flex-col items-center justify-center z-20">
-                  <span className="text-xl font-score font-black text-white leading-none">{m.homeScore ?? 0}</span>
-                  <div className="w-4 h-[1px] bg-white/30 my-1" />
-                  <span className="text-xl font-score font-black text-white leading-none">{m.awayScore ?? 0}</span>
+                  <span className="text-lg font-score font-black text-white leading-none">{m.homeScore ?? 0}</span>
+                  <span className="text-[10px] text-white/50 leading-none my-0.5">-</span>
+                  <span className="text-lg font-score font-black text-white leading-none">{m.awayScore ?? 0}</span>
                 </div>
               ) : (
-                <span className={`text-[22px] mt-1 font-black relative z-20 font-score tracking-wider drop-shadow-md ${config.vsBadge.includes('text-') ? config.vsBadge.match(/text-\S+/)[0] : 'text-white'}`}>VS</span>
+                <span className="text-[20px] italic font-black relative z-20 font-score tracking-wider drop-shadow-lg text-transparent bg-clip-text bg-gradient-to-b from-white to-gray-400">VS</span>
               )}
             </div>
           )}
