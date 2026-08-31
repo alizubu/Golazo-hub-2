@@ -77,8 +77,17 @@ const STAGE_CONFIG = {
 
 export function TournamentMatchCard({ stage = 'normal', m, h, a, hStats, aStats, index, onClick, onStartClick }) {
   const isCompleted = m?.status === 'completed';
-  const config = STAGE_CONFIG[stage] || STAGE_CONFIG['normal'];
+  const baseConfig = STAGE_CONFIG[stage] || STAGE_CONFIG['normal'];
   const isFinal = stage === 'final';
+
+  // Override config for completed matches so they don't look active
+  const config = isCompleted && !isFinal ? {
+    ...baseConfig,
+    glowClass: null,
+    hoverGlowClass: 'from-white/5 to-white/5',
+    gridColor: '#ffffff',
+    bgClass: 'bg-[#0a0b10]/40 border-white/5',
+  } : baseConfig;
 
   // Generate particle configurations safely after mount to avoid impure function during render
   const [particles, setParticles] = useState({ bg: [], fg: [], tbdPull: [] });
@@ -259,16 +268,16 @@ export function TournamentMatchCard({ stage = 'normal', m, h, a, hStats, aStats,
       {config.gridColor && (
         <>
           <div 
-            className="absolute inset-0 z-0 opacity-20 mix-blend-color-dodge"
+            className={`absolute inset-0 z-0 ${isCompleted ? 'opacity-[0.02]' : 'opacity-10'} mix-blend-color-dodge transition-opacity duration-500`}
             style={{
-              background: `radial-gradient(circle at center, ${m?.round === 'groupA' ? '#ef4444' : config.gridColor} 0%, transparent 60%)`
+              background: `radial-gradient(circle at center, ${m?.round === 'groupA' && !isCompleted ? '#ef4444' : config.gridColor} 0%, transparent 60%)`
             }}
           />
           <FlickeringGrid 
             className="z-0 absolute inset-0 [mask-image:radial-gradient(circle_at_center,white_0%,transparent_60%)]" 
-            color={m?.round === 'groupA' ? '#ef4444' : config.gridColor}
-            maxOpacity={0.7} 
-            flickerSpeed={0.5} 
+            color={m?.round === 'groupA' && !isCompleted ? '#ef4444' : config.gridColor}
+            maxOpacity={isCompleted ? 0.04 : 0.35} 
+            flickerSpeed={isCompleted ? 0.05 : 0.3} 
             gridSize={16} 
           />
         </>
@@ -319,10 +328,10 @@ export function TournamentMatchCard({ stage = 'normal', m, h, a, hStats, aStats,
                  </>
               )}
               <div className="relative group/avatar">
-                {!isFinal && <div className="absolute -inset-3 bg-blue-500/40 rounded-full blur-2xl opacity-70 group-hover/avatar:opacity-100 transition-opacity duration-500 pointer-events-none" />}
-                <div className={`relative rounded-full z-10 ${isFinal ? 'p-0 bg-[#090a0e] ring-2 ring-[#0d0a05]' : 'p-[3px] bg-gradient-to-br from-[#00E5FF] via-[#0055FF] to-[#000822] shadow-[0_0_25px_rgba(0,85,255,0.5)]'}`}>
+                {!isFinal && <div className={`absolute -inset-3 ${isCompleted ? 'bg-white/5' : 'bg-blue-500/40'} rounded-full blur-2xl opacity-70 group-hover/avatar:opacity-100 transition-opacity duration-500 pointer-events-none`} />}
+                <div className={`relative rounded-full z-10 ${isFinal ? 'p-0 bg-[#090a0e] ring-2 ring-[#0d0a05]' : `p-[3px] ${isCompleted ? 'bg-white/10' : 'bg-gradient-to-br from-[#00E5FF] via-[#0055FF] to-[#000822] shadow-[0_0_25px_rgba(0,85,255,0.5)]'}`}`}>
                   <div className="relative w-full h-full rounded-full overflow-hidden bg-black">
-                    <Avatar p={h} size={isFinal ? 92 : 80} className="w-full h-full object-cover" />
+                    <Avatar p={h} size={isFinal ? 92 : 80} className={`w-full h-full object-cover ${isCompleted ? 'grayscale-[0.5] opacity-80' : ''}`} />
                     <div className="absolute inset-0 bg-gradient-to-b from-white/40 via-transparent to-transparent pointer-events-none" />
                   </div>
                 </div>
@@ -393,14 +402,14 @@ export function TournamentMatchCard({ stage = 'normal', m, h, a, hStats, aStats,
           
           {/* VS Diamond - Hidden for Final */}
           {!isFinal && (
-            <div className="relative z-10 flex flex-col items-center justify-center w-16 h-16 mb-3 mt-2">
+            <div className={`relative z-10 flex flex-col items-center justify-center ${isCompleted ? 'w-20' : 'w-16'} h-16 mb-3 mt-2`}>
               <div className="absolute inset-0 rotate-45 backdrop-blur-md bg-white/5 border-t border-l border-white/20 shadow-lg rounded-xl" />
               
               {isCompleted ? (
-                <div className="flex flex-col items-center justify-center z-20">
-                  <span className="text-lg font-score font-black text-white leading-none">{m.homeScore ?? 0}</span>
-                  <span className="text-[10px] text-white/50 leading-none my-0.5">-</span>
-                  <span className="text-lg font-score font-black text-white leading-none">{m.awayScore ?? 0}</span>
+                <div className="flex items-center justify-center z-20 gap-2">
+                  <span className="text-2xl font-score font-black text-white/80 leading-none">{m.homeScore ?? 0}</span>
+                  <span className="text-[10px] text-white/30 leading-none">-</span>
+                  <span className="text-2xl font-score font-black text-white/80 leading-none">{m.awayScore ?? 0}</span>
                 </div>
               ) : (
                 <span className="text-[20px] italic font-black relative z-20 font-score tracking-wider drop-shadow-lg text-transparent bg-clip-text bg-gradient-to-b from-white to-gray-400">VS</span>
@@ -471,10 +480,10 @@ export function TournamentMatchCard({ stage = 'normal', m, h, a, hStats, aStats,
                    </>
                 )}
                 <div className="relative group/avatar">
-                  {!isFinal && <div className="absolute -inset-3 bg-amber-500/40 rounded-full blur-2xl opacity-70 group-hover/avatar:opacity-100 transition-opacity duration-500 pointer-events-none" />}
-                  <div className={`relative rounded-full z-10 ${isFinal ? 'p-0 bg-[#090a0e] ring-2 ring-[#0d0a05]' : 'p-[3px] bg-gradient-to-bl from-[#FFD700] via-[#FF3300] to-[#220400] shadow-[0_0_25px_rgba(255,51,0,0.5)]'}`}>
+                  {!isFinal && <div className={`absolute -inset-3 ${isCompleted ? 'bg-white/5' : 'bg-amber-500/40'} rounded-full blur-2xl opacity-70 group-hover/avatar:opacity-100 transition-opacity duration-500 pointer-events-none`} />}
+                  <div className={`relative rounded-full z-10 ${isFinal ? 'p-0 bg-[#090a0e] ring-2 ring-[#0d0a05]' : `p-[3px] ${isCompleted ? 'bg-white/10' : 'bg-gradient-to-bl from-[#FFD700] via-[#FF3300] to-[#220400] shadow-[0_0_25px_rgba(255,51,0,0.5)]'}`}`}>
                     <div className="relative w-full h-full rounded-full overflow-hidden bg-black">
-                      <Avatar p={a} size={isFinal ? 92 : 80} className="w-full h-full object-cover" />
+                      <Avatar p={a} size={isFinal ? 92 : 80} className={`w-full h-full object-cover ${isCompleted ? 'grayscale-[0.5] opacity-80' : ''}`} />
                       <div className="absolute inset-0 bg-gradient-to-b from-white/40 via-transparent to-transparent pointer-events-none" />
                     </div>
                   </div>
