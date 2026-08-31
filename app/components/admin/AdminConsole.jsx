@@ -657,7 +657,7 @@ function AdminMatchControl({ m, players, showToast, setTab, isPlayoff = false, i
 }
 
 
-import { getInviteKeys, generateInviteKey, toggleInviteKey } from '@/app/actions/invite';
+import { getInviteKeys, generateInviteKey, toggleInviteKey, deleteInviteKey } from '@/app/actions/invite';
 
 export function AdminSettings({ showToast }) {
   const [keys, setKeys] = useState([]);
@@ -694,6 +694,17 @@ export function AdminSettings({ showToast }) {
     else showToast(res.error);
   };
 
+  const handleDelete = async (id) => {
+    if (!confirm('Are you sure you want to delete this access key? This action cannot be undone.')) return;
+    const res = await deleteInviteKey(id);
+    if (res.success) {
+      showToast('🗑️ Access Key deleted.');
+      fetchKeys();
+    } else {
+      showToast(res.error);
+    }
+  };
+
   const copyToClipboard = (code) => {
     navigator.clipboard.writeText(code);
     showToast('🔑 Key copied to clipboard!');
@@ -721,27 +732,34 @@ export function AdminSettings({ showToast }) {
         ) : (
           <div className="space-y-3">
             {keys.map(k => (
-              <div key={k.id} className="flex items-center justify-between p-4 bg-secondary/30 rounded-xl border border-border/50">
-                <div>
-                  <div className="font-mono text-sm tracking-widest text-emerald-400 select-all mb-1">{k.code}</div>
-                  <div className="text-xs text-muted-foreground flex items-center gap-3">
+              <div key={k.id} className="flex flex-col sm:flex-row sm:items-center justify-between p-4 bg-secondary/30 rounded-xl border border-border/50 gap-4">
+                <div className="flex-1 min-w-0 break-all">
+                  <div className="font-mono text-sm sm:text-base tracking-widest text-emerald-400 select-all mb-2">{k.code}</div>
+                  <div className="text-xs text-muted-foreground flex flex-wrap items-center gap-3">
                     <span className={k.isActive ? 'text-green-400' : 'text-rose-400'}>
                       {k.isActive ? '● Active' : '○ Revoked'}
                     </span>
-                    <span>Status: {k.usedCount > 0 ? `Used by @${k.usedBy || 'Unknown'}` : 'Unused'}</span>
+                    <span>Status: {k.usedCount > 0 ? <span className="text-foreground font-medium">Used by @{k.usedBy || 'Unknown'}</span> : 'Unused'}</span>
                     <span>Created: {new Date(k.createdAt).toLocaleDateString()}</span>
                   </div>
                 </div>
-                <div className="flex items-center gap-2">
-                  <Btn variant="ghost" className="p-2 h-auto" onClick={() => copyToClipboard(k.code)}>
+                <div className="flex items-center gap-2 self-start sm:self-center shrink-0">
+                  <Btn variant="ghost" className="p-2 h-10 w-10 shrink-0" onClick={() => copyToClipboard(k.code)}>
                     <Copy size={16} />
                   </Btn>
                   <Btn 
                     variant="ghost" 
-                    className={`p-2 h-auto ${k.isActive ? 'text-rose-400 hover:text-rose-300 hover:bg-rose-500/10' : 'text-emerald-400 hover:text-emerald-300 hover:bg-emerald-500/10'}`}
+                    className={`p-2 h-10 w-10 shrink-0 ${k.isActive ? 'text-rose-400 hover:text-rose-300 hover:bg-rose-500/10' : 'text-emerald-400 hover:text-emerald-300 hover:bg-emerald-500/10'}`}
                     onClick={() => handleToggle(k.id, k.isActive)}
                   >
                     {k.isActive ? <XCircle size={16} /> : <CheckCircle2 size={16} />}
+                  </Btn>
+                  <Btn 
+                    variant="ghost" 
+                    className="p-2 h-10 w-10 shrink-0 text-muted-foreground hover:text-destructive hover:bg-destructive/10"
+                    onClick={() => handleDelete(k.id)}
+                  >
+                    <Trash2 size={16} />
                   </Btn>
                 </div>
               </div>

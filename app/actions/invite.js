@@ -82,3 +82,19 @@ export async function toggleInviteKey(id, isActive) {
     return { error: 'Failed to toggle invite code.' };
   }
 }
+
+export async function deleteInviteKey(id) {
+  const perm = await checkSessionPermission('canManagePlayers');
+  if (!perm) return { error: 'Unauthorized' };
+
+  try {
+    await prisma.inviteCode.delete({
+      where: { id }
+    });
+    return { success: true };
+  } catch (error) {
+    console.error('Failed to delete invite code:', error);
+    return { error: 'Failed to delete invite code.' };
+  }
+}
+
