@@ -108,7 +108,7 @@ function ScoreRow({ home, away, homeScore, awayScore, homeObj, awayObj, onBump }
             <div className="relative">
               <div className="absolute -inset-1.5 bg-emerald-500/30 rounded-full blur-[10px] animate-pulse" />
               <div className="relative w-16 h-16 sm:w-20 sm:h-20 rounded-full border-[2.5px] border-emerald-500/70 overflow-hidden shadow-[0_0_20px_rgba(34,197,94,0.25)]">
-                <Avatar p={homeObj} size={80} className="w-full h-full rounded-full object-cover" />
+                <Avatar p={homeObj} size="100%" className="w-full h-full rounded-full object-cover" />
               </div>
             </div>
             {/* Player name */}
@@ -194,7 +194,7 @@ function ScoreRow({ home, away, homeScore, awayScore, homeObj, awayObj, onBump }
             <div className="relative">
               <div className="absolute -inset-1.5 bg-rose-500/30 rounded-full blur-[10px] animate-pulse" />
               <div className="relative w-16 h-16 sm:w-20 sm:h-20 rounded-full border-[2.5px] border-rose-500/70 overflow-hidden shadow-[0_0_20px_rgba(225,29,72,0.25)]">
-                <Avatar p={awayObj} size={80} className="w-full h-full rounded-full object-cover" />
+                <Avatar p={awayObj} size="100%" className="w-full h-full rounded-full object-cover" />
               </div>
             </div>
             {/* Player name */}
@@ -259,8 +259,8 @@ function StepIndicator({ phase }) {
   const currentIdx = order.indexOf(phase);
 
   return (
-    <div className="w-full bg-[#0a0c14]/90 backdrop-blur-md border-b border-white/[0.04] px-3 sm:px-6 py-3 overflow-x-auto no-scrollbar relative z-10 snap-x snap-mandatory">
-      <div className="flex items-center justify-between min-w-[420px] max-w-2xl mx-auto gap-1 sm:gap-2">
+    <div className="w-full bg-[#0a0c14]/90 backdrop-blur-md border-b border-white/[0.04] px-2 sm:px-6 py-3 relative z-10">
+      <div className="flex items-center justify-between max-w-2xl mx-auto gap-1 sm:gap-2">
         {steps.map((s, i) => {
           const idx = order.indexOf(s.key);
           const active = idx === currentIdx;
@@ -268,8 +268,8 @@ function StepIndicator({ phase }) {
           const StepIcon = s.icon;
 
           return (
-            <div key={s.key} className="flex items-center gap-1 sm:gap-2 flex-1 snap-center">
-              <div className={`relative flex-1 flex items-center justify-center gap-1.5 py-2.5 px-2 sm:px-3 rounded-lg font-sans text-[9px] sm:text-[10px] uppercase tracking-widest transition-all duration-300 cursor-default ${
+            <div key={s.key} className={`flex items-center gap-1 sm:gap-2 ${active ? 'flex-[1.5] sm:flex-1' : 'flex-1'}`}>
+              <div className={`relative w-full flex items-center justify-center py-2.5 px-1 sm:px-3 rounded-lg font-sans text-[9px] sm:text-[10px] uppercase tracking-widest transition-all duration-300 cursor-default ${
                 active
                   ? 'bg-emerald-500/10 text-emerald-400 font-black border border-emerald-500/30 shadow-[0_2px_15px_rgba(34,197,94,0.2)]'
                   : done
@@ -277,12 +277,14 @@ function StepIndicator({ phase }) {
                     : 'bg-white/[0.02] text-slate-500 font-bold border border-white/[0.04]'
               }`}>
                 {done ? (
-                  <Check size={13} className="text-emerald-400 shrink-0" />
+                  <Check size={14} className="text-emerald-400 shrink-0" />
                 ) : (
-                  <StepIcon size={13} className="shrink-0" />
+                  <StepIcon size={14} className="shrink-0" />
                 )}
-                <span className="truncate hidden sm:inline">{s.label}</span>
-                <span className="truncate sm:hidden">{s.label.split(' ')[0]}</span>
+                <span className="truncate hidden sm:inline ml-1.5">{s.label}</span>
+                {active && (
+                  <span className="truncate sm:hidden ml-1.5">{s.label.split(' ')[0]}</span>
+                )}
                 {/* Active bottom glow line */}
                 {active && (
                   <div className="absolute -bottom-[13px] left-1/4 right-1/4 h-[2px] bg-emerald-400 rounded-full shadow-[0_0_8px_rgba(52,211,153,0.6)]" />
