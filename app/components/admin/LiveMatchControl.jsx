@@ -51,7 +51,7 @@ function CardHeader({ title, status, onCopyFixture }) {
       {/* Left: Red accent bar + Title */}
       <div className="flex items-center gap-3">
         <div className="w-1 h-8 rounded-full bg-gradient-to-b from-rose-500 to-rose-700 shadow-[0_0_10px_rgba(225,29,72,0.5)]" />
-        <h1 className="font-heading text-lg sm:text-xl font-extrabold tracking-tight">
+        <h1 className="font-heading text-[15px] sm:text-xl font-extrabold tracking-tight whitespace-nowrap">
           <span className="text-rose-500">LIVE</span>{" "}
           <span className="text-white">MATCH CONTROL</span>
         </h1>
@@ -89,7 +89,7 @@ function ScoreRow({ home, away, homeScore, awayScore, homeObj, awayObj, onBump }
   const awayClub = getClubData(awayObj);
 
   return (
-    <div className="relative bg-gradient-to-b from-[#0a0c14] via-[#0d1117] to-[#0a0c14] px-4 sm:px-6 py-8 sm:py-10 border-b border-white/[0.04] overflow-hidden scanline-overlay">
+    <div className="relative bg-gradient-to-b from-[#0a0c14] via-[#0d1117] to-[#0a0c14] px-3 sm:px-6 py-5 sm:py-10 border-b border-white/[0.04] overflow-hidden scanline-overlay">
       {/* Background light effects */}
       <div className="absolute inset-0 pointer-events-none">
         {/* Left green light streak */}
@@ -105,19 +105,19 @@ function ScoreRow({ home, away, homeScore, awayScore, homeObj, awayObj, onBump }
 
       <div className="relative z-10 max-w-3xl mx-auto">
         {/* Main Score Row */}
-        <div className="flex items-center justify-between gap-2 sm:gap-4">
+        <div className="flex items-center justify-between gap-1 sm:gap-4">
           {/* Home Player */}
           <div className="flex flex-col items-center flex-1 gap-2 sm:gap-3">
             {/* Avatar with green ring */}
             <div className="relative">
               <div className="absolute -inset-1.5 bg-emerald-500/30 rounded-full blur-[10px] animate-pulse" />
-              <div className="relative w-16 h-16 sm:w-20 sm:h-20 rounded-full border-[2.5px] border-emerald-500/70 overflow-hidden shadow-[0_0_20px_rgba(34,197,94,0.25)]">
+              <div className="relative w-14 h-14 sm:w-20 sm:h-20 rounded-full border-[2.5px] border-emerald-500/70 overflow-hidden shadow-[0_0_20px_rgba(34,197,94,0.25)]">
                 <Avatar p={homeObj} size={80} className="w-full h-full rounded-full object-cover" />
               </div>
             </div>
             {/* Player name */}
             <div className="text-center">
-              <h2 className="font-heading text-sm sm:text-lg font-black uppercase tracking-tight text-white leading-tight">{home}</h2>
+              <h2 className="font-heading text-xs sm:text-lg font-black uppercase tracking-tight text-white leading-tight">{home}</h2>
               <div className="flex items-center justify-center gap-1 mt-0.5">
                 <Home size={10} className="text-emerald-400" />
                 <span className="text-[9px] sm:text-[10px] font-bold uppercase tracking-widest text-emerald-400">HOME TEAM</span>
@@ -126,41 +126,44 @@ function ScoreRow({ home, away, homeScore, awayScore, homeObj, awayObj, onBump }
           </div>
 
           {/* Center Score */}
-          <div className="flex flex-col items-center justify-center shrink-0 relative mt-1 sm:mt-0">
-            {/* "LIVE" top center */}
-            <div className="absolute -top-7 sm:-top-8 left-1/2 -translate-x-1/2 flex items-center gap-1.5 bg-emerald-500/10 px-3 py-1 rounded-full border border-emerald-500/30">
+          <div className="flex flex-col items-center justify-center shrink-0 relative">
+            {/* "LIVE" top center — hidden on mobile since header already shows it */}
+            <div className="hidden sm:flex absolute -top-8 left-1/2 -translate-x-1/2 items-center gap-1.5 bg-emerald-500/10 px-3 py-1 rounded-full border border-emerald-500/30">
               <span className="w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_6px_rgba(52,211,153,0.8)] animate-pulse" />
               <span className="text-[10px] font-black text-emerald-400 uppercase tracking-widest">LIVE</span>
             </div>
 
-            <div className="flex items-center gap-2 sm:gap-4 mt-1 sm:mt-0">
+            <div className="flex items-center gap-1.5 sm:gap-4">
               {/* Home Score Container */}
               <div className="flex flex-col items-center">
                 <motion.div
                   key={`h-${homeScore}`}
                   initial={{ scale: 1.4, opacity: 0 }}
                   animate={{ scale: 1, opacity: 1 }}
-                  className="score-container w-14 h-16 sm:w-24 sm:h-28 bg-gradient-to-b from-emerald-900/40 via-emerald-950/30 to-emerald-900/20 border border-emerald-500/30 flex items-center justify-center neon-glow-green relative"
+                  className="score-container w-12 h-14 sm:w-24 sm:h-28 bg-gradient-to-b from-emerald-900/40 via-emerald-950/30 to-emerald-900/20 border border-emerald-500/30 flex items-center justify-center neon-glow-green relative rounded-lg sm:rounded-xl"
                 >
-                  <span className="font-score text-3xl sm:text-6xl font-black text-white tabular-nums drop-shadow-[0_0_20px_rgba(34,197,94,0.6)]">
+                  <span className="font-score text-2xl sm:text-6xl font-black text-white tabular-nums drop-shadow-[0_0_20px_rgba(34,197,94,0.6)]">
                     {homeScore}
                   </span>
                 </motion.div>
                 {onBump && (
-                  <div className="flex items-center gap-1.5 sm:gap-2 mt-2 sm:mt-3">
-                    <button onClick={() => onBump("home", "goals", -1)} className="w-7 h-7 sm:w-9 sm:h-9 rounded-lg bg-emerald-500/10 hover:bg-emerald-500/25 border border-emerald-500/30 flex items-center justify-center text-emerald-400 transition-colors active:scale-95 shadow-[0_0_10px_rgba(34,197,94,0.15)] cursor-pointer">
-                      <Minus size={16} />
+                  <div className="flex items-center gap-1 sm:gap-2 mt-1.5 sm:mt-3">
+                    <button onClick={() => onBump("home", "goals", -1)} className="w-6 h-6 sm:w-9 sm:h-9 rounded-md sm:rounded-lg bg-emerald-500/10 hover:bg-emerald-500/25 border border-emerald-500/30 flex items-center justify-center text-emerald-400 transition-colors active:scale-95 shadow-[0_0_10px_rgba(34,197,94,0.15)] cursor-pointer">
+                      <Minus size={14} className="sm:w-4 sm:h-4" />
                     </button>
-                    <button onClick={() => onBump("home", "goals", 1)} className="w-7 h-7 sm:w-9 sm:h-9 rounded-lg bg-emerald-500/10 hover:bg-emerald-500/25 border border-emerald-500/30 flex items-center justify-center text-emerald-400 transition-colors active:scale-95 shadow-[0_0_10px_rgba(34,197,94,0.15)] cursor-pointer">
-                      <Plus size={16} />
+                    <button onClick={() => onBump("home", "goals", 1)} className="w-6 h-6 sm:w-9 sm:h-9 rounded-md sm:rounded-lg bg-emerald-500/10 hover:bg-emerald-500/25 border border-emerald-500/30 flex items-center justify-center text-emerald-400 transition-colors active:scale-95 shadow-[0_0_10px_rgba(34,197,94,0.15)] cursor-pointer">
+                      <Plus size={14} className="sm:w-4 sm:h-4" />
                     </button>
                   </div>
                 )}
               </div>
 
-              {/* MATCH STATUS text */}
-              <div className="flex flex-col items-center gap-1 px-1 sm:px-2">
-                <span className="text-[8px] sm:text-[9px] font-bold uppercase tracking-[0.2em] text-slate-500 text-center leading-tight">MATCH<br/>STATUS</span>
+              {/* VS divider — compact on mobile, text on desktop */}
+              <div className="hidden sm:flex flex-col items-center gap-1 px-2">
+                <span className="text-[9px] font-bold uppercase tracking-[0.2em] text-slate-500 text-center leading-tight">VS</span>
+              </div>
+              <div className="flex sm:hidden items-center justify-center px-0.5">
+                <span className="text-[8px] font-black text-slate-600">–</span>
               </div>
 
               {/* Away Score Container */}
@@ -169,19 +172,19 @@ function ScoreRow({ home, away, homeScore, awayScore, homeObj, awayObj, onBump }
                   key={`a-${awayScore}`}
                   initial={{ scale: 1.4, opacity: 0 }}
                   animate={{ scale: 1, opacity: 1 }}
-                  className="score-container w-14 h-16 sm:w-24 sm:h-28 bg-gradient-to-b from-rose-900/40 via-rose-950/30 to-rose-900/20 border border-rose-500/30 flex items-center justify-center neon-glow-red relative"
+                  className="score-container w-12 h-14 sm:w-24 sm:h-28 bg-gradient-to-b from-rose-900/40 via-rose-950/30 to-rose-900/20 border border-rose-500/30 flex items-center justify-center neon-glow-red relative rounded-lg sm:rounded-xl"
                 >
-                  <span className="font-score text-3xl sm:text-6xl font-black text-white tabular-nums drop-shadow-[0_0_20px_rgba(225,29,72,0.6)]">
+                  <span className="font-score text-2xl sm:text-6xl font-black text-white tabular-nums drop-shadow-[0_0_20px_rgba(225,29,72,0.6)]">
                     {awayScore}
                   </span>
                 </motion.div>
                 {onBump && (
-                  <div className="flex items-center gap-1.5 sm:gap-2 mt-2 sm:mt-3">
-                    <button onClick={() => onBump("away", "goals", -1)} className="w-7 h-7 sm:w-9 sm:h-9 rounded-lg bg-rose-500/10 hover:bg-rose-500/25 border border-rose-500/30 flex items-center justify-center text-rose-400 transition-colors active:scale-95 shadow-[0_0_10px_rgba(225,29,72,0.15)] cursor-pointer">
-                      <Minus size={16} />
+                  <div className="flex items-center gap-1 sm:gap-2 mt-1.5 sm:mt-3">
+                    <button onClick={() => onBump("away", "goals", -1)} className="w-6 h-6 sm:w-9 sm:h-9 rounded-md sm:rounded-lg bg-rose-500/10 hover:bg-rose-500/25 border border-rose-500/30 flex items-center justify-center text-rose-400 transition-colors active:scale-95 shadow-[0_0_10px_rgba(225,29,72,0.15)] cursor-pointer">
+                      <Minus size={14} className="sm:w-4 sm:h-4" />
                     </button>
-                    <button onClick={() => onBump("away", "goals", 1)} className="w-7 h-7 sm:w-9 sm:h-9 rounded-lg bg-rose-500/10 hover:bg-rose-500/25 border border-rose-500/30 flex items-center justify-center text-rose-400 transition-colors active:scale-95 shadow-[0_0_10px_rgba(225,29,72,0.15)] cursor-pointer">
-                      <Plus size={16} />
+                    <button onClick={() => onBump("away", "goals", 1)} className="w-6 h-6 sm:w-9 sm:h-9 rounded-md sm:rounded-lg bg-rose-500/10 hover:bg-rose-500/25 border border-rose-500/30 flex items-center justify-center text-rose-400 transition-colors active:scale-95 shadow-[0_0_10px_rgba(225,29,72,0.15)] cursor-pointer">
+                      <Plus size={14} className="sm:w-4 sm:h-4" />
                     </button>
                   </div>
                 )}
@@ -194,13 +197,13 @@ function ScoreRow({ home, away, homeScore, awayScore, homeObj, awayObj, onBump }
             {/* Avatar with red ring */}
             <div className="relative">
               <div className="absolute -inset-1.5 bg-rose-500/30 rounded-full blur-[10px] animate-pulse" />
-              <div className="relative w-16 h-16 sm:w-20 sm:h-20 rounded-full border-[2.5px] border-rose-500/70 overflow-hidden shadow-[0_0_20px_rgba(225,29,72,0.25)]">
+              <div className="relative w-14 h-14 sm:w-20 sm:h-20 rounded-full border-[2.5px] border-rose-500/70 overflow-hidden shadow-[0_0_20px_rgba(225,29,72,0.25)]">
                 <Avatar p={awayObj} size={80} className="w-full h-full rounded-full object-cover" />
               </div>
             </div>
             {/* Player name */}
             <div className="text-center">
-              <h2 className="font-heading text-sm sm:text-lg font-black uppercase tracking-tight text-white leading-tight">{away}</h2>
+              <h2 className="font-heading text-xs sm:text-lg font-black uppercase tracking-tight text-white leading-tight">{away}</h2>
               <div className="flex items-center justify-center gap-1 mt-0.5">
                 <Star size={10} className="text-rose-400" />
                 <span className="text-[9px] sm:text-[10px] font-bold uppercase tracking-widest text-rose-400">AWAY TEAM</span>
@@ -210,7 +213,7 @@ function ScoreRow({ home, away, homeScore, awayScore, homeObj, awayObj, onBump }
         </div>
 
         {/* Supporter Club Crests Row */}
-        <div className="flex items-center justify-between mt-5 sm:mt-6 px-2 sm:px-8">
+        <div className="flex items-center justify-between mt-3 sm:mt-6 px-1 sm:px-8">
           {/* Home Club */}
           <div className="flex items-center gap-2">
             {homeClub ? (
@@ -392,7 +395,7 @@ function StatusInfoCard({ icon: Icon, label, value, subtext, variant = "default"
   const activeVariant = variant === "live" && !isLive ? "paused" : variant;
 
   return (
-    <div className={`flex-1 flex items-center gap-3 bg-[#0d1117] border rounded-xl px-4 py-3.5 relative overflow-hidden transition-all ${colorMap[activeVariant] || colorMap.default}`}>
+    <div className={`flex-1 flex items-center gap-2.5 sm:gap-3 bg-[#0d1117] border rounded-xl px-3 sm:px-4 py-2.5 sm:py-3.5 relative overflow-hidden transition-all ${colorMap[activeVariant] || colorMap.default}`}>
       {/* Background scanline overlay for diagnostic feel */}
       <div className="absolute inset-0 scanline-overlay opacity-50 pointer-events-none" />
       
@@ -419,7 +422,7 @@ function StatusInfoCard({ icon: Icon, label, value, subtext, variant = "default"
       </div>
 
       {/* Right Side Diagnostic Radars */}
-      <div className="ml-auto shrink-0 relative z-10 flex items-center justify-center w-10 h-10 opacity-80">
+      <div className="ml-auto shrink-0 relative z-10 hidden sm:flex items-center justify-center w-10 h-10 opacity-80">
         
         {variant === "live" && (
           <div className="relative w-full h-full flex items-center justify-center">
@@ -515,14 +518,14 @@ function LiveControl({ state, onFinish, onTogglePause, onUndoStart }) {
       )}
 
       {/* Status Info Cards */}
-      <div className="flex flex-col sm:flex-row gap-3 mb-6">
+      <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 mb-4 sm:mb-6">
         <StatusInfoCard icon={Radio} label="MATCH STATUS" value={paused ? "PAUSED" : "LIVE"} subtext={paused ? "Match Paused" : "1st Half"} variant="live" />
         <StatusInfoCard icon={Wifi} label="CONNECTION" value="STABLE" subtext="Good Connection" variant="connected" />
         <StatusInfoCard icon={Clock} label="LAST UPDATE" value="JUST NOW" subtext="Data Synchronized" variant="synced" />
       </div>
 
       {/* Action Buttons */}
-      <div className="mt-8 flex flex-col sm:flex-row gap-3 z-50 relative pb-4 sm:pb-0">
+      <div className="mt-4 sm:mt-8 flex flex-col sm:flex-row gap-2 sm:gap-3 z-50 relative pb-4 sm:pb-0">
         {canUndo && <ActionButton icon={RotateCcw} label="Undo Start" onClick={onUndoStart} variant="secondary" />}
         <ActionButton icon={paused ? Play : Pause} label={paused ? "Resume Match" : "Pause Match"} onClick={onTogglePause} variant="secondary" />
         <ActionButton icon={Square} label="Finish Match" onClick={() => setShowFinishConfirm(true)} variant="destructive" />
