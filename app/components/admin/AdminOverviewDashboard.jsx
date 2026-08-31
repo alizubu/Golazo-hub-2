@@ -331,74 +331,80 @@ export function MobileStandingsList({ matches, players, activeSeason }) {
   if (standings.length === 0) return null;
 
   return (
-    <div className="flex flex-col gap-2.5">
+    <div className="flex flex-col gap-2">
       {standings.map((s, i) => {
         const isTop3 = i < 3;
-        let borderClasses = "border-border/30";
-        if (i === 0) borderClasses = "border-amber-400/50 shadow-[0_0_15px_rgba(251,191,36,0.1)]";
-        else if (i === 1) borderClasses = "border-zinc-300/50";
-        else if (i === 2) borderClasses = "border-orange-400/50";
+        let borderClasses = "border-white/[0.04] bg-white/[0.02]";
+        let rankColor = "text-muted-foreground";
+        
+        if (i === 0) {
+          borderClasses = "border-amber-400/50 bg-amber-400/[0.03] shadow-[0_0_15px_rgba(251,191,36,0.05)]";
+          rankColor = "text-amber-400";
+        } else if (i === 1) {
+          borderClasses = "border-zinc-300/50 bg-zinc-300/[0.03]";
+          rankColor = "text-zinc-300";
+        } else if (i === 2) {
+          borderClasses = "border-orange-500/50 bg-orange-500/[0.03]";
+          rankColor = "text-orange-500";
+        }
 
         const badgeUrl = getPlayerIdentityBadgeUrl(s);
 
         return (
           <motion.div
             key={s.id}
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
+            initial={{ opacity: 0, x: -10 }}
+            animate={{ opacity: 1, x: 0 }}
             transition={{ delay: Math.min(i * 0.05, 0.5), duration: 0.3 }}
-            className={`bg-secondary/20 border rounded-xl p-3 sm:p-4 flex flex-col gap-3 ${borderClasses}`}
+            className={`relative rounded-xl py-2.5 px-3 flex flex-col gap-1.5 border-l-[3px] border-t border-r border-b ${borderClasses}`}
           >
-            {/* Line 1 */}
-            <div className="flex items-center gap-3">
-              <div className="w-5 text-center font-black text-muted-foreground font-score text-xs">{i + 1}</div>
-              <div className="relative flex-shrink-0 cursor-pointer">
-                <Avatar p={s} size={32} className={isTop3 ? 'ring-2 ring-white/10' : ''} />
-                {badgeUrl && (
-                  <div className="absolute -bottom-1 -right-1 bg-transparent rounded-full p-0.5">
-                    <img src={badgeUrl} alt="badge" className="w-4 h-4 object-contain drop-shadow-md" />
-                  </div>
-                )}
+            {/* Top Row: Rank, Avatar, Name, PTS */}
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2.5 min-w-0">
+                <span className={`w-4 text-center font-black font-score text-[11px] ${rankColor}`}>{i + 1}</span>
+                <div className="relative shrink-0">
+                  <Avatar p={s} size={28} className={isTop3 ? 'ring-1 ring-white/20' : ''} />
+                  {badgeUrl && (
+                    <div className="absolute -bottom-1 -right-1 bg-background rounded-full p-[1px]">
+                      <img src={badgeUrl} alt="badge" className="w-3.5 h-3.5 object-contain" />
+                    </div>
+                  )}
+                </div>
+                <div className="font-bold text-white text-[13px] truncate">{formatName(s.name)}</div>
               </div>
-              <div className="flex-1 min-w-0">
-                <div className="font-bold text-foreground text-sm truncate">{formatName(s.name)}</div>
-              </div>
-              <div className="flex items-end justify-center gap-1">
-                <div className="text-xl font-black font-score text-pitch-bright">{s.pts}</div>
-                <div className="text-[9px] text-muted-foreground uppercase tracking-widest font-bold pb-1">PTS</div>
+              <div className="flex items-baseline gap-1.5 shrink-0">
+                <div className={`text-lg font-black font-score ${i === 0 ? 'text-amber-400' : 'text-emerald-400'}`}>{s.pts}</div>
+                <div className="text-[9px] text-muted-foreground uppercase tracking-widest font-bold">PTS</div>
               </div>
             </div>
             
-            {/* Line 2: Compact Stats & Form */}
-            <div className="flex items-center justify-between pl-8 sm:pl-11 pr-1">
-              <div className="flex gap-4 sm:gap-6">
-                <div className="flex flex-col">
-                  <span className="text-[11px] font-bold font-score text-foreground">{s.won}-{s.drawn}-{s.lost}</span>
+            {/* Bottom Row: Compact Stats & Form */}
+            <div className="flex items-center justify-between pl-[42px] mt-0.5">
+              <div className="flex items-center gap-2">
+                <div className="flex items-center gap-1.5 px-1.5 py-0.5 bg-white/[0.04] rounded border border-white/[0.02]">
                   <span className="text-[8px] text-muted-foreground uppercase tracking-widest font-bold">W-D-L</span>
+                  <span className="text-[10px] font-bold font-score text-white">{s.won}-{s.drawn}-{s.lost}</span>
                 </div>
-                <div className="flex flex-col">
-                  <span className="text-[11px] font-bold font-score text-foreground">{s.gf}</span>
-                  <span className="text-[8px] text-muted-foreground uppercase tracking-widest font-bold">GF</span>
+                <div className="flex items-center gap-1 text-[9px] font-score text-muted-foreground">
+                   {s.gf}:{s.ga}
                 </div>
-                <div className="flex flex-col">
-                  <span className="text-[11px] font-bold font-score text-foreground">{s.ga}</span>
-                  <span className="text-[8px] text-muted-foreground uppercase tracking-widest font-bold">GA</span>
-                </div>
-                <div className="flex flex-col">
-                  <span className={`text-[11px] font-bold font-score ${s.gd > 0 ? 'text-emerald-400' : s.gd < 0 ? 'text-red-400' : 'text-foreground'}`}>
+                <div className="flex items-center gap-1 px-1 py-0.5">
+                  <span className="text-[8px] text-muted-foreground uppercase tracking-widest font-bold">GD</span>
+                  <span className={`text-[10px] font-bold font-score ${s.gd > 0 ? 'text-emerald-400' : s.gd < 0 ? 'text-rose-400' : 'text-white'}`}>
                     {s.gd > 0 ? `+${s.gd}` : s.gd}
                   </span>
-                  <span className="text-[8px] text-muted-foreground uppercase tracking-widest font-bold">GD</span>
                 </div>
               </div>
               
-              <div className="flex gap-0.5">
-                {s.form.slice(-4).map((f, idx) => {
-                  let bg = "bg-zinc-500";
-                  if (f.result === 'W') bg = "bg-emerald-500";
-                  if (f.result === 'L') bg = "bg-red-500";
+              {/* Form */}
+              <div className="flex gap-1 shrink-0">
+                {s.form.slice(-3).map((f, idx) => {
+                  let bg = "bg-zinc-800 text-zinc-400 border border-zinc-700/50";
+                  if (f.result === 'W') bg = "bg-emerald-500/10 text-emerald-400 border border-emerald-500/30";
+                  if (f.result === 'L') bg = "bg-rose-500/10 text-rose-400 border border-rose-500/30";
+                  if (f.result === 'D') bg = "bg-amber-500/10 text-amber-400 border border-amber-500/30";
                   return (
-                    <div key={idx} className={`w-3.5 h-3.5 rounded-full ${bg} flex items-center justify-center text-[7px] font-bold text-white shadow-sm`}>
+                    <div key={idx} className={`w-4 h-4 rounded-[4px] ${bg} flex items-center justify-center text-[8px] font-black`}>
                       {f.result}
                     </div>
                   );
@@ -501,8 +507,11 @@ export default function AdminOverviewDashboard({ players = [], activeSeason, mat
           />
         </div>
         <div className="block md:hidden">
-          <div className="flex items-center justify-between mb-4">
-            <SectionTitle icon={ListOrdered} className="mb-0">League Standings</SectionTitle>
+          <div className="flex items-center gap-2.5 mb-4 px-1">
+            <div className="w-1 h-5 rounded-full bg-gradient-to-b from-emerald-500 to-emerald-700 shadow-[0_0_8px_rgba(16,185,129,0.5)]" />
+            <h2 className="font-heading text-lg font-black uppercase tracking-tight text-white leading-tight">
+              LEAGUE STANDINGS
+            </h2>
           </div>
           <MobileStandingsList matches={liveMatches} players={players} activeSeason={activeSeason} />
         </div>
