@@ -295,7 +295,7 @@ function SignInForm({ players, onPlayerLogin }) {
 // SIGN UP FORM
 // ══════════════════════════════════════════════════════════════
 function SignUpForm({ showToast, onPlayerLogin }) {
-  const [form, setForm] = useState({ username: '', email: '', password: '', confirm: '', name: '' });
+  const [form, setForm] = useState({ username: '', email: '', password: '', confirm: '', name: '', inviteCode: '' });
   const [err, setErr] = useState('');
   const [busy, setBusy] = useState(false);
   const [showPwd, setShowPwd] = useState(false);
@@ -306,7 +306,7 @@ function SignUpForm({ showToast, onPlayerLogin }) {
     if (e) e.preventDefault();
     if (busy) return;
     setErr('');
-    if (!form.name || !form.username || !form.email || !form.password) return setErr('All fields are required.');
+    if (!form.name || !form.username || !form.email || !form.password || !form.inviteCode) return setErr('All fields are required.');
     if (form.password !== form.confirm) return setErr("Passwords don't match.");
     setBusy(true);
     const res = await signUpPlayer(form);
@@ -344,6 +344,9 @@ function SignUpForm({ showToast, onPlayerLogin }) {
             leftElement={<Lock size={18} />}
             rightElement={eyeBtn} autoComplete="new-password" disabled={busy} />
         </div>
+        <FloatingLabelInput id="su-invite" label="128-bit Access Key (Hex)" value={form.inviteCode}
+          onChange={(e) => set('inviteCode', e.target.value)} disabled={busy}
+          leftElement={<Lock size={18} className="text-amber-500" />} />
         <AnimatePresence>
           {err && (
             <motion.p initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}

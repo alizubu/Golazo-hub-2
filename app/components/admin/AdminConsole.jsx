@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import * as RadixPopover from '@radix-ui/react-popover';
-import { Trophy, Calendar, Users, Radio, Clock, Check, Archive, Plus, Trash2, Settings, Swords, Edit2, ListOrdered, BarChart2, AlertTriangle, ArrowRight, Megaphone, ChevronDown, Package, MoreVertical, History, CheckCircle2, X, Camera, Copy, Download, RefreshCw, Eye, Pencil } from 'lucide-react';
+import { Trophy, Calendar, Users, Radio, Clock, Check, Archive, Plus, Trash2, Settings, Swords, Edit2, ListOrdered, BarChart2, AlertTriangle, ArrowRight, Megaphone, ChevronDown, Package, MoreVertical, History, CheckCircle2, X, Camera, Copy, Download, RefreshCw, Eye, Pencil, Key, XCircle, Loader2 } from 'lucide-react';
 import { BorderBeam } from '@/app/components/magicui/BorderBeam';
 import { FlickeringGrid } from '@/app/components/magicui/FlickeringGrid';
 import { Card, Btn, Input, Label, SectionTitle, EmptyState, MagicCard, FadeIn, ShinyButton, Badge, Avatar, toTitleCase } from '@/app/components/shared/UI';
@@ -657,12 +657,99 @@ function AdminMatchControl({ m, players, showToast, setTab, isPlayoff = false, i
 }
 
 
+import { getInviteKeys, generateInviteKey, toggleInviteKey } from '@/app/actions/invite';
+
 export function AdminSettings({ showToast }) {
+  const [keys, setKeys] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [generating, setGenerating] = useState(false);
+
+  useEffect(() => {
+    fetchKeys();
+  }, []);
+
+  const fetchKeys = async () => {
+    setLoading(true);
+    const res = await getInviteKeys();
+    if (res.codes) setKeys(res.codes);
+    else if (res.error) showToast(res.error);
+    setLoading(false);
+  };
+
+  const handleGenerate = async () => {
+    setGenerating(true);
+    const res = await generateInviteKey();
+    if (res.success) {
+      showToast('✅ Access Key generated!');
+      fetchKeys();
+    } else {
+      showToast(res.error || 'Failed to generate key.');
+    }
+    setGenerating(false);
+  };
+
+  const handleToggle = async (id, currentStatus) => {
+    const res = await toggleInviteKey(id, !currentStatus);
+    if (res.success) fetchKeys();
+    else showToast(res.error);
+  };
+
+  const copyToClipboard = (code) => {
+    navigator.clipboard.writeText(code);
+    showToast('🔑 Key copied to clipboard!');
+  };
+
   return (
-    <Card className="p-6">
-      <SectionTitle icon={Settings}>League Settings</SectionTitle>
-      <EmptyState text="Admin settings config (password changes, rules) go here." />
-    </Card>
+    <div className="space-y-6">
+      <Card className="p-6">
+        <div className="flex items-center justify-between mb-6">
+          <SectionTitle icon={Key} className="mb-0">Access Keys Management</SectionTitle>
+          <Btn variant="primary" onClick={handleGenerate} disabled={generating}>
+            {generating ? <Loader2 size={16} className="animate-spin" /> : <Plus size={16} />}
+            <span className="ml-2">Generate 128-bit Key</span>
+          </Btn>
+        </div>
+        
+        <p className="text-sm text-muted-foreground mb-6">
+          Generate single-use 128-bit hexadecimal keys to invite new players.
+        </p>
+
+        {loading ? (
+          <div className="flex justify-center p-8"><Loader2 className="animate-spin text-muted-foreground" /></div>
+        ) : keys.length === 0 ? (
+          <EmptyState text="No access keys generated yet." />
+        ) : (
+          <div className="space-y-3">
+            {keys.map(k => (
+              <div key={k.id} className="flex items-center justify-between p-4 bg-secondary/30 rounded-xl border border-border/50">
+                <div>
+                  <div className="font-mono text-sm tracking-widest text-emerald-400 select-all mb-1">{k.code}</div>
+                  <div className="text-xs text-muted-foreground flex items-center gap-3">
+                    <span className={k.isActive ? 'text-green-400' : 'text-rose-400'}>
+                      {k.isActive ? '● Active' : '○ Revoked'}
+                    </span>
+                    <span>Status: {k.usedCount > 0 ? `Used by @${k.usedBy || 'Unknown'}` : 'Unused'}</span>
+                    <span>Created: {new Date(k.createdAt).toLocaleDateString()}</span>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Btn variant="ghost" className="p-2 h-auto" onClick={() => copyToClipboard(k.code)}>
+                    <Copy size={16} />
+                  </Btn>
+                  <Btn 
+                    variant="ghost" 
+                    className={`p-2 h-auto ${k.isActive ? 'text-rose-400 hover:text-rose-300 hover:bg-rose-500/10' : 'text-emerald-400 hover:text-emerald-300 hover:bg-emerald-500/10'}`}
+                    onClick={() => handleToggle(k.id, k.isActive)}
+                  >
+                    {k.isActive ? <XCircle size={16} /> : <CheckCircle2 size={16} />}
+                  </Btn>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </Card>
+    </div>
   );
 }
 

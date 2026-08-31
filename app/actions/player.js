@@ -11,13 +11,25 @@ function sha256(str) {
 }
 
 export async function signUpPlayer(data) {
-  const { username, email, password, name } = data;
+  const { username, email, password, name, inviteCode } = data;
   
-  if (!username || !email || !password || !name) {
-    return { error: 'All fields are required.' };
+  if (!username || !email || !password || !name || !inviteCode) {
+    return { error: 'All fields, including Invite Code, are required.' };
   }
   if (username.length < 3) return { error: 'Username needs at least 3 characters.' };
   if (password.length < 4) return { error: 'Password needs at least 4 characters.' };
+
+  // Validate Invite Code (Single-use)
+  const invite = await prisma.inviteCode.findUnique({
+    where: { code: inviteCode }
+  });
+
+  if (!invite || !invite.isActive) {
+    return { error: 'Invalid or inactive invite code.' };
+  }
+  if (invite.usedCount >= 1) {
+    return { error: 'This invite code has already been used.' };
+  }
 
   const existingUser = await prisma.player.findFirst({
     where: {
@@ -44,6 +56,15 @@ export async function signUpPlayer(data) {
         salt,
         name,
         teamName: `${name}'s XI`
+      }
+    });
+
+    // Mark invite code as used
+    await prisma.inviteCode.update({
+      where: { id: invite.id },
+      data: {
+        usedCount: { increment: 1 },
+        usedBy: player.username
       }
     });
     
