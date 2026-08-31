@@ -126,14 +126,14 @@ function ScoreRow({ home, away, homeScore, awayScore, homeObj, awayObj, onBump }
           </div>
 
           {/* Center Score */}
-          <div className="flex flex-col items-center justify-center shrink-0 relative mt-3 sm:mt-0">
+          <div className="flex flex-col items-center justify-center shrink-0 relative mt-1 sm:mt-0">
             {/* "LIVE" top center */}
             <div className="absolute -top-7 sm:-top-8 left-1/2 -translate-x-1/2 flex items-center gap-1.5 bg-emerald-500/10 px-3 py-1 rounded-full border border-emerald-500/30">
               <span className="w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_6px_rgba(52,211,153,0.8)] animate-pulse" />
               <span className="text-[10px] font-black text-emerald-400 uppercase tracking-widest">LIVE</span>
             </div>
 
-            <div className="flex items-center gap-2 sm:gap-4 mt-4 sm:mt-0">
+            <div className="flex items-center gap-2 sm:gap-4 mt-1 sm:mt-0">
               {/* Home Score Container */}
               <div className="flex flex-col items-center">
                 <motion.div

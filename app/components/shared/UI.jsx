@@ -188,8 +188,8 @@ export const OnFireAvatar = ({ p, size = 40, isOnFire = false, className = "" })
   );
 };
 
-export const SectionTitle = ({ icon: Icon, children, right }) => (
-  <div className="flex items-center justify-between mb-4">
+export const SectionTitle = ({ icon: Icon, children, right, className = "" }) => (
+  <div className={cn("flex items-center justify-between mb-4", className)}>
     <div className="flex items-center gap-2.5">
       {Icon && <Icon size={20} className="text-pitch-bright shrink-0" />}
       <h2 className="text-base sm:text-lg font-bold font-heading tracking-tight text-foreground">{children}</h2>
