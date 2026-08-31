@@ -92,20 +92,19 @@ export default function UserMatchCard({ m, h, a, players, showToast, isPlayoff =
         onClick={() => {
           setIsEditingStats(!isEditingStats);
         }}
-        className={`group relative flex flex-col p-4 sm:p-5 rounded-3xl bg-[#0a0b10] border shadow-2xl overflow-hidden transition-all duration-500 hover:scale-[1.005] cursor-pointer ${isEditingStats ? 'border-violet-500/40 rounded-b-none' : m.round === 'final' ? 'border-amber-500/50 shadow-[0_0_30px_rgba(245,158,11,0.2)]' : 'border-white/5'}`}
+        className={`group relative flex flex-col p-4 sm:p-5 rounded-3xl bg-[#0a0b10]/40 border shadow-2xl overflow-hidden transition-all duration-500 hover:scale-[1.005] cursor-pointer ${isEditingStats ? 'border-violet-500/40 rounded-b-none bg-[#0a0b10]' : m.round === 'final' ? 'border-amber-500/50 shadow-[0_0_30px_rgba(245,158,11,0.2)]' : 'border-white/5'}`}
       >
-        <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 via-transparent to-blue-500/5 opacity-50 pointer-events-none" />
         <div 
-          className="absolute inset-0 z-0 opacity-20 mix-blend-color-dodge pointer-events-none"
+          className="absolute inset-0 z-0 opacity-[0.02] mix-blend-color-dodge pointer-events-none"
           style={{
-            background: `radial-gradient(circle at center, ${m?.round === 'groupA' ? '#ef4444' : '#10b981'} 0%, transparent 60%)`
+            background: `radial-gradient(circle at center, #ffffff 0%, transparent 60%)`
           }}
         />
         <FlickeringGrid 
           className="z-0 absolute inset-0 pointer-events-none [mask-image:radial-gradient(circle_at_center,white_0%,transparent_60%)]" 
-          color={m?.round === 'groupA' ? '#ef4444' : '#10b981'}
-          maxOpacity={0.7} 
-          flickerSpeed={0.5} 
+          color="#ffffff"
+          maxOpacity={0.04} 
+          flickerSpeed={0.05} 
           gridSize={16} 
         />
 
@@ -128,10 +127,10 @@ export default function UserMatchCard({ m, h, a, players, showToast, isPlayoff =
           {/* Home player */}
           <div className="flex items-center gap-2 sm:gap-3 flex-1 min-w-0">
             <div className="relative shrink-0 group/avatar">
-              <div className="absolute -inset-2 bg-blue-500/40 rounded-full blur-[12px] opacity-70 group-hover/avatar:opacity-100 transition-opacity pointer-events-none" />
-              <div className="relative w-10 h-10 sm:w-14 sm:h-14 rounded-full p-[2px] sm:p-[3px] bg-gradient-to-br from-[#00E5FF] via-[#0055FF] to-[#000822] shadow-[0_0_15px_rgba(0,85,255,0.4)] z-10">
+              <div className="absolute -inset-2 bg-white/5 rounded-full blur-[12px] opacity-70 group-hover/avatar:opacity-100 transition-opacity pointer-events-none" />
+              <div className="relative w-10 h-10 sm:w-14 sm:h-14 rounded-full p-[2px] sm:p-[3px] bg-white/10 z-10">
                 <div className="relative w-full h-full rounded-full overflow-hidden bg-black">
-                  <Avatar p={h} size={56} className="w-full h-full object-cover" />
+                  <Avatar p={h} size={56} className="w-full h-full object-cover grayscale-[0.5] opacity-80" />
                   <div className="absolute inset-0 bg-gradient-to-b from-white/40 via-transparent to-transparent pointer-events-none" />
                 </div>
               </div>
@@ -162,10 +161,10 @@ export default function UserMatchCard({ m, h, a, players, showToast, isPlayoff =
             </div>
             {aFlagUrl && <img src={aFlagUrl} alt="" className="w-6 h-6 object-contain shrink-0 hidden sm:block" />}
             <div className="relative shrink-0 group/avatar">
-              <div className="absolute -inset-2 bg-amber-500/40 rounded-full blur-[12px] opacity-70 group-hover/avatar:opacity-100 transition-opacity pointer-events-none" />
-              <div className="relative w-10 h-10 sm:w-14 sm:h-14 rounded-full p-[2px] sm:p-[3px] bg-gradient-to-bl from-[#FFD700] via-[#FF3300] to-[#220400] shadow-[0_0_15px_rgba(255,51,0,0.4)] z-10">
+              <div className="absolute -inset-2 bg-white/5 rounded-full blur-[12px] opacity-70 group-hover/avatar:opacity-100 transition-opacity pointer-events-none" />
+              <div className="relative w-10 h-10 sm:w-14 sm:h-14 rounded-full p-[2px] sm:p-[3px] bg-white/10 z-10">
                 <div className="relative w-full h-full rounded-full overflow-hidden bg-black">
-                  <Avatar p={a} size={56} className="w-full h-full object-cover" />
+                  <Avatar p={a} size={56} className="w-full h-full object-cover grayscale-[0.5] opacity-80" />
                   <div className="absolute inset-0 bg-gradient-to-b from-white/40 via-transparent to-transparent pointer-events-none" />
                 </div>
               </div>
