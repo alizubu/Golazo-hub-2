@@ -18,6 +18,8 @@ import LiveMatchControl from '@/app/components/admin/LiveMatchControl';
 import SeasonSummaryDashboard from '@/app/components/user/SeasonSummaryDashboard';
 import { getPlayerIdentityBadgeUrl } from '@/lib/identityUtils';
 import AwardDetailModal from '@/app/components/shared/AwardDetailModal';
+import { TournamentRulesDrawer } from '@/app/components/admin/TournamentRulesDrawer';
+import { BookOpen } from 'lucide-react';
 
 function formatName(name) {
   if (!name) return 'TBD';
@@ -37,6 +39,8 @@ function HeroSeasonSummary({ activeSeason, players, matches, setTab }) {
   const progress = totalMatches === 0 ? 0 : Math.round((completedMatches / totalMatches) * 100);
   const isCompleted = progress >= 100 && totalMatches > 0;
   const hasFixtures = totalMatches > 0;
+
+  const [showRules, setShowRules] = useState(false);
 
   return (
     <div className="relative rounded-2xl overflow-hidden bg-card border border-border shadow-lg md:shadow-2xl flex flex-col md:block">
@@ -97,9 +101,21 @@ function HeroSeasonSummary({ activeSeason, players, matches, setTab }) {
             <Btn variant="primary" onClick={() => setTab && setTab('admin/matches')} className="w-full justify-center text-xs uppercase font-bold tracking-wider py-2 shadow-lg shadow-pitch/20 cursor-pointer">
               Manage Matches <ArrowRight size={14} className="ml-1" />
             </Btn>
-            <Btn variant="outline" onClick={() => setTab && setTab('admin/season')} className="w-full justify-center text-xs uppercase font-bold tracking-wider py-1.5 cursor-pointer">
-              Season Settings
-            </Btn>
+            <div className="flex gap-2">
+              <Btn variant="outline" onClick={() => setTab && setTab('admin/season')} className="flex-1 justify-center text-[10px] uppercase font-bold tracking-wider py-1.5 cursor-pointer">
+                Season Settings
+              </Btn>
+              <Btn 
+                onClick={() => setShowRules(true)} 
+                className="flex-1 relative justify-center text-[10px] uppercase font-bold tracking-wider py-1.5 cursor-pointer group overflow-hidden border-0"
+              >
+                <div className="absolute inset-0 bg-gradient-to-r from-violet-600 via-fuchsia-600 to-indigo-600 animate-[gradient_3s_ease_infinite] bg-[length:200%_200%]" />
+                <div className="absolute inset-[1px] bg-background rounded-md transition-colors group-hover:bg-background/80" />
+                <span className="relative z-10 flex items-center gap-1.5 text-transparent bg-clip-text bg-gradient-to-r from-violet-400 to-fuchsia-400 group-hover:text-white transition-colors">
+                  <BookOpen size={12} /> Official Rules
+                </span>
+              </Btn>
+            </div>
           </div>
         </div>
       </div>
@@ -108,6 +124,8 @@ function HeroSeasonSummary({ activeSeason, players, matches, setTab }) {
       <div className="md:hidden h-1 w-full bg-border/30 absolute bottom-0 left-0">
         <div className="h-full bg-gradient-to-r from-pitch to-pitch-bright transition-all duration-500 shadow-[0_0_10px_rgba(20,184,166,0.3)]" style={{ width: `${progress}%` }} />
       </div>
+
+      <TournamentRulesDrawer isOpen={showRules} onClose={() => setShowRules(false)} />
     </div>
   );
 }

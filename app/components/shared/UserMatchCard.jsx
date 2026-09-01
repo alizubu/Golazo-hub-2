@@ -121,10 +121,15 @@ export default function UserMatchCard({ m, h, a, players, showToast, isPlayoff =
           <div className="flex flex-col items-center flex-1 min-w-0">
             <div className="relative shrink-0 group/avatar mb-2 sm:mb-3">
               <div className="absolute -inset-2 bg-white/5 rounded-full blur-[12px] opacity-70 transition-opacity pointer-events-none" />
-              <div className={`relative w-12 h-12 sm:w-16 sm:h-16 rounded-full p-[2px] sm:p-[3px] bg-white/10 z-10 ${hWon ? 'ring-2 ring-emerald-500/40 shadow-[0_0_15px_rgba(34,197,94,0.2)]' : ''}`}>
-                <div className="relative w-full h-full rounded-full overflow-hidden bg-black">
-                  <Avatar p={h} size={64} className={`w-full h-full object-cover ${hWon ? '' : 'grayscale-[0.5] opacity-70'}`} />
-                  <div className="absolute inset-0 bg-gradient-to-b from-white/40 via-transparent to-transparent pointer-events-none" />
+              <div className={`relative inline-flex rounded-full p-[2px] sm:p-[3px] bg-white/10 z-10 ${hWon ? 'ring-2 ring-emerald-500/40 shadow-[0_0_15px_rgba(34,197,94,0.2)]' : ''}`}>
+                <div className="relative rounded-full overflow-hidden bg-black inline-flex">
+                  <div className="sm:hidden flex">
+                    <Avatar p={h} size={48} className={`${hWon ? '' : 'grayscale-[0.5] opacity-70'}`} />
+                  </div>
+                  <div className="hidden sm:flex">
+                    <Avatar p={h} size={64} className={`${hWon ? '' : 'grayscale-[0.5] opacity-70'}`} />
+                  </div>
+                  <div className="absolute inset-0 bg-gradient-to-b from-white/40 via-transparent to-transparent pointer-events-none rounded-full" />
                 </div>
               </div>
             </div>
@@ -159,10 +164,15 @@ export default function UserMatchCard({ m, h, a, players, showToast, isPlayoff =
           <div className="flex flex-col items-center flex-1 min-w-0">
             <div className="relative shrink-0 group/avatar mb-2 sm:mb-3">
               <div className="absolute -inset-2 bg-white/5 rounded-full blur-[12px] opacity-70 transition-opacity pointer-events-none" />
-              <div className={`relative w-12 h-12 sm:w-16 sm:h-16 rounded-full p-[2px] sm:p-[3px] bg-white/10 z-10 ${aWon ? 'ring-2 ring-rose-500/40 shadow-[0_0_15px_rgba(244,63,94,0.2)]' : ''}`}>
-                <div className="relative w-full h-full rounded-full overflow-hidden bg-black">
-                  <Avatar p={a} size={64} className={`w-full h-full object-cover ${aWon ? '' : 'grayscale-[0.5] opacity-70'}`} />
-                  <div className="absolute inset-0 bg-gradient-to-b from-white/40 via-transparent to-transparent pointer-events-none" />
+              <div className={`relative inline-flex rounded-full p-[2px] sm:p-[3px] bg-white/10 z-10 ${aWon ? 'ring-2 ring-rose-500/40 shadow-[0_0_15px_rgba(244,63,94,0.2)]' : ''}`}>
+                <div className="relative rounded-full overflow-hidden bg-black inline-flex">
+                  <div className="sm:hidden flex">
+                    <Avatar p={a} size={48} className={`${aWon ? '' : 'grayscale-[0.5] opacity-70'}`} />
+                  </div>
+                  <div className="hidden sm:flex">
+                    <Avatar p={a} size={64} className={`${aWon ? '' : 'grayscale-[0.5] opacity-70'}`} />
+                  </div>
+                  <div className="absolute inset-0 bg-gradient-to-b from-white/40 via-transparent to-transparent pointer-events-none rounded-full" />
                 </div>
               </div>
             </div>
