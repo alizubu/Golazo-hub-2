@@ -114,60 +114,66 @@ export default function UserMatchCard({ m, h, a, players, showToast, isPlayoff =
           </div>
         )}
 
-        {/* FINISHED pill */}
-        <div className="flex justify-center mb-3">
-          <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-rose-500/20 border border-rose-500/30">
-            <span className="w-2 h-2 rounded-full bg-rose-400 shadow-[0_0_6px_rgba(244,63,94,0.8)]" />
-            <span className="text-[10px] font-black uppercase tracking-widest text-rose-400">FINISHED</span>
-          </div>
-        </div>
-
-        {/* Player header */}
-        <div className="flex items-center justify-between gap-2 px-1">
-          {/* Home player */}
-          <div className="flex items-center gap-2 sm:gap-3 flex-1 min-w-0">
-            <div className="relative shrink-0 group/avatar">
-              <div className="absolute -inset-2 bg-white/5 rounded-full blur-[12px] opacity-70 group-hover/avatar:opacity-100 transition-opacity pointer-events-none" />
-              <div className="relative w-10 h-10 sm:w-14 sm:h-14 rounded-full p-[2px] sm:p-[3px] bg-white/10 z-10">
+        {/* Match Header Row */}
+        <div className="flex items-center justify-between w-full relative z-10 px-0 sm:px-2">
+          
+          {/* Home Player */}
+          <div className="flex flex-col items-center flex-1 min-w-0">
+            <div className="relative shrink-0 group/avatar mb-2 sm:mb-3">
+              <div className="absolute -inset-2 bg-white/5 rounded-full blur-[12px] opacity-70 transition-opacity pointer-events-none" />
+              <div className={`relative w-12 h-12 sm:w-16 sm:h-16 rounded-full p-[2px] sm:p-[3px] bg-white/10 z-10 ${hWon ? 'ring-2 ring-emerald-500/40 shadow-[0_0_15px_rgba(34,197,94,0.2)]' : ''}`}>
                 <div className="relative w-full h-full rounded-full overflow-hidden bg-black">
-                  <Avatar p={h} size={56} className="w-full h-full object-cover grayscale-[0.5] opacity-80" />
+                  <Avatar p={h} size={64} className={`w-full h-full object-cover ${hWon ? '' : 'grayscale-[0.5] opacity-70'}`} />
                   <div className="absolute inset-0 bg-gradient-to-b from-white/40 via-transparent to-transparent pointer-events-none" />
                 </div>
               </div>
             </div>
-            {hFlagUrl && <img src={hFlagUrl} alt="" className="w-6 h-6 object-contain shrink-0 hidden sm:block" />}
-            <div className="flex flex-col min-w-0">
-              <span className={`text-xs sm:text-sm font-black truncate ${hWon ? 'text-white' : 'text-slate-400'}`} style={{ fontFamily: "'Sora', sans-serif" }}>
-                {toTitleCase(h?.name)}
+            <span className={`text-xs sm:text-sm font-black truncate w-full text-center px-1 ${hWon ? 'text-white' : 'text-slate-400'}`} style={{ fontFamily: "'Sora', sans-serif" }}>
+              {toTitleCase(h?.name)}
+            </span>
+            <div className="flex items-center justify-center gap-1.5 mt-0.5 px-1">
+              {hFlagUrl && <img src={hFlagUrl} alt="" className="w-3.5 h-3.5 object-contain opacity-70" />}
+              <span className="text-[9px] sm:text-[10px] font-bold text-slate-500 truncate uppercase tracking-wider">
+                {h?.favoriteClub || 'TBD'}
               </span>
-              <span className="text-[9px] text-slate-500 truncate">{h?.favoriteClub || ''}</span>
             </div>
           </div>
 
-          {/* Score */}
-          <div className="flex items-center gap-2 sm:gap-4 shrink-0">
-            <span className={`text-3xl sm:text-4xl font-score font-black tabular-nums ${hWon ? 'text-white' : 'text-slate-500'}`}>{hScore}</span>
-            <span className="text-slate-600 font-score text-xl">-</span>
-            <span className={`text-3xl sm:text-4xl font-score font-black tabular-nums ${aWon ? 'text-rose-400' : 'text-slate-500'}`}>{aScore}</span>
+          {/* Center Score Area */}
+          <div className="flex flex-col items-center justify-center shrink-0 px-2 sm:px-6">
+             {/* FINISHED Pill */}
+             <div className="flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-rose-500/10 border border-rose-500/20 mb-2 sm:mb-3">
+               <span className="w-1.5 h-1.5 rounded-full bg-rose-500 shadow-[0_0_5px_rgba(244,63,94,0.8)]" />
+               <span className="text-[9px] font-black uppercase tracking-[0.25em] text-rose-500">FT</span>
+             </div>
+             
+             {/* Score */}
+             <div className="flex items-center justify-center gap-2 sm:gap-4">
+               <span className={`text-4xl sm:text-5xl font-score font-black tabular-nums tracking-tighter ${hWon ? 'text-white drop-shadow-[0_0_15px_rgba(255,255,255,0.3)]' : 'text-slate-500'}`}>{hScore}</span>
+               <span className="text-slate-700 font-score text-xl sm:text-2xl">-</span>
+               <span className={`text-4xl sm:text-5xl font-score font-black tabular-nums tracking-tighter ${aWon ? 'text-rose-400 drop-shadow-[0_0_15px_rgba(244,63,94,0.4)]' : 'text-slate-500'}`}>{aScore}</span>
+             </div>
           </div>
 
-          {/* Away player */}
-          <div className="flex items-center gap-2 sm:gap-3 flex-1 min-w-0 justify-end">
-            <div className="flex flex-col min-w-0 items-end">
-              <span className={`text-xs sm:text-sm font-black truncate text-right ${aWon ? 'text-white' : 'text-slate-400'}`} style={{ fontFamily: "'Sora', sans-serif" }}>
-                {toTitleCase(a?.name)}
-              </span>
-              <span className="text-[9px] text-slate-500 truncate">{a?.favoriteClub || ''}</span>
-            </div>
-            {aFlagUrl && <img src={aFlagUrl} alt="" className="w-6 h-6 object-contain shrink-0 hidden sm:block" />}
-            <div className="relative shrink-0 group/avatar">
-              <div className="absolute -inset-2 bg-white/5 rounded-full blur-[12px] opacity-70 group-hover/avatar:opacity-100 transition-opacity pointer-events-none" />
-              <div className="relative w-10 h-10 sm:w-14 sm:h-14 rounded-full p-[2px] sm:p-[3px] bg-white/10 z-10">
+          {/* Away Player */}
+          <div className="flex flex-col items-center flex-1 min-w-0">
+            <div className="relative shrink-0 group/avatar mb-2 sm:mb-3">
+              <div className="absolute -inset-2 bg-white/5 rounded-full blur-[12px] opacity-70 transition-opacity pointer-events-none" />
+              <div className={`relative w-12 h-12 sm:w-16 sm:h-16 rounded-full p-[2px] sm:p-[3px] bg-white/10 z-10 ${aWon ? 'ring-2 ring-rose-500/40 shadow-[0_0_15px_rgba(244,63,94,0.2)]' : ''}`}>
                 <div className="relative w-full h-full rounded-full overflow-hidden bg-black">
-                  <Avatar p={a} size={56} className="w-full h-full object-cover grayscale-[0.5] opacity-80" />
+                  <Avatar p={a} size={64} className={`w-full h-full object-cover ${aWon ? '' : 'grayscale-[0.5] opacity-70'}`} />
                   <div className="absolute inset-0 bg-gradient-to-b from-white/40 via-transparent to-transparent pointer-events-none" />
                 </div>
               </div>
+            </div>
+            <span className={`text-xs sm:text-sm font-black truncate w-full text-center px-1 ${aWon ? 'text-white' : 'text-slate-400'}`} style={{ fontFamily: "'Sora', sans-serif" }}>
+              {toTitleCase(a?.name)}
+            </span>
+            <div className="flex items-center justify-center gap-1.5 mt-0.5 px-1">
+              {aFlagUrl && <img src={aFlagUrl} alt="" className="w-3.5 h-3.5 object-contain opacity-70" />}
+              <span className="text-[9px] sm:text-[10px] font-bold text-slate-500 truncate uppercase tracking-wider">
+                {a?.favoriteClub || 'TBD'}
+              </span>
             </div>
           </div>
         </div>
