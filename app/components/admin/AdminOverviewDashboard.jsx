@@ -82,20 +82,20 @@ function HeroSeasonSummary({ activeSeason, players, matches, setTab }) {
           </p>
         </div>
 
-        {/* Desktop Detailed Stats Box */}
-        <div className="hidden md:flex flex-col sm:flex-row items-stretch sm:items-center gap-4 bg-secondary/30 p-4 rounded-xl border border-border/50 backdrop-blur-sm">
+        {/* Detailed Stats Box (Mobile & Desktop) */}
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 bg-secondary/30 p-4 rounded-xl border border-border/50 backdrop-blur-sm w-full md:w-auto mt-2 md:mt-0">
           <div className="flex flex-col justify-center px-2">
             <span className="text-[10px] uppercase font-bold text-muted-foreground tracking-wider mb-1">League Progress</span>
             <div className="flex items-center gap-3">
               <span className="text-2xl font-score font-bold text-foreground">{progress}%</span>
-              <div className="w-24 h-2 bg-background rounded-full overflow-hidden border border-border/50">
+              <div className="w-full sm:w-24 h-2 bg-background rounded-full overflow-hidden border border-border/50">
                 <div className="h-full bg-gradient-to-r from-pitch to-pitch-bright transition-all duration-500" style={{ width: `${progress}%` }} />
               </div>
             </div>
             <span className="text-[10px] text-muted-foreground mt-1 font-score">{completedMatches} / {totalMatches} Matches Played</span>
           </div>
 
-          <div className="h-full w-px bg-border/50 hidden sm:block" />
+          <div className="h-px w-full sm:h-8 sm:w-px bg-border/50 block my-2 sm:my-0" />
 
           <div className="flex flex-col gap-2 w-full sm:w-auto">
             <Btn variant="primary" onClick={() => setTab && setTab('admin/matches')} className="w-full justify-center text-xs uppercase font-bold tracking-wider py-2 shadow-lg shadow-pitch/20 cursor-pointer">
@@ -107,11 +107,10 @@ function HeroSeasonSummary({ activeSeason, players, matches, setTab }) {
               </Btn>
               <Btn 
                 onClick={() => setShowRules(true)} 
-                className="flex-1 relative justify-center text-[10px] uppercase font-bold tracking-wider py-1.5 cursor-pointer group overflow-hidden border-0"
+                className="flex-1 relative justify-center text-[10px] uppercase font-bold tracking-wider py-1.5 cursor-pointer border-0 overflow-hidden group shadow-[0_0_15px_rgba(139,92,246,0.3)] hover:shadow-[0_0_25px_rgba(139,92,246,0.5)] transition-all duration-300"
               >
-                <div className="absolute inset-0 bg-gradient-to-r from-violet-600 via-fuchsia-600 to-indigo-600 animate-[gradient_3s_ease_infinite] bg-[length:200%_200%]" />
-                <div className="absolute inset-[1px] bg-background rounded-md transition-colors group-hover:bg-background/80" />
-                <span className="relative z-10 flex items-center gap-1.5 text-transparent bg-clip-text bg-gradient-to-r from-violet-400 to-fuchsia-400 group-hover:text-white transition-colors">
+                <div className="absolute inset-0 bg-gradient-to-r from-violet-600 via-fuchsia-500 to-indigo-600 bg-[length:200%_auto] animate-[gradient_3s_linear_infinite] opacity-90 group-hover:opacity-100" />
+                <span className="relative z-10 flex items-center gap-1.5 text-white drop-shadow-md">
                   <BookOpen size={12} /> Official Rules
                 </span>
               </Btn>
