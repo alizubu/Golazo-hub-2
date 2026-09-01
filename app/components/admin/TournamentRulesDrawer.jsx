@@ -12,7 +12,7 @@ const ruleData = [
       <ul className="space-y-2 text-sm text-slate-300">
         <li className="flex gap-2"><div className="w-1.5 h-1.5 rounded-full bg-primary mt-1.5 shrink-0"/> Every Group Stage match will be played for 8 minutes.</li>
         <li className="flex gap-2"><div className="w-1.5 h-1.5 rounded-full bg-primary mt-1.5 shrink-0"/> Injury: ON | Substitution: 6/3 | Form: Normal | ET: OFF | Pen: OFF</li>
-        <li className="flex gap-2"><div className="w-1.5 h-1.5 rounded-full bg-amber-500 mt-1.5 shrink-0"/> Knockout Stage: Extra Time ON & Penalty ON.</li>
+        <li className="flex gap-2"><div className="w-1.5 h-1.5 rounded-full bg-amber-500 mt-1.5 shrink-0"/> Knockout Stage: Extra Time ON &amp; Penalty ON.</li>
         <li className="flex gap-2"><div className="w-1.5 h-1.5 rounded-full bg-primary mt-1.5 shrink-0"/> Players are not allowed to change the match settings on their own.</li>
       </ul>
     ),
@@ -20,7 +20,7 @@ const ruleData = [
       <ul className="space-y-2 text-sm text-slate-300">
         <li className="flex gap-2"><div className="w-1.5 h-1.5 rounded-full bg-primary mt-1.5 shrink-0"/> প্রতিটি টুরের Group Stage-এর প্রতিটি ম্যাচ ৮ মিনিটের হবে।</li>
         <li className="flex gap-2"><div className="w-1.5 h-1.5 rounded-full bg-primary mt-1.5 shrink-0"/> Injury: ON | Substitution: ৬/৩ | Form: Normal | ET: OFF | Pen: OFF</li>
-        <li className="flex gap-2"><div className="w-1.5 h-1.5 rounded-full bg-amber-500 mt-1.5 shrink-0"/> Knockout Stage-এ: Extra Time: ON & Penalty: ON</li>
+        <li className="flex gap-2"><div className="w-1.5 h-1.5 rounded-full bg-amber-500 mt-1.5 shrink-0"/> Knockout Stage-এ: Extra Time: ON &amp; Penalty: ON</li>
         <li className="flex gap-2"><div className="w-1.5 h-1.5 rounded-full bg-primary mt-1.5 shrink-0"/> নির্ধারিত Match Format পরিবর্তন করে ইচ্ছামতো ম্যাচ খেলা যাবে না।</li>
       </ul>
     )
