@@ -21,6 +21,7 @@ module.exports = {
         sans: ['var(--font-jakarta)', 'sans-serif'],
         heading: ['var(--font-sora)', 'sans-serif'],
         score: ['var(--font-chakra)', 'sans-serif'],
+        bn: ['var(--font-hind-siliguri)', 'sans-serif'],
       },
       colors: {
         border: "hsl(var(--border))",

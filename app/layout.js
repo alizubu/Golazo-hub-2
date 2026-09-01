@@ -1,6 +1,6 @@
 import './globals.css';
 import 'flag-icons/css/flag-icons.min.css';
-import { Sora, Chakra_Petch, Plus_Jakarta_Sans } from 'next/font/google';
+import { Sora, Chakra_Petch, Plus_Jakarta_Sans, Hind_Siliguri } from 'next/font/google';
 
 const sora = Sora({ 
   subsets: ['latin'],
@@ -18,6 +18,13 @@ const chakra = Chakra_Petch({
 const jakarta = Plus_Jakarta_Sans({ 
   subsets: ['latin'],
   variable: '--font-jakarta',
+  display: 'swap',
+});
+
+const hindSiliguri = Hind_Siliguri({
+  subsets: ['bengali'],
+  weight: ['400', '700'],
+  variable: '--font-hind-siliguri',
   display: 'swap',
 });
 
@@ -57,7 +64,7 @@ import InstallPrompt from '@/pwa/components/InstallPrompt';
 export default function RootLayout({ children }) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`${jakarta.variable} ${sora.variable} ${chakra.variable} font-sans`}>
+      <body className={`${jakarta.variable} ${sora.variable} ${chakra.variable} ${hindSiliguri.variable} font-sans`}>
         <AppThemeProvider />
         <InstallPrompt />
         {children}

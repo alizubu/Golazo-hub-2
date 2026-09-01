@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, BookOpen, Clock, ShieldAlert, Users, Network, Gavel, Globe, CheckCircle2 } from 'lucide-react';
+import { X, BookOpen, Clock, ShieldAlert, Users, Network, Gavel, Globe, CheckCircle2, ChevronDown } from 'lucide-react';
 
 const ruleData = [
   {
@@ -174,30 +174,72 @@ function SegmentedControl({ lang, setLang }) {
 }
 
 function RuleCard({ rule, lang, delayIdx }) {
+  const [isOpen, setIsOpen] = useState(false);
   const Icon = rule.icon;
+  
+  // Extract number and title (assuming format "1. Title")
+  const titleText = lang === 'en' ? rule.titleEn : rule.titleBn;
+  const splitIndex = titleText.indexOf('.');
+  const hasNumber = splitIndex !== -1 && splitIndex < 4; // safely assume it's a number
+  const ruleNumber = hasNumber ? titleText.substring(0, splitIndex) : '';
+  const ruleTitle = hasNumber ? titleText.substring(splitIndex + 1).trim() : titleText;
+
   return (
     <motion.div 
       initial={{ opacity: 0, y: 15 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: delayIdx * 0.05 + 0.1, duration: 0.4, ease: "easeOut" }}
-      className="group relative bg-white/[0.02] border border-white/5 rounded-2xl overflow-hidden hover:bg-white/[0.04] transition-all duration-300 hover:shadow-lg hover:shadow-primary/5 hover:-translate-y-0.5"
+      className={`group relative bg-white/[0.02] border border-white/5 rounded-2xl overflow-hidden hover:bg-white/[0.04] transition-all duration-300 hover:shadow-lg hover:shadow-primary/5 ${isOpen ? 'bg-white/[0.04] shadow-lg shadow-primary/5' : ''}`}
     >
-      {/* Subtle Glow on Hover */}
       <div className="absolute inset-0 bg-gradient-to-br from-primary/0 via-primary/0 to-primary/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
       
-      <div className="p-4 sm:p-5 relative z-10">
-        <h3 className="flex items-center gap-3 text-base sm:text-lg font-bold text-white mb-3">
-          <div className="relative w-10 h-10 rounded-xl bg-gradient-to-br from-primary/20 to-primary/5 border border-primary/20 flex items-center justify-center text-primary shrink-0 shadow-inner group-hover:from-primary/30 group-hover:to-primary/10 transition-colors">
-            {/* Inner Glow */}
+      <button 
+        onClick={() => setIsOpen(!isOpen)}
+        className="w-full text-left p-4 sm:p-5 relative z-10 flex items-center justify-between"
+      >
+        <div className="flex items-center gap-4">
+          <div className="relative w-11 h-11 rounded-xl bg-gradient-to-br from-primary/20 to-primary/5 border border-primary/20 flex items-center justify-center text-primary shrink-0 shadow-inner group-hover:from-primary/30 group-hover:to-primary/10 transition-colors">
             <div className="absolute inset-0 rounded-xl bg-primary/20 blur-md opacity-0 group-hover:opacity-100 transition-opacity" />
-            <Icon size={18} className="relative z-10" />
+            <Icon size={20} className="relative z-10" />
           </div>
-          <span className="tracking-tight">{lang === 'en' ? rule.titleEn : rule.titleBn}</span>
-        </h3>
-        <div className="pl-[3.25rem]">
-          {lang === 'en' ? rule.contentEn : rule.contentBn}
+          <div>
+            {hasNumber && (
+              <div className="mb-1">
+                <span className="inline-block px-2 py-0.5 rounded bg-white/10 text-white/70 text-[10px] font-bold uppercase tracking-widest shadow-sm border border-white/5">
+                  Rule {ruleNumber}
+                </span>
+              </div>
+            )}
+            <h3 className={`text-base sm:text-lg text-white tracking-tight ${lang === 'bn' ? 'font-bn font-bold' : 'font-bold'}`}>
+              {ruleTitle}
+            </h3>
+          </div>
         </div>
-      </div>
+        
+        <div className="shrink-0 ml-4 text-white/40 group-hover:text-white/80 transition-colors bg-white/5 p-2 rounded-full">
+          <motion.div animate={{ rotate: isOpen ? 180 : 0 }} transition={{ duration: 0.2 }}>
+            <ChevronDown size={18} />
+          </motion.div>
+        </div>
+      </button>
+
+      <AnimatePresence>
+        {isOpen && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: 'auto', opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.3, ease: "easeInOut" }}
+            className="overflow-hidden"
+          >
+            <div className={`p-4 sm:p-5 pt-0 pl-[4.75rem] text-slate-300 ${lang === 'bn' ? 'font-bn font-normal text-[15px]' : 'text-sm'}`}>
+              <div className="border-t border-white/5 pt-4 leading-relaxed">
+                {lang === 'en' ? rule.contentEn : rule.contentBn}
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </motion.div>
   );
 }
@@ -243,7 +285,7 @@ export function TournamentRulesDrawer({ isOpen, onClose }) {
                 onClose();
               }
             }}
-            className="fixed top-0 right-0 bottom-0 z-[101] w-full max-w-md bg-[#0c0e12]/95 border-l border-white/10 shadow-2xl flex flex-col backdrop-blur-2xl"
+            className="fixed top-0 right-0 bottom-0 z-[101] w-full max-w-xl bg-[#0c0e12]/95 border-l border-white/10 shadow-2xl flex flex-col backdrop-blur-2xl"
           >
             {/* Mobile Drag Handle */}
             <div className="absolute top-2 left-1/2 -translate-x-1/2 w-12 h-1.5 bg-white/20 rounded-full md:hidden" />
