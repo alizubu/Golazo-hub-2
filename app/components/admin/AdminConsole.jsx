@@ -637,10 +637,6 @@ export function AdminSettings({ showToast }) {
   const [loading, setLoading] = useState(true);
   const [generating, setGenerating] = useState(false);
 
-  useEffect(() => {
-    fetchKeys();
-  }, []);
-
   const fetchKeys = async () => {
     setLoading(true);
     const res = await getInviteKeys();
@@ -648,6 +644,10 @@ export function AdminSettings({ showToast }) {
     else if (res.error) showToast(res.error);
     setLoading(false);
   };
+
+  useEffect(() => {
+    fetchKeys();
+  }, []);
 
   const handleGenerate = async () => {
     setGenerating(true);
@@ -2177,8 +2177,9 @@ export function AdminSeason({ activeSeason, seasons = [], matches = [], players 
                </div>
              </div>
            </Card>
+      </div>
 
-          {/* New sections can be added here */}
+      {/* New sections can be added here */}
 
 
       {showEditDialog && (
