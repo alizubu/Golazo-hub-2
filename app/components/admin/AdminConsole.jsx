@@ -638,7 +638,6 @@ export function AdminSettings({ showToast }) {
   const [generating, setGenerating] = useState(false);
 
   const fetchKeys = async () => {
-    setLoading(true);
     const res = await getInviteKeys();
     if (res.codes) setKeys(res.codes);
     else if (res.error) showToast(res.error);
