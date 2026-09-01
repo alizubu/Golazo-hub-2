@@ -645,7 +645,11 @@ export function AdminSettings({ showToast }) {
   };
 
   useEffect(() => {
-    fetchKeys();
+    // Defers execution so React Compiler's strict static analysis knows this is fully asynchronous
+    const timer = setTimeout(() => {
+      fetchKeys();
+    }, 0);
+    return () => clearTimeout(timer);
   }, []);
 
   const handleGenerate = async () => {
