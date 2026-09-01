@@ -143,8 +143,67 @@ const ruleData = [
   }
 ];
 
+function SegmentedControl({ lang, setLang }) {
+  const options = [
+    { id: 'en', label: 'English', icon: Globe },
+    { id: 'bn', label: 'বাংলা', icon: Globe },
+  ];
+
+  return (
+    <div className="mt-6 flex bg-black/40 p-1.5 rounded-xl border border-white/10 relative z-10 w-full sm:w-fit backdrop-blur-md shadow-inner">
+      {options.map((opt) => (
+        <button
+          key={opt.id}
+          onClick={() => setLang(opt.id)}
+          className={`relative flex-1 sm:flex-none flex items-center justify-center gap-2 px-6 py-2 rounded-lg text-xs font-bold transition-colors z-10 ${
+            lang === opt.id ? 'text-white' : 'text-slate-400 hover:text-slate-200'
+          }`}
+        >
+          {lang === opt.id && (
+            <motion.div
+              layoutId="active-lang-pill"
+              className="absolute inset-0 bg-primary/90 shadow-[0_0_15px_rgba(20,184,166,0.4)] rounded-lg -z-10"
+              transition={{ type: "spring", stiffness: 300, damping: 25 }}
+            />
+          )}
+          <opt.icon size={14} className={lang === opt.id ? 'opacity-100' : 'opacity-60'} /> {opt.label}
+        </button>
+      ))}
+    </div>
+  );
+}
+
+function RuleCard({ rule, lang, delayIdx }) {
+  const Icon = rule.icon;
+  return (
+    <motion.div 
+      initial={{ opacity: 0, y: 15 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: delayIdx * 0.05 + 0.1, duration: 0.4, ease: "easeOut" }}
+      className="group relative bg-white/[0.02] border border-white/5 rounded-2xl overflow-hidden hover:bg-white/[0.04] transition-all duration-300 hover:shadow-lg hover:shadow-primary/5 hover:-translate-y-0.5"
+    >
+      {/* Subtle Glow on Hover */}
+      <div className="absolute inset-0 bg-gradient-to-br from-primary/0 via-primary/0 to-primary/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
+      
+      <div className="p-4 sm:p-5 relative z-10">
+        <h3 className="flex items-center gap-3 text-base sm:text-lg font-bold text-white mb-3">
+          <div className="relative w-10 h-10 rounded-xl bg-gradient-to-br from-primary/20 to-primary/5 border border-primary/20 flex items-center justify-center text-primary shrink-0 shadow-inner group-hover:from-primary/30 group-hover:to-primary/10 transition-colors">
+            {/* Inner Glow */}
+            <div className="absolute inset-0 rounded-xl bg-primary/20 blur-md opacity-0 group-hover:opacity-100 transition-opacity" />
+            <Icon size={18} className="relative z-10" />
+          </div>
+          <span className="tracking-tight">{lang === 'en' ? rule.titleEn : rule.titleBn}</span>
+        </h3>
+        <div className="pl-[3.25rem]">
+          {lang === 'en' ? rule.contentEn : rule.contentBn}
+        </div>
+      </div>
+    </motion.div>
+  );
+}
+
 export function TournamentRulesDrawer({ isOpen, onClose }) {
-  const [lang, setLang] = useState('en'); // 'en' or 'bn'
+  const [lang, setLang] = useState('en');
 
   // Prevent background scroll when drawer is open
   useEffect(() => {
@@ -175,10 +234,22 @@ export function TournamentRulesDrawer({ isOpen, onClose }) {
             animate={{ x: 0, opacity: 1 }}
             exit={{ x: '100%', opacity: 0 }}
             transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-            className="fixed top-0 right-0 bottom-0 z-[101] w-full max-w-md bg-background/95 border-l border-white/10 shadow-2xl flex flex-col backdrop-blur-2xl"
+            drag="x"
+            dragConstraints={{ left: 0, right: 300 }}
+            dragDirectionLock
+            onDragEnd={(e, info) => {
+              // Swipe right to close
+              if (info.offset.x > 100 || info.velocity.x > 200) {
+                onClose();
+              }
+            }}
+            className="fixed top-0 right-0 bottom-0 z-[101] w-full max-w-md bg-[#0c0e12]/95 border-l border-white/10 shadow-2xl flex flex-col backdrop-blur-2xl"
           >
+            {/* Mobile Drag Handle */}
+            <div className="absolute top-2 left-1/2 -translate-x-1/2 w-12 h-1.5 bg-white/20 rounded-full md:hidden" />
+
             {/* Header */}
-            <div className="relative p-6 border-b border-white/10 shrink-0 overflow-hidden bg-secondary/30">
+            <div className="relative p-6 pt-8 md:pt-6 border-b border-white/10 shrink-0 overflow-hidden bg-secondary/30">
               <div className="absolute top-0 right-0 p-32 bg-primary/10 blur-[100px] rounded-full pointer-events-none"></div>
               
               <div className="flex items-start justify-between relative z-10">
@@ -198,53 +269,14 @@ export function TournamentRulesDrawer({ isOpen, onClose }) {
               </div>
 
               {/* Language Toggle */}
-              <div className="mt-6 flex bg-black/30 p-1 rounded-lg border border-white/5 relative z-10 w-full sm:w-fit">
-                <button
-                  onClick={() => setLang('en')}
-                  className={`flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-1.5 rounded-md text-xs font-bold transition-all ${
-                    lang === 'en' ? 'bg-primary text-primary-foreground shadow-md' : 'text-slate-400 hover:text-slate-200'
-                  }`}
-                >
-                  <Globe size={14} /> English
-                </button>
-                <button
-                  onClick={() => setLang('bn')}
-                  className={`flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-1.5 rounded-md text-xs font-bold transition-all ${
-                    lang === 'bn' ? 'bg-primary text-primary-foreground shadow-md' : 'text-slate-400 hover:text-slate-200'
-                  }`}
-                >
-                  <Globe size={14} /> বাংলা
-                </button>
-              </div>
+              <SegmentedControl lang={lang} setLang={setLang} />
             </div>
 
             {/* Rules Content */}
-            <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4 relative">
-              
-              {ruleData.map((rule, idx) => {
-                const Icon = rule.icon;
-                return (
-                  <motion.div 
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: idx * 0.05 }}
-                    key={rule.id} 
-                    className="bg-white/[0.02] border border-white/5 rounded-2xl overflow-hidden hover:bg-white/[0.04] transition-colors"
-                  >
-                    <div className="p-4 sm:p-5">
-                      <h3 className="flex items-center gap-3 text-base font-bold text-white mb-3">
-                        <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary shrink-0">
-                          <Icon size={16} />
-                        </div>
-                        {lang === 'en' ? rule.titleEn : rule.titleBn}
-                      </h3>
-                      <div className="pl-11">
-                        {lang === 'en' ? rule.contentEn : rule.contentBn}
-                      </div>
-                    </div>
-                  </motion.div>
-                );
-              })}
+            <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4 relative custom-scrollbar">
+              {ruleData.map((rule, idx) => (
+                <RuleCard key={rule.id} rule={rule} lang={lang} delayIdx={idx} />
+              ))}
               
               <div className="py-8 text-center opacity-50">
                 <p className="text-xs font-bold tracking-widest uppercase">END OF RULEBOOK</p>
