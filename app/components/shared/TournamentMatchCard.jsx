@@ -312,11 +312,11 @@ export function TournamentMatchCard({ stage = 'normal', m, h, a, hStats, aStats,
       </div>
 
       {/* Main Content Area */}
-      <div className="flex flex-col md:flex-row items-center justify-between gap-6 md:gap-4 mt-6 md:mt-2 relative z-10">
+      <div className="flex flex-row items-center justify-between gap-2 sm:gap-4 mt-4 sm:mt-2 relative z-10">
         
         {/* Home Player (Left) */}
-        <div className="flex flex-col md:flex-row items-center gap-4 flex-1 w-full justify-start">
-          <div className="relative shrink-0 order-1 md:order-1 z-20">
+        <div className="flex flex-col sm:flex-row items-center gap-2 sm:gap-4 flex-1 w-full justify-start">
+          <div className="relative shrink-0 order-1 z-20">
             {/* Avatar Champion Frame */}
             <div className={`relative rounded-full ${isFinal ? 'p-[5px] shadow-[0_0_35px_rgba(245,158,11,0.6)]' : 'p-1 bg-black'} overflow-hidden`}>
               {isFinal && (
@@ -345,15 +345,15 @@ export function TournamentMatchCard({ stage = 'normal', m, h, a, hStats, aStats,
             )}
           </div>
           
-          <div className={`flex flex-col items-center md:items-start min-w-0 order-2 md:order-2 relative ${isFinal ? 'px-4' : ''}`}>
+          <div className={`flex flex-col items-center sm:items-start min-w-0 order-2 relative ${isFinal ? 'px-4' : ''}`}>
             {isFinal && hBadgeUrl && (
               <img src={hBadgeUrl} alt="watermark" className="absolute right-2 top-1/2 -translate-y-1/2 w-16 h-16 opacity-[0.05] grayscale mix-blend-overlay pointer-events-none animate-[breatheWatermark_4s_ease-in-out_infinite]" />
             )}
-            <span className={`font-black text-xl md:text-2xl truncate text-center md:text-left relative z-10 ${isFinal ? 'text-transparent bg-clip-text bg-gradient-to-r from-white via-[#FFF3D1] to-[#F59E0B] drop-shadow-[0_3px_6px_rgba(0,0,0,0.95)] drop-shadow-[0_0_18px_rgba(245,158,11,0.4)] animate-[goldFoilSheen_6s_linear_infinite]' : 'text-white drop-shadow-md'}`} style={{ fontFamily: "'Sora', sans-serif" }}>
+            <span className={`font-black text-xs sm:text-xl truncate text-left relative z-10 ${isFinal ? 'text-transparent bg-clip-text bg-gradient-to-r from-white via-[#FFF3D1] to-[#F59E0B] drop-shadow-[0_3px_6px_rgba(0,0,0,0.95)] drop-shadow-[0_0_18px_rgba(245,158,11,0.4)] animate-[goldFoilSheen_6s_linear_infinite]' : 'text-white drop-shadow-md'}`} style={{ fontFamily: "'Sora', sans-serif" }}>
               {formatName(h?.name)}
             </span>
             <div className={`flex items-center gap-2 mt-1 relative z-10`}>
-              <span className={`text-xs font-bold tracking-widest px-3 py-0.5 rounded-full uppercase ${isFinal ? 'bg-black/60 backdrop-blur-md border border-amber-400/30 shadow-[0_2px_8px_rgba(0,0,0,0.6)] text-amber-200/90 text-[11px]' : 'text-slate-400 bg-white/5 border border-white/10'}`}>
+              <span className={`text-[9px] sm:text-xs font-bold tracking-widest px-2 py-0.5 rounded-full uppercase ${isFinal ? 'bg-black/60 backdrop-blur-md border border-amber-400/30 shadow-[0_2px_8px_rgba(0,0,0,0.6)] text-amber-200/90 text-[10px]' : 'text-slate-400 bg-white/5 border border-white/10'}`}>
                 {h?.favoriteClub ? shortenClubName(h.favoriteClub) : 'TBD'}
               </span>
             </div>
@@ -361,12 +361,12 @@ export function TournamentMatchCard({ stage = 'normal', m, h, a, hStats, aStats,
         </div>
 
         {/* Center VS Area */}
-        <div className="flex flex-col items-center justify-center shrink-0 min-w-[140px] relative order-3 md:order-2 my-4 md:my-0">
+        <div className="flex flex-col items-center justify-center shrink-0 min-w-[60px] sm:min-w-[140px] relative order-2 my-0">
           
           {/* Final Trophy & Shockwaves */}
           {isFinal && (
             <div className="relative z-10 flex flex-col items-center justify-center mb-2 mt-4 perspective-[800px]">
-              <div className="relative flex items-center justify-center w-56 h-36">
+              <div className="relative flex items-center justify-center w-24 h-24 sm:w-56 sm:h-36">
                 {/* Orbital Rings */}
                 <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[140px] h-[140px] pointer-events-none z-0">
                   <div className="absolute inset-0 w-full h-full rounded-full border border-[#F3C75F]/20 border-t-[#F3C75F]/50 border-b-[#F3C75F]/50 animate-[spin3D_6s_linear_infinite]" style={{ transformStyle: 'preserve-3d' }} />
@@ -402,7 +402,7 @@ export function TournamentMatchCard({ stage = 'normal', m, h, a, hStats, aStats,
           
           {/* VS Diamond - Hidden for Final */}
           {!isFinal && (
-            <div className={`relative z-10 flex flex-col items-center justify-center ${isCompleted ? 'w-20' : 'w-16'} h-16 mb-3 mt-2`}>
+            <div className={`relative z-10 flex flex-col items-center justify-center ${isCompleted ? 'w-16 sm:w-20' : 'w-10 sm:w-16'} h-10 sm:h-16 mb-2 sm:mb-3 mt-1 sm:mt-2`}>
               <div className="absolute inset-0 rotate-45 backdrop-blur-md bg-white/5 border-t border-l border-white/20 shadow-lg rounded-xl" />
               
               {isCompleted ? (
@@ -426,24 +426,24 @@ export function TournamentMatchCard({ stage = 'normal', m, h, a, hStats, aStats,
                    onStartClick();
                  }
                }}
-               className={`relative overflow-hidden flex items-center justify-center px-5 py-1.5 mt-2 rounded-full border backdrop-blur-md cursor-pointer transition-all duration-300 transform group-hover:-translate-y-1 z-20 ${config.startBtn}`}
+               className={`relative overflow-hidden flex items-center justify-center px-3 sm:px-5 py-1 sm:py-1.5 mt-2 rounded-full border backdrop-blur-md cursor-pointer transition-all duration-300 transform group-hover:-translate-y-1 z-20 ${config.startBtn}`}
              >
                {isFinal && (
                   <div className="absolute top-0 -left-[100%] w-[50%] h-[100%] bg-gradient-to-r from-transparent via-white to-transparent opacity-60 animate-[foilGlint_3s_ease-in-out_infinite]" style={{ transform: 'skewX(-45deg)' }} />
                )}
-               <span className={`text-[14px] font-black uppercase tracking-[0.25em] relative z-10 ${isFinal ? 'drop-shadow-none' : ''}`}>Start</span>
+               <span className={`text-[10px] sm:text-[14px] font-black uppercase tracking-[0.25em] relative z-10 ${isFinal ? 'drop-shadow-none' : ''}`}>Start</span>
              </div>
           )}
         </div>
 
         {/* Away Player (Right) */}
-        <div className="flex flex-col md:flex-row items-center gap-4 flex-1 w-full justify-end order-4 md:order-3">
+        <div className="flex flex-col sm:flex-row items-center gap-2 sm:gap-4 flex-1 w-full justify-end order-3">
           
-          <div className={`flex flex-col items-center md:items-end min-w-0 order-2 md:order-1 relative ${isFinal ? 'px-4' : ''}`}>
+          <div className={`flex flex-col items-center sm:items-end min-w-0 order-2 sm:order-1 relative ${isFinal ? 'px-4' : ''}`}>
             {isFinal && aBadgeUrl && (
               <img src={aBadgeUrl} alt="watermark" className="absolute left-2 top-1/2 -translate-y-1/2 w-16 h-16 opacity-[0.05] grayscale mix-blend-overlay pointer-events-none animate-[breatheWatermark_4s_ease-in-out_infinite]" />
             )}
-            <span className={`font-black text-xl md:text-2xl truncate text-center md:text-right relative z-10 ${isFinal ? 'text-transparent bg-clip-text bg-gradient-to-r from-white via-[#FFF3D1] to-[#F59E0B] drop-shadow-[0_3px_6px_rgba(0,0,0,0.95)] drop-shadow-[0_0_18px_rgba(245,158,11,0.4)] animate-[goldFoilSheen_6s_linear_infinite]' : 'text-white drop-shadow-md'}`} style={{ fontFamily: "'Sora', sans-serif" }}>
+            <span className={`font-black text-sm sm:text-xl md:text-2xl truncate text-center sm:text-right relative z-10 ${isFinal ? 'text-transparent bg-clip-text bg-gradient-to-r from-white via-[#FFF3D1] to-[#F59E0B] drop-shadow-[0_3px_6px_rgba(0,0,0,0.95)] drop-shadow-[0_0_18px_rgba(245,158,11,0.4)] animate-[goldFoilSheen_6s_linear_infinite]' : 'text-white drop-shadow-md'}`} style={{ fontFamily: "'Sora', sans-serif" }}>
               {isFinal && (!a || a?.name === 'TBD') ? (
                 <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-100 via-amber-300 to-amber-100 drop-shadow-[0_0_20px_rgba(245,158,11,0.5)] animate-pulse tracking-[0.2em] uppercase font-black inline-block">TBD</span>
               ) : formatName(a?.name)}
@@ -455,7 +455,7 @@ export function TournamentMatchCard({ stage = 'normal', m, h, a, hStats, aStats,
             </div>
           </div>
 
-          <div className="relative shrink-0 order-1 md:order-2 z-20">
+          <div className="relative shrink-0 order-1 sm:order-2 z-20">
             {isFinal && (!a || a?.name === 'TBD') ? (
               <div className="relative rounded-full ring-2 ring-white/10 ring-offset-4 ring-offset-[#090a0e] overflow-hidden w-[80px] h-[80px] md:w-[92px] md:h-[92px] bg-white/5 backdrop-blur-sm flex items-center justify-center shadow-[0_0_20px_rgba(0,0,0,0.5)]">
                 {/* Sonar Sweep */}
