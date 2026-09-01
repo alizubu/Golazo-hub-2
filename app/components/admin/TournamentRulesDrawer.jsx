@@ -9,139 +9,252 @@ const ruleData = [
     titleEn: "1. Match Format",
     titleBn: "১. ম্যাচের ফরম্যাট",
     contentEn: (
-      <ul className="space-y-2 text-sm text-slate-300">
-        <li className="flex gap-2"><div className="w-1.5 h-1.5 rounded-full bg-primary mt-1.5 shrink-0"/> Every Group Stage match will be played for 8 minutes.</li>
-        <li className="flex gap-2"><div className="w-1.5 h-1.5 rounded-full bg-primary mt-1.5 shrink-0"/> Injury: ON | Substitution: 6/3 | Form: Normal | ET: OFF | Pen: OFF</li>
-        <li className="flex gap-2"><div className="w-1.5 h-1.5 rounded-full bg-amber-500 mt-1.5 shrink-0"/> Knockout Stage: Extra Time ON &amp; Penalty ON.</li>
-        <li className="flex gap-2"><div className="w-1.5 h-1.5 rounded-full bg-primary mt-1.5 shrink-0"/> Players are not allowed to change the match settings on their own.</li>
-      </ul>
+      <>
+        <p className="mb-2">Every Group Stage match will be played for 8 minutes, with these settings:</p>
+        <div className="mb-2">
+          <span className="inline-block text-[11px] font-semibold text-emerald-300 bg-emerald-500/10 border border-emerald-500/25 px-2 py-0.5 rounded-md mr-1.5 mb-1">Injury: ON</span>
+          <span className="inline-block text-[11px] font-semibold text-emerald-300 bg-emerald-500/10 border border-emerald-500/25 px-2 py-0.5 rounded-md mr-1.5 mb-1">Substitution: 6/3</span>
+          <span className="inline-block text-[11px] font-semibold text-emerald-300 bg-emerald-500/10 border border-emerald-500/25 px-2 py-0.5 rounded-md mr-1.5 mb-1">Form: Both Normal</span>
+          <span className="inline-block text-[11px] font-semibold text-emerald-300 bg-emerald-500/10 border border-emerald-500/25 px-2 py-0.5 rounded-md mr-1.5 mb-1">Extra Time: OFF</span>
+          <span className="inline-block text-[11px] font-semibold text-emerald-300 bg-emerald-500/10 border border-emerald-500/25 px-2 py-0.5 rounded-md mr-1.5 mb-1">Penalty: OFF</span>
+        </div>
+        <p className="mb-2">Every Group Stage match must be played using this exact format. In the Knockout Stage, Extra Time and Penalty are both ON.</p>
+        <p className="mb-2">Players may not change match settings on their own — contact the Admin first for any special situation.</p>
+      </>
     ),
     contentBn: (
-      <ul className="space-y-2 text-sm text-slate-300">
-        <li className="flex gap-2"><div className="w-1.5 h-1.5 rounded-full bg-primary mt-1.5 shrink-0"/> প্রতিটি টুরের Group Stage-এর প্রতিটি ম্যাচ ৮ মিনিটের হবে।</li>
-        <li className="flex gap-2"><div className="w-1.5 h-1.5 rounded-full bg-primary mt-1.5 shrink-0"/> Injury: ON | Substitution: ৬/৩ | Form: Normal | ET: OFF | Pen: OFF</li>
-        <li className="flex gap-2"><div className="w-1.5 h-1.5 rounded-full bg-amber-500 mt-1.5 shrink-0"/> Knockout Stage-এ: Extra Time: ON &amp; Penalty: ON</li>
-        <li className="flex gap-2"><div className="w-1.5 h-1.5 rounded-full bg-primary mt-1.5 shrink-0"/> নির্ধারিত Match Format পরিবর্তন করে ইচ্ছামতো ম্যাচ খেলা যাবে না।</li>
-      </ul>
+      <>
+        <p className="mb-2">Group Stage-এর প্রতিটি ম্যাচ ৮ মিনিটের হবে, নিচের সেটিংসে:</p>
+        <div className="mb-2">
+          <span className="inline-block text-[11px] font-semibold text-emerald-300 bg-emerald-500/10 border border-emerald-500/25 px-2 py-0.5 rounded-md mr-1.5 mb-1">Injury: ON</span>
+          <span className="inline-block text-[11px] font-semibold text-emerald-300 bg-emerald-500/10 border border-emerald-500/25 px-2 py-0.5 rounded-md mr-1.5 mb-1">Substitution: ৬/৩</span>
+          <span className="inline-block text-[11px] font-semibold text-emerald-300 bg-emerald-500/10 border border-emerald-500/25 px-2 py-0.5 rounded-md mr-1.5 mb-1">Form: Both Normal</span>
+          <span className="inline-block text-[11px] font-semibold text-emerald-300 bg-emerald-500/10 border border-emerald-500/25 px-2 py-0.5 rounded-md mr-1.5 mb-1">Extra Time: OFF</span>
+          <span className="inline-block text-[11px] font-semibold text-emerald-300 bg-emerald-500/10 border border-emerald-500/25 px-2 py-0.5 rounded-md mr-1.5 mb-1">Penalty: OFF</span>
+        </div>
+        <p className="mb-2">প্রতিটি Group Stage ম্যাচ এই ফরম্যাটেই খেলতে হবে। Knockout Stage-এ Extra Time ও Penalty দুটোই ON থাকবে।</p>
+        <p className="mb-2">নিজের ইচ্ছায় সেটিংস পরিবর্তন করা যাবে না — ব্যতিক্রম প্রয়োজন হলে আগে Admin-এর অনুমতি নিন।</p>
+      </>
     )
   },
   {
     id: "deadline",
     icon: Clock,
     titleEn: "2. Match Deadline",
-    titleBn: "২. ম্যাচের DEADLINE",
+    titleBn: "২. ম্যাচের ডেডলাইন",
     contentEn: (
-      <div className="space-y-2 text-sm text-slate-300">
-        <p>Both players are responsible for completing their match within the given Deadline. If a match is not completed, the Admin will review activity, communication, and effort to play.</p>
-        <div className="bg-amber-500/10 border border-amber-500/20 p-3 rounded-lg mt-2 text-amber-200">
-          <strong>Important:</strong> Simply saying &quot;we could not play&quot; will not automatically make either player the winner.
+      <>
+        <p className="mb-2">Each match has a specific deadline. Both players are responsible for completing it on time.</p>
+        <p className="mb-2">If a match isn&apos;t finished before the deadline, the Admin reviews both players&apos; activity, communication, and effort to play, and may award an Auto Win.</p>
+        <div className="mt-2.5 p-2.5 rounded-lg bg-amber-500/10 border border-amber-500/25 text-amber-200/90 text-[12.6px]">
+          Simply saying &quot;we could not play&quot; does not automatically make either player the winner — both sides are reviewed first.
         </div>
-      </div>
+      </>
     ),
     contentBn: (
-      <div className="space-y-2 text-sm text-slate-300">
-        <p>নির্ধারিত Deadline-এর মধ্যেই ম্যাচ সম্পন্ন করতে হবে। ম্যাচ শেষ না হলে উভয় খেলোয়াড়ের Activity, যোগাযোগ এবং ম্যাচ সম্পন্ন করার প্রচেষ্টা বিবেচনা করে Admin সিদ্ধান্ত নেবেন।</p>
-        <div className="bg-amber-500/10 border border-amber-500/20 p-3 rounded-lg mt-2 text-amber-200">
-          <strong>গুরুত্বপূর্ণ:</strong> শুধু &quot;ম্যাচ খেলা হয়নি&quot; বললেই কোনো পক্ষ স্বয়ংক্রিয়ভাবে জয়ী হবে না।
+      <>
+        <p className="mb-2">প্রতিটি ম্যাচের নির্দিষ্ট Deadline থাকবে। এর মধ্যে ম্যাচ সম্পন্ন করার দায়িত্ব উভয় খেলোয়াড়ের।</p>
+        <p className="mb-2">Deadline-এর মধ্যে ম্যাচ শেষ না হলে Admin উভয় পক্ষের Activity ও চেষ্টা বিবেচনা করে Auto Win দিতে পারেন।</p>
+        <div className="mt-2.5 p-2.5 rounded-lg bg-amber-500/10 border border-amber-500/25 text-amber-200/90 text-[12.6px]">
+          শুধু &quot;ম্যাচ খেলা হয়নি&quot; বললেই কেউ স্বয়ংক্রিয়ভাবে জয়ী হবে না — উভয় পক্ষ পর্যালোচনা করা হবে।
         </div>
-      </div>
+      </>
     )
   },
   {
     id: "quitting",
     icon: ShieldAlert,
     titleEn: "3. Quitting the Tournament",
-    titleBn: "৩. মাঝপথে খেলা ছেড়ে দেওয়া",
+    titleBn: "৩. মাঝপথে খেলা ছেড়ে দেওয়া",
     contentEn: (
-      <div className="space-y-2 text-sm text-slate-300">
-        <p>If a player decides to leave the Tournament in the middle of it, all of their remaining matches will be recorded as 0-1 Auto Loss.</p>
-        <p>A player who intentionally leaves the Tournament may receive additional punishment, including a 3-goal penalty applied to results.</p>
-      </div>
+      <>
+        <p className="mb-2">Leaving mid-tournament results in all remaining matches being recorded as a <b>0–1 Auto Loss</b>, submitted to the official website.</p>
+        <ul className="list-disc pl-5 my-1.5 space-y-1">
+          <li>Intentionally leaving may bring additional punishment from the Admin.</li>
+          <li>In serious cases, an extra 3-goal penalty may apply, at the Admin&apos;s discretion.</li>
+        </ul>
+        <div className="mt-2.5 p-2.5 rounded-lg bg-amber-500/10 border border-amber-500/25 text-amber-200/90 text-[12.6px]">
+          Make sure you have time to complete the tournament before joining.
+        </div>
+      </>
     ),
     contentBn: (
-      <div className="space-y-2 text-sm text-slate-300">
-        <p>কোনো খেলোয়াড় Tournament চলাকালীন মাঝপথে খেলা ছেড়ে দিলে, তার বাকি সব ম্যাচে ০-১ Auto Loss দেওয়া হবে।</p>
-        <p>ইচ্ছাকৃতভাবে Tournament ছেড়ে দিলে বিশেষ ক্ষেত্রে অতিরিক্ত ৩ গোলের Penalty/শাস্তি প্রযোজ্য হবে।</p>
-      </div>
+      <>
+        <p className="mb-2">মাঝপথে ছেড়ে দিলে বাকি সব ম্যাচে <b>০–১ Auto Loss</b> দেওয়া হবে এবং ফলাফল ওয়েবসাইটে সাবমিট হবে।</p>
+        <ul className="list-disc pl-5 my-1.5 space-y-1">
+          <li>ইচ্ছাকৃতভাবে ছাড়লে Admin অতিরিক্ত শাস্তি দিতে পারেন।</li>
+          <li>বিশেষ ক্ষেত্রে অতিরিক্ত ৩ গোলের Penalty প্রযোজ্য হতে পারে।</li>
+        </ul>
+        <div className="mt-2.5 p-2.5 rounded-lg bg-amber-500/10 border border-amber-500/25 text-amber-200/90 text-[12.6px]">
+          Tournament শুরু করার আগে নিজের সময় নিশ্চিত করে নিন।
+        </div>
+      </>
     )
   },
   {
     id: "proxy",
     icon: Users,
     titleEn: "4. Proxy / Playing for Someone Else",
-    titleBn: "৪. PROXY সংক্রান্ত নিয়ম",
+    titleBn: "৪. Proxy সংক্রান্ত নিয়ম",
     contentEn: (
-      <div className="space-y-2 text-sm text-slate-300">
-        <p>A player must always play their own matches. Asking another person to play on your behalf will be considered PROXY and is strictly prohibited.</p>
-        <ul className="mt-2 space-y-1 pl-2 border-l-2 border-red-500/50">
-          <li>• All matches of that player given Auto Loss.</li>
-          <li>• Player may be BANNED from the next Tournament.</li>
+      <>
+        <p className="mb-2">Players must always play their own matches. Asking someone else to play for you, or playing on someone else&apos;s account, is strictly prohibited — in either direction.</p>
+        <p className="mb-2"><b>If proxy is confirmed:</b></p>
+        <ul className="list-disc pl-5 my-1.5 space-y-1">
+          <li>All of that player&apos;s matches may be given an Auto Loss.</li>
+          <li>Tournament results may be corrected or removed.</li>
+          <li>The player may be banned from the next tournament.</li>
+          <li>Repeated or serious violations may lead to stronger action.</li>
         </ul>
-      </div>
+        <p className="text-[12.3px] text-slate-500 mt-2">Screenshots, screen recordings, and match records may be reviewed as evidence.</p>
+      </>
     ),
     contentBn: (
-      <div className="space-y-2 text-sm text-slate-300">
-        <p>কোনো খেলোয়াড় নিজের পরিবর্তে অন্য কাউকে দিয়ে ম্যাচ খেলালে সেটি PROXY হিসেবে গণ্য হবে এবং এটি সম্পূর্ণ নিষিদ্ধ।</p>
-        <ul className="mt-2 space-y-1 pl-2 border-l-2 border-red-500/50">
-          <li>• সব ম্যাচে Auto Loss দেওয়া হবে।</li>
-          <li>• পরবর্তী Tournament থেকে Ban করা হতে পারে।</li>
+      <>
+        <p className="mb-2">নিজের ম্যাচ নিজেকেই খেলতে হবে। অন্য কাউকে দিয়ে খেলানো বা অন্যের Account দিয়ে খেলা — দুটোই সম্পূর্ণ নিষিদ্ধ।</p>
+        <p className="mb-2"><b>প্রমাণিত হলে:</b></p>
+        <ul className="list-disc pl-5 my-1.5 space-y-1">
+          <li>সব ম্যাচে Auto Loss দেওয়া হবে।</li>
+          <li>ফলাফল সংশোধন বা বাতিল করা হতে পারে।</li>
+          <li>পরবর্তী Tournament থেকে Ban হতে পারে।</li>
+          <li>গুরুতর বা পুনরাবৃত্ত হলে আরও কঠোর ব্যবস্থা নেওয়া হবে।</li>
         </ul>
-      </div>
+        <p className="text-[12.3px] text-slate-500 mt-2">প্রমাণ হিসেবে Screenshot, Screen Record ও Match Record বিবেচনা করা হবে।</p>
+      </>
     )
   },
   {
     id: "squad",
     icon: ShieldAlert,
     titleEn: "5. Squad Rules",
-    titleBn: "৫. SQUAD সংক্রান্ত নিয়ম",
+    titleBn: "৫. Squad সংক্রান্ত নিয়ম",
     contentEn: (
-      <p className="text-sm text-slate-300">
-        Once a Tournament starts with a specific Squad Type (Authentic, Max, National, Club), that same Squad Type must be used throughout. Players cannot switch to another Squad Type in the middle of the Tournament.
-      </p>
+      <>
+        <p className="mb-2">Each tournament uses a specific squad type — e.g. Authentic, Max, National, Club, or another announced type.</p>
+        <ul className="list-disc pl-5 my-1.5 space-y-1">
+          <li>Once a tournament starts with a squad type, it must be used for every match, start to finish.</li>
+          <li>Switching squad types mid-tournament is not allowed.</li>
+          <li>Playing with an unauthorized squad may be treated as a rule violation, with the Admin able to change the result, apply an Auto Loss, or issue another penalty.</li>
+        </ul>
+        <div className="mt-2.5 p-2.5 rounded-lg bg-amber-500/10 border border-amber-500/25 text-amber-200/90 text-[12.6px]">
+          Confirm the correct squad type with your opponent before starting a match.
+        </div>
+      </>
     ),
     contentBn: (
-      <p className="text-sm text-slate-300">
-        যে Tournament যে Squad Type দিয়ে শুরু হবে, সব ম্যাচে শুধুমাত্র সেই Squad Type ব্যবহার করতে হবে। Tournament-এর মাঝপথে Squad Type পরিবর্তন করা যাবে না।
-      </p>
+      <>
+        <p className="mb-2">প্রতিটি Tournament নির্দিষ্ট Squad Type অনুযায়ী হবে — Authentic, Max, National, Club বা অন্য কোনো ঘোষিত টাইপ।</p>
+        <ul className="list-disc pl-5 my-1.5 space-y-1">
+          <li>যে Squad দিয়ে Tournament শুরু হবে, শেষ পর্যন্ত সেটাই ব্যবহার করতে হবে।</li>
+          <li>মাঝপথে Squad Type পরিবর্তন করা যাবে না।</li>
+          <li>অনুমোদিত নয় এমন Squad ব্যবহার করলে তা Rule Violation, এবং Admin ফলাফল পরিবর্তন, Auto Loss বা অন্য শাস্তি দিতে পারেন।</li>
+        </ul>
+        <div className="mt-2.5 p-2.5 rounded-lg bg-amber-500/10 border border-amber-500/25 text-amber-200/90 text-[12.6px]">
+          ম্যাচ শুরুর আগে প্রতিপক্ষের সঙ্গে Squad Type নিশ্চিত করে নিন।
+        </div>
+      </>
+    )
+  },
+  {
+    id: "stats",
+    icon: BookOpen,
+    titleEn: "6. Website Progress & Statistics",
+    titleBn: "৬. ওয়েবসাইটে Progress ও Statistics",
+    contentEn: (
+      <>
+        <p className="mb-2">Results are updated on the official website after every match, so players can track:</p>
+        <div className="mb-2">
+          <span className="inline-block text-[11px] font-semibold text-emerald-300 bg-emerald-500/10 border border-emerald-500/25 px-2 py-0.5 rounded-md mr-1.5 mb-1">🏆 Wins</span>
+          <span className="inline-block text-[11px] font-semibold text-emerald-300 bg-emerald-500/10 border border-emerald-500/25 px-2 py-0.5 rounded-md mr-1.5 mb-1">🎮 Matches Played</span>
+          <span className="inline-block text-[11px] font-semibold text-emerald-300 bg-emerald-500/10 border border-emerald-500/25 px-2 py-0.5 rounded-md mr-1.5 mb-1">⚽ Goals</span>
+          <span className="inline-block text-[11px] font-semibold text-emerald-300 bg-emerald-500/10 border border-emerald-500/25 px-2 py-0.5 rounded-md mr-1.5 mb-1">📈 Other Stats</span>
+        </div>
+        <p className="mb-2">The Admin updates official results and statistics as needed.</p>
+      </>
+    ),
+    contentBn: (
+      <>
+        <p className="mb-2">প্রতিটি ম্যাচের পর ফলাফল ওয়েবসাইটে আপডেট হয়, যাতে দেখা যায়:</p>
+        <div className="mb-2">
+          <span className="inline-block text-[11px] font-semibold text-emerald-300 bg-emerald-500/10 border border-emerald-500/25 px-2 py-0.5 rounded-md mr-1.5 mb-1">🏆 Wins</span>
+          <span className="inline-block text-[11px] font-semibold text-emerald-300 bg-emerald-500/10 border border-emerald-500/25 px-2 py-0.5 rounded-md mr-1.5 mb-1">🎮 Matches Played</span>
+          <span className="inline-block text-[11px] font-semibold text-emerald-300 bg-emerald-500/10 border border-emerald-500/25 px-2 py-0.5 rounded-md mr-1.5 mb-1">⚽ Goals</span>
+          <span className="inline-block text-[11px] font-semibold text-emerald-300 bg-emerald-500/10 border border-emerald-500/25 px-2 py-0.5 rounded-md mr-1.5 mb-1">📈 Other Stats</span>
+        </div>
+        <p className="mb-2">প্রয়োজন অনুযায়ী Admin ফলাফল ও Statistics আপডেট করবেন।</p>
+      </>
     )
   },
   {
     id: "network",
     icon: Network,
-    titleEn: "6. Network Issues",
-    titleBn: "৬. Network Issue",
+    titleEn: "7. Network Issues During a Match",
+    titleBn: "৭. ম্যাচ চলাকালীন Network Issue",
     contentEn: (
-      <div className="space-y-2 text-sm text-slate-300">
-        <p>If a player faces a Network Issue during a match, they should record their screen and keep clear evidence. Without enough evidence, the Admin may reject the complaint.</p>
-        <p className="text-xs text-slate-400 italic">For Network Issue disputes, the Group Admin&apos;s decision will be final.</p>
-      </div>
+      <>
+        <p className="mb-2">If you hit a network issue mid-match, start a screen recording immediately and keep it as proof.</p>
+        <ul className="list-disc pl-5 my-1.5 space-y-1">
+          <li>Valid evidence is required — without it, the Admin may reject the complaint.</li>
+          <li>Both players&apos; recordings, match state, and activity are reviewed before a decision.</li>
+          <li>The Admin may allow the match to continue, request a replay, or decide the final result.</li>
+        </ul>
+        <div className="mt-2.5 p-2.5 rounded-lg bg-amber-500/10 border border-amber-500/25 text-amber-200/90 text-[12.6px]">
+          Fake complaints or misleading evidence about network issues are a serious rule violation. The Group Admin&apos;s decision is final.
+        </div>
+      </>
     ),
     contentBn: (
-      <div className="space-y-2 text-sm text-slate-300">
-        <p>Network Issue হলে যত দ্রুত সম্ভব Screen Record করে সমস্যার প্রমাণ সংরক্ষণ করতে হবে। পর্যাপ্ত প্রমাণ না থাকলে Admin অভিযোগ গ্রহণ নাও করতে পারেন।</p>
-        <p className="text-xs text-slate-400 italic">Network Issue সংক্রান্ত বিষয়ে Group Admin-এর সিদ্ধান্তই চূড়ান্ত।</p>
-      </div>
-    )
-  },
-  {
-    id: "fairplay",
-    icon: Gavel,
-    titleEn: "Final Notice: Fair Play",
-    titleBn: "চূড়ান্ত নোটিশ: FAIR PLAY",
-    contentEn: (
-      <div className="bg-primary/10 border border-primary/20 p-4 rounded-xl text-center">
-        <h4 className="font-bold text-primary mb-2">PLAY FAIR • PLAY HARD • RESPECT THE GAME</h4>
-        <p className="text-sm text-slate-300">Respect your opponent and communicate properly. For all GOLAZO HUB Tournament matters, the ADMIN&apos;S DECISION will be considered FINAL.</p>
-      </div>
-    ),
-    contentBn: (
-      <div className="bg-primary/10 border border-primary/20 p-4 rounded-xl text-center">
-        <h4 className="font-bold text-primary mb-2">PLAY FAIR • PLAY HARD • RESPECT THE GAME</h4>
-        <p className="text-sm text-slate-300">সকল খেলোয়াড়কে প্রতিপক্ষের প্রতি সম্মানজনক আচরণ করতে হবে। Tournament-এর ক্ষেত্রে ADMIN-এর সিদ্ধান্তই চূড়ান্ত বলে গণ্য হবে।</p>
-      </div>
+      <>
+        <p className="mb-2">ম্যাচ চলাকালীন Network Issue হলে সঙ্গে সঙ্গে Screen Record করে প্রমাণ রাখতে হবে।</p>
+        <ul className="list-disc pl-5 my-1.5 space-y-1">
+          <li>যথাযথ প্রমাণ ছাড়া Admin অভিযোগ গ্রহণ নাও করতে পারেন।</li>
+          <li>উভয় পক্ষের Record, Match Situation ও Activity পর্যালোচনা করা হবে।</li>
+          <li>Admin ম্যাচ Continue করা, Replay বা চূড়ান্ত ফলাফল নির্ধারণ করতে পারেন।</li>
+        </ul>
+        <div className="mt-2.5 p-2.5 rounded-lg bg-amber-500/10 border border-amber-500/25 text-amber-200/90 text-[12.6px]">
+          মিথ্যা অভিযোগ বা বিভ্রান্তিকর প্রমাণ গুরুতর Rule Violation। Group Admin-এর সিদ্ধান্তই চূড়ান্ত।
+        </div>
+      </>
     )
   }
 ];
+
+const finalNoticeData = {
+  titleEn: "Final Notice — Fair Play",
+  titleBn: "চূড়ান্ত নোটিশ — Fair Play",
+  contentEn: (
+    <>
+      <p className="mb-2">Help us keep GOLAZO HUB fair, friendly, and competitive.</p>
+      <ul className="list-disc pl-5 my-2 space-y-1">
+        <li>No proxy or cheating.</li>
+        <li>No fake or edited evidence.</li>
+        <li>Respect your opponent and communicate properly.</li>
+        <li>Follow the announced match format, squad rules, and deadlines.</li>
+        <li>Unsure about a rule? Ask the Admin before playing.</li>
+      </ul>
+      <p className="mb-3">Any rule violation may lead to a warning, Auto Loss, result change, ban, or another penalty depending on the situation.</p>
+      <div className="text-center mt-3 pt-3 border-t border-amber-500/25 font-heading font-bold text-[13px] text-amber-300">
+        👑 The Admin&apos;s decision is final on all GOLAZO HUB tournament matters.
+      </div>
+    </>
+  ),
+  contentBn: (
+    <>
+      <p className="mb-2">GOLAZO HUB-কে সুন্দর, বন্ধুত্বপূর্ণ ও প্রতিযোগিতামূলক রাখতে সবাই সহযোগিতা করুন।</p>
+      <ul className="list-disc pl-5 my-2 space-y-1">
+        <li>PROXY বা Cheating নয়।</li>
+        <li>ভুয়া বা এডিট করা প্রমাণ নয়।</li>
+        <li>প্রতিপক্ষকে সম্মান করুন ও ঠিকভাবে যোগাযোগ করুন।</li>
+        <li>নির্ধারিত Match Format, Squad Rule ও Deadline মেনে চলুন।</li>
+        <li>নিয়ম নিয়ে সন্দেহ থাকলে খেলার আগেই Admin-কে জিজ্ঞাসা করুন।</li>
+      </ul>
+      <p className="mb-3">কোনো Rule Violation-এর ক্ষেত্রে পরিস্থিতি অনুযায়ী Warning, Auto Loss, ফলাফল পরিবর্তন, Ban বা অন্য শাস্তি হতে পারে।</p>
+      <div className="text-center mt-3 pt-3 border-t border-amber-500/25 font-heading font-bold text-[13px] text-amber-300">
+        👑 GOLAZO HUB-এর সব বিষয়ে Admin-এর সিদ্ধান্তই চূড়ান্ত।
+      </div>
+    </>
+  )
+};
 
 function SegmentedControl({ lang, setLang }) {
   const options = [
@@ -320,8 +433,23 @@ export function TournamentRulesDrawer({ isOpen, onClose }) {
                 <RuleCard key={rule.id} rule={rule} lang={lang} delayIdx={idx} />
               ))}
               
+              {/* Final Notice */}
+              <motion.div 
+                initial={{ opacity: 0, y: 15 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: ruleData.length * 0.05 + 0.1, duration: 0.4 }}
+                className={`mt-4 p-4 sm:p-5 border border-amber-500/30 bg-gradient-to-b from-amber-500/10 to-amber-500/5 rounded-2xl shadow-lg shadow-amber-500/5 ${lang === 'bn' ? 'font-bn text-[14.5px]' : 'text-[13px]'}`}
+              >
+                <h3 className="font-heading text-[14.5px] font-bold text-amber-400 mb-3 flex items-center gap-2">
+                  ⚠️ {lang === 'en' ? finalNoticeData.titleEn : finalNoticeData.titleBn}
+                </h3>
+                <div className="text-amber-100/80 leading-relaxed">
+                  {lang === 'en' ? finalNoticeData.contentEn : finalNoticeData.contentBn}
+                </div>
+              </motion.div>
+
               <div className="py-8 text-center opacity-50">
-                <p className="text-xs font-bold tracking-widest uppercase">END OF RULEBOOK</p>
+                <p className="text-xs font-bold tracking-widest uppercase text-white/50">END OF RULEBOOK</p>
               </div>
             </div>
             
