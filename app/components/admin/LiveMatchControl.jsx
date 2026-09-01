@@ -542,9 +542,15 @@ function LiveControl({ state, onFinish, onTogglePause, onUndoStart }) {
       {/* Action Buttons — grid on mobile, row on desktop */}
       <div className="mt-2 sm:mt-8 z-50 relative pb-3 sm:pb-0">
         <div className="grid grid-cols-2 sm:flex sm:flex-row gap-2 sm:gap-3">
-          {canUndo && <ActionButton icon={RotateCcw} label="Undo Start" onClick={onUndoStart} variant="secondary" />}
-          <ActionButton icon={paused ? Play : Pause} label={paused ? "Resume" : "Pause"} onClick={onTogglePause} variant="secondary" />
-          <div className={`${canUndo ? 'col-span-2' : 'col-span-2'} sm:flex-1`}>
+          {canUndo && (
+            <div className="sm:flex-1">
+              <ActionButton icon={RotateCcw} label="Undo Start" onClick={onUndoStart} variant="secondary" />
+            </div>
+          )}
+          <div className="sm:flex-1">
+            <ActionButton icon={paused ? Play : Pause} label={paused ? "Resume" : "Pause"} onClick={onTogglePause} variant="secondary" />
+          </div>
+          <div className={`${canUndo ? 'col-span-2' : 'col-span-1'} sm:flex-1`}>
             <ActionButton icon={Square} label="Finish Match" onClick={() => setShowFinishConfirm(true)} variant="destructive" />
           </div>
         </div>
@@ -1213,7 +1219,7 @@ export default function LiveMatchControl({ matches, players, activeSeason, showT
           <div className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full max-w-lg max-h-[32rem] rounded-full blur-[100px] pointer-events-none transition-colors duration-1000 ${["extra_time", "shootout"].includes(phase) ? 'bg-gradient-to-br from-amber-500/10 to-rose-500/10 animate-pulse' : 'bg-emerald-500/[0.03]'}`} />
 
           {showDrawDecision && (
-            <div className="absolute inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-[#0a0c14]/90 backdrop-blur-sm rounded-b-2xl sm:rounded-b-3xl">
+            <div className="absolute inset-0 z-[70] flex items-center justify-center p-4 sm:p-6 bg-[#0a0c14]/90 backdrop-blur-sm rounded-b-2xl sm:rounded-b-3xl">
               <div className="bg-[#0d1117] border border-white/[0.08] rounded-2xl p-6 sm:p-8 w-full max-w-sm flex flex-col items-center text-center shadow-2xl">
                 <h2 className="text-2xl font-black text-white mb-2">Match is Level!</h2>
                 <p className="text-sm font-medium text-slate-400 mb-6">How would you like to resolve this match?</p>
