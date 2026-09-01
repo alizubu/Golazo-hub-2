@@ -34,7 +34,7 @@ const ruleData = [
       <div className="space-y-2 text-sm text-slate-300">
         <p>Both players are responsible for completing their match within the given Deadline. If a match is not completed, the Admin will review activity, communication, and effort to play.</p>
         <div className="bg-amber-500/10 border border-amber-500/20 p-3 rounded-lg mt-2 text-amber-200">
-          <strong>Important:</strong> Simply saying "we could not play" will not automatically make either player the winner.
+          <strong>Important:</strong> Simply saying &quot;we could not play&quot; will not automatically make either player the winner.
         </div>
       </div>
     ),
@@ -42,7 +42,7 @@ const ruleData = [
       <div className="space-y-2 text-sm text-slate-300">
         <p>নির্ধারিত Deadline-এর মধ্যেই ম্যাচ সম্পন্ন করতে হবে। ম্যাচ শেষ না হলে উভয় খেলোয়াড়ের Activity, যোগাযোগ এবং ম্যাচ সম্পন্ন করার প্রচেষ্টা বিবেচনা করে Admin সিদ্ধান্ত নেবেন।</p>
         <div className="bg-amber-500/10 border border-amber-500/20 p-3 rounded-lg mt-2 text-amber-200">
-          <strong>গুরুত্বপূর্ণ:</strong> শুধু "ম্যাচ খেলা হয়নি" বললেই কোনো পক্ষ স্বয়ংক্রিয়ভাবে জয়ী হবে না।
+          <strong>গুরুত্বপূর্ণ:</strong> শুধু &quot;ম্যাচ খেলা হয়নি&quot; বললেই কোনো পক্ষ স্বয়ংক্রিয়ভাবে জয়ী হবে না।
         </div>
       </div>
     )
@@ -113,7 +113,7 @@ const ruleData = [
     contentEn: (
       <div className="space-y-2 text-sm text-slate-300">
         <p>If a player faces a Network Issue during a match, they should record their screen and keep clear evidence. Without enough evidence, the Admin may reject the complaint.</p>
-        <p className="text-xs text-slate-400 italic">For Network Issue disputes, the Group Admin's decision will be final.</p>
+        <p className="text-xs text-slate-400 italic">For Network Issue disputes, the Group Admin&apos;s decision will be final.</p>
       </div>
     ),
     contentBn: (
@@ -131,7 +131,7 @@ const ruleData = [
     contentEn: (
       <div className="bg-primary/10 border border-primary/20 p-4 rounded-xl text-center">
         <h4 className="font-bold text-primary mb-2">PLAY FAIR • PLAY HARD • RESPECT THE GAME</h4>
-        <p className="text-sm text-slate-300">Respect your opponent and communicate properly. For all GOLAZO HUB Tournament matters, the ADMIN'S DECISION will be considered FINAL.</p>
+        <p className="text-sm text-slate-300">Respect your opponent and communicate properly. For all GOLAZO HUB Tournament matters, the ADMIN&apos;S DECISION will be considered FINAL.</p>
       </div>
     ),
     contentBn: (
