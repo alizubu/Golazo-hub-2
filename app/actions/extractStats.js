@@ -70,7 +70,7 @@ export async function extractMatchStats(formData) {
       for (let attempt = 0; attempt < 2; attempt++) {
         try {
           const response = await ai.models.generateContent({
-            model: "gemini-3.6-flash",
+            model: "gemini-3.8-flash",
             contents: [
               {
                 inlineData: {
@@ -99,8 +99,9 @@ export async function extractMatchStats(formData) {
               await new Promise(resolve => setTimeout(resolve, 2000)); // wait 2s before retrying same key
             }
           } else {
-            // Hard error (e.g., 400 Bad Request) - abort immediately
-            throw err;
+            // Hard error (e.g., 400 Bad Request, invalid key, or quota exceeded)
+            console.warn(`Gemini API Error with Key ${key.substring(0,4)}... : ${err.message}. Trying next key if available.`);
+            break; // break retry loop to try the next key
           }
         }
       }
