@@ -43,9 +43,24 @@ function PitchSVG({ className = '' }) {
           <stop offset="50%" stopColor="#0B1E12" stopOpacity="0.07" />
           <stop offset="100%" stopColor="#1F8A5C" stopOpacity="0.11" />
         </linearGradient>
+        <linearGradient id="radar-sweep" x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0%" stopColor="transparent" />
+          <stop offset="50%" stopColor="#29C179" stopOpacity="0.15" />
+          <stop offset="100%" stopColor="#29C179" stopOpacity="0.4" />
+        </linearGradient>
       </defs>
       {/* Turf fill */}
       <rect width="500" height="320" fill="url(#turf-base)" />
+      
+      {/* Holographic Radar Sweep */}
+      <motion.rect
+        y="0" width="100" height="320"
+        fill="url(#radar-sweep)"
+        initial={{ x: -150 }}
+        animate={{ x: 600 }}
+        transition={{ repeat: Infinity, duration: 6, ease: "linear" }}
+        style={{ mixBlendMode: "screen" }}
+      />
       
       {/* Outer boundary */}
       <motion.rect x="12" y="12" width="476" height="296" fill="none" stroke="#29C179" strokeWidth="1.5" filter="url(#pitch-glow)"
@@ -120,15 +135,24 @@ function FloatingPlayerCard({ player, posStyle, delay }) {
       }}
       whileHover={{ scale: 1.05, zIndex: 50, transition: { duration: 0.2 } }}
       style={posStyle}
-      className="absolute flex items-center gap-2.5 bg-black/20 bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl px-3 py-2.5 shadow-2xl shadow-black/50 cursor-default"
+      className="absolute flex items-center gap-2.5 bg-black/20 bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl px-3 py-2.5 shadow-2xl shadow-black/50 cursor-default group overflow-hidden"
     >
+      {/* Sweeping Shimmer Reflection */}
+      <motion.div
+        className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent skew-x-[-25deg] pointer-events-none"
+        initial={{ x: '-150%' }}
+        animate={{ x: '150%' }}
+        transition={{ repeat: Infinity, duration: 2.5, delay: delay + 2, repeatDelay: 4, ease: "easeInOut" }}
+      />
+      
       <motion.div
         animate={{ y: [0, -4, 0] }}
         transition={{ repeat: Infinity, duration: 3.5 + delay, ease: 'easeInOut', delay: delay * 0.5 }}
+        className="relative z-10"
       >
         <Avatar p={player} size={30} />
       </motion.div>
-      <div className="min-w-0">
+      <div className="min-w-0 relative z-10">
         <div className="text-foreground text-xs font-bold leading-tight truncate max-w-[84px]">
           {(player.name || player.username || '?').split(' ')[0]}
         </div>
@@ -225,9 +249,19 @@ function FloatingLabelInput({ label, id, type = 'text', value, onChange, onKeyDo
         {label}
       </label>
       {leftElement && (
-        <div className={`absolute left-3 top-1/2 -translate-y-1/2 z-10 transition-colors pointer-events-none ${focused ? 'text-pitch-bright' : 'text-muted-foreground'}`}>
+        <div className={`absolute left-3 top-1/2 -translate-y-1/2 z-20 transition-colors pointer-events-none ${focused ? 'text-pitch-bright' : 'text-muted-foreground'}`}>
           {leftElement}
         </div>
+      )}
+      {/* Animated Focus Glow */}
+      {focused && (
+        <motion.div
+          layoutId="input-focus-glow"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: [0.6, 1, 0.6] }}
+          transition={{ repeat: Infinity, duration: 2, ease: "easeInOut" }}
+          className="absolute inset-0 z-0 rounded-xl bg-pitch-bright/5 shadow-[0_0_20px_rgba(41,193,121,0.25)] pointer-events-none"
+        />
       )}
       <input
         id={id}
@@ -246,12 +280,12 @@ function FloatingLabelInput({ label, id, type = 'text', value, onChange, onKeyDo
         }}
         className={`
           w-full h-14 px-3 pt-6 pb-2 text-sm text-foreground rounded-xl border bg-black/5 bg-white/5
-          focus:outline-none focus:ring-1 focus:ring-pitch-bright/50 transition-all placeholder-transparent disabled:opacity-50
-          ${focused ? 'border-pitch-bright/60 bg-black/10 bg-white/[0.07] shadow-[0_0_15px_rgba(41,193,121,0.12)]' : 'border-border'}
+          relative z-10 focus:outline-none transition-all placeholder-transparent disabled:opacity-50
+          ${focused ? 'border-pitch-bright/60 bg-black/10 bg-white/[0.07]' : 'border-border'}
         `}
       />
       {rightElement && (
-        <div className="absolute right-3 top-1/2 -translate-y-1/2 z-10">{rightElement}</div>
+        <div className="absolute right-3 top-1/2 -translate-y-1/2 z-20">{rightElement}</div>
       )}
     </div>
   );
@@ -619,14 +653,28 @@ export default function AuthGate({ players = [], showToast }) {
                 <Trophy size={32} className="text-gold" />
               </div>
               <h1
-                className="font-heading font-black tracking-tight text-foreground leading-none mb-4"
-                style={{ fontSize: 'clamp(2.6rem,5vw,4rem)' }}
+                className="font-heading font-black tracking-tight leading-none mb-4"
+                style={{ 
+                  fontSize: 'clamp(2.6rem,5vw,4rem)',
+                  filter: 'drop-shadow(0px 10px 20px rgba(0,0,0,0.85)) drop-shadow(0px 4px 5px rgba(0,0,0,0.5))'
+                }}
               >
-                GOLAZO
+                <span className="text-foreground">GOLAZO</span>
                 <br />
-                <span style={{ color: '#29C179', textShadow: '0 0 45px rgba(41,193,121,0.45)' }}>
+                <motion.span
+                  animate={{ backgroundPosition: ["0% 50%", "200% 50%"] }}
+                  transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
+                  style={{
+                    backgroundImage: "linear-gradient(to right, #29C179, #8FEA9D, #1F8A5C, #29C179)",
+                    backgroundSize: "200% auto",
+                    WebkitBackgroundClip: "text",
+                    WebkitTextFillColor: "transparent",
+                    textShadow: "0 0 35px rgba(41,193,121,0.6)"
+                  }}
+                  className="inline-block"
+                >
                   HUB
-                </span>
+                </motion.span>
               </h1>
               <p className="text-base text-muted-foreground font-medium leading-relaxed max-w-sm mb-8">
                 Your crew&apos;s matchday headquarters. Track seasons, score live goals, and own the pitch.
@@ -676,7 +724,8 @@ export default function AuthGate({ players = [], showToast }) {
           {/* Top glow */}
           <div className="absolute top-0 left-0 right-0 h-64 bg-[radial-gradient(ellipse_at_50%_0%,rgba(31,138,92,0.08)_0%,transparent_70%)] pointer-events-none hidden block" />
 
-          <div className="w-full max-w-[380px] relative z-10 bg-black/20 bg-white/5 backdrop-blur-2xl border border-white/10 shadow-2xl rounded-3xl p-6 sm:p-8">
+          <div className="w-full max-w-[380px] relative z-10 bg-black/20 bg-white/5 backdrop-blur-2xl border border-white/10 shadow-[0_10px_40px_rgba(0,0,0,0.8)] rounded-3xl p-6 sm:p-8 overflow-hidden">
+            <BorderBeam size={150} duration={8} delay={0} colorFrom="#29C179" colorTo="transparent" />
             {/* Logo */}
             <motion.div
               initial={{ opacity: 0, y: -14 }}
@@ -762,7 +811,8 @@ export default function AuthGate({ players = [], showToast }) {
         <div className="relative flex-1 flex flex-col items-center px-5 pt-4 pb-10 z-20 bg-background bg-[#0D1118]">
 
 
-          <div className="w-full max-w-[360px] flex flex-col gap-6 bg-black/20 bg-white/5 backdrop-blur-2xl border border-white/10 rounded-3xl p-5 mt-4">
+          <div className="w-full max-w-[360px] flex flex-col gap-6 bg-black/20 bg-white/5 backdrop-blur-2xl border border-white/10 rounded-3xl p-5 mt-4 relative z-10 shadow-[0_10px_40px_rgba(0,0,0,0.8)] overflow-hidden">
+            <BorderBeam size={150} duration={8} delay={0} colorFrom="#29C179" colorTo="transparent" />
             {/* Tab toggle */}
             {mode !== 'admin' && (
               <TabToggle mode={mode} setMode={setMode} layoutId="mobile-tab-pill" />
