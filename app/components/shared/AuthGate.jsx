@@ -13,7 +13,16 @@ import { ShimmerButton } from '@/app/components/magicui/ShimmerButton';
 // ══════════════════════════════════════════════════════════════
 // PITCH SVG — top-down animated football pitch
 // ══════════════════════════════════════════════════════════════
+// ══════════════════════════════════════════════════════════════
+// PITCH SVG — top-down animated football pitch
+// ══════════════════════════════════════════════════════════════
 function PitchSVG({ className = '' }) {
+  const drawParams = {
+    initial: { pathLength: 0, opacity: 0 },
+    animate: { pathLength: 1, opacity: 0.22 },
+    transition: { duration: 2.5, ease: "easeInOut", delay: 0.2 }
+  };
+
   return (
     <svg
       viewBox="0 0 500 320"
@@ -37,38 +46,47 @@ function PitchSVG({ className = '' }) {
       </defs>
       {/* Turf fill */}
       <rect width="500" height="320" fill="url(#turf-base)" />
+      
       {/* Outer boundary */}
-      <rect x="12" y="12" width="476" height="296" fill="none" stroke="#29C179" strokeWidth="1.5" opacity="0.28" filter="url(#pitch-glow)" />
+      <motion.rect x="12" y="12" width="476" height="296" fill="none" stroke="#29C179" strokeWidth="1.5" filter="url(#pitch-glow)"
+        initial={{ pathLength: 0, opacity: 0 }}
+        animate={{ pathLength: 1, opacity: 0.28 }}
+        transition={{ duration: 3, ease: "easeOut" }}
+      />
       {/* Center line */}
-      <line x1="250" y1="12" x2="250" y2="308" stroke="#29C179" strokeWidth="1" opacity="0.22" />
+      <motion.line x1="250" y1="12" x2="250" y2="308" stroke="#29C179" strokeWidth="1" {...drawParams} />
       {/* Center circle */}
-      <circle cx="250" cy="160" r="52" fill="none" stroke="#29C179" strokeWidth="1" opacity="0.22" />
+      <motion.circle cx="250" cy="160" r="52" fill="none" stroke="#29C179" strokeWidth="1" {...drawParams} />
       {/* Center spot */}
-      <circle cx="250" cy="160" r="3" fill="#29C179" opacity="0.8">
-        <animate attributeName="opacity" values="0.8; 0.2; 0.8" dur="4s" repeatCount="indefinite" />
-        <animate attributeName="r" values="3; 7; 3" dur="4s" repeatCount="indefinite" />
-      </circle>
+      <motion.circle cx="250" cy="160" r="3" fill="#29C179"
+        initial={{ opacity: 0, scale: 0 }}
+        animate={{ opacity: [0.8, 0.2, 0.8], scale: [1, 1.5, 1] }}
+        transition={{ opacity: { repeat: Infinity, duration: 4 }, scale: { repeat: Infinity, duration: 4 }, delay: 1 }}
+      />
+      
       {/* Left penalty area */}
-      <rect x="12" y="95" width="80" height="130" fill="none" stroke="#29C179" strokeWidth="1" opacity="0.22" />
+      <motion.rect x="12" y="95" width="80" height="130" fill="none" stroke="#29C179" strokeWidth="1" {...drawParams} />
       {/* Left 6-yard box */}
-      <rect x="12" y="123" width="28" height="74" fill="none" stroke="#29C179" strokeWidth="1" opacity="0.18" />
+      <motion.rect x="12" y="123" width="28" height="74" fill="none" stroke="#29C179" strokeWidth="1" initial={{ pathLength: 0, opacity: 0 }} animate={{ pathLength: 1, opacity: 0.18 }} transition={{ duration: 2, delay: 0.5 }} />
       {/* Left penalty spot */}
-      <circle cx="75" cy="160" r="2.5" fill="#29C179" opacity="0.38" />
+      <motion.circle cx="75" cy="160" r="2.5" fill="#29C179" initial={{ opacity: 0 }} animate={{ opacity: 0.38 }} transition={{ delay: 1.5 }} />
       {/* Left penalty arc */}
-      <path d="M92,118 A52,52 0 0,1 92,202" fill="none" stroke="#29C179" strokeWidth="1" opacity="0.18" />
+      <motion.path d="M92,118 A52,52 0 0,1 92,202" fill="none" stroke="#29C179" strokeWidth="1" initial={{ pathLength: 0, opacity: 0 }} animate={{ pathLength: 1, opacity: 0.18 }} transition={{ duration: 2, delay: 0.8 }} />
+      
       {/* Right penalty area */}
-      <rect x="408" y="95" width="80" height="130" fill="none" stroke="#29C179" strokeWidth="1" opacity="0.22" />
+      <motion.rect x="408" y="95" width="80" height="130" fill="none" stroke="#29C179" strokeWidth="1" {...drawParams} />
       {/* Right 6-yard box */}
-      <rect x="460" y="123" width="28" height="74" fill="none" stroke="#29C179" strokeWidth="1" opacity="0.18" />
+      <motion.rect x="460" y="123" width="28" height="74" fill="none" stroke="#29C179" strokeWidth="1" initial={{ pathLength: 0, opacity: 0 }} animate={{ pathLength: 1, opacity: 0.18 }} transition={{ duration: 2, delay: 0.5 }} />
       {/* Right penalty spot */}
-      <circle cx="425" cy="160" r="2.5" fill="#29C179" opacity="0.38" />
+      <motion.circle cx="425" cy="160" r="2.5" fill="#29C179" initial={{ opacity: 0 }} animate={{ opacity: 0.38 }} transition={{ delay: 1.5 }} />
       {/* Right penalty arc */}
-      <path d="M408,118 A52,52 0 0,0 408,202" fill="none" stroke="#29C179" strokeWidth="1" opacity="0.18" />
+      <motion.path d="M408,118 A52,52 0 0,0 408,202" fill="none" stroke="#29C179" strokeWidth="1" initial={{ pathLength: 0, opacity: 0 }} animate={{ pathLength: 1, opacity: 0.18 }} transition={{ duration: 2, delay: 0.8 }} />
+      
       {/* Corner arcs */}
-      <path d="M12,24 A12,12 0 0,1 24,12" fill="none" stroke="#29C179" strokeWidth="1" opacity="0.18" />
-      <path d="M476,12 A12,12 0 0,1 488,24" fill="none" stroke="#29C179" strokeWidth="1" opacity="0.18" />
-      <path d="M12,296 A12,12 0 0,0 24,308" fill="none" stroke="#29C179" strokeWidth="1" opacity="0.18" />
-      <path d="M476,308 A12,12 0 0,0 488,296" fill="none" stroke="#29C179" strokeWidth="1" opacity="0.18" />
+      <motion.path d="M12,24 A12,12 0 0,1 24,12" fill="none" stroke="#29C179" strokeWidth="1" initial={{ pathLength: 0, opacity: 0 }} animate={{ pathLength: 1, opacity: 0.18 }} transition={{ duration: 1.5, delay: 1 }} />
+      <motion.path d="M476,12 A12,12 0 0,1 488,24" fill="none" stroke="#29C179" strokeWidth="1" initial={{ pathLength: 0, opacity: 0 }} animate={{ pathLength: 1, opacity: 0.18 }} transition={{ duration: 1.5, delay: 1 }} />
+      <motion.path d="M12,296 A12,12 0 0,0 24,308" fill="none" stroke="#29C179" strokeWidth="1" initial={{ pathLength: 0, opacity: 0 }} animate={{ pathLength: 1, opacity: 0.18 }} transition={{ duration: 1.5, delay: 1 }} />
+      <motion.path d="M476,308 A12,12 0 0,0 488,296" fill="none" stroke="#29C179" strokeWidth="1" initial={{ pathLength: 0, opacity: 0 }} animate={{ pathLength: 1, opacity: 0.18 }} transition={{ duration: 1.5, delay: 1 }} />
     </svg>
   );
 }
@@ -88,13 +106,24 @@ function FloatingPlayerCard({ player, posStyle, delay }) {
   return (
     <motion.div
       initial={{ opacity: 0, scale: 0.8, y: 20 }}
-      animate={{ opacity: 1, scale: 1, y: 0 }}
-      transition={{ delay, duration: 0.65, type: 'spring', bounce: 0.3 }}
+      animate={{ 
+        opacity: 1, 
+        scale: 1, 
+        y: [0, -10, 0],
+        x: [0, 5, -5, 0]
+      }}
+      transition={{ 
+        opacity: { delay, duration: 0.65 },
+        scale: { delay, duration: 0.65, type: 'spring', bounce: 0.3 },
+        y: { repeat: Infinity, duration: 4.5 + delay, ease: 'easeInOut' },
+        x: { repeat: Infinity, duration: 6 + delay, ease: 'easeInOut' }
+      }}
+      whileHover={{ scale: 1.05, zIndex: 50, transition: { duration: 0.2 } }}
       style={posStyle}
-      className="absolute flex items-center gap-2.5 bg-black/5 bg-white/5 backdrop-blur-md border border-border rounded-2xl px-3 py-2.5 shadow-xl select-none pointer-events-none"
+      className="absolute flex items-center gap-2.5 bg-black/20 bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl px-3 py-2.5 shadow-2xl shadow-black/50 cursor-default"
     >
       <motion.div
-        animate={{ y: [0, -6, 0] }}
+        animate={{ y: [0, -4, 0] }}
         transition={{ repeat: Infinity, duration: 3.5 + delay, ease: 'easeInOut', delay: delay * 0.5 }}
       >
         <Avatar p={player} size={30} />
@@ -144,7 +173,8 @@ function HoldToReveal({ onReveal }) {
   useEffect(() => () => { if (rafRef.current) cancelAnimationFrame(rafRef.current); }, []);
 
   return (
-    <button
+    <motion.button
+      whileTap={{ scale: 0.95 }}
       onMouseDown={start} onMouseUp={cancel} onMouseLeave={cancel}
       onTouchStart={(e) => { e.preventDefault(); start(); }}
       onTouchEnd={cancel} onTouchCancel={cancel}
@@ -165,7 +195,7 @@ function HoldToReveal({ onReveal }) {
         <Lock size={8} className="relative z-10 opacity-60 group-hover:opacity-90 transition-opacity" />
       </div>
       {holding ? `Keep holding… ${Math.ceil((1 - progress) * 3)}s` : 'Admin access'}
-    </button>
+    </motion.button>
   );
 }
 
@@ -249,26 +279,39 @@ function SignInForm({ players, onPlayerLogin }) {
 
   return (
     <motion.div animate={err ? { x: [-5, 5, -4, 4, 0] } : {}} transition={{ duration: 0.35 }}>
-      <form onSubmit={submit} className="space-y-4">
+      <motion.form 
+        onSubmit={submit} 
+        className="space-y-4"
+        initial="hidden"
+        animate="show"
+        variants={{
+          hidden: { opacity: 0 },
+          show: { opacity: 1, transition: { staggerChildren: 0.08 } }
+        }}
+      >
         {players.length === 0 && (
-          <div className="text-xs text-muted-foreground/60 p-3 bg-black/5 bg-white/5 rounded-xl border border-border border-white/10 text-center">
+          <motion.div variants={{ hidden: { opacity: 0, y: 10 }, show: { opacity: 1, y: 0 } }} className="text-xs text-muted-foreground/60 p-3 bg-black/5 bg-white/5 rounded-xl border border-border border-white/10 text-center">
             No accounts yet — be the first to sign up!
-          </div>
+          </motion.div>
         )}
-        <FloatingLabelInput id="si-email" label="Username or email" value={id}
-          onChange={(e) => setId(e.target.value)} autoComplete="username" disabled={busy}
-          leftElement={<User size={18} />} />
-        <FloatingLabelInput id="si-pwd" label="Password"
-          type={showPwd ? 'text' : 'password'} value={pwd}
-          onChange={(e) => setPwd(e.target.value)}
-          autoComplete="current-password" disabled={busy}
-          leftElement={<Lock size={18} />}
-          rightElement={
-            <button type="button" onClick={() => setShowPwd(!showPwd)} className="text-muted-foreground hover:text-foreground transition-colors">
-              {showPwd ? <EyeOff size={15} /> : <Eye size={15} />}
-            </button>
-          }
-        />
+        <motion.div variants={{ hidden: { opacity: 0, y: 10 }, show: { opacity: 1, y: 0 } }}>
+          <FloatingLabelInput id="si-email" label="Username or email" value={id}
+            onChange={(e) => setId(e.target.value)} autoComplete="username" disabled={busy}
+            leftElement={<User size={18} />} />
+        </motion.div>
+        <motion.div variants={{ hidden: { opacity: 0, y: 10 }, show: { opacity: 1, y: 0 } }}>
+          <FloatingLabelInput id="si-pwd" label="Password"
+            type={showPwd ? 'text' : 'password'} value={pwd}
+            onChange={(e) => setPwd(e.target.value)}
+            autoComplete="current-password" disabled={busy}
+            leftElement={<Lock size={18} />}
+            rightElement={
+              <button type="button" onClick={() => setShowPwd(!showPwd)} className="text-muted-foreground hover:text-foreground transition-colors">
+                {showPwd ? <EyeOff size={15} /> : <Eye size={15} />}
+              </button>
+            }
+          />
+        </motion.div>
         <AnimatePresence>
           {err && (
             <motion.p initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
@@ -277,16 +320,18 @@ function SignInForm({ players, onPlayerLogin }) {
             </motion.p>
           )}
         </AnimatePresence>
-        <div className="pt-1">
-          <ShimmerButton type="submit" disabled={busy}
-            className="w-full h-12 font-bold shadow-lg shadow-pitch/25 disabled:opacity-60"
-            shimmerColor="#ffffff40" background="#1F8A5C">
-            {busy
-              ? <span className="flex items-center gap-2"><Loader2 size={15} className="animate-spin" /> Signing in…</span>
-              : <span className="flex items-center gap-2"><User size={15} /> Sign In</span>}
-          </ShimmerButton>
-        </div>
-      </form>
+        <motion.div variants={{ hidden: { opacity: 0, y: 10 }, show: { opacity: 1, y: 0 } }} className="pt-1">
+          <motion.div whileTap={{ scale: 0.98 }}>
+            <ShimmerButton type="submit" disabled={busy}
+              className="w-full h-12 font-bold shadow-lg shadow-pitch/25 disabled:opacity-60"
+              shimmerColor="#ffffff40" background="#1F8A5C">
+              {busy
+                ? <span className="flex items-center gap-2"><Loader2 size={15} className="animate-spin" /> Signing in…</span>
+                : <span className="flex items-center gap-2"><User size={15} /> Sign In</span>}
+            </ShimmerButton>
+          </motion.div>
+        </motion.div>
+      </motion.form>
     </motion.div>
   );
 }
@@ -323,17 +368,32 @@ function SignUpForm({ showToast, onPlayerLogin }) {
 
   return (
     <motion.div animate={err ? { x: [-5, 5, -4, 4, 0] } : {}} transition={{ duration: 0.35 }}>
-      <form onSubmit={submit} className="space-y-3">
-        <FloatingLabelInput id="su-name" label="Display Name" value={form.name}
-          onChange={(e) => set('name', e.target.value)} autoComplete="name" disabled={busy}
-          leftElement={<User size={18} />} />
-        <FloatingLabelInput id="su-user" label="@Username" value={form.username}
-          onChange={(e) => set('username', e.target.value)} autoComplete="username" disabled={busy}
-          leftElement={<User size={18} />} />
-        <FloatingLabelInput id="su-email" label="Email address" type="email" value={form.email}
-          onChange={(e) => set('email', e.target.value)} autoComplete="email" disabled={busy}
-          leftElement={<Mail size={18} />} />
-        <div className="grid grid-cols-2 gap-3">
+      <motion.form 
+        onSubmit={submit} 
+        className="space-y-3"
+        initial="hidden"
+        animate="show"
+        variants={{
+          hidden: { opacity: 0 },
+          show: { opacity: 1, transition: { staggerChildren: 0.06 } }
+        }}
+      >
+        <motion.div variants={{ hidden: { opacity: 0, y: 10 }, show: { opacity: 1, y: 0 } }}>
+          <FloatingLabelInput id="su-name" label="Display Name" value={form.name}
+            onChange={(e) => set('name', e.target.value)} autoComplete="name" disabled={busy}
+            leftElement={<User size={18} />} />
+        </motion.div>
+        <motion.div variants={{ hidden: { opacity: 0, y: 10 }, show: { opacity: 1, y: 0 } }}>
+          <FloatingLabelInput id="su-user" label="@Username" value={form.username}
+            onChange={(e) => set('username', e.target.value)} autoComplete="username" disabled={busy}
+            leftElement={<User size={18} />} />
+        </motion.div>
+        <motion.div variants={{ hidden: { opacity: 0, y: 10 }, show: { opacity: 1, y: 0 } }}>
+          <FloatingLabelInput id="su-email" label="Email address" type="email" value={form.email}
+            onChange={(e) => set('email', e.target.value)} autoComplete="email" disabled={busy}
+            leftElement={<Mail size={18} />} />
+        </motion.div>
+        <motion.div variants={{ hidden: { opacity: 0, y: 10 }, show: { opacity: 1, y: 0 } }} className="grid grid-cols-2 gap-3">
           <FloatingLabelInput id="su-pwd" label="Password"
             type={showPwd ? 'text' : 'password'} value={form.password}
             onChange={(e) => set('password', e.target.value)} autoComplete="new-password" disabled={busy}
@@ -343,10 +403,12 @@ function SignUpForm({ showToast, onPlayerLogin }) {
             onChange={(e) => set('confirm', e.target.value)}
             leftElement={<Lock size={18} />}
             rightElement={eyeBtn} autoComplete="new-password" disabled={busy} />
-        </div>
-        <FloatingLabelInput id="su-invite" label="128-bit Access Key (Hex)" value={form.inviteCode}
-          onChange={(e) => set('inviteCode', e.target.value)} disabled={busy}
-          leftElement={<Lock size={18} className="text-amber-500" />} />
+        </motion.div>
+        <motion.div variants={{ hidden: { opacity: 0, y: 10 }, show: { opacity: 1, y: 0 } }}>
+          <FloatingLabelInput id="su-invite" label="128-bit Access Key (Hex)" value={form.inviteCode}
+            onChange={(e) => set('inviteCode', e.target.value)} disabled={busy}
+            leftElement={<Lock size={18} className="text-amber-500" />} />
+        </motion.div>
         <AnimatePresence>
           {err && (
             <motion.p initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
@@ -355,19 +417,21 @@ function SignUpForm({ showToast, onPlayerLogin }) {
             </motion.p>
           )}
         </AnimatePresence>
-        <p className="text-[10px] text-muted-foreground/50 text-center px-2">
+        <motion.p variants={{ hidden: { opacity: 0 }, show: { opacity: 1 } }} className="text-[10px] text-muted-foreground/50 text-center px-2">
           Avatar, flag & club crest can be set after sign-up in your Profile.
-        </p>
-        <div className="pt-1">
-          <ShimmerButton type="submit" disabled={busy}
-            className="w-full h-12 font-bold shadow-lg disabled:opacity-60"
-            shimmerColor="#ffffff40" background="#1F8A5C">
-            {busy
-              ? <span className="flex items-center gap-2"><Loader2 size={15} className="animate-spin" /> Creating account…</span>
-              : <span className="flex items-center gap-2"><UserPlus size={15} /> Create Account</span>}
-          </ShimmerButton>
-        </div>
-      </form>
+        </motion.p>
+        <motion.div variants={{ hidden: { opacity: 0, y: 10 }, show: { opacity: 1, y: 0 } }} className="pt-1">
+          <motion.div whileTap={{ scale: 0.98 }}>
+            <ShimmerButton type="submit" disabled={busy}
+              className="w-full h-12 font-bold shadow-lg disabled:opacity-60"
+              shimmerColor="#ffffff40" background="#1F8A5C">
+              {busy
+                ? <span className="flex items-center gap-2"><Loader2 size={15} className="animate-spin" /> Creating account…</span>
+                : <span className="flex items-center gap-2"><UserPlus size={15} /> Create Account</span>}
+            </ShimmerButton>
+          </motion.div>
+        </motion.div>
+      </motion.form>
     </motion.div>
   );
 }
@@ -398,7 +462,10 @@ function AdminLoginForm({ onAdminLogin, onBack }) {
   return (
     <motion.div animate={err ? { x: [-5, 5, -4, 4, 0] } : {}} transition={{ duration: 0.35 }}>
       {/* Admin badge header */}
-      <div className="flex flex-col items-center mb-6">
+      <motion.div 
+        initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.4 }}
+        className="flex flex-col items-center mb-6"
+      >
         <div className="relative w-14 h-14 rounded-2xl flex items-center justify-center mb-3"
           style={{ background: 'rgba(217,169,59,0.1)', border: '1px solid rgba(217,169,59,0.22)' }}>
           <span className="absolute inset-0 rounded-2xl animate-ping" style={{ background: 'rgba(217,169,59,0.08)', animationDuration: '2s' }} />
@@ -406,26 +473,39 @@ function AdminLoginForm({ onAdminLogin, onBack }) {
         </div>
         <h3 className="text-[15px] font-bold text-foreground tracking-tight">Admin Console</h3>
         <p className="text-xs text-muted-foreground/55 mt-0.5 text-center">Restricted — authorized personnel only</p>
-      </div>
-      <form onSubmit={submit} className="space-y-4">
-        <FloatingLabelInput id="admin-user" label="Username"
-          type="text" value={username}
-          onChange={(e) => setUsername(e.target.value)}
-          onKeyDown={(e) => e.key === 'Enter' && submit()}
-          autoComplete="username" disabled={busy}
-          leftElement={<User size={18} />}
-        />
-        <FloatingLabelInput id="admin-pwd" label="Master Password"
-          type={showPwd ? 'text' : 'password'} value={pwd}
-          onChange={(e) => setPwd(e.target.value)}
-          autoComplete="current-password" disabled={busy}
-          leftElement={<Lock size={18} />}
-          rightElement={
-            <button type="button" onClick={() => setShowPwd(!showPwd)} className="text-muted-foreground hover:text-foreground transition-colors">
-              {showPwd ? <EyeOff size={15} /> : <Eye size={15} />}
-            </button>
-          }
-        />
+      </motion.div>
+      <motion.form 
+        onSubmit={submit} 
+        className="space-y-4"
+        initial="hidden"
+        animate="show"
+        variants={{
+          hidden: { opacity: 0 },
+          show: { opacity: 1, transition: { staggerChildren: 0.08, delayChildren: 0.1 } }
+        }}
+      >
+        <motion.div variants={{ hidden: { opacity: 0, y: 10 }, show: { opacity: 1, y: 0 } }}>
+          <FloatingLabelInput id="admin-user" label="Username"
+            type="text" value={username}
+            onChange={(e) => setUsername(e.target.value)}
+            onKeyDown={(e) => e.key === 'Enter' && submit()}
+            autoComplete="username" disabled={busy}
+            leftElement={<User size={18} />}
+          />
+        </motion.div>
+        <motion.div variants={{ hidden: { opacity: 0, y: 10 }, show: { opacity: 1, y: 0 } }}>
+          <FloatingLabelInput id="admin-pwd" label="Master Password"
+            type={showPwd ? 'text' : 'password'} value={pwd}
+            onChange={(e) => setPwd(e.target.value)}
+            autoComplete="current-password" disabled={busy}
+            leftElement={<Lock size={18} />}
+            rightElement={
+              <button type="button" onClick={() => setShowPwd(!showPwd)} className="text-muted-foreground hover:text-foreground transition-colors">
+                {showPwd ? <EyeOff size={15} /> : <Eye size={15} />}
+              </button>
+            }
+          />
+        </motion.div>
         <AnimatePresence>
           {err && (
             <motion.p initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
@@ -434,14 +514,18 @@ function AdminLoginForm({ onAdminLogin, onBack }) {
             </motion.p>
           )}
         </AnimatePresence>
-        <ShimmerButton type="submit" disabled={busy}
-          className="w-full h-12 font-bold shadow-lg disabled:opacity-60"
-          shimmerColor="#ffffff40" background="#D9A93B">
-          {busy
-            ? <span className="flex items-center gap-2 text-black"><Loader2 size={15} className="animate-spin" /> Verifying…</span>
-            : <span className="flex items-center gap-2 text-black"><Lock size={15} /> Enter Console</span>}
-        </ShimmerButton>
-      </form>
+        <motion.div variants={{ hidden: { opacity: 0, y: 10 }, show: { opacity: 1, y: 0 } }}>
+          <motion.div whileTap={{ scale: 0.98 }}>
+            <ShimmerButton type="submit" disabled={busy}
+              className="w-full h-12 font-bold shadow-lg disabled:opacity-60"
+              shimmerColor="#ffffff40" background="#D9A93B">
+              {busy
+                ? <span className="flex items-center gap-2 text-black"><Loader2 size={15} className="animate-spin" /> Verifying…</span>
+                : <span className="flex items-center gap-2 text-black"><Lock size={15} /> Enter Console</span>}
+            </ShimmerButton>
+          </motion.div>
+        </motion.div>
+      </motion.form>
       <motion.button
         whileHover={{ x: -2 }}
         onClick={onBack}
@@ -576,19 +660,28 @@ export default function AuthGate({ players = [], showToast }) {
           <div className="absolute top-0 bottom-0 right-0 w-32 bg-gradient-to-l from-background from-[#0D1118] to-transparent pointer-events-none z-20" />
         </div>
 
-        {/* ─── RIGHT PANEL: Auth form ─── */}
-        <div className="relative flex flex-col items-center justify-center bg-background bg-[#0D1118] px-8 lg:px-10 xl:px-14 py-12 overflow-auto">
+        <div 
+          className="relative flex flex-col items-center justify-center bg-background bg-[#0D1118] px-8 lg:px-10 xl:px-14 py-12 overflow-hidden group"
+          onMouseMove={(e) => {
+            const rect = e.currentTarget.getBoundingClientRect();
+            e.currentTarget.style.setProperty('--x', `${e.clientX - rect.left}px`);
+            e.currentTarget.style.setProperty('--y', `${e.clientY - rect.top}px`);
+          }}
+        >
+          {/* Mouse spotlight effect */}
+          <div className="pointer-events-none absolute inset-0 z-0 transition-opacity duration-300 opacity-0 group-hover:opacity-100 hidden md:block">
+            <div className="absolute inset-0 bg-[radial-gradient(circle_400px_at_var(--x,50%)_var(--y,50%),rgba(41,193,121,0.06),transparent_80%)]" />
+          </div>
+
           {/* Top glow */}
           <div className="absolute top-0 left-0 right-0 h-64 bg-[radial-gradient(ellipse_at_50%_0%,rgba(31,138,92,0.08)_0%,transparent_70%)] pointer-events-none hidden block" />
 
-
-
-          <div className="w-full max-w-[380px] relative z-10 bg-card bg-transparent backdrop-blur-sm border border-border border-none shadow-2xl shadow-none rounded-3xl p-6 sm:p-8">
+          <div className="w-full max-w-[380px] relative z-10 bg-black/20 bg-white/5 backdrop-blur-2xl border border-white/10 shadow-2xl rounded-3xl p-6 sm:p-8">
             {/* Logo */}
             <motion.div
               initial={{ opacity: 0, y: -14 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5 }}
+              transition={{ duration: 0.5, ease: "easeOut" }}
               className="text-center mb-8"
             >
               <AnimatedGradientText>
@@ -611,7 +704,7 @@ export default function AuthGate({ players = [], showToast }) {
               )}
             </AnimatePresence>
 
-            {/* Form area (no card wrapper on desktop — clean panel) */}
+            {/* Form area */}
             <AnimatePresence mode="wait">
               <motion.div
                 key={mode}
@@ -669,7 +762,7 @@ export default function AuthGate({ players = [], showToast }) {
         <div className="relative flex-1 flex flex-col items-center px-5 pt-4 pb-10 z-20 bg-background bg-[#0D1118]">
 
 
-          <div className="w-full max-w-[360px] flex flex-col gap-6 bg-card bg-transparent border border-border border-none shadow-none rounded-3xl p-5 mt-4">
+          <div className="w-full max-w-[360px] flex flex-col gap-6 bg-black/20 bg-white/5 backdrop-blur-2xl border border-white/10 rounded-3xl p-5 mt-4">
             {/* Tab toggle */}
             {mode !== 'admin' && (
               <TabToggle mode={mode} setMode={setMode} layoutId="mobile-tab-pill" />
